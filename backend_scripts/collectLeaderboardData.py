@@ -25,7 +25,7 @@ per_hour_limiter = AsyncLimiter(29500, 3600)
 QUEUE_MAXSIZE = 1000
 GHA_TIMEOUT = 180#5 * 3600 + 1800 # 5 and a half hours
 cancel_event = asyncio.Event()
-global_backoff = 1.0
+global_backoff = 0
 GLOBAL_DECAY = 0.75
 
 
@@ -101,7 +101,7 @@ async def fetch_json(
 
                 
                 if global_backoff > 0:
-                    global_backoff = max(global_backoff * GLOBAL_DECAY, 1.0)
+                    global_backoff = max(global_backoff * GLOBAL_DECAY, 0.0)
                 return data
 
         except ClientResponseError as e:
