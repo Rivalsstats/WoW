@@ -7,6 +7,7 @@ import csv
 from pathlib import Path
 from aiohttp import ClientSession, ClientTimeout, BasicAuth
 from aiolimiter import AsyncLimiter
+import random
 
 # Configuration
 REGIONS = os.environ.get('REGIONS', 'us,eu,kr,tw').split(',')
@@ -64,13 +65,26 @@ async def get_access_token(session: ClientSession, region: str) -> str:
         _token_cache[region] = {'access_token': token, 'expires_at': time.time() + expires}
         return token
 
-async def fetch_json(session: ClientSession, url: str, params: dict, region: str):
+
+async def fetch_json(session, url, params, region, retries=3):
     token = await get_access_token(session, region)
     headers = {'Authorization': f'Bearer {token}'}
-    async with per_second_limiter, per_hour_limiter:
-        async with session.get(url, params=params, headers=headers) as resp:
-            resp.raise_for_status()
-            return await resp.json()
+    backoff = 1.0
+    for attempt in range(1, retries + 1):
+        async with per_second_limiter, per_hour_limiter:
+            try:
+                async with session.get(url, params=params, headers=headers) as resp:
+                    resp.raise_for_status()
+                    return await resp.json()
+            except ClientResponseError as e:
+                if e.status == 429 and attempt < retries:
+                    # read Retry-After header if Blizzard gives one, else randomize a bit
+                    ra = resp.headers.get('Retry-After')
+                    wait = float(ra) if ra else backoff + random.random()
+                    await asyncio.sleep(wait)
+                    backoff *= 2
+                    continue
+                raise
 
 # Data fetchers (same as before)
 async def get_connected_realms(session: ClientSession, region: str) -> list[int]:
@@ -173,17 +187,26 @@ async def process_run(session: ClientSession, region: str, period_id: int, realm
             (spec_dir / f'{profile_hash}.json').write_text(json.dumps(spec_data))
 
 async def worker(name: str, queue: asyncio.Queue, session: ClientSession):
-    while not cancel_event.is_set():
-        region, period_id, realm_id, dungeon = await asyncio.wait_for(queue.get(), timeout=1)
-        try:
-            await process_run(session, region, period_id, realm_id, dungeon)
-        except asyncio.TimeoutError:
-            # no item for 1s, re-check cancel_event
-            continue
-        except Exception as e:
-            print(f"[{name}] Error: {e}")
-        finally:
-            queue.task_done()
+    try:
+        while True:
+            try:
+                region, period_id, realm_id, dungeon = await asyncio.wait_for(queue.get(), timeout=1)
+            except asyncio.TimeoutError:
+                # No work this second — re‐check for cancellation
+                if cancel_event.is_set():
+                    break
+                continue
+
+            try:
+                await process_run(session, region, period_id, realm_id, dungeon)
+            except Exception as e:
+                print(f"[{name}] Error: {e}")
+            finally:
+                queue.task_done()
+
+    except asyncio.CancelledError:
+        # clean‐up if needed
+        return
 
 async def main():
     timeout = ClientTimeout(total=600)
@@ -199,10 +222,8 @@ async def main():
                     dungeons = await get_leaderboard_index(session, region, realm)
                     for dungeon in dungeons:
                         await queue.put((region, period, realm, dungeon))
-        try:
-            await queue.join()
-        except asyncio.TimeoutError:
-            print("GitHub Action timeout reached, exiting gracefully.")
+                        
+        await queue.join()
         for w in workers:
             w.cancel()
         await asyncio.gather(*workers, return_exceptions=True)
