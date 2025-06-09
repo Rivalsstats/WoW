@@ -184,12 +184,12 @@ async def process_run(session: ClientSession, region: str, period_id: int, realm
             writer = csv.writer(f)
             writer.writerow(['hash', 'dungeon_id', 'keystone_level', 'duration', 'timestamp', 'faction', 'members'])
     # seen
-    seen_file = RUNS_DIR / str(realm_id) / f"{period_id}.json"
+    seen_file = RUNS_DIR /region/ str(realm_id) / f"{period_id}.json"
     if seen_file.exists():
         seen = json.loads(seen_file.read_text())
     else:
         seen = []
-        
+
     ensure_dir(seen_file.parent)
 
     seen = json.loads(seen_file.read_text()) if seen_file.exists() else []
