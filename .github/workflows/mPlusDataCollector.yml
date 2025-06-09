@@ -31,7 +31,7 @@ jobs:
 
       - name: Run data collector
         run: |
-          python backend_scripts\data_collector.py
+          python backend_scripts/data_collector.py
 
       - name: Commit & split per–realm branches (via worktrees)
         shell: bash
