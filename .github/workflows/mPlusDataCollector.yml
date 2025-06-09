@@ -87,10 +87,17 @@ jobs:
                 rm -rf "$WT_DIR"
                 
                 # Try to create from existing branch, else from main
-                if git show-ref --verify --quiet "refs/remotes/origin/$branch"; then
+                if git show-ref --verify --quiet "refs/heads/$branch"; then
+                  # local branch already exists
+                  git worktree add --force "$WT_DIR" "$branch"
+                elif git show-ref --verify --quiet "refs/remotes/origin/$branch"; then
+                  # remote branch exists but no local copy
                   git worktree add --force "$WT_DIR" "origin/$branch"
                 else
+                  # brand-new branch: create locally
                   git worktree add --force -b "$branch" "$WT_DIR" "$BASE"
+                  # immediately push the empty branch so origin/$branch will exist next time
+                  ( cd "$WT_DIR" && git push --set-upstream origin HEAD:"$branch" )
                 fi
                 
                 # In the worktree, remove old data and copy only this folder
