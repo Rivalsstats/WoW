@@ -32,6 +32,21 @@ jobs:
       - name: Run data collector
         run: |
           python backend_scripts/collectLeaderboardData.py
+      
+      - name: Commit runs history to main
+        shell: bash
+        run: |
+          git config user.name  "github-actions"
+          git config user.email "github-actions@github.com"
+          # stage only our master‐branch–owned "seen" state
+          git add data/runs
+          if ! git diff --cached --quiet; then
+            git commit -m "Update seen‐runs history"
+            git push origin HEAD:main
+          else
+            echo "No changes to data/runs"
+          fi
+
 
       - name: Commit & split per–realm branches (via worktrees)
         shell: bash
@@ -46,40 +61,42 @@ jobs:
           # Prune stale worktrees first
           git worktree prune
           
-          # For each data/<region>/<realm> folder:
-          find data -mindepth 2 -maxdepth 2 -type d | while read realm_path; do
-            region=$(basename $(dirname "$realm_path"))
-            realm=$(basename "$realm_path")
-            branch="${region}-${realm}"
-            WT_DIR="${ROOT}/.wt-${branch}"
-            
-            echo "→ Updating branch $branch from $realm_path"
-            
-            # Clean up any old worktree
-            rm -rf "$WT_DIR"
-            
-            # Try to create from existing branch, else from main
-            if git show-ref --verify --quiet "refs/remotes/origin/$branch"; then
-              git worktree add --force "$WT_DIR" "origin/$branch"
-            else
-              git worktree add --force -b "$branch" "$WT_DIR" "$BASE"
-            fi
-            
-            # In the worktree, remove old data and copy only this folder
-            pushd "$WT_DIR" >/dev/null
-              git rm -rf data || true
-              mkdir -p "$(dirname "$realm_path")"
-              cp -r "$ROOT/$realm_path" "$realm_path"
-              git add "$realm_path"
+          # For each realm folder under each region (exclude data/runs)
+          for region in $(echo $REGIONS | tr ',' ' '); do
+            find data/$region -mindepth 1 -maxdepth 1 -type d | while read realm_path; do
+              region=$(basename $(dirname "$realm_path"))
+              realm=$(basename "$realm_path")
+              branch="${region}-${realm}"
+              WT_DIR="${ROOT}/.wt-${branch}"
               
-              if ! git diff --cached --quiet; then
-                git commit -m "Update M+ data for $branch"
-                git push --force-with-lease origin "$branch"
+              echo "→ Updating branch $branch from $realm_path"
+              
+              # Clean up any old worktree
+              rm -rf "$WT_DIR"
+              
+              # Try to create from existing branch, else from main
+              if git show-ref --verify --quiet "refs/remotes/origin/$branch"; then
+                git worktree add --force "$WT_DIR" "origin/$branch"
               else
-                echo "No changes for $branch"
+                git worktree add --force -b "$branch" "$WT_DIR" "$BASE"
               fi
-            popd >/dev/null
-            
-            # Tear down the worktree
-            git worktree remove --force "$WT_DIR"
+              
+              # In the worktree, remove old data and copy only this folder
+              pushd "$WT_DIR" >/dev/null
+                git rm -rf data || true
+                mkdir -p "$(dirname "$realm_path")"
+                cp -r "$ROOT/$realm_path" "$realm_path"
+                git add "$realm_path"
+                
+                if ! git diff --cached --quiet; then
+                  git commit -m "Update M+ data for $branch"
+                  git push --force-with-lease origin "$branch"
+                else
+                  echo "No changes for $branch"
+                fi
+              popd >/dev/null
+              
+              # Tear down the worktree
+              git worktree remove --force "$WT_DIR"
+            done
           done

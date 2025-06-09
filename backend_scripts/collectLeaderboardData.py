@@ -16,6 +16,7 @@ OAUTH_BASE = 'https://{region}.battle.net'
 NAMESPACE_DYNAMIC = 'dynamic-{region}'
 LOCALE = os.environ.get('LOCALE', 'en_US')
 DATA_DIR = Path('data')
+RUNS_DIR = DATA_DIR / 'runs'
 
 # Rate limits
 per_second_limiter = AsyncLimiter(95, 1)
@@ -174,7 +175,7 @@ async def process_run(session: ClientSession, region: str, period_id: int, realm
     lb = await get_leaderboard(session, region, realm_id, dungeon['dungeon_id'], period_id)
     if lb is None:
         return
-    period_dir = DATA_DIR / region / str(period_id)
+    period_dir = DATA_DIR / region / str(realm_id)/ str(period_id)
     ensure_dir(period_dir)
     # runs.csv setup
     runs_csv = period_dir / 'runs.csv'
@@ -183,7 +184,7 @@ async def process_run(session: ClientSession, region: str, period_id: int, realm
             writer = csv.writer(f)
             writer.writerow(['hash', 'dungeon_id', 'keystone_level', 'duration', 'timestamp', 'faction', 'members'])
     # seen
-    seen_file = period_dir / 'seen_runs.json'
+    seen_file = RUNS_DIR / str(realm_id) / f"{period_id}.json"
     seen = json.loads(seen_file.read_text()) if seen_file.exists() else []
 
     for group in lb.get('leading_groups', []):
