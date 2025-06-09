@@ -26,7 +26,9 @@ per_hour_limiter = AsyncLimiter(29500, 3600)
 QUEUE_MAXSIZE = 1000
 GHA_TIMEOUT = 180#5 * 3600 + 1800 # 5 and a half hours
 cancel_event = asyncio.Event()
+MAX_GLOBAL_BACKOFF = 60.0    
 global_backoff = 0
+backoff_lock = asyncio.Lock()
 GLOBAL_DECAY = 0.75
 
 
@@ -102,7 +104,8 @@ async def fetch_json(
 
                 
                 if global_backoff > 0:
-                    global_backoff = max(global_backoff * GLOBAL_DECAY, 0.0)
+                    async with backoff_lock:
+                        global_backoff = max(global_backoff * GLOBAL_DECAY, 0.0)
                 return data
 
         except ClientResponseError as e:
@@ -112,15 +115,18 @@ async def fetch_json(
                 wait = float(ra) if ra else local_backoff + random.random()
                 print(f"[429] {url} — retrying in {wait:.1f}s (attempt {attempt}/{retries})")
                 await asyncio.sleep(wait)
-                local_backoff *= 2
+                local_backoff = min(local_backoff * 2, MAX_GLOBAL_BACKOFF)
                 continue
 
             if e.status == 429:
                 
                 if global_backoff < local_backoff:
-                    global_backoff = local_backoff
+                    async with backoff_lock:
+                        global_backoff = local_backoff
                 else:
-                    global_backoff *= 2
+                    async with backoff_lock:
+                        global_backoff = min(global_backoff* 2,MAX_GLOBAL_BACKOFF)
+                
                 print(f"[429-GIVEUP] {url} — setting global backoff to {global_backoff:.1f}s")
                 return None
             
