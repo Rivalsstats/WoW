@@ -3,7 +3,7 @@ name: WoW M+ Data Collector
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 * * * *'  # every hour
+    - cron: '0 */6 * * *'  # every 6 hours
 
 jobs:
   collect-data:
@@ -30,7 +30,7 @@ jobs:
       - name: Run data collector
         run: |
           python backend_scripts\data_collector.py
-          
+
       - name: Commit and push changes
         run: |
           set -e  # Exit script on any command failure

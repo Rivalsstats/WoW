@@ -22,7 +22,7 @@ per_hour_limiter = AsyncLimiter(29500, 3600)
 
 # Queue settings
 QUEUE_MAXSIZE = 1000
-GHA_TIMEOUT = 5 * 3600  # 5 hours
+GHA_TIMEOUT = 5 * 3600 + 1800 # 5 and a half hours
 
 
 # Blizzard OAuth
