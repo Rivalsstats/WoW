@@ -18,7 +18,7 @@ LOCALE = os.environ.get('LOCALE', 'en_US')
 DATA_DIR = Path('data')
 
 # Rate limits
-per_second_limiter = AsyncLimiter(950, 1)
+per_second_limiter = AsyncLimiter(95, 1)
 per_hour_limiter = AsyncLimiter(29500, 3600)
 
 # Queue settings
