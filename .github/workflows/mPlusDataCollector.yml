@@ -49,10 +49,13 @@ jobs:
         run: |
           git config user.name  "github-actions"
           git config user.email "github-actions@github.com"
-          # stage only our master‐branch–owned "seen" state
           git add data/runs
           if ! git diff --cached --quiet; then
             git commit -m "Update seen‐runs history"
+            # bring in any new commits from origin/main
+            git fetch origin main
+            git rebase origin/main
+            # now push our rebased change
             git push origin HEAD:main
           else
             echo "No changes to data/runs"
