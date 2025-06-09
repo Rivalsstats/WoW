@@ -3,6 +3,7 @@ import json
 import asyncio
 import hashlib
 import time
+import datetime
 import csv
 from pathlib import Path
 from aiohttp import ClientSession, ClientTimeout, BasicAuth, ClientResponseError
@@ -81,7 +82,7 @@ async def fetch_json(
 
     
     if global_backoff > 0:
-        print(f"[GLOBAL BACKOFF] sleeping {global_backoff:.1f}s before request")
+        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] [GLOBAL BACKOFF] sleeping {global_backoff:.1f}s before request")
         await asyncio.sleep(global_backoff)
 
     
@@ -113,7 +114,7 @@ async def fetch_json(
             if e.status == 429 and attempt < retries:
                 ra = e.headers.get('Retry-After')
                 wait = float(ra) if ra else local_backoff + random.random()
-                print(f"[429] {url} — retrying in {wait:.1f}s (attempt {attempt}/{retries})")
+                print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] [429] {url} — retrying in {wait:.1f}s (attempt {attempt}/{retries})")
                 await asyncio.sleep(wait)
                 local_backoff = min(local_backoff * 2, MAX_GLOBAL_BACKOFF)
                 continue
@@ -127,7 +128,7 @@ async def fetch_json(
                     async with backoff_lock:
                         global_backoff = min(global_backoff* 2,MAX_GLOBAL_BACKOFF)
                 
-                print(f"[429-GIVEUP] {url} — setting global backoff to {global_backoff:.1f}s")
+                print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] [429-GIVEUP] {url} — setting global backoff to {global_backoff:.1f}s")
                 return None
             
             raise
@@ -249,7 +250,7 @@ async def process_run(session: ClientSession, region: str, period_id: int, realm
             ensure_dir(spec_dir)
             spec_data = await get_specializations(session, region, realm_slug, name)
             (spec_dir / f'{profile_hash}.json').write_text(json.dumps(spec_data))
-        print(f"Processed run {run_hash} for {region} - Period: {period_id}, Realm: {realm_id}, Dungeon: {dungeon['name']}")
+        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Processed run {run_hash} for {region} - Period: {period_id}, Realm: {realm_id}, Dungeon: {dungeon['name']}")
 
 async def worker(name: str, queue: asyncio.Queue, session: ClientSession):
     try:
@@ -265,7 +266,7 @@ async def worker(name: str, queue: asyncio.Queue, session: ClientSession):
             try:
                 await process_run(session, region, period_id, realm_id, dungeon)
             except Exception as e:
-                print(f"[{name}] Error: {e}")
+                print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] [{name}] Error: {e}")
             finally:
                 queue.task_done()
 
@@ -280,22 +281,22 @@ async def main():
         for region in REGIONS:
             current_season = await get_current_season_id(session, region)
             if current_season is None:
-                print(f"{region} – no season data, skipping")
+                print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] {region} – no season data, skipping")
                 continue
-            print(f"{region} - Current Season ID: {current_season}")
+            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] {region} - Current Season ID: {current_season}")
             periods = await get_season_periods(session, region, current_season)
             if not periods:
-                print(f"{region} – no periods, skipping")
+                print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] {region} – no periods, skipping")
                 continue
             print(f"{region} - Periods: {periods}")
             realms = await get_connected_realms(session, region)
             if not realms:
-                print(f"{region} – no realms, skipping")
+                print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] {region} – no realms, skipping")
                 continue
             print(f"{region} - Realms: {realms}")
             for period in periods:
                 for realm in realms:
-                    print(f"Enqueuing {region} - Period: {period}, Realm: {realm}")
+                    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Enqueuing {region} - Period: {period}, Realm: {realm}")
                     dungeons = await get_leaderboard_index(session, region, realm)
                     for dungeon in dungeons:
                         await queue.put((region, period, realm, dungeon))
@@ -311,6 +312,6 @@ if __name__ == '__main__':
             asyncio.wait_for(main(), timeout=GHA_TIMEOUT)
         )
     except asyncio.TimeoutError:
-        print(f"⏱️ {GHA_TIMEOUT}s elapsed — canceling all tasks…")
+        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}]  {GHA_TIMEOUT}s elapsed — canceling all tasks…")
         # set the flag (in case any workers are mid-queue.get)
         cancel_event.set()
