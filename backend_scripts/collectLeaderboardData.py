@@ -66,28 +66,47 @@ async def get_access_token(session: ClientSession, region: str) -> str:
         return token
 
 
-async def fetch_json(session, url, params, region, retries=3):
+async def fetch_json(session: ClientSession, url: str, params: dict, region: str, retries: int = 3):
+    """
+    Fetch JSON with:
+     - Blizzard rate-limits (per_second_limiter, per_hour_limiter)
+     - retries on 429 with exponential backoff
+     - logs & returns None on final 429
+    """
     token = await get_access_token(session, region)
     headers = {'Authorization': f'Bearer {token}'}
     backoff = 1.0
 
     for attempt in range(1, retries + 1):
-        async with per_second_limiter, per_hour_limiter:
-            try:
-                async with session.get(url, params=params, headers=headers) as resp:
-                    resp.raise_for_status()
-                    return await resp.json()
+        # acquire both limiters before firing the request
+        await per_second_limiter.acquire()
+        await per_hour_limiter.acquire()
 
-            except ClientResponseError as e:
-                # only retry on 429
-                if e.status == 429 and attempt < retries:
-                    ra = e.headers.get('Retry-After')
-                    wait = float(ra) if ra else backoff + random.random()
-                    await asyncio.sleep(wait)
-                    backoff *= 2
-                    continue
-                raise
+        try:
+            async with session.get(url, params=params, headers=headers) as resp:
+                resp.raise_for_status()
+                return await resp.json()
 
+        except ClientResponseError as e:
+            if e.status == 429 and attempt < retries:
+                # pick up Retry-After if Blizzard sent it, else do our backoff+random jitter
+                ra = e.headers.get('Retry-After')
+                wait = float(ra) if ra else backoff + random.random()
+                print(f"[429] {url} — retrying in {wait:.1f}s (attempt {attempt}/{retries})")
+                await asyncio.sleep(wait)
+                backoff *= 2
+                continue
+
+            if e.status == 429:
+                # final give-up on 429
+                print(f"[429] {url} — giving up after {attempt}/{retries} attempts")
+                return None
+
+            # not a 429 or out of retries — re-raise
+            raise
+
+    # if we somehow exit the loop without returning
+    return None
 
 # Data fetchers (same as before)
 async def get_connected_realms(session: ClientSession, region: str) -> list[int]:
@@ -135,6 +154,8 @@ async def get_specializations(session: ClientSession, region: str, realm_slug: s
 # Worker logic
 async def process_run(session: ClientSession, region: str, period_id: int, realm_id: int, dungeon: dict):
     lb = await get_leaderboard(session, region, realm_id, dungeon['dungeon_id'], period_id)
+    if lb is None:
+        return
     period_dir = DATA_DIR / region / str(period_id)
     ensure_dir(period_dir)
     # runs.csv setup
@@ -209,7 +230,6 @@ async def worker(name: str, queue: asyncio.Queue, session: ClientSession):
                 queue.task_done()
 
     except asyncio.CancelledError:
-        # clean‐up if needed
         return
 
 async def main():
