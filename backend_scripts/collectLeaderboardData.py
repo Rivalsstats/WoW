@@ -25,7 +25,8 @@ per_hour_limiter = AsyncLimiter(29500, 3600)
 QUEUE_MAXSIZE = 1000
 GHA_TIMEOUT = 180#5 * 3600 + 1800 # 5 and a half hours
 cancel_event = asyncio.Event()
-
+global_backoff = 1.0
+GLOBAL_DECAY = 0.75
 
 
 # Blizzard OAuth
@@ -66,49 +67,66 @@ async def get_access_token(session: ClientSession, region: str) -> str:
         return token
 
 
-async def fetch_json(session: ClientSession, url: str, params: dict, region: str, retries: int = 3):
-    """
-    Fetch JSON with:
-     - Blizzard rate-limits (per_second_limiter, per_hour_limiter)
-     - retries on 429 with exponential backoff
-     - logs & returns None on final 429
-    """
+async def fetch_json(
+    session: ClientSession,
+    url: str,
+    params: dict,
+    region: str,
+    retries: int = 3
+) -> dict | None:
+    global global_backoff
+
+    
+    if global_backoff > 0:
+        print(f"[GLOBAL BACKOFF] sleeping {global_backoff:.1f}s before request")
+        await asyncio.sleep(global_backoff)
+
+    
     token = await get_access_token(session, region)
     headers = {'Authorization': f'Bearer {token}'}
-    backoff = 1.0
+
+    
+    local_backoff = 1.0
 
     for attempt in range(1, retries + 1):
-        # acquire both limiters before firing the request
+        
         await per_second_limiter.acquire()
         await per_hour_limiter.acquire()
 
         try:
+            
             async with session.get(url, params=params, headers=headers) as resp:
                 resp.raise_for_status()
-                return await resp.json()
+                data = await resp.json()
+
+                
+                if global_backoff > 0:
+                    global_backoff = max(global_backoff * GLOBAL_DECAY, 1.0)
+                return data
 
         except ClientResponseError as e:
+            
             if e.status == 429 and attempt < retries:
-                # pick up Retry-After if Blizzard sent it, else do our backoff+random jitter
                 ra = e.headers.get('Retry-After')
-                wait = float(ra) if ra else backoff + random.random()
+                wait = float(ra) if ra else local_backoff + random.random()
                 print(f"[429] {url} — retrying in {wait:.1f}s (attempt {attempt}/{retries})")
                 await asyncio.sleep(wait)
-                backoff *= 2
+                local_backoff *= 2
                 continue
 
             if e.status == 429:
-                # final give-up on 429
-                print(f"[429] {url} — giving up after {attempt}/{retries} attempts")
+                
+                if global_backoff < local_backoff:
+                    global_backoff = local_backoff
+                else:
+                    global_backoff *= 2
+                print(f"[429-GIVEUP] {url} — setting global backoff to {global_backoff:.1f}s")
                 return None
-
-            # not a 429 or out of retries — re-raise
+            
             raise
 
-    # if we somehow exit the loop without returning
     return None
 
-# Data fetchers (same as before)
 async def get_connected_realms(session: ClientSession, region: str) -> list[int]:
     url = f"{API_BASE.format(region=region)}/data/wow/connected-realm/index"
     params = {'namespace': NAMESPACE_DYNAMIC.format(region=region), 'locale': LOCALE}
