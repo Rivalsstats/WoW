@@ -1,0 +1,61 @@
+name: WoW M+ Data Collector
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 * * * *'  # every hour
+
+jobs:
+  collect-data:
+    runs-on: ubuntu-latest
+
+    env:
+      BLIZ_CLIENT_ID: ${{ secrets.BLIZ_CLIENT_ID }}
+      BLIZ_CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
+      REGIONS: 'us,eu,kr,tw'
+      LOCALE: 'en_US'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install aiohttp aiolimiter asyncio
+
+      - name: Run data collector
+        run: |
+          python backend_scripts\data_collector.py
+          
+      - name: Commit and push changes
+        run: |
+          set -e  # Exit script on any command failure
+      
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git config pull.rebase true  # Rebase
+      
+          git add data/
+          
+          # Commit only if there are changes
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Updated Leaderboard data"
+          fi
+      
+          # Pull latest changes, fail only on actual errors
+          if ! git pull --rebase; then
+            echo "Error during git pull" >&2
+            exit 1
+          fi
+      
+          # Push changes, fail if there's an actual error
+          if ! git push; then
+            echo "Error during git push" >&2
+            exit 1
+          fi
