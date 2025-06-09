@@ -33,7 +33,7 @@ jobs:
         run: |
           python backend_scripts\data_collector.py
 
-            - name: Commit & split per–realm branches (via worktrees)
+      - name: Commit & split per–realm branches (via worktrees)
         shell: bash
         run: |
           set -euo pipefail
