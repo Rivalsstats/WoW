@@ -78,26 +78,27 @@ async def fetch_json(
     region: str,
     retries: int = 3
 ) -> dict | None:
+    """
+    Retry up to `retries` times on 429, but always honor one shared global backoff.
+    """
     global global_backoff_until
-
-    # 1) If we're still in a global backoff period, wait exactly until it expires
-    now = time.time()
-    if now < global_backoff_until:
-        wait = global_backoff_until - now
-        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] [GLOBAL BACKOFF] sleeping {wait:.1f}s before request")
-        await asyncio.sleep(wait)
-
-    
     token = await get_access_token(session, region)
     headers = {'Authorization': f'Bearer {token}'}
-
     
-    local_backoff = 1.0
-
     for attempt in range(1, retries + 1):
         
+        now = time.time()
+        if now < global_backoff_until:
+            wait = global_backoff_until - now
+            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] "
+                  f"[GLOBAL BACKOFF] sleeping {wait:.1f}s before attempt {attempt}/{retries}")
+            await asyncio.sleep(wait)
+
+       
         await per_second_limiter.acquire()
         await per_hour_limiter.acquire()
+
+    
 
         try:
             async with session.get(url, params=params, headers=headers) as resp:
@@ -105,28 +106,34 @@ async def fetch_json(
                 return await resp.json()
 
         except ClientResponseError as e:
-            # 3) Retry-After case
-            if e.status == 429 and attempt < retries:
-                ra = e.headers.get('Retry-After')
-                wait = float(ra) if ra else local_backoff + random.random()
-                print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] [429] {url} — retrying in {wait:.1f}s (attempt {attempt}/{retries})")
-                await asyncio.sleep(wait)
-                local_backoff = min((local_backoff + 1) * 2, MAX_GLOBAL_BACKOFF)
-                continue
-
-            # 4) Final 429 => set global_backoff_until and give up
             if e.status == 429:
-                expiry = time.time() + local_backoff
+                # determine how long to back off: use Retry-After if given, else MAX_GLOBAL_BACKOFF
+                ra = e.headers.get('Retry-After')
+                backoff = float(ra) if ra else MAX_GLOBAL_BACKOFF
+
+                # set global backoff expiry
+                expiry = time.time() + backoff
                 async with backoff_lock:
                     global_backoff_until = max(global_backoff_until, expiry)
-                until_iso = datetime.datetime.fromtimestamp(global_backoff_until, datetime.timezone.utc).isoformat()
-                print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] [429-GIVEUP] {url} — global backoff until {until_iso}")
+
+                until_iso = datetime.datetime.fromtimestamp(
+                    global_backoff_until, datetime.timezone.utc
+                ).isoformat()
+                print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] "
+                      f"[429] {url} — global backoff until {until_iso} (attempt {attempt}/{retries})")
+
+                # if we still have retries left, loop again (which will sleep until expiry)
+                if attempt < retries:
+                    continue
+
+                # out of retries
                 return None
 
-            # Other HTTP errors bubble up
+            # any other status -> bubble up
             raise
 
     return None
+
 
 async def get_connected_realms(session: ClientSession, region: str) -> list[int]:
     url = f"{API_BASE.format(region=region)}/data/wow/connected-realm/index"
