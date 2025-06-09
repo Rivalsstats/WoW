@@ -132,24 +132,32 @@ async def get_connected_realms(session: ClientSession, region: str) -> list[int]
     url = f"{API_BASE.format(region=region)}/data/wow/connected-realm/index"
     params = {'namespace': NAMESPACE_DYNAMIC.format(region=region), 'locale': LOCALE}
     data = await fetch_json(session, url, params, region)
+    if not data or 'connected_realms' not in data:
+        return []
     return [int(r['href'].split('/')[-1].split('?')[0]) for r in data['connected_realms']]
 
 async def get_current_season_id(session: ClientSession, region: str) -> int:
     url = f"{API_BASE.format(region=region)}/data/wow/mythic-keystone/season/index"
     params = {'namespace': NAMESPACE_DYNAMIC.format(region=region), 'locale': LOCALE}
     data = await fetch_json(session, url, params, region)
+    if not data or not data.get('seasons'):
+        return None
     return max(s['id'] for s in data['seasons'])
 
 async def get_season_periods(session: ClientSession, region: str, season_id: int) -> list[int]:
     url = f"{API_BASE.format(region=region)}/data/wow/mythic-keystone/season/{season_id}"
     params = {'namespace': NAMESPACE_DYNAMIC.format(region=region), 'locale': LOCALE}
     data = await fetch_json(session, url, params, region)
+    if not data or 'periods' not in data:
+        return []
     return [p['id'] for p in data['periods']]
 
 async def get_leaderboard_index(session: ClientSession, region: str, realm_id: int) -> list[dict]:
     url = f"{API_BASE.format(region=region)}/data/wow/connected-realm/{realm_id}/mythic-leaderboard/index"
     params = {'namespace': NAMESPACE_DYNAMIC.format(region=region), 'locale': LOCALE}
     data = await fetch_json(session, url, params, region)
+    if not data or 'current_leaderboards' not in data:
+        return []
     return [{'dungeon_id': lb['id'], 'name': lb['name']} for lb in data['current_leaderboards']]
 
 async def get_leaderboard(session: ClientSession, region: str, realm_id: int, dungeon_id: int, period_id: int) -> dict:
@@ -265,10 +273,19 @@ async def main():
         workers = [asyncio.create_task(worker(f"w{i}", queue, session)) for i in range(20)]
         for region in REGIONS:
             current_season = await get_current_season_id(session, region)
+            if current_season is None:
+                print(f"{region} – no season data, skipping")
+                continue
             print(f"{region} - Current Season ID: {current_season}")
             periods = await get_season_periods(session, region, current_season)
+            if not periods:
+                print(f"{region} – no periods, skipping")
+                continue
             print(f"{region} - Periods: {periods}")
             realms = await get_connected_realms(session, region)
+            if not realms:
+                print(f"{region} – no realms, skipping")
+                continue
             print(f"{region} - Realms: {realms}")
             for period in periods:
                 for realm in realms:
