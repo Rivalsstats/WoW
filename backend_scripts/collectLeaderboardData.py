@@ -25,13 +25,13 @@ per_hour_limiter = AsyncLimiter(29500, 3600)
 
 # Queue settings
 QUEUE_MAXSIZE = 1000
-GHA_TIMEOUT = 5 * 3600 + 1800 # 5 and a half hours
+GHA_TIMEOUT = 5 * 3600 + 1800  # 5 and a half hours
 cancel_event = asyncio.Event()
-MAX_GLOBAL_BACKOFF = 60.0    
-global_backoff = 0
-backoff_lock = asyncio.Lock()
-GLOBAL_DECAY = 0.75
+MAX_GLOBAL_BACKOFF = 60.0
 
+# global_backoff_until is a POSIX timestamp; workers wait until time.time() >= this
+global_backoff_until = 0.0
+backoff_lock = asyncio.Lock()
 
 # Blizzard OAuth
 CLIENT_ID = os.getenv('BLIZ_CLIENT_ID')
@@ -78,12 +78,14 @@ async def fetch_json(
     region: str,
     retries: int = 3
 ) -> dict | None:
-    global global_backoff
+    global global_backoff_until
 
-    
-    if global_backoff > 0:
-        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] [GLOBAL BACKOFF] sleeping {global_backoff:.1f}s before request")
-        await asyncio.sleep(global_backoff)
+    # 1) If we're still in a global backoff period, wait exactly until it expires
+    now = time.time()
+    if now < global_backoff_until:
+        wait = global_backoff_until - now
+        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] [GLOBAL BACKOFF] sleeping {wait:.1f}s before request")
+        await asyncio.sleep(wait)
 
     
     token = await get_access_token(session, region)
@@ -98,39 +100,30 @@ async def fetch_json(
         await per_hour_limiter.acquire()
 
         try:
-            
             async with session.get(url, params=params, headers=headers) as resp:
                 resp.raise_for_status()
-                data = await resp.json()
-
-                
-                if global_backoff > 0:
-                    async with backoff_lock:
-                        global_backoff = max(global_backoff * GLOBAL_DECAY, 0.0)
-                return data
+                return await resp.json()
 
         except ClientResponseError as e:
-            
+            # 3) Retry-After case
             if e.status == 429 and attempt < retries:
                 ra = e.headers.get('Retry-After')
                 wait = float(ra) if ra else local_backoff + random.random()
                 print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] [429] {url} — retrying in {wait:.1f}s (attempt {attempt}/{retries})")
                 await asyncio.sleep(wait)
-                local_backoff = min((local_backoff+1) * 2, MAX_GLOBAL_BACKOFF)
+                local_backoff = min((local_backoff + 1) * 2, MAX_GLOBAL_BACKOFF)
                 continue
 
+            # 4) Final 429 => set global_backoff_until and give up
             if e.status == 429:
-                
-                if global_backoff < local_backoff:
-                    async with backoff_lock:
-                        global_backoff = local_backoff
-                else:
-                    async with backoff_lock:
-                        global_backoff = min((global_backoff+1) * 2,MAX_GLOBAL_BACKOFF)
-                
-                print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] [429-GIVEUP] {url} — setting global backoff to {global_backoff:.1f}s")
+                expiry = time.time() + local_backoff
+                async with backoff_lock:
+                    global_backoff_until = max(global_backoff_until, expiry)
+                until_iso = datetime.datetime.fromtimestamp(global_backoff_until, datetime.timezone.utc).isoformat()
+                print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] [429-GIVEUP] {url} — global backoff until {until_iso}")
                 return None
-            
+
+            # Other HTTP errors bubble up
             raise
 
     return None
