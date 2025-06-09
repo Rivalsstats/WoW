@@ -5,7 +5,7 @@ import hashlib
 import time
 import csv
 from pathlib import Path
-from aiohttp import ClientSession, ClientTimeout, BasicAuth
+from aiohttp import ClientSession, ClientTimeout, BasicAuth, ClientResponseError
 from aiolimiter import AsyncLimiter
 import random
 
@@ -70,21 +70,24 @@ async def fetch_json(session, url, params, region, retries=3):
     token = await get_access_token(session, region)
     headers = {'Authorization': f'Bearer {token}'}
     backoff = 1.0
+
     for attempt in range(1, retries + 1):
         async with per_second_limiter, per_hour_limiter:
             try:
                 async with session.get(url, params=params, headers=headers) as resp:
                     resp.raise_for_status()
                     return await resp.json()
+
             except ClientResponseError as e:
+                # only retry on 429
                 if e.status == 429 and attempt < retries:
-                    # read Retry-After header if Blizzard gives one, else randomize a bit
-                    ra = resp.headers.get('Retry-After')
+                    ra = e.headers.get('Retry-After')
                     wait = float(ra) if ra else backoff + random.random()
                     await asyncio.sleep(wait)
                     backoff *= 2
                     continue
                 raise
+
 
 # Data fetchers (same as before)
 async def get_connected_realms(session: ClientSession, region: str) -> list[int]:
@@ -185,6 +188,7 @@ async def process_run(session: ClientSession, region: str, period_id: int, realm
             ensure_dir(spec_dir)
             spec_data = await get_specializations(session, region, realm_slug, name)
             (spec_dir / f'{profile_hash}.json').write_text(json.dumps(spec_data))
+        print(f"Processed run {run_hash} for {region} - Period: {period_id}, Realm: {realm_id}, Dungeon: {dungeon['name']}")
 
 async def worker(name: str, queue: asyncio.Queue, session: ClientSession):
     try:
@@ -215,14 +219,18 @@ async def main():
         workers = [asyncio.create_task(worker(f"w{i}", queue, session)) for i in range(20)]
         for region in REGIONS:
             current_season = await get_current_season_id(session, region)
+            print(f"{region} - Current Season ID: {current_season}")
             periods = await get_season_periods(session, region, current_season)
+            print(f"{region} - Periods: {periods}")
             realms = await get_connected_realms(session, region)
+            print(f"{region} - Realms: {realms}")
             for period in periods:
                 for realm in realms:
+                    print(f"Enqueuing {region} - Period: {period}, Realm: {realm}")
                     dungeons = await get_leaderboard_index(session, region, realm)
                     for dungeon in dungeons:
                         await queue.put((region, period, realm, dungeon))
-                        
+
         await queue.join()
         for w in workers:
             w.cancel()
