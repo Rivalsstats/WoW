@@ -7,6 +7,7 @@ import csv
 from pathlib import Path
 from aiohttp import ClientSession, ClientTimeout, BasicAuth
 from aiolimiter import AsyncLimiter
+import threading
 
 # Configuration
 REGIONS = os.environ.get('REGIONS', 'us,eu,kr,tw').split(',')
@@ -23,6 +24,8 @@ per_hour_limiter = AsyncLimiter(29500, 3600)
 # Queue settings
 QUEUE_MAXSIZE = 1000
 GHA_TIMEOUT = 180#5 * 3600 + 1800 # 5 and a half hours
+
+cancel_event = threading.Event()
 
 
 # Blizzard OAuth
@@ -167,14 +170,20 @@ async def process_run(session: ClientSession, region: str, period_id: int, realm
             (spec_dir / f'{profile_hash}.json').write_text(json.dumps(spec_data))
 
 async def worker(name: str, queue: asyncio.Queue, session: ClientSession):
-    while True:
-        region, period_id, realm_id, dungeon = await queue.get()
+    while not cancel_event.is_set():
+        region, period_id, realm_id, dungeon = await asyncio.wait_for(queue.get(), timeout=1)
         try:
             await process_run(session, region, period_id, realm_id, dungeon)
+        except asyncio.TimeoutError:
+            # no item for 1s, re-check cancel_event
+            continue
         except Exception as e:
             print(f"[{name}] Error: {e}")
         finally:
             queue.task_done()
+def on_timeout():
+    print(f"⏱️ {GHA_TIMEOUT}s elapsed — canceling all tasks…")
+    cancel_event.set()
 
 async def main():
     timeout = ClientTimeout(total=600)
@@ -191,7 +200,7 @@ async def main():
                     for dungeon in dungeons:
                         await queue.put((region, period, realm, dungeon))
         try:
-            await asyncio.wait_for(queue.join(), timeout=GHA_TIMEOUT)
+            await queue.join()
         except asyncio.TimeoutError:
             print("GitHub Action timeout reached, exiting gracefully.")
         for w in workers:
@@ -199,4 +208,11 @@ async def main():
         await asyncio.gather(*workers, return_exceptions=True)
 
 if __name__ == '__main__':
-    asyncio.run(main())
+
+    timer = threading.Timer(GHA_TIMEOUT, on_timeout)
+    timer.start()
+
+    try:
+        asyncio.run(main())
+    finally:
+        timer.cancel()
