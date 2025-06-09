@@ -116,7 +116,7 @@ async def fetch_json(
                 wait = float(ra) if ra else local_backoff + random.random()
                 print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] [429] {url} — retrying in {wait:.1f}s (attempt {attempt}/{retries})")
                 await asyncio.sleep(wait)
-                local_backoff = min(local_backoff * 2, MAX_GLOBAL_BACKOFF)
+                local_backoff = min((local_backoff+1) * 2, MAX_GLOBAL_BACKOFF)
                 continue
 
             if e.status == 429:
@@ -126,7 +126,7 @@ async def fetch_json(
                         global_backoff = local_backoff
                 else:
                     async with backoff_lock:
-                        global_backoff = min(global_backoff* 2,MAX_GLOBAL_BACKOFF)
+                        global_backoff = min((global_backoff+1) * 2,MAX_GLOBAL_BACKOFF)
                 
                 print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] [429-GIVEUP] {url} — setting global backoff to {global_backoff:.1f}s")
                 return None
