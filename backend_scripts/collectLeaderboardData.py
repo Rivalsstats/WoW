@@ -7,7 +7,6 @@ import csv
 from pathlib import Path
 from aiohttp import ClientSession, ClientTimeout, BasicAuth
 from aiolimiter import AsyncLimiter
-import threading
 
 # Configuration
 REGIONS = os.environ.get('REGIONS', 'us,eu,kr,tw').split(',')
@@ -24,8 +23,8 @@ per_hour_limiter = AsyncLimiter(29500, 3600)
 # Queue settings
 QUEUE_MAXSIZE = 1000
 GHA_TIMEOUT = 180#5 * 3600 + 1800 # 5 and a half hours
+cancel_event = asyncio.Event()
 
-cancel_event = threading.Event()
 
 
 # Blizzard OAuth
@@ -132,6 +131,8 @@ async def process_run(session: ClientSession, region: str, period_id: int, realm
     seen = json.loads(seen_file.read_text()) if seen_file.exists() else []
 
     for group in lb.get('leading_groups', []):
+        if cancel_event.is_set():
+            break
         run_hash = hash_object({
             'realm': realm_id,
             'dungeon': dungeon['dungeon_id'],
@@ -151,6 +152,8 @@ async def process_run(session: ClientSession, region: str, period_id: int, realm
 
         # fetch unique profiles
         for member in group['members']:
+            if cancel_event.is_set():
+                break
             profile = member['profile']
             profile_hash = hash_object(profile)
             if profile_hash in enqueued_profiles:
@@ -181,9 +184,6 @@ async def worker(name: str, queue: asyncio.Queue, session: ClientSession):
             print(f"[{name}] Error: {e}")
         finally:
             queue.task_done()
-def on_timeout():
-    print(f"⏱️ {GHA_TIMEOUT}s elapsed — canceling all tasks…")
-    cancel_event.set()
 
 async def main():
     timeout = ClientTimeout(total=600)
@@ -208,11 +208,11 @@ async def main():
         await asyncio.gather(*workers, return_exceptions=True)
 
 if __name__ == '__main__':
-
-    timer = threading.Timer(GHA_TIMEOUT, on_timeout)
-    timer.start()
-
     try:
-        asyncio.run(main())
-    finally:
-        timer.cancel()
+        asyncio.run(
+            asyncio.wait_for(main(), timeout=GHA_TIMEOUT)
+        )
+    except asyncio.TimeoutError:
+        print(f"⏱️ {GHA_TIMEOUT}s elapsed — canceling all tasks…")
+        # set the flag (in case any workers are mid-queue.get)
+        cancel_event.set()
