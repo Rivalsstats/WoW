@@ -334,4 +334,5 @@ if __name__ == '__main__':
     except asyncio.TimeoutError:
         print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}]  {GHA_TIMEOUT}s elapsed — canceling all tasks…")
         # set the flag (in case any workers are mid-queue.get)
+        print(f"Fetched runs: {fetched_runs}, Fetched profiles: {fetched_profiles}")
         cancel_event.set()
