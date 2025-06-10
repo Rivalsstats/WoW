@@ -129,7 +129,8 @@ async def fetch_json(
                 # if we still have retries left, loop again (which will sleep until expiry)
                 if attempt < retries:
                     continue
-
+                print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] "
+                      f"[429] OUT OF Retries for {url} after {retries} attempts")
                 # out of retries
                 return None
 
