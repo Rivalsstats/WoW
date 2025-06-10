@@ -272,7 +272,7 @@ async def process_run(session: ClientSession, region: str, period_id: int, realm
             spec_data = await get_specializations(session, region, realm_slug, name)
             (spec_dir / f'{profile_hash}.json').write_text(json.dumps(spec_data))
             fetched_profiles = fetched_profiles + 1
-        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Processed run {run_hash} for {region} - Period: {period_id}, Realm: {realm_id}, Dungeon: {dungeon['name']}")
+        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Processed run {run_hash} for {region} - Period: {period_id}, Realm: {realm_id}, Dungeon: {dungeon['name']} already fetched: {fetched_runs}, profiles fetched: {fetched_profiles}")
 
 async def worker(name: str, queue: asyncio.Queue, session: ClientSession):
     try:
