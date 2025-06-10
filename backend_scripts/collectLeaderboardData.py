@@ -223,8 +223,6 @@ async def process_run(session: ClientSession, region: str, period_id: int, realm
 
     ensure_dir(seen_file.parent)
 
-    seen = json.loads(seen_file.read_text()) if seen_file.exists() else []
-
     for group in lb.get('leading_groups', []):
         if cancel_event.is_set():
             break
