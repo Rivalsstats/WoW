@@ -191,6 +191,7 @@ async def get_specializations(session: ClientSession, region: str, realm_slug: s
 
 # Worker logic
 async def process_run(session: ClientSession, region: str, period_id: int, realm_id: int, dungeon: dict):
+    global fetched_runs, fetched_profiles, enqueued_profiles
     lb = await get_leaderboard(session, region, realm_id, dungeon['dungeon_id'], period_id)
     if lb is None:
         return
@@ -323,6 +324,7 @@ async def main():
             w.cancel()
         await asyncio.gather(*realm_workers, return_exceptions=True)
 if __name__ == '__main__':
+    global fetched_runs, fetched_profiles
     try:
         asyncio.run(
             asyncio.wait_for(main(), timeout=GHA_TIMEOUT)
