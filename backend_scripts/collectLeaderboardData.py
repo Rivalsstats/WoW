@@ -205,11 +205,21 @@ async def process_run(session: ClientSession, region: str, period_id: int, realm
             writer = csv.writer(f)
             writer.writerow(['hash', 'dungeon_id', 'keystone_level', 'duration', 'timestamp', 'faction', 'members'])
     # seen
-    seen_file = RUNS_DIR /region/ str(realm_id) / f"{period_id}.json"
+    seen_file = RUNS_DIR /region/ str(realm_id) / f"{period_id}.csv"
+    ensure_dir(seen_file.parent)
+    seen: set[str] = set()
+
     if seen_file.exists():
-        seen = json.loads(seen_file.read_text())
+         with open(seen_file, newline='') as f:
+            reader = csv.reader(f)
+            # if you wrote a header, skip it; otherwise just read all rows
+            for row in reader:
+                if row:
+                    seen.add(row[0])
     else:
-        seen = []
+        with open(seen_file, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['run_hash'])
 
     ensure_dir(seen_file.parent)
 
@@ -227,9 +237,13 @@ async def process_run(session: ClientSession, region: str, period_id: int, realm
         })
         if run_hash in seen:
             continue
-        seen.append(run_hash)
-        seen_file.write_text(json.dumps(seen))
+        seen.add(run_hash)
         # append CSV row
+        
+        with open(seen_file, 'a', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([run_hash])
+        
         with open(runs_csv, 'a', newline='') as f:
             writer = csv.writer(f)
             members_hashes = ';'.join(hash_object(m['profile']) for m in group['members'])
