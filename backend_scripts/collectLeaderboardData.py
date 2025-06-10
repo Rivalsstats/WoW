@@ -33,6 +33,10 @@ MAX_GLOBAL_BACKOFF = 60.0
 global_backoff_until = 0.0
 backoff_lock = asyncio.Lock()
 
+# stat variables
+fetched_runs = 0
+fetched_profiles = 0
+
 # Blizzard OAuth
 CLIENT_ID = os.getenv('BLIZ_CLIENT_ID')
 CLIENT_SECRET = os.getenv('BLIZ_CLIENT_SECRET')
@@ -229,6 +233,7 @@ async def process_run(session: ClientSession, region: str, period_id: int, realm
             members_hashes = ';'.join(hash_object(m['profile']) for m in group['members'])
             writer.writerow([run_hash, dungeon['dungeon_id'], group['keystone_level'], group['duration'], group['completed_timestamp'], group['members'][0]['faction']['type'], members_hashes])
 
+        fetched_runs = fetched_runs + 1
         # fetch unique profiles
         for member in group['members']:
             if cancel_event.is_set():
@@ -250,6 +255,7 @@ async def process_run(session: ClientSession, region: str, period_id: int, realm
             ensure_dir(spec_dir)
             spec_data = await get_specializations(session, region, realm_slug, name)
             (spec_dir / f'{profile_hash}.json').write_text(json.dumps(spec_data))
+            fetched_profiles = fetched_profiles + 1
         print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Processed run {run_hash} for {region} - Period: {period_id}, Realm: {realm_id}, Dungeon: {dungeon['name']}")
 
 async def worker(name: str, queue: asyncio.Queue, session: ClientSession):
@@ -311,6 +317,8 @@ if __name__ == '__main__':
         asyncio.run(
             asyncio.wait_for(main(), timeout=GHA_TIMEOUT)
         )
+        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] All tasks completed successfully.")
+        print(f"Fetched runs: {fetched_runs}, Fetched profiles: {fetched_profiles}")
     except asyncio.TimeoutError:
         print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}]  {GHA_TIMEOUT}s elapsed — canceling all tasks…")
         # set the flag (in case any workers are mid-queue.get)
