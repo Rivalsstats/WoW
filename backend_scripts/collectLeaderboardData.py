@@ -281,37 +281,47 @@ async def worker(name: str, queue: asyncio.Queue, session: ClientSession):
 
 async def main():
     timeout = ClientTimeout(total=600)
-    queue = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
     async with ClientSession(timeout=timeout) as session:
-        workers = [asyncio.create_task(worker(f"w{i}", queue, session)) for i in range(20)]
+        # Track all per-realm queues and workers
+        realm_queues: dict[tuple[str, int], asyncio.Queue] = {}
+        realm_workers: list[asyncio.Task] = []
+
         for region in REGIONS:
             current_season = await get_current_season_id(session, region)
             if current_season is None:
                 print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] {region} – no season data, skipping")
                 continue
-            print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] {region} - Current Season ID: {current_season}")
+
             periods = await get_season_periods(session, region, current_season)
             if not periods:
                 print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] {region} – no periods, skipping")
                 continue
-            print(f"{region} - Periods: {periods}")
+
             realms = await get_connected_realms(session, region)
             if not realms:
                 print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] {region} – no realms, skipping")
                 continue
-            print(f"{region} - Realms: {realms}")
-            for period in periods:
-                for realm in realms:
-                    print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Enqueuing {region} - Period: {period}, Realm: {realm}")
+
+            # For each realm, create its own queue and single worker
+            for realm in realms:
+                q: asyncio.Queue = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
+                realm_queues[(region, realm)] = q
+                task = asyncio.create_task(worker(f"{region}-{realm}", q, session))
+                realm_workers.append(task)
+
+                # Enqueue all period/dungeon work onto this realm's queue
+                for period in periods:
                     dungeons = await get_leaderboard_index(session, region, realm)
                     for dungeon in dungeons:
-                        await queue.put((region, period, realm, dungeon))
+                        await q.put((region, period, realm, dungeon))
 
-        await queue.join()
-        for w in workers:
+        # Wait for all queues to be processed
+        await asyncio.gather(*(q.join() for q in realm_queues.values()))
+
+        # Cancel and await all workers
+        for w in realm_workers:
             w.cancel()
-        await asyncio.gather(*workers, return_exceptions=True)
-
+        await asyncio.gather(*realm_workers, return_exceptions=True)
 if __name__ == '__main__':
     try:
         asyncio.run(
