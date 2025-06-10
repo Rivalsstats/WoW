@@ -324,7 +324,6 @@ async def main():
             w.cancel()
         await asyncio.gather(*realm_workers, return_exceptions=True)
 if __name__ == '__main__':
-    global fetched_runs, fetched_profiles
     try:
         asyncio.run(
             asyncio.wait_for(main(), timeout=GHA_TIMEOUT)
