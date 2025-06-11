@@ -293,6 +293,7 @@ async def main():
     timeout = ClientTimeout(total=600)
     async with ClientSession(timeout=timeout) as session:
         # Track all per-realm queues and workers
+        print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] Starting data collection for regions: {', '.join(REGIONS)}")
         realm_queues: dict[tuple[str, int], asyncio.Queue] = {}
         realm_workers: list[asyncio.Task] = []
 
@@ -314,6 +315,7 @@ async def main():
 
             # For each realm, create its own queue and single worker
             for realm in realms:
+                print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] {region} – processing realm {realm}")
                 q: asyncio.Queue = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
                 realm_queues[(region, realm)] = q
                 task = asyncio.create_task(worker(f"{region}-{realm}", q, session))
