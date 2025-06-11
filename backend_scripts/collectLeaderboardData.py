@@ -25,7 +25,7 @@ per_hour_limiter = AsyncLimiter(29500, 3600)
 
 # Queue settings
 QUEUE_MAXSIZE = 1000
-GHA_TIMEOUT = 5 * 3600  # 5 hours
+GHA_TIMEOUT = 4 * 3600  # 5 hours
 cancel_event = asyncio.Event()
 MAX_GLOBAL_BACKOFF = 60.0
 
