@@ -129,7 +129,18 @@ async def fetch_json(
                       f"[429] OUT OF Retries for {url} after {retries} attempts")
                 # out of retries
                 return None
-            else if e.status == 404:
+            elif 500 <= e.status < 600:
+                # compute exponential backoff with jitter
+                delay = min(base_backoff * 2**(attempt - 1), max_backoff)
+                delay = delay * random.uniform(0.5, 1.5)
+                print(f"[{datetime.datetime.utcnow().isoformat()}] [{e.status}] transient error, retrying in {delay:.1f}s (attempt {attempt}/{retries})")
+                if attempt < retries:
+                    await asyncio.sleep(delay)
+                    continue
+                # last attempt, give up
+                print(f"[{datetime.datetime.utcnow().isoformat()}] [{e.status}] out of retries for {url}")
+                return None
+            elif e.status == 404:
                 return None  # Profile private
 
             # any other status -> bubble up
