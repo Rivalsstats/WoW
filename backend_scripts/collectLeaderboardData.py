@@ -129,6 +129,8 @@ async def fetch_json(
                       f"[429] OUT OF Retries for {url} after {retries} attempts")
                 # out of retries
                 return None
+            else if e.status == 404:
+                return None  # Profile private
 
             # any other status -> bubble up
             raise
