@@ -193,12 +193,16 @@ async def get_equipment(session: ClientSession, region: str, realm_slug: str, na
     url = f"{API_BASE.format(region=region)}/profile/wow/character/{realm_slug}/{name}/equipment"
     params = {'namespace': f'profile-{region}', 'locale': LOCALE}
     data = await fetch_json(session, url, params, region)
+    if not data or 'equipped_items' not in data:
+        return []
     return data.get('equipped_items', [])
 
 async def get_specializations(session: ClientSession, region: str, realm_slug: str, name: str) -> list:
     url = f"{API_BASE.format(region=region)}/profile/wow/character/{realm_slug}/{name}/specializations"
     params = {'namespace': f'profile-{region}', 'locale': LOCALE}
     data = await fetch_json(session, url, params, region)
+    if not data or 'specializations' not in data:
+        return []
     return data.get('specializations', [])
 
 # Worker logic
