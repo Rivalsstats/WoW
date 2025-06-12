@@ -32,6 +32,7 @@ MAX_GLOBAL_BACKOFF = 60.0
 # global_backoff_until is a POSIX timestamp; workers wait until time.time() >= this
 global_backoff_until = 0.0
 backoff_lock = asyncio.Lock()
+base_backoff = 1.0  # base backoff in seconds
 
 # stat variables
 fetched_runs = 0
@@ -143,8 +144,9 @@ async def fetch_json(
             elif e.status == 404:
                 return None  # Profile private
 
-            # any other status -> bubble up
-            raise
+            else:
+                print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] [{e.status}] Error fetching {url}: {e}")
+                return None
 
     return None
 
