@@ -7,9 +7,9 @@ def find_seasons(branches_dir):
     """
     for br in os.listdir(branches_dir):
         data_root = os.path.join(branches_dir, br, 'data')
-        print(f"[DEBUG] Checking branch worktree: {brdir}")
+        print(f"[DEBUG] Checking branch worktree: {data_root}")
         if not os.path.isdir(data_root):
-            print(f"[DEBUG]   ❌ No data/ in {brdir}")
+            print(f"[DEBUG]   ❌ No data/ in {data_root}")
             continue
         for region in os.listdir(data_root):
             region_path = os.path.join(data_root, region)
