@@ -277,6 +277,7 @@ async def process_run(session: ClientSession, region: str, period_id: int, realm
             spec_dir = period_dir / 'specializations'
             ensure_dir(spec_dir)
             spec_data = await get_specializations(session, region, realm_slug, name)
+            spec_data["active_specialization"] = member['specialization']['id']
             (spec_dir / f'{profile_hash}.json').write_text(json.dumps(spec_data))
             fetched_profiles = fetched_profiles + 1
 async def worker(name: str, queue: asyncio.Queue, session: ClientSession):
