@@ -24,9 +24,9 @@ def find_seasons(branches_dir):
                     yield season_path
 
 def parse_runs(season_path):
-    runs_csv = os.path.join(season_path, 'run.csv')
+    runs_csv = os.path.join(season_path, 'runs.csv')
     if not os.path.isfile(runs_csv):
-        print(f"[DEBUG] No run.csv found in {season_path}, skipping...")    
+        print(f"[DEBUG] No runs.csv found in {season_path}, skipping...")    
         return
     with open(runs_csv, newline='') as f:
         reader = csv.DictReader(f, delimiter='\t')
