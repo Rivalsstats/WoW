@@ -2,19 +2,20 @@ import argparse, os, csv, json
 from collections import defaultdict
 
 def find_seasons(branches_dir):
-    """
-    Yield full paths to each season folder in every branch-worktree.
-    """
     for br in os.listdir(branches_dir):
-        data_root = os.path.join(branches_dir, br, 'data')
+        brdir = os.path.join(branches_dir, br)
+        print(f"[DEBUG] Checking branch worktree: {brdir}")
+        data_root = os.path.join(brdir, 'data')
         if not os.path.isdir(data_root):
+            print(f"[DEBUG]   ❌ No data/ in {brdir}")
             continue
         for region in os.listdir(data_root):
-            region_path = os.path.join(data_root, region)
+            print(f"[DEBUG]   ✅ Found region folder: {region_path}")
             for realm in os.listdir(region_path):
-                realm_path = os.path.join(region_path, realm)
                 for season in os.listdir(realm_path):
-                    yield os.path.join(realm_path, season)
+                    season_path = os.path.join(realm_path, season)
+                    print(f"[DEBUG]     • Season dir: {season_path}")
+                    yield season_path
 
 def parse_runs(season_path):
     runs_csv = os.path.join(season_path, 'run.csv')

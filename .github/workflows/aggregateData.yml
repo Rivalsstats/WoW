@@ -32,6 +32,14 @@ jobs:
 
       - name: Set up Python
         uses: actions/setup-python@v4
+    
+      - name: Debug branches directory
+        run: |
+          echo "Contents of worktrees/:"
+          ls -R worktrees || echo "(none found)"
+          echo ""
+          echo "Listing season directories:"
+          find worktrees -type d | grep '/data/' || echo "No data directories found"
 
       - name: Run aggregation
         run: |
