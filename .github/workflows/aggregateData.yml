@@ -1,0 +1,51 @@
+name: Aggregate WoW Data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'  # every 6 hours
+
+jobs:
+  aggregate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch all remote branches
+        run: |
+          git fetch --all
+
+      - name: Create worktrees for every branch
+        run: |
+          mkdir worktrees
+          # for each remote branch except main, create a worktree
+          git for-each-ref --format='%(refname:short)' refs/remotes/origin \
+            | grep -v '^origin/main$' \
+            | sed 's|^origin/||' \
+            | while read br; do
+                git worktree add worktrees/$br $br
+              done
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+
+      - name: Run aggregation
+        run: |
+          python backend_scripts/aggregateData.py \
+            --branches-dir worktrees \
+            --output-dir data/aggregated
+
+      - name: Commit & push aggregates
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout main
+          git add data/aggregated
+          git commit -m "chore: update per-dungeon aggregates" || echo "No changes"
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
