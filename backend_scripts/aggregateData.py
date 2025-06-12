@@ -6,7 +6,7 @@ def find_seasons(branches_dir):
     Yield full paths to each season folder in every branch-worktree.
     """
     for br in os.listdir(branches_dir):
-        if br.contains('origin'):
+        if 'origin' in br:
             continue  # Skip origin branches
         data_root = os.path.join(branches_dir, br, 'data')
         print(f"[DEBUG] Checking branch worktree: {data_root}")
@@ -26,7 +26,7 @@ def find_seasons(branches_dir):
 def parse_runs(season_path):
     runs_csv = os.path.join(season_path, 'run.csv')
     if not os.path.isfile(runs_csv):
-        print(f"[DEBUG] No run.csv found in {season_path}, skipping...")
+        print(f"[DEBUG] No run.csv found in {season_path}, skipping...")    
         return
     with open(runs_csv, newline='') as f:
         reader = csv.DictReader(f, delimiter='\t')
