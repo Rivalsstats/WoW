@@ -132,13 +132,16 @@ async def main_async(branches_dir, output_dir, max_workers=10, max_concurrency=5
     loop = asyncio.get_event_loop()
     seasons = list(find_seasons(branches_dir))
 
-    # For each season/period, parse runs and write out its own stats
+    # For each <region>/<realm>/<season>/<period>
     for season_path in seasons:
-        # Extract "season" and "period" from the path .../<season>/<period>
-        season_name = os.path.basename(os.path.dirname(season_path))
+        # Derive region, season, and period
+        # season_path = .../data/{region}/{realm}/{season}/{period}
         period_name = os.path.basename(season_path)
+        season_name = os.path.basename(os.path.dirname(season_path))
+        region_name = os.path.basename(
+            os.path.dirname(os.path.dirname(os.path.dirname(season_path)))
+        )
 
-        # Reset stats for this one season/period
         stats = {}
 
         # Parse all runs in this season_path
@@ -150,11 +153,11 @@ async def main_async(branches_dir, output_dir, max_workers=10, max_concurrency=5
         await asyncio.gather(*run_tasks)
 
         # Write out results under:
-        #   {output_dir}/{season}/{dungeon_id}/{period}/{keystone}.json
-        for (d, k), rec in stats.items():
+        #   {output_dir}/{region}/{season}/{dungeon}/{period}/{keystone}.json
+        for (dungeon_id, key_level), rec in stats.items():
             entry = {
-                'dungeon_id': d,
-                'keystone_level': k,
+                'dungeon_id': dungeon_id,
+                'keystone_level': key_level,
                 'total_runs': rec['total_runs'],
                 'specializations': [
                     {
@@ -175,15 +178,16 @@ async def main_async(branches_dir, output_dir, max_workers=10, max_concurrency=5
 
             out_dir = os.path.join(
                 output_dir,
+                region_name,
                 season_name,
-                str(d),       # dungeon ID
-                period_name   # period
+                str(dungeon_id),
+                period_name
             )
             os.makedirs(out_dir, exist_ok=True)
-            out_fn = os.path.join(out_dir, f'{k}.json')
-            with open(out_fn, 'w') as f:
-                json.dump(entry, f, indent=2)
 
+            out_path = os.path.join(out_dir, f'{key_level}.json')
+            with open(out_path, 'w') as f:
+                json.dump(entry, f, indent=2)
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
     p.add_argument('--branches-dir', required=True,
