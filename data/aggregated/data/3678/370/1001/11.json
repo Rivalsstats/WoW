@@ -1,0 +1,4204 @@
+{
+  "dungeon_id": 370,
+  "keystone_level": 11,
+  "total_runs": 6,
+  "specializations": [
+    {
+      "spec_id": 256,
+      "picked": 2,
+      "talents": [
+        {
+          "talent_id": 82556,
+          "count": 1
+        },
+        {
+          "talent_id": 82674,
+          "count": 2
+        },
+        {
+          "talent_id": 82675,
+          "count": 1
+        },
+        {
+          "talent_id": 82676,
+          "count": 2
+        },
+        {
+          "talent_id": 82677,
+          "count": 2
+        },
+        {
+          "talent_id": 82678,
+          "count": 2
+        },
+        {
+          "talent_id": 82679,
+          "count": 1
+        },
+        {
+          "talent_id": 82681,
+          "count": 1
+        },
+        {
+          "talent_id": 82683,
+          "count": 2
+        },
+        {
+          "talent_id": 82684,
+          "count": 2
+        },
+        {
+          "talent_id": 82685,
+          "count": 2
+        },
+        {
+          "talent_id": 82686,
+          "count": 2
+        },
+        {
+          "talent_id": 82690,
+          "count": 2
+        },
+        {
+          "talent_id": 82691,
+          "count": 2
+        },
+        {
+          "talent_id": 82694,
+          "count": 2
+        },
+        {
+          "talent_id": 82696,
+          "count": 2
+        },
+        {
+          "talent_id": 82697,
+          "count": 2
+        },
+        {
+          "talent_id": 82699,
+          "count": 1
+        },
+        {
+          "talent_id": 82701,
+          "count": 1
+        },
+        {
+          "talent_id": 82703,
+          "count": 2
+        },
+        {
+          "talent_id": 82706,
+          "count": 2
+        },
+        {
+          "talent_id": 82707,
+          "count": 2
+        },
+        {
+          "talent_id": 82708,
+          "count": 1
+        },
+        {
+          "talent_id": 82709,
+          "count": 2
+        },
+        {
+          "talent_id": 82710,
+          "count": 2
+        },
+        {
+          "talent_id": 82711,
+          "count": 2
+        },
+        {
+          "talent_id": 82712,
+          "count": 2
+        },
+        {
+          "talent_id": 82713,
+          "count": 2
+        },
+        {
+          "talent_id": 82714,
+          "count": 2
+        },
+        {
+          "talent_id": 82716,
+          "count": 1
+        },
+        {
+          "talent_id": 82717,
+          "count": 2
+        },
+        {
+          "talent_id": 82718,
+          "count": 1
+        },
+        {
+          "talent_id": 82720,
+          "count": 2
+        },
+        {
+          "talent_id": 99801,
+          "count": 2
+        }
+      ]
+    },
+    {
+      "spec_id": 70,
+      "picked": 3,
+      "talents": [
+        {
+          "talent_id": 81496,
+          "count": 3
+        },
+        {
+          "talent_id": 81507,
+          "count": 1
+        },
+        {
+          "talent_id": 81510,
+          "count": 3
+        },
+        {
+          "talent_id": 81543,
+          "count": 2
+        },
+        {
+          "talent_id": 81597,
+          "count": 3
+        },
+        {
+          "talent_id": 81598,
+          "count": 3
+        },
+        {
+          "talent_id": 81600,
+          "count": 3
+        },
+        {
+          "talent_id": 81602,
+          "count": 2
+        },
+        {
+          "talent_id": 81603,
+          "count": 3
+        },
+        {
+          "talent_id": 81604,
+          "count": 3
+        },
+        {
+          "talent_id": 81605,
+          "count": 3
+        },
+        {
+          "talent_id": 81607,
+          "count": 2
+        },
+        {
+          "talent_id": 81609,
+          "count": 3
+        },
+        {
+          "talent_id": 81614,
+          "count": 3
+        },
+        {
+          "talent_id": 81615,
+          "count": 3
+        },
+        {
+          "talent_id": 81616,
+          "count": 3
+        },
+        {
+          "talent_id": 81618,
+          "count": 3
+        },
+        {
+          "talent_id": 81621,
+          "count": 3
+        },
+        {
+          "talent_id": 81624,
+          "count": 3
+        },
+        {
+          "talent_id": 81630,
+          "count": 2
+        },
+        {
+          "talent_id": 81631,
+          "count": 3
+        },
+        {
+          "talent_id": 81632,
+          "count": 3
+        },
+        {
+          "talent_id": 93008,
+          "count": 1
+        },
+        {
+          "talent_id": 93009,
+          "count": 3
+        },
+        {
+          "talent_id": 93165,
+          "count": 3
+        },
+        {
+          "talent_id": 93174,
+          "count": 2
+        },
+        {
+          "talent_id": 93181,
+          "count": 3
+        },
+        {
+          "talent_id": 93189,
+          "count": 3
+        },
+        {
+          "talent_id": 93683,
+          "count": 1
+        },
+        {
+          "talent_id": 99837,
+          "count": 3
+        },
+        {
+          "talent_id": 103849,
+          "count": 3
+        },
+        {
+          "talent_id": 103859,
+          "count": 1
+        },
+        {
+          "talent_id": 103860,
+          "count": 2
+        },
+        {
+          "talent_id": 103861,
+          "count": 3
+        },
+        {
+          "talent_id": 103863,
+          "count": 2
+        },
+        {
+          "talent_id": 103864,
+          "count": 3
+        },
+        {
+          "talent_id": 103866,
+          "count": 1
+        },
+        {
+          "talent_id": 103867,
+          "count": 2
+        }
+      ]
+    },
+    {
+      "spec_id": 63,
+      "picked": 2,
+      "talents": [
+        {
+          "talent_id": 62084,
+          "count": 1
+        },
+        {
+          "talent_id": 62085,
+          "count": 2
+        },
+        {
+          "talent_id": 62086,
+          "count": 2
+        },
+        {
+          "talent_id": 62091,
+          "count": 1
+        },
+        {
+          "talent_id": 62092,
+          "count": 2
+        },
+        {
+          "talent_id": 62093,
+          "count": 2
+        },
+        {
+          "talent_id": 62094,
+          "count": 2
+        },
+        {
+          "talent_id": 62098,
+          "count": 2
+        },
+        {
+          "talent_id": 62099,
+          "count": 2
+        },
+        {
+          "talent_id": 62100,
+          "count": 1
+        },
+        {
+          "talent_id": 62101,
+          "count": 1
+        },
+        {
+          "talent_id": 62102,
+          "count": 2
+        },
+        {
+          "talent_id": 62103,
+          "count": 1
+        },
+        {
+          "talent_id": 62104,
+          "count": 2
+        },
+        {
+          "talent_id": 62105,
+          "count": 2
+        },
+        {
+          "talent_id": 62111,
+          "count": 1
+        },
+        {
+          "talent_id": 62112,
+          "count": 1
+        },
+        {
+          "talent_id": 62113,
+          "count": 2
+        },
+        {
+          "talent_id": 62114,
+          "count": 2
+        },
+        {
+          "talent_id": 62115,
+          "count": 2
+        },
+        {
+          "talent_id": 62116,
+          "count": 1
+        },
+        {
+          "talent_id": 62118,
+          "count": 2
+        },
+        {
+          "talent_id": 62119,
+          "count": 2
+        },
+        {
+          "talent_id": 62120,
+          "count": 2
+        },
+        {
+          "talent_id": 62122,
+          "count": 2
+        },
+        {
+          "talent_id": 62123,
+          "count": 2
+        },
+        {
+          "talent_id": 62124,
+          "count": 2
+        },
+        {
+          "talent_id": 62125,
+          "count": 1
+        },
+        {
+          "talent_id": 62127,
+          "count": 2
+        },
+        {
+          "talent_id": 62128,
+          "count": 2
+        },
+        {
+          "talent_id": 93524,
+          "count": 2
+        },
+        {
+          "talent_id": 99829,
+          "count": 2
+        },
+        {
+          "talent_id": 101883,
+          "count": 1
+        }
+      ]
+    },
+    {
+      "spec_id": 267,
+      "picked": 1,
+      "talents": [
+        {
+          "talent_id": 71915,
+          "count": 1
+        },
+        {
+          "talent_id": 71918,
+          "count": 1
+        },
+        {
+          "talent_id": 71922,
+          "count": 1
+        },
+        {
+          "talent_id": 71923,
+          "count": 1
+        },
+        {
+          "talent_id": 71925,
+          "count": 1
+        },
+        {
+          "talent_id": 71926,
+          "count": 1
+        },
+        {
+          "talent_id": 71927,
+          "count": 1
+        },
+        {
+          "talent_id": 71928,
+          "count": 1
+        },
+        {
+          "talent_id": 71930,
+          "count": 1
+        },
+        {
+          "talent_id": 71931,
+          "count": 1
+        },
+        {
+          "talent_id": 71936,
+          "count": 1
+        },
+        {
+          "talent_id": 71937,
+          "count": 1
+        },
+        {
+          "talent_id": 71939,
+          "count": 1
+        },
+        {
+          "talent_id": 71942,
+          "count": 1
+        },
+        {
+          "talent_id": 71946,
+          "count": 1
+        },
+        {
+          "talent_id": 71947,
+          "count": 1
+        },
+        {
+          "talent_id": 71949,
+          "count": 1
+        },
+        {
+          "talent_id": 71950,
+          "count": 1
+        },
+        {
+          "talent_id": 71951,
+          "count": 1
+        },
+        {
+          "talent_id": 71952,
+          "count": 1
+        },
+        {
+          "talent_id": 71955,
+          "count": 1
+        },
+        {
+          "talent_id": 71956,
+          "count": 1
+        },
+        {
+          "talent_id": 71957,
+          "count": 1
+        },
+        {
+          "talent_id": 93178,
+          "count": 1
+        },
+        {
+          "talent_id": 93179,
+          "count": 1
+        },
+        {
+          "talent_id": 99848,
+          "count": 1
+        },
+        {
+          "talent_id": 100941,
+          "count": 1
+        }
+      ]
+    },
+    {
+      "spec_id": 66,
+      "picked": 2,
+      "talents": [
+        {
+          "talent_id": 81479,
+          "count": 2
+        },
+        {
+          "talent_id": 81495,
+          "count": 2
+        },
+        {
+          "talent_id": 81496,
+          "count": 2
+        },
+        {
+          "talent_id": 81507,
+          "count": 2
+        },
+        {
+          "talent_id": 81510,
+          "count": 2
+        },
+        {
+          "talent_id": 81543,
+          "count": 2
+        },
+        {
+          "talent_id": 81597,
+          "count": 2
+        },
+        {
+          "talent_id": 81598,
+          "count": 2
+        },
+        {
+          "talent_id": 81600,
+          "count": 2
+        },
+        {
+          "talent_id": 81602,
+          "count": 1
+        },
+        {
+          "talent_id": 81603,
+          "count": 2
+        },
+        {
+          "talent_id": 81604,
+          "count": 2
+        },
+        {
+          "talent_id": 81605,
+          "count": 2
+        },
+        {
+          "talent_id": 81607,
+          "count": 2
+        },
+        {
+          "talent_id": 81609,
+          "count": 2
+        },
+        {
+          "talent_id": 81614,
+          "count": 2
+        },
+        {
+          "talent_id": 81615,
+          "count": 2
+        },
+        {
+          "talent_id": 81616,
+          "count": 2
+        },
+        {
+          "talent_id": 81621,
+          "count": 2
+        },
+        {
+          "talent_id": 81625,
+          "count": 2
+        },
+        {
+          "talent_id": 81628,
+          "count": 1
+        },
+        {
+          "talent_id": 81631,
+          "count": 2
+        },
+        {
+          "talent_id": 81632,
+          "count": 2
+        },
+        {
+          "talent_id": 93009,
+          "count": 2
+        },
+        {
+          "talent_id": 93165,
+          "count": 1
+        },
+        {
+          "talent_id": 93187,
+          "count": 1
+        },
+        {
+          "talent_id": 93192,
+          "count": 2
+        },
+        {
+          "talent_id": 93356,
+          "count": 2
+        },
+        {
+          "talent_id": 99838,
+          "count": 2
+        },
+        {
+          "talent_id": 103850,
+          "count": 2
+        },
+        {
+          "talent_id": 103859,
+          "count": 2
+        },
+        {
+          "talent_id": 103863,
+          "count": 2
+        },
+        {
+          "talent_id": 103864,
+          "count": 2
+        },
+        {
+          "talent_id": 103865,
+          "count": 2
+        }
+      ]
+    },
+    {
+      "spec_id": 264,
+      "picked": 2,
+      "talents": [
+        {
+          "talent_id": 81073,
+          "count": 2
+        },
+        {
+          "talent_id": 99846,
+          "count": 2
+        },
+        {
+          "talent_id": 102911,
+          "count": 2
+        },
+        {
+          "talent_id": 102912,
+          "count": 2
+        },
+        {
+          "talent_id": 103120,
+          "count": 2
+        },
+        {
+          "talent_id": 103121,
+          "count": 2
+        },
+        {
+          "talent_id": 103579,
+          "count": 2
+        },
+        {
+          "talent_id": 103581,
+          "count": 2
+        },
+        {
+          "talent_id": 103582,
+          "count": 2
+        },
+        {
+          "talent_id": 103583,
+          "count": 2
+        },
+        {
+          "talent_id": 103584,
+          "count": 2
+        },
+        {
+          "talent_id": 103585,
+          "count": 1
+        },
+        {
+          "talent_id": 103586,
+          "count": 2
+        },
+        {
+          "talent_id": 103588,
+          "count": 2
+        },
+        {
+          "talent_id": 103590,
+          "count": 2
+        },
+        {
+          "talent_id": 103591,
+          "count": 2
+        },
+        {
+          "talent_id": 103592,
+          "count": 1
+        },
+        {
+          "talent_id": 103594,
+          "count": 1
+        },
+        {
+          "talent_id": 103595,
+          "count": 2
+        },
+        {
+          "talent_id": 103596,
+          "count": 2
+        },
+        {
+          "talent_id": 103597,
+          "count": 2
+        },
+        {
+          "talent_id": 103598,
+          "count": 2
+        },
+        {
+          "talent_id": 103599,
+          "count": 2
+        },
+        {
+          "talent_id": 103601,
+          "count": 2
+        },
+        {
+          "talent_id": 103602,
+          "count": 2
+        },
+        {
+          "talent_id": 103603,
+          "count": 2
+        },
+        {
+          "talent_id": 103606,
+          "count": 2
+        },
+        {
+          "talent_id": 103607,
+          "count": 1
+        },
+        {
+          "talent_id": 103611,
+          "count": 2
+        },
+        {
+          "talent_id": 103613,
+          "count": 2
+        },
+        {
+          "talent_id": 103615,
+          "count": 2
+        },
+        {
+          "talent_id": 103616,
+          "count": 2
+        },
+        {
+          "talent_id": 103620,
+          "count": 2
+        },
+        {
+          "talent_id": 103621,
+          "count": 2
+        },
+        {
+          "talent_id": 103622,
+          "count": 2
+        },
+        {
+          "talent_id": 103624,
+          "count": 1
+        },
+        {
+          "talent_id": 103625,
+          "count": 2
+        },
+        {
+          "talent_id": 103626,
+          "count": 2
+        },
+        {
+          "talent_id": 103627,
+          "count": 1
+        },
+        {
+          "talent_id": 103628,
+          "count": 2
+        },
+        {
+          "talent_id": 103629,
+          "count": 2
+        }
+      ]
+    },
+    {
+      "spec_id": 263,
+      "picked": 1,
+      "talents": [
+        {
+          "talent_id": 99847,
+          "count": 1
+        },
+        {
+          "talent_id": 102909,
+          "count": 1
+        },
+        {
+          "talent_id": 102910,
+          "count": 1
+        },
+        {
+          "talent_id": 103118,
+          "count": 1
+        },
+        {
+          "talent_id": 103119,
+          "count": 1
+        },
+        {
+          "talent_id": 103581,
+          "count": 1
+        },
+        {
+          "talent_id": 103582,
+          "count": 1
+        },
+        {
+          "talent_id": 103583,
+          "count": 1
+        },
+        {
+          "talent_id": 103585,
+          "count": 1
+        },
+        {
+          "talent_id": 103586,
+          "count": 1
+        },
+        {
+          "talent_id": 103587,
+          "count": 1
+        },
+        {
+          "talent_id": 103589,
+          "count": 1
+        },
+        {
+          "talent_id": 103591,
+          "count": 1
+        },
+        {
+          "talent_id": 103592,
+          "count": 1
+        },
+        {
+          "talent_id": 103594,
+          "count": 1
+        },
+        {
+          "talent_id": 103595,
+          "count": 1
+        },
+        {
+          "talent_id": 103596,
+          "count": 1
+        },
+        {
+          "talent_id": 103597,
+          "count": 1
+        },
+        {
+          "talent_id": 103598,
+          "count": 1
+        },
+        {
+          "talent_id": 103599,
+          "count": 1
+        },
+        {
+          "talent_id": 103602,
+          "count": 1
+        },
+        {
+          "talent_id": 103603,
+          "count": 1
+        },
+        {
+          "talent_id": 103604,
+          "count": 1
+        },
+        {
+          "talent_id": 103605,
+          "count": 1
+        },
+        {
+          "talent_id": 103606,
+          "count": 1
+        },
+        {
+          "talent_id": 103607,
+          "count": 1
+        },
+        {
+          "talent_id": 103608,
+          "count": 1
+        },
+        {
+          "talent_id": 103611,
+          "count": 1
+        },
+        {
+          "talent_id": 103612,
+          "count": 1
+        },
+        {
+          "talent_id": 103613,
+          "count": 1
+        },
+        {
+          "talent_id": 103614,
+          "count": 1
+        },
+        {
+          "talent_id": 103615,
+          "count": 1
+        },
+        {
+          "talent_id": 103616,
+          "count": 1
+        },
+        {
+          "talent_id": 103621,
+          "count": 1
+        },
+        {
+          "talent_id": 103622,
+          "count": 1
+        },
+        {
+          "talent_id": 103625,
+          "count": 1
+        },
+        {
+          "talent_id": 103627,
+          "count": 1
+        },
+        {
+          "talent_id": 103629,
+          "count": 1
+        }
+      ]
+    },
+    {
+      "spec_id": 581,
+      "picked": 1,
+      "talents": [
+        {
+          "talent_id": 90927,
+          "count": 1
+        },
+        {
+          "talent_id": 90928,
+          "count": 1
+        },
+        {
+          "talent_id": 90929,
+          "count": 1
+        },
+        {
+          "talent_id": 90931,
+          "count": 1
+        },
+        {
+          "talent_id": 90933,
+          "count": 1
+        },
+        {
+          "talent_id": 90934,
+          "count": 1
+        },
+        {
+          "talent_id": 90935,
+          "count": 1
+        },
+        {
+          "talent_id": 90936,
+          "count": 1
+        },
+        {
+          "talent_id": 90938,
+          "count": 1
+        },
+        {
+          "talent_id": 90941,
+          "count": 1
+        },
+        {
+          "talent_id": 90942,
+          "count": 1
+        },
+        {
+          "talent_id": 90946,
+          "count": 1
+        },
+        {
+          "talent_id": 90948,
+          "count": 1
+        },
+        {
+          "talent_id": 90949,
+          "count": 1
+        },
+        {
+          "talent_id": 90950,
+          "count": 1
+        },
+        {
+          "talent_id": 90993,
+          "count": 1
+        },
+        {
+          "talent_id": 90994,
+          "count": 1
+        },
+        {
+          "talent_id": 90997,
+          "count": 1
+        },
+        {
+          "talent_id": 90999,
+          "count": 1
+        },
+        {
+          "talent_id": 91000,
+          "count": 1
+        },
+        {
+          "talent_id": 91002,
+          "count": 1
+        },
+        {
+          "talent_id": 91003,
+          "count": 1
+        },
+        {
+          "talent_id": 91004,
+          "count": 1
+        },
+        {
+          "talent_id": 91007,
+          "count": 1
+        },
+        {
+          "talent_id": 91008,
+          "count": 1
+        },
+        {
+          "talent_id": 95148,
+          "count": 1
+        },
+        {
+          "talent_id": 95149,
+          "count": 1
+        },
+        {
+          "talent_id": 95150,
+          "count": 1
+        },
+        {
+          "talent_id": 99823,
+          "count": 1
+        }
+      ]
+    },
+    {
+      "spec_id": 1467,
+      "picked": 1,
+      "talents": [
+        {
+          "talent_id": 68681,
+          "count": 1
+        },
+        {
+          "talent_id": 93289,
+          "count": 1
+        },
+        {
+          "talent_id": 93294,
+          "count": 1
+        },
+        {
+          "talent_id": 93295,
+          "count": 1
+        },
+        {
+          "talent_id": 93298,
+          "count": 1
+        },
+        {
+          "talent_id": 93300,
+          "count": 1
+        },
+        {
+          "talent_id": 93302,
+          "count": 1
+        },
+        {
+          "talent_id": 93304,
+          "count": 1
+        },
+        {
+          "talent_id": 93305,
+          "count": 1
+        },
+        {
+          "talent_id": 93306,
+          "count": 1
+        },
+        {
+          "talent_id": 93309,
+          "count": 1
+        },
+        {
+          "talent_id": 93310,
+          "count": 1
+        },
+        {
+          "talent_id": 93311,
+          "count": 1
+        },
+        {
+          "talent_id": 93312,
+          "count": 1
+        },
+        {
+          "talent_id": 93340,
+          "count": 1
+        },
+        {
+          "talent_id": 93341,
+          "count": 1
+        },
+        {
+          "talent_id": 93343,
+          "count": 1
+        },
+        {
+          "talent_id": 93344,
+          "count": 1
+        },
+        {
+          "talent_id": 93345,
+          "count": 1
+        },
+        {
+          "talent_id": 93346,
+          "count": 1
+        },
+        {
+          "talent_id": 93348,
+          "count": 1
+        },
+        {
+          "talent_id": 93349,
+          "count": 1
+        },
+        {
+          "talent_id": 93350,
+          "count": 1
+        },
+        {
+          "talent_id": 93351,
+          "count": 1
+        },
+        {
+          "talent_id": 93352,
+          "count": 1
+        },
+        {
+          "talent_id": 93354,
+          "count": 1
+        },
+        {
+          "talent_id": 93355,
+          "count": 1
+        },
+        {
+          "talent_id": 93715,
+          "count": 1
+        },
+        {
+          "talent_id": 99827,
+          "count": 1
+        },
+        {
+          "talent_id": 103843,
+          "count": 1
+        }
+      ]
+    },
+    {
+      "spec_id": 103,
+      "picked": 1,
+      "talents": [
+        {
+          "talent_id": 82198,
+          "count": 1
+        },
+        {
+          "talent_id": 82199,
+          "count": 1
+        },
+        {
+          "talent_id": 82206,
+          "count": 1
+        },
+        {
+          "talent_id": 82207,
+          "count": 1
+        },
+        {
+          "talent_id": 82209,
+          "count": 1
+        },
+        {
+          "talent_id": 82218,
+          "count": 1
+        },
+        {
+          "talent_id": 82219,
+          "count": 1
+        },
+        {
+          "talent_id": 82220,
+          "count": 1
+        },
+        {
+          "talent_id": 82222,
+          "count": 1
+        },
+        {
+          "talent_id": 82223,
+          "count": 1
+        },
+        {
+          "talent_id": 82224,
+          "count": 1
+        },
+        {
+          "talent_id": 82225,
+          "count": 1
+        },
+        {
+          "talent_id": 82227,
+          "count": 1
+        },
+        {
+          "talent_id": 82228,
+          "count": 1
+        },
+        {
+          "talent_id": 82229,
+          "count": 1
+        },
+        {
+          "talent_id": 82232,
+          "count": 1
+        },
+        {
+          "talent_id": 82233,
+          "count": 1
+        },
+        {
+          "talent_id": 82234,
+          "count": 1
+        },
+        {
+          "talent_id": 82235,
+          "count": 1
+        },
+        {
+          "talent_id": 82236,
+          "count": 1
+        },
+        {
+          "talent_id": 82237,
+          "count": 1
+        },
+        {
+          "talent_id": 82239,
+          "count": 1
+        },
+        {
+          "talent_id": 82241,
+          "count": 1
+        },
+        {
+          "talent_id": 82242,
+          "count": 1
+        },
+        {
+          "talent_id": 82244,
+          "count": 1
+        },
+        {
+          "talent_id": 82246,
+          "count": 1
+        },
+        {
+          "talent_id": 92229,
+          "count": 1
+        },
+        {
+          "talent_id": 99805,
+          "count": 1
+        },
+        {
+          "talent_id": 100175,
+          "count": 1
+        },
+        {
+          "talent_id": 100176,
+          "count": 1
+        },
+        {
+          "talent_id": 104078,
+          "count": 1
+        },
+        {
+          "talent_id": 104081,
+          "count": 1
+        },
+        {
+          "talent_id": 104085,
+          "count": 1
+        }
+      ]
+    },
+    {
+      "spec_id": 254,
+      "picked": 1,
+      "talents": [
+        {
+          "talent_id": 99831,
+          "count": 1
+        },
+        {
+          "talent_id": 102380,
+          "count": 1
+        },
+        {
+          "talent_id": 102381,
+          "count": 1
+        },
+        {
+          "talent_id": 102383,
+          "count": 1
+        },
+        {
+          "talent_id": 102384,
+          "count": 1
+        },
+        {
+          "talent_id": 102386,
+          "count": 1
+        },
+        {
+          "talent_id": 102387,
+          "count": 1
+        },
+        {
+          "talent_id": 102388,
+          "count": 1
+        },
+        {
+          "talent_id": 102389,
+          "count": 1
+        },
+        {
+          "talent_id": 102390,
+          "count": 1
+        },
+        {
+          "talent_id": 102391,
+          "count": 1
+        },
+        {
+          "talent_id": 102392,
+          "count": 1
+        },
+        {
+          "talent_id": 102395,
+          "count": 1
+        },
+        {
+          "talent_id": 102396,
+          "count": 1
+        },
+        {
+          "talent_id": 102399,
+          "count": 1
+        },
+        {
+          "talent_id": 102400,
+          "count": 1
+        },
+        {
+          "talent_id": 102401,
+          "count": 1
+        },
+        {
+          "talent_id": 102402,
+          "count": 1
+        },
+        {
+          "talent_id": 102404,
+          "count": 1
+        },
+        {
+          "talent_id": 102406,
+          "count": 1
+        },
+        {
+          "talent_id": 102409,
+          "count": 1
+        },
+        {
+          "talent_id": 102410,
+          "count": 1
+        },
+        {
+          "talent_id": 102411,
+          "count": 1
+        },
+        {
+          "talent_id": 102414,
+          "count": 1
+        },
+        {
+          "talent_id": 102416,
+          "count": 1
+        },
+        {
+          "talent_id": 102419,
+          "count": 1
+        },
+        {
+          "talent_id": 102420,
+          "count": 1
+        },
+        {
+          "talent_id": 102422,
+          "count": 1
+        },
+        {
+          "talent_id": 102423,
+          "count": 1
+        },
+        {
+          "talent_id": 102424,
+          "count": 1
+        },
+        {
+          "talent_id": 102739,
+          "count": 1
+        }
+      ]
+    },
+    {
+      "spec_id": 577,
+      "picked": 2,
+      "talents": [
+        {
+          "talent_id": 90927,
+          "count": 2
+        },
+        {
+          "talent_id": 90929,
+          "count": 2
+        },
+        {
+          "talent_id": 90931,
+          "count": 2
+        },
+        {
+          "talent_id": 90933,
+          "count": 2
+        },
+        {
+          "talent_id": 90934,
+          "count": 2
+        },
+        {
+          "talent_id": 90935,
+          "count": 2
+        },
+        {
+          "talent_id": 90936,
+          "count": 2
+        },
+        {
+          "talent_id": 90938,
+          "count": 2
+        },
+        {
+          "talent_id": 90939,
+          "count": 1
+        },
+        {
+          "talent_id": 90940,
+          "count": 1
+        },
+        {
+          "talent_id": 90941,
+          "count": 2
+        },
+        {
+          "talent_id": 90942,
+          "count": 2
+        },
+        {
+          "talent_id": 90945,
+          "count": 1
+        },
+        {
+          "talent_id": 90946,
+          "count": 1
+        },
+        {
+          "talent_id": 90947,
+          "count": 2
+        },
+        {
+          "talent_id": 90948,
+          "count": 1
+        },
+        {
+          "talent_id": 90949,
+          "count": 2
+        },
+        {
+          "talent_id": 90950,
+          "count": 2
+        },
+        {
+          "talent_id": 90993,
+          "count": 2
+        },
+        {
+          "talent_id": 90994,
+          "count": 2
+        },
+        {
+          "talent_id": 90997,
+          "count": 2
+        },
+        {
+          "talent_id": 91000,
+          "count": 2
+        },
+        {
+          "talent_id": 91001,
+          "count": 2
+        },
+        {
+          "talent_id": 91002,
+          "count": 2
+        },
+        {
+          "talent_id": 91003,
+          "count": 2
+        },
+        {
+          "talent_id": 91006,
+          "count": 2
+        },
+        {
+          "talent_id": 91007,
+          "count": 2
+        },
+        {
+          "talent_id": 91008,
+          "count": 2
+        },
+        {
+          "talent_id": 95148,
+          "count": 2
+        },
+        {
+          "talent_id": 95149,
+          "count": 2
+        },
+        {
+          "talent_id": 95150,
+          "count": 2
+        },
+        {
+          "talent_id": 95154,
+          "count": 1
+        },
+        {
+          "talent_id": 99824,
+          "count": 2
+        }
+      ]
+    },
+    {
+      "spec_id": 270,
+      "picked": 1,
+      "talents": [
+        {
+          "talent_id": 80690,
+          "count": 1
+        },
+        {
+          "talent_id": 80691,
+          "count": 1
+        },
+        {
+          "talent_id": 101089,
+          "count": 1
+        },
+        {
+          "talent_id": 101135,
+          "count": 1
+        },
+        {
+          "talent_id": 101136,
+          "count": 1
+        },
+        {
+          "talent_id": 101139,
+          "count": 1
+        },
+        {
+          "talent_id": 101140,
+          "count": 1
+        },
+        {
+          "talent_id": 101142,
+          "count": 1
+        },
+        {
+          "talent_id": 101143,
+          "count": 1
+        },
+        {
+          "talent_id": 101144,
+          "count": 1
+        },
+        {
+          "talent_id": 101145,
+          "count": 1
+        },
+        {
+          "talent_id": 101146,
+          "count": 1
+        },
+        {
+          "talent_id": 101147,
+          "count": 1
+        },
+        {
+          "talent_id": 101149,
+          "count": 1
+        },
+        {
+          "talent_id": 101152,
+          "count": 1
+        },
+        {
+          "talent_id": 101153,
+          "count": 1
+        },
+        {
+          "talent_id": 101156,
+          "count": 1
+        },
+        {
+          "talent_id": 101157,
+          "count": 1
+        },
+        {
+          "talent_id": 101160,
+          "count": 1
+        },
+        {
+          "talent_id": 101164,
+          "count": 1
+        },
+        {
+          "talent_id": 101165,
+          "count": 1
+        },
+        {
+          "talent_id": 101167,
+          "count": 1
+        },
+        {
+          "talent_id": 101168,
+          "count": 1
+        },
+        {
+          "talent_id": 101169,
+          "count": 1
+        },
+        {
+          "talent_id": 101170,
+          "count": 1
+        },
+        {
+          "talent_id": 101173,
+          "count": 1
+        },
+        {
+          "talent_id": 101174,
+          "count": 1
+        },
+        {
+          "talent_id": 101176,
+          "count": 1
+        },
+        {
+          "talent_id": 101177,
+          "count": 1
+        },
+        {
+          "talent_id": 101183,
+          "count": 1
+        },
+        {
+          "talent_id": 101184,
+          "count": 1
+        },
+        {
+          "talent_id": 101186,
+          "count": 1
+        },
+        {
+          "talent_id": 101231,
+          "count": 1
+        },
+        {
+          "talent_id": 102432,
+          "count": 1
+        }
+      ]
+    },
+    {
+      "spec_id": 253,
+      "picked": 1,
+      "talents": [
+        {
+          "talent_id": 99832,
+          "count": 1
+        },
+        {
+          "talent_id": 102292,
+          "count": 1
+        },
+        {
+          "talent_id": 102378,
+          "count": 1
+        },
+        {
+          "talent_id": 102380,
+          "count": 1
+        },
+        {
+          "talent_id": 102381,
+          "count": 1
+        },
+        {
+          "talent_id": 102383,
+          "count": 1
+        },
+        {
+          "talent_id": 102384,
+          "count": 1
+        },
+        {
+          "talent_id": 102386,
+          "count": 1
+        },
+        {
+          "talent_id": 102387,
+          "count": 1
+        },
+        {
+          "talent_id": 102389,
+          "count": 1
+        },
+        {
+          "talent_id": 102390,
+          "count": 1
+        },
+        {
+          "talent_id": 102391,
+          "count": 1
+        },
+        {
+          "talent_id": 102393,
+          "count": 1
+        },
+        {
+          "talent_id": 102395,
+          "count": 1
+        },
+        {
+          "talent_id": 102396,
+          "count": 1
+        },
+        {
+          "talent_id": 102397,
+          "count": 1
+        },
+        {
+          "talent_id": 102400,
+          "count": 1
+        },
+        {
+          "talent_id": 102401,
+          "count": 1
+        },
+        {
+          "talent_id": 102404,
+          "count": 1
+        },
+        {
+          "talent_id": 102406,
+          "count": 1
+        },
+        {
+          "talent_id": 102408,
+          "count": 1
+        },
+        {
+          "talent_id": 102409,
+          "count": 1
+        },
+        {
+          "talent_id": 102411,
+          "count": 1
+        },
+        {
+          "talent_id": 102414,
+          "count": 1
+        },
+        {
+          "talent_id": 102415,
+          "count": 1
+        },
+        {
+          "talent_id": 102416,
+          "count": 1
+        },
+        {
+          "talent_id": 102421,
+          "count": 1
+        },
+        {
+          "talent_id": 102422,
+          "count": 1
+        },
+        {
+          "talent_id": 102423,
+          "count": 1
+        },
+        {
+          "talent_id": 102424,
+          "count": 1
+        },
+        {
+          "talent_id": 102739,
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "items": [
+    {
+      "item_id": 229244,
+      "bonus_list": [
+        1511,
+        1533,
+        6652,
+        10255,
+        10390,
+        11960,
+        11991,
+        12055,
+        12176,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 215136,
+      "bonus_list": [
+        8790,
+        8791,
+        8792,
+        8793,
+        8902,
+        9627,
+        9633,
+        10396,
+        10421,
+        10879,
+        12040,
+        12043,
+        12373
+      ]
+    },
+    {
+      "item_id": 229242,
+      "bonus_list": [
+        41,
+        1507,
+        1514,
+        1527,
+        1533,
+        6652,
+        10255,
+        10390,
+        11962,
+        11988,
+        11990,
+        11996,
+        12179,
+        12376
+      ]
+    },
+    {
+      "item_id": 10034,
+      "bonus_list": []
+    },
+    {
+      "item_id": 229247,
+      "bonus_list": [
+        40,
+        1511,
+        1527,
+        1530,
+        1533,
+        6652,
+        10255,
+        10390,
+        11958,
+        11991,
+        11996,
+        12178,
+        12375,
+        12376
+      ]
+    },
+    {
+      "item_id": 234505,
+      "bonus_list": [
+        1507,
+        6652,
+        10255,
+        10383,
+        10390,
+        11964,
+        11988,
+        12176
+      ]
+    },
+    {
+      "item_id": 229243,
+      "bonus_list": [
+        1507,
+        1533,
+        6652,
+        10255,
+        10354,
+        10390,
+        11961,
+        11984,
+        11988,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 222429,
+      "bonus_list": [
+        8790,
+        8902,
+        8960,
+        9627,
+        9633,
+        10421,
+        11303,
+        12040,
+        12043,
+        12373
+      ]
+    },
+    {
+      "item_id": 222435,
+      "bonus_list": [
+        8790,
+        8791,
+        8902,
+        8960,
+        9627,
+        9633,
+        10421,
+        11303,
+        12040,
+        12043,
+        12056,
+        12176,
+        12373
+      ]
+    },
+    {
+      "item_id": 234504,
+      "bonus_list": [
+        1514,
+        6652,
+        10255,
+        10383,
+        10390,
+        11964,
+        11990
+      ]
+    },
+    {
+      "item_id": 159462,
+      "bonus_list": [
+        6652,
+        10066,
+        10255,
+        10383,
+        10390,
+        10395,
+        10396,
+        10878,
+        10879,
+        11359,
+        11365,
+        11988,
+        11996,
+        12376
+      ]
+    },
+    {
+      "item_id": 221197,
+      "bonus_list": [
+        41,
+        3157,
+        3167,
+        3176,
+        6652,
+        10255,
+        10383,
+        10390,
+        10396,
+        10879,
+        11990,
+        11995,
+        12376
+      ]
+    },
+    {
+      "item_id": 219308,
+      "bonus_list": [
+        3157,
+        3176,
+        6652,
+        10255,
+        10383,
+        10390,
+        11990,
+        11992,
+        12376
+      ]
+    },
+    {
+      "item_id": 232541,
+      "bonus_list": [
+        1501,
+        1504,
+        1507,
+        1520,
+        6652,
+        10255,
+        10383,
+        10390,
+        11990,
+        11993,
+        12372,
+        12376
+      ]
+    },
+    {
+      "item_id": 234507,
+      "bonus_list": [
+        1507,
+        1533,
+        6652,
+        10255,
+        10383,
+        10390,
+        11964,
+        11984,
+        11988,
+        12376
+      ]
+    },
+    {
+      "item_id": 221111,
+      "bonus_list": [
+        41,
+        3170,
+        3176,
+        6652,
+        10255,
+        10384,
+        10390,
+        11996,
+        12376
+      ]
+    },
+    {
+      "item_id": 40643,
+      "bonus_list": []
+    },
+    {
+      "item_id": 229334,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10390,
+        11960,
+        12055,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 229332,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10390,
+        11962,
+        12179,
+        12376
+      ]
+    },
+    {
+      "item_id": 151116,
+      "bonus_list": []
+    },
+    {
+      "item_id": 229337,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10390,
+        11958,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 222816,
+      "bonus_list": [
+        8790,
+        8793,
+        8902,
+        8960,
+        9627,
+        9633,
+        10222,
+        10421,
+        11109,
+        11144,
+        11303,
+        11307,
+        12040,
+        12043,
+        12056,
+        12373
+      ]
+    },
+    {
+      "item_id": 229333,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10390,
+        11961,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 222814,
+      "bonus_list": [
+        8793,
+        8902,
+        8960,
+        9627,
+        9633,
+        10421,
+        11303,
+        12040,
+        12043,
+        12373
+      ]
+    },
+    {
+      "item_id": 159240,
+      "bonus_list": [
+        42,
+        10255,
+        10383,
+        10390,
+        11365,
+        11964,
+        12055,
+        12376
+      ]
+    },
+    {
+      "item_id": 221108,
+      "bonus_list": [
+        3176,
+        6652,
+        10255,
+        10383,
+        10390,
+        11964,
+        12376
+      ]
+    },
+    {
+      "item_id": 215135,
+      "bonus_list": [
+        8790,
+        8791,
+        8792,
+        8795,
+        8902,
+        9627,
+        9633,
+        10394,
+        10395,
+        10396,
+        10421,
+        10879,
+        12040,
+        12043,
+        12373
+      ]
+    },
+    {
+      "item_id": 231265,
+      "bonus_list": [
+        1520,
+        1533,
+        6652,
+        10255,
+        10355,
+        10356,
+        10396,
+        10879,
+        12372,
+        12376
+      ]
+    },
+    {
+      "item_id": 230192,
+      "bonus_list": [
+        1514,
+        1520,
+        1533,
+        6652,
+        10255,
+        10355,
+        10356,
+        11990,
+        12372,
+        12376
+      ]
+    },
+    {
+      "item_id": 230186,
+      "bonus_list": [
+        1520,
+        1533,
+        6652,
+        10255,
+        10355,
+        10356,
+        12372,
+        12376
+      ]
+    },
+    {
+      "item_id": 228844,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        11998,
+        12376
+      ]
+    },
+    {
+      "item_id": 178789,
+      "bonus_list": [
+        6652,
+        9993,
+        10255,
+        10384,
+        10390,
+        12376
+      ]
+    },
+    {
+      "item_id": 221056,
+      "bonus_list": [
+        3176,
+        6652,
+        10255,
+        10383,
+        10390,
+        12376
+      ]
+    },
+    {
+      "item_id": 69210,
+      "bonus_list": []
+    },
+    {
+      "item_id": 235222,
+      "bonus_list": [
+        40,
+        3150,
+        10255,
+        10383,
+        10390,
+        11964,
+        11988,
+        12176
+      ]
+    },
+    {
+      "item_id": 221060,
+      "bonus_list": [
+        40,
+        3150,
+        3157,
+        3163,
+        3170,
+        3176,
+        6652,
+        10255,
+        10383,
+        10390,
+        10396,
+        10879,
+        11988,
+        11992,
+        11996,
+        12372,
+        12376
+      ]
+    },
+    {
+      "item_id": 228886,
+      "bonus_list": [
+        1507,
+        6652,
+        10255,
+        10354,
+        11966,
+        11984,
+        12176
+      ]
+    },
+    {
+      "item_id": 159679,
+      "bonus_list": [
+        40,
+        6652,
+        10066,
+        10255,
+        10383,
+        10390,
+        11365,
+        11964,
+        11988,
+        12376
+      ]
+    },
+    {
+      "item_id": 229245,
+      "bonus_list": [
+        1507,
+        1533,
+        6652,
+        10255,
+        10390,
+        11959,
+        11984,
+        12179,
+        12376
+      ]
+    },
+    {
+      "item_id": 178871,
+      "bonus_list": [
+        6652,
+        9967,
+        10255,
+        10383,
+        10390,
+        10396,
+        10879,
+        11988
+      ]
+    },
+    {
+      "item_id": 228411,
+      "bonus_list": [
+        1511,
+        12028
+      ]
+    },
+    {
+      "item_id": 230027,
+      "bonus_list": [
+        1494,
+        1507,
+        1514,
+        1520,
+        1533,
+        6652,
+        10255,
+        10354,
+        10355,
+        10356,
+        11980,
+        11984,
+        11990,
+        12372,
+        12376
+      ]
+    },
+    {
+      "item_id": 222440,
+      "bonus_list": [
+        8790,
+        8902,
+        8960,
+        9627,
+        9633,
+        10421,
+        11300,
+        12040,
+        12043
+      ]
+    },
+    {
+      "item_id": 221045,
+      "bonus_list": [
+        42,
+        3150,
+        3170,
+        6652,
+        10255,
+        10383,
+        10390,
+        11988,
+        11996
+      ]
+    },
+    {
+      "item_id": 45577,
+      "bonus_list": []
+    },
+    {
+      "item_id": 229325,
+      "bonus_list": [
+        1527,
+        6652,
+        10255,
+        10390,
+        11960,
+        11996,
+        12176,
+        12178
+      ]
+    },
+    {
+      "item_id": 229323,
+      "bonus_list": [
+        1520,
+        6652,
+        10255,
+        10390,
+        11962,
+        11994,
+        12179
+      ]
+    },
+    {
+      "item_id": 229328,
+      "bonus_list": [
+        41,
+        1514,
+        10255,
+        10390,
+        11958,
+        11990,
+        12178
+      ]
+    },
+    {
+      "item_id": 229322,
+      "bonus_list": [
+        1514,
+        6652,
+        8095,
+        10356,
+        11992,
+        12176
+      ]
+    },
+    {
+      "item_id": 229324,
+      "bonus_list": [
+        1527,
+        6652,
+        10390,
+        11961,
+        11996,
+        12178
+      ]
+    },
+    {
+      "item_id": 221043,
+      "bonus_list": [
+        40,
+        3170,
+        3176,
+        6652,
+        10255,
+        10383,
+        10390,
+        11964,
+        11996,
+        12376
+      ]
+    },
+    {
+      "item_id": 222815,
+      "bonus_list": [
+        8792,
+        8793,
+        8902,
+        8960,
+        9627,
+        9633,
+        10421,
+        11109,
+        12040,
+        12043,
+        12056,
+        12176,
+        12373
+      ]
+    },
+    {
+      "item_id": 222822,
+      "bonus_list": [
+        8793,
+        8902,
+        9627,
+        9633,
+        10421,
+        12040,
+        12043
+      ]
+    },
+    {
+      "item_id": 178869,
+      "bonus_list": [
+        6652,
+        9967,
+        9993,
+        10255,
+        10383,
+        10390,
+        10396,
+        10879,
+        11988,
+        12376
+      ]
+    },
+    {
+      "item_id": 221054,
+      "bonus_list": [
+        40,
+        41,
+        3144,
+        3150,
+        3154,
+        3176,
+        6652,
+        10255,
+        10383,
+        10390,
+        11964,
+        11986,
+        11988,
+        11989,
+        12376
+      ]
+    },
+    {
+      "item_id": 224405,
+      "bonus_list": [
+        8790,
+        8902,
+        9627,
+        9633,
+        10421,
+        12040,
+        12043
+      ]
+    },
+    {
+      "item_id": 222566,
+      "bonus_list": [
+        8790,
+        8793,
+        8902,
+        8960,
+        9627,
+        9633,
+        10421,
+        11300,
+        12040,
+        12043,
+        12373
+      ]
+    },
+    {
+      "item_id": 210501,
+      "bonus_list": []
+    },
+    {
+      "item_id": 229343,
+      "bonus_list": [
+        1514,
+        1533,
+        6652,
+        10255,
+        10390,
+        11960,
+        11990,
+        12055,
+        12176,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 229341,
+      "bonus_list": [
+        1507,
+        1533,
+        6652,
+        10255,
+        10354,
+        10356,
+        11962,
+        11984,
+        12179,
+        12376
+      ]
+    },
+    {
+      "item_id": 229346,
+      "bonus_list": [
+        1520,
+        1533,
+        6652,
+        10255,
+        10390,
+        11958,
+        11994,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 229342,
+      "bonus_list": [
+        1507,
+        1533,
+        6652,
+        10255,
+        10356,
+        10390,
+        11961,
+        11984,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 168964,
+      "bonus_list": [
+        6652,
+        10044,
+        10255,
+        10383,
+        10390,
+        11964,
+        11987
+      ]
+    },
+    {
+      "item_id": 168989,
+      "bonus_list": [
+        6652,
+        10044,
+        10255,
+        10383,
+        10390,
+        11346,
+        11964,
+        11987,
+        12176,
+        12376
+      ]
+    },
+    {
+      "item_id": 221067,
+      "bonus_list": [
+        40,
+        3147,
+        3163,
+        6652,
+        10255,
+        10383,
+        10390,
+        11964,
+        11987,
+        12372
+      ]
+    },
+    {
+      "item_id": 221099,
+      "bonus_list": [
+        3157,
+        3163,
+        6652,
+        10255,
+        10383,
+        10390,
+        10396,
+        10879,
+        11990,
+        12372
+      ]
+    },
+    {
+      "item_id": 219305,
+      "bonus_list": [
+        3170,
+        3176,
+        6652,
+        10255,
+        10383,
+        10390,
+        11996,
+        12376
+      ]
+    },
+    {
+      "item_id": 222568,
+      "bonus_list": [
+        8793,
+        8902,
+        8960,
+        9627,
+        9633,
+        10421,
+        11300,
+        12040,
+        12043
+      ]
+    },
+    {
+      "item_id": 5976,
+      "bonus_list": []
+    },
+    {
+      "item_id": 222433,
+      "bonus_list": [
+        8791,
+        8902,
+        9627,
+        9633,
+        10421,
+        12040,
+        12043,
+        12176
+      ]
+    },
+    {
+      "item_id": 222431,
+      "bonus_list": [
+        8791,
+        8902,
+        8960,
+        9627,
+        9633,
+        10421,
+        11303,
+        12040,
+        12043,
+        12056,
+        12176
+      ]
+    },
+    {
+      "item_id": 229246,
+      "bonus_list": [
+        1527,
+        6652,
+        10255,
+        10390,
+        11996
+      ]
+    },
+    {
+      "item_id": 228884,
+      "bonus_list": [
+        1507,
+        6652,
+        10255,
+        10355,
+        11967,
+        11988,
+        12176
+      ]
+    },
+    {
+      "item_id": 222817,
+      "bonus_list": [
+        8790,
+        8791,
+        8793,
+        8902,
+        8960,
+        9627,
+        9633,
+        10421,
+        11109,
+        11303,
+        11941,
+        12040,
+        12043,
+        12373
+      ]
+    },
+    {
+      "item_id": 229262,
+      "bonus_list": [
+        1507,
+        1533,
+        6652,
+        10255,
+        10390,
+        11960,
+        11988,
+        12176,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 229260,
+      "bonus_list": [
+        42,
+        1520,
+        1527,
+        1533,
+        6652,
+        10255,
+        10390,
+        11962,
+        11996,
+        12179,
+        12372,
+        12376
+      ]
+    },
+    {
+      "item_id": 229265,
+      "bonus_list": [
+        1507,
+        1533,
+        6652,
+        10255,
+        10354,
+        10390,
+        11958,
+        11984,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 219339,
+      "bonus_list": [
+        8790,
+        8902,
+        8960,
+        9627,
+        9633,
+        10421,
+        11303,
+        12040,
+        12043,
+        12056,
+        12373
+      ]
+    },
+    {
+      "item_id": 219340,
+      "bonus_list": [
+        8793,
+        8902,
+        8960,
+        9627,
+        9633,
+        10421,
+        11303,
+        12040,
+        12043,
+        12373
+      ]
+    },
+    {
+      "item_id": 221106,
+      "bonus_list": [
+        3176,
+        6652,
+        10255,
+        10383,
+        10390,
+        11964,
+        12376
+      ]
+    },
+    {
+      "item_id": 221124,
+      "bonus_list": [
+        3150,
+        3176,
+        6652,
+        10255,
+        10383,
+        10390,
+        11964,
+        11988,
+        12055,
+        12176,
+        12376
+      ]
+    },
+    {
+      "item_id": 229263,
+      "bonus_list": [
+        1507,
+        1533,
+        6652,
+        10255,
+        10390,
+        11959,
+        11988,
+        12179,
+        12376
+      ]
+    },
+    {
+      "item_id": 221122,
+      "bonus_list": [
+        3170,
+        3176,
+        6652,
+        10255,
+        10384,
+        10390,
+        11996,
+        12376
+      ]
+    },
+    {
+      "item_id": 222432,
+      "bonus_list": [
+        8793,
+        8795,
+        8902,
+        8960,
+        9627,
+        9633,
+        10421,
+        11109,
+        11941,
+        12040,
+        12043,
+        12373
+      ]
+    },
+    {
+      "item_id": 229271,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10390,
+        11960,
+        12055,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 228841,
+      "bonus_list": [
+        41,
+        1507,
+        1533,
+        6652,
+        10255,
+        10354,
+        10356,
+        10396,
+        10879,
+        11984,
+        12376
+      ]
+    },
+    {
+      "item_id": 229269,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        11962,
+        12179,
+        12376
+      ]
+    },
+    {
+      "item_id": 167190,
+      "bonus_list": []
+    },
+    {
+      "item_id": 229274,
+      "bonus_list": [
+        42,
+        1533,
+        6652,
+        10255,
+        10356,
+        10390,
+        11958,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 228877,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        11998,
+        12176,
+        12376
+      ]
+    },
+    {
+      "item_id": 229270,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        10390,
+        11961,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 178796,
+      "bonus_list": [
+        6652,
+        9993,
+        10255,
+        10383,
+        10390,
+        11964,
+        12376
+      ]
+    },
+    {
+      "item_id": 219342,
+      "bonus_list": [
+        8790,
+        8791,
+        8795,
+        8902,
+        8960,
+        9627,
+        9633,
+        10421,
+        11303,
+        12040,
+        12043,
+        12056,
+        12176,
+        12373
+      ]
+    },
+    {
+      "item_id": 229272,
+      "bonus_list": [
+        1533,
+        6652,
+        8095,
+        10255,
+        10356,
+        11959,
+        12179,
+        12376
+      ]
+    },
+    {
+      "item_id": 228893,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        12060,
+        12376
+      ]
+    },
+    {
+      "item_id": 89796,
+      "bonus_list": []
+    },
+    {
+      "item_id": 229298,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10390,
+        11960,
+        12055,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 229296,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10390,
+        11962,
+        12179,
+        12376
+      ]
+    },
+    {
+      "item_id": 167082,
+      "bonus_list": []
+    },
+    {
+      "item_id": 229301,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        11958,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 229295,
+      "bonus_list": [
+        1533,
+        6652,
+        8095,
+        10255,
+        10356,
+        12055,
+        12376
+      ]
+    },
+    {
+      "item_id": 229297,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        11961,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 228876,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        11998,
+        12376
+      ]
+    },
+    {
+      "item_id": 219334,
+      "bonus_list": [
+        8791,
+        8793,
+        8902,
+        8960,
+        9627,
+        9633,
+        10421,
+        11109,
+        11303,
+        11941,
+        12040,
+        12043,
+        12056,
+        12176,
+        12373
+      ]
+    },
+    {
+      "item_id": 229299,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10390,
+        11959,
+        12179,
+        12376
+      ]
+    },
+    {
+      "item_id": 228843,
+      "bonus_list": [
+        1520,
+        6652,
+        10255,
+        10355,
+        10396,
+        10879,
+        12166,
+        12372
+      ]
+    },
+    {
+      "item_id": 178809,
+      "bonus_list": [
+        40,
+        9980,
+        10255,
+        10383,
+        10390,
+        12372
+      ]
+    },
+    {
+      "item_id": 228839,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        11998,
+        12376
+      ]
+    },
+    {
+      "item_id": 231268,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        12376
+      ]
+    },
+    {
+      "item_id": 229316,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10390,
+        11960,
+        12055,
+        12176,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 229314,
+      "bonus_list": [
+        41,
+        1527,
+        1533,
+        6652,
+        10255,
+        10356,
+        10390,
+        11962,
+        11996,
+        12179,
+        12376
+      ]
+    },
+    {
+      "item_id": 229319,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        10390,
+        11958,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 219331,
+      "bonus_list": [
+        8791,
+        8902,
+        8960,
+        9627,
+        9633,
+        10421,
+        11109,
+        11303,
+        12040,
+        12043,
+        12176,
+        12373
+      ]
+    },
+    {
+      "item_id": 229315,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        10390,
+        11961,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 228888,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        11998,
+        12376
+      ]
+    },
+    {
+      "item_id": 229317,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        10390,
+        11959,
+        12179,
+        12376
+      ]
+    },
+    {
+      "item_id": 228894,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        12376
+      ]
+    },
+    {
+      "item_id": 222441,
+      "bonus_list": [
+        8791,
+        8902,
+        8960,
+        9627,
+        9633,
+        10421,
+        11300,
+        12040,
+        12043,
+        12373
+      ]
+    },
+    {
+      "item_id": 228859,
+      "bonus_list": [
+        42,
+        1520,
+        6652,
+        10255,
+        10355,
+        11967,
+        12176,
+        12372
+      ]
+    },
+    {
+      "item_id": 229278,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10390,
+        11962,
+        12179,
+        12376
+      ]
+    },
+    {
+      "item_id": 138385,
+      "bonus_list": []
+    },
+    {
+      "item_id": 229283,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10390,
+        11958,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 234501,
+      "bonus_list": [
+        42,
+        1520,
+        10255,
+        10383,
+        10390,
+        11964,
+        12176,
+        12372
+      ]
+    },
+    {
+      "item_id": 229279,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10390,
+        11961,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 221035,
+      "bonus_list": [
+        3150,
+        3176,
+        6652,
+        10255,
+        10383,
+        10390,
+        11964,
+        11988,
+        12376
+      ]
+    },
+    {
+      "item_id": 229281,
+      "bonus_list": [
+        1520,
+        6652,
+        10255,
+        10390,
+        11959,
+        12179,
+        12372
+      ]
+    },
+    {
+      "item_id": 228840,
+      "bonus_list": [
+        1520,
+        1533,
+        6652,
+        10255,
+        10355,
+        10356,
+        10396,
+        10879,
+        12372,
+        12376
+      ]
+    },
+    {
+      "item_id": 228890,
+      "bonus_list": [
+        41,
+        1533,
+        10255,
+        10356,
+        12376
+      ]
+    },
+    {
+      "item_id": 202197,
+      "bonus_list": []
+    },
+    {
+      "item_id": 221103,
+      "bonus_list": [
+        3154,
+        3176,
+        6652,
+        10255,
+        10383,
+        10390,
+        10396,
+        10879,
+        11989,
+        12376
+      ]
+    },
+    {
+      "item_id": 228845,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        11998,
+        12055,
+        12376
+      ]
+    },
+    {
+      "item_id": 229261,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10390,
+        11961,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 229264,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10390,
+        12376
+      ]
+    },
+    {
+      "item_id": 199921,
+      "bonus_list": [
+        6652,
+        10255,
+        10383,
+        10390,
+        11346,
+        11964,
+        12376
+      ]
+    },
+    {
+      "item_id": 222445,
+      "bonus_list": [
+        8795,
+        8902,
+        8960,
+        9627,
+        9633,
+        10421,
+        11300,
+        12040,
+        12043,
+        12373
+      ]
+    },
+    {
+      "item_id": 168983,
+      "bonus_list": [
+        6652,
+        10047,
+        10255,
+        10383,
+        10390,
+        11964,
+        11988,
+        12176
+      ]
+    },
+    {
+      "item_id": 168974,
+      "bonus_list": [
+        6652,
+        10047,
+        10255,
+        10383,
+        10390,
+        11964,
+        11988
+      ]
+    },
+    {
+      "item_id": 4344,
+      "bonus_list": []
+    },
+    {
+      "item_id": 219502,
+      "bonus_list": [
+        8902,
+        8960,
+        9627,
+        9633,
+        10421,
+        12040,
+        12043,
+        12176,
+        12373
+      ]
+    },
+    {
+      "item_id": 228854,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        11998,
+        12376
+      ]
+    },
+    {
+      "item_id": 219327,
+      "bonus_list": [
+        8790,
+        8792,
+        8902,
+        8960,
+        9627,
+        9633,
+        10421,
+        11303,
+        11304,
+        12040,
+        12043,
+        12373
+      ]
+    },
+    {
+      "item_id": 228869,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        11998,
+        12055,
+        12376
+      ]
+    },
+    {
+      "item_id": 219309,
+      "bonus_list": [
+        3176,
+        6652,
+        10255,
+        10383,
+        10390,
+        12376
+      ]
+    },
+    {
+      "item_id": 229311,
+      "bonus_list": [
+        1533,
+        6652,
+        8095,
+        10255,
+        10356,
+        12376
+      ]
+    },
+    {
+      "item_id": 221033,
+      "bonus_list": [
+        43,
+        3176,
+        10255,
+        10384,
+        10390,
+        12376
+      ]
+    },
+    {
+      "item_id": 228904,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        12376
+      ]
+    },
+    {
+      "item_id": 2576,
+      "bonus_list": []
+    },
+    {
+      "item_id": 168976,
+      "bonus_list": [
+        6652,
+        10255,
+        10383,
+        10390,
+        11346,
+        11964,
+        12176,
+        12376
+      ]
+    },
+    {
+      "item_id": 222437,
+      "bonus_list": [
+        8790,
+        8902,
+        9627,
+        9633,
+        10421,
+        12040,
+        12043,
+        12373
+      ]
+    },
+    {
+      "item_id": 178866,
+      "bonus_list": [
+        6652,
+        9993,
+        10255,
+        10384,
+        10390,
+        12376
+      ]
+    },
+    {
+      "item_id": 202090,
+      "bonus_list": []
+    },
+    {
+      "item_id": 159287,
+      "bonus_list": [
+        6652,
+        10255,
+        10383,
+        10390,
+        11365,
+        11964,
+        12376
+      ]
+    },
+    {
+      "item_id": 234490,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10384,
+        10390,
+        12376
+      ]
+    },
+    {
+      "item_id": 65904,
+      "bonus_list": []
+    },
+    {
+      "item_id": 85508,
+      "bonus_list": []
+    },
+    {
+      "item_id": 229331,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10390,
+        12176,
+        12376
+      ]
+    },
+    {
+      "item_id": 229335,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10390,
+        11959,
+        12179,
+        12376
+      ]
+    },
+    {
+      "item_id": 215133,
+      "bonus_list": [
+        8793,
+        8902,
+        8960,
+        9627,
+        9633,
+        10396,
+        10421,
+        10879,
+        12040,
+        12043,
+        12373
+      ]
+    },
+    {
+      "item_id": 221109,
+      "bonus_list": [
+        3176,
+        6652,
+        10255,
+        10383,
+        10390,
+        11964,
+        12376
+      ]
+    },
+    {
+      "item_id": 168955,
+      "bonus_list": [
+        6652,
+        10255,
+        10384,
+        10390,
+        11346,
+        12376
+      ]
+    },
+    {
+      "item_id": 69209,
+      "bonus_list": []
+    },
+    {
+      "item_id": 219338,
+      "bonus_list": [
+        8793,
+        8902,
+        9627,
+        9633,
+        10421,
+        12040,
+        12043,
+        12373
+      ]
+    },
+    {
+      "item_id": 228862,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        11998,
+        12376
+      ]
+    },
+    {
+      "item_id": 228900,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        12376
+      ]
+    },
+    {
+      "item_id": 229313,
+      "bonus_list": [
+        1514,
+        6652,
+        8095,
+        10356,
+        11992,
+        12055
+      ]
+    },
+    {
+      "item_id": 229318,
+      "bonus_list": [
+        40,
+        1520,
+        8095,
+        10356,
+        11994
+      ]
+    },
+    {
+      "item_id": 178872,
+      "bonus_list": [
+        6652,
+        9984,
+        10255,
+        10383,
+        10390,
+        10396,
+        10879,
+        11995
+      ]
+    },
+    {
+      "item_id": 230189,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        12376
+      ]
+    },
+    {
+      "item_id": 232655,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        10844,
+        11998,
+        12055,
+        12376
+      ]
+    },
+    {
+      "item_id": 228879,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        11998,
+        12376
+      ]
+    },
+    {
+      "item_id": 230198,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10356,
+        12376
+      ]
+    },
+    {
+      "item_id": 222439,
+      "bonus_list": [
+        8792,
+        8902,
+        9627,
+        9633,
+        10421,
+        12040,
+        12043,
+        12373
+      ]
+    },
+    {
+      "item_id": 229307,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10390,
+        11960,
+        12055,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 229305,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10390,
+        11962,
+        12179,
+        12376
+      ]
+    },
+    {
+      "item_id": 229310,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10390,
+        11958,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 229306,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10390,
+        11961,
+        12178,
+        12376
+      ]
+    },
+    {
+      "item_id": 221806,
+      "bonus_list": [
+        8902,
+        9627,
+        9633,
+        10421,
+        11137,
+        12040,
+        12043,
+        12176,
+        12373
+      ]
+    },
+    {
+      "item_id": 219333,
+      "bonus_list": [
+        8793,
+        8902,
+        9627,
+        9633,
+        10421,
+        12040,
+        12043,
+        12373
+      ]
+    },
+    {
+      "item_id": 234494,
+      "bonus_list": [
+        1533,
+        6652,
+        10255,
+        10384,
+        10390,
+        12376
+      ]
+    }
+  ]
+}
