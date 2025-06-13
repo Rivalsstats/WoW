@@ -54,6 +54,7 @@ jobs:
                 git config user.name "github-actions[bot]"
                 git config user.email "github-actions[bot]@users.noreply.github.com"
                 git commit -am "chore: migrate data to season ${SEASON} layout"
+                echo "pushing changes for ${branch}"
                 git push --set-upstream origin "${branch}"
               else
                 echo "✔ No changes in ${branch}"
