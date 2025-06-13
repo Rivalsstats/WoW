@@ -129,45 +129,60 @@ def load_equipment(season_path, member_hash):
 async def main_async(branches_dir, output_dir, max_workers=10, max_concurrency=50):
     executor = ThreadPoolExecutor(max_workers=max_workers)
     sem = asyncio.Semaphore(max_concurrency)
-    stats = {}
-
     loop = asyncio.get_event_loop()
     seasons = list(find_seasons(branches_dir))
 
-    # For each season, parse runs concurrently
-    for season in seasons:
-        runs = await parse_runs_async(season, executor)
-        run_tasks = [process_run(season, run, stats, executor, sem) for run in runs]
+    # For each season/period, parse runs and write out its own stats
+    for season_path in seasons:
+        # Extract "season" and "period" from the path .../<season>/<period>
+        season_name = os.path.basename(os.path.dirname(season_path))
+        period_name = os.path.basename(season_path)
+
+        # Reset stats for this one season/period
+        stats = {}
+
+        # Parse all runs in this season_path
+        runs = await parse_runs_async(season_path, executor)
+        run_tasks = [
+            process_run(season_path, run, stats, executor, sem)
+            for run in runs
+        ]
         await asyncio.gather(*run_tasks)
 
-    # Write out results
-    for (d, k), rec in stats.items():
-        entry = {
-            'dungeon_id': d,
-            'keystone_level': k,
-            'total_runs': rec['total_runs'],
-            'specializations': [
-                {
-                    'spec_id': sid,
-                    'picked': count,
-                    'talents': [
-                        {'talent_id': tid, 'count': rec['talent_counts'][sid][tid]}
-                        for tid in sorted(rec['talent_counts'][sid])
-                    ]
-                }
-                for sid, count in rec['spec_counts'].items()
-            ],
-            'items': [
-                {'item_id': iid, 'bonus_list': sorted(bl)}
-                for iid, bl in rec['item_bonus'].items()
-            ]
-        }
+        # Write out results under:
+        #   {output_dir}/{season}/{dungeon_id}/{period}/{keystone}.json
+        for (d, k), rec in stats.items():
+            entry = {
+                'dungeon_id': d,
+                'keystone_level': k,
+                'total_runs': rec['total_runs'],
+                'specializations': [
+                    {
+                        'spec_id': sid,
+                        'picked': count,
+                        'talents': [
+                            {'talent_id': tid, 'count': rec['talent_counts'][sid][tid]}
+                            for tid in sorted(rec['talent_counts'][sid])
+                        ]
+                    }
+                    for sid, count in rec['spec_counts'].items()
+                ],
+                'items': [
+                    {'item_id': iid, 'bonus_list': sorted(bl)}
+                    for iid, bl in rec['item_bonus'].items()
+                ]
+            }
 
-        dungeon_dir = os.path.join(output_dir, str(d))
-        os.makedirs(dungeon_dir, exist_ok=True)
-        out_fn = os.path.join(dungeon_dir, f'{k}.json')
-        with open(out_fn, 'w') as f:
-            json.dump(entry, f, indent=2)
+            out_dir = os.path.join(
+                output_dir,
+                season_name,
+                str(d),       # dungeon ID
+                period_name   # period
+            )
+            os.makedirs(out_dir, exist_ok=True)
+            out_fn = os.path.join(out_dir, f'{k}.json')
+            with open(out_fn, 'w') as f:
+                json.dump(entry, f, indent=2)
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
