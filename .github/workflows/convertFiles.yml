@@ -12,10 +12,10 @@ jobs:
   move-data:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout all branches
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0             # fetch all history so we can check out every branch
+          fetch-depth: 0
           fetch-tags: true
           persist-credentials: true
 
@@ -25,47 +25,40 @@ jobs:
         run: |
           set -euo pipefail
 
-          echo "Processing all branches (except main/HEAD) to season ${SEASON} layout..."
+          echo "Migrating data to season ${SEASON} across branches"
 
           git for-each-ref --format='%(refname:short)' refs/remotes/origin/* \
             | grep -v '^origin/HEAD$' \
             | sed 's@^origin/@@' \
             | grep -v '^main$' \
-            | while read -r branch_name; do
+            | while read -r branch; do
 
-              echo "-- Checking out branch: ${branch_name}"
-              git checkout "${branch_name}"
+              echo "→ Checking out ${branch}"
+              git checkout --track origin/$branch || git checkout $branch
 
-              for old_dir in data/*/*/*; do
-                [ -d "${old_dir}" ] || continue
+              # Move only the desired directories
+              for old in data/*/*/*; do
+                [ -d "$old" ] || continue
+                [[ "$old" == data/runs* ]] && continue
 
-                # ← Skip anything under data/runs
-                if [[ "${old_dir}" == data/runs* ]]; then
-                  echo "  Skipping runs folder: ${old_dir}"
-                  continue
-                fi
-
-                region=$(basename "$(dirname "$(dirname "${old_dir}")")")
-                realm=$(basename "$(dirname "${old_dir}")")
-                period=$(basename "${old_dir}")
-
-                new_parent="data/${region}/${realm}/${SEASON}"
-                new_dir="${new_parent}/${period}"
-
-                mkdir -p "${new_parent}"
-                git mv "${old_dir}" "${new_dir}" >/dev/null 2>&1 || true
+                region=$(basename "$(dirname "$(dirname "$old")")")
+                realm=$(basename "$(dirname "$old")")
+                period=$(basename "$old")
+                target="data/${region}/${realm}/${SEASON}/${period}"
+                mkdir -p "$(dirname "$target")"
+                git mv "$old" "$target" >/dev/null 2>&1 || true
               done
 
               if ! git diff --quiet; then
                 git config user.name "github-actions[bot]"
                 git config user.email "github-actions[bot]@users.noreply.github.com"
                 git commit -am "chore: migrate data to season ${SEASON} layout"
-                git push origin "${branch_name}"
+                git push --set-upstream origin HEAD
               else
-                echo "  No data changes on ${branch_name}"
+                echo "✔ No changes in ${branch}"
               fi
 
             done
 
           git checkout main
-
+          echo "✅ Data migration complete for season ${SEASON}"
