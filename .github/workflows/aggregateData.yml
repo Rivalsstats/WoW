@@ -32,20 +32,6 @@ jobs:
 
       - name: Set up Python
         uses: actions/setup-python@v4
-    
-      - name: Debug branches directory
-        run: |
-          echo "Contents of worktrees/:"
-          ls -R worktrees || echo "(none found)"
-          echo ""
-          echo "Listing season directories:"
-          find worktrees -type d | grep '/data/' || echo "No data directories found"
-    
-      - name: Debug specific season folder
-        run: |
-          echo "Contents of worktrees/eu-1598/data/eu/1598/1001:"
-          ls -lah worktrees/eu-1598/data/eu/1598/1001 || echo "(folder doesn’t exist or is empty)"
-
 
       - name: Run aggregation
         run: |
