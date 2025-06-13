@@ -41,11 +41,29 @@ jobs:
 
       - name: Commit & push aggregates
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout main
+          set -e  # Exit script on any command failure
+      
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git config pull.rebase true  # Rebase
+      
           git add data/aggregated
-          git commit -m "chore: update per-dungeon aggregates" || echo "No changes"
-          git push origin main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+          # Commit only if there are changes
+          if git diff --cached --quiet; then
+            echo "automated: update per-dungeon aggregates"
+          else
+            git commit -m "Updated Leaderboard data"
+          fi
+      
+          # Pull latest changes, fail only on actual errors
+          if ! git pull --rebase; then
+            echo "Error during git pull" >&2
+            exit 1
+          fi
+      
+          # Push changes, fail if there's an actual error
+          if ! git push; then
+            echo "Error during git push" >&2
+            exit 1
+          fi
