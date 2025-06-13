@@ -54,9 +54,8 @@ jobs:
 
                 mkdir -p "${new_parent}"
                 if git mv "${old_dir}" "${new_dir}"; then
-                  echo "  Moved ${old_dir} → ${new_dir}"
+
                 else
-                  echo "  No files to move in ${old_dir}"
                 fi
               done
 
@@ -73,6 +72,3 @@ jobs:
 
           git checkout main
 
-      - name: Summary
-        run: |
-          echo "🎉 Migration to season ${SEASON} complete on all branches."
