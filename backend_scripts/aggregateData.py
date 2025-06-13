@@ -1,5 +1,57 @@
 import argparse, os, csv, json
 from collections import defaultdict
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
+
+async def parse_runs_async(season_path, executor):
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(executor, lambda: list(parse_runs(season_path)))
+
+async def load_specialization_async(season_path, member_hash, executor):
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(executor, lambda: load_specialization(season_path, member_hash))
+
+async def load_equipment_async(season_path, member_hash, executor):
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(executor, lambda: load_equipment(season_path, member_hash))
+
+async def process_run(season_path, run, stats, executor, sem):
+    d = int(run['dungeon_id'])
+    k = int(run['keystone_level'])
+    key = (d, k)
+
+    # Ensure thread-safe stats entry
+    if key not in stats:
+        stats[key] = {
+            'total_runs': 0,
+            'spec_counts': defaultdict(int),
+            'talent_counts': defaultdict(lambda: defaultdict(int)),
+            'item_bonus': defaultdict(set)
+        }
+    rec = stats[key]
+
+    rec['total_runs'] += 1
+
+    tasks = []
+    # Enforce concurrency limits
+    for m in run['members']:
+        # load spec and equipment in parallel
+        tasks.append(_process_member(season_path, m, rec, executor, sem))
+
+    await asyncio.gather(*tasks)
+
+async def _process_member(season_path, member_hash, rec, executor, sem):
+    async with sem:
+        spec = await load_specialization_async(season_path, member_hash, executor)
+        if spec:
+            sid = spec['spec_id']
+            rec['spec_counts'][sid] += 1
+            for t in spec['talents']:
+                rec['talent_counts'][sid][t['id']] += 1
+
+        eqs = await load_equipment_async(season_path, member_hash, executor)
+        for eq in eqs:
+            rec['item_bonus'][eq['item_id']].update(eq['bonus_list'])
 
 def find_seasons(branches_dir):
     """
@@ -9,18 +61,15 @@ def find_seasons(branches_dir):
         if 'origin' in br:
             continue  # Skip origin branches
         data_root = os.path.join(branches_dir, br, 'data')
-        print(f"[DEBUG] Checking branch worktree: {data_root}")
         if not os.path.isdir(data_root):
-            print(f"[DEBUG]   ❌ No data/ in {data_root}")
+            print(f"[DEBUG] No data/ in {data_root}")
             continue
         for region in os.listdir(data_root):
             region_path = os.path.join(data_root, region)
-            print(f"[DEBUG]   ✅ Found region folder: {region_path}")
             for realm in os.listdir(region_path):
                 realm_path = os.path.join(region_path, realm)
                 for season in os.listdir(realm_path):
                     season_path = os.path.join(realm_path, season)
-                    print(f"[DEBUG]     • Season dir: {season_path}")
                     yield season_path
 
 def parse_runs(season_path):
@@ -40,8 +89,6 @@ def load_specialization(season_path, member_hash):
         return None
 
     data = json.load(open(fn))
-    print(f"[DEBUG] Loaded specialization for {member_hash}: {data}")
-
     active_spec_id = data.get('active_specialization')
     specs = data.get('specializations', [])
     spec_entry = next(
@@ -51,7 +98,6 @@ def load_specialization(season_path, member_hash):
     )
     if spec_entry is None:
         return None
-    print(f"[DEBUG] Found active specialization: {spec_entry}")
     loadouts = spec_entry.get('loadouts', [])
     active_loadout = next((l for l in loadouts if l.get('is_active')), {})
 
@@ -78,38 +124,21 @@ def load_equipment(season_path, member_hash):
         for e in arr
     ]
 
-def main(branches_dir, output_dir):
-    # key: (dungeon_id, keystone_level)
+async def main_async(branches_dir, output_dir, max_workers=10, max_concurrency=50):
+    executor = ThreadPoolExecutor(max_workers=max_workers)
+    sem = asyncio.Semaphore(max_concurrency)
     stats = {}
 
-    for season in find_seasons(branches_dir):
-        print(f"[DEBUG] Processing season: {season}")
-        for run in parse_runs(season):
-            print(f"[DEBUG] Processing run: {run}")
-            d = int(run['dungeon_id'])
-            k = int(run['keystone_level'])
-            key = (d, k)
-            rec = stats.setdefault(key, {
-                'total_runs': 0,
-                'spec_counts': defaultdict(int),
-                'talent_counts': defaultdict(lambda: defaultdict(int)),
-                'item_bonus': defaultdict(set)
-            })
+    loop = asyncio.get_event_loop()
+    seasons = list(find_seasons(branches_dir))
 
-            rec['total_runs'] += 1
+    # For each season, parse runs concurrently
+    for season in seasons:
+        runs = await parse_runs_async(season, executor)
+        run_tasks = [process_run(season, run, stats, executor, sem) for run in runs]
+        await asyncio.gather(*run_tasks)
 
-            for m in run['members']:
-                spec = load_specialization(season, m)
-                if spec:
-                    sid = spec['spec_id']
-                    rec['spec_counts'][sid] += 1
-                    for t in spec['talents']:
-                        rec['talent_counts'][sid][t['id']] += 1
-
-                for eq in load_equipment(season, m):
-                    rec['item_bonus'][eq['item_id']].update(eq['bonus_list'])
-
-    # write out per-(dungeon,key) JSON
+    # Write out results
     for (d, k), rec in stats.items():
         entry = {
             'dungeon_id': d,
@@ -145,4 +174,4 @@ if __name__ == '__main__':
     p.add_argument('--output-dir', required=True,
                    help='Where to write data/aggregated/{dungeon}/{key}.json')
     args = p.parse_args()
-    main(args.branches_dir, args.output_dir)
+    asyncio.run(main_async(args.branches_dir, args.output_dir))
