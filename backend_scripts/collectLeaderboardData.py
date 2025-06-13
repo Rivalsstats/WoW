@@ -268,6 +268,7 @@ async def process_run(session: ClientSession, region: str, period_id: int, realm
             if cancel_event.is_set():
                 break
             profile = member['profile']
+            profile['timestamp'] = datetime.datetime.now(datetime.timezone.utc)
             profile_hash = hash_object(profile)
             if profile_hash in enqueued_profiles:
                 continue
