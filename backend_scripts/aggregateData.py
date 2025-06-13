@@ -2,6 +2,7 @@ import argparse, os, csv, json
 from collections import defaultdict
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 async def parse_runs_async(season_path, executor):
     loop = asyncio.get_event_loop()
@@ -53,24 +54,24 @@ async def _process_member(season_path, member_hash, rec, executor, sem):
         for eq in eqs:
             rec['item_bonus'][eq['item_id']].update(eq['bonus_list'])
 
-def find_seasons(branches_dir):
+def find_seasons(data_dir):
     """
-    Yield full paths to each season folder in every branch-worktree.
+    Yield (region, realm, season, period, full_path) for each leaf folder under data/.
     """
-    for br in os.listdir(branches_dir):
-        if 'origin' in br:
-            continue  # Skip origin branches
-        data_root = os.path.join(branches_dir, br, 'data')
-        if not os.path.isdir(data_root):
-            print(f"[DEBUG] No data/ in {data_root}")
+    data_dir = Path(data_dir)
+    for region_dir in data_dir.iterdir():
+        if not region_dir.is_dir(): 
             continue
-        for region in os.listdir(data_root):
-            region_path = os.path.join(data_root, region)
-            for realm in os.listdir(region_path):
-                realm_path = os.path.join(region_path, realm)
-                for season in os.listdir(realm_path):
-                    season_path = os.path.join(realm_path, season)
-                    yield season_path
+        for realm_dir in region_dir.iterdir():
+            if not realm_dir.is_dir(): 
+                continue
+            for season_dir in realm_dir.iterdir():
+                if not season_dir.is_dir():
+                   continue
+                for period_dir in season_dir.iterdir():
+                    if not period_dir.is_dir():
+                        continue
+                    yield region_dir.name, realm_dir.name, season_dir.name, period_dir.name, str(period_dir)
 
 def parse_runs(season_path):
     runs_csv = os.path.join(season_path, 'runs.csv')
@@ -152,10 +153,11 @@ async def main_async(branches_dir, output_dir, max_workers=10, max_concurrency=5
         ]
         await asyncio.gather(*run_tasks)
 
-        # Write out results under:
-        #   {output_dir}/{region}/{season}/{dungeon}/{period}/{keystone}.json
         for (dungeon_id, key_level), rec in stats.items():
             entry = {
+                'region':       region_name,
+                'season':       season_name,
+                'period':       period_name,
                 'dungeon_id': dungeon_id,
                 'keystone_level': key_level,
                 'total_runs': rec['total_runs'],
