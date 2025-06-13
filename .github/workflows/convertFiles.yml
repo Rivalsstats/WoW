@@ -27,14 +27,15 @@ jobs:
 
           echo "Migrating data to season ${SEASON} across branches"
 
-          git for-each-ref --format='%(refname:short)' refs/remotes/origin/* \
+          git for-each-ref --format='%(refname:short)' refs/remotes/origin \
+            | grep '^origin/[^/]\+$' \
             | grep -v '^origin/HEAD$' \
             | sed 's@^origin/@@' \
             | grep -v '^main$' \
             | while read -r branch; do
 
               echo "→ Checking out ${branch}"
-              git checkout --track origin/$branch || git checkout $branch
+              git checkout --track origin/${branch}
 
               # Move only the desired directories
               for old in data/*/*/*; do
@@ -53,7 +54,7 @@ jobs:
                 git config user.name "github-actions[bot]"
                 git config user.email "github-actions[bot]@users.noreply.github.com"
                 git commit -am "chore: migrate data to season ${SEASON} layout"
-                git push --set-upstream origin HEAD
+                git push --set-upstream origin "${branch}"
               else
                 echo "✔ No changes in ${branch}"
               fi
