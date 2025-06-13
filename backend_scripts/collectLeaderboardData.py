@@ -268,7 +268,7 @@ async def process_run(session: ClientSession, region: str, season: int, period_i
             if cancel_event.is_set():
                 break
             profile = member['profile']
-            profile['timestamp'] = datetime.datetime.now(datetime.timezone.utc)
+            profile['timestamp'] = datetime.datetime.now(datetime.timezone.utc).isoformat()
             profile_hash = hash_object(profile)
             if profile_hash in enqueued_profiles:
                 continue
