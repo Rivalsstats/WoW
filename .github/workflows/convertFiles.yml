@@ -35,7 +35,7 @@ jobs:
             | while read -r branch; do
 
               echo "→ Checking out ${branch}"
-              git checkout --track origin/${branch}
+              git checkout -q --track origin/${branch}
 
               # Move only the desired directories
               for old in data/*/*/*; do
@@ -50,14 +50,14 @@ jobs:
                 git mv "$old" "$target" >/dev/null 2>&1 || true
               done
 
-              if ! git diff --quiet; then
+              if git diff --cached --quiet; then
+                echo "✔ No changes in ${branch}"
+              else
                 git config user.name "github-actions[bot]"
                 git config user.email "github-actions[bot]@users.noreply.github.com"
-                git commit -am "chore: migrate data to season ${SEASON} layout"
-                echo "pushing changes for ${branch}"
+                git commit -m "chore: migrate data to season ${SEASON} layout"
+                echo "→ Pushing changes for ${branch}"
                 git push --set-upstream origin "${branch}"
-              else
-                echo "✔ No changes in ${branch}"
               fi
 
             done
