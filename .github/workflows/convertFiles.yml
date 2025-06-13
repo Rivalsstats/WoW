@@ -1,63 +1,77 @@
-name: "Migrate to Season 14"
+name: "Move Existing Data to Season Layout"
 
 on:
-    workflow_dispatch:
+  workflow_dispatch:
+    inputs:
+      season:
+        description: 'Season number to assign (e.g., 14)'
+        required: true
+        default: '14'
 
 jobs:
-  migrate:
+  move-data:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout all branches
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0      # needed to fetch all history and branches
+          fetch-tags: true
+          persist-credentials: true
+          # By default, only the default branch is checked out. We need all branches.
 
-      - name: Set up Git
+      - name: Fetch all branches
         run: |
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch --all
 
-      - name: Migrate JSON run files under data/runs
+      - name: Move data directories in each branch
+        env:
+          SEASON: ${{ github.event.inputs.season }}
         run: |
-            season=14
-            root="data/runs"
-            for region_dir in "$root"/*; do
-                [ -d "$region_dir" ] || continue
-                for realm_dir in "$region_dir"/*; do
-                [ -d "$realm_dir" ] || continue
-                mkdir -p "$realm_dir/$season"
-                shopt -s nullglob
-                for json in "$realm_dir"/*.json; do
-                    git mv "$json" "$realm_dir/$season/"
-                done
-                done
-            done
+          set -euo pipefail
+          echo "Processing branches to move data into season ${SEASON} folders..."
 
-      - name: Migrate period directories under data
-        run: |
-            season=14
-            root="data"
-            for region_dir in "$root"/*; do
-                # skip the runs folder
-                [ -d "$region_dir" ] || continue
-                [[ $(basename "$region_dir") == "runs" ]] && continue
-                for realm_dir in "$region_dir"/*; do
-                [ -d "$realm_dir" ] || continue
-                mkdir -p "$realm_dir/$season"
-                for period_dir in "$realm_dir"/*; do
-                    base=$(basename "$period_dir")
-                    # only move numeric-named directories
-                    if [ -d "$period_dir" ] && [[ "$base" =~ ^[0-9]+$ ]]; then
-                    git mv "$period_dir" "$realm_dir/$season/"
-                    fi
-                done
-                done
-            done
-
-      - name: Commit and push
-        run: |
-            if git diff --quiet; then
-                echo "No changes to commit"
-            else
-                git add .
-                git commit -m "chore: migrate data and runs into season 14 structure"
-                git push
+          # Get all local and remote branches
+          for branch in $(git for-each-ref --format='%(refname:short)' refs/remotes/origin/); do
+            # Strip 'origin/' prefix
+            branch_name=${branch#origin/}
+            # Skip HEAD and main branch
+            if [[ "$branch_name" == "HEAD" ]] || [[ "$branch_name" == "main" ]]; then
+              continue
             fi
+
+            echo "-- Checking out branch: $branch_name"
+            git checkout "$branch_name"
+
+            # Move legacy data
+            for old_dir in data/*/*/*; do
+              if [ -d "$old_dir" ]; then
+                region=$(basename "$(dirname "$(dirname "$old_dir"))")
+                realm=$(basename "$(dirname "$old_dir")")
+                period=$(basename "$old_dir")
+
+                new_parent="data/$region/$realm/$SEASON"
+                new_dir="$new_parent/$period"
+
+                mkdir -p "$new_parent"
+                git mv "$old_dir" "$new_dir" || echo "No changes in $old_dir"
+                echo "Moved $old_dir -> $new_dir"
+              fi
+            done
+
+            # Commit and push if there are changes
+            if ! git diff --cached --quiet; then
+              git config user.name "github-actions[bot]"
+              git config user.email "github-actions[bot]@users.noreply.github.com"
+              git commit -m "chore: migrate data to season $SEASON layout"
+              git push origin "$branch_name"
+            else
+              echo "No data to move in $branch_name"
+            fi
+          done
+
+          # Return to main at end
+          git checkout main
+
+      - name: Summary
+        run: echo "Data migration to season ${SEASON} complete on all branches."
