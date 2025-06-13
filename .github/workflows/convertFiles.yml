@@ -1,4 +1,4 @@
-name: "Move Existing Data to Season Layout"
+name: Move Existing Data to Season Layout
 
 on:
   workflow_dispatch:
@@ -15,63 +15,62 @@ jobs:
       - name: Checkout all branches
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0      # needed to fetch all history and branches
+          fetch-depth: 0             # fetch all history so we can check out every branch
           fetch-tags: true
           persist-credentials: true
-          # By default, only the default branch is checked out. We need all branches.
-
-      - name: Fetch all branches
-        run: |
-          git fetch --all
 
       - name: Move data directories in each branch
         env:
           SEASON: ${{ github.event.inputs.season }}
         run: |
           set -euo pipefail
-          echo "Processing branches to move data into season ${SEASON} folders..."
 
-          # Get all local and remote branches
-          for branch in $(git for-each-ref --format='%(refname:short)' refs/remotes/origin/); do
-            # Strip 'origin/' prefix
-            branch_name=${branch#origin/}
-            # Skip HEAD and main branch
-            if [[ "$branch_name" == "HEAD" ]] || [[ "$branch_name" == "main" ]]; then
-              continue
-            fi
+          echo "Processing all branches (except main/HEAD) to season ${SEASON} layout..."
 
-            echo "-- Checking out branch: $branch_name"
-            git checkout "$branch_name"
+          # Loop over every remote branch under origin/, except HEAD and main
+          git branch -r \
+            | grep '^  origin/' \
+            | sed 's@^  origin/@@' \
+            | grep -Ev '^(HEAD|main)$' \
+            | while read -r branch_name; do
 
-            # Move legacy data
-            for old_dir in data/*/*/*; do
-              if [ -d "$old_dir" ]; then
-                region=$(basename "$(dirname "$(dirname "$old_dir"))")
-                realm=$(basename "$(dirname "$old_dir")")
-                period=$(basename "$old_dir")
+              echo "-- Checking out branch: ${branch_name}"
+              git checkout "${branch_name}"
 
-                new_parent="data/$region/$realm/$SEASON"
-                new_dir="$new_parent/$period"
+              # Move each data/<region>/<realm>/<period> into the new season folder
+              for old_dir in data/*/*/*; do
+                [ -d "${old_dir}" ] || continue
 
-                mkdir -p "$new_parent"
-                git mv "$old_dir" "$new_dir" || echo "No changes in $old_dir"
-                echo "Moved $old_dir -> $new_dir"
+                region=$(basename "$(dirname "$(dirname "${old_dir}")")")
+                realm=$(basename "$(dirname "${old_dir}")")
+                period=$(basename "${old_dir}")
+
+                new_parent="data/${region}/${realm}/${SEASON}"
+                new_dir="${new_parent}/${period}"
+
+                mkdir -p "${new_parent}"
+                if git mv "${old_dir}" "${new_dir}"; then
+                  echo "  Moved ${old_dir} → ${new_dir}"
+                else
+                  echo "  No files to move in ${old_dir}"
+                fi
+              done
+
+              # Commit & push if anything moved
+              if ! git diff --quiet; then
+                git config user.name "github-actions[bot]"
+                git config user.email "github-actions[bot]@users.noreply.github.com"
+                git commit -am "chore: migrate data to season ${SEASON} layout"
+                git push origin "${branch_name}"
+              else
+                echo "  No data changes on ${branch_name}"
               fi
+
             done
 
-            # Commit and push if there are changes
-            if ! git diff --cached --quiet; then
-              git config user.name "github-actions[bot]"
-              git config user.email "github-actions[bot]@users.noreply.github.com"
-              git commit -m "chore: migrate data to season $SEASON layout"
-              git push origin "$branch_name"
-            else
-              echo "No data to move in $branch_name"
-            fi
-          done
-
-          # Return to main at end
+          # back to main when done
           git checkout main
 
       - name: Summary
-        run: echo "Data migration to season ${SEASON} complete on all branches."
+        run: |
+          echo "🎉 Migration to season ${SEASON} complete on all branches."
