@@ -33,6 +33,7 @@ MAX_GLOBAL_BACKOFF = 60.0
 global_backoff_until = 0.0
 backoff_lock = asyncio.Lock()
 base_backoff = 1.0  # base backoff in seconds
+max_backoff = 60.0  # maximum backoff in seconds
 
 # stat variables
 fetched_runs = 0
