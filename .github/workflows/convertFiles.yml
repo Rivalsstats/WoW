@@ -1,0 +1,63 @@
+name: "Migrate to Season 14"
+
+on:
+    workflow_dispatch:
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Git
+        run: |
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Migrate JSON run files under data/runs
+        run: |
+            season=14
+            root="data/runs"
+            for region_dir in "$root"/*; do
+                [ -d "$region_dir" ] || continue
+                for realm_dir in "$region_dir"/*; do
+                [ -d "$realm_dir" ] || continue
+                mkdir -p "$realm_dir/$season"
+                shopt -s nullglob
+                for json in "$realm_dir"/*.json; do
+                    git mv "$json" "$realm_dir/$season/"
+                done
+                done
+            done
+
+      - name: Migrate period directories under data
+        run: |
+            season=14
+            root="data"
+            for region_dir in "$root"/*; do
+                # skip the runs folder
+                [ -d "$region_dir" ] || continue
+                [[ $(basename "$region_dir") == "runs" ]] && continue
+                for realm_dir in "$region_dir"/*; do
+                [ -d "$realm_dir" ] || continue
+                mkdir -p "$realm_dir/$season"
+                for period_dir in "$realm_dir"/*; do
+                    base=$(basename "$period_dir")
+                    # only move numeric-named directories
+                    if [ -d "$period_dir" ] && [[ "$base" =~ ^[0-9]+$ ]]; then
+                    git mv "$period_dir" "$realm_dir/$season/"
+                    fi
+                done
+                done
+            done
+
+      - name: Commit and push
+        run: |
+            if git diff --quiet; then
+                echo "No changes to commit"
+            else
+                git add .
+                git commit -m "chore: migrate data and runs into season 14 structure"
+                git push
+            fi
