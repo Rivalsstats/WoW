@@ -53,10 +53,7 @@ jobs:
                 new_dir="${new_parent}/${period}"
 
                 mkdir -p "${new_parent}"
-                if git mv "${old_dir}" "${new_dir}"; then
-
-                else
-                fi
+                git mv "${old_dir}" "${new_dir}" >/dev/null 2>&1 || true
               done
 
               if ! git diff --quiet; then
