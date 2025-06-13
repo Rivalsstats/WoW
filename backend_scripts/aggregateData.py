@@ -29,7 +29,7 @@ def parse_runs(season_path):
         print(f"[DEBUG] No runs.csv found in {season_path}, skipping...")    
         return
     with open(runs_csv, newline='') as f:
-        reader = csv.DictReader(f, delimiter='\t')
+        reader = csv.DictReader(f)
         for row in reader:
             print(f"[DEBUG] Parsing run: {row}")
             row['members'] = row['members'].split(';')
