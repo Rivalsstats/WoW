@@ -89,6 +89,8 @@ def load_specialization(season_path, member_hash):
         return None
 
     data = json.load(open(fn))
+    if not data or isinstance(data, list):
+        return None
     active_spec_id = data.get('active_specialization')
     specs = data.get('specializations', [])
     spec_entry = next(
