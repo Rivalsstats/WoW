@@ -27,8 +27,6 @@ jobs:
 
           echo "Processing all branches (except main/HEAD) to season ${SEASON} layout..."
 
-          # List all origin/* refs, exclude the HEAD alias, strip the "origin/" prefix,
-          # and skip main.
           git for-each-ref --format='%(refname:short)' refs/remotes/origin/* \
             | grep -v '^origin/HEAD$' \
             | sed 's@^origin/@@' \
@@ -38,9 +36,14 @@ jobs:
               echo "-- Checking out branch: ${branch_name}"
               git checkout "${branch_name}"
 
-              # Move each data/<region>/<realm>/<period> into the new season folder
               for old_dir in data/*/*/*; do
                 [ -d "${old_dir}" ] || continue
+
+                # ← Skip anything under data/runs
+                if [[ "${old_dir}" == data/runs* ]]; then
+                  echo "  Skipping runs folder: ${old_dir}"
+                  continue
+                fi
 
                 region=$(basename "$(dirname "$(dirname "${old_dir}")")")
                 realm=$(basename "$(dirname "${old_dir}")")
@@ -57,7 +60,6 @@ jobs:
                 fi
               done
 
-              # Commit & push if anything moved
               if ! git diff --quiet; then
                 git config user.name "github-actions[bot]"
                 git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -69,7 +71,6 @@ jobs:
 
             done
 
-          # back to main when done
           git checkout main
 
       - name: Summary
