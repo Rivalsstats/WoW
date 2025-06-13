@@ -165,7 +165,7 @@ async def get_current_season_id(session: ClientSession, region: str) -> int:
     data = await fetch_json(session, url, params, region)
     if not data or not data.get('seasons'):
         return None
-    return max(s['id'] for s in data['seasons'])
+    return data['current_season']['id']
 
 async def get_season_periods(session: ClientSession, region: str, season_id: int) -> list[int]:
     url = f"{API_BASE.format(region=region)}/data/wow/mythic-keystone/season/{season_id}"
@@ -206,12 +206,12 @@ async def get_specializations(session: ClientSession, region: str, realm_slug: s
     return data.get('specializations', [])
 
 # Worker logic
-async def process_run(session: ClientSession, region: str, period_id: int, realm_id: int, dungeon: dict):
+async def process_run(session: ClientSession, region: str, season: int, period_id: int, realm_id: int, dungeon: dict):
     global fetched_runs, fetched_profiles, enqueued_profiles
     lb = await get_leaderboard(session, region, realm_id, dungeon['dungeon_id'], period_id)
     if lb is None:
         return
-    period_dir = DATA_DIR / region / str(realm_id)/ str(period_id)
+    period_dir = DATA_DIR / region / str(realm_id) / str(season) / str(period_id)
     ensure_dir(period_dir)
     # runs.csv setup
     runs_csv = period_dir / 'runs.csv'
@@ -220,7 +220,7 @@ async def process_run(session: ClientSession, region: str, period_id: int, realm
             writer = csv.writer(f)
             writer.writerow(['hash', 'dungeon_id', 'keystone_level', 'duration', 'timestamp', 'faction', 'members'])
     # seen
-    seen_file = RUNS_DIR /region/ str(realm_id) / f"{period_id}.csv"
+    seen_file = RUNS_DIR / region / str(realm_id) / str(season) / f"{period_id}.csv"
     ensure_dir(seen_file.parent)
     seen: set[str] = set()
 
@@ -295,7 +295,7 @@ async def worker(name: str, queue: asyncio.Queue, session: ClientSession):
     try:
         while True:
             try:
-                region, period_id, realm_id, dungeon = await asyncio.wait_for(queue.get(), timeout=1)
+                region, season, period_id, realm_id, dungeon = await asyncio.wait_for(queue.get(), timeout=1)
             except asyncio.TimeoutError:
                 # No work this second — re‐check for cancellation
                 if cancel_event.is_set():
@@ -303,7 +303,7 @@ async def worker(name: str, queue: asyncio.Queue, session: ClientSession):
                 continue
 
             try:
-                await process_run(session, region, period_id, realm_id, dungeon)
+                await process_run(session, region, season, period_id, realm_id, dungeon)
             except Exception as e:
                 print(f"[{datetime.datetime.now(datetime.timezone.utc).isoformat()}] [{name}] Error: {e}")
             finally:
@@ -348,7 +348,7 @@ async def main():
                 for period in periods:
                     dungeons = await get_leaderboard_index(session, region, realm)
                     for dungeon in dungeons:
-                        await q.put((region, period, realm, dungeon))
+                        await q.put((region, current_season, period, realm, dungeon))
 
         # Wait for all queues to be processed
         await asyncio.gather(*(q.join() for q in realm_queues.values()))
