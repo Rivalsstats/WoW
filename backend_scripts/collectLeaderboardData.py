@@ -13,7 +13,7 @@ import random
 # Configuration
 REGIONS = os.environ.get('REGIONS', 'us,eu,kr,tw').split(',')
 API_BASE = 'https://{region}.api.blizzard.com'
-OAUTH_BASE = 'https://{region}.battle.net'
+OAUTH_BASE = 'https://eu.battle.net/oauth/token'
 NAMESPACE_DYNAMIC = 'dynamic-{region}'
 LOCALE = os.environ.get('LOCALE', 'en_US')
 DATA_DIR = Path('data')
@@ -62,7 +62,7 @@ async def get_access_token(session: ClientSession, region: str) -> str:
     cache = _token_cache.get(region)
     if cache and cache['expires_at'] > time.time() + 60:
         return cache['access_token']
-    url = f"{OAUTH_BASE.format(region=region)}/oauth/token"
+    url = OAUTH_BASE
     async with session.post(
         url,
         auth=BasicAuth(CLIENT_ID, CLIENT_SECRET),
