@@ -31,7 +31,6 @@ def parse_runs(season_path):
     with open(runs_csv, newline='') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            print(f"[DEBUG] Parsing run: {row}")
             row['members'] = row['members'].split(';')
             yield row
 
@@ -40,6 +39,7 @@ def load_specialization(season_path, member_hash):
     if not os.path.isfile(fn):
         return None
     data = json.load(open(fn))
+    print(f"[DEBUG] Loaded specialization for {member_hash}: {data}")
     active = next((l for l in data.get('loadouts', []) if l.get('is_active')), {})
     return {
         'spec_id': data['specialization']['id'],
