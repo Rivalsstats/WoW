@@ -134,7 +134,7 @@ async def main_async(branches_dir, output_dir, max_workers=10, max_concurrency=5
     seasons = list(find_seasons(branches_dir))
 
     # For each <region>/<realm>/<season>/<period>
-    for season_path in seasons:
+    for region_name, realm_name, season_name, period_name, season_path in seasons:
         # Derive region, season, and period
         # season_path = .../data/{region}/{realm}/{season}/{period}
         period_name = os.path.basename(season_path)
