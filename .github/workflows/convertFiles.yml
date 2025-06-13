@@ -27,11 +27,12 @@ jobs:
 
           echo "Processing all branches (except main/HEAD) to season ${SEASON} layout..."
 
-          # Loop over every remote branch under origin/, except HEAD and main
-          git branch -r \
-            | grep '^  origin/' \
-            | sed 's@^  origin/@@' \
-            | grep -Ev '^(HEAD|main)$' \
+          # List all origin/* refs, exclude the HEAD alias, strip the "origin/" prefix,
+          # and skip main.
+          git for-each-ref --format='%(refname:short)' refs/remotes/origin/* \
+            | grep -v '^origin/HEAD$' \
+            | sed 's@^origin/@@' \
+            | grep -v '^main$' \
             | while read -r branch_name; do
 
               echo "-- Checking out branch: ${branch_name}"
