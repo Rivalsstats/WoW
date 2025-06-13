@@ -38,16 +38,32 @@ def load_specialization(season_path, member_hash):
     fn = os.path.join(season_path, 'specializations', f'{member_hash}.json')
     if not os.path.isfile(fn):
         return None
+
     data = json.load(open(fn))
     print(f"[DEBUG] Loaded specialization for {member_hash}: {data}")
-    active = next((l for l in data.get('loadouts', []) if l.get('is_active')), {})
+
+    active_spec_id = data.get('active_specialization')
+    specs = data.get('specializations', [])
+    spec_entry = next(
+        (s for s in specs
+         if s.get('specialization', {}).get('id') == active_spec_id),
+        None
+    )
+    if spec_entry is None:
+        return None
+    print(f"[DEBUG] Found active specialization: {spec_entry}")
+    loadouts = spec_entry.get('loadouts', [])
+    active_loadout = next((l for l in loadouts if l.get('is_active')), {})
+
     return {
-        'spec_id': data['specialization']['id'],
+        # report back the id we matched on
+        'spec_id': active_spec_id,
         'talents': [
             {'id': t['id'], 'rank': t['rank']}
-            for t in active.get('selected_class_talents', [])
+            for t in active_loadout.get('selected_class_talents', [])
         ]
     }
+
 
 def load_equipment(season_path, member_hash):
     fn = os.path.join(season_path, 'equipment', f'{member_hash}.json')
