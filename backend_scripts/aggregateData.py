@@ -54,24 +54,39 @@ async def _process_member(season_path, member_hash, rec, executor, sem):
         for eq in eqs:
             rec['item_bonus'][eq['item_id']].update(eq['bonus_list'])
 
-def find_seasons(data_dir):
+def find_seasons(branches_dir):
     """
-    Yield (region, realm, season, period, full_path) for each leaf folder under data/.
+    Walk every branch under `branches_dir`, skip any with 'origin' in the name,
+    then enter its data/{region}/{realm}/{season}/{period} folders and yield:
+      (region, realm, season, period, full_path)
     """
-    data_dir = Path(data_dir)
-    for region_dir in data_dir.iterdir():
-        if not region_dir.is_dir(): 
+    branches_dir = Path(branches_dir)
+    for br in branches_dir.iterdir():
+        if not br.is_dir() or 'origin' in br.name:
             continue
-        for realm_dir in region_dir.iterdir():
-            if not realm_dir.is_dir(): 
+        data_dir = br / 'data'
+        if not data_dir.is_dir():
+            print(f"[DEBUG] No data/ in {br}")
+            continue
+        for region_dir in data_dir.iterdir():
+            if not region_dir.is_dir():
                 continue
-            for season_dir in realm_dir.iterdir():
-                if not season_dir.is_dir():
-                   continue
-                for period_dir in season_dir.iterdir():
-                    if not period_dir.is_dir():
+            for realm_dir in region_dir.iterdir():
+                if not realm_dir.is_dir():
+                    continue
+                for season_dir in realm_dir.iterdir():
+                    if not season_dir.is_dir():
                         continue
-                    yield region_dir.name, realm_dir.name, season_dir.name, period_dir.name, str(period_dir)
+                    for period_dir in season_dir.iterdir():
+                        if not period_dir.is_dir():
+                            continue
+                        yield (
+                            region_dir.name,
+                            realm_dir.name,
+                            season_dir.name,
+                            period_dir.name,
+                            str(period_dir)
+                        )
 
 def parse_runs(season_path):
     runs_csv = os.path.join(season_path, 'runs.csv')
