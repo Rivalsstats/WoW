@@ -31,6 +31,7 @@ def parse_runs(season_path):
     with open(runs_csv, newline='') as f:
         reader = csv.DictReader(f, delimiter='\t')
         for row in reader:
+            print(f"[DEBUG] Parsing run: {row}")
             row['members'] = row['members'].split(';')
             yield row
 
