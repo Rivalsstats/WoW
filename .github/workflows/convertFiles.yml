@@ -55,7 +55,7 @@ jobs:
 
                 # 3) if it's anywhere under equipment or specializations, keep it
                 #    (the slash in the regex means “anything deeper” as well)
-                if [[ "$rel" =~ ^[^/]+/[^/]+/${SEASON}/[^/]+/(equipment|specializations)(/|$) ]]; then
+                if [[ "$rel" =~ ^[^/]+/[^/]+/${SEASON}/[^/]+/(equipment|specializations)(/.*|$) ]]; then
                   continue
                 fi
 
