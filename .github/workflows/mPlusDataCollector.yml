@@ -68,22 +68,23 @@ jobs:
           set -euo pipefail
           git config user.name  "github-actions"
           git config user.email "github-actions@github.com"
-          
+
           ROOT=$(pwd)
           BASE=origin/main
-          
+
           git worktree prune
-          
+
           for region in $(echo $REGIONS | tr ',' ' '); do
             if compgen -G "data/$region/*" > /dev/null; then
               find data/$region -mindepth 1 -maxdepth 1 -type d | while read realm_path; do
-                region=$(basename $(dirname "$realm_path"))
+                region=$(basename "$(dirname "$realm_path")")
                 realm=$(basename "$realm_path")
                 branch="${region}-${realm}"
                 WT_DIR="${ROOT}/.wt-${branch}"
-                
+
                 echo "→ Updating branch $branch"
                 rm -rf "$WT_DIR"
+
                 if   git show-ref --verify --quiet "refs/heads/$branch"; then
                   git worktree add --force "$WT_DIR" "$branch"
                 elif git show-ref --verify --quiet "refs/remotes/origin/$branch"; then
@@ -101,16 +102,15 @@ jobs:
                   done < <(find data/$region/$realm -type f -name runs.csv)
                 popd >/dev/null
 
-                # ─── copy the new realm data (including fresh runs.csv) ───
+                # ─── copy + rebuild runs.csv ───
                 pushd "$WT_DIR" >/dev/null
+                  rm -rf "$realm_path"
                   mkdir -p "$realm_path"
-                  cp -r "$ROOT/$realm_path/." "$realm_path/"
+                  cp -r "$ROOT/$realm_path/." "$realm_path"/
 
-                  # ─── for each runs.csv, rewrite in-place ───
+                  # rewrite each runs.csv in-place
                   while IFS= read -r csv; do
-                    # if we have an old header, use it, else first line of new
                     hdr="${OLD_HDR[$csv]:-$(head -n1 "$csv")}"
-                    # rebuild: old header + new data rows (skip new header)
                     {
                       printf '%s\n' "$hdr"
                       tail -n +2 "$csv"
@@ -118,8 +118,8 @@ jobs:
                     mv "${csv}.tmp" "$csv"
                   done < <(find data/$region/$realm -type f -name runs.csv)
 
-                  git add "$realm_path"
-                  git add data/$region/$realm/**/*.csv
+                  # ─── stage everything ───
+                  git add "data/$region/$realm"
 
                   if ! git diff --cached --quiet; then
                     git commit -m "Update M+ data for $branch"
