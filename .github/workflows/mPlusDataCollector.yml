@@ -110,10 +110,6 @@ jobs:
                   rsync -a --exclude 'runs.csv' \
                     "$ROOT/$realm_path/" "$realm_path/"
 
-                  echo "→ checking for runs.csv at: $ROOT/$realm_path/runs.csv"
-                  echo "→ Dumping full directory tree from \$ROOT:"
-                  find "$ROOT/$realm_path/" | sort
-
                   echo "→ Merging runs.csv for $branch"
                   python "$ROOT/backend_scripts/mergeRuns.py" \
                     --old-dir "$realm_path" \
