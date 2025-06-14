@@ -41,10 +41,10 @@ jobs:
                 ! -path "data/*/*/${SEASON}/*/equipment/*" \
                 ! -path "data/*/*/${SEASON}/*/specializations/*" \
                 -print0 \
-              | xargs -0 git rm --ignore-unmatch -v
+              | xargs -0 git rm --ignore-unmatch
 
               find data -type d -empty -print0 \
-              | xargs -0 git rm --ignore-unmatch -r -v
+              | xargs -0 git rm --ignore-unmatch -r
 
               # commit & push if there were deletions
               if git diff --cached --quiet; then
@@ -59,3 +59,4 @@ jobs:
 
           git checkout main
           echo "Cleanup complete for season $SEASON"
+
