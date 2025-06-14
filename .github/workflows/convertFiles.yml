@@ -1,15 +1,15 @@
-name: Move & Flatten Data to Season Layout
+name: Cleanup WoW Data Structure
 
 on:
   workflow_dispatch:
     inputs:
       season:
-        description: 'Season number to assign (e.g., 14)'
+        description: 'Season number to keep (e.g., 14)'
         required: true
         default: '14'
 
 jobs:
-  migrate:
+  cleanup:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,62 +20,69 @@ jobs:
           fetch-tags: true
           persist-credentials: true
 
-      - name: Move & flatten data directories in each realm branch
+      - name: Prune and retain only correct files
         env:
           SEASON: ${{ github.event.inputs.season }}
         run: |
           set -euo pipefail
-          echo "Migrating only season $SEASON data, flattening nested realms…"
+          echo "Cleaning up data structure for season $SEASON"
 
-          # enumerate only direct remote branches (origin/branch)
+          # loop over every remote branch except main/HEAD
           git for-each-ref --format='%(refname:short)' refs/remotes/origin/* \
             | grep '^origin/[^/]\+$' \
             | grep -vE '^(origin/HEAD|origin/main)$' \
             | sed 's@^origin/@@' \
             | while read -r branch; do
 
-              echo "→ Checking out $branch"
+              echo "→ Branch: $branch"
               git checkout -q --track origin/"$branch"
 
-              # flatten nested realm folder if present
-              for realm_path in data/*/*; do
-                [[ "$realm_path" == data/runs* ]] && continue
-                region=$(basename "$(dirname "$realm_path")")
-                realm=$(basename "$realm_path")
-                nested="$realm_path/$realm"
-                nested_season="$nested/$SEASON"
+              # remove any file or directory under data/ that does NOT match our keep patterns
+              #  keep: 
+              #    data/{region}/{realm}/{SEASON}/{period}/runs.csv
+              #    data/{region}/{realm}/{SEASON}/{period}/equipment/**
+              #    data/{region}/{realm}/{SEASON}/{period}/specializations/**
+              #
+              # anything else gets git-rm -r
 
-                if [ -d "$nested_season" ]; then
-                  echo "Found nested season data at $nested_season"
-                  for period_dir in "$nested_season"/*; do
-                    [ -d "$period_dir" ] || continue
-                    period=$(basename "$period_dir")
-                    target="data/${region}/${realm}/${SEASON}/${period}"
-                    [ -e "$target" ] && { echo "$period already in place"; continue; }
-                    echo "Moving $period_dir → $target"
-                    mkdir -p "$(dirname "$target")"
-                    git mv "$period_dir" "$target"
-                  done
-                  # cleanup empty dirs
-                  [ -z "$(ls -A "$nested_season")" ] && rmdir "$nested_season"
-                  if [ -d "$nested" ] && [ -z "$(ls -A "$nested")" ]; then
-                    echo "Removing empty $nested"
-                    rmdir "$nested"
-                  fi
-                  git add -u "$realm_path"
+              # find all paths under data/
+              find data -mindepth 1 | while read -r path; do
+                # normalize
+                rel=${path#data/}
+
+                # check keep conditions
+                if [[ "$rel" =~ ^[^/]+/[^/]+/${SEASON}/[^/]+/runs\.csv$ ]]; then
+                  continue
                 fi
+                if [[ "$rel" =~ ^[^/]+/[^/]+/${SEASON}/[^/]+/equipment(/|$) ]]; then
+                  continue
+                fi
+                if [[ "$rel" =~ ^[^/]+/[^/]+/${SEASON}/[^/]+/specializations(/|$) ]]; then
+                  continue
+                fi
+
+                # otherwise remove
+                echo "   🗑  Removing $path"
+                git rm -rf --ignore-unmatch "$path"
               done
 
+              # prune any empty dirs under data/
+              find data -type d -empty -print | while read -r d; do
+                echo "Rmdir $d"
+                git rm -rf --ignore-unmatch "$d"
+              done
+
+              # commit & push if needed
               if git diff --cached --quiet; then
-                echo "   ✔ No changes in $branch"
+                echo "Nothing to clean on $branch"
               else
                 git config user.name "github-actions[bot]"
                 git config user.email "github-actions[bot]@users.noreply.github.com"
-                git commit -m "chore: flatten nested realm data for season ${SEASON}"
-                echo "   ↪ Pushing $branch"
+                git commit -m "chore: prune data to season ${SEASON} layout"
                 git push --set-upstream origin "$branch"
               fi
             done
 
+          # back to main
           git checkout main
-          echo "Migration complete for season $SEASON"
+          echo "Cleanup complete for season $SEASON"
