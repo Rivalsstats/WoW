@@ -118,7 +118,6 @@ jobs:
                   python "$ROOT/backend_scripts/mergeRuns.py" \
                     --old-dir "$realm_path" \
                     --new-dir "$ROOT/$realm_path"
-                  git add "$realm_path/runs.csv"
            
                   git add "$realm_path"
         
