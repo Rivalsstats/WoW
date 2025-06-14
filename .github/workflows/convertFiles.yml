@@ -27,8 +27,9 @@ jobs:
           set -euo pipefail
           echo "Migrating only season $SEASON data, flattening nested realms…"
 
-          # iterate every remote branch except main/HEAD
-          git for-each-ref --format='%(refname:short)' refs/remotes/origin \
+          # enumerate only direct remote branches (origin/branch)
+          git for-each-ref --format='%(refname:short)' refs/remotes/origin/* \
+            | grep '^origin/[^/]\+$' \
             | grep -vE '^(origin/HEAD|origin/main)$' \
             | sed 's@^origin/@@' \
             | while read -r branch; do
@@ -36,7 +37,7 @@ jobs:
               echo "→ Checking out $branch"
               git checkout -q --track origin/"$branch"
 
-              # for each region/realm folder
+              # flatten nested realm folder if present
               for realm_path in data/*/*; do
                 [[ "$realm_path" == data/runs* ]] && continue
                 region=$(basename "$(dirname "$realm_path")")
@@ -44,56 +45,37 @@ jobs:
                 nested="$realm_path/$realm"
                 nested_season="$nested/$SEASON"
 
-                # only if nested season exists
                 if [ -d "$nested_season" ]; then
-                  echo "Found nested data for season $SEASON in $nested_season"
-
-                  # move each period under that nested season
+                  echo "Found nested season data at $nested_season"
                   for period_dir in "$nested_season"/*; do
                     [ -d "$period_dir" ] || continue
                     period=$(basename "$period_dir")
                     target="data/${region}/${realm}/${SEASON}/${period}"
-
-                    # skip if already in correct place
-                    if [ -e "$target" ]; then
-                      echo "Skipping $period (already exists at $target)"
-                      continue
-                    fi
-
+                    [ -e "$target" ] && { echo "$period already in place"; continue; }
                     echo "Moving $period_dir → $target"
                     mkdir -p "$(dirname "$target")"
                     git mv "$period_dir" "$target"
                   done
-
-                  # remove the now-empty nested season folder
-                  if [ -z "$(ls -A "$nested_season")" ]; then
-                    echo "Removing empty $nested_season"
-                    rmdir "$nested_season"
-                  fi
-
-                  # if the nested realm folder is now empty, remove it too
+                  # cleanup empty dirs
+                  [ -z "$(ls -A "$nested_season")" ] && rmdir "$nested_season"
                   if [ -d "$nested" ] && [ -z "$(ls -A "$nested")" ]; then
-                    echo "Removing empty nested realm dir $nested"
+                    echo "Removing empty $nested"
                     rmdir "$nested"
                   fi
-
-                  # stage any removals
                   git add -u "$realm_path"
                 fi
               done
 
-              # commit & push if anything changed
               if git diff --cached --quiet; then
-                echo "No changes in $branch"
+                echo "   ✔ No changes in $branch"
               else
                 git config user.name "github-actions[bot]"
                 git config user.email "github-actions[bot]@users.noreply.github.com"
                 git commit -m "chore: flatten nested realm data for season ${SEASON}"
-                echo "Pushing $branch"
+                echo "   ↪ Pushing $branch"
                 git push --set-upstream origin "$branch"
               fi
             done
 
-          # back to main
           git checkout main
           echo "Migration complete for season $SEASON"
