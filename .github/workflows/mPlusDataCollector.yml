@@ -105,8 +105,8 @@ jobs:
                 
                 # In the worktree, remove old data and copy only this folder
                 pushd "$WT_DIR" >/dev/null
-                  mkdir -p "$(dirname "$realm_path")"
-                  cp -r "$ROOT/$realm_path" "$realm_path"
+                  mkdir -p "$realm_path"
+                  cp -r "$ROOT/$realm_path/"* "$realm_path/"
                   git add "$realm_path"
                   
                   if ! git diff --cached --quiet; then
