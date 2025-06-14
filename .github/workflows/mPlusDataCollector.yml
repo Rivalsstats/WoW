@@ -114,15 +114,11 @@ jobs:
                   echo "→ Dumping full directory tree from \$ROOT:"
                   find "$ROOT/$realm_path/" | sort
 
-                  if [ -f "$ROOT/$realm_path/runs.csv" ]; then
-                    echo "→ Merging runs.csv for $branch"
-                    python "$ROOT/backend_scripts/mergeRuns.py" \
-                      --old-dir "$realm_path" \
-                      --new-dir "$ROOT/$realm_path"
-                    git add "$realm_path/runs.csv"
-                  else
-                    echo "No runs.csv found for $branch"
-                  fi
+                  echo "→ Merging runs.csv for $branch"
+                  python "$ROOT/backend_scripts/mergeRuns.py" \
+                    --old-dir "$realm_path" \
+                    --new-dir "$ROOT/$realm_path"
+                  git add "$realm_path/runs.csv"
            
                   git add "$realm_path"
         
