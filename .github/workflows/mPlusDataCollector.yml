@@ -111,6 +111,8 @@ jobs:
                     "$ROOT/$realm_path/" "$realm_path/"
 
                   echo "→ checking for runs.csv at: $ROOT/$realm_path/runs.csv"
+                  echo "→ Dumping full directory tree from \$ROOT:"
+                  find "$ROOT" | sort
                   
                   if [ -f "$ROOT/$realm_path/runs.csv" ]; then
                     echo "→ Merging runs.csv for $branch"
