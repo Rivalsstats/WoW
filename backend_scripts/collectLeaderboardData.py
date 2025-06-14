@@ -25,9 +25,10 @@ per_hour_limiter = AsyncLimiter(29500, 3600)
 
 # Queue settings
 QUEUE_MAXSIZE = 1000
-GHA_TIMEOUT = 60 #4 * 3600  # 5 hours
+GHA_TIMEOUT = 4 * 3600  # 5 hours
 cancel_event = asyncio.Event()
 MAX_GLOBAL_BACKOFF = 60.0
+WORKERS_PER_REALM = int(os.environ.get('WORKERS_PER_REALM', '5'))
 
 # global_backoff_until is a POSIX timestamp; workers wait until time.time() >= this
 global_backoff_until = 0.0
