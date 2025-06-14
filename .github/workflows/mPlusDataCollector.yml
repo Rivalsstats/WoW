@@ -107,7 +107,7 @@ jobs:
                 pushd "$WT_DIR" >/dev/null
                   mkdir -p "$realm_path"
                   
-                  rsync -a --delete --exclude 'runs.csv' \
+                  rsync -a --exclude 'runs.csv' \
                     "$ROOT/$realm_path/" "$realm_path/"
             
                   if [ -f "$ROOT/$realm_path/runs.csv" ]; then
