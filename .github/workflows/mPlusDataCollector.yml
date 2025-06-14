@@ -106,7 +106,23 @@ jobs:
                 # In the worktree, remove old data and copy only this folder
                 pushd "$WT_DIR" >/dev/null
                   mkdir -p "$realm_path"
-                  cp -r "$ROOT/$realm_path/"* "$realm_path/"
+
+                  #logging
+                  #logging
+                  
+                  echo "  Source dir content (full tree):"
+                  find "$ROOT/$realm_path" | sed "s#^#$ROOT/#" | sed 's#^#    #'
+
+                  echo "  Destination before copy (full tree):"
+                  find "$WT_DIR/data/$region/$realm" | sed "s#^#$WT_DIR/#" | sed 's#^#    #'
+
+                  echo "  Destination after copy (full tree):"
+                  find "$WT_DIR/data/$region/$realm" | sed "s#^#$WT_DIR/#" | sed 's#^#    #'
+
+                  #logging
+                  #logging
+
+                  cp -r "$ROOT/$realm_path/." "$realm_path/"
                   git add "$realm_path"
                   
                   if ! git diff --cached --quiet; then
