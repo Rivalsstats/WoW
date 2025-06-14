@@ -102,6 +102,17 @@ jobs:
                   # immediately push the empty branch so origin/$branch will exist next time
                   ( cd "$WT_DIR" && git push --set-upstream origin HEAD:"$branch" )
                 fi
+
+                # ── snapshot old runs.csv (if any) for this realm ──
+                pushd "$WT_DIR" >/dev/null
+                # find any existing runs.csv under this realm
+                OLD_RUNS_FILES=( $(find data/$region/$realm -type f -name runs.csv) )
+                declare -A TMP_OLD
+                for old in "${OLD_RUNS_FILES[@]}"; do
+                  TMP_OLD["$old"]=$(mktemp)
+                  cp "$old" "${TMP_OLD[$old]}"
+                done
+                popd >/dev/null
                 
                 # In the worktree, remove old data and copy only this folder
                 pushd "$WT_DIR" >/dev/null
@@ -109,7 +120,7 @@ jobs:
 
                   #logging
                   #logging
-                  
+
                   echo "  Source dir content (full tree):"
                   find "$ROOT/$realm_path" | sed "s#^#$ROOT/#" | sed 's#^#    #'
 
@@ -123,6 +134,22 @@ jobs:
                   #logging
 
                   cp -r "$ROOT/$realm_path/." "$realm_path/"
+                  # ── merge headers + new rows for each runs.csv ──
+                  for old in "${OLD_RUNS_FILES[@]}"; do
+                    new="$old"  # after copy the same path holds the new file
+                    tmp_hdr="$(mktemp)"
+                    # header: old first line (or if missing, fall back to new)
+                    if head -n1 "${TMP_OLD[$old]}" > "$tmp_hdr"; then :; \
+                      else head -n1 "$new" > "$tmp_hdr"; fi
+                    # rebuild: old header + new data rows
+                    {
+                      cat "$tmp_hdr"
+                      tail -n +2 "$new"
+                    } > "${new}.merged"
+                    mv "${new}.merged" "$new"
+                    rm "$tmp_hdr" "${TMP_OLD[$old]}"
+                  done
+ 
                   git add "$realm_path"
                   
                   if ! git diff --cached --quiet; then
