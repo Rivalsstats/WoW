@@ -27,52 +27,50 @@ jobs:
           set -euo pipefail
           echo "Cleaning up data structure for season $SEASON"
 
-          # loop over every remote branch except main/HEAD
           git for-each-ref --format='%(refname:short)' refs/remotes/origin/* \
-            | grep '^origin/[^/]\+$' \
-            | grep -vE '^(origin/HEAD|origin/main)$' \
-            | sed 's@^origin/@@' \
-            | while read -r branch; do
+          | grep '^origin/[^/]\+$' \
+          | grep -vE '^(origin/HEAD|origin/main)$' \
+          | sed 's@^origin/@@' \
+          | while read -r branch; do
 
               echo "→ Branch: $branch"
               git checkout -q --track origin/"$branch"
 
-              # remove any file or directory under data/ that does NOT match our keep patterns
-              #  keep: 
-              #    data/{region}/{realm}/{SEASON}/{period}/runs.csv
-              #    data/{region}/{realm}/{SEASON}/{period}/equipment/**
-              #    data/{region}/{realm}/{SEASON}/{period}/specializations/**
-              #
-              # anything else gets git-rm -r
-
-              # find all paths under data/
+              # find all file and dir paths under data/
               find data -mindepth 1 | while read -r path; do
-                # normalize
                 rel=${path#data/}
+                IFS='/' read -r region realm season period rest <<< "$rel"
 
-                # check keep conditions
+                # 1) if this isn't under the correct season directory, delete it
+                if [[ "$season" != "$SEASON" ]]; then
+                  echo "($season ≠ $SEASON) Removing $path"
+                  git rm -rf --ignore-unmatch "$path"
+                  continue
+                fi
+
+                # 2) if it's exactly runs.csv in the right spot, keep it
                 if [[ "$rel" =~ ^[^/]+/[^/]+/${SEASON}/[^/]+/runs\.csv$ ]]; then
                   continue
                 fi
-                if [[ "$rel" =~ ^[^/]+/[^/]+/${SEASON}/[^/]+/equipment(/|$) ]]; then
-                  continue
-                fi
-                if [[ "$rel" =~ ^[^/]+/[^/]+/${SEASON}/[^/]+/specializations(/|$) ]]; then
+
+                # 3) if it's anywhere under equipment or specializations, keep it
+                #    (the slash in the regex means “anything deeper” as well)
+                if [[ "$rel" =~ ^[^/]+/[^/]+/${SEASON}/[^/]+/(equipment|specializations)(/|$) ]]; then
                   continue
                 fi
 
-                # otherwise remove
-                echo "   🗑  Removing $path"
+                # everything else under data/ goes
+                echo "Removing $path"
                 git rm -rf --ignore-unmatch "$path"
               done
 
               # prune any empty dirs under data/
               find data -type d -empty -print | while read -r d; do
-                echo "Rmdir $d"
+                echo "Rmdir empty dir $d"
                 git rm -rf --ignore-unmatch "$d"
               done
 
-              # commit & push if needed
+              # commit & push only if something changed
               if git diff --cached --quiet; then
                 echo "Nothing to clean on $branch"
               else
@@ -83,6 +81,5 @@ jobs:
               fi
             done
 
-          # back to main
           git checkout main
           echo "Cleanup complete for season $SEASON"
