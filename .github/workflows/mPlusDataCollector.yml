@@ -72,10 +72,8 @@ jobs:
           ROOT=$(pwd)
           BASE=origin/main
           
-          # Prune stale worktrees first
           git worktree prune
           
-          # For each realm folder under each region (exclude data/runs)
           for region in $(echo $REGIONS | tr ',' ' '); do
             if compgen -G "data/$region/*" > /dev/null; then
               find data/$region -mindepth 1 -maxdepth 1 -type d | while read realm_path; do
@@ -84,74 +82,45 @@ jobs:
                 branch="${region}-${realm}"
                 WT_DIR="${ROOT}/.wt-${branch}"
                 
-                echo "→ Updating branch $branch from $realm_path"
-                
-                # Clean up any old worktree
+                echo "→ Updating branch $branch"
                 rm -rf "$WT_DIR"
-                
-                # Try to create from existing branch, else from main
-                if git show-ref --verify --quiet "refs/heads/$branch"; then
-                  # local branch already exists
+                if   git show-ref --verify --quiet "refs/heads/$branch"; then
                   git worktree add --force "$WT_DIR" "$branch"
                 elif git show-ref --verify --quiet "refs/remotes/origin/$branch"; then
-                  # remote branch exists but no local copy
                   git worktree add --force "$WT_DIR" "origin/$branch"
                 else
-                  # brand-new branch: create locally
                   git worktree add --force -b "$branch" "$WT_DIR" "$BASE"
-                  # immediately push the empty branch so origin/$branch will exist next time
                   ( cd "$WT_DIR" && git push --set-upstream origin HEAD:"$branch" )
                 fi
 
-                # ── snapshot old runs.csv (if any) for this realm ──
+                # ─── snapshot old headers ───
+                declare -A OLD_HDR
                 pushd "$WT_DIR" >/dev/null
-                # find any existing runs.csv under this realm
-                OLD_RUNS_FILES=( $(find data/$region/$realm -type f -name runs.csv) )
-                declare -A TMP_OLD
-                for old in "${OLD_RUNS_FILES[@]}"; do
-                  TMP_OLD["$old"]=$(mktemp)
-                  cp "$old" "${TMP_OLD[$old]}"
-                done
+                  while IFS= read -r csv; do
+                    OLD_HDR["$csv"]="$(head -n1 "$csv")"
+                  done < <(find data/$region/$realm -type f -name runs.csv)
                 popd >/dev/null
-                
-                # In the worktree, remove old data and copy only this folder
+
+                # ─── copy the new realm data (including fresh runs.csv) ───
                 pushd "$WT_DIR" >/dev/null
                   mkdir -p "$realm_path"
-
-                  #logging
-                  #logging
-
-                  echo "  Source dir content (full tree):"
-                  find "$ROOT/$realm_path" | sed "s#^#$ROOT/#" | sed 's#^#    #'
-
-                  echo "  Destination before copy (full tree):"
-                  find "$WT_DIR/data/$region/$realm" | sed "s#^#$WT_DIR/#" | sed 's#^#    #'
-
-                  echo "  Destination after copy (full tree):"
-                  find "$WT_DIR/data/$region/$realm" | sed "s#^#$WT_DIR/#" | sed 's#^#    #'
-
-                  #logging
-                  #logging
-
                   cp -r "$ROOT/$realm_path/." "$realm_path/"
-                  # ── merge headers + new rows for each runs.csv ──
-                  for old in "${OLD_RUNS_FILES[@]}"; do
-                    new="$old"  # after copy the same path holds the new file
-                    tmp_hdr="$(mktemp)"
-                    # header: old first line (or if missing, fall back to new)
-                    if head -n1 "${TMP_OLD[$old]}" > "$tmp_hdr"; then :; \
-                      else head -n1 "$new" > "$tmp_hdr"; fi
-                    # rebuild: old header + new data rows
+
+                  # ─── for each runs.csv, rewrite in-place ───
+                  while IFS= read -r csv; do
+                    # if we have an old header, use it, else first line of new
+                    hdr="${OLD_HDR[$csv]:-$(head -n1 "$csv")}"
+                    # rebuild: old header + new data rows (skip new header)
                     {
-                      cat "$tmp_hdr"
-                      tail -n +2 "$new"
-                    } > "${new}.merged"
-                    mv "${new}.merged" "$new"
-                    rm "$tmp_hdr" "${TMP_OLD[$old]}"
-                  done
- 
+                      printf '%s\n' "$hdr"
+                      tail -n +2 "$csv"
+                    } > "${csv}.tmp"
+                    mv "${csv}.tmp" "$csv"
+                  done < <(find data/$region/$realm -type f -name runs.csv)
+
                   git add "$realm_path"
-                  
+                  git add data/$region/$realm/**/*.csv
+
                   if ! git diff --cached --quiet; then
                     git commit -m "Update M+ data for $branch"
                     git push --force-with-lease origin HEAD:"$branch"
@@ -159,8 +128,7 @@ jobs:
                     echo "No changes for $branch"
                   fi
                 popd >/dev/null
-                
-                # Tear down the worktree
+
                 git worktree remove --force "$WT_DIR"
               done
             else
