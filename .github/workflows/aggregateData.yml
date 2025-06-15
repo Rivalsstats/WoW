@@ -22,24 +22,23 @@ jobs:
         id: list
         run: |
           git fetch --all
-          echo "::set-output name=branches::$( \
-            git branch -r \
-              | grep -E '^  origin/' \
-              | sed 's#  origin/##' \
-              | grep -v '^main$' \
-              | tr '\n' ' ' \
-          )"
+          branches=$(
+            git for-each-ref --format='%(refname:short)' refs/remotes/origin \
+              | grep -v 'origin/HEAD' \
+              | sed 's|^origin/||'
+          )
+          echo "branches=$branches" >> $GITHUB_OUTPUT
 
       - name: Incremental aggregate per branch
         run: |
-          # ensure we start from a clean slate of aggregates
+          # start fresh
           rm -rf data/aggregated
           mkdir -p data/aggregated
 
           for br in ${{ steps.list.outputs.branches }}; do
-            echo ">>> Processing realm‑branch: $br"
+            echo "Processing realm‑branch: $br"
             git checkout -f "$br"
-            git clean -fdx   # remove any untracked leftovers
+            git clean -fdx
 
             python backend_scripts/aggregateData.py \
               --data-dir data \
