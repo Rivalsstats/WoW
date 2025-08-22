@@ -1,0 +1,63 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #1a1a1a;
+  color: #f0f0f0;
+  margin: 0;
+  padding: 20px;
+}
+
+#page-notification {
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  padding: .65rem 1rem;
+}
+
+/* keep spacing consistent on very small screens */
+@media (max-width: 576px) {
+  #page-notification { padding: .75rem .75rem; }
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  text-align: center;
+}
+
+select {
+  padding: 8px;
+  font-size: 16px;
+  margin: 20px 0;
+}
+
+.talent-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.talent {
+  background-color: #2a2a2a;
+  border: 2px solid #444;
+  padding: 10px;
+  border-radius: 10px;
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+.talent:hover {
+  transform: scale(1.05);
+  border-color: gold;
+}
+
+.talent::after {
+  content: attr(data-count);
+  position: absolute;
+  top: 2px;
+  right: 6px;
+  background-color: #111;
+  color: #ccc;
+  font-size: 12px;
+  padding: 2px 4px;
+  border-radius: 4px;
+}

@@ -1,0 +1,151 @@
+name: Build Jinja Pages
+
+on:
+  push:
+    paths:
+      - 'data/aggregated/final/specs/**'
+      - 'templates/**'
+      - 'scripts/generateSpecPages.py'
+      - 'scripts/generateDashboardPage.py'
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Gather Static WoW data"]
+    types:
+      - completed
+concurrency:
+      group: "pages"
+      cancel-in-progress: true  
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+jobs:
+  buildPages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone project
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          ref: main 
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install jinja2 pyyaml requests mysql-connector-python
+
+      - name: Generate Spec HTML pages
+        run: |
+          python backend_scripts/generateSpecPages.py \
+            --database_host ${{secrets.DATABASE_HOST}} \
+            --database_user ${{secrets.DATABASE_USER}} \
+            --database_password ${{secrets.DATABASE_PASSWORT}} \
+            --database ${{secrets.DATABASE_NAME}} \
+            --CLIENT_ID ${{secrets.BLIZ_CLIENT_ID}} \
+            --CLIENT_SECRET ${{secrets.BLIZ_CLIENT_SECRET}} \
+            --template templates/spec_page.html \
+            --output_dir classes
+
+
+
+      - name: Generate Dashboard HTML page
+        env:
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORT }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          CLIENT_ID: ${{ secrets.BLIZ_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
+        run: |
+          python backend_scripts/generateDashboardPage.py \
+            --template templates/dashboard.html \
+            --output_dir pages \
+
+      - name: Generate Runs HTML page
+        run: |
+          python backend_scripts/generateRoutesPage.py \
+            --template templates/find_routes.html  \
+            --output_dir pages  
+
+      - name: Commit and push pages
+        run: |
+          set -e  # Exit script on any command failure
+      
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git config pull.rebase true  # Rebase
+      
+          git add classes/
+          git add pages/
+          
+          # Commit only if there are changes
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Updated Spec Pages"
+          fi
+      
+          # Pull latest changes, fail only on actual errors
+          if ! git fetch --depth=1 origin main; then
+            echo "Error during shallow fetch" >&2
+            exit 1
+          fi
+
+          if ! git rebase origin/main; then
+            echo "Error during rebase" >&2
+            exit 1
+          fi
+
+          if ! git push; then
+            echo "Error during git push" >&2
+            exit 1
+          fi
+
+
+  buildArtiface:
+
+    # we can run our steps on pretty much anything, but the "ubuntu-latest" image is a safe bet
+    runs-on: windows-latest
+    needs: buildPages
+    # specify the environment variables used by the packager, matching the secrets from the project on GitHub
+    env:
+      GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+    # "steps" holds a list of all the steps needed to package and release our AddOn
+    
+    steps:
+
+      # we first have to clone the project, this is a required step
+      - name: Clone project
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1  # Fetch all history for all branches and tags
+          ref: main 
+          sparse-checkout: |
+            pages
+            assets
+            classes
+            data/icons
+      
+      - name: Upload static files as artifact
+        id: deployment
+        uses: actions/upload-pages-artifact@v3 # or specific "vX.X.X" version tag for this action
+        with:
+          path: '.'
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: buildArtiface
+    steps:
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

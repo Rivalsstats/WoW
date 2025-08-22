@@ -1,0 +1,1013 @@
+import os
+import json
+import asyncio
+import hashlib
+from datetime import datetime, timedelta, timezone
+import time
+import csv
+from pathlib import Path
+from aiohttp import ClientSession, ClientTimeout, BasicAuth, ClientResponseError, ClientConnectionResetError
+from aiohttp_retry import RetryClient, ExponentialRetry
+import aiohttp
+from aiolimiter import AsyncLimiter
+from collections import Counter
+import argparse
+import databaseConnector
+import traceback
+from contextlib import closing
+import shutil
+from dotenv import load_dotenv
+load_dotenv() # Load environment variables from .env file if it exists
+
+policy = asyncio.WindowsSelectorEventLoopPolicy()
+asyncio.set_event_loop_policy(policy)
+
+# Configuration
+
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--region",
+    help="If set, only collect this Blizzard region (e.g. 'us').",
+    choices=["us", "eu", "kr", "tw"],
+)
+parser.add_argument("--database_host", required=True)
+parser.add_argument("--database_user", required=True)
+parser.add_argument("--database_password", required=True)
+parser.add_argument("--database", required=True)
+
+args = parser.parse_args()
+
+DATABASE_WORKERS = int(os.environ.get("DATABASE_WORKERS", "1"))
+databaseConnector.init_connection_pool(
+    args.database_host, args.database_user, args.database_password, args.database, DATABASE_WORKERS
+)
+
+if args.region:
+    REGIONS = [args.region]
+else:
+    REGIONS = os.environ.get("REGIONS", "us,eu,kr,tw").split(",")
+
+API_BASE = "https://{region}.api.blizzard.com"
+
+OAUTH_BASE = "https://oauth.battle.net/token"
+NAMESPACE_DYNAMIC = "dynamic-{region}"
+LOCALE = os.environ.get("LOCALE", "en_US")
+DATA_DIR = Path("data")
+RUNS_DIR = DATA_DIR / "runs"
+DUNGEON_STATIC = DATA_DIR / "static" / "dungeons.json"
+
+# rio info
+PAGE_TO_FETCH = 100
+KEYLEVELS_DOWN = 5
+
+# Rate limits
+per_second_limiter = AsyncLimiter(90, 1)
+per_hour_limiter = AsyncLimiter(29500, 3600)
+
+# Rate limits (per‑region)
+REGION_LIMITERS: dict[str, dict[str, AsyncLimiter]] = {
+    region: {
+        "per_second": AsyncLimiter(90, 1),
+        "per_hour": AsyncLimiter(29500, 3600),
+    }
+    for region in REGIONS
+}
+
+# “Global” backoff, per region
+region_backoff_until: dict[str, float] = {region: 0.0 for region in REGIONS}
+region_backoff_lock: dict[str, asyncio.Lock] = {
+    region: asyncio.Lock() for region in REGIONS
+}
+MAX_GLOBAL_BACKOFF = 60.0
+base_backoff = 1.0
+max_backoff = 60.0
+
+# Queue settings
+QUEUE_MAXSIZE = 1000
+GHA_TIMEOUT = 60 * 60 *24
+HARD_TIMEOUT = GHA_TIMEOUT + 30 * 60  # force cancel after 30 minutes past GHA_TIMEOUT
+cancel_event = asyncio.Event()
+shutdown_event = asyncio.Event()
+MAX_GLOBAL_BACKOFF = 60.0
+WORKERS_PER_REALM = int(os.environ.get("WORKERS_PER_REALM", "5"))
+POLL_INTERVAL_SECONDS = int(os.environ.get("POLL_INTERVAL_SECONDS", "300"))
+
+# stat variables
+fetched_runs = 0
+fetched_profiles = 0
+
+RUN_TIME = datetime.now(timezone.utc)
+
+# queues
+simple_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
+advanced_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
+database_queue: asyncio.Queue[dict] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
+BATCH_SIZE = int(os.environ.get("DB_BATCH_SIZE", "50"))
+
+# Blizzard OAuth
+
+REGION_CREDENTIALS: dict[str, dict[str, str]] = {}
+
+RAIDERIO_API_KEY = os.environ["RAIDERIO_API_KEY"]
+for region in REGIONS:
+    id_var = f"BLIZ_CLIENT_ID_{region.upper()}"
+    sec_var = f"BLIZ_CLIENT_SECRET_{region.upper()}"
+    cid = os.getenv(id_var)
+    csec = os.getenv(sec_var)
+    if not cid or not csec:
+        raise RuntimeError(f"{id_var} and {sec_var} must be set")
+    REGION_CREDENTIALS[region] = {
+        "client_id": cid,
+        "client_secret": csec,
+    }
+_token_cache = {}
+
+# In-memory cache for previously fetched data
+processed_runs: set[str] = set()
+enqueued_profiles: dict[str, dict[str, Path]] = {}
+
+
+
+# Utils
+async def get_max_keys_by_dungeon(session: ClientSession) -> dict[int, int]:
+    """Returns a map dungeon_id -> highest mythic_level seen on Raider.IO."""
+    # load slug lookup
+    static = json.loads((DUNGEON_STATIC).read_text())
+    max_keys = {}
+    for did, info in static.items():
+        slug = info["slug"]
+        url = "https://raider.io/api/v1/mythic-plus/runs"
+        static_params = {
+            "access_key": RAIDERIO_API_KEY,
+            "region": "world",
+            "dungeon": slug,
+            "page": PAGE_TO_FETCH,
+        }
+        try:
+            async with session.get(url, params=static_params) as resp:
+                resp.raise_for_status()
+                data = await resp.json()
+            if data and data.get("rankings"):
+                max_keys[int(did)] = min(
+                    r["run"]["mythic_level"] for r in data["rankings"]
+                )
+        except Exception as e:
+            print(
+                f"[{datetime.now(timezone.utc).isoformat()}] Error fetching max keys for dungeon {did} ({slug}): {e}"
+            )
+            pass
+    return max_keys
+
+def load_processed_runs():
+    print(
+        f"[{datetime.now(timezone.utc).isoformat()}] Loading previously processed runs…"
+    )
+    ensure_dir(RUNS_DIR)
+    for runs_csv in RUNS_DIR.rglob("*.csv"):
+        with open(runs_csv, newline="") as f:
+            reader = csv.reader(f)
+            next(reader, None)
+            for row in reader:
+                if row:
+                    processed_runs.add(row[0])
+
+
+def load_existing_json(path: Path) -> dict:
+    return json.loads(path.read_text()) if path.exists() else {}
+
+
+def hash_object(obj: dict) -> str:
+    payload = json.dumps(obj, sort_keys=True).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def ensure_dir(path: Path):
+    path.mkdir(parents=True, exist_ok=True)
+
+
+async def get_access_token(session: ClientSession, region: str) -> str:
+    creds = REGION_CREDENTIALS[region]
+    cache = _token_cache.get(region)
+
+    if cache and cache["expires_at"] > time.time() + 3600:
+        return cache["access_token"]
+    async with session.post(
+        OAUTH_BASE,
+        auth=BasicAuth(creds["client_id"], creds["client_secret"]),
+        data={"grant_type": "client_credentials"},
+    ) as resp:
+        resp.raise_for_status()
+        data = await resp.json()
+        token = data["access_token"]
+        expires = data.get("expires_in", 0)
+        _token_cache[region] = {
+            "access_token": token,
+            "expires_at": time.time() + expires,
+        }
+        return token
+
+
+async def fetch_json(
+    session: RetryClient,
+    url: str,
+    params: dict,
+    region: str
+) -> dict | None:
+    """
+    Single-shot fetch through an aiohttp_retry.RetryClient — rate-limited per-region,
+    with shared backoff if we see a 429 (via Retry-After).
+    """
+    # shutdown short-circuit
+    if shutdown_event.is_set():
+        return None
+
+    #  honor any shared region backoff
+    now = time.time()
+    until = region_backoff_until[region]
+    if now < until:
+        await asyncio.sleep(until - now)
+
+    # grab a fresh token and acquire our rate‑limit permits
+    token = await get_access_token(session, region)
+    headers = {"Authorization": f"Bearer {token}"}
+    limiters = REGION_LIMITERS[region]
+    await limiters["per_second"].acquire()
+    await limiters["per_hour"].acquire()
+
+    try:
+        # fire the request — RetryClient will automatically retry on
+        #    configured statuses/exceptions (429, 5xx, network errors, etc).
+        async with session.get(url, params=params, headers=headers, raise_for_status=False) as resp:
+
+            # short‑circuit for 404 (private profile)
+            if resp.status == 404:
+                return None
+
+            # if Blizzard still sends us a 429 (and we want to throttle globally),
+            #    extract Retry-After and bump region_backoff_until
+            if resp.status == 429:
+                ra = resp.headers.get("Retry-After")
+                backoff = float(ra) if ra else base_backoff
+                expiry = time.time() + backoff
+                async with region_backoff_lock[region]:
+                    region_backoff_until[region] = max(region_backoff_until[region], expiry)
+                # let the RetryClient also see the 429 and retry if it wants,
+                # or we can just return None here if it’s past its retry count
+                return None
+
+            # for everything else, propagate errors & parse JSON
+            resp.raise_for_status()
+            return await resp.json()
+
+    except ClientResponseError as e:
+        # non-retryable server errors (400, 403, etc)
+        print(f"[{datetime.now(timezone.utc)}] HTTP {e.status} for {url}")
+        return None
+
+    except (asyncio.TimeoutError, aiohttp.ClientConnectionError,
+            aiohttp.ServerDisconnectedError,
+            aiohttp.ClientPayloadError,
+            ClientConnectionResetError) as e:
+        # *re*-raise so RetryClient can back off & retry
+        raise
+
+    except Exception as e:
+        # any other unexpected error—log and re-raise
+        print(f"Unexpected error {type(e).__name__}: {e}")
+        raise
+
+
+async def fetch_leaderboard_and_queue(
+    session, season, region, realm, period, dungeon, max_keys
+):
+
+    lb = await get_leaderboard(session, region, realm, dungeon["dungeon_id"], period)
+    if not lb or "leading_groups" not in lb:
+        print(
+            f"[{datetime.now(timezone.utc).isoformat()}] No Correct leaderboard data for {region}/{realm}/{dungeon['dungeon_id']}/{period} got unexpected result."
+        )
+        return
+
+    for group in lb["leading_groups"]:
+        # build run_hash, skip processed, then:
+        run_hash = hash_object(
+            {
+                "dungeon": dungeon["dungeon_id"],
+                "period": period,
+                "members": [m["profile"]["id"] for m in group["members"]],
+                "timestamp": group["completed_timestamp"],
+            }
+        )
+        if run_hash in processed_runs:
+            continue
+        processed_runs.add(run_hash)
+        for member in group["members"]:
+            member["profile"]["timestamp"] = (
+                datetime.now(timezone.utc).date().isoformat()
+            )
+        # tag group for downstream CSV worker
+        group.update(
+            {
+                "run_hash": run_hash,
+                "dungeon_id": dungeon["dungeon_id"],
+                "keystone_level": group["keystone_level"],
+                "duration": group["duration"],
+                "completed_timestamp": group["completed_timestamp"],
+                "members": group["members"],
+                "majority_faction": Counter(
+                    [m["faction"]["type"] for m in group["members"]]
+                ).most_common(1)[0][0]
+                if group["members"]
+                else None,
+                "member_hashes": [hash_object(m["profile"]) for m in group["members"]],
+            }
+        )
+
+        # decide queue by age
+        completed = datetime.fromtimestamp(
+            group["completed_timestamp"] / 1000, tz=timezone.utc
+        )
+        run_level = group["keystone_level"]
+        top_level = max_keys.get(dungeon["dungeon_id"], 0)
+        threshold = max(0, top_level - KEYLEVELS_DOWN)
+        if (
+            datetime.now(timezone.utc) - completed <= timedelta(days=1)
+            and run_level >= threshold
+        ):
+            await advanced_queue.put((region, season, period, realm, dungeon, group))
+        else:
+            await simple_queue.put((region, season, period, realm, dungeon, group))
+
+
+async def process_realm(
+    region: str,
+    realm: int,
+    session: ClientSession,
+    current_season: int,
+    periods: list[int],
+    max_keys
+):
+    try:
+        if cancel_event.is_set():
+            print(
+                f"[{datetime.now(timezone.utc).isoformat()}] {region} cancellation requested, stopping"
+            )
+            return
+        print(
+            f"[{datetime.now(timezone.utc).isoformat()}] {region} enqueuing realm {realm}"
+        )
+
+        # Enqueue all period/dungeon work onto this realm's queue
+        for period in periods:
+            if cancel_event.is_set():
+                print(
+                    f"[{datetime.now(timezone.utc).isoformat()}] {period} - cancellation requested, stopping"
+                )
+                return
+            print(
+                f"[{datetime.now(timezone.utc).isoformat()}] {region} {realm} enqueuing period {period} "
+            )
+            dungeons = await get_leaderboard_index(session, region, realm)
+            for dungeon in dungeons:
+                if cancel_event.is_set():
+                    print(
+                        f"[{datetime.now(timezone.utc).isoformat()}] {dungeon} - cancellation requested, stopping"
+                    )
+                    return
+                try:
+                    await fetch_leaderboard_and_queue(
+                        session, current_season, region, realm, period, dungeon, max_keys
+                    )
+                except Exception as e:
+                    print(
+                        f"[{datetime.now(timezone.utc).isoformat()}] {dungeon} - error occurred: {e}"
+                    )
+                    traceback.print_exc()
+    except Exception as e:
+        print(
+            f"[{datetime.now(timezone.utc).isoformat()}][process realm] failed for realm {realm} in {region} : {e}"
+        )
+        traceback.print_exc()
+
+
+async def get_connected_realms(session: ClientSession, region: str) -> list[int]:
+    url = f"{API_BASE.format(region=region)}/data/wow/connected-realm/index"
+    params = {"namespace": NAMESPACE_DYNAMIC.format(region=region), "locale": LOCALE}
+    data = await fetch_json(session, url, params, region)
+    if not data or "connected_realms" not in data:
+        return []
+    return [
+        int(r["href"].split("/")[-1].split("?")[0]) for r in data["connected_realms"]
+    ]
+
+
+async def get_current_season_id(session: ClientSession, region: str) -> int:
+    url = f"{API_BASE.format(region=region)}/data/wow/mythic-keystone/season/index"
+    params = {"namespace": NAMESPACE_DYNAMIC.format(region=region), "locale": LOCALE}
+    data = await fetch_json(session, url, params, region)
+    if not data or not data.get("seasons"):
+        return None
+    return data["current_season"]["id"]
+
+
+async def get_season_periods(
+    session: ClientSession, region: str, season_id: int
+) -> list[int]:
+    url = (
+        f"{API_BASE.format(region=region)}/data/wow/mythic-keystone/season/{season_id}"
+    )
+    params = {"namespace": NAMESPACE_DYNAMIC.format(region=region), "locale": LOCALE}
+    data = await fetch_json(session, url, params, region)
+    if not data or "periods" not in data:
+        return []
+
+    return [p["id"] for p in data["periods"]]
+
+
+async def get_leaderboard_index(
+    session: ClientSession, region: str, realm_id: int
+) -> list[dict]:
+    url = f"{API_BASE.format(region=region)}/data/wow/connected-realm/{realm_id}/mythic-leaderboard/index"
+    params = {"namespace": NAMESPACE_DYNAMIC.format(region=region), "locale": LOCALE}
+    data = await fetch_json(session, url, params, region)
+    if not data or "current_leaderboards" not in data:
+        return []
+    return [
+        {"dungeon_id": lb["id"], "name": lb["name"]}
+        for lb in data["current_leaderboards"]
+    ]
+
+
+async def get_leaderboard(
+    session: ClientSession, region: str, realm_id: int, dungeon_id: int, period_id: int
+) -> dict:
+    url = (
+        f"{API_BASE.format(region=region)}/data/wow/connected-realm/"
+        f"{realm_id}/mythic-leaderboard/{dungeon_id}/period/{period_id}"
+    )
+    params = {"namespace": NAMESPACE_DYNAMIC.format(region=region), "locale": LOCALE}
+    return await fetch_json(session, url, params, region)
+
+
+async def get_equipment(
+    session: ClientSession, region: str, realm_slug: str, name: str
+) -> list:
+    url = f"{API_BASE.format(region=region)}/profile/wow/character/{realm_slug}/{name}/equipment"
+    params = {"namespace": f"profile-{region}", "locale": LOCALE}
+    data = await fetch_json(session, url, params, region)
+    if not data or "equipped_items" not in data:
+        return []
+    return data.get("equipped_items", [])
+
+
+async def get_specializations(
+    session: ClientSession, region: str, realm_slug: str, name: str
+) -> list:
+    url = f"{API_BASE.format(region=region)}/profile/wow/character/{realm_slug}/{name}/specializations"
+    params = {"namespace": f"profile-{region}", "locale": LOCALE}
+    data = await fetch_json(session, url, params, region)
+    if not data or "specializations" not in data:
+        return []
+    return data.get("specializations", [])
+
+
+def process_group(
+    region, season, period_id, realm_id, run_hash,
+):
+
+    seen_file = RUNS_DIR / region / str(realm_id) / str(season) / f"{period_id}.csv"
+    ensure_dir(seen_file.parent)
+    with open(seen_file, "a", newline="") as f:
+        csv.writer(f).writerow([run_hash])
+
+async def realm_poller(region: str, session: ClientSession, max_keys):
+    # fetch once
+    current_season = await get_current_season_id(session, region)
+    active_period = max(await get_season_periods(session, region, current_season))
+    realms = await get_connected_realms(session, region)
+
+    while True:
+        for realm in realms:
+            dungeons = await get_leaderboard_index(session, region, realm)
+            for dungeon in dungeons:
+                print(f"[{datetime.now(timezone.utc).isoformat()}] {region} {realm} checking dungeon {dungeon['dungeon_id']} for period {active_period}")
+                # fetch the leaderboard
+                await fetch_leaderboard_and_queue(
+                    session, current_season, region, realm,
+                    active_period, dungeon, max_keys
+                )
+        await asyncio.sleep(POLL_INTERVAL_SECONDS)
+
+
+async def simple_worker(name: str, session: ClientSession):
+    """
+    Pulls runs from simple_queue, writes the seen‐file+CSV, then
+    enqueues a minimal run_obj into load_queue for the loader to persist.
+    """
+    global fetched_runs
+    while not cancel_event.is_set():
+        region, season, period_id, realm_id, dungeon, group = await simple_queue.get()
+        try:
+            # build the minimal payload
+            run_obj = {
+                "period_id": period_id,
+                "run_hash": group["run_hash"],
+                "season": season,
+                "region": region,
+                "realm": realm_id,
+                "dungeon_id": dungeon["dungeon_id"],
+                "keystone_level": group["keystone_level"],
+                "duration": group["duration"],
+                "timestamp": group["completed_timestamp"],
+                "faction": group["majority_faction"],
+                "members": []
+            }
+            for member in group["members"]:
+                run_obj["members"].append({
+                    # these are "new" members: no member_id key
+                    "spec_id": member["specialization"]["id"],
+                    "loadout": None,
+                    "hero_talent_id": None,
+                    "class_talents": [],
+                    "spec_talents": [],
+                    "hero_talents": [],
+                    "equipment": []
+                })
+
+            # hand off to loader
+            await database_queue.put(run_obj)
+
+            fetched_runs += 1
+
+        except Exception:
+            print(f"[{datetime.now(timezone.utc).isoformat()}] [{name}] Error enqueuing simple run")
+            traceback.print_exc()
+
+        finally:
+            simple_queue.task_done()
+
+
+async def advanced_worker(name: str, session: ClientSession):
+    """Does everything simple_worker does, then fetches equipment+all specs for each member."""
+    global fetched_runs, fetched_profiles, enqueued_profiles
+    while not cancel_event.is_set():
+        region, season, period_id, realm_id, dungeon, group = await advanced_queue.get()
+        try:
+            # run metadata
+            run_obj = dict(
+                period_id=period_id,
+                run_hash=group["run_hash"],
+                season=season,
+                region=region,
+                realm=realm_id,
+                dungeon_id=dungeon["dungeon_id"],
+                keystone_level=group["keystone_level"],
+                duration=group["duration"],
+                timestamp=group["completed_timestamp"],
+                faction=group["majority_faction"],
+                members=[]
+            )
+
+            # for each member, fetch equipment & active spec
+            for member in group["members"]:
+                profile = member["profile"]
+                profile_hash = hash_object(profile)
+                if profile_hash in enqueued_profiles:
+                    member_id = enqueued_profiles[profile_hash]
+                    run_obj["members"].append({
+                        "member_id": member_id["id"],
+                        }
+                    )
+                else:
+                    name_l = profile["name"].lower()
+                    realm_slug = profile["realm"]["slug"].lower()
+
+                    eq_data = await get_equipment(session, region, realm_slug, name_l)
+                    spec_all = await get_specializations(session, region, realm_slug, name_l)
+                    active_spec = next(s for s in spec_all if s["specialization"]["id"] == member["specialization"]["id"])
+                    if active_spec.get('loadouts'):
+                        active_loadout = next(l for l in active_spec["loadouts"] if l["is_active"])
+                    else:
+                        active_loadout = {
+                            "talent_loadout_code": None,
+                            "selected_hero_talent_tree": {"id": None},
+                            "selected_class_talents": [],
+                            "selected_spec_talents": [],
+                            "selected_hero_talents": []
+                        }
+
+                    run_obj["members"].append({
+                        "spec_id": member["specialization"]["id"],
+                        "loadout": active_loadout["talent_loadout_code"],
+                        "hero_talent_id": active_loadout["selected_hero_talent_tree"]["id"],
+                        "class_talents": [(ct["id"], ct["rank"]) for ct in active_loadout["selected_class_talents"]],
+                        "spec_talents":  [(st["id"], st["rank"]) for st in active_loadout["selected_spec_talents"]],
+                        "hero_talents":  [(ht["id"], ht["rank"]) for ht in active_loadout["selected_hero_talents"]],
+                        "equipment": [
+                            {
+                                "slot": item["slot"]["type"],
+                                "item_id": item["item"]["id"],
+                                "item_level": item["level"]["value"],
+                                "enchantments": [e["enchantment_id"] for e in item.get("enchantments", []) if e],
+                                "sockets": [(s["socket_type"]["type"], s["item"]["id"]) for s in item.get("sockets", []) if s.get("socket_type") and s.get("item")],
+                                "bonuses": [b for b in item.get("bonus_list", []) if b]
+                            }
+                            for item in eq_data if item.get("item")
+                        ]
+                    })
+                    fetched_profiles += 1
+
+            # enqueue the whole run object
+            await database_queue.put(run_obj)
+
+        except Exception as e:
+            print(f"[{datetime.now(timezone.utc).isoformat()}] [{name}] fetch error: {e}", flush=True)
+            traceback.print_exc()
+        finally:
+            advanced_queue.task_done()
+
+def chunked(lst, size):
+    for i in range(0, len(lst), size):
+        yield lst[i:i+size]
+
+def process_batch(name, conn, cursor, batch):
+    new_batch = []
+    run_ids: list[int] = []
+
+    # Try to insert each run individually, skip if already exists
+    for r in batch:
+        try:
+            # INSERT IGNORE will skip duplicates (requires IGNORE keyword)
+            databaseConnector.insert_run(
+                conn, cursor,  r["season"], r["region"],
+                r["dungeon_id"], r["keystone_level"],
+                r["duration"], r["timestamp"], r["faction"])
+            # lastrowid == 0 means the row was ignored (duplicate)
+            run_id = cursor.lastrowid
+            if run_id:
+                run_ids.append(run_id)
+                new_batch.append(r)
+                databaseConnector.commit_changes(conn)
+            else:
+                continue
+        except Exception as e:
+            print(f"[{datetime.now(timezone.utc).isoformat()}] [{name}] "
+                f"Error inserting run {r['season']}-{r['region']}-"
+                f"{r['realm']}-{r['dungeon_id']}-{r['timestamp']}: {e}")
+            continue
+    # nothing new?
+    if not new_batch or len(new_batch) == 0:
+        batch.clear()
+        for r in batch:
+            process_group(r["region"],r['season'],r['period_id'],r['realm'],r["run_hash"])
+        return
+
+    # now process members/etc only for new_batch
+    batch = new_batch
+    # members: separate existing vs new
+    member_vals = []
+    existing_member_ids = []
+    counts = []
+    for r in batch:
+        counts.append(len(r["members"]))
+        for m in r["members"]:
+            if "member_id" in m:
+                existing_member_ids.append(m["member_id"])
+            else:
+                member_vals.append((m["spec_id"], m["loadout"], m["hero_talent_id"]))
+    # insert only new members
+    if member_vals:
+        first_new_id = databaseConnector.insert_members_batch(conn, cursor, member_vals)
+        new_member_ids = list(range(first_new_id, first_new_id + len(member_vals)))
+    else:
+        new_member_ids = []
+    databaseConnector.commit_changes(conn)
+    # reconstruct full member_id list in original order
+    mem_ids = []
+    new_idx = 0
+    exist_idx = 0
+    for r in batch:
+        for m in r["members"]:
+            if "member_id" in m:
+                mem_ids.append(existing_member_ids[exist_idx])
+                exist_idx += 1
+            else:
+                mem_ids.append(new_member_ids[new_idx])
+                new_idx += 1
+
+    # run_members
+    rm_vals = []
+    idx = 0
+    for run_idx, cnt in enumerate(counts):
+        rid = run_ids[run_idx]
+        for _ in range(cnt):
+            rm_vals.append((rid, mem_ids[idx]))
+            idx += 1
+    databaseConnector.insert_run_members_batch(conn, cursor, rm_vals)
+    databaseConnector.commit_changes(conn)
+    # for only newly‑inserted members, insert talents & equipment
+    ct_vals = [] 
+    st_vals = [] 
+    ht_vals = []
+    ench_vals = [] 
+    sock_vals = [] 
+    bonus_vals = []
+    # offset into new_member_ids to map to batch members
+    new_idx = 0
+    
+    for r in batch:
+        for m in r["members"]:
+            if "member_id" in m:
+                continue  # skip existing
+            mid = new_member_ids[new_idx]
+            new_idx += 1
+            # collect talents
+            for t, rk in m["class_talents"]:
+                ct_vals.append((mid, t, rk))
+            for t, rk in m["spec_talents"]:
+                st_vals.append((mid, t, rk))
+            for t, rk in m["hero_talents"]:
+                ht_vals.append((mid, t, rk))
+            # collect equipment
+            for e in m["equipment"]:
+                eq_id = databaseConnector.insert_equipment(
+                    conn, cursor, mid, e["slot"], e["item_id"], e["item_level"]
+                )
+                for en in e["enchantments"]:
+                    ench_vals.append((eq_id, en))
+                for stype, iid in e["sockets"]:
+                    sock_vals.append((eq_id, stype, iid))
+                for b in e["bonuses"]:
+                    bonus_vals.append((eq_id, b))
+    if len(ct_vals) > 0 or len(st_vals) > 0 or len(ht_vals) > 0 or len(ench_vals) > 0 or len(sock_vals)> 0 or len(bonus_vals) >  0:
+        print(f"[{datetime.now(timezone.utc).isoformat()}] [{name}] Inserting talents and equipment for {len(ct_vals)} class talents, {len(st_vals)} spec talents, {len(ht_vals)} hero talents, {len(ench_vals)} enchantments, {len(sock_vals)} sockets and {len(bonus_vals)} bonuses")
+    if ct_vals and len(ct_vals) > 0:
+        for sub in chunked(ct_vals, BATCH_SIZE):
+            databaseConnector.insert_class_talents(conn, cursor, sub)
+            databaseConnector.commit_changes(conn)
+    if st_vals and len(st_vals) > 0:
+        for sub in chunked(st_vals, BATCH_SIZE):
+            databaseConnector.insert_spec_talents(conn, cursor, sub)
+            databaseConnector.commit_changes(conn)
+    if ht_vals and len(ht_vals) > 0:
+        for sub in chunked(ht_vals, BATCH_SIZE):
+            databaseConnector.insert_hero_talents(conn, cursor, sub)
+            databaseConnector.commit_changes(conn)
+    if ench_vals and len(ench_vals) > 0:
+        for sub in chunked(ench_vals, BATCH_SIZE):
+            databaseConnector.insert_enchantments(conn, cursor, sub)
+            databaseConnector.commit_changes(conn)
+    if sock_vals and len(sock_vals) > 0:
+        for sub in chunked(sock_vals, BATCH_SIZE):
+            databaseConnector.insert_sockets(conn, cursor, sub)
+            databaseConnector.commit_changes(conn)
+    if bonus_vals and len(bonus_vals) > 0:
+        for sub in chunked(bonus_vals, BATCH_SIZE):
+            databaseConnector.insert_bonuses(conn, cursor, sub)
+            databaseConnector.commit_changes(conn)
+    for r in batch:
+        process_group(r["region"],r['season'],r['period_id'],r['realm'],r["run_hash"])
+
+
+async def database_worker(name: str):
+    """
+    Pull full run payloads from load_queue in batches and write them using
+    databaseConnector's batch insert helpers.
+    """
+    with closing(databaseConnector.get_connection()) as conn:
+        cursor = conn.cursor()
+        batch: list[dict] = []
+
+        while True:
+            # pull next payload or break on shutdown
+            try:
+                run_obj = await asyncio.wait_for(database_queue.get(), timeout=5.0)
+            except asyncio.TimeoutError:
+                if cancel_event.is_set() and database_queue.empty():
+                    break
+                continue
+            batch.append(run_obj)
+            database_queue.task_done()
+            if run_obj is None:
+                if batch:
+                    await process_batch(name, conn, cursor, batch)
+                    cursor.close()
+                    conn.close()
+                break
+            if len(batch) >= BATCH_SIZE:
+                try:
+                    process_batch(name, conn, cursor, batch)
+                    batch.clear()
+                except Exception as err:
+                    print(f"{name}: batch failed skipping {len(batch)} rows: {err}")
+                    traceback.print_exc()
+                    conn.rollback()
+                    continue
+
+        cursor.close()
+        conn.close()
+
+async def main():
+    load_processed_runs()
+    print(
+        f"[{datetime.now(timezone.utc).isoformat()}] Loaded {len(processed_runs)} previously processed runs."
+    )
+    connector = aiohttp.TCPConnector(
+        limit=100,                
+        keepalive_timeout=75,     
+        force_close=False,  
+        enable_cleanup_closed=True,      
+        ssl=False                   
+    )
+    timeout = ClientTimeout(total=60)
+    retry_options = ExponentialRetry(
+        attempts=5,              # total tries (initial + 4 retries)
+        start_timeout=1,         # initial backoff delay in seconds
+        max_timeout=30,          # maximum backoff
+        statuses={429, 500, 502, 503, 504},  # HTTP statuses to retry
+        exceptions={             # also retry on these client errors
+            asyncio.TimeoutError,
+            aiohttp.ClientConnectionError,
+            aiohttp.ServerDisconnectedError,
+            aiohttp.ClientPayloadError,
+            aiohttp.ClientOSError,
+            ClientConnectionResetError,
+        }
+    )  
+    async with RetryClient(
+        connector=connector,
+        timeout=timeout,
+        retry_options=retry_options,
+        raise_for_status=False,
+    ) as session:
+        print(
+            f"[{datetime.now(timezone.utc).isoformat()}] Starting data collection for regions: {', '.join(REGIONS)}"
+        )
+        max_keys = await get_max_keys_by_dungeon(session)
+        print(
+            f"[{datetime.now(timezone.utc).isoformat()}] Fetched max keys for dungeons: {max_keys}"
+        )
+        tasks = []
+        for region in REGIONS:
+            print(
+                f"[{datetime.now(timezone.utc).isoformat()}] Processing region: {region}"
+            )
+            if cancel_event.is_set():
+                print(
+                    f"[{datetime.now(timezone.utc).isoformat()}] {region} - cancellation requested, stopping"
+                )
+                return
+            current_season = await get_current_season_id(session, region)
+            if current_season is None:
+                print(
+                    f"[{datetime.now(timezone.utc).isoformat()}] {region} - no season data, skipping"
+                )
+                continue
+
+            # anything under data/runs/<region>/*/<season> that isn't current_season, 0 or "nil" can go
+
+            region_dir = RUNS_DIR / region
+            if region_dir.exists():
+                for realm_dir in region_dir.iterdir():
+                    if not realm_dir.is_dir():
+                        continue
+                    for season_dir in realm_dir.iterdir():
+                        name = season_dir.name
+                        # skip our current season, "0", or "nil"
+                        if current_season == 0 or int(name) == current_season:
+                            continue
+                        # delete the entire season folder
+                        try:
+                            shutil.rmtree(season_dir)
+                            print(f"Deleted old season folder: {season_dir}")
+                        except Exception as e:
+                            print(f"Warning: could not delete {season_dir}: {e}")
+
+            all_periods = await get_season_periods(session, region, current_season)
+            if not all_periods:
+                print(
+                    f"[{datetime.now(timezone.utc).isoformat()}] {region} - no periods, skipping"
+                )
+                continue
+
+            realms = await get_connected_realms(session, region)
+            if not realms:
+                print(
+                    f"[{datetime.now(timezone.utc).isoformat()}] {region} - no realms, skipping"
+                )
+                continue
+
+            # For each realm, create its single worker
+            tasks.append(
+                asyncio.create_task(realm_poller(region, session, max_keys))
+            )
+
+        print(
+            f"[{datetime.now(timezone.utc).isoformat()}] Started {len(tasks)} tasks for processing realms across all regions."
+        )
+        simple_workers = [
+            asyncio.create_task(simple_worker(f"simple-{i}", session))
+            for i in range(WORKERS_PER_REALM)
+        ]
+        advanced_workers = [
+            asyncio.create_task(advanced_worker(f"adv-{i}", session))
+            for i in range(WORKERS_PER_REALM)
+        ]
+        database_workers = [
+            asyncio.create_task(database_worker(f"db-{i}"))
+            for i in range(DATABASE_WORKERS)
+        ]
+
+        await asyncio.gather(*tasks, return_exceptions=True)
+        # Wait for all queues to be processed
+        print(
+            f"[{datetime.now(timezone.utc).isoformat()}] All work enqueued, waiting for queues to finish processing…"
+        )
+        print(
+            f"[{datetime.now(timezone.utc).isoformat()}] Simple queue size: {simple_queue.qsize()}"
+        )
+        print(
+            f"[{datetime.now(timezone.utc).isoformat()}] Advanced queue size: {advanced_queue.qsize()}"
+        )
+        await simple_queue.join()
+        for w in simple_workers:
+            w.cancel()
+        await asyncio.gather(*simple_workers, return_exceptions=True)
+        print(
+            f"[{datetime.now(timezone.utc).isoformat()}] Finished processing simple queue waiting for {advanced_queue.qsize()} runs in advanced queue..."
+        )
+        await advanced_queue.join()
+        for w in advanced_workers:
+            w.cancel()
+        await asyncio.gather(*advanced_workers, return_exceptions=True)
+        print(
+            f"[{datetime.now(timezone.utc).isoformat()}] Finished processing advanced queue, waiting for database workers to finish…"
+        )
+        await database_queue.join()
+        for w in database_workers:
+            w.cancel()
+        await asyncio.gather(*database_workers, return_exceptions=True)
+
+
+async def timeout_watcher(collector_task: asyncio.Task):
+    """Sleep for GHA_TIMEOUT seconds, then signal cancellation."""
+    print(
+        f"[{datetime.now(timezone.utc).isoformat()}] Starting timeout watcher for {GHA_TIMEOUT} seconds…"
+    )
+    await asyncio.sleep(GHA_TIMEOUT)
+    print(
+        f"[{datetime.now(timezone.utc).isoformat()}] Soft timeout reached; signaling cancellation…"
+    )
+    cancel_event.set()
+
+    # give the collector up to 30 min to wind down
+    await asyncio.sleep(HARD_TIMEOUT - GHA_TIMEOUT)
+    shutdown_event.set()
+    await asyncio.sleep(300)  # give it 5 minutes to finish up
+    collector_task.cancel()
+
+
+async def runner():
+    # Kick off both your main collector and the timeout watcher
+    print(
+        f"[{datetime.now(timezone.utc).isoformat()}] Starting data collection runner…"
+    )
+    collector = asyncio.create_task(main(), name="collector")
+    timer = asyncio.create_task(timeout_watcher(collector), name="timeout_watcher")
+
+    # Wait until either main() completes or the timer fires
+    done, pending = await asyncio.wait(
+        {collector, timer}, return_when=asyncio.FIRST_COMPLETED
+    )
+
+    if timer in done:
+        # Timer fired -> we set cancel_event above; now wait for collector to finish cleanly
+        print(
+            f"[{datetime.now(timezone.utc).isoformat()}] Waiting for in-flight runs to complete…"
+        )
+        await collector
+    else:
+        # main() finished before the timeout
+        print(
+            f"[{datetime.now(timezone.utc).isoformat()}] Data collection finished before timeout."
+        )
+        timer.cancel()
+
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(runner())
+    except asyncio.CancelledError:
+        # this will now catch the cancellation cleanly
+        print(
+            f"[{datetime.now(timezone.utc).isoformat()}] Data collection cancelled by timeout."
+        )
+    except Exception as e:
+        print(
+            f"[{datetime.now(timezone.utc).isoformat()}] Error during data collection: {e}"
+        )
+    print(
+        f"[{datetime.now(timezone.utc).isoformat()}] Committing changes to the database…"
+    )
+    print(f"[{datetime.now(timezone.utc).isoformat()}] All tasks done.")
+    print(f"Fetched runs: {fetched_runs}, Fetched profiles: {fetched_profiles}")

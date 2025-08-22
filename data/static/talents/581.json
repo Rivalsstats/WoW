@@ -1,0 +1,546 @@
+{
+  "specName": "Vengeance",
+  "className": "Demon Hunter",
+  "talents": {
+    "90942": {
+      "name": "Vengeful Retreat",
+      "icon": "ability_demonhunter_vengefulretreat2",
+      "spellId": 198793
+    },
+    "91008": {
+      "name": "Blazing Path",
+      "icon": "ability_demonhunter_felrush",
+      "spellId": 320416
+    },
+    "90946": {
+      "name": "Sigil of Misery",
+      "icon": "ability_demonhunter_sigilofmisery",
+      "spellId": 207684
+    },
+    "90930": {
+      "name": "Vengeful Bonds",
+      "icon": "ability_demonhunter_vengefulretreat2",
+      "spellId": 320635
+    },
+    "90941": {
+      "name": "Unrestrained Fury",
+      "icon": "ability_warrior_improveddisciplines",
+      "spellId": 320770
+    },
+    "90950": {
+      "name": "Shattered Restoration",
+      "icon": "ability_warlock_soulsiphon",
+      "spellId": 389824
+    },
+    "90945": {
+      "name": "Improved Sigil of Misery",
+      "icon": "ability_demonhunter_sigilofmisery",
+      "spellId": 320418
+    },
+    "90931": {
+      "name": "Bouncing Glaives",
+      "icon": "ability_demonhunter_throwglaive",
+      "spellId": 320386
+    },
+    "91007": {
+      "name": "Imprison",
+      "icon": "ability_demonhunter_imprison",
+      "spellId": 217832
+    },
+    "90948": {
+      "name": "Charred Warblades",
+      "icon": "spell_fire_incinerate",
+      "spellId": 213010
+    },
+    "90993": {
+      "name": "Chaos Nova",
+      "icon": "spell_fire_felfirenova",
+      "spellId": 179057
+    },
+    "90938": {
+      "name": "Improved Disrupt",
+      "icon": "ability_demonhunter_consumemagic",
+      "spellId": 320361
+    },
+    "91006": {
+      "name": "Consume Magic",
+      "icon": "spell_misc_zandalari_council_soulswap",
+      "spellId": 278326
+    },
+    "90999": {
+      "name": "Aldrachi Design",
+      "icon": "inv_glaive_1h_artifactaldrochi_d_01dual",
+      "spellId": 391409
+    },
+    "95154": {
+      "name": "Chaos Fragments",
+      "icon": "spell_fire_felfirenova",
+      "spellId": 320412
+    },
+    "90994": {
+      "name": "Master of the Glaive",
+      "icon": "inv_glaive_1h_demonhunter_a_01",
+      "spellId": 389763
+    },
+    "90937": {
+      "name": "Disrupting Fury",
+      "icon": "ability_demonhunter_consumemagic",
+      "spellId": 183782
+    },
+    "95150": {
+      "name": "Felblade",
+      "icon": "ability_demonhunter_felblade",
+      "spellId": 232893
+    },
+    "91005": {
+      "name": "Swallowed Anger",
+      "icon": "spell_misc_zandalari_council_soulswap",
+      "spellId": 320313
+    },
+    "90933": {
+      "name": "Aura of Pain",
+      "icon": "spell_fire_felimmolation",
+      "spellId": 207347
+    },
+    "95151": {
+      "name": "Live by the Glaive",
+      "icon": "inv_sword_108",
+      "spellId": 428607
+    },
+    "90940": {
+      "name": "Pursuit",
+      "icon": "ability_warlock_demonicpower",
+      "spellId": 320654
+    },
+    "90936": {
+      "name": "Soul Rending",
+      "icon": "ability_demonhunter_soulcleave2",
+      "spellId": 204909
+    },
+    "91004": {
+      "name": "Infernal Armor",
+      "icon": "ability_demonhunter_immolation",
+      "spellId": 320331
+    },
+    "90947": {
+      "name": "Lost in Darkness",
+      "icon": "inv_pet_inquisitoreye",
+      "spellId": 389849
+    },
+    "90939": {
+      "name": "Felfire Haste",
+      "icon": "inv_boots_cloth_35v4",
+      "spellId": 389846
+    },
+    "90935": {
+      "name": "Illidari Knowledge",
+      "icon": "spell_mage_overpowered",
+      "spellId": 389696
+    },
+    "91003": {
+      "name": "Demonic",
+      "icon": "spell_shadow_demonform",
+      "spellId": 213410
+    },
+    "91000": {
+      "name": "Will of the Illidari",
+      "icon": "ability_demonhunter_spectank",
+      "spellId": 389695
+    },
+    "95155": {
+      "name": "Precise Sigils",
+      "icon": "ability_bossfelorcs_necromancer_orange",
+      "spellId": 389799
+    },
+    "90934": {
+      "name": "Internal Struggle",
+      "icon": "ability_warlock_demonicpower",
+      "spellId": 393822
+    },
+    "91002": {
+      "name": "Darkness",
+      "icon": "ability_demonhunter_darkness",
+      "spellId": 196718
+    },
+    "90929": {
+      "name": "Soul Sigils",
+      "icon": "ability_demonhunter_sigilofinquisition",
+      "spellId": 395446
+    },
+    "95149": {
+      "name": "Quickened Sigils",
+      "icon": "ability_demonhunter_concentratedsigils",
+      "spellId": 209281
+    },
+    "90996": {
+      "name": "Erratic Felheart",
+      "icon": "inv_archaeology_70_crystallineeyeofundravius",
+      "spellId": 391397
+    },
+    "91001": {
+      "name": "Long Night",
+      "icon": "spell_fire_twilightimmolation",
+      "spellId": 389781
+    },
+    "95148": {
+      "name": "Rush of Chaos",
+      "icon": "ability_demonhunter_metamorphasisdps",
+      "spellId": 320421
+    },
+    "90928": {
+      "name": "Demon Muzzle",
+      "icon": "spell_fire_fireballgreen",
+      "spellId": 388111
+    },
+    "90949": {
+      "name": "Flames of Fury",
+      "icon": "ability_demonhunter_sigilofinquisition",
+      "spellId": 389694
+    },
+    "95152": {
+      "name": "Collective Anguish",
+      "icon": "artifactability_havocdemonhunter_anguishofthedeceiver",
+      "spellId": 390152
+    },
+    "90927": {
+      "name": "The Hunt",
+      "icon": "inv_ability_demonhunter_thehunt",
+      "spellId": 370965
+    },
+    "90997": {
+      "name": "Sigil of Spite",
+      "icon": "inv_ability_demonhunter_elysiandecree",
+      "spellId": 390163
+    },
+    "90912": {
+      "name": "",
+      "icon": "",
+      "spellId": 0
+    },
+    "90991": {
+      "name": "Fel Devastation",
+      "icon": "ability_demonhunter_feldevastation",
+      "spellId": 212084
+    },
+    "90990": {
+      "name": "Frailty",
+      "icon": "inv_icon_shadowcouncilorb_purple",
+      "spellId": 389958
+    },
+    "90951": {
+      "name": "Fiery Brand",
+      "icon": "ability_demonhunter_fierybrand",
+      "spellId": 204021
+    },
+    "90970": {
+      "name": "Shear Fury",
+      "icon": "ability_demonhunter_hatefulstrike",
+      "spellId": 389997
+    },
+    "90989": {
+      "name": "Deflecting Spikes",
+      "icon": "ability_demonhunter_demonspikes",
+      "spellId": 321028
+    },
+    "90960": {
+      "name": "Ascending Flame",
+      "icon": "inv_helm_suncrown_d_01",
+      "spellId": 428603
+    },
+    "90968": {
+      "name": "Perfectly Balanced Glaive",
+      "icon": "ability_demonhunter_throwglaive",
+      "spellId": 320387
+    },
+    "90967": {
+      "name": "Calcified Spikes",
+      "icon": "ability_demonhunter_demonspikes",
+      "spellId": 389720
+    },
+    "90988": {
+      "name": "Roaring Fire",
+      "icon": "spell_fire_felflamering",
+      "spellId": 391178
+    },
+    "90952": {
+      "name": "Retaliation",
+      "icon": "ability_demonhunter_demonspikes2",
+      "spellId": 389729
+    },
+    "90953": {
+      "name": "Meteoric Strikes",
+      "icon": "spell_warlock_summonabyssal",
+      "spellId": 389724
+    },
+    "90978": {
+      "name": "Spirit Bomb",
+      "icon": "inv_icon_shadowcouncilorb_purple",
+      "spellId": 247454
+    },
+    "90971": {
+      "name": "Agonizing Flames",
+      "icon": "achievment_raid_houroftwilight",
+      "spellId": 207548
+    },
+    "90966": {
+      "name": "Extended Spikes",
+      "icon": "ability_demonhunter_demonspikes",
+      "spellId": 389721
+    },
+    "90987": {
+      "name": "Burning Blood",
+      "icon": "ability_demonhunter_immolation",
+      "spellId": 390213
+    },
+    "90957": {
+      "name": "Revel in Pain",
+      "icon": "ability_bossfelmagnaron_handempowered",
+      "spellId": 343014
+    },
+    "90977": {
+      "name": "Void Reaver",
+      "icon": "spell_shadow_demonicempathy",
+      "spellId": 268175
+    },
+    "90969": {
+      "name": "Feast of Souls",
+      "icon": "spell_shadow_soulleech",
+      "spellId": 207697
+    },
+    "90972": {
+      "name": "Fallout",
+      "icon": "spell_volatilefiregreen",
+      "spellId": 227174
+    },
+    "90965": {
+      "name": "Ruinous Bulwark",
+      "icon": "ability_demonhunter_feldevastation",
+      "spellId": 326853
+    },
+    "90986": {
+      "name": "Volatile Flameblood",
+      "icon": "ability_demonhunter_immolation",
+      "spellId": 390808
+    },
+    "90956": {
+      "name": "Soul Barrier",
+      "icon": "inv_soulbarrier",
+      "spellId": 263648
+    },
+    "90955": {
+      "name": "Fel Flame Fortification",
+      "icon": "spell_fire_felfire",
+      "spellId": 389705
+    },
+    "90974": {
+      "name": "Soul Furnace",
+      "icon": "ability_demonhunter_soulcleave4",
+      "spellId": 391165
+    },
+    "90976": {
+      "name": "Painbringer",
+      "icon": "artifactability_vengeancedemonhunter_painbringer",
+      "spellId": 207387
+    },
+    "90954": {
+      "name": "Sigil of Chains",
+      "icon": "ability_demonhunter_sigilofchains",
+      "spellId": 202138
+    },
+    "90958": {
+      "name": "Fiery Demise",
+      "icon": "ability_demonhunter_fierybrand",
+      "spellId": 389220
+    },
+    "90964": {
+      "name": "Chains of Anger",
+      "icon": "ability_demonhunter_sigilofchains",
+      "spellId": 389715
+    },
+    "90975": {
+      "name": "Focused Cleave",
+      "icon": "ability_demonhunter_soulcleave",
+      "spellId": 343207
+    },
+    "90973": {
+      "name": "Soulmonger",
+      "icon": "ability_demonhunter_shatteredsouls",
+      "spellId": 389711
+    },
+    "90984": {
+      "name": "Stoke the Flames",
+      "icon": "ability_demonhunter_feldevastation",
+      "spellId": 393827
+    },
+    "90959": {
+      "name": "Burning Alive",
+      "icon": "spell_fire_elementaldevastation",
+      "spellId": 207739
+    },
+    "90963": {
+      "name": "Cycle of Binding",
+      "icon": "ability_demonhunter_sigilofinquisition",
+      "spellId": 389718
+    },
+    "90981": {
+      "name": "Vulnerability",
+      "icon": "inv_icon_shadowcouncilorb_purple",
+      "spellId": 389976
+    },
+    "90983": {
+      "name": "Feed the Demon",
+      "icon": "spell_warlock_demonicempowerment",
+      "spellId": 218612
+    },
+    "90962": {
+      "name": "Charred Flesh",
+      "icon": "ability_warlock_backdraft",
+      "spellId": 336639
+    },
+    "90980": {
+      "name": "Soulcrush",
+      "icon": "inv_icon_shadowcouncilorb_purple",
+      "spellId": 389985
+    },
+    "90982": {
+      "name": "Soul Carver",
+      "icon": "inv_glaive_1h_artifactaldrochi_d_01",
+      "spellId": 207407
+    },
+    "90979": {
+      "name": "Last Resort",
+      "icon": "inv_glaive_1h_artifactaldorchi_d_06",
+      "spellId": 209258
+    },
+    "90985": {
+      "name": "Darkglare Boon",
+      "icon": "inv_jewelry_necklace_53",
+      "spellId": 389708
+    },
+    "90961": {
+      "name": "Down in Flames",
+      "icon": "ability_demonhunter_fierybrand",
+      "spellId": 389732
+    },
+    "94915": {
+      "name": "Art of the Glaive",
+      "icon": "inv_ability_aldrachireaverdemonhunter_reaversglaive",
+      "spellId": 442290
+    },
+    "94898": {
+      "name": "Fury of the Aldrachi",
+      "icon": "spell_fire_felflamestrike",
+      "spellId": 442718
+    },
+    "94911": {
+      "name": "Evasive Action",
+      "icon": "ability_demonhunter_vengefulretreat",
+      "spellId": 444926
+    },
+    "94903": {
+      "name": "Reaver's Mark",
+      "icon": "ability_hunter_harass",
+      "spellId": 442679
+    },
+    "94914": {
+      "name": "Aldrachi Tactics",
+      "icon": "ability_demonhunter_soulcleave2",
+      "spellId": 442683
+    },
+    "94896": {
+      "name": "Army Unto Oneself",
+      "icon": "ability_warlock_avoidance",
+      "spellId": 442714
+    },
+    "94897": {
+      "name": "Wounded Quarry",
+      "icon": "ability_rogue_venomouswounds",
+      "spellId": 442806
+    },
+    "94895": {
+      "name": "Incisive Blade",
+      "icon": "ability_dualwieldspecialization",
+      "spellId": 442492
+    },
+    "94910": {
+      "name": "Keen Engagement",
+      "icon": "ability_warlock_shadowfurytga",
+      "spellId": 442497
+    },
+    "94906": {
+      "name": "Warblade's Hunger",
+      "icon": "ability_warlock_soulsiphon",
+      "spellId": 442502
+    },
+    "94919": {
+      "name": "Thrill of the Fight",
+      "icon": "spell_arcane_arcanetactics",
+      "spellId": 442686
+    },
+    "94917": {
+      "name": "Demonsurge",
+      "icon": "inv_ability_felscarreddemonhunter_demonsurge",
+      "spellId": 452402
+    },
+    "94913": {
+      "name": "Wave of Debilitation",
+      "icon": "spell_fire_felfirenova",
+      "spellId": 452403
+    },
+    "94918": {
+      "name": "Focused Hatred",
+      "icon": "ability_demonhunter_illidansgrasp",
+      "spellId": 452405
+    },
+    "94899": {
+      "name": "Set Fire to the Pain",
+      "icon": "ability_demonhunter_empowerwards",
+      "spellId": 452406
+    },
+    "94905": {
+      "name": "Burning Blades",
+      "icon": "inv_glaive_1h_artifactazgalor_d_02dual",
+      "spellId": 452408
+    },
+    "94912": {
+      "name": "Violent Transformation",
+      "icon": "spell_shadow_demoniccirclesummon",
+      "spellId": 452409
+    },
+    "94916": {
+      "name": "Enduring Torment",
+      "icon": "spell_fire_felimmolation",
+      "spellId": 452410
+    },
+    "94904": {
+      "name": "Untethered Fury",
+      "icon": "inv__felbarrage",
+      "spellId": 452411
+    },
+    "94902": {
+      "name": "Student of Suffering",
+      "icon": "achievement_dungeon_theatreofpain_kultharok",
+      "spellId": 452412
+    },
+    "94909": {
+      "name": "Monster Rising",
+      "icon": "ability_warlock_demonicpower",
+      "spellId": 452414
+    },
+    "94901": {
+      "name": "Demonic Intensity",
+      "icon": "spell_warlock_demonicempowerment",
+      "spellId": 452415
+    }
+  },
+  "subTrees": {
+    "35": {
+      "name": "Aldrachi Reaver",
+      "icon": "talents-heroclass-demonhunter-aldrachireaver"
+    },
+    "34": {
+      "name": "Fel-Scarred",
+      "icon": "talents-heroclass-demonhunter-felscarred"
+    }
+  }
+}

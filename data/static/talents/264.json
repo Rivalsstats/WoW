@@ -1,0 +1,576 @@
+{
+  "specName": "Restoration",
+  "className": "Shaman",
+  "talents": {
+    "103588": {
+      "name": "Chain Heal",
+      "icon": "inv_1115_shaman_chainheal",
+      "spellId": 1064
+    },
+    "103598": {
+      "name": "Lava Burst",
+      "icon": "spell_shaman_lavaburst",
+      "spellId": 51505
+    },
+    "103616": {
+      "name": "Astral Shift",
+      "icon": "ability_shaman_astralshift",
+      "spellId": 108271
+    },
+    "103583": {
+      "name": "Chain Lightning",
+      "icon": "spell_nature_chainlightning",
+      "spellId": 188443
+    },
+    "103596": {
+      "name": "Earth Shield",
+      "icon": "spell_nature_skinofearth",
+      "spellId": 974
+    },
+    "103615": {
+      "name": "Wind Shear",
+      "icon": "spell_nature_cyclone",
+      "spellId": 57994
+    },
+    "103611": {
+      "name": "Planes Traveler",
+      "icon": "spell_shaman_astralshift",
+      "spellId": 381647
+    },
+    "103581": {
+      "name": "Spirit Wolf",
+      "icon": "spell_hunter_lonewolf",
+      "spellId": 260878
+    },
+    "103604": {
+      "name": "Frost Shock",
+      "icon": "spell_frost_frostshock",
+      "spellId": 196840
+    },
+    "103614": {
+      "name": "Winds of Al'Akir",
+      "icon": "ability_druid_galewinds",
+      "spellId": 382215
+    },
+    "103602": {
+      "name": "Elemental Orbit",
+      "icon": "ability_mage_shattershield",
+      "spellId": 383010
+    },
+    "103605": {
+      "name": "Fire and Ice",
+      "icon": "spell_firefrost_orb",
+      "spellId": 382886
+    },
+    "103610": {
+      "name": "Ancestral Wolf Affinity",
+      "icon": "spell_beastmaster_wolf",
+      "spellId": 382197
+    },
+    "103579": {
+      "name": "Capacitor Totem",
+      "icon": "spell_nature_brilliance",
+      "spellId": 192058
+    },
+    "103591": {
+      "name": "Spirit Walk",
+      "icon": "ability_tracking",
+      "spellId": 58875
+    },
+    "103619": {
+      "name": "Encasing Cold",
+      "icon": "ability_mage_coldasice",
+      "spellId": 462762
+    },
+    "103582": {
+      "name": "Brimming with Life",
+      "icon": "inv_jewelry_talisman_06",
+      "spellId": 381689
+    },
+    "103590": {
+      "name": "Healing Stream Totem",
+      "icon": "inv_spear_04",
+      "spellId": 392915
+    },
+    "103617": {
+      "name": "Earthgrab Totem",
+      "icon": "spell_nature_stranglevines",
+      "spellId": 51485
+    },
+    "103618": {
+      "name": "Static Charge",
+      "icon": "spell_nature_brilliance",
+      "spellId": 265046
+    },
+    "103624": {
+      "name": "Purge",
+      "icon": "spell_nature_purge",
+      "spellId": 370
+    },
+    "103585": {
+      "name": "Earth Elemental",
+      "icon": "spell_nature_earthelemental_totem",
+      "spellId": 198103
+    },
+    "103601": {
+      "name": "Elemental Resistance",
+      "icon": "spell_fireresistancetotem_01",
+      "spellId": 462368
+    },
+    "81073": {
+      "name": "Improved Purify Spirit",
+      "icon": "ability_shaman_cleansespirit",
+      "spellId": 383016
+    },
+    "103593": {
+      "name": "Tremor Totem",
+      "icon": "spell_nature_tremortotem",
+      "spellId": 8143
+    },
+    "103613": {
+      "name": "Nature's Guardian",
+      "icon": "spell_nature_natureguardian",
+      "spellId": 30884
+    },
+    "103622": {
+      "name": "Nature's Fury",
+      "icon": "spell_nature_spiritarmor",
+      "spellId": 381655
+    },
+    "103594": {
+      "name": "Refreshing Waters",
+      "icon": "ability_shaman_fortifyingwaters",
+      "spellId": 378211
+    },
+    "103597": {
+      "name": "Elemental Warding",
+      "icon": "inv_10_elementalcombinedfoozles_primordial",
+      "spellId": 381650
+    },
+    "103623": {
+      "name": "Hex",
+      "icon": "spell_shaman_hex",
+      "spellId": 51514
+    },
+    "103627": {
+      "name": "Wind Rush Totem",
+      "icon": "ability_shaman_windwalktotem",
+      "spellId": 192077
+    },
+    "103612": {
+      "name": "Primordial Bond",
+      "icon": "inv_elemental_primal_earth",
+      "spellId": 381764
+    },
+    "103584": {
+      "name": "Spiritwalker's Grace",
+      "icon": "spell_shaman_spiritwalkersgrace",
+      "spellId": 79206
+    },
+    "103603": {
+      "name": "Thunderstorm",
+      "icon": "spell_shaman_thunderstorm",
+      "spellId": 51490
+    },
+    "103600": {
+      "name": "Voodoo Mastery",
+      "icon": "spell_shaman_hex",
+      "spellId": 204268
+    },
+    "103625": {
+      "name": "Totemic Focus",
+      "icon": "inv_relics_totemofrebirth",
+      "spellId": 382201
+    },
+    "103607": {
+      "name": "Ascending Air",
+      "icon": "achievement_raidprimalist_windelemental",
+      "spellId": 462791
+    },
+    "103606": {
+      "name": "Enhanced Imbues",
+      "icon": "spell_nature_rockbiter",
+      "spellId": 462796
+    },
+    "103626": {
+      "name": "Graceful Spirit",
+      "icon": "spell_shaman_spectraltransformation",
+      "spellId": 192088
+    },
+    "103589": {
+      "name": "Lightning Lasso",
+      "icon": "shaman_pvp_lightninglasso",
+      "spellId": 305483
+    },
+    "103586": {
+      "name": "Totemic Projection",
+      "icon": "ability_shaman_totemrelocation",
+      "spellId": 108287
+    },
+    "103599": {
+      "name": "Totemic Surge",
+      "icon": "spell_nature_agitatingtotem",
+      "spellId": 381867
+    },
+    "103628": {
+      "name": "Seasoned Winds",
+      "icon": "spell_nature_cyclone",
+      "spellId": 355630
+    },
+    "103587": {
+      "name": "Mana Spring",
+      "icon": "spell_nature_manaregentotem",
+      "spellId": 381930
+    },
+    "103621": {
+      "name": "Thundershock",
+      "icon": "ability_thunderking_thunderstruck",
+      "spellId": 378779
+    },
+    "103609": {
+      "name": "Poison Cleansing Totem",
+      "icon": "spell_nature_poisoncleansingtotem",
+      "spellId": 383013
+    },
+    "103595": {
+      "name": "Totemic Recall",
+      "icon": "ability_shaman_multitotemactivation",
+      "spellId": 108285
+    },
+    "103620": {
+      "name": "Nature's Swiftness",
+      "icon": "spell_nature_ravenform",
+      "spellId": 378081
+    },
+    "103629": {
+      "name": "Stone Bulwark Totem",
+      "icon": "ability_shaman_stonebulwark",
+      "spellId": 108270
+    },
+    "103592": {
+      "name": "Call of the Elements",
+      "icon": "ability_shaman_multitotemactivation",
+      "spellId": 383011
+    },
+    "81027": {
+      "name": "Riptide",
+      "icon": "spell_nature_riptide",
+      "spellId": 61295
+    },
+    "81040": {
+      "name": "Healing Rain",
+      "icon": "spell_nature_giftofthewaterspirit",
+      "spellId": 73920
+    },
+    "81022": {
+      "name": "Healing Stream Totem",
+      "icon": "inv_spear_04",
+      "spellId": 392916
+    },
+    "103428": {
+      "name": "Deluge",
+      "icon": "ability_shawaterelemental_reform",
+      "spellId": 200076
+    },
+    "81039": {
+      "name": "Acid Rain",
+      "icon": "spell_nature_acid_01",
+      "spellId": 378443
+    },
+    "81032": {
+      "name": "Healing Tide Totem",
+      "icon": "ability_shaman_healingtide",
+      "spellId": 108280
+    },
+    "81021": {
+      "name": "Tidal Waves",
+      "icon": "spell_shaman_tidalwaves",
+      "spellId": 51564
+    },
+    "92677": {
+      "name": "Overflowing Shores",
+      "icon": "spell_nature_giftofthewaterspirit",
+      "spellId": 383222
+    },
+    "103429": {
+      "name": "Ancestral Vigor",
+      "icon": "spell_shaman_blessingoftheeternals",
+      "spellId": 207401
+    },
+    "81024": {
+      "name": "Resurgence",
+      "icon": "ability_shaman_watershield",
+      "spellId": 16196
+    },
+    "81018": {
+      "name": "Water Totem Mastery",
+      "icon": "ability_shaman_totemcooldownrefund",
+      "spellId": 382030
+    },
+    "81038": {
+      "name": "White Water",
+      "icon": "ability_shawaterelemental_swirl",
+      "spellId": 462587
+    },
+    "81033": {
+      "name": "Spirit Link Totem",
+      "icon": "spell_shaman_spiritlink",
+      "spellId": 98008
+    },
+    "81019": {
+      "name": "Master of the Elements",
+      "icon": "spell_nature_elementalabsorption",
+      "spellId": 462375
+    },
+    "81048": {
+      "name": "Living Stream",
+      "icon": "spell_nature_natureresistancetotem",
+      "spellId": 382482
+    },
+    "81047": {
+      "name": "Torrent",
+      "icon": "spell_nature_riptide",
+      "spellId": 200072
+    },
+    "92675": {
+      "name": "Current Control",
+      "icon": "ability_shaman_healingtide",
+      "spellId": 404015
+    },
+    "103432": {
+      "name": "Spouting Spirits",
+      "icon": "spell_shaman_spiritlink",
+      "spellId": 462383
+    },
+    "81045": {
+      "name": "Mana Tide",
+      "icon": "ability_shaman_manatidetotem",
+      "spellId": 1217525
+    },
+    "81031": {
+      "name": "Ancestral Reach",
+      "icon": "inv_1115_shaman_chainheal",
+      "spellId": 382732
+    },
+    "81037": {
+      "name": "Undulation",
+      "icon": "spell_nature_healingway",
+      "spellId": 200071
+    },
+    "81044": {
+      "name": "Echo of the Elements",
+      "icon": "ability_shaman_echooftheelements",
+      "spellId": 333919
+    },
+    "81046": {
+      "name": "Earthen Wall Totem",
+      "icon": "spell_nature_stoneskintotem",
+      "spellId": 198838
+    },
+    "81049": {
+      "name": "Earthliving Weapon",
+      "icon": "spell_shaman_giftearthmother",
+      "spellId": 382021
+    },
+    "103436": {
+      "name": "Primal Tide Core",
+      "icon": "ability_shaman_repulsiontotem",
+      "spellId": 382045
+    },
+    "81055": {
+      "name": "Ascendance",
+      "icon": "spell_fire_elementaldevastation",
+      "spellId": 114052
+    },
+    "81041": {
+      "name": "Tidebringer",
+      "icon": "spell_shaman_blessingofeternals",
+      "spellId": 236501
+    },
+    "103430": {
+      "name": "Earthen Harmony",
+      "icon": "spell_shaman_improvedearthshield",
+      "spellId": 382020
+    },
+    "103434": {
+      "name": "Tidewaters",
+      "icon": "ability_shawaterelemental_split",
+      "spellId": 462424
+    },
+    "81052": {
+      "name": "Undercurrent",
+      "icon": "spell_fire_bluehellfire",
+      "spellId": 382194
+    },
+    "103433": {
+      "name": "First Ascendant",
+      "icon": "spell_shaman_astralshift",
+      "spellId": 462440
+    },
+    "103427": {
+      "name": "Wavespeaker's Blessing",
+      "icon": "inv_alchemist_81_spiritedalchemiststone",
+      "spellId": 381946
+    },
+    "103915": {
+      "name": "Coalescing Water",
+      "icon": "inv_helm_mail_raidshamanmythic_s_01",
+      "spellId": 470076
+    },
+    "81043": {
+      "name": "Ancestral Awakening",
+      "icon": "spell_shaman_ancestralawakening",
+      "spellId": 382309
+    },
+    "103435": {
+      "name": "Therazane's Resilience",
+      "icon": "shaman_pvp_rockshield",
+      "spellId": 1217622
+    },
+    "81050": {
+      "name": "Improved Earthliving Weapon",
+      "icon": "spell_shaman_giftearthmother",
+      "spellId": 382315
+    },
+    "104124": {
+      "name": "Whispering Waves",
+      "icon": "shaman_pvp_ripplingwaters",
+      "spellId": 1217598
+    },
+    "80976": {
+      "name": "Downpour",
+      "icon": "ability_mage_waterjet",
+      "spellId": 462486
+    },
+    "81042": {
+      "name": "High Tide",
+      "icon": "spell_shaman_hightide",
+      "spellId": 157154
+    },
+    "81051": {
+      "name": "Deeply Rooted Elements",
+      "icon": "inv_misc_herb_liferoot_stem",
+      "spellId": 378270
+    },
+    "94888": {
+      "name": "Call of the Ancestors",
+      "icon": "ability_racial_ancestralcall",
+      "spellId": 443450
+    },
+    "94877": {
+      "name": "Surging Totem",
+      "icon": "inv_ability_totemicshaman_surgingtotem",
+      "spellId": 455630
+    },
+    "94862": {
+      "name": "Latent Wisdom",
+      "icon": "spell_holy_spiritualguidence",
+      "spellId": 443449
+    },
+    "94884": {
+      "name": "Heed My Call",
+      "icon": "spell_unused2",
+      "spellId": 443444
+    },
+    "94869": {
+      "name": "Elemental Reverb",
+      "icon": "ability_shaman_echooftheelements",
+      "spellId": 443418
+    },
+    "94890": {
+      "name": "Totemic Rebound",
+      "icon": "ability_vehicle_electrocharge",
+      "spellId": 445025
+    },
+    "94874": {
+      "name": "Amplification Core",
+      "icon": "ability_evoker_essenceburststacks",
+      "spellId": 445029
+    },
+    "94882": {
+      "name": "Lively Totems",
+      "icon": "spell_fire_searingtotem",
+      "spellId": 445034
+    },
+    "94887": {
+      "name": "Offering from Beyond",
+      "icon": "spell_shaman_blessingoftheeternals",
+      "spellId": 443451
+    },
+    "94860": {
+      "name": "Primordial Capacity",
+      "icon": "ability_monk_chiswirl",
+      "spellId": 443448
+    },
+    "94861": {
+      "name": "Spiritwalker's Momentum",
+      "icon": "spell_shaman_spiritwalkersgrace",
+      "spellId": 443425
+    },
+    "94859": {
+      "name": "Oversized Totems",
+      "icon": "ability_shaman_totemrelocation",
+      "spellId": 445026
+    },
+    "94891": {
+      "name": "Wind Barrier",
+      "icon": "spell_nature_eyeofthestorm",
+      "spellId": 445031
+    },
+    "94872": {
+      "name": "Reactivity",
+      "icon": "spell_fire_totemofwrath",
+      "spellId": 445035
+    },
+    "94858": {
+      "name": "Natural Harmony",
+      "icon": "spell_nature_natureguardian",
+      "spellId": 443442
+    },
+    "94883": {
+      "name": "Maelstrom Supremacy",
+      "icon": "spell_shadow_soulleech_2",
+      "spellId": 443447
+    },
+    "94875": {
+      "name": "Final Calling",
+      "icon": "spell_shaman_ancestralawakening",
+      "spellId": 443446
+    },
+    "94871": {
+      "name": "Imbuement Mastery",
+      "icon": "spell_shaman_unleashweapon_wind",
+      "spellId": 445028
+    },
+    "94866": {
+      "name": "Pulse Capacitor",
+      "icon": "spell_nature_elementalprecision_1",
+      "spellId": 445032
+    },
+    "94881": {
+      "name": "Totemic Coordination",
+      "icon": "ability_shaman_echooftheelements",
+      "spellId": 445036
+    },
+    "94894": {
+      "name": "Ancestral Swiftness",
+      "icon": "inv_ability_farseershaman_ancestralswiftness",
+      "spellId": 448861
+    },
+    "94879": {
+      "name": "Whirling Elements",
+      "icon": "inv_10_enchanting2_elementalswirl_color1",
+      "spellId": 445024
+    }
+  },
+  "subTrees": {
+    "56": {
+      "name": "Farseer",
+      "icon": "talents-heroclass-shaman-farseer"
+    },
+    "54": {
+      "name": "Totemic",
+      "icon": "talents-heroclass-shaman-totemic"
+    }
+  }
+}

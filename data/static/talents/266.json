@@ -1,0 +1,541 @@
+{
+  "specName": "Demonology",
+  "className": "Warlock",
+  "talents": {
+    "71931": {
+      "name": "Fel Domination",
+      "icon": "spell_shadow_felmending",
+      "spellId": 333889
+    },
+    "71933": {
+      "name": "Soul Leech",
+      "icon": "warlock_siphonlife",
+      "spellId": 108370
+    },
+    "71949": {
+      "name": "Burning Rush",
+      "icon": "ability_deathwing_sealarmorbreachtga",
+      "spellId": 111400
+    },
+    "71932": {
+      "name": "Fel Pact",
+      "icon": "spell_shadow_impphaseshift",
+      "spellId": 386113
+    },
+    "71952": {
+      "name": "Demon Skin",
+      "icon": "spell_shadow_ragingscream",
+      "spellId": 219272
+    },
+    "71950": {
+      "name": "Fel Armor",
+      "icon": "spell_shadow_felarmour",
+      "spellId": 386124
+    },
+    "71948": {
+      "name": "Fiendish Stride",
+      "icon": "inv_misc_moosehoof_fel",
+      "spellId": 386110
+    },
+    "71951": {
+      "name": "Curses of Enfeeblement",
+      "icon": "ability_creature_cursed_02",
+      "spellId": 386105
+    },
+    "100941": {
+      "name": "Demonic Circle",
+      "icon": "spell_shadow_demoniccirclesummon",
+      "spellId": 268358
+    },
+    "71947": {
+      "name": "Howl of Terror",
+      "icon": "ability_warlock_howlofterror",
+      "spellId": 5484
+    },
+    "71934": {
+      "name": "Amplify Curse",
+      "icon": "spell_shadow_contagion",
+      "spellId": 328774
+    },
+    "71930": {
+      "name": "Demonic Embrace",
+      "icon": "spell_shadow_metamorphosis",
+      "spellId": 288843
+    },
+    "71928": {
+      "name": "Demonic Inspiration",
+      "icon": "ability_warlock_demonicpower",
+      "spellId": 386858
+    },
+    "71954": {
+      "name": "Abyss Walker",
+      "icon": "achievement_explore_argus",
+      "spellId": 389609
+    },
+    "71946": {
+      "name": "Wrathful Minion",
+      "icon": "spell_fel_incinerate",
+      "spellId": 386864
+    },
+    "71922": {
+      "name": "Demonic Fortitude",
+      "icon": "spell_warlock_summonimpoutland",
+      "spellId": 386617
+    },
+    "71944": {
+      "name": "Banish",
+      "icon": "spell_shadow_cripple",
+      "spellId": 710
+    },
+    "71935": {
+      "name": "Teachings of the Satyr",
+      "icon": "spell_shadow_carrionswarm",
+      "spellId": 387972
+    },
+    "71953": {
+      "name": "Accrued Vitality",
+      "icon": "spell_shadow_lifedrain",
+      "spellId": 386613
+    },
+    "71927": {
+      "name": "Sweet Souls",
+      "icon": "spell_shadow_soulleech",
+      "spellId": 386620
+    },
+    "71916": {
+      "name": "Nightmare",
+      "icon": "spell_shadow_possession",
+      "spellId": 386648
+    },
+    "71955": {
+      "name": "Demonic Gateway",
+      "icon": "spell_warlock_demonicportal_green",
+      "spellId": 111771
+    },
+    "71940": {
+      "name": "Lifeblood",
+      "icon": "warlock__healthstone",
+      "spellId": 386646
+    },
+    "71936": {
+      "name": "Dark Pact",
+      "icon": "spell_shadow_deathpact",
+      "spellId": 108416
+    },
+    "71956": {
+      "name": "Strength of Will",
+      "icon": "spell_shadow_demonictactics",
+      "spellId": 317138
+    },
+    "71942": {
+      "name": "Shadowfury",
+      "icon": "ability_warlock_shadowfurytga",
+      "spellId": 30283
+    },
+    "71937": {
+      "name": "Ichor of Devils",
+      "icon": "spell_yorsahj_bloodboil_greenoil",
+      "spellId": 386664
+    },
+    "93178": {
+      "name": "Socrethar's Guile",
+      "icon": "spell_fire_soulburn",
+      "spellId": 405936
+    },
+    "93179": {
+      "name": "Sargerei Technique",
+      "icon": "70_inscription_glyph_demonhunter_major",
+      "spellId": 405955
+    },
+    "71941": {
+      "name": "Darkfury",
+      "icon": "ability_warlock_shadowfurytga",
+      "spellId": 264874
+    },
+    "71918": {
+      "name": "Swift Artifice",
+      "icon": "spell_shadow_destructivesoul",
+      "spellId": 452902
+    },
+    "71925": {
+      "name": "Demonic Tactics",
+      "icon": "inv_helm_laughingskull_01",
+      "spellId": 452894
+    },
+    "71938": {
+      "name": "Teachings of the Black Harvest",
+      "icon": "inv_misc_codexofxerrath_nochains",
+      "spellId": 385881
+    },
+    "71915": {
+      "name": "Resolute Barrier",
+      "icon": "inv_shield_1h_demonweapon_c_01",
+      "spellId": 389359
+    },
+    "71924": {
+      "name": "Fel Synergy",
+      "icon": "inv_sword_1h_felfireraid_d_01",
+      "spellId": 389367
+    },
+    "71923": {
+      "name": "Soul Link",
+      "icon": "ability_warlock_soullink",
+      "spellId": 108415
+    },
+    "71917": {
+      "name": "Demonic Resilience",
+      "icon": "ability_warlock_avoidance",
+      "spellId": 389590
+    },
+    "71926": {
+      "name": "Pact of Gluttony",
+      "icon": "warlock__bloodstone",
+      "spellId": 386689
+    },
+    "71939": {
+      "name": "Soul Conduit",
+      "icon": "spell_shadow_soulleech_2",
+      "spellId": 215941
+    },
+    "71957": {
+      "name": "Soulburn",
+      "icon": "spell_warlock_soulburn",
+      "spellId": 385899
+    },
+    "101891": {
+      "name": "Demoniac",
+      "icon": "inv_demonbolt",
+      "spellId": 426115
+    },
+    "101893": {
+      "name": "Implosion",
+      "icon": "inv_implosion",
+      "spellId": 196277
+    },
+    "101894": {
+      "name": "Call Dreadstalkers",
+      "icon": "spell_warlock_calldreadstalkers",
+      "spellId": 104316
+    },
+    "101922": {
+      "name": "Imp Gang Boss",
+      "icon": "ability_warlock_empoweredimp",
+      "spellId": 387445
+    },
+    "101901": {
+      "name": "Spiteful Reconstitution",
+      "icon": "spell_shadow_impphaseshift",
+      "spellId": 428394
+    },
+    "101888": {
+      "name": "Dreadlash",
+      "icon": "spell_shadow_summonvoidwalker",
+      "spellId": 264078
+    },
+    "101887": {
+      "name": "Carnivorous Stalkers",
+      "icon": "warlock_pvp_callfelhunter",
+      "spellId": 386194
+    },
+    "101925": {
+      "name": "Inner Demons",
+      "icon": "ability_warlock_eradication",
+      "spellId": 267216
+    },
+    "101899": {
+      "name": "Soul Strike",
+      "icon": "inv_polearm_2h_fellord_04",
+      "spellId": 428344
+    },
+    "101890": {
+      "name": "Bilescourge Bombers",
+      "icon": "ability_hunter_pet_bat",
+      "spellId": 267211
+    },
+    "101886": {
+      "name": "Sacrificed Souls",
+      "icon": "ability_creature_disease_05",
+      "spellId": 267214
+    },
+    "101914": {
+      "name": "Rune of Shadows",
+      "icon": "spell_shadow_rune",
+      "spellId": 453744
+    },
+    "101923": {
+      "name": "Imp-erator",
+      "icon": "spell_warlock_summonimpoutland",
+      "spellId": 416230
+    },
+    "101897": {
+      "name": "Fel Invocation",
+      "icon": "ability_bossfelorcs_necromancer_orange",
+      "spellId": 428351
+    },
+    "101884": {
+      "name": "Annihilan Training",
+      "icon": "ability_bossmannoroth_glaivethrust",
+      "spellId": 386174
+    },
+    "101921": {
+      "name": "Shadow Invocation",
+      "icon": "ability_bossfelorcs_necromancer_purple",
+      "spellId": 422054
+    },
+    "101926": {
+      "name": "Wicked Maw",
+      "icon": "ability_creature_poison_01_purple",
+      "spellId": 267170
+    },
+    "101916": {
+      "name": "Power Siphon",
+      "icon": "ability_warlock_backdraft",
+      "spellId": 264130
+    },
+    "101905": {
+      "name": "Summon Demonic Tyrant",
+      "icon": "inv_summondemonictyrant",
+      "spellId": 265187
+    },
+    "101907": {
+      "name": "Grimoire: Felguard",
+      "icon": "spell_shadow_demonicpact",
+      "spellId": 111898
+    },
+    "101902": {
+      "name": "The Expendables",
+      "icon": "ability_warlock_impoweredimp",
+      "spellId": 387600
+    },
+    "101904": {
+      "name": "Blood Invocation",
+      "icon": "ability_bossfelorcs_necromancer_red",
+      "spellId": 455576
+    },
+    "101915": {
+      "name": "Pact of the Imp Mother",
+      "icon": "inv_archaeology_70_impgenerator",
+      "spellId": 387541
+    },
+    "101908": {
+      "name": "Master Summoner",
+      "icon": "inv_feldreadravenmount",
+      "spellId": 1240189
+    },
+    "101903": {
+      "name": "Demonic Calling",
+      "icon": "ability_warlock_impoweredimp",
+      "spellId": 205145
+    },
+    "101912": {
+      "name": "Fiendish Oblation",
+      "icon": "inv_ember_fel",
+      "spellId": 455569
+    },
+    "101911": {
+      "name": "Fel Sunder",
+      "icon": "ability_creature_felsunder",
+      "spellId": 387399
+    },
+    "101919": {
+      "name": "Doom",
+      "icon": "spell_shadow_auraofdarkness",
+      "spellId": 460551
+    },
+    "101924": {
+      "name": "Umbral Blaze",
+      "icon": "ability_warlock_everlastingaffliction",
+      "spellId": 405798
+    },
+    "101900": {
+      "name": "Summon Vilefiend",
+      "icon": "inv_argusfelstalkermount",
+      "spellId": 264119
+    },
+    "101889": {
+      "name": "Dread Calling",
+      "icon": "achievement_boss_argus_hound",
+      "spellId": 387391
+    },
+    "101913": {
+      "name": "Antoran Armaments",
+      "icon": "inv_axe_1h_felfireraid_d_01",
+      "spellId": 387494
+    },
+    "101906": {
+      "name": "Doom Eternal",
+      "icon": "inv_offhand_1h_artifactdoomhammer_d_06",
+      "spellId": 455585
+    },
+    "101885": {
+      "name": "Impending Doom",
+      "icon": "spell_shadow_unstableafllictions",
+      "spellId": 455587
+    },
+    "101918": {
+      "name": "Foul Mouth",
+      "icon": "spell_deathvortex",
+      "spellId": 455502
+    },
+    "101898": {
+      "name": "The Houndmaster's Gambit",
+      "icon": "achievement_boss_hellfire_fellord",
+      "spellId": 455572
+    },
+    "101892": {
+      "name": "Improved Demonic Tactics",
+      "icon": "ability_warlock_ancientgrimoire",
+      "spellId": 453800
+    },
+    "101920": {
+      "name": "Demonic Brutality",
+      "icon": "ability_demonhunter_bladedance",
+      "spellId": 453908
+    },
+    "101917": {
+      "name": "Pact of the Ered'ruin",
+      "icon": "warlock_summon_doomguard",
+      "spellId": 453568
+    },
+    "101910": {
+      "name": "Shadowtouched",
+      "icon": "ability_rogue_envelopingshadows",
+      "spellId": 453619
+    },
+    "101895": {
+      "name": "Mark of Shatug",
+      "icon": "inv_felhound3_shadow_mount",
+      "spellId": 455449
+    },
+    "101909": {
+      "name": "Flametouched",
+      "icon": "spell_shaman_firenova",
+      "spellId": 453699
+    },
+    "101896": {
+      "name": "Immutable Hatred",
+      "icon": "ability_creature_felfrenzy",
+      "spellId": 405670
+    },
+    "94851": {
+      "name": "Demonic Soul",
+      "icon": "inv_ability_soulharvesterwarlock_demonicsoul",
+      "spellId": 449614
+    },
+    "94825": {
+      "name": "Necrolyte Teachings",
+      "icon": "spell_necro_deathall",
+      "spellId": 449620
+    },
+    "94847": {
+      "name": "Soul Anathema",
+      "icon": "spell_necro_inevitableend",
+      "spellId": 449624
+    },
+    "94832": {
+      "name": "Demoniac's Fervor",
+      "icon": "inv_helm_mask_zulgurub_d_01",
+      "spellId": 449629
+    },
+    "94850": {
+      "name": "Gorebound Fortitude",
+      "icon": "spell_holy_consumemagic",
+      "spellId": 449701
+    },
+    "94823": {
+      "name": "Shared Fate",
+      "icon": "ability_warlock_soullink",
+      "spellId": 449704
+    },
+    "94824": {
+      "name": "Eternal Servitude",
+      "icon": "ability_demonhunter_infernalchains",
+      "spellId": 449707
+    },
+    "94821": {
+      "name": "Wicked Reaping",
+      "icon": "inv_staff_2h_artifactdeadwind_d_05",
+      "spellId": 449631
+    },
+    "94846": {
+      "name": "Quietus",
+      "icon": "spell_necro_conclave",
+      "spellId": 449634
+    },
+    "94838": {
+      "name": "Sataiel's Volition",
+      "icon": "spell_necro_deathlyecho",
+      "spellId": 449637
+    },
+    "94857": {
+      "name": "Shadow of Death",
+      "icon": "spell_arcane_prismaticcloak",
+      "spellId": 449638
+    },
+    "94855": {
+      "name": "Diabolic Ritual",
+      "icon": "ability_bossfelorcs_necromancer_purple",
+      "spellId": 428514
+    },
+    "94849": {
+      "name": "Cloven Souls",
+      "icon": "ability_creature_felfrenzy",
+      "spellId": 428517
+    },
+    "94856": {
+      "name": "Touch of Rancora",
+      "icon": "ability_bossfellord_felspike",
+      "spellId": 429893
+    },
+    "94826": {
+      "name": "Secrets of the Coven",
+      "icon": "achievement_boss_argus_shivan",
+      "spellId": 428518
+    },
+    "94836": {
+      "name": "Soul-Etched Circles",
+      "icon": "spell_shadow_demoniccircleteleport",
+      "spellId": 428911
+    },
+    "94848": {
+      "name": "Cruelty of Kerxan",
+      "icon": "creatureportrait_fomorhand",
+      "spellId": 429902
+    },
+    "94852": {
+      "name": "Infernal Vitality",
+      "icon": "inv_fabric_felcloth_ebon",
+      "spellId": 429115
+    },
+    "94833": {
+      "name": "Flames of Xoroth",
+      "icon": "ability_warlock_burningembers",
+      "spellId": 429657
+    },
+    "94831": {
+      "name": "Abyssal Dominion",
+      "icon": "70_inscription_vantus_rune_tomb",
+      "spellId": 429581
+    },
+    "94843": {
+      "name": "Gloom of Nathreza",
+      "icon": "ability_rogue_envelopingshadows",
+      "spellId": 429899
+    },
+    "94830": {
+      "name": "Ruination",
+      "icon": "ability_bossmannoroth_empoweredmannorothsgaze",
+      "spellId": 428522
+    }
+  },
+  "subTrees": {
+    "59": {
+      "name": "Diabolist",
+      "icon": "talents-heroclass-warlock-diabolist"
+    },
+    "57": {
+      "name": "Soul Harvester",
+      "icon": "talents-heroclass-warlock-soulharvester"
+    }
+  }
+}

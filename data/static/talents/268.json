@@ -1,0 +1,576 @@
+{
+  "specName": "Brewmaster",
+  "className": "Monk",
+  "talents": {
+    "101143": {
+      "name": "Soothing Mist",
+      "icon": "ability_monk_soothingmists",
+      "spellId": 115175
+    },
+    "101142": {
+      "name": "Paralysis",
+      "icon": "ability_monk_paralysis",
+      "spellId": 115078
+    },
+    "101186": {
+      "name": "Rising Sun Kick",
+      "icon": "ability_monk_risingsunkick",
+      "spellId": 107428
+    },
+    "101144": {
+      "name": "Elusive Mists",
+      "icon": "ability_monk_soothingmists",
+      "spellId": 388681
+    },
+    "101147": {
+      "name": "Tiger's Lust",
+      "icon": "ability_monk_tigerslust",
+      "spellId": 116841
+    },
+    "101149": {
+      "name": "Crashing Momentum",
+      "icon": "ability_monk_blackoutkick",
+      "spellId": 450335
+    },
+    "101185": {
+      "name": "Fast Feet",
+      "icon": "ability_monk_risingsunkick",
+      "spellId": 388809
+    },
+    "101146": {
+      "name": "Grace of the Crane",
+      "icon": "monk_ability_cherrymanatea",
+      "spellId": 388811
+    },
+    "101161": {
+      "name": "Bounding Agility",
+      "icon": "ability_monk_roll",
+      "spellId": 450520
+    },
+    "101153": {
+      "name": "Calming Presence",
+      "icon": "inv_misc_orb_01",
+      "spellId": 388664
+    },
+    "101148": {
+      "name": "Wind's Reach",
+      "icon": "ability_monk_zenflight",
+      "spellId": 450514
+    },
+    "101090": {
+      "name": "Detox",
+      "icon": "ability_rogue_imrovedrecuperate",
+      "spellId": 218164
+    },
+    "101145": {
+      "name": "Vivacious Vivification",
+      "icon": "ability_monk_vivify",
+      "spellId": 388812
+    },
+    "101160": {
+      "name": "Jade Walk",
+      "icon": "spell_lifegivingspeed",
+      "spellId": 450553
+    },
+    "101141": {
+      "name": "Pressure Points",
+      "icon": "ability_monk_deadlyreach",
+      "spellId": 450432
+    },
+    "101152": {
+      "name": "Spear Hand Strike",
+      "icon": "ability_monk_spearhand",
+      "spellId": 116705
+    },
+    "101184": {
+      "name": "Ancient Arts",
+      "icon": "ability_monk_dpsstance",
+      "spellId": 344359
+    },
+    "102433": {
+      "name": "Chi Wave",
+      "icon": "ability_monk_chiwave",
+      "spellId": 450391
+    },
+    "101167": {
+      "name": "Transcendence",
+      "icon": "monk_ability_transcendence",
+      "spellId": 101643
+    },
+    "101151": {
+      "name": "Energy Transfer",
+      "icon": "monk_ability_avertharm",
+      "spellId": 450631
+    },
+    "101183": {
+      "name": "Celerity",
+      "icon": "ability_monk_quipunch",
+      "spellId": 115173
+    },
+    "101158": {
+      "name": "Quick Footed",
+      "icon": "ability_monk_hurricanestrike",
+      "spellId": 450503
+    },
+    "101166": {
+      "name": "Ferocity of Xuen",
+      "icon": "ability_mount_pinktiger",
+      "spellId": 388674
+    },
+    "101136": {
+      "name": "Ring of Peace",
+      "icon": "spell_monk_ringofpeace",
+      "spellId": 116844
+    },
+    "101138": {
+      "name": "Spirit's Essence",
+      "icon": "spell_shaman_spectraltransformation",
+      "spellId": 450595
+    },
+    "101182": {
+      "name": "Tiger Tail Sweep",
+      "icon": "ability_monk_legsweep",
+      "spellId": 264348
+    },
+    "101140": {
+      "name": "Improved Touch of Death",
+      "icon": "ability_monk_touchofdeath",
+      "spellId": 322113
+    },
+    "101156": {
+      "name": "Vigorous Expulsion",
+      "icon": "ability_monk_expelharm",
+      "spellId": 392900
+    },
+    "101165": {
+      "name": "Yu'lon's Grace",
+      "icon": "ability_monk_dragonkick",
+      "spellId": 414131
+    },
+    "101163": {
+      "name": "Peace and Prosperity",
+      "icon": "inv_inscription_deck_redcrane",
+      "spellId": 450448
+    },
+    "101173": {
+      "name": "Fortifying Brew",
+      "icon": "ability_monk_fortifyingale_new",
+      "spellId": 388917
+    },
+    "101181": {
+      "name": "Dance of the Wind",
+      "icon": "ability_monk_dematerialize",
+      "spellId": 414132
+    },
+    "101157": {
+      "name": "Save Them All",
+      "icon": "inv_weapon_hand_22",
+      "spellId": 389579
+    },
+    "101155": {
+      "name": "Swift Art",
+      "icon": "ability_monk_standingkick",
+      "spellId": 450622
+    },
+    "101135": {
+      "name": "Strength of Spirit",
+      "icon": "ability_monk_healthsphere",
+      "spellId": 387276
+    },
+    "101172": {
+      "name": "Summon Black Ox Statue",
+      "icon": "monk_ability_summonoxstatue",
+      "spellId": 115315
+    },
+    "101174": {
+      "name": "Ironshell Brew",
+      "icon": "ability_monk_fortifyingale_new",
+      "spellId": 388814
+    },
+    "101180": {
+      "name": "Celestial Determination",
+      "icon": "ability_monk_essencefont",
+      "spellId": 450638
+    },
+    "101169": {
+      "name": "Chi Proficiency",
+      "icon": "ability_monk_chiswirl",
+      "spellId": 450426
+    },
+    "101171": {
+      "name": "Healing Winds",
+      "icon": "ability_monk_pathofmists",
+      "spellId": 450560
+    },
+    "101175": {
+      "name": "Windwalking",
+      "icon": "monk_stance_whitetiger",
+      "spellId": 157411
+    },
+    "101177": {
+      "name": "Bounce Back",
+      "icon": "ability_butcher_heavyhanded",
+      "spellId": 389577
+    },
+    "101179": {
+      "name": "Martial Instincts",
+      "icon": "ability_monk_palmstrike",
+      "spellId": 450427
+    },
+    "101168": {
+      "name": "Lighter Than Air",
+      "icon": "ability_monk_ridethewind",
+      "spellId": 449582
+    },
+    "101170": {
+      "name": "Flow of Chi",
+      "icon": "ability_monk_healthsphere",
+      "spellId": 450569
+    },
+    "101176": {
+      "name": "Escape from Reality",
+      "icon": "monk_ability_transcendence",
+      "spellId": 394110
+    },
+    "101178": {
+      "name": "Fatal Touch",
+      "icon": "ability_monk_touchofdeath",
+      "spellId": 394123
+    },
+    "101154": {
+      "name": "Rushing Reflexes",
+      "icon": "ability_monk_yulonsgift",
+      "spellId": 450154
+    },
+    "101088": {
+      "name": "Keg Smash",
+      "icon": "achievement_brewery_2",
+      "spellId": 121253
+    },
+    "101064": {
+      "name": "Purifying Brew",
+      "icon": "inv_misc_beer_06",
+      "spellId": 119582
+    },
+    "101087": {
+      "name": "Shuffle",
+      "icon": "ability_monk_shuffle",
+      "spellId": 322120
+    },
+    "101070": {
+      "name": "August Blessing",
+      "icon": "inv_celestialserpentmount",
+      "spellId": 454483
+    },
+    "101072": {
+      "name": "Gift of the Ox",
+      "icon": "ability_druid_giftoftheearthmother",
+      "spellId": 124502
+    },
+    "101065": {
+      "name": "Staggering Strikes",
+      "icon": "ability_monk_blackoutstrike",
+      "spellId": 387625
+    },
+    "101086": {
+      "name": "Spirit of the Ox",
+      "icon": "ability_titankeeper_cleansingorb",
+      "spellId": 400629
+    },
+    "101076": {
+      "name": "Strike At Dawn",
+      "icon": "ability_monk_ridethewind",
+      "spellId": 455043
+    },
+    "101071": {
+      "name": "Hit Scheme",
+      "icon": "ability_monk_roundhousekick",
+      "spellId": 383695
+    },
+    "101085": {
+      "name": "Elixir of Determination",
+      "icon": "monk_ability_cherrymanatea",
+      "spellId": 455139
+    },
+    "101202": {
+      "name": "Special Delivery",
+      "icon": "achievement_brewery_2",
+      "spellId": 196730
+    },
+    "101067": {
+      "name": "Celestial Brew",
+      "icon": "ability_monk_ironskinbrew",
+      "spellId": 322507
+    },
+    "101084": {
+      "name": "Niuzao's Resolve",
+      "icon": "inv_ability_monk_renewingmists_active",
+      "spellId": 1241097
+    },
+    "101710": {
+      "name": "One With the Wind",
+      "icon": "ability_skyreach_wind",
+      "spellId": 454484
+    },
+    "101078": {
+      "name": "Shadowboxing Treads",
+      "icon": "ability_monk_roundhousekick",
+      "spellId": 387638
+    },
+    "101069": {
+      "name": "Breath of Fire",
+      "icon": "ability_monk_breathoffire",
+      "spellId": 115181
+    },
+    "102004": {
+      "name": "Gai Plin's Imperial Brew",
+      "icon": "inv_misc_beer_06",
+      "spellId": 383700
+    },
+    "101075": {
+      "name": "Invoke Niuzao, the Black Ox",
+      "icon": "spell_monk_brewmaster_spec",
+      "spellId": 132578
+    },
+    "101083": {
+      "name": "Tranquil Spirit",
+      "icon": "ability_monk_chiswirl",
+      "spellId": 393357
+    },
+    "101077": {
+      "name": "Pretense of Instability",
+      "icon": "inv_misc_archaeology_vrykuldrinkinghorn",
+      "spellId": 393516
+    },
+    "101188": {
+      "name": "Scalding Brew",
+      "icon": "spell_brew_bolt_dark",
+      "spellId": 383698
+    },
+    "101068": {
+      "name": "Fortifying Brew: Determination",
+      "icon": "ability_monk_fortifyingale_new",
+      "spellId": 322960
+    },
+    "101190": {
+      "name": "Bob and Weave",
+      "icon": "ability_creature_cursed_04",
+      "spellId": 280515
+    },
+    "101074": {
+      "name": "Walk with the Ox",
+      "icon": "ability_monk_chargingoxwave",
+      "spellId": 387219
+    },
+    "101082": {
+      "name": "Light Brewing",
+      "icon": "spell_brew_wheat",
+      "spellId": 325093
+    },
+    "101201": {
+      "name": "Zen State",
+      "icon": "spell_monk_zenpilgrimage",
+      "spellId": 1241136
+    },
+    "101080": {
+      "name": "Counterstrike",
+      "icon": "ability_monk_palmstrike",
+      "spellId": 383785
+    },
+    "101187": {
+      "name": "Dragonfire Brew",
+      "icon": "spell_fire_burnout",
+      "spellId": 383994
+    },
+    "101189": {
+      "name": "High Tolerance",
+      "icon": "monk_ability_avertharm",
+      "spellId": 196737
+    },
+    "101197": {
+      "name": "Exploding Keg",
+      "icon": "archaeology_5_0_emptykegofbrewfatherxinwoyin",
+      "spellId": 325153
+    },
+    "101073": {
+      "name": "Improved Invoke Niuzao, the Black Ox",
+      "icon": "inv_inscription_trinket_ox",
+      "spellId": 322740
+    },
+    "101194": {
+      "name": "Elusive Footwork",
+      "icon": "ability_monk_shuffle",
+      "spellId": 387046
+    },
+    "101081": {
+      "name": "Anvil & Stave",
+      "icon": "ability_monk_elusiveale",
+      "spellId": 386937
+    },
+    "101079": {
+      "name": "Face Palm",
+      "icon": "ability_monk_tigerpalm",
+      "spellId": 389942
+    },
+    "101199": {
+      "name": "Ox Stance",
+      "icon": "ability_monk_leeroftheox",
+      "spellId": 455068
+    },
+    "101196": {
+      "name": "Stormstout's Last Keg",
+      "icon": "achievement_brewery_2",
+      "spellId": 383707
+    },
+    "101195": {
+      "name": "Blackout Combo",
+      "icon": "ability_monk_blackoutkick",
+      "spellId": 196736
+    },
+    "101193": {
+      "name": "Press the Advantage",
+      "icon": "inv__fistofthewhitetiger",
+      "spellId": 418359
+    },
+    "101198": {
+      "name": "Black Ox Adept",
+      "icon": "spell_monk_brewmastertraining",
+      "spellId": 455079
+    },
+    "101711": {
+      "name": "Heightened Guard",
+      "icon": "ability_monk_guard",
+      "spellId": 455081
+    },
+    "101192": {
+      "name": "Call to Arms",
+      "icon": "inv_ability_monk_jadefirestomp",
+      "spellId": 397251
+    },
+    "101712": {
+      "name": "Chi Surge",
+      "icon": "ability_monk_chiexplosion",
+      "spellId": 393400
+    },
+    "101248": {
+      "name": "Flurry Strikes",
+      "icon": "inv_ability_shadopanmonk_flurrystrikes",
+      "spellId": 450615
+    },
+    "101247": {
+      "name": "Pride of Pandaria",
+      "icon": "inv_staff_2h_pandarenmonk_c_01",
+      "spellId": 450979
+    },
+    "101249": {
+      "name": "Veteran's Eye",
+      "icon": "ability_monk_provoke",
+      "spellId": 450987
+    },
+    "101246": {
+      "name": "Martial Precision",
+      "icon": "ability_monk_jab",
+      "spellId": 450990
+    },
+    "101254": {
+      "name": "Protect and Serve",
+      "icon": "ability_monk_vivify",
+      "spellId": 450984
+    },
+    "101250": {
+      "name": "One Versus Many",
+      "icon": "ability_monk_chargingoxwave",
+      "spellId": 450988
+    },
+    "101245": {
+      "name": "Whirling Steel",
+      "icon": "ability_whirlwind",
+      "spellId": 450991
+    },
+    "101253": {
+      "name": "Against All Odds",
+      "icon": "achievement_legionpvp6tier1",
+      "spellId": 450986
+    },
+    "101251": {
+      "name": "Efficient Training",
+      "icon": "inv_fistofthewhitetiger",
+      "spellId": 450989
+    },
+    "101244": {
+      "name": "Vigilant Watch",
+      "icon": "ability_rogue_masterofsubtlety",
+      "spellId": 450993
+    },
+    "101252": {
+      "name": "Wisdom of the Wall",
+      "icon": "inv_legendary_sigilofwisdom",
+      "spellId": 450994
+    },
+    "101223": {
+      "name": "Aspect of Harmony",
+      "icon": "inv_ability_masterofharmonymonk_aspectofharmony",
+      "spellId": 450508
+    },
+    "101222": {
+      "name": "Manifestation",
+      "icon": "inv_shoulder_inv_leather_raidmonk_s_01",
+      "spellId": 450875
+    },
+    "101224": {
+      "name": "Purified Spirit",
+      "icon": "ability_monk_explodingjadeblossom",
+      "spellId": 450867
+    },
+    "101230": {
+      "name": "Balanced Stratagem",
+      "icon": "ability_monk_sphereharmonydiscord",
+      "spellId": 450889
+    },
+    "101221": {
+      "name": "Tiger's Vigor",
+      "icon": "monk_stance_whitetiger",
+      "spellId": 451041
+    },
+    "101225": {
+      "name": "Endless Draught",
+      "icon": "inv_drink_25_honeytea",
+      "spellId": 450892
+    },
+    "101229": {
+      "name": "Mantra of Purity",
+      "icon": "ability_monk_domeofmist",
+      "spellId": 451036
+    },
+    "101220": {
+      "name": "Overwhelming Force",
+      "icon": "ability_titankeeper_piercingcorruption",
+      "spellId": 451024
+    },
+    "101226": {
+      "name": "Path of Resurgence",
+      "icon": "ability_monk_pathofmists",
+      "spellId": 450912
+    },
+    "101228": {
+      "name": "Clarity of Purpose",
+      "icon": "ability_titankeeper_cleanse",
+      "spellId": 451017
+    },
+    "101227": {
+      "name": "Coalescence",
+      "icon": "ability_monk_effuse",
+      "spellId": 450529
+    }
+  },
+  "subTrees": {
+    "66": {
+      "name": "Master of Harmony",
+      "icon": "talents-heroclass-monk-masterofharmony"
+    },
+    "65": {
+      "name": "Shado-Pan",
+      "icon": "talents-heroclass-monk-shadopan"
+    }
+  }
+}

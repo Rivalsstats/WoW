@@ -1,0 +1,189 @@
+name: Auto-social M+ runs
+
+on:
+  schedule:
+    - cron: "0 18 * * *"   # every day at 18:00 Europe/Berlin
+  workflow_dispatch:
+
+env:
+  # where your script writes its output image + JSON
+  OUTPUT_DIR: data/social
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      start_date:   ${{ steps.get_time.outputs.start_date }}
+      social_text:  ${{ steps.gen_social.outputs.social_text }}
+      image_filename:   ${{ steps.gen_social.outputs.filename }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          ref: main
+
+      - name: Get date (Berlin)
+        id: get_time
+        run: |
+          echo "start_date=$(TZ='Europe/Berlin' date '+%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install openrouter openai Pillow matplotlib pandas jinja2 mysql-connector-python
+
+      - name: Generate M+ social post
+        id: gen_social
+        env:
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORT }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          CLIENT_ID: ${{ secrets.BLIZ_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
+        # we run your create_socials_post entrypoint, which should:
+        #  - read data/socials.json
+        #  - write a JSON dict {"out_path": "...png", "post": "…"} to stdout
+        run: |
+          python -u backend_scripts/generateSocialsPost.py \
+            --api-key "${{ secrets.OPENROUTER_API_KEY }}" \
+            --url "https://linktr.ee/Mythistone"
+
+          social_text=$(jq -r .post    "${{ env.OUTPUT_DIR }}/post.json")
+          image_path=$(jq -r  .out_path "${{ env.OUTPUT_DIR }}/post.json")
+          filename=$(basename "$image_path")
+          # ─── DEBUG OUTPUT ───────────────────────────────────────────────
+          echo ">>> debug: social_text=<$social_text>"
+          echo ">>> debug: image_path=<$image_path>"
+          echo ">>> debug: filename=<$filename>"
+          echo "${{ env.OUTPUT_DIR }}/post.json"
+          # ────────────────────────────────────────────────────────────────
+    
+          echo "social_text=$social_text" >> $GITHUB_OUTPUT
+          echo "image_path=$image_path"  >> $GITHUB_OUTPUT
+          echo "filename=$filename"      >> $GITHUB_OUTPUT
+
+
+      - name: Commit updated socials.json back to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/socials.json
+          git commit -m "chore: record socials for ${{ steps.get_time.outputs.start_date }}" || echo "no changes to commit"
+          git push
+
+      - name: Upload social artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: social-image
+          path: |
+            ${{ steps.gen_social.outputs.image_path }}
+
+  twitter:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Download social artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: social-image
+          path: uploaded
+
+      - name: Post to Twitter
+        uses: nearform-actions/github-action-notify-twitter@v1.2.3
+        with:
+          message: ${{ needs.setup.outputs.social_text }}
+          twitter-app-key: ${{ secrets.TWITTER_APP_KEY }}
+          twitter-app-secret: ${{ secrets.TWITTER_APP_SECRET }}
+          twitter-access-token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          twitter-access-token-secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+          media: |
+            uploaded/${{ needs.setup.outputs.image_filename }}
+          media-alt-text: "M+ run highlight"
+
+  # reddit:
+  #   needs: setup
+  #   runs-on: ubuntu-latest
+  #   steps:
+
+  #     - name: Download social artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: social-image
+  #         path: uploaded
+      
+  #     - name: Post to Reddit
+  #       uses: meysam81/reddit-scheduled-submit@v1.1.1
+  #       with:
+  #         username: ${{ secrets.REDDIT_USERNAME }}
+  #         password: ${{ secrets.REDDIT_PASSWORD }}
+  #         client-id: ${{ secrets.REDDIT_APP_ID }}
+  #         client-secret: ${{ secrets.REDDIT_APP_SECRET }}
+  #         subreddit: ${{ secrets.REDDIT_SUBREDDIT }}
+  #         title: "M+ Data Spotlight for ${{ needs.setup.outputs.start_date }}"
+  #         message: |
+  #           ${{ needs.setup.outputs.social_text }}
+            
+  #           Check out the full data: https://mythistone.github.io/pages/dashboard
+
+  bsky-post:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Download social artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: social-image
+          path: uploaded
+
+      - name: Compress image
+        run: |
+          sudo apt-get update && sudo apt-get install -y pngquant
+          pngquant --quality=65-80 --force \
+            --output uploaded/compressed.png \
+            uploaded/${{ needs.setup.outputs.image_filename}}
+
+      - name: Post to Bluesky
+        uses: myConsciousness/bluesky-post@v5
+        with:
+          text: ${{ needs.setup.outputs.social_text }}
+          media: uploaded/compressed.png
+          media-alt: "M+ run highlight"
+          identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
+          password:   ${{ secrets.BLUESKY_PASSWORD }}
+          link-preview-url: "https://mythistone.github.io/pages/dashboard"
+          tags: "WoW,MythicPlus,WorldofWarcraft"
+
+  discord-post:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Download social artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: social-image
+          path: uploaded
+
+      - name: Debug workspace contents
+        run: |
+          echo "Current working directory: $PWD"
+          echo "── Listing everything ──"
+          ls -R .
+          echo "── Listing ${{ env.OUTPUT_DIR }} ──"
+          ls -R "${{ env.OUTPUT_DIR }}" || echo "  (no such dir)"
+
+      - name: Discord Webhook Action
+        uses: tsickert/discord-webhook@v7.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
+          content: ${{ needs.setup.outputs.social_text }}
+          filename: uploaded/${{ needs.setup.outputs.image_filename }}

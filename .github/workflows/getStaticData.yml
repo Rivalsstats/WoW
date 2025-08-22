@@ -1,0 +1,148 @@
+name: Gather Static WoW data
+
+on:
+  schedule:
+    - cron: '0 6 * * WED'
+  workflow_dispatch:
+
+jobs:
+  gather-data:
+    runs-on: ubuntu-latest
+    env:
+      BLIZZARD_CLIENT_ID: ${{ secrets.BLIZZARD_CLIENT_ID }}
+      BLIZZARD_CLIENT_SECRET: ${{ secrets.BLIZZARD_CLIENT_SECRET }}
+      RAIDERIO_API_KEY: ${{ secrets.RAIDERIO_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install pandas
+        run: pip install pandas requests aiohttp aiofiles aiolimiter mysql-connector-python
+
+      - name: Create data directory
+        run: mkdir -p data
+
+      - name: Download static files
+        run: |
+          curl -L "https://www.raidbots.com/static/data/live/talents.json" -o data/static/talents.json
+          curl -L "https://www.raidbots.com/static/data/live/enchantments.json" -o data/static/enchantments.json
+          curl -L "https://www.raidbots.com/static/data/live/equippable-items.json" -o data/static/equippable-items.json
+          curl -L "https://www.raidbots.com/static/data/live/crafting.json" -o data/static/crafting.json
+          curl -L "https://www.raidbots.com/static/data/live/bonuses.json" -o data/static/bonuses.json
+
+      - name: process crafting data
+        run: |
+          python backend_scripts/processBonusIds.py \
+            --database_host ${{secrets.DATABASE_HOST}}  \
+            --database_user ${{secrets.DATABASE_USER}} \
+            --database_password ${{secrets.DATABASE_PASSWORT}} \
+            --database ${{secrets.DATABASE_NAME}}  
+      - name: Download crafting icons
+        run: |
+          python backend_scripts/downloadCraftingIcons.py   
+      
+      - name: Download WoW talent icons
+        run: |
+          python backend_scripts/downloadIcons.py
+
+      - name: Download Enchant & Socket Icons
+        run: |
+          python backend_scripts/downloadEnchantIcons.py
+
+      - name: Download Equippable Item Icons
+        run: |
+          python backend_scripts/downloadItemIcons.py
+
+      - name: Process Talents
+        run: |
+          python backend_scripts/processTalents.py
+
+      - name: Download CSV
+        run: |
+          curl -L "https://wago.tools/db2/ChrSpecialization/csv" -o data/static/specs.csv
+          curl -L "https://wago.tools/db2/ChrClasses/csv" -o data/static/classes.csv
+          curl -L "https://wago.tools/db2/ManifestInterfaceData/csv" -o data/static/interfacedata.csv
+
+      - name: Process CSV files
+        run: |
+          python backend_scripts/processSpecs.py
+          python backend_scripts/processClasses.py
+
+      - name: Download Spec Icons
+        env:
+          CDN_BASE: https://render.worldofwarcraft.com/icons/56
+        run: |
+          python backend_scripts/downloadSpecIcons.py
+
+      - name: Fetch dungeon metadata
+        env:
+          BLIZ_CLIENT_ID:     ${{ secrets.BLIZ_CLIENT_ID }}
+          BLIZ_CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
+          DATABASE_HOST: ${{secrets.DATABASE_HOST}}  
+          DATABASE_USER: ${{secrets.DATABASE_USER}} 
+          DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORT}} 
+          DATABASE_NAME: ${{secrets.DATABASE_NAME}} 
+        run: |
+          python backend_scripts/fetchDungeonData.py
+
+      - name: Fetch commoditie prices
+        env:
+          BLIZ_CLIENT_ID:     ${{ secrets.BLIZ_CLIENT_ID }}
+          BLIZ_CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
+        run: |
+          python backend_scripts/fetchCommodityPrices.py
+      
+      - name: Fetch Raider.IO route data
+        run: |
+          python backend_scripts/raiderIoRouteData.py
+
+      - name: Fetch season and period info
+        env:
+          BLIZ_CLIENT_ID:     ${{ secrets.BLIZ_CLIENT_ID }}
+          BLIZ_CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
+          DATABASE_HOST: ${{secrets.DATABASE_HOST}}  
+          DATABASE_USER: ${{secrets.DATABASE_USER}} 
+          DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORT}} 
+          DATABASE_NAME: ${{secrets.DATABASE_NAME}} 
+        run: |
+          python backend_scripts/fetchSeasonAndPeriodInfo.py    
+
+
+      - name: Clean up CSV
+        run: |
+          rm data/static/specs.csv
+          rm data/static/classes.csv
+          rm data/static/interfacedata.csv
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git config pull.rebase true   # rebase
+          git add data/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Updated Static Data"
+            # Pull latest changes, fail only on actual errors
+            if ! git fetch --depth=1 origin main; then
+              echo "Error during shallow fetch" >&2
+              exit 1
+            fi
+
+            if ! git rebase origin/main; then
+              echo "Error during rebase" >&2
+              exit 1
+            fi
+
+            if ! git push; then
+              echo "Error during git push" >&2
+              exit 1
+            fi
+          fi

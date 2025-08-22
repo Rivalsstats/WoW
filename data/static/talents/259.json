@@ -1,0 +1,516 @@
+{
+  "specName": "Assassination",
+  "className": "Rogue",
+  "talents": {
+    "90740": {
+      "name": "Shiv",
+      "icon": "inv_throwingknife_04",
+      "spellId": 5938
+    },
+    "90684": {
+      "name": "Blind",
+      "icon": "spell_shadow_mindsteal",
+      "spellId": 2094
+    },
+    "90697": {
+      "name": "Cloak of Shadows",
+      "icon": "spell_shadow_nethercloak",
+      "spellId": 31224
+    },
+    "90764": {
+      "name": "Evasion",
+      "icon": "spell_shadow_shadowward",
+      "spellId": 5277
+    },
+    "90741": {
+      "name": "Gouge",
+      "icon": "ability_gouge",
+      "spellId": 1776
+    },
+    "90695": {
+      "name": "Thrill Seeking",
+      "icon": "inv_ragnaros_heart_shadowflame",
+      "spellId": 394931
+    },
+    "90636": {
+      "name": "Master Poisoner",
+      "icon": "ability_creature_poison_06",
+      "spellId": 378436
+    },
+    "90742": {
+      "name": "Elusiveness",
+      "icon": "ability_rogue_turnthetables",
+      "spellId": 79008
+    },
+    "90686": {
+      "name": "Tricks of the Trade",
+      "icon": "ability_rogue_tricksofthetrade",
+      "spellId": 57934
+    },
+    "90637": {
+      "name": "Improved Wound Poison",
+      "icon": "inv_misc_herb_16",
+      "spellId": 319066
+    },
+    "90745": {
+      "name": "Nimble Fingers",
+      "icon": "ability_rogue_crimsonvial",
+      "spellId": 378427
+    },
+    "90746": {
+      "name": "Improved Sprint",
+      "icon": "ability_rogue_sprint",
+      "spellId": 231691
+    },
+    "90687": {
+      "name": "Shadowrunner",
+      "icon": "ability_stealth",
+      "spellId": 378807
+    },
+    "94567": {
+      "name": "Superior Mixture",
+      "icon": "inv_misc_potionsete",
+      "spellId": 423701
+    },
+    "90762": {
+      "name": "Fleet Footed",
+      "icon": "ability_rogue_quickrecovery",
+      "spellId": 378813
+    },
+    "90744": {
+      "name": "Iron Stomach",
+      "icon": "inv_misc_organ_11",
+      "spellId": 193546
+    },
+    "90747": {
+      "name": "Unbreakable Stride",
+      "icon": "ability_rogue_trip",
+      "spellId": 400804
+    },
+    "94563": {
+      "name": "Featherfoot",
+      "icon": "spell_magic_featherfall",
+      "spellId": 423683
+    },
+    "90754": {
+      "name": "Rushed Setup",
+      "icon": "ability_skyreach_piercing_rush",
+      "spellId": 378803
+    },
+    "101714": {
+      "name": "Shadowheart",
+      "icon": "inv_heart_of_the_thunder_king_icon",
+      "spellId": 455131
+    },
+    "90763": {
+      "name": "Numbing Poison",
+      "icon": "spell_nature_nullifydisease",
+      "spellId": 5761
+    },
+    "90743": {
+      "name": "Deadened Nerves",
+      "icon": "ability_rogue_nervesofsteel",
+      "spellId": 231719
+    },
+    "94562": {
+      "name": "Graceful Guile",
+      "icon": "ability_rogue_ghostpirate",
+      "spellId": 423647
+    },
+    "94561": {
+      "name": "Stillshroud",
+      "icon": "ability_rogue_shroudofconcealment",
+      "spellId": 423662
+    },
+    "90760": {
+      "name": "Deadly Precision",
+      "icon": "ability_rogue_deadenednerves",
+      "spellId": 381542
+    },
+    "90752": {
+      "name": "Acrobatic Strikes",
+      "icon": "spell_warrior_wildstrike",
+      "spellId": 455143
+    },
+    "90692": {
+      "name": "Improved Ambush",
+      "icon": "ability_rogue_ambush",
+      "spellId": 381620
+    },
+    "90758": {
+      "name": "Leeching Poison",
+      "icon": "rogue_leeching_poison",
+      "spellId": 280716
+    },
+    "90749": {
+      "name": "Lethality",
+      "icon": "ability_criticalstrike",
+      "spellId": 382238
+    },
+    "90640": {
+      "name": "Recuperator",
+      "icon": "inv_gizmo_runichealthinjector",
+      "spellId": 378996
+    },
+    "90751": {
+      "name": "Alacrity",
+      "icon": "ability_paladin_speedoflight",
+      "spellId": 193539
+    },
+    "90691": {
+      "name": "Soothing Darkness",
+      "icon": "spell_shadow_twilight",
+      "spellId": 393970
+    },
+    "90759": {
+      "name": "Vigor",
+      "icon": "ability_rogue_vigor",
+      "spellId": 14983
+    },
+    "90639": {
+      "name": "Supercharger",
+      "icon": "inv_engineering_90_electrifiedether",
+      "spellId": 470347
+    },
+    "90688": {
+      "name": "Subterfuge",
+      "icon": "rogue_subterfuge",
+      "spellId": 108208
+    },
+    "90756": {
+      "name": "Thistle Tea",
+      "icon": "inv_drink_milk_05",
+      "spellId": 469779
+    },
+    "90748": {
+      "name": "Cold Blood",
+      "icon": "spell_ice_lament",
+      "spellId": 382245
+    },
+    "90638": {
+      "name": "Echoing Reprimand",
+      "icon": "inv_ability_rogue_echoingreprimand",
+      "spellId": 470669
+    },
+    "90750": {
+      "name": "Deeper Stratagem",
+      "icon": "archaeology_5_0_changkiboard",
+      "spellId": 193531
+    },
+    "101713": {
+      "name": "Without a Trace",
+      "icon": "ability_vanish",
+      "spellId": 382513
+    },
+    "90783": {
+      "name": "Deadly Poison",
+      "icon": "ability_rogue_dualweild",
+      "spellId": 2823
+    },
+    "90628": {
+      "name": "Improved Shiv",
+      "icon": "inv_throwingknife_04",
+      "spellId": 319032
+    },
+    "90635": {
+      "name": "Venomous Wounds",
+      "icon": "ability_rogue_venomouswounds",
+      "spellId": 79134
+    },
+    "94536": {
+      "name": "Path of Blood",
+      "icon": "inv_artifact_bloodoftheassassinated",
+      "spellId": 423054
+    },
+    "94557": {
+      "name": "Rapid Injection",
+      "icon": "inv_ammo_arrow_04",
+      "spellId": 455072
+    },
+    "90634": {
+      "name": "Improved Poisons",
+      "icon": "ability_poisons",
+      "spellId": 381624
+    },
+    "90625": {
+      "name": "Bloody Mess",
+      "icon": "ability_rogue_rupture",
+      "spellId": 381626
+    },
+    "90630": {
+      "name": "Thrown Precision",
+      "icon": "ability_hunter_cobrashot",
+      "spellId": 381629
+    },
+    "90757": {
+      "name": "Seal Fate",
+      "icon": "ability_rogue_stayofexecution",
+      "spellId": 14190
+    },
+    "94556": {
+      "name": "Caustic Spatter",
+      "icon": "ability_creature_poison_02",
+      "spellId": 421975
+    },
+    "90780": {
+      "name": "Improved Garrote",
+      "icon": "ability_rogue_garrote",
+      "spellId": 381632
+    },
+    "90632": {
+      "name": "Crimson Tempest",
+      "icon": "inv_knife_1h_cataclysm_c_05",
+      "spellId": 121411
+    },
+    "90633": {
+      "name": "Lightweight Shiv",
+      "icon": "inv_throwingknife_04",
+      "spellId": 394983
+    },
+    "90769": {
+      "name": "Deathmark",
+      "icon": "ability_rogue_deathmark",
+      "spellId": 360194
+    },
+    "90779": {
+      "name": "Sanguine Blades",
+      "icon": "ability_deathwing_bloodcorruption_earth",
+      "spellId": 200806
+    },
+    "90623": {
+      "name": "Master Assassin",
+      "icon": "ability_criticalstrike",
+      "spellId": 255989
+    },
+    "94554": {
+      "name": "Flying Daggers",
+      "icon": "ability_rogue_fanofknives",
+      "spellId": 381631
+    },
+    "90772": {
+      "name": "Vicious Venoms",
+      "icon": "ability_rogue_deadlybrew",
+      "spellId": 381634
+    },
+    "90626": {
+      "name": "Fatal Concoction",
+      "icon": "ability_creature_poison_06",
+      "spellId": 392384
+    },
+    "90624": {
+      "name": "Lethal Dose",
+      "icon": "ability_rogue_deviouspoisons",
+      "spellId": 381640
+    },
+    "94555": {
+      "name": "Intent to Kill",
+      "icon": "ability_rogue_bloodyeye",
+      "spellId": 381630
+    },
+    "90771": {
+      "name": "Systemic Failure",
+      "icon": "ability_skeer_bloodletting",
+      "spellId": 381652
+    },
+    "90621": {
+      "name": "Amplifying Poison",
+      "icon": "inv_misc_herb_fellotus",
+      "spellId": 381664
+    },
+    "90768": {
+      "name": "Twist the Knife",
+      "icon": "ability_rogue_bladetwisting",
+      "spellId": 381669
+    },
+    "90777": {
+      "name": "Doomblade",
+      "icon": "ability_deathwing_bloodcorruption_earth",
+      "spellId": 381673
+    },
+    "90786": {
+      "name": "Blindside",
+      "icon": "ability_rogue_focusedattacks",
+      "spellId": 328085
+    },
+    "90770": {
+      "name": "Tiny Toxic Blade",
+      "icon": "ability_rogue_poisonedknife",
+      "spellId": 381800
+    },
+    "90766": {
+      "name": "Dashing Scoundrel",
+      "icon": "ability_rogue_venomouswounds",
+      "spellId": 381797
+    },
+    "90776": {
+      "name": "Shrouded Suffocation",
+      "icon": "ability_rogue_garrote",
+      "spellId": 385478
+    },
+    "90622": {
+      "name": "Serrated Bone Spikes",
+      "icon": "ability_maldraxxus_rogue",
+      "spellId": 455352
+    },
+    "90785": {
+      "name": "Zoldyck Recipe",
+      "icon": "archaeology_5_0_thunderkinginsignia",
+      "spellId": 381798
+    },
+    "90767": {
+      "name": "Poison Bomb",
+      "icon": "rogue_paralytic_poison",
+      "spellId": 255544
+    },
+    "90775": {
+      "name": "Scent of Blood",
+      "icon": "ability_rogue_rupture",
+      "spellId": 381799
+    },
+    "90784": {
+      "name": "Arterial Precision",
+      "icon": "ability_rogue_surpriseattack",
+      "spellId": 400783
+    },
+    "94552": {
+      "name": "Kingsbane",
+      "icon": "inv_knife_1h_artifactgarona_d_01",
+      "spellId": 385627
+    },
+    "94553": {
+      "name": "Dragon-Tempered Blades",
+      "icon": "spell_fire_flameblades",
+      "spellId": 381801
+    },
+    "90774": {
+      "name": "Indiscriminate Carnage",
+      "icon": "ability_rogue_indiscriminatecarnage",
+      "spellId": 381802
+    },
+    "94551": {
+      "name": "Sudden Demise",
+      "icon": "ability_deathknight_hemorrhagicfever",
+      "spellId": 423136
+    },
+    "95125": {
+      "name": "Hand of Fate",
+      "icon": "inv_ability_fateboundrogue_handoffateheads",
+      "spellId": 452536
+    },
+    "95136": {
+      "name": "Deathstalker's Mark",
+      "icon": "inv_ability_deathstalkerrogue_deathstalkersmark",
+      "spellId": 457052
+    },
+    "95138": {
+      "name": "Chosen's Revelry",
+      "icon": "ability_priest_heavanlyvoice",
+      "spellId": 454300
+    },
+    "95122": {
+      "name": "Mean Streak",
+      "icon": "inv_sigil_thorim",
+      "spellId": 453428
+    },
+    "95130": {
+      "name": "Inexorable March",
+      "icon": "ability_monk_ridethewind",
+      "spellId": 454432
+    },
+    "95110": {
+      "name": "Clear the Witnesses",
+      "icon": "ability_rogue_fanofknives",
+      "spellId": 457053
+    },
+    "95132": {
+      "name": "Hunt Them Down",
+      "icon": "ability_rogue_creepingvenom",
+      "spellId": 457054
+    },
+    "95117": {
+      "name": "Singular Focus",
+      "icon": "spell_hunter_focusingshot",
+      "spellId": 457055
+    },
+    "95107": {
+      "name": "Deal Fate",
+      "icon": "ability_rogue_preparation",
+      "spellId": 454419
+    },
+    "95139": {
+      "name": "Edge Case",
+      "icon": "item_icecrownnecklacea",
+      "spellId": 453457
+    },
+    "95120": {
+      "name": "Fate Intertwined",
+      "icon": "inv_cosmicvoid_beam",
+      "spellId": 454429
+    },
+    "95135": {
+      "name": "Fatal Intent",
+      "icon": "ability_warrior_deepcuts",
+      "spellId": 461980
+    },
+    "95108": {
+      "name": "Corrupt the Blood",
+      "icon": "ability_ironmaidens_bloodritual",
+      "spellId": 457066
+    },
+    "95109": {
+      "name": "Lingering Darkness",
+      "icon": "ability_rogue_envelopingshadows",
+      "spellId": 457056
+    },
+    "95119": {
+      "name": "Delivered Doom",
+      "icon": "ability_bossgorefiend_touchofdoom",
+      "spellId": 454426
+    },
+    "95114": {
+      "name": "Inevitabile End",
+      "icon": "spell_ice_lament",
+      "spellId": 454434
+    },
+    "95129": {
+      "name": "Double Jeopardy",
+      "icon": "spell_nature_mirrorimage",
+      "spellId": 454430
+    },
+    "95106": {
+      "name": "Ethereal Cloak",
+      "icon": "spell_arcane_prismaticcloak",
+      "spellId": 457022
+    },
+    "95131": {
+      "name": "Momentum of Despair",
+      "icon": "spell_shadow_shadesofdarkness",
+      "spellId": 457067
+    },
+    "95123": {
+      "name": "Shadewalker",
+      "icon": "rogue_shadow_reflection",
+      "spellId": 457057
+    },
+    "95127": {
+      "name": "Fateful Ending",
+      "icon": "ability_socererking_arcanewrath",
+      "spellId": 454428
+    },
+    "95142": {
+      "name": "Darkest Night",
+      "icon": "spell_shadow_twilight",
+      "spellId": 457058
+    }
+  },
+  "subTrees": {
+    "53": {
+      "name": "Deathstalker",
+      "icon": "talents-heroclass-rogue-deathstalker"
+    },
+    "52": {
+      "name": "Fatebound",
+      "icon": "talents-heroclass-rogue-fatebound"
+    }
+  }
+}

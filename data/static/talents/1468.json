@@ -1,0 +1,566 @@
+{
+  "specName": "Preservation",
+  "className": "Evoker",
+  "talents": {
+    "93305": {
+      "name": "Landslide",
+      "icon": "ability_earthen_pillar",
+      "spellId": 358385
+    },
+    "93304": {
+      "name": "Obsidian Scales",
+      "icon": "inv_artifact_dragonscales",
+      "spellId": 363916
+    },
+    "93306": {
+      "name": "Expunge",
+      "icon": "ability_evoker_fontofmagic_green",
+      "spellId": 365585
+    },
+    "93312": {
+      "name": "Natural Convergence",
+      "icon": "spell_frost_frostblast",
+      "spellId": 369913
+    },
+    "103843": {
+      "name": "Heavy Wingbeats",
+      "icon": "ability_racial_wingbuffet",
+      "spellId": 368838
+    },
+    "93341": {
+      "name": "Verdant Embrace",
+      "icon": "ability_evoker_rescue",
+      "spellId": 360995
+    },
+    "93270": {
+      "name": "Forger of Mountains",
+      "icon": "ability_earthen_pillar",
+      "spellId": 375528
+    },
+    "93302": {
+      "name": "Innate Magic",
+      "icon": "ability_evoker_innatemagic4",
+      "spellId": 375520
+    },
+    "93289": {
+      "name": "Obsidian Bulwark",
+      "icon": "inv_shield_1h_revenantfire_d_01",
+      "spellId": 375406
+    },
+    "93295": {
+      "name": "Enkindled",
+      "icon": "ability_evoker_livingflame",
+      "spellId": 375554
+    },
+    "93340": {
+      "name": "Scarlet Adaptation",
+      "icon": "inv_bijou_red",
+      "spellId": 372469
+    },
+    "93311": {
+      "name": "Quell",
+      "icon": "ability_evoker_quell",
+      "spellId": 351338
+    },
+    "93301": {
+      "name": "Recall",
+      "icon": "ability_evoker_recall",
+      "spellId": 371806
+    },
+    "103844": {
+      "name": "Clobbering Sweep",
+      "icon": "ability_racial_tailswipe",
+      "spellId": 375443
+    },
+    "93290": {
+      "name": "Tailwind",
+      "icon": "ability_skyreach_wind",
+      "spellId": 375556
+    },
+    "93294": {
+      "name": "Cauterizing Flame",
+      "icon": "ability_evoker_fontofmagic_red",
+      "spellId": 374251
+    },
+    "93271": {
+      "name": "Ancient Flame",
+      "icon": "inv_elemental_mote_fire01",
+      "spellId": 369990
+    },
+    "93310": {
+      "name": "Instinctive Arcana",
+      "icon": "spell_arcane_studentofmagic",
+      "spellId": 376164
+    },
+    "93350": {
+      "name": "Tip the Scales",
+      "icon": "ability_evoker_tipthescales",
+      "spellId": 370553
+    },
+    "93292": {
+      "name": "Attuned to the Dream",
+      "icon": "ability_rogue_imrovedrecuperate",
+      "spellId": 376930
+    },
+    "93293": {
+      "name": "Sleep Walk",
+      "icon": "ability_xavius_dreamsimulacrum",
+      "spellId": 360806
+    },
+    "93353": {
+      "name": "Regenerative Magic",
+      "icon": "spell_frost_manarecharge",
+      "spellId": 387787
+    },
+    "93355": {
+      "name": "Inherent Resistance",
+      "icon": "inv_misc_rubysanctum1",
+      "spellId": 375544
+    },
+    "93300": {
+      "name": "Draconic Legacy",
+      "icon": "inv_helm_mail_dracthyrquest_b_02",
+      "spellId": 376166
+    },
+    "93349": {
+      "name": "Extended Flight",
+      "icon": "ability_evoker_hover",
+      "spellId": 375517
+    },
+    "93291": {
+      "name": "Bountiful Bloom",
+      "icon": "ability_evoker_emeraldblossom",
+      "spellId": 370886
+    },
+    "93309": {
+      "name": "Blast Furnace",
+      "icon": "ability_evoker_firebreath",
+      "spellId": 375510
+    },
+    "93299": {
+      "name": "Exuberance",
+      "icon": "ability_evoker_hover2",
+      "spellId": 375542
+    },
+    "93354": {
+      "name": "Renewing Blaze",
+      "icon": "ability_evoker_masterylifebinder_red",
+      "spellId": 374348
+    },
+    "93286": {
+      "name": "Walloping Blow",
+      "icon": "inv_misc_monsterscales_06",
+      "spellId": 387341
+    },
+    "93348": {
+      "name": "Panacea",
+      "icon": "ability_druid_protectionofthegrove",
+      "spellId": 387761
+    },
+    "93308": {
+      "name": "Unravel",
+      "icon": "ability_evoker_unravel",
+      "spellId": 368432
+    },
+    "93307": {
+      "name": "Protracted Talons",
+      "icon": "ability_evoker_azurestrike",
+      "spellId": 369909
+    },
+    "93298": {
+      "name": "Oppressing Roar",
+      "icon": "ability_evoker_oppressingroar",
+      "spellId": 372048
+    },
+    "93345": {
+      "name": "Foci of Life",
+      "icon": "spell_fire_incinerate",
+      "spellId": 375574
+    },
+    "93288": {
+      "name": "Rescue",
+      "icon": "ability_evoker_flywithme",
+      "spellId": 370665
+    },
+    "93347": {
+      "name": "Lush Growth",
+      "icon": "inv_staff_2h_bloodelf_c_01",
+      "spellId": 375561
+    },
+    "93344": {
+      "name": "Source of Magic",
+      "icon": "ability_evoker_blue_01",
+      "spellId": 369459
+    },
+    "93343": {
+      "name": "Leaping Flames",
+      "icon": "spell_fire_flare",
+      "spellId": 369939
+    },
+    "93297": {
+      "name": "Overawe",
+      "icon": "ability_evoker_oppressingroar2",
+      "spellId": 374346
+    },
+    "93352": {
+      "name": "Aerial Mastery",
+      "icon": "ability_evoker_aerialmastery",
+      "spellId": 365933
+    },
+    "93287": {
+      "name": "Twin Guardian",
+      "icon": "ability_skyreach_shielded",
+      "spellId": 370888
+    },
+    "93715": {
+      "name": "Potent Mana",
+      "icon": "spell_magic_managain",
+      "spellId": 418101
+    },
+    "93342": {
+      "name": "Terror of the Skies",
+      "icon": "ability_evoker_terroroftheskies",
+      "spellId": 371032
+    },
+    "93351": {
+      "name": "Time Spiral",
+      "icon": "ability_evoker_timespiral",
+      "spellId": 374968
+    },
+    "93346": {
+      "name": "Zephyr",
+      "icon": "ability_evoker_hoverblack",
+      "spellId": 374227
+    },
+    "93196": {
+      "name": "",
+      "icon": "",
+      "spellId": 0
+    },
+    "93339": {
+      "name": "Echo",
+      "icon": "ability_evoker_echo",
+      "spellId": 364343
+    },
+    "93240": {
+      "name": "Dream Breath",
+      "icon": "ability_evoker_dreambreath",
+      "spellId": 355936
+    },
+    "93338": {
+      "name": "Reversion",
+      "icon": "ability_evoker_reversion",
+      "spellId": 366155
+    },
+    "93241": {
+      "name": "Temporal Compression",
+      "icon": "ability_evoker_rewind2",
+      "spellId": 362874
+    },
+    "93239": {
+      "name": "Essence Burst",
+      "icon": "ability_evoker_essenceburst",
+      "spellId": 369297
+    },
+    "93337": {
+      "name": "Rewind",
+      "icon": "ability_evoker_rewind",
+      "spellId": 363534
+    },
+    "93243": {
+      "name": "Spiritbloom",
+      "icon": "ability_evoker_spiritbloom2",
+      "spellId": 367226
+    },
+    "93238": {
+      "name": "Essence Attunement",
+      "icon": "ability_evoker_essenceburststacks",
+      "spellId": 375722
+    },
+    "93336": {
+      "name": "Time Dilation",
+      "icon": "ability_evoker_timedilation",
+      "spellId": 357170
+    },
+    "93245": {
+      "name": "Emerald Communion",
+      "icon": "ability_evoker_green_01",
+      "spellId": 370960
+    },
+    "93242": {
+      "name": "Empath",
+      "icon": "ability_evoker_powernexus2",
+      "spellId": 376138
+    },
+    "93247": {
+      "name": "Fluttering Seedlings",
+      "icon": "inv_herbalism_70_yserallineseed",
+      "spellId": 359793
+    },
+    "93252": {
+      "name": "Font of Magic",
+      "icon": "ability_evoker_fontofmagic",
+      "spellId": 375783
+    },
+    "93255": {
+      "name": "Golden Hour",
+      "icon": "inv_belt_armor_waistoftime_d_01",
+      "spellId": 378196
+    },
+    "93335": {
+      "name": "Delay Harm",
+      "icon": "ability_racial_magicalresistance",
+      "spellId": 376207
+    },
+    "93257": {
+      "name": "Temporal Anomaly",
+      "icon": "ability_evoker_temporalanomaly",
+      "spellId": 373861
+    },
+    "93244": {
+      "name": "Dreamwalker",
+      "icon": "ability_hunter_onewithnature",
+      "spellId": 377082
+    },
+    "93246": {
+      "name": "Exhilarating Burst",
+      "icon": "ability_evoker_essenceburst3",
+      "spellId": 377100
+    },
+    "93248": {
+      "name": "Field of Dreams",
+      "icon": "inv_misc_herb_chamlotus",
+      "spellId": 370062
+    },
+    "93249": {
+      "name": "Power Nexus",
+      "icon": "ability_evoker_powernexus",
+      "spellId": 369908
+    },
+    "93254": {
+      "name": "Time Lord",
+      "icon": "ability_evoker_innatemagic4",
+      "spellId": 372527
+    },
+    "93256": {
+      "name": "Flow State",
+      "icon": "ability_evoker_timespiral",
+      "spellId": 385696
+    },
+    "93258": {
+      "name": "Resonating Sphere",
+      "icon": "ability_evoker_bronze_01",
+      "spellId": 376236
+    },
+    "93250": {
+      "name": "Call of Ysera",
+      "icon": "inv_drakemountemerald",
+      "spellId": 373834
+    },
+    "93253": {
+      "name": "Lifebind",
+      "icon": "ability_evoker_hoverred",
+      "spellId": 373270
+    },
+    "93260": {
+      "name": "Unshakable",
+      "icon": "ability_evoker_masterygiantkiller",
+      "spellId": 1239581
+    },
+    "93269": {
+      "name": "Spark of Insight",
+      "icon": "ability_evoker_essenceburst5",
+      "spellId": 377099
+    },
+    "93251": {
+      "name": "Ouroboros",
+      "icon": "ability_evoker_innatemagic",
+      "spellId": 381921
+    },
+    "93237": {
+      "name": "Life-Giver's Flame",
+      "icon": "item_sparkofragnoros",
+      "spellId": 371426
+    },
+    "99803": {
+      "name": "Titan's Gift",
+      "icon": "spell_fireresistancetotem_01",
+      "spellId": 443264
+    },
+    "93264": {
+      "name": "Temporal Artificer",
+      "icon": "ability_evoker_rewind",
+      "spellId": 381922
+    },
+    "93261": {
+      "name": "Energy Loop",
+      "icon": "inv_elemental_mote_mana",
+      "spellId": 372233
+    },
+    "93259": {
+      "name": "Time of Need",
+      "icon": "ability_evoker_masterylifebinder_bronze",
+      "spellId": 368412
+    },
+    "93268": {
+      "name": "Renewing Breath",
+      "icon": "ability_evoker_dreambreath",
+      "spellId": 371257
+    },
+    "93236": {
+      "name": "Lifeforce Mender",
+      "icon": "ability_evoker_dragonrage2",
+      "spellId": 376179
+    },
+    "93263": {
+      "name": "Timeless Magic",
+      "icon": "inv_artifact_xp05",
+      "spellId": 376240
+    },
+    "93267": {
+      "name": "Dream Flight",
+      "icon": "ability_evoker_dreamflight",
+      "spellId": 359816
+    },
+    "93266": {
+      "name": "Cycle of Life",
+      "icon": "spell_lifegivingseed",
+      "spellId": 371832
+    },
+    "99804": {
+      "name": "Lifespark",
+      "icon": "ability_evoker_masterylifebinder_red",
+      "spellId": 443177
+    },
+    "93265": {
+      "name": "Grace Period",
+      "icon": "ability_evoker_reversion_green",
+      "spellId": 376239
+    },
+    "93262": {
+      "name": "Tempo Charged",
+      "icon": "classicon_evoker_preservation",
+      "spellId": 1237978
+    },
+    "94950": {
+      "name": "Engulf",
+      "icon": "inv_ability_flameshaperevoker_engulf",
+      "spellId": 443328
+    },
+    "94937": {
+      "name": "Trailblazer",
+      "icon": "ability_deathwing_fierygrip",
+      "spellId": 444849
+    },
+    "99857": {
+      "name": "Flame Siphon",
+      "icon": "ability_evoker_infernosblessing",
+      "spellId": 444140
+    },
+    "94956": {
+      "name": "Enkindle",
+      "icon": "inv_10_elementalcombinedfoozles_purifiedshadowflame",
+      "spellId": 444016
+    },
+    "94949": {
+      "name": "Conduit of Flame",
+      "icon": "ability_evoker_innatemagic5",
+      "spellId": 444843
+    },
+    "94946": {
+      "name": "Burning Adrenaline",
+      "icon": "inv_gauntlets_03",
+      "spellId": 444020
+    },
+    "94923": {
+      "name": "Fulminous Roar",
+      "icon": "ability_evoker_oppressingroar2",
+      "spellId": 1218447
+    },
+    "94920": {
+      "name": "Titanic Precision",
+      "icon": "inv_10_misc_titansspark_shadowflame",
+      "spellId": 445625
+    },
+    "94945": {
+      "name": "Red Hot",
+      "icon": "ability_ironmaidens_grapeshotblast",
+      "spellId": 444081
+    },
+    "94931": {
+      "name": "Lifecinders",
+      "icon": "inv_misc_herb_cinderbloom_petal",
+      "spellId": 444322
+    },
+    "94922": {
+      "name": "Consume Flame",
+      "icon": "inv_shadowflames_wave",
+      "spellId": 444088
+    },
+    "94954": {
+      "name": "Chrono Flame",
+      "icon": "inv_ability_chronowardenevoker_chronoflame",
+      "spellId": 431442
+    },
+    "94948": {
+      "name": "Warp",
+      "icon": "ability_evoker_spatialparadox",
+      "spellId": 429483
+    },
+    "94955": {
+      "name": "Temporal Burst",
+      "icon": "ability_evoker_essenceburst5",
+      "spellId": 431695
+    },
+    "94925": {
+      "name": "Reverberations",
+      "icon": "ability_evoker_giftoftheaspects",
+      "spellId": 431615
+    },
+    "94935": {
+      "name": "Temporality",
+      "icon": "ability_evoker_return",
+      "spellId": 431873
+    },
+    "94947": {
+      "name": "Threads of Fate",
+      "icon": "ability_evoker_sandsoftime",
+      "spellId": 431715
+    },
+    "94951": {
+      "name": "Primacy",
+      "icon": "inv_misc_pocketwatch_01",
+      "spellId": 431657
+    },
+    "94932": {
+      "name": "Double-time",
+      "icon": "spell_holy_borrowedtime",
+      "spellId": 431874
+    },
+    "94930": {
+      "name": "Master of Destiny",
+      "icon": "ability_evoker_defyfate",
+      "spellId": 431840
+    },
+    "94942": {
+      "name": "Golden Opportunity",
+      "icon": "achievement_faction_goldenlotus",
+      "spellId": 432004
+    },
+    "94929": {
+      "name": "Afterimage",
+      "icon": "ability_evoker_livingflame",
+      "spellId": 431875
+    }
+  },
+  "subTrees": {
+    "38": {
+      "name": "Chronowarden",
+      "icon": "talents-heroclass-evoker-chronowarden"
+    },
+    "37": {
+      "name": "Flameshaper",
+      "icon": "talents-heroclass-evoker-flameshaper"
+    }
+  }
+}

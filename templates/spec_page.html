@@ -1,0 +1,1846 @@
+<!--
+=========================================================
+* Material Dashboard 3 - v3.2.0
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/material-dashboard
+* Copyright 2024 Creative Tim (https://www.creative-tim.com)
+* Licensed under MIT (https://www.creative-tim.com/license)
+* Coded by Creative Tim
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+-->
+{% macro render_slot(entry, slot_count=0, is_button=false, slug="") -%}
+{# choose tag and base classes #}
+{% if is_button %}
+{% set tag = 'button' %}
+{% set extra = 'accordion-button collapsed p-0' %}
+{% else %}
+{% set tag = 'div' %}
+{% set extra = '' %}
+{% endif %}
+{% if slug == "" %}
+{% set slug = entry.slot_slug %}
+{% endif %}
+
+<{{ tag }} {% if tag=='button' %} type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ slug }}"
+  aria-expanded="false" aria-controls="collapse-{{ slug }}" {% endif %} class="row align-items-center border
+            {% if entry.quality_override %}
+            border-quality-{{ entry.quality_override }}
+            {% elif item_lookup[entry.id].quality %}
+              border-quality-{{ item_lookup[entry.id].quality }}
+            {% else %}
+              border-grey-100
+            {% endif %}
+            my-2 mx-2
+            {{ extra }}">
+  <!-- Item icon & link -->
+  <div class="col-auto px-0">
+    <a target="_blank"
+      href="https://www.wowhead.com/item={{entry.id }}?bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}}{% endif %}"
+      data-wowhead="bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}}{% endif %}{%- if entry.pcs %}&pcs={{ entry.pcs|join(':') }}{%- endif %}"
+      {% if tag=='button' %}onclick="event.preventDefault();" {% endif %}>
+      <img src="/data/icons/{{ item_lookup[entry.id].icon }}.png" />
+    </a>
+  </div>
+  <!-- Name & secondary icons -->
+  <div class="col">
+    <a target="_blank"
+      href="https://www.wowhead.com/item={{ entry.id }}?bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}} {% endif %}"
+      data-wowhead="bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}}{% endif %}{%- if entry.pcs %}&pcs={{ entry.pcs|join(':') }}{%- endif %}"
+      data-wh-rename-link="true" {% if tag=='button' %}onclick="event.preventDefault();" {% endif %}>
+      <p class="mb-1">{{ item_lookup[entry.id].name }}</p>
+    </a>
+    <div class="d-flex align-items-center gap-1 flex-nowrap">
+      {% if entry.embellishment %}
+      <a target="_blank" href="https://www.wowhead.com/item={{ entry.embellishment }}&spec={{ spec_id }}" {% if
+        tag=='button' %}onclick="event.preventDefault();" {% endif %}>
+        <div class="position-relative" style="width:16px; height:16px; display:inline-block;">
+          <!-- Base icon -->
+          <img src="/data/icons/{{ reagent_lookup[entry.embellishment].itemIcon }}.png" alt=""
+            class="position-absolute top-0 start-0 border {% if reagent_lookup[entry.embellishment].quality %}border-quality-{{reagent_lookup[entry.embellishment].quality}} {% else %}border-grey-100{% endif %}"
+            style="width:100%; height:100%; object-fit:contain;">
+
+          {% if reagent_lookup[entry.embellishment].craftingQuality %}
+          <!-- Overlay icon -->
+          <img src="/data/icons/crafting-quality-{{ reagent_lookup[entry.embellishment].craftingQuality }}.png" alt=""
+            class="position-absolute top-0 start-0" style="width:100%; height:100%; object-fit:contain; z-index:1;">
+          {% endif %}
+        </div>
+
+      </a>
+      {% endif %}
+      {% if entry.missive %}
+      <a target="_blank" href="https://www.wowhead.com/item={{ entry.missive }}&spec={{ spec_id }}" {% if tag=='button'
+        %}onclick="event.preventDefault();" {% endif %}>
+        <div class="position-relative" style="width:16px; height:16px; display:inline-block;">
+          <!-- Base icon -->
+          <img src="/data/icons/{{ reagent_lookup[entry.missive].itemIcon }}.png" alt=""
+            class="position-absolute top-0 start-0 border {% if reagent_lookup[entry.missive].quality %}border-quality-{{reagent_lookup[entry.missive].quality}} {% else %}border-grey-100{% endif %}"
+            style="width:100%; height:100%; object-fit:contain;">
+
+          {% if reagent_lookup[entry.missive].craftingQuality %}
+          <!-- Overlay icon -->
+          <img src="/data/icons/crafting-quality-{{ reagent_lookup[entry.missive].craftingQuality }}.png" alt=""
+            class="position-absolute top-0 start-0" style="width:100%; height:100%; object-fit:contain; z-index:1;">
+          {% endif %}
+        </div>
+
+      </a>
+      {% endif %}
+      {% if entry.enchantment %}
+      <a target="_blank"
+        href="https://www.wowhead.com/item={{ enchant_lookup[entry.enchantment.id].itemId }}&spec={{ spec_id }}" {% if
+        tag=='button' %}onclick="event.preventDefault();" {% endif %}>
+        <div class="position-relative" style="width:16px; height:16px; display:inline-block;">
+          <!-- Base icon -->
+          <img src="/data/icons/{{ enchant_lookup[entry.enchantment.id].itemIcon }}.png" alt=""
+            class="position-absolute top-0 start-0 border {% if enchant_lookup[entry.enchantment.id].quality %}border-quality-{{enchant_lookup[entry.enchantment.id].quality}} {% else %}border-grey-100{% endif %}"
+            style="width:100%; height:100%; object-fit:contain;">
+          {% if enchant_lookup[entry.enchantment.id].craftingQuality %}
+          <!-- Overlay icon -->
+          <img src="/data/icons/crafting-quality-{{ enchant_lookup[entry.enchantment.id].craftingQuality }}.png" alt=""
+            class="position-absolute top-0 start-0" style="width:100%; height:100%; object-fit:contain; z-index:1;">
+          {% endif %}
+        </div>
+      </a>
+      {% endif %}
+      {% if entry.socket %}
+      <div class="d-flex align-items-center gap-1 flex-nowrap">
+        {% for sock in entry.socket %}
+        <a target="_blank" href="https://www.wowhead.com/item={{ sock.id }}&spec={{ spec_id }}" {% if tag=='button'
+          %}onclick="event.preventDefault();" {% endif %}>
+          <div class="position-relative" style="width:16px; height:16px; display:inline-block;">
+            <!-- Base icon -->
+            <img src="/data/icons/{{ socket_lookup[sock.id | int].itemIcon }}.png" alt=""
+              class="position-absolute top-0 start-0 border {% if socket_lookup[sock.id | int].quality %}border-quality-{{socket_lookup[sock.id | int].quality}} {% else %}border-grey-100{% endif %}"
+              style="width:100%; height:100%; object-fit:contain;">
+
+            {% if socket_lookup[sock.id | int].craftingQuality %}
+            <!-- Overlay icon -->
+            <img src="/data/icons/crafting-quality-{{ socket_lookup[sock.id | int].craftingQuality }}.png" alt=""
+              class="position-absolute top-0 start-0" style="width:100%; height:100%; object-fit:contain; z-index:1;">
+            {% endif %}
+          </div>
+
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    <div>
+
+    </div>
+  </div>
+  <!-- Popularity % -->
+  <div class="col-auto text-end">
+    <p data-bs-toggle="tooltip" data-bs-placement="top" title="{{ entry.count }} seen out of {{slot_count}} items"
+      class="mb-0">
+      {%if (entry.count / slot_count * 100) < 100%} {{ '%.0f' % (entry.count / slot_count * 100) }} {%else%} 100
+        {%endif%}% </p>
+  </div>
+</{{ tag }}>
+{%- endmacro %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="icon" type="image/png" href="/assets/img/favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/assets/img/favicon/favicon.svg" />
+  <link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="/assets/img/favicon/site.webmanifest" />
+  <!-- Primary SEO -->
+  <title>{{ spec.name }} {{ class_info.name }} Mythic+ Build & Gear Guide - MythiStone</title>
+  <meta name="description"
+    content="Discover the most popular Mythic+ build for {{ spec.name }} {{ class_info.name }}, with top talents, gear, enchants, gems, Embelishments & more—based on {{ total_season_runs | humanize }} runs. Updated {{ generated_at|format_ts }}.">
+  <link rel="canonical" href="https://mythistone.github.io/classes/{{role}}/{{ spec.name}}_{{class_info.name }}">
+
+  <!-- Robots -->
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="MythiStone">
+  <meta property="og:url" content="https://mythistone.github.io/classes/{{role}}/{{ spec.name}}_{{class_info.name }}">
+  <meta property="og:title" content="{{ spec.name }} {{ class_info.name }} Mythic+ Build & Gear Guide">
+  <meta property="og:description"
+    content="See the top talents, gear, enchants and socket setup for {{ spec.name }} {{ class_info.name }} Mythic+ players, sourced from {{ total_season_runs | humanize }} runs.">
+  <meta property="og:image" content="https://mythistone.github.io/assets/img/favicon/favicon-96x96.png">
+  <meta property="og:image:alt" content="{{ spec.name }} icon">
+  <meta property="og:locale" content="en_US">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@MythiStone">
+  <meta name="twitter:creator" content="@MythiStone">
+  <meta name="twitter:title" content="{{ spec.name }} {{ class_info.name }} Mythic+ Build & Gear Guide">
+  <meta name="twitter:description"
+    content="Break down the best Mythic+ build for {{ spec.name }} {{ class_info.name }}—talents, gear, enchants, gems—based on real data from {{ total_season_runs | humanize }} runs.">
+  <meta name="twitter:image" content="https://mythistone.github.io/assets/img/favicon/favicon-96x96.png">
+
+  <!-- Mobile / Theme -->
+  <meta name="theme-color" content="#1a202c">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="MythiStone" />
+  <!-- JSON‑LD Structured Data -->
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "url": "https://mythistone.github.io/classes/{{role}}/{{ spec.name}}_{{class_info.name }}",
+  "name": "{{ spec.name }} {{ class_info.name }} Mythic+ Build & Gear Guide",
+  "description": "The definitive Mythic+ build and gear overview for {{ spec.name }} {{ class_info.name }} players, including gear popularity, talent picks, enchants, gems, and best runs.",
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Classes",
+        "item": "https://mythistone.github.io/pages/classes"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "{{ role }}",
+        "item": "https://mythistone.github.io/pages/role/{{ role | lower }}"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "{{ spec.name }} {{ class_info.name }}",
+        "item": "https://mythistone.github.io/classes/{{role}}/{{ spec.name}}_{{class_info.name }}"
+      }
+    ]
+  },
+  "author": {
+    "@type": "Organization",
+    "name": "MythiStone",
+    "url": "https://mythistone.github.io"
+  },
+  "datePublished": "01/07/2025",
+  "dateModified": "{{ generated_at|format_ts }}"
+}
+</script>
+
+
+
+
+
+  <!--     Fonts and icons     -->
+  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
+  <!-- Nucleo Icons -->
+  <link href="/assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="/assets/css/nucleo-svg.css" rel="stylesheet" />
+  <!-- Material Icons -->
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <!-- CSS Files -->
+  <link id="pagestyle" href="/assets/css/material-dashboard.css" rel="stylesheet" />
+  <link id="pagestyle" href="/assets/css/stat-colors.css" rel="stylesheet" />
+</head>
+
+<body class="g-sidenav-show  bg-gray-100">
+
+  <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2  bg-white my-2"
+    id="sidenav-main">
+    <div class="sidenav-header">
+      <i class="fas fa-times p-3 cursor-pointer text-dark opacity-5 position-absolute end-0 top-0 d-none d-xl-none"
+        aria-hidden="true" id="iconSidenav"></i>
+      <a class="navbar-brand px-4 py-3 m-0" href=" https://Rivalsstats.com/WoW/pages/dashboard " target="_blank">
+        <img src="/assets/img/favicon/favicon-96x96.png" class="navbar-brand-img" width="26" height="26"
+          alt="main_logo">
+        <span class="ms-1 text-sm text-dark">MythiStone</span>
+      </a>
+    </div>
+    <hr class="horizontal dark mt-0 mb-2">
+    <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="/pages/dashboard">
+            <i class="material-symbols-rounded opacity-5">dashboard</i>
+            <span class="nav-link-text ms-1">Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="/pages/routes">
+            <i class="material-symbols-rounded opacity-5">Route</i>
+            <span class="nav-link-text ms-1">Routes</span>
+          </a>
+        </li>
+        <li class="nav-item mt-3">
+          <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-5">Classes</h6>
+        </li>
+        <div class="accordion" id="specNavAccordion">
+          {% for role_name, specs in spec_nav.items() %}
+          {% set rid = role_name|replace(' ', '') %}
+          <div class="accordion-item bg-transparent border-0">
+            <!-- Accordion header / button -->
+            <h2 class="accordion-header" id="heading-{{ rid }}">
+              <button class="nav-link text-dark collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapse-{{ rid }}" aria-expanded="false" aria-controls="collapse-{{ rid }}">
+                {% set ROLE_ICONS = {
+                'Tank' : 'shield',
+                'Healer': 'health_cross',
+                'Dps' : 'swords'
+                } %}
+                <i class="material-symbols-rounded opacity-5">{{ ROLE_ICONS[role_name] }}</i>
+                <span class="nav-link-text ms-1">{{ role_name }}</span>
+              </button>
+            </h2>
+
+            <!-- Accordion body: list of specs -->
+            <div id="collapse-{{ rid }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ rid }}"
+              data-bs-parent="#specNavAccordion">
+              <div class="accordion-body px-0 py-1">
+                <ul class="nav flex-column">
+                  {% for nav in specs %}
+                  <li class="nav-item">
+                    <a href="{{ nav.url }}"
+                      class="nav-link d-flex align-items-center
+                         {% if nav.name == current_spec %}active bg-gradient-dark text-white{% else %}text-dark{% endif %}">
+                      <img width="24" src="/data/icons/{{ nav.icon }}.jpg" class="img-fluid" alt="{{ nav.name }} Icon">
+                      <span class="nav-link-text ms-2" {% if nav.name !=current_spec %}
+                        style="color: rgb({{ nav.color.r }}, {{ nav.color.g }}, {{ nav.color.b }})" {% endif %}>
+                        {{ nav.name }}
+                      </span>
+                    </a>
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <li class="nav-item mt-3">
+          <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-5">Other Pages</h6>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-dark">
+            <i class="material-symbols-rounded opacity-5">Upcoming</i>
+            <span class="nav-link-text ms-1">Coming Soon</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="sidenav-footer position-absolute w-100 bottom-0 ">
+      <div class="mx-3">
+        <a class="btn btn-outline mt-4 w-100" href="https://discord.com/invite/v3gYmYamGJ" type="button">Join the
+          discord</a>
+      </div>
+    </div>
+  </aside>
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+    <!-- Navbar -->
+    <nav class="navbar navbar-main navbar-expand-lg px-0 mx-3 shadow-none border-radius-xl" id="navbarBlur"
+      data-scroll="true">
+      <div class="container-fluid py-1 px-3">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
+            <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">Classes</a></li>
+            <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">{{role}}</a></li>
+            <li class="breadcrumb-item text-sm text-dark active" aria-current="page">
+              {{spec.get('name')}}_{{class_info.get('name')}}</li>
+          </ol>
+        </nav>
+        <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
+          <div class="ms-md-auto pe-md-3 d-flex align-items-center">
+            <div class="input-group input-group-outline">
+              <label class="form-label">Type here...</label>
+              <input type="text" class="form-control">
+            </div>
+          </div>
+          <ul class="navbar-nav d-flex align-items-center  justify-content-end">
+            <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
+              <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
+                <div class="sidenav-toggler-inner">
+                  <i class="sidenav-toggler-line"></i>
+                  <i class="sidenav-toggler-line"></i>
+                  <i class="sidenav-toggler-line"></i>
+                </div>
+              </a>
+            </li>
+            <li class="nav-item px-3 d-flex align-items-center">
+              <a href="javascript:;" class="nav-link text-body p-0">
+                <i class="material-symbols-rounded fixed-plugin-button-nav">settings</i>
+              </a>
+            </li>
+            <li class="nav-item dropdown pe-3 d-flex align-items-center">
+              <a href="" class="nav-link text-body p-0" id="notificationButton" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                <i class="material-symbols-rounded">notifications</i>
+              </a>
+              <ul class="dropdown-menu  dropdown-menu-end  px-2 py-3 me-sm-n4" aria-labelledby="notificationButton">
+                <li class="mb-2">
+                  <a class="dropdown-item border-radius-md" href="javascript:;">
+                    <div class="d-flex py-1">
+                      <div class="my-auto">
+                        <img src="/assets/img/logos/Jods_logo.png" class="avatar avatar-sm  me-3 ">
+                      </div>
+                      <div class="d-flex flex-column justify-content-center">
+                        <h6 class="text-sm font-weight-normal mb-1">
+                          <span class="font-weight-bold">New Stuff</span> Coming Soon
+                        </h6>
+                        <p class="text-xs text-secondary mb-0">
+                          <i class="fa fa-clock me-1"></i>
+                          5 minutes ago
+                        </p>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    
+    <!-- End Navbar -->
+    {# Notification bar placed below the navbar and above the page heading #}
+    {% for notification in notifications %}
+      {% if notification and notification.message %}
+        <div class="container-fluid">
+          <div id="page-notification"
+              class="alert alert-{{ notification.type | default('warning') }} alert-dismissible text-white d-flex align-items-center mx-3 my-2"
+              role="alert">
+            <span class="material-symbols-rounded me-2" aria-hidden="true">announcement</span>
+            <div class="flex-fill">{{ notification.message | safe }}</div>
+
+            {% if notification.dismissible %}
+              <button type="button" class="btn-close ms-3" data-bs-dismiss="alert" aria-label="Close"><span class="material-symbols-rounded me-2" aria-hidden="true">close</span></button>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    <div class="container-fluid py-2">
+      <h3> <span style="color: rgb({{ class_info.color.r }}, {{ class_info.color.g }}, {{ class_info.color.b }})">{{
+          spec.name }} {{ class_info.name }} </span> Mythic + build</h6>
+        <div class="row justify-content-center text-start gx-4 align-items-stretch">
+          <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
+            <div class="card h-100" style="
+              background-image: url('/data/icons/{{ spec_lookup[spec_id|string].SpellIconFileId }}.jpg');
+              background-size: cover;
+              background-position: center;
+              background-repeat: no-repeat;
+              background-blend-mode: overlay;
+            ">
+              <div class="card-header p-2 ps-3">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <p class="text-sm mb-0 text-capitalize">Spec Popularity</p>
+                  </div>
+                  <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                    <i class="material-symbols-rounded opacity-10">{%if trending %}trending_up {%else%}
+                      trending_down{%endif%}</i>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body">
+                <h4 class="mb-0 px-2" data-bs-toggle="tooltip" data-bs-placement="top"
+                  title="{{summary_data.count|humanize}} seen in {{total_season_runs|humanize}} total runs">Overall
+                  Played: {{
+                  100*(summary_data.count/total_season_runs)|round(2)}}%</h4>
+                <div class="px-2" style="height: 4rem;">
+                  <span>Key Upgrades:</span>
+                  <canvas id="runsBarChart"></canvas>
+                </div>
+              </div>
+              <hr class="dark horizontal my-0">
+              <div class="card-footer p-2 ps-3">
+                <p class="mb-0 text-sm">
+                  <span class="timestamp" data-bs-toggle="tooltip" data-bs-placement="top"
+                    data-timestamp={{generated_at}}>Last Update:</span>
+                </p>
+              </div>
+            </div>
+          </div>
+          {# find the hero_tree with the highest count #}
+          {% if hero_trees and hero_trees | length > 0 %}
+          {% set top_tree = hero_trees | sort(attribute='count', reverse=True) | first %}
+          {% set top_sub = talent_lookup['subTrees'][ top_tree.id|string ] %}
+          <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
+            <div class="card h-100" style="
+              background-image: url('/data/icons/{{ top_sub.icon }}.png');
+              background-size: 120%;
+              background-position: center;
+              background-repeat: no-repeat;
+              background-blend-mode: overlay;
+            ">
+              <div class="card-header p-2 ps-3">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <p class="text-sm mb-0 text-capitalize">Hero Tree Popularity</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="row gy-3 gx-2 justify-content-around">
+                  {% for hero_tree in hero_trees %}
+                  {% set subtree = talent_lookup['subTrees'][hero_tree['id']|string] %}
+                  <div class="col-auto d-flex flex-column align-items-center text-center">
+                    <h6 class="mb-1 small text-capitalize">{{ subtree.name }}</h6>
+                    <img src="/data/icons/{{ subtree.icon }}.png" alt="{{ subtree.name }} Icon" class="img-fluid mb-1"
+                      style="width:48px; height:48px;">
+                    <span class="fw-bold">
+                      {{ ((hero_tree.count / data_count) * 100) | round(2) }}%
+                    </span>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <hr class="dark horizontal my-0">
+              <div class="card-footer p-2 ps-3">
+                <p class="mb-0 text-sm">
+                  <span class="timestamp" data-bs-toggle="tooltip" data-bs-placement="top"
+                    data-timestamp={{generated_at}}>Last Update</span>
+                </p>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+          {% if highest_run and highest_run.get('dungeon_id') %}
+          {% set icon_filename = dungeon_lookup[ highest_run.dungeon_id|string ].icon|default('unknown.jpg') %}
+          {% set highest_img_url = '/data/icons/' ~ icon_filename %}
+          <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
+            <div class="card h-100" style="
+              background-image: url('{{ highest_img_url }}');
+              background-size: cover;
+              background-position: center;
+              background-repeat: no-repeat;
+              background-blend-mode: overlay;
+            ">
+              <div class="card-header p-2 ps-3">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <p class="text-sm mb-0 text-capitalize">Highest Run</p>
+                    {% set info = highest_run.duration|
+                    upgrade_info(dungeon_lookup[highest_run.dungeon_id|string].keystone_upgrades,
+                    highest_run.keystone_level) %}
+                    <div>
+                      <span class="font-weight-bolder h4 {{ info.css }}">{{ info.text }}</span>
+                      <span
+                        class="font-weight-bolder h4">{{dungeon_lookup[highest_run.dungeon_id|string].name.en_US}}</span>
+                      <span class="font-weight-bolder h4">{{highest_run.region|upper}}</span>
+                    </div>
+                  </div>
+                  <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                    <i class="material-symbols-rounded opacity-10">leaderboard</i>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body ">
+                <h4 class="mb-0" id="fastest-run-value">Cleared in {{highest_run.duration| duration}}</h4>
+                <div class="d-flex align-items-center">
+                  {% set role_order = ['0','1','2'] %}
+                  {# sort members tank -> heal -> dps #}
+                  {% for role in role_order %}
+                  {% for member in highest_run.members %}
+                  {% set spec = spec_lookup[ member.spec_id|string ] %}
+                  {% if spec.role == role %}
+                  <img src="/data/icons/{{ spec_lookup[member.spec_id|string].SpellIconFileId }}.jpg"
+                    alt="{{ spec.name }}" title="{{ spec.name }}" class="me-1" {# small margin between icons #} />
+                  {% endif %}
+                  {% endfor %}
+                  {% endfor %}
+                </div>
+              </div>
+              <hr class="dark horizontal my-0">
+              <div class="card-footer p-2 ps-3">
+                <p class="mb-0 text-sm">
+                  <span class="timestamp" data-bs-toggle="tooltip" data-bs-placement="top"
+                    data-timestamp={{highest_run.timestamp|int/1000}}>Run happened:</span>
+                </p>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+    </div>
+
+    <div class="container-fluid py-2 w-95 mx-auto my-4">
+      <div class="row">
+        {% if loadout_code and loadout_code.code %}
+        <div class="ratio ratio-16x9" id="sim-iframe-wrapper">
+          <iframe id="sim-iframe" style="pointer-events:none;"
+            data-base-src="https://www.raidbots.com/simbot/render/talents/{{loadout_code.code}}?hideHeader=true&hideExport=true"
+            scrolling="no"></iframe>
+        </div>
+        {% endif %}
+        <div class="row align-items-center justify-content-center">
+          <div class="col-md-auto">
+            <button class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal"
+              data-bs-target="#routeModal">
+              Routes for every Dungeon
+            </button>
+          </div>
+          {% if loadout_code and loadout_code.code %}
+          <div class="col-md-auto">
+            <button id="copyBtn" class="btn btn-primary d-flex align-items-center">
+              <i class="fas fa-copy me-2"></i>
+              <span id="btnText" data-loadout="{{loadout_code.original}}" data-text="Export Talent String">Export Talent
+                String</span>
+            </button>
+          </div>
+          {% endif %}
+          <div class="col-md-auto">
+            <button class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal"
+              data-bs-target="#talentModal">
+              Talent Differences per Dungeon
+            </button>
+          </div>
+          <!-- Gear Overview -->
+          <div id="gear-overview" class="mx-auto my-4">
+            <h6> Gear Overview</h6>
+            <p>
+              This overview shows the most popular items used by {{ spec.name }} {{ class_info.name }} players in Mythic
+              +
+              dungeons. The popularity percentage is based on the number of times an item was seen in comparison to the
+              total amount of items.
+              Popularity of 50% indicates that every 2. item of this type is used by {{ spec.name }} {{ class_info.name }}s.
+              You can hover over the percentage to see more details.</p>
+            <div class="d-flex flex-column flex-md-row gap-3">
+              <div class="flex-fill" style="flex: 1 1 0 !important; min-width: 0;">
+                <!-- Header for this pane -->
+                <div class="d-flex justify-content-between align-items-center mb-2 px-2">
+                  <div>
+                    <h6 class="mb-0">Item</h6>
+                  </div>
+                  <div>
+                    <h6 class="mb-0 text-end">Popularity</h6>
+                  </div>
+                </div>
+                {% for slot in left_slots %}
+                {% set slug = slot.slot | replace(' ', '') %}
+                <div class="accordion mb-3" id="accordion-{{ slug }}">
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading-{{ slug }}">
+                      {% set first = (slot.entries | list) | first %}
+                      {% if first is defined %}
+                      {{ render_slot(first, slot.slot_count, true) }}
+                      {% else %}
+                      <!-- fallback when there is no top entry -->
+                      <button class="accordion-button collapsed text-muted" type="button" disabled>No data</button>
+                      {% endif %}
+                    </h2>
+                    <div id="collapse-{{ slug }}" class="accordion-collapse collapse"
+                      aria-labelledby="heading-{{ slug }}" data-bs-parent="#accordion-{{ slug }}">
+                      <div class="accordion-body">
+                        {# alternatives #}
+                        {% for alt in slot.entries[1:] %}
+                        {{ render_slot(alt, slot.slot_count) }}
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              <div class="flex-fill" style="flex: 1 1 0 !important; min-width: 0;">
+                <!-- Right header: hidden on xs, shown md+ -->
+                <div class="d-none d-md-flex justify-content-between align-items-center mb-2 px-2">
+                  <div>
+                    <h6 class="mb-0">Item</h6>
+                  </div>
+                  <div>
+                    <h6 class="mb-0 text-end">Popularity</h6>
+                  </div>
+                </div>
+
+                <!-- Right slot items -->
+                {% for slot in right_slots %}
+                {% set slug = slot.slot | replace(' ', '') %}
+                <div class="accordion mb-3" id="accordion-{{ slug }}">
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading-{{ slug }}">
+                      {% set first = (slot.entries | list) | first %}
+                      {% if first is defined %}
+                      {{ render_slot(first, slot.slot_count, true) }}
+                      {% else %}
+                      <!-- fallback when there is no top entry -->
+                      <button class="accordion-button collapsed text-muted" type="button" disabled>No data</button>
+                      {% endif %}
+                    </h2>
+                    <div id="collapse-{{ slug }}" class="accordion-collapse collapse"
+                      aria-labelledby="heading-{{ slug }}" data-bs-parent="#accordion-{{ slug }}">
+                      <div class="accordion-body">
+                        {# alternatives #}
+                        {% for alt in slot.entries[1:] %}
+                        {{ render_slot(alt, slot.slot_count) }}
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="d-flex flex-column flex-md-row gap-3">
+              <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
+                <h6 class="px-2">Weapon</h6>
+
+                <!-- Rows: use a vertical gap between them -->
+                <div class="d-flex flex-column gap-2">
+                  {% for slot in weapon_slots %}
+                  {% set slug = slot.slot | replace(' ', '') %}
+                  <div class="accordion mb-3" id="accordion-{{ slug }}">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="heading-{{ slug }}">
+                        {% set first = (slot.entries | list) | first %}
+                        {% if first is defined %}
+                        {{ render_slot(first, slot.slot_count, true, slug) }}
+                        {% else %}
+                        <!-- fallback when there is no top entry -->
+                        <button class="accordion-button collapsed text-muted" type="button" disabled>No data</button>
+                        {% endif %}
+                      </h2>
+                      <div id="collapse-{{ slug }}" class="accordion-collapse collapse"
+                        aria-labelledby="heading-{{ slug }}" data-bs-parent="#accordion-{{ slug }}">
+                        <div class="accordion-body">
+                          {# alternatives #}
+                          {% for alt in slot.entries[1:] %}
+                          {{ render_slot(alt, slot.slot_count) }}
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
+                <!-- Header: hidden on xs, shown md+; if you want always visible, drop the d-none -->
+                <h6 class="text-start px-2 text-md-end py-2 py-md-0">Trinkets</h6>
+
+                <div class="d-flex flex-column gap-2">
+                  {% for slot in trinket_slots %}
+                  {% if slot.get('entries') and slot.entries | length > 0 %}
+                  {% set slug = slot.slot | replace(' ', '') %}
+                  <div class="accordion mb-3" id="accordion-{{ slug }}">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="heading-{{ slug }}">
+                        {% set first = (slot.entries | list) | first %}
+                        {% if first is defined %}
+                        {{ render_slot(first, slot.slot_count, true) }}
+                        {% else %}
+                        <!-- fallback when there is no top entry -->
+                        <button class="accordion-button collapsed text-muted" type="button" disabled>No data</button>
+                        {% endif %}
+                      </h2>
+                      <div id="collapse-{{ slug }}" class="accordion-collapse collapse"
+                        aria-labelledby="heading-{{ slug }}" data-bs-parent="#accordion-{{ slug }}">
+                        <div class="accordion-body">
+                          {# alternatives #}
+                          {% for alt in slot.entries[1:] %}
+                          {{ render_slot(alt, slot.slot_count) }}
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+
+
+          </div>
+          <!-- Overview -->
+          <div class="mx-auto my-4">
+            <div class="d-flex flex-column flex-md-row gap-3">
+              <!-- Enchantment Overview-->
+              <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
+                <!-- Enchantment Overview-->
+                <div class="accordion mx-2" id="enchantAccordion">
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingEnchant">
+                      <button class="accordion-button collapsed text-white fw-semibold text-center w-100" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#collapseEnchant" aria-expanded="false"
+                        aria-controls="collapseEnchant">
+                        Enchantment Details
+                      </button>
+                    </h2>
+                    <div id="collapseEnchant" class="accordion-collapse collapse w-100" aria-labelledby="headingEnchant"
+                      data-bs-parent="#enchantAccordion">
+                      <div class="accordion-body">
+                        <div class="row">
+                          <div class="col-12">
+                            <!-- Enchantment list -->
+                            {% for slot_name, ench_list in enchant_slots.items() %}
+                            {% if ench_list and ench_list | length > 0 %}
+                            {% set top = ench_list[0] %}
+                            {% set total = top.count %}
+                            {% set enchant = top.id %}
+                            {% if enchant_lookup.get(enchant) %}
+                            <div class="accordion mb-3" id="enchantAccordion-{{ slot_name }}">
+                              <div class="accordion-item">
+                                <h2 class="accordion-header" id="enchantHeading-{{ slot_name }}">
+                                  <button
+                                    class="accordion-button border {% if enchant_lookup[enchant].quality %}border-quality-{{ enchant_lookup[enchant].quality }}{% else %}border-grey-100{% endif %} collapsed text-start"
+                                    type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#enchantCollapse-{{ slot_name }}" aria-expanded="false"
+                                    aria-controls="enchantCollapse-{{ slot_name }}" onclick="event.preventDefault();">
+                                    <div class="row align-items-center justify-items-center px-2 flex-nowrap w-100">
+                                      <div class="col-auto">
+                                        {{slot_name}}
+                                      </div>
+                                      <!-- Item icon & link -->
+                                      <div class="col-auto">
+                                        <a target="_blank"
+                                          href="https://www.wowhead.com/item={{ enchant_lookup[enchant].itemId }}&spec={{ spec_id }}">
+                                          <div class="position-relative"
+                                            style="width:24px; height:24px; display:inline-block;">
+                                            <!-- Base icon -->
+                                            <img
+                                              src="/data/icons/{% if enchant_lookup[enchant].itemIcon %}{{ enchant_lookup[enchant].itemIcon }}.png {% else %}{{enchant_lookup[enchant].spellIcon}}.png{% endif %}"
+                                              alt=""
+                                              class="position-absolute top-0 start-0 border {% if enchant_lookup[enchant].quality %}border-quality-{{ enchant_lookup[enchant].quality }}{% else %}border-grey-100{% endif %}"
+                                              style="width:100%; height:100%; object-fit:contain;">
+                                            {% if enchant_lookup[enchant].craftingQuality %}
+                                            <!-- Overlay icon -->
+                                            <img
+                                              src="/data/icons/crafting-quality-{{ enchant_lookup[enchant].craftingQuality }}.png"
+                                              alt="" class="position-absolute top-0 start-0"
+                                              style="width:100%; height:100%; object-fit:contain; z-index:1;">
+                                            {% endif %}
+                                          </div>
+                                        </a>
+                                      </div>
+                                      <!-- Name -->
+                                      <div class="col-auto">
+                                        <a target="_blank"
+                                          href="https://www.wowhead.com/item={{ enchant_lookup[enchant].itemId }}&spec={{ spec_id }}">
+                                          <p class="mb-1">{{ enchant_lookup[enchant].itemName }}</p>
+                                        </a>
+                                      </div>
+                                      <div class="col-md-2 ms-auto text-end">
+
+                                        <p data-bs-toggle="tooltip" data-bs-placement="top"
+                                          title="{{ total }} seen in {{ total_enchant_counts[slot_name] }} total enchants"
+                                          class="mb-0">
+                                          {{ '%.0f' % ((total / total_enchant_counts[slot_name] * 100) if total /
+                                          total_enchant_counts[slot_name] * 100 < 100 else 100) }}% </p>
+                                      </div>
+                                    </div>
+
+
+                                  </button>
+                                </h2>
+                                <div id="enchantCollapse-{{ slot_name }}" class="accordion-collapse collapse"
+                                  aria-labelledby="enchantHeading-{{ slot_name }}"
+                                  data-bs-parent="#enchantAccordion-{{ slot_name }}">
+                                  <div class="accordion-body p-2">
+                                    {# All enchants for this slot #}
+                                    {% for ench in ench_list %}
+                                    {% set total = ench.count %}
+                                    {% set enchant = ench.id %}
+                                    <div class="row align-items-center mb-2">
+                                      <!-- Item icon & link -->
+                                      <div class="col-auto">
+                                        <a target="_blank"
+                                          href="https://www.wowhead.com/item={{ enchant_lookup[enchant].itemId }}&spec={{ spec_id }}">
+                                          <div class="position-relative"
+                                            style="width:24px; height:24px; display:inline-block;">
+                                            <!-- Base icon -->
+                                            <img
+                                              src="/data/icons/{% if enchant_lookup[enchant].itemIcon %}{{ enchant_lookup[enchant].itemIcon }}.png {% else %}{{enchant_lookup[enchant].spellIcon}}.png{% endif %}"
+                                              alt=""
+                                              class="position-absolute top-0 start-0 border {% if enchant_lookup[enchant].quality %}border-quality-{{ enchant_lookup[enchant].quality }}{% else %}border-grey-100{% endif %}"
+                                              style="width:100%; height:100%; object-fit:contain;">
+                                            {% if enchant_lookup[enchant].craftingQuality %}
+                                            <!-- Overlay icon -->
+                                            <img
+                                              src="/data/icons/crafting-quality-{{ enchant_lookup[enchant].craftingQuality }}.png"
+                                              alt="" class="position-absolute top-0 start-0"
+                                              style="width:100%; height:100%; object-fit:contain; z-index:1;">
+                                            {% endif %}
+                                          </div>
+                                        </a>
+                                      </div>
+                                      <!-- Name -->
+                                      <div class="col">
+                                        <a target="_blank"
+                                          href="https://www.wowhead.com/item={{ enchant_lookup[enchant].itemId }}&spec={{ spec_id }}">
+                                          <p class="mb-1">{{ enchant_lookup[enchant].itemName }}</p>
+                                        </a>
+                                      </div>
+
+                                      <!-- Stats -->
+                                      <div class="col-md-3 d-none d-md-block">
+
+                                        {% if enchant_lookup[enchant].stats %}
+                                        <a target="_blank"
+                                          href="https://www.wowhead.com/item={{ enchant_lookup[enchant].itemId }}&spec={{ spec_id }}">
+                                          {% for stat in enchant_lookup[enchant].stats %}
+                                          <span class="badge stat-{{ stat.type }}">
+                                            +{{ stat.amount }}
+                                            {% if stat_names[stat.type] %}{{ stat_names[stat.type] }}{% else %}{{
+                                            stat.type }}{% endif %}
+                                          </span>
+                                          {% endfor %}
+                                        </a>
+                                        {% endif %}
+                                      </div>
+                                      <!-- Price -->
+                                      <div class="col-md-2 d-none d-md-block text-start">
+                                        {% set price_key = enchant_lookup[enchant].itemId|string %}
+                                        {% if formatted_price[price_key] %}
+                                        <a target="_blank"
+                                          href="https://undermine.exchange/#eu-blackmoore/{{ enchant_lookup[enchant].itemId }}">
+                                          {{ formatted_price[price_key] | safe }}
+                                        </a>
+                                        {% endif %}
+                                      </div>
+                                      <!-- Popularity % -->
+                                      <div class="col-md-2 text-end">
+
+                                        <p data-bs-toggle="tooltip" data-bs-placement="top"
+                                          title="{{ total }} seen in {{ total_enchant_counts[slot_name] }} total enchants"
+                                          class="mb-0">
+                                          {{ '%.0f' % ((total / total_enchant_counts[slot_name] * 100) if total /
+                                          total_enchant_counts[slot_name] * 100 < 100 else 100) }}% </p>
+                                      </div>
+                                    </div>
+                                    {% endfor %}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            {% endif %}
+                            {% endif %}
+                            {% endfor %}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Gems Overview-->
+              <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
+                <!-- Gems Overview-->
+                <div class="accordion mx-2" id="socketAccordion">
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingSocket">
+                      <button class="accordion-button collapsed text-white fw-semibold text-center w-100" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#collapseSocket" aria-expanded="false"
+                        aria-controls="collapseSocket">
+                        Socket (Gem) Details
+                      </button>
+                    </h2>
+                    <div id="collapseSocket" class="accordion-collapse collapse w-100" aria-labelledby="headingSocket"
+                      data-bs-parent="#socketAccordion">
+                      <div class="accordion-body">
+                        <div class="row">
+                          <div class="col-12">
+                            <!-- Socket (Gem) list -->
+                            {% for s in sockets %}
+                            {% set gem_id = (s.id if s.id is defined else s['id']) |int %}
+                            {% set total = (s.count if s.count is defined else s['count']) %}
+                            {% set gem = socket_lookup[gem_id] %}
+                            <div class="row align-items-center mb-2">
+                              <!-- Gem icon & link -->
+                              <div class="col-auto">
+                                <a target="_blank"
+                                  href="https://www.wowhead.com/item={{ gem.itemId }}&spec={{ spec_id }}">
+                                  <div class="position-relative" style="width:24px; height:24px; display:inline-block;">
+                                    <img src="/data/icons/{{ gem.itemIcon }}.png" alt=""
+                                      class="position-absolute top-0 start-0 border {% if gem.quality %}border-quality-{{gem.quality}} {% else %}border-grey-100{% endif %}"
+                                      style="width:100%; height:100%; object-fit:contain;">
+                                  </div>
+                                </a>
+                              </div>
+                              <!-- Gem Name -->
+                              <div class="col">
+                                <a target="_blank"
+                                  href="https://www.wowhead.com/item={{ gem.itemId }}&spec={{ spec_id }}">
+                                  <p class="mb-1">{{ gem.itemName }}</p>
+                                </a>
+                              </div>
+                              <!-- Gem Stats -->
+                              <div class="col-md-3 d-none d-md-block">
+                                {% if gem.stats %}
+                                <a target="_blank"
+                                  href="https://www.wowhead.com/item={{ gem.itemId }}&spec={{ spec_id }}">
+                                  {% for stat in gem.stats %}
+                                  <span class="badge stat-{{ stat.type }}">
+                                    +{{ stat.amount }}
+                                    {% if stat_names[stat.type] %}
+                                    {{ stat_names[stat.type] }}
+                                    {% else %}
+                                    {{ stat.type }}
+                                    {% endif %}
+                                  </span>
+                                  {% endfor %}
+                                </a>
+                                {% endif %}
+                              </div>
+                              <!-- Gem Price -->
+                              <div class="col-md-2 d-none d-md-block text-start">
+                                {% if formatted_price[gem.itemId|string] %}
+                                <a target="_blank" href="https://undermine.exchange/#eu-blackmoore/{{ gem.itemId }}">
+                                  {{ formatted_price[gem.itemId|string] | safe }}
+                                </a>
+                                {% endif %}
+                              </div>
+                              <!-- Popularity % -->
+                              <div class="col-md-2 text-end">
+                                <p data-bs-toggle="tooltip" data-bs-placement="top"
+                                  title="{{ total }} out of {{total_socket_count}} gems" class="mb-0">
+                                  {%if (total / total_socket_count * 100) < 100%} {{ '%.0f' % (total /
+                                    total_socket_count * 100) }} {%else%} 100 {%endif%}% </p>
+                              </div>
+                            </div>
+                            {% endfor %}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex flex-column flex-md-row gap-3 mt-4">
+              <!-- Embelishments Overview-->
+              <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
+                <div class="accordion mx-2" id="embellishmentAccordion">
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingEmbellishment">
+                      <button class="accordion-button collapsed text-white fw-semibold text-center w-100" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#collapseEmbellishment" aria-expanded="false"
+                        aria-controls="collapseEmbellishment">
+                        Embellishment Details
+                      </button>
+                    </h2>
+                    <div id="collapseEmbellishment" class="accordion-collapse collapse w-100"
+                      aria-labelledby="headingEmbellishment" data-bs-parent="#embellishmentAccordion">
+                      <div class="accordion-body">
+                        <div class="row">
+                          <div class="col-12">
+                            <!-- Embellishment list -->
+                            {% for pair in embellishments %}
+                            {% set embellishment = pair[0] %}
+                            {% set total = pair[1] %}
+
+                            <div class="row align-items-center mb-2">
+                              <!-- Item icon & link -->
+                              <div class="col-auto">
+                                <a target="_blank"
+                                  href="https://www.wowhead.com/item={{ embellishment}}&spec={{ spec_id }}">
+                                  <div class="position-relative" style="width:24px; height:24px; display:inline-block;">
+                                    <!-- Base icon -->
+                                    <img src="/data/icons/{{ reagent_lookup[embellishment].icon }}.png" alt=""
+                                      class="position-absolute top-0 start-0 border {% if reagent_lookup[embellishment].quality %}border-quality-{{reagent_lookup[embellishment].quality}} {% else %}border-grey-100{% endif %}"
+                                      style="width:100%; height:100%; object-fit:contain;">
+                                    {% if reagent_lookup[embellishment].craftingQuality %}
+                                    <!-- Overlay icon -->
+                                    <img
+                                      src="/data/icons/crafting-quality-{{ reagent_lookup[embellishment].craftingQuality }}.png"
+                                      alt="" class="position-absolute top-0 start-0"
+                                      style="width:100%; height:100%; object-fit:contain; z-index:1;">
+                                    {% endif %}
+                                  </div>
+                                </a>
+                              </div>
+                              <!-- Name -->
+                              <div class="col">
+                                <a target="_blank"
+                                  href="https://www.wowhead.com/item={{ embellishment }}&spec={{ spec_id }}">
+                                  <p class="mb-1">{{ reagent_lookup[embellishment].name }}</p>
+                                </a>
+                              </div>
+                              <!-- Stats -->
+                              <div class="col-md-3 d-none d-md-block">
+                                {% if reagent_lookup[embellishment].stats %}
+                                <a target="_blank"
+                                  href="https://www.wowhead.com/item={{ reagent_lookup[embellishment].itemId }}&spec={{ spec_id }}">
+                                  {% for stat in reagent_lookup[embellishment].stats %}
+                                  <span class="badge stat-{{ stat.type }}">
+                                    +{{ stat.amount }} {% if stat_names[stat.type] %}{{ stat_names[stat.type] }}{% else
+                                    %}{{
+                                    stat.type
+                                    }}{% endif %}
+                                  </span>
+                                  {% endfor %}
+                                </a>
+                                {% endif %}
+                              </div>
+                              <!-- Price -->
+                              <div class="col-md-2 d-none d-md-block text-start">
+                                {% if formatted_price[embellishment|string] %}
+                                <a target="_blank" href="https://undermine.exchange/#eu-blackmoore/{{ embellishment}}">
+                                  {{ formatted_price[embellishment|string] | safe }}
+                                </a>
+                                {% endif %}
+                              </div>
+                              <!-- Popularity % -->
+                              <div class="col-md-2 text-end">
+                                <p data-bs-toggle="tooltip" data-bs-placement="top"
+                                  title="{{ total }} seen in {{total_embellishment_count}} runs" class="mb-0">
+                                  {%if (total / total_embellishment_count * 100) < 100%} {{ '%.0f' % (total /
+                                    total_embellishment_count * 100) }} {%else%} 100 {%endif%}% </p>
+                              </div>
+                            </div>
+                            {% endfor %}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Missive Overview -->
+              <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
+                <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
+                  <div class="accordion mx-2" id="missiveAccordion">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="headingMissive">
+                        <button class="accordion-button collapsed text-white fw-semibold text-center w-100"
+                          type="button" data-bs-toggle="collapse" data-bs-target="#collapseMissive"
+                          aria-expanded="false" aria-controls="collapseMissive">
+                          Missive Details
+                        </button>
+                      </h2>
+                      <div id="collapseMissive" class="accordion-collapse collapse w-100"
+                        aria-labelledby="headingMissive" data-bs-parent="#missiveAccordion">
+                        <div class="accordion-body">
+                          <div class="row">
+                            <div class="col-12">
+                              <!-- Missive list -->
+                              {% for pair in missives %}
+                              {% set missive = pair[0] %}
+                              {% set total = pair[1] %}
+                              <div class="row align-items-center mb-2">
+                                <!-- Item icon & link -->
+                                <div class="col-auto">
+                                  <a target="_blank"
+                                    href="https://www.wowhead.com/item={{ missive }}&spec={{ spec_id }}">
+                                    <div class="position-relative"
+                                      style="width:24px; height:24px; display:inline-block;">
+                                      <!-- Base icon -->
+                                      <img src="/data/icons/{{ reagent_lookup[missive].icon }}.png" alt=""
+                                        class="position-absolute top-0 start-0 border {% if reagent_lookup[missive].quality %}border-quality-{{reagent_lookup[missive].quality}} {% else %}border-grey-100{% endif %}"
+                                        style="width:100%; height:100%; object-fit:contain;">
+                                      {% if reagent_lookup[missive].craftingQuality %}
+                                      <!-- Overlay icon -->
+                                      <img
+                                        src="/data/icons/crafting-quality-{{ reagent_lookup[missive].craftingQuality }}.png"
+                                        alt="" class="position-absolute top-0 start-0"
+                                        style="width:100%; height:100%; object-fit:contain; z-index:1;">
+                                      {% endif %}
+                                    </div>
+                                  </a>
+                                </div>
+                                <!-- Name -->
+                                <div class="col">
+                                  <a target="_blank"
+                                    href="https://www.wowhead.com/item={{ missive }}&spec={{ spec_id }}">
+                                    <p class="mb-1">{{ reagent_lookup[missive].name }}</p>
+                                  </a>
+                                </div>
+                                <!-- Stats -->
+                                <div class="col-md-3 d-none d-md-block">
+                                  {% if reagent_lookup[missive].stats %}
+                                  <a target="_blank"
+                                    href="https://www.wowhead.com/item={{ reagent_lookup[missive].itemId }}&spec={{ spec_id }}">
+                                    {% for stat in reagent_lookup[missive].stats %}
+                                    <span class="badge stat-{{ stat.type }}">
+                                      +{{ stat.amount }} {% if stat_names[stat.type] %}{{ stat_names[stat.type] }}{%
+                                      else
+                                      %}{{
+                                      stat.type
+                                      }}{% endif %}
+                                    </span>
+                                    {% endfor %}
+                                  </a>
+                                  {% endif %}
+                                </div>
+                                <!-- Price -->
+                                <div class="col-md-2 d-none d-md-block text-start">
+                                  {% if formatted_price[missive|string] %}
+                                  <a target="_blank" href="https://undermine.exchange/#eu-blackmoore/{{ missive}}">
+                                    {{ formatted_price[missive|string] | safe }}
+                                  </a>
+                                  {% endif %}
+                                </div>
+                                <!-- Popularity % -->
+                                <div class="col-md-2 text-end">
+                                  <p data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="{{ total }} seen in {{total_missive_count}} runs" class="mb-0">
+                                    {%if (total / total_missive_count * 100) < 100%} {{ '%.0f' % (total /
+                                      total_missive_count * 100) }} {%else%} 100 {%endif%}% </p>
+                                </div>
+                              </div>
+                              {% endfor %}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <footer class="footer py-4">
+          <div class="container-fluid">
+            <div class="row align-items-center justify-content-lg-between">
+              <div class="col-lg-6 mb-lg-0 mb-4">
+                <div class="copyright text-center text-sm text-muted text-lg-start">
+                  ©
+                  <script>
+                    document.write(new Date().getFullYear())
+                  </script>,
+                  made with Material-dashboard by
+                  <a href="https://www.creative-tim.com" class="font-weight-bold" target="_blank"> Creative Tim</a>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <ul class="nav nav-footer justify-content-center justify-content-lg-end">
+                  <li class="nav-item">
+                    <a href="https://github.com/MythiStone" class="nav-link text-muted" target="_blank">MythiStone</a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="/pages/about" class="nav-link text-muted" target="_blank">About Us</a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="/pages/blog" class="nav-link text-muted" target="_blank">Blog</a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="/pages/impressum" class="nav-link text-muted" target="_blank">Impressum</a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="/pages/privacy" class="nav-link text-muted" target="_blank">Privacy</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+  </main>
+  <div class="modal fade" id="talentModal" tabindex="-1" aria-labelledby="talentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg modal-dialog-centered">
+      <div class="modal-content card">
+        <div class="modal-header">
+          <h5 class="modal-title" id="talentModalLabel">Talent Usage Variance by Dungeon</h5>
+        </div>
+        <div class="modal-body">
+          <p class="small text-muted">
+            (Higher keylevels are weighted more heavily.)
+          </p>
+          <div class="accordion" id="dungeonAccordion">
+            {% for ds in dungeon_summaries %}
+            <div class="accordion-item mb-2">
+              <h2 class="accordion-header" id="dungeonHeading-{{ ds.dungeon_id }}">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#dungeonCollapse-{{ ds.dungeon_id }}" aria-expanded="false"
+                  aria-controls="dungeonCollapse-{{ ds.dungeon_id }}" style="
+                          background-image: url('/data/icons/{{ dungeon_lookup[ds.dungeon_id].icon }}');
+                          background-size: cover;
+                          background-position: center;
+                          background-repeat: no-repeat;
+                          background-blend-mode: overlay;
+                        ">
+                  <span class="badge bg-dark bg-opacity-50 text-white rounded px-2">{{
+                    dungeon_lookup[ds.dungeon_id].name['en_US'] }}</span>
+                </button>
+              </h2>
+              <div id="dungeonCollapse-{{ ds.dungeon_id }}" class="accordion-collapse collapse"
+                aria-labelledby="dungeonHeading-{{ ds.dungeon_id }}" data-bs-parent="#dungeonAccordion">
+                <div class="accordion-body">
+
+                  {# — Hero Trees — #}
+                  {% if ds.categories.Trees %}
+                  <h4 class="mt-2">Hero Trees</h4>
+                  <div class="row justify-content-center mb-3">
+                    {% set lookup = talent_lookup.subTrees %}
+                    {% for tid, delta in ds.categories.Trees.gains %}
+                    <div class="col-auto text-center mx-2">
+                      <a target="_blank"
+                        href="https://www.wowhead.com/talent-tree={{ lookup[tid|string].treeId }}?spec={{ spec_id }}">
+                        <img src="/data/icons/{{ lookup[tid|string].icon }}.png" alt="{{ lookup[tid|string].name }}"
+                          style="width:32px; height:32px;" /><br />
+                        <small>{{ lookup[tid|string].name }}</small><br />
+                        <small class="{% if delta >= 0 %}text-success{% else %}text-danger{% endif %}">
+                          {{ delta|round(1) }}%
+                        </small>
+                      </a>
+                    </div>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+
+                  {# — Class/Spec/Hero Talents — #}
+                  {% for category, data in ds.categories.items() %}
+                  {% if category != 'Trees' %}
+                  {% set lookup = talent_lookup.talents %}
+                  {% set url_prefix = '/spell' %}
+                  {% set id_attr = 'spellId' %}
+                  <h4 class="mt-3">{{ category }} Talents</h4>
+                  <div class="row">
+                    {# Gains Accordion #}
+                    <div class="col-md-6 mb-3">
+                      <div class="accordion" id="gainAcc-{{ ds.dungeon_id }}-{{ category }}">
+                        <div class="accordion-item">
+                          <h2 class="accordion-header" id="gainHead-{{ ds.dungeon_id }}-{{ category }}">
+                            {% if data.gains %}
+                            {% set top = data.gains[0] %}
+                            <a class="accordion-button collapsed border-success d-flex align-items-center overflow-hidden"
+                              href="https://www.wowhead.com{{ url_prefix }}={{ lookup[top[0]|string][id_attr] }}?spec={{ spec_id }}"
+                              target="_blank" role="button" data-bs-toggle="collapse"
+                              data-bs-target="#gainCol-{{ ds.dungeon_id }}-{{ category }}" aria-expanded="false"
+                              aria-controls="gainCol-{{ ds.dungeon_id }}-{{ category }}">
+                              <img src="/data/icons/{{ lookup[top[0]|string].icon }}.png" alt=""
+                                class="flex-shrink-0 me-2" style="width:24px; height:24px;" />
+
+                              <span class="flex-grow-1 text-truncate" title="{{ lookup[top[0]|string].name }}">
+                                {{ lookup[top[0]|string].name }}
+                              </span>
+
+                              <span class="flex-shrink-0 mx-3 text-success">
+                                +{{ top[1]|round(1) }}%
+                              </span>
+                            </a>
+                            {% else %}
+                            <button class="accordion-button collapsed" disabled>No data</button>
+                            {% endif %}
+                          </h2>
+                          <div id="gainCol-{{ ds.dungeon_id }}-{{ category }}" class="accordion-collapse collapse"
+                            aria-labelledby="gainHead-{{ ds.dungeon_id }}-{{ category }}"
+                            data-bs-parent="#gainAcc-{{ ds.dungeon_id }}-{{ category }}">
+                            <div class="accordion-body p-2">
+                              {% for tid, delta in data.gains[1:] %}
+                              <a class="d-flex align-items-center mb-2 text-decoration-none text-reset"
+                                href="https://www.wowhead.com{{ url_prefix }}={{ lookup[tid|string][id_attr] }}?spec={{ spec_id }}"
+                                target="_blank">
+                                <img src="/data/icons/{{ lookup[tid|string].icon }}.png" alt=""
+                                  style="width:24px;height:24px;" />
+                                <span class="ms-2">{{ lookup[tid|string].name }}</span>
+                                <span class="ms-auto text-success">
+                                  +{{ delta|round(1) }}%
+                                </span>
+                              </a>
+                              {% endfor %}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {# Losses Accordion #}
+                    <div class="col-md-6 mb-3">
+                      <div class="accordion" id="lossAcc-{{ ds.dungeon_id }}-{{ category }}">
+                        <div class="accordion-item">
+                          <h2 class="accordion-header" id="lossHead-{{ ds.dungeon_id }}-{{ category }}">
+                            {% if data.losses %}
+                            {% set top = data.losses[0] %}
+                            <a class="accordion-button collapsed border-danger d-flex align-items-center overflow-hidden"
+                              href="https://www.wowhead.com{{ url_prefix }}={{ lookup[top[0]|string][id_attr] }}?spec={{ spec_id }}"
+                              target="_blank" role="button" data-bs-toggle="collapse"
+                              data-bs-target="#lossCol-{{ ds.dungeon_id }}-{{ category }}" aria-expanded="false"
+                              aria-controls="lossCol-{{ ds.dungeon_id }}-{{ category }}">
+                              <img src="/data/icons/{{ lookup[top[0]|string].icon }}.png" alt=""
+                                class="flex-shrink-0 me-2" style="width:24px; height:24px;" />
+
+                              <span class="flex-grow-1 text-truncate" title="{{ lookup[top[0]|string].name }}">
+                                {{ lookup[top[0]|string].name }}
+                              </span>
+
+                              <span class="flex-shrink-0 mx-3 text-danger">
+                                {{ top[1]|round(1) }}%
+                              </span>
+                            </a>
+                            {% else %}
+                            <button class="accordion-button collapsed" disabled>No data</button>
+                            {% endif %}
+                          </h2>
+                          <div id="lossCol-{{ ds.dungeon_id }}-{{ category }}" class="accordion-collapse collapse"
+                            aria-labelledby="lossHead-{{ ds.dungeon_id }}-{{ category }}"
+                            data-bs-parent="#lossAcc-{{ ds.dungeon_id }}-{{ category }}">
+                            <div class="accordion-body p-2">
+                              {% for tid, delta in data.losses[1:] %}
+                              <a class="d-flex align-items-center mb-2 text-decoration-none text-reset"
+                                href="https://www.wowhead.com{{ url_prefix }}={{ lookup[tid|string][id_attr] }}?spec={{ spec_id }}"
+                                target="_blank">
+                                <img src="/data/icons/{{ lookup[tid|string].icon }}.png" alt=""
+                                  style="width:24px;height:24px;" />
+                                <span class="ms-2">{{ lookup[tid|string].name }}</span>
+                                <span class="ms-auto text-danger">
+                                  {{ delta|round(1) }}%
+                                </span>
+                              </a>
+                              {% endfor %}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% endif %}
+                  {% endfor %}
+
+                </div> {# .accordion-body #}
+              </div> {# .accordion-collapse #}
+            </div> {# .accordion-item #}
+            {% endfor %}
+          </div> {# #dungeonAccordion #}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="routeModal" tabindex="-1" aria-labelledby="routeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg modal-dialog-centered">
+      <div class="modal-content card">
+        <div class="modal-header">
+          <h5 class="modal-title" id="routeModalLabel">Top Route for {{ spec.name }} {{ class_info.name }}</h5>
+        </div>
+        <div class="modal-body">
+          <div class="accordion" id="routeDungeonAccordion">
+            {% for ds in top_routes.values() %}
+            {% if dungeon_lookup_slug[ds.dungeon_id] %}
+            <div class="accordion-item mb-2">
+              <h2 class="accordion-header" id="routeDungeonHeading-{{ ds.dungeon_id }}">
+                <button class="accordion-button collapsed d-flex" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#routeDungeonCollapse-{{ ds.dungeon_id }}" aria-expanded="false"
+                  aria-controls="routeDungeonCollapse-{{ ds.dungeon_id }}" style="
+                            background-image: url('/data/icons/{{ dungeon_lookup_slug[ds.dungeon_id].icon }}');
+                            background-size: cover;
+                            background-position: center;
+                            background-repeat: no-repeat;
+                            background-blend-mode: overlay;
+                          ">
+                  <div class="flex-fill text-start text-nowrap">
+                    <span class="badge bg-dark bg-opacity-50 text-white rounded px-2">{{
+                      dungeon_lookup_slug[ds.dungeon_id|string].name['en_US'] }}</span>
+                    {% set info = top_routes[ds.dungeon_id].duration|
+                    upgrade_info(dungeon_lookup_slug[ds.dungeon_id|string].keystone_upgrades,
+                    top_routes[ds.dungeon_id].highest_key) %}
+                    <span class="badge bg-dark bg-opacity-50  {{ info.css }} rounded px-2 mx-1">
+                      {{ info.text }}
+                    </span>
+                  </div>
+                  <div class="flex-fill text-center p-2">
+                    <span class="badge bg-dark bg-opacity-50 text-white rounded px-2 mr-1">
+                      {{ top_routes[ds.dungeon_id].duration|duration }}
+                    </span>
+                    <span class="timestamp badge bg-dark bg-opacity-50 text-white rounded px-2 ml-1"
+                      data-bs-toggle="tooltip" data-bs-placement="top"
+                      data-timestamp={{top_routes[ds.dungeon_id].timestamp|int}}></span>
+                  </div>
+                  <div class="flex-fill text-end">
+                    <div class="d-inline-flex align-items-center">
+                      {% set role_order = ['0','1','2'] %}
+                      {# sort members tank -> heal -> dps #}
+                      {% for role in role_order %}
+                      {% for member in top_routes[ds.dungeon_id].comps[0] %}
+                      {% set spec = spec_lookup[ member|string ] %}
+                      {% if spec.role == role %}
+                      <img src="/data/icons/{{ spec.SpellIconFileId }}.jpg" alt="{{ spec.name }}"
+                        title="{{ spec.name }}" class="me-1" />
+                      {% endif %}
+                      {% endfor %}
+                      {% endfor %}
+                    </div>
+                  </div>
+                </button>
+              </h2>
+              <div id="routeDungeonCollapse-{{ ds.dungeon_id }}" class="accordion-collapse collapse"
+                aria-labelledby="routeDungeonHeading-{{ ds.dungeon_id }}" data-bs-parent="#routeDungeonAccordion">
+                <div class="accordion-body">
+                  Route Taken from + {{top_routes[ds.dungeon_id].highest_key}}. Checkout full run
+                  details: <a
+                    href="https://raider.io/mythic-plus-runs/{{season_info.current_season}}/{{top_routes[ds.dungeon_id].keystone_run_ids[0]}}">
+                    <img src="/assets/img/logos/RaiderIOLogo.png" alt="RaiderIo run link" title="RaiderIo run link"
+                      class="me-1" height="24em" width="24em" /></a>
+                  <div class="iframe-container position-relative">
+                    <!-- Spinner overlay -->
+                    <div class="iframe-spinner position-absolute top-50 start-50 translate-middle">
+                      <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                      </div>
+                    </div>
+                    <iframe src="" loading="lazy"
+                      data-src="https://keystone.guru/route/{{ds.dungeon_id}}/{{top_routes[ds.dungeon_id].route_key}}/{{ds.dungeon_id}}/embed"
+                      class="w-100" style="
+                                border: none;
+                                width: 100%;
+                                height: calc(80vh - 3rem);
+                                display: block;
+                              "></iframe>
+                  </div>
+                </div> {# .accordion-body #}
+              </div> {# .accordion-collapse #}
+            </div> {# .accordion-item #}
+            {% endif %}
+            {% endfor %}
+          </div> {# #dungeonAccordion #}
+        </div>
+        <div class="modal-footer d-flex justify-content-between">
+          <a href="https://raider.io/"> Data powered by <img src="/assets/img/logos/RaiderIOLogo.png"
+              alt="RaiderIo run link" title="RaiderIo run link" class="me-1" height="24em" width="24em" /></a>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fixed-plugin">
+    <a class="fixed-plugin-button text-dark position-fixed px-3 py-2">
+      <i class="material-symbols-rounded py-2">settings</i>
+    </a>
+    <div class="card shadow-lg">
+      <div class="card-header pb-0 pt-3">
+        <div class="float-start">
+          <h5 class="mt-3 mb-0">UI Configurator</h5>
+          <p>Config the Ui</p>
+        </div>
+        <div class="float-end mt-4">
+          <button class="btn btn-link text-dark p-0 fixed-plugin-close-button">
+            <i class="material-symbols-rounded">clear</i>
+          </button>
+        </div>
+        <!-- End Toggle Button -->
+      </div>
+      <hr class="horizontal dark my-1">
+      <div class="card-body pt-sm-3 pt-0">
+        <!-- Sidebar Backgrounds -->
+        <div>
+          <h6 class="mb-0">Sidebar Colors</h6>
+        </div>
+        <a href="javascript:void(0)" class="switch-trigger background-color">
+          <div class="badge-colors my-2 text-start">
+            <span class="badge filter bg-gradient-primary" data-color="primary" onclick="sidebarColor(this)"></span>
+            <span class="badge filter bg-gradient-dark active" data-color="dark" onclick="sidebarColor(this)"></span>
+            <span class="badge filter bg-gradient-info" data-color="info" onclick="sidebarColor(this)"></span>
+            <span class="badge filter bg-gradient-success" data-color="success" onclick="sidebarColor(this)"></span>
+            <span class="badge filter bg-gradient-warning" data-color="warning" onclick="sidebarColor(this)"></span>
+            <span class="badge filter bg-gradient-danger" id="defaultColor" data-color="danger"
+              onclick="sidebarColor(this)"></span>
+          </div>
+        </a>
+        <!-- Sidenav Type -->
+        <div class="mt-3">
+          <h6 class="mb-0">Sidenav Type</h6>
+          <p class="text-sm">Choose between different sidenav types.</p>
+        </div>
+        <div class="d-flex">
+          <button class="btn bg-gradient-dark px-3 mb-2" data-class="bg-gradient-dark"
+            onclick="sidebarType(this)">Dark</button>
+          <button class="btn bg-gradient-dark px-3 mb-2 ms-2" id="defaultSidebarType" data-class="bg-transparent"
+            onclick="sidebarType(this)">Transparent</button>
+          <button class="btn bg-gradient-dark px-3 mb-2  active ms-2" data-class="bg-white"
+            onclick="sidebarType(this)">White</button>
+        </div>
+        <p class="text-sm d-xl-none d-block mt-2">You can change the sidenav type just on desktop view.</p>
+        <hr class="horizontal dark my-3">
+        <div class="mt-2 d-flex">
+          <h6 class="mb-0">Light / Dark</h6>
+          <div class="form-check form-switch ps-0 ms-auto my-auto">
+            <input class="form-check-input mt-1 ms-auto" type="checkbox" id="dark-version" onclick="darkMode(this)">
+          </div>
+        </div>
+        <hr class="horizontal dark my-sm-4">
+        <a class="btn btn-outline-dark w-100" href="https://discord.com/invite/v3gYmYamGJ">Give Feedback on Discord</a>
+        <div class="w-100 text-center">
+          <a class="github-button" href="https://github.com/Rivalsstats/WoW" data-icon="octicon-star" data-size="large"
+            data-show-count="true" aria-label="Star Rivalsstats/WoW on GitHub">Star</a>
+          <h6 class="mt-3">Thank you for sharing!</h6>
+          <a href="https://twitter.com/intent/tweet?text=Check%20Rivalsstats%20WoW%20M%20Plus%20Meta&amp;url=https%3A%2F%2Fwww.Rivalsstats.com%2FWoW"
+            class="btn btn-dark mb-0 me-2" target="_blank">
+            <i class="fab fa-twitter me-1" aria-hidden="true"></i> Tweet
+          </a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https://www.Rivalsstats.com/WoW"
+            class="btn btn-dark mb-0 me-2" target="_blank">
+            <i class="fab fa-facebook-square me-1" aria-hidden="true"></i> Share
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--   Core JS Files   -->
+  <script src="/assets/js/core/popper.min.js"></script>
+  <script src="/assets/js/core/bootstrap.min.js"></script>
+  <script src="/assets/js/plugins/perfect-scrollbar.min.js"></script>
+  <script src="/assets/js/plugins/smooth-scrollbar.min.js"></script>
+  <script>
+    var win = navigator.platform.indexOf('Win') > -1;
+    if (win && document.querySelector('#sidenav-scrollbar')) {
+      var options = {
+        damping: '0.5'
+      }
+      Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+    }
+
+    function timeAgo(unixTsSeconds) {
+      const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+      const now = Date.now() / 1000;
+      const diff = now - unixTsSeconds;
+
+      const units = [
+        { name: 'year', secs: 60 * 60 * 24 * 365 },
+        { name: 'month', secs: 60 * 60 * 24 * 30 },
+        { name: 'day', secs: 60 * 60 * 24 },
+        { name: 'hour', secs: 60 * 60 },
+        { name: 'minute', secs: 60 },
+        { name: 'second', secs: 1 },
+      ];
+
+      for (const { name, secs } of units) {
+        const delta = Math.floor(diff / secs);
+        if (Math.abs(delta) >= 1) {
+          return rtf.format(-delta, name);
+        }
+      }
+      return 'just now';
+    }
+
+    //initialize timestamps
+    document.querySelectorAll('.timestamp').forEach(function (el) {
+      const timestamp = el.getAttribute('data-timestamp');
+      el.textContent = `${el.textContent} ${timeAgo(Number(timestamp))}`;
+      el.setAttribute('title', new Date(Number(timestamp) * 1000).toLocaleString());
+    });
+
+    //initialize bootstrap tooltips for extra info
+    document.addEventListener('DOMContentLoaded', function () {
+      var triggers = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      triggers.forEach(function (el) {
+        new bootstrap.Tooltip(el)
+      })
+    });
+    const whTooltips = {
+      colorLinks: false,
+      iconizeLinks: false,
+      renameLinks: false,
+    };
+    (function () {
+      const copyBtn = document.getElementById('copyBtn');
+      const btnText = document.getElementById('btnText');
+      // Your predefined text:
+      const toCopy = btnText.getAttribute('data-loadout') || '';
+      const text = btnText.getAttribute('data-text')
+
+      copyBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(toCopy);
+          // Show success state
+          btnText.textContent = 'Copied!';
+          copyBtn.classList.replace('btn-primary', 'btn-success');
+          setTimeout(() => {
+            btnText.textContent = text;
+            copyBtn.classList.replace('btn-success', 'btn-primary');
+          }, 2000);
+        } catch (err) {
+          console.error('Copy failed', err);
+          btnText.textContent = 'Error';
+          copyBtn.classList.replace('btn-primary', 'btn-danger');
+          setTimeout(() => {
+            btnText.textContent = text;
+            copyBtn.classList.replace('btn-danger', 'btn-primary');
+          }, 2000);
+        }
+      });
+    })();
+    (function () {
+      const wrapper = document.getElementById('sim-iframe-wrapper');
+      const iframe = document.getElementById('sim-iframe');
+      const base = iframe.dataset.baseSrc;
+      let resizeTimeout;
+
+      function refreshTalentEmbed() {
+        let w = wrapper.clientWidth
+        if ((window.matchMedia("(any-hover:none)").matches)) {
+          w = w - 40
+          wrapper.classList.remove('ratio-16x9')
+          wrapper.classList.add('ratio-4x3')
+        }
+        else if (wrapper.classList.contains('ratio-4x3')) {
+          wrapper.classList.remove('ratio-16x9')
+          wrapper.classList.add('ratio-4x3')
+        }
+        iframe.src = base + '&width=' + w;
+      }
+
+      window.addEventListener('DOMContentLoaded', refreshTalentEmbed);
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(refreshTalentEmbed, 500);
+      });
+    })();
+  </script>
+  <script src="https://wow.zamimg.com/widgets/power.js"></script>
+  <!-- Github buttons -->
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <!-- chart.js -->
+  <script src="/assets/js/plugins/chartjs.min.js"></script>
+  <script src="/assets/js/plugins/chartjs-plugin-datalabels.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      Chart.register(ChartDataLabels);
+      const ctx = document.getElementById('runsBarChart').getContext('2d');
+
+      const raw = [
+        {% for i in range(4) %}
+    {{ summary_data.upgrade_counts[i].run_count | int if i < summary_data.upgrade_counts | length else 0 }}
+      {% if not loop.last %}, {% endif %}
+    {% endfor %}
+];
+    const total = {{ summary_data.count }};
+    const pcts = raw.map(c => c / total * 100);
+    const baseColors = ['#FF0000', '#1eff00', '#a335ee', '#ff8000'];
+
+    // create one gradient per color
+    const gradients = baseColors.map(hex => {
+      const grad = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+      // use the same hex at 80% and 50% opacity stops
+      grad.addColorStop(0, hex.replace(/,?\s*1\)$/, ', 0.8)')    // top
+        .replace(/^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i,
+          (_, r, g, b) => `rgba(${parseInt(r, 16)},${parseInt(g, 16)},${parseInt(b, 16)},0.8)`));
+      grad.addColorStop(1, hex.replace(/,?\s*1\)$/, ', 0.5)')    // bottom
+        .replace(/^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i,
+          (_, r, g, b) => `rgba(${parseInt(r, 16)},${parseInt(g, 16)},${parseInt(b, 16)},0.5)`));
+      return grad;
+    });
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        // single “category” so all segments live in one bar
+        labels: [''],
+        datasets: [
+          {
+            label: 'Depleted',
+            data: [pcts[0]],
+            backgroundColor: gradients[0],
+            stack: 'Stack 0'
+          },
+          {
+            label: 'Keys played +1',
+            data: [pcts[1]],
+            backgroundColor: gradients[1],
+            stack: 'Stack 0',
+            datalabels: {
+              color: 'black'
+            }
+          },
+          {
+            label: 'Keys played +2',
+            data: [pcts[2]],
+            backgroundColor: gradients[2],
+            stack: 'Stack 0'
+          },
+          {
+            label: 'Keys played +3',
+            data: [pcts[3]],
+            backgroundColor: gradients[3],
+            stack: 'Stack 0'
+          }
+        ]
+      },
+      plugins: [ChartDataLabels],
+      options: {
+        indexAxis: 'y',            // horizontal orientation
+        maintainAspectRatio: false,
+        layout: {
+          padding: { left: 8, right: 8, top: 8, bottom: 8 }
+        },
+        scales: {
+          x: {
+            stacked: true,         // enable stacking on x‑axis
+            beginAtZero: true,
+            max: 100,
+            ticks: {
+              display: false
+            },
+            grid: { display: false }
+          },
+          y: {
+            stacked: true,         // required for horizontal stack
+            grid: { display: false },
+            ticks: { display: false }  // hide the empty category label
+
+          }
+        },
+        elements: {
+          bar: {
+            borderRadius: 4,
+            borderSkipped: false
+          }
+        },
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx => `${ctx.dataset.label}: ${ctx.parsed.x.toFixed(1)}%`
+            }
+          },
+          datalabels: {
+            color: 'white',
+            anchor: 'center',
+            align: 'center',
+            font: {
+              weight: 'bold',
+              size: 12
+            },
+            formatter: value => `${value.toFixed(1)}%`
+          }
+        }
+      }
+    });
+    //lazy loading for routes
+    document.querySelectorAll('#routeDungeonAccordion .accordion-collapse')
+      .forEach(function (panel) {
+        panel.addEventListener('shown.bs.collapse', function (event) {
+          // once this panel opens, find its iframe
+          const iframe = panel.querySelector('iframe[data-src]');
+          if (!iframe) {
+            console.warn('No iframe found in this panel:', panel);
+            return;
+          }
+          // if we haven't yet set its src, do so now
+          if (!iframe.src || iframe.src === '' || iframe.src !== iframe.dataset.src) {
+            iframe.src = iframe.dataset.src;
+            iframe.addEventListener('load', function () {
+              const spinner = panel.querySelector('.iframe-spinner');
+              spinner.classList.add('d-none');
+            }, { once: true });
+          }
+        });
+      });
+});
+
+  </script>
+  <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
+  <script src="/assets/js/material-dashboard.js"></script>
+  <script>
+    darkMode(document.querySelector('#dark-version'));
+    sidebarColor(document.querySelector('#defaultColor'));
+    document.querySelector('#defaultSidebarType').classList.add('active');
+    sidebarType(document.querySelector('#defaultSidebarType'));
+  </script>
+</body>
+
+</html>

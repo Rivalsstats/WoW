@@ -1,0 +1,132 @@
+{
+  "1": {
+    "name": "Warrior",
+    "description": "Warriors are plate-wearing fighters who strive for perfection in armed combat. As warriors fight they generate rage, which is used to power special attacks.",
+    "icon_id": "626008",
+    "color": {
+      "r": "198",
+      "g": "155",
+      "b": "109"
+    }
+  },
+  "2": {
+    "name": "Paladin",
+    "description": "Paladins are heavily-armored fighters and defenders who use Holy magic to heal wounds and combat evil. They can focus on two-handed weapons, shields or healing.",
+    "icon_id": "626003",
+    "color": {
+      "r": "244",
+      "g": "140",
+      "b": "186"
+    }
+  },
+  "3": {
+    "name": "Hunter",
+    "description": "Hunters are at home in the wilderness and have a special affinity for beasts. They rely on their weaponry and their pet to deal damage.",
+    "icon_id": "626000",
+    "color": {
+      "r": "170",
+      "g": "211",
+      "b": "114"
+    }
+  },
+  "4": {
+    "name": "Rogue",
+    "description": "Rogues often serve as assassins or scouts, though many are lone wolves as well. Rogues can often sneak around enemies or attack an opponent from behind to try and finish them off quickly.",
+    "icon_id": "626005",
+    "color": {
+      "r": "255",
+      "g": "244",
+      "b": "104"
+    }
+  },
+  "5": {
+    "name": "Priest",
+    "description": "Priests are well-rounded healers with a variety of tools. However, they can also sacrifice their healing to deal damage with Shadow magic.",
+    "icon_id": "626004",
+    "color": {
+      "r": "255",
+      "g": "255",
+      "b": "255"
+    }
+  },
+  "6": {
+    "name": "Death Knight",
+    "description": "Death Knights are a hero class, which means they start at higher level. Death Knights are a melee class with an emphasis on causing diseases and using dark magic.",
+    "icon_id": "135771",
+    "color": {
+      "r": "196",
+      "g": "30",
+      "b": "58"
+    }
+  },
+  "7": {
+    "name": "Shaman",
+    "description": "Shaman use the power of the elements to enhance their weapon damage or spells. Shaman summon totems in combat, small objects that disable enemies, heal, or cause damage to enemies.",
+    "icon_id": "626006",
+    "color": {
+      "r": "0",
+      "g": "112",
+      "b": "221"
+    }
+  },
+  "8": {
+    "name": "Mage",
+    "description": "Mages are the iconic magic-users of Azeroth who learn their craft through intense research and study. They make up for their light armor with a potent array of offensive and defensive spells.",
+    "icon_id": "626001",
+    "color": {
+      "r": "63",
+      "g": "199",
+      "b": "235"
+    }
+  },
+  "9": {
+    "name": "Warlock",
+    "description": "Warlocks cast Fire or Shadow magic to damage, drain, or curse their enemy. They summon demons as servants.",
+    "icon_id": "626007",
+    "color": {
+      "r": "135",
+      "g": "136",
+      "b": "238"
+    }
+  },
+  "10": {
+    "name": "Monk",
+    "description": "Monks are known for their skill in hand to hand fighting, relying on their fists and feet as much as their weapons. Monks can also specialize in calling upon the restorative power of the mists to heal allies.",
+    "icon_id": "626002",
+    "color": {
+      "r": "0",
+      "g": "255",
+      "b": "152"
+    }
+  },
+  "11": {
+    "name": "Druid",
+    "description": "Druids are shape-shifters with an affinity for the plant and animal kingdoms. Druids can specialize in healing, casting spells at range, or taking on the form of a cat or bear to fight in melee.",
+    "icon_id": "625999",
+    "color": {
+      "r": "255",
+      "g": "124",
+      "b": "10"
+    }
+  },
+  "12": {
+    "name": "Demon Hunter",
+    "description": "Demon Hunters are a hero class, which means they start at a higher level. Demon Hunters are dark outcasts that use forbidden demonic magic to hunt and kill their enemies.",
+    "icon_id": "1260827",
+    "color": {
+      "r": "163",
+      "g": "48",
+      "b": "201"
+    }
+  },
+  "13": {
+    "name": "Evoker",
+    "description": "Evokers are a hero class, which means they start at a higher level. Evokers are innate casters who unleash devastating draconic spells on enemies, or healing magic for allies.",
+    "icon_id": "4574311",
+    "color": {
+      "r": "51",
+      "g": "147",
+      "b": "127"
+    }
+  }
+}
