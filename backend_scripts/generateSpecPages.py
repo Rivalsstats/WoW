@@ -350,7 +350,7 @@ def fetch_slot_info(conn, cursor, spec_id, current_season_id,slot):
                     conn, cursor, spec_id, current_season_id, slot
                 )
 
-def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False):
+def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec=None):
     # Prepare Jinja2 environment
     env = Environment(
         loader=FileSystemLoader(os.path.dirname(template_path)),
@@ -436,8 +436,13 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False):
 
     notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
 
+    if spec:
+        spec_keys = [spec]
+    else:
+        spec_keys = list(spec_lookup.keys())
+
     # Iterate over each spec folder
-    for spec_id in spec_lookup.keys():
+    for spec_id in spec_keys:
         print(f"[{datetime.now(timezone.utc).isoformat()}] Processing spec {spec_id}...")
         with closing(databaseConnector.get_connection()) as conn:
             cursor = conn.cursor()
@@ -688,10 +693,11 @@ if __name__ == "__main__":
     parser.add_argument("--CLIENT_ID", required=True)
     parser.add_argument("--CLIENT_SECRET", required=True)
     parser.add_argument("--debug", required=False)
+    parser.add_argument("--spec", required=False)
 
     args = parser.parse_args()
 
     databaseConnector.init_connection_pool(
         args.database_host, args.database_user, args.database_password, args.database, 1
     )
-    main(args.template, args.output_dir, args.CLIENT_ID, args.CLIENT_SECRET, args.debug)
+    main(args.template, args.output_dir, args.CLIENT_ID, args.CLIENT_SECRET, args.debug, args.spec)
