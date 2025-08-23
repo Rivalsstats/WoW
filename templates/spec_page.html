@@ -402,24 +402,25 @@
         </div>
       </div>
     </nav>
-    
+
     <!-- End Navbar -->
     {# Notification bar placed below the navbar and above the page heading #}
     {% for notification in notifications %}
-      {% if notification and notification.message %}
-        <div class="container-fluid">
-          <div id="page-notification"
-              class="alert alert-{{ notification.type | default('warning') }} alert-dismissible text-white d-flex align-items-center mx-3 my-2"
-              role="alert">
-            <span class="material-symbols-rounded me-2" aria-hidden="true">announcement</span>
-            <div class="flex-fill">{{ notification.message | safe }}</div>
+    {% if notification and notification.message %}
+    <div class="container-fluid">
+      <div id="page-notification"
+        class="alert alert-{{ notification.type | default('warning') }} alert-dismissible text-white d-flex align-items-center mx-3 my-2"
+        role="alert">
+        <span class="material-symbols-rounded me-2" aria-hidden="true">announcement</span>
+        <div class="flex-fill">{{ notification.message | safe }}</div>
 
-            {% if notification.dismissible %}
-              <button type="button" class="btn-close ms-3" data-bs-dismiss="alert" aria-label="Close"><span class="material-symbols-rounded me-2" aria-hidden="true">close</span></button>
-            {% endif %}
-          </div>
-        </div>
-      {% endif %}
+        {% if notification.dismissible %}
+        <button type="button" class="btn-close ms-3" data-bs-dismiss="alert" aria-label="Close"><span
+            class="material-symbols-rounded me-2" aria-hidden="true">close</span></button>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
     {% endfor %}
 
     <div class="container-fluid py-2">
@@ -604,9 +605,12 @@
             <p>
               This overview shows the most popular items used by {{ spec.name }} {{ class_info.name }} players in Mythic
               +
-              dungeons. The popularity percentage is based on the number of times an item was seen in comparison to the
+              dungeons. Gear and Talent data is collected from the top 5 Keystone levels at any given point meaning if
+              the rank 1 key is lvl 17 all keystones above lvl 12 will be counted. The popularity percentage is based on
+              the number of times an item was seen in comparison to the
               total amount of items.
-              Popularity of 50% indicates that every 2. item of this type is used by {{ spec.name }} {{ class_info.name }}s.
+              Popularity of 50% indicates that every 2. item of this type is used by {{ spec.name }} {{ class_info.name
+              }}s.
               You can hover over the percentage to see more details.</p>
             <div class="d-flex flex-column flex-md-row gap-3">
               <div class="flex-fill" style="flex: 1 1 0 !important; min-width: 0;">
@@ -783,6 +787,20 @@
                             {% set total = top.count %}
                             {% set enchant = top.id %}
                             {% if enchant_lookup.get(enchant) %}
+
+                            {% if enchant_lookup[enchant].itemName %}
+                            {% set name = enchant_lookup[enchant].itemName %}
+                            {% else %}
+                            {% set name = enchant_lookup[enchant].displayName %}
+                            {% endif %}
+
+                            {% if enchant_lookup[enchant].itemId %}
+                            {% set url = "https://www.wowhead.com/item=" ~ enchant_lookup[enchant].itemId ~ "&spec=" ~
+                            spec_id %}
+                            {% else %}
+                            {% set url = "https://www.wowhead.com/spell=" ~ enchant_lookup[enchant].spellId ~ "&spec=" ~
+                            spec_id %}
+                            {% endif %}
                             <div class="accordion mb-3" id="enchantAccordion-{{ slot_name }}">
                               <div class="accordion-item">
                                 <h2 class="accordion-header" id="enchantHeading-{{ slot_name }}">
@@ -797,8 +815,7 @@
                                       </div>
                                       <!-- Item icon & link -->
                                       <div class="col-auto">
-                                        <a target="_blank"
-                                          href="https://www.wowhead.com/item={{ enchant_lookup[enchant].itemId }}&spec={{ spec_id }}">
+                                        <a target="_blank" href={{ url }}>
                                           <div class="position-relative"
                                             style="width:24px; height:24px; display:inline-block;">
                                             <!-- Base icon -->
@@ -819,9 +836,8 @@
                                       </div>
                                       <!-- Name -->
                                       <div class="col-auto">
-                                        <a target="_blank"
-                                          href="https://www.wowhead.com/item={{ enchant_lookup[enchant].itemId }}&spec={{ spec_id }}">
-                                          <p class="mb-1">{{ enchant_lookup[enchant].itemName }}</p>
+                                        <a target="_blank" href={{ url }}>
+                                          <p class="mb-1">{{ name }}</p>
                                         </a>
                                       </div>
                                       <div class="col-md-2 ms-auto text-end">
@@ -845,6 +861,19 @@
                                     {% for ench in ench_list %}
                                     {% set total = ench.count %}
                                     {% set enchant = ench.id %}
+                                    {% if enchant_lookup[enchant].itemName %}
+                                      {% set name = enchant_lookup[enchant].itemName %}
+                                      {% else %}
+                                      {% set name = enchant_lookup[enchant].displayName %}
+                                      {% endif %}
+
+                                      {% if enchant_lookup[enchant].itemId %}
+                                      {% set url = "https://www.wowhead.com/item=" ~ enchant_lookup[enchant].itemId ~ "&spec=" ~
+                                      spec_id %}
+                                      {% else %}
+                                      {% set url = "https://www.wowhead.com/spell=" ~ enchant_lookup[enchant].spellId ~ "&spec=" ~
+                                      spec_id %}
+                                      {% endif %}
                                     <div class="row align-items-center mb-2">
                                       <!-- Item icon & link -->
                                       <div class="col-auto">
@@ -871,8 +900,8 @@
                                       <!-- Name -->
                                       <div class="col">
                                         <a target="_blank"
-                                          href="https://www.wowhead.com/item={{ enchant_lookup[enchant].itemId }}&spec={{ spec_id }}">
-                                          <p class="mb-1">{{ enchant_lookup[enchant].itemName }}</p>
+                                          href="{{ url }}">
+                                          <p class="mb-1">{{ name }}</p>
                                         </a>
                                       </div>
 
