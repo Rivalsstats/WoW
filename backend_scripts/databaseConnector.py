@@ -448,6 +448,7 @@ SELECT
     AND season  = %s
     AND slot_group = %s
   GROUP BY enchantment_id
+  ORDER BY equip_count DESC 
   LIMIT %s
 """
 
