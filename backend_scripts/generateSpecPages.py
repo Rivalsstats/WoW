@@ -52,14 +52,6 @@ STAT_NAMES = {
     "stragi": "Str/Agi",
 }
 
-DUNGEON_DIFFERENCE_CATEGORIES = [
-    # (json key in file, category name in template, entry‑dict id field)
-    ("class_talents", "Class", "talent_id"),
-    ("spec_talents", "Spec", "talent_id"),
-    ("hero_talents", "Hero", "talent_id"),
-    ("hero_trees", "Trees", "tree_id"),
-]
-
 
 def load_json(path):
     with open(path, "r") as f:
@@ -454,6 +446,11 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
                 os.path.join(LOOKUP_DIR, "talents", f"{spec_id}.json")
             )
             valid_talents = {int(tid) for tid in talent_lookup.get("talents", {})}
+            print(f"[{datetime.now(timezone.utc).isoformat()}] Fetching talents...")
+            hero_talents_difs = aggregateData.biggest_deviations_per_dungeon(aggregateData.get_hero_talent_differences(conn, cursor, spec_id, current_season_id))
+            spec_talents_difs = aggregateData.biggest_deviations_per_dungeon(aggregateData.get_spec_talent_differences(conn, cursor, spec_id, current_season_id))
+            class_talents_difs = aggregateData.biggest_deviations_per_dungeon(aggregateData.get_class_talent_differences(conn, cursor, spec_id, current_season_id))
+            hero_tree_difs = aggregateData.get_hero_tree_differences(conn, cursor, spec_id, current_season_id)
             print(f"[{datetime.now(timezone.utc).isoformat()}] fetching slots...")
             # Split slots into left/right/weapon/trinket
             left_slots = [
@@ -660,10 +657,16 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
                 formatted_price=formatted_price,
                 stat_names=STAT_NAMES,
                 trending=spec_runs/total_runs if total_runs > 0 else 0,
-                highest_run=highest_run,
-                dungeon_summaries={},
+                highest_run=highest_run,                
+                talent_difs = {
+                    'Class': class_talents_difs,
+                    'Hero': hero_talents_difs,
+                    'Spec': spec_talents_difs,
+                },
+                hero_tree_difs = hero_tree_difs,
                 top_routes=top_routes,
                 season_info=season_info,
+
             )
             print(f"[{datetime.now(timezone.utc).isoformat()}] saving page...")
             # Write output

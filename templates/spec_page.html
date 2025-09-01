@@ -488,13 +488,15 @@
                 <div class="row gy-3 gx-2 justify-content-around">
                   {% for hero_tree in hero_trees %}
                   {% set subtree = talent_lookup['subTrees'][hero_tree['id']|string] %}
-                  <div class="col-auto d-flex flex-column align-items-center text-center">
+                  <div class="col-auto d-flex flex-column align-items-center text-center" data-bs-toggle="tooltip"
+                    data-bs-placement="top" title="{{ hero_tree.count }} seen out of {{ data_count }} total Trees">
                     <h6 class="mb-1 small text-capitalize">{{ subtree.name }}</h6>
                     <img src="/data/icons/{{ subtree.icon }}.png" alt="{{ subtree.name }} Icon" class="img-fluid mb-1"
                       style="width:48px; height:48px;">
                     <span class="fw-bold">
                       {{ ((hero_tree.count / data_count) * 100) | round(2) }}%
                     </span>
+
                   </div>
                   {% endfor %}
                 </div>
@@ -862,18 +864,20 @@
                                     {% set total = ench.count %}
                                     {% set enchant = ench.id %}
                                     {% if enchant_lookup[enchant].itemName %}
-                                      {% set name = enchant_lookup[enchant].itemName %}
-                                      {% else %}
-                                      {% set name = enchant_lookup[enchant].displayName %}
-                                      {% endif %}
+                                    {% set name = enchant_lookup[enchant].itemName %}
+                                    {% else %}
+                                    {% set name = enchant_lookup[enchant].displayName %}
+                                    {% endif %}
 
-                                      {% if enchant_lookup[enchant].itemId %}
-                                      {% set url = "https://www.wowhead.com/item=" ~ enchant_lookup[enchant].itemId ~ "&spec=" ~
-                                      spec_id %}
-                                      {% else %}
-                                      {% set url = "https://www.wowhead.com/spell=" ~ enchant_lookup[enchant].spellId ~ "&spec=" ~
-                                      spec_id %}
-                                      {% endif %}
+                                    {% if enchant_lookup[enchant].itemId %}
+                                    {% set url = "https://www.wowhead.com/item=" ~ enchant_lookup[enchant].itemId ~
+                                    "&spec=" ~
+                                    spec_id %}
+                                    {% else %}
+                                    {% set url = "https://www.wowhead.com/spell=" ~ enchant_lookup[enchant].spellId ~
+                                    "&spec=" ~
+                                    spec_id %}
+                                    {% endif %}
                                     <div class="row align-items-center mb-2">
                                       <!-- Item icon & link -->
                                       <div class="col-auto">
@@ -899,8 +903,7 @@
                                       </div>
                                       <!-- Name -->
                                       <div class="col">
-                                        <a target="_blank"
-                                          href="{{ url }}">
+                                        <a target="_blank" href="{{ url }}">
                                           <p class="mb-1">{{ name }}</p>
                                         </a>
                                       </div>
@@ -1269,44 +1272,42 @@
           <h5 class="modal-title" id="talentModalLabel">Talent Usage Variance by Dungeon</h5>
         </div>
         <div class="modal-body">
-          <p class="small text-muted">
-            (Higher keylevels are weighted more heavily.)
-          </p>
           <div class="accordion" id="dungeonAccordion">
-            {% for ds in dungeon_summaries %}
+            {% for dungeon in hero_tree_difs['dungeons'] %}
             <div class="accordion-item mb-2">
-              <h2 class="accordion-header" id="dungeonHeading-{{ ds.dungeon_id }}">
+              <h2 class="accordion-header" id="dungeonHeading-{{ dungeon }}">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                  data-bs-target="#dungeonCollapse-{{ ds.dungeon_id }}" aria-expanded="false"
-                  aria-controls="dungeonCollapse-{{ ds.dungeon_id }}" style="
-                          background-image: url('/data/icons/{{ dungeon_lookup[ds.dungeon_id].icon }}');
+                  data-bs-target="#dungeonCollapse-{{ dungeon }}" aria-expanded="false"
+                  aria-controls="dungeonCollapse-{{ dungeon }}" style="
+                          background-image: url('/data/icons/{{ dungeon_lookup[dungeon].icon }}');
                           background-size: cover;
                           background-position: center;
                           background-repeat: no-repeat;
                           background-blend-mode: overlay;
                         ">
                   <span class="badge bg-dark bg-opacity-50 text-white rounded px-2">{{
-                    dungeon_lookup[ds.dungeon_id].name['en_US'] }}</span>
+                    dungeon_lookup[dungeon].name['en_US'] }}</span>
                 </button>
               </h2>
-              <div id="dungeonCollapse-{{ ds.dungeon_id }}" class="accordion-collapse collapse"
-                aria-labelledby="dungeonHeading-{{ ds.dungeon_id }}" data-bs-parent="#dungeonAccordion">
+              <div id="dungeonCollapse-{{ dungeon }}" class="accordion-collapse collapse"
+                aria-labelledby="dungeonHeading-{{ dungeon }}" data-bs-parent="#dungeonAccordion">
                 <div class="accordion-body">
 
                   {# — Hero Trees — #}
-                  {% if ds.categories.Trees %}
+                  {% if hero_tree_difs %}
                   <h4 class="mt-2">Hero Trees</h4>
                   <div class="row justify-content-center mb-3">
                     {% set lookup = talent_lookup.subTrees %}
-                    {% for tid, delta in ds.categories.Trees.gains %}
+                    {% for tid in hero_tree_difs['dungeons'][dungeon] %}
+                    {% set delta = hero_tree_difs['dungeons'][dungeon][tid].diff %}
                     <div class="col-auto text-center mx-2">
                       <a target="_blank"
-                        href="https://www.wowhead.com/talent-tree={{ lookup[tid|string].treeId }}?spec={{ spec_id }}">
+                        href="https://www.wowhead.com/talent-tree={{ tid }}?spec={{ spec_id }}">
                         <img src="/data/icons/{{ lookup[tid|string].icon }}.png" alt="{{ lookup[tid|string].name }}"
                           style="width:32px; height:32px;" /><br />
                         <small>{{ lookup[tid|string].name }}</small><br />
                         <small class="{% if delta >= 0 %}text-success{% else %}text-danger{% endif %}">
-                          {{ delta|round(1) }}%
+                          {{ delta|round(2) }}%
                         </small>
                       </a>
                     </div>
@@ -1315,45 +1316,52 @@
                   {% endif %}
 
                   {# — Class/Spec/Hero Talents — #}
-                  {% for category, data in ds.categories.items() %}
-                  {% if category != 'Trees' %}
+
+                  {% for category in talent_difs %}
+                  {% set all_data = talent_difs[category] %}
+                  {% set data = all_data.get(dungeon|string, {}) %}
                   {% set lookup = talent_lookup.talents %}
                   {% set url_prefix = '/spell' %}
                   {% set id_attr = 'spellId' %}
+
                   <h4 class="mt-3">{{ category }} Talents</h4>
                   <div class="row">
                     {# Gains Accordion #}
                     <div class="col-md-6 mb-3">
-                      <div class="accordion" id="gainAcc-{{ ds.dungeon_id }}-{{ category }}">
+                      <div class="accordion" id="gainAcc-{{ dungeon }}-{{ category }}">
                         <div class="accordion-item">
-                          <h2 class="accordion-header" id="gainHead-{{ ds.dungeon_id }}-{{ category }}">
+                          <h2 class="accordion-header" id="gainHead-{{ dungeon }}-{{ category }}">
                             {% if data.gains %}
+                            {# top is a dict now, use .talent_id and .pct_point_diff #}
                             {% set top = data.gains[0] %}
                             <a class="accordion-button collapsed border-success d-flex align-items-center overflow-hidden"
-                              href="https://www.wowhead.com{{ url_prefix }}={{ lookup[top[0]|string][id_attr] }}?spec={{ spec_id }}"
+                              href="https://www.wowhead.com{{ url_prefix }}={{ lookup[top.talent_id|string][id_attr] }}?spec={{ spec_id }}"
                               target="_blank" role="button" data-bs-toggle="collapse"
-                              data-bs-target="#gainCol-{{ ds.dungeon_id }}-{{ category }}" aria-expanded="false"
-                              aria-controls="gainCol-{{ ds.dungeon_id }}-{{ category }}">
-                              <img src="/data/icons/{{ lookup[top[0]|string].icon }}.png" alt=""
+                              data-bs-target="#gainCol-{{ dungeon }}-{{ category }}" aria-expanded="false"
+                              aria-controls="gainCol-{{ dungeon }}-{{ category }}">
+                              <img src="/data/icons/{{ lookup[top.talent_id|string].icon }}.png" alt=""
                                 class="flex-shrink-0 me-2" style="width:24px; height:24px;" />
-
-                              <span class="flex-grow-1 text-truncate" title="{{ lookup[top[0]|string].name }}">
-                                {{ lookup[top[0]|string].name }}
+                              <span class="flex-grow-1 text-truncate" title="{{ lookup[top.talent_id|string].name }}">
+                                {{ lookup[top.talent_id|string].name }}
                               </span>
-
                               <span class="flex-shrink-0 mx-3 text-success">
-                                +{{ top[1]|round(1) }}%
+                                +{{ top.pct_point_diff |round(2) }}%
                               </span>
                             </a>
                             {% else %}
                             <button class="accordion-button collapsed" disabled>No data</button>
                             {% endif %}
                           </h2>
-                          <div id="gainCol-{{ ds.dungeon_id }}-{{ category }}" class="accordion-collapse collapse"
-                            aria-labelledby="gainHead-{{ ds.dungeon_id }}-{{ category }}"
-                            data-bs-parent="#gainAcc-{{ ds.dungeon_id }}-{{ category }}">
+
+                          <div id="gainCol-{{ dungeon }}-{{ category }}" class="accordion-collapse collapse"
+                            aria-labelledby="gainHead-{{ dungeon }}-{{ category }}"
+                            data-bs-parent="#gainAcc-{{ dungeon }}-{{ category }}">
                             <div class="accordion-body p-2">
-                              {% for tid, delta in data.gains[1:] %}
+                              {# loop over remaining items; each 'item' is a dict #}
+                              {% for item in data.gains[1:] %}
+                              {% set tid = item.talent_id %}
+                              {# prefer pct from item; if you have hero_tree_difs keyed by talent id use it instead #}
+                              {% set delta = item.pct_point_diff %}
                               <a class="d-flex align-items-center mb-2 text-decoration-none text-reset"
                                 href="https://www.wowhead.com{{ url_prefix }}={{ lookup[tid|string][id_attr] }}?spec={{ spec_id }}"
                                 target="_blank">
@@ -1361,7 +1369,7 @@
                                   style="width:24px;height:24px;" />
                                 <span class="ms-2">{{ lookup[tid|string].name }}</span>
                                 <span class="ms-auto text-success">
-                                  +{{ delta|round(1) }}%
+                                  +{{ delta|round(2) }}%
                                 </span>
                               </a>
                               {% endfor %}
@@ -1371,38 +1379,39 @@
                       </div>
                     </div>
 
-                    {# Losses Accordion #}
+                    {# Losses Accordion (mirror of gains with sign/colour changes) #}
                     <div class="col-md-6 mb-3">
-                      <div class="accordion" id="lossAcc-{{ ds.dungeon_id }}-{{ category }}">
+                      <div class="accordion" id="lossAcc-{{ dungeon }}-{{ category }}">
                         <div class="accordion-item">
-                          <h2 class="accordion-header" id="lossHead-{{ ds.dungeon_id }}-{{ category }}">
+                          <h2 class="accordion-header" id="lossHead-{{ dungeon }}-{{ category }}">
                             {% if data.losses %}
                             {% set top = data.losses[0] %}
                             <a class="accordion-button collapsed border-danger d-flex align-items-center overflow-hidden"
-                              href="https://www.wowhead.com{{ url_prefix }}={{ lookup[top[0]|string][id_attr] }}?spec={{ spec_id }}"
+                              href="https://www.wowhead.com{{ url_prefix }}={{ lookup[top.talent_id|string][id_attr] }}?spec={{ spec_id }}"
                               target="_blank" role="button" data-bs-toggle="collapse"
-                              data-bs-target="#lossCol-{{ ds.dungeon_id }}-{{ category }}" aria-expanded="false"
-                              aria-controls="lossCol-{{ ds.dungeon_id }}-{{ category }}">
-                              <img src="/data/icons/{{ lookup[top[0]|string].icon }}.png" alt=""
+                              data-bs-target="#lossCol-{{ dungeon }}-{{ category }}" aria-expanded="false"
+                              aria-controls="lossCol-{{ dungeon }}-{{ category }}">
+                              <img src="/data/icons/{{ lookup[top.talent_id|string].icon }}.png" alt=""
                                 class="flex-shrink-0 me-2" style="width:24px; height:24px;" />
-
-                              <span class="flex-grow-1 text-truncate" title="{{ lookup[top[0]|string].name }}">
-                                {{ lookup[top[0]|string].name }}
+                              <span class="flex-grow-1 text-truncate" title="{{ lookup[top.talent_id|string].name }}">
+                                {{ lookup[top.talent_id|string].name }}
                               </span>
-
                               <span class="flex-shrink-0 mx-3 text-danger">
-                                {{ top[1]|round(1) }}%
+                                {{ top.pct_point_diff|round(2) }}%
                               </span>
                             </a>
                             {% else %}
                             <button class="accordion-button collapsed" disabled>No data</button>
                             {% endif %}
                           </h2>
-                          <div id="lossCol-{{ ds.dungeon_id }}-{{ category }}" class="accordion-collapse collapse"
-                            aria-labelledby="lossHead-{{ ds.dungeon_id }}-{{ category }}"
-                            data-bs-parent="#lossAcc-{{ ds.dungeon_id }}-{{ category }}">
+
+                          <div id="lossCol-{{ dungeon }}-{{ category }}" class="accordion-collapse collapse"
+                            aria-labelledby="lossHead-{{ dungeon }}-{{ category }}"
+                            data-bs-parent="#lossAcc-{{ dungeon }}-{{ category }}">
                             <div class="accordion-body p-2">
-                              {% for tid, delta in data.losses[1:] %}
+                              {% for item in data.losses[1:] %}
+                              {% set tid = item.talent_id %}
+                              {% set delta = item.pct_point_diff %}
                               <a class="d-flex align-items-center mb-2 text-decoration-none text-reset"
                                 href="https://www.wowhead.com{{ url_prefix }}={{ lookup[tid|string][id_attr] }}?spec={{ spec_id }}"
                                 target="_blank">
@@ -1410,7 +1419,7 @@
                                   style="width:24px;height:24px;" />
                                 <span class="ms-2">{{ lookup[tid|string].name }}</span>
                                 <span class="ms-auto text-danger">
-                                  {{ delta|round(1) }}%
+                                  {{ delta|round(2) }}%
                                 </span>
                               </a>
                               {% endfor %}
@@ -1420,8 +1429,8 @@
                       </div>
                     </div>
                   </div>
-                  {% endif %}
                   {% endfor %}
+
 
                 </div> {# .accordion-body #}
               </div> {# .accordion-collapse #}

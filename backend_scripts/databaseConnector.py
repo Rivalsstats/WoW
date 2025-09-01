@@ -575,6 +575,18 @@ def fetch_hero_tree_overview(connection, cursor, spec_id, season):
     params = (spec_id, season)
     return fetch_with_retry(connection, cursor, FETCH_HERO_TREE_OVERVIEW_SQL, params)
 
+FETCH_HERO_TREE_DIFFERENCES_SQL = """
+SELECT hero_talent_id, dungeon_id, SUM(run_count) 
+FROM Mythistone.aggregated_hero_talent aht 
+WHERE aht.spec_id = %s AND aht.season = %s  
+GROUP BY aht.hero_talent_id, aht.dungeon_id 
+"""
+
+def fetch_hero_tree_differences(connection, cursor, spec_id, season):
+    """Fetch the hero talents differences for a specific spec and season from the database."""
+    params = (spec_id, season)
+    return fetch_with_retry(connection, cursor, FETCH_HERO_TREE_DIFFERENCES_SQL, params)
+
 FETCH_HERO_TALENTS_DIFFERENCES_SQL = """
 SELECT hero_talent_id, dungeon_id, talent_id, SUM(run_count) 
 FROM Mythistone.aggregated_hero_talent aht 
@@ -586,6 +598,43 @@ def fetch_hero_talents_differences(connection, cursor, spec_id, season):
     """Fetch the hero talents differences for a specific spec and season from the database."""
     params = (spec_id, season)
     return fetch_with_retry(connection, cursor, FETCH_HERO_TALENTS_DIFFERENCES_SQL, params)
+
+FETCH_SPEC_TALENTS_DIFFERENCES_SQL = """
+SELECT hero_talent_id, dungeon_id, talent_id, SUM(run_count) 
+FROM Mythistone.aggregated_spec_talent aht 
+WHERE aht.spec_id = %s AND aht.season = %s  
+GROUP BY aht.talent_id, aht.hero_talent_id, aht.dungeon_id 
+"""
+
+def fetch_spec_talents_differences(connection, cursor, spec_id, season):
+    """Fetch the spec talents differences for a specific spec and season from the database."""
+    params = (spec_id, season)
+    return fetch_with_retry(connection, cursor, FETCH_SPEC_TALENTS_DIFFERENCES_SQL, params)
+
+
+FETCH_CLASS_TALENTS_DIFFERENCES_SQL = """
+SELECT hero_talent_id, dungeon_id, talent_id, SUM(run_count) 
+FROM Mythistone.aggregated_class_talent aht 
+WHERE aht.spec_id = %s AND aht.season = %s  
+GROUP BY aht.talent_id, aht.hero_talent_id, aht.dungeon_id 
+"""
+
+def fetch_class_talents_differences(connection, cursor, spec_id, season):
+    """Fetch the class talents differences for a specific spec and season from the database."""
+    params = (spec_id, season)
+    return fetch_with_retry(connection, cursor, FETCH_CLASS_TALENTS_DIFFERENCES_SQL, params)
+
+
+FETCH_HERO_TALENTS_TOTAL_AMOUNT_SQL = """
+SELECT COUNT(DISTINCT talent_id) AS distinct_talents
+FROM Mythistone.aggregated_hero_talent
+WHERE spec_id = %s;
+"""
+def fetch_hero_talent_total_amount(connection, cursor, spec_id, season):
+    """Fetch the different amount of talents that we have data for"""
+    params = (spec_id, season)
+    return fetch_with_retry(connection, cursor, FETCH_HERO_TALENTS_TOTAL_AMOUNT_SQL, params)
+
 
 FETCH_SPEC_DATA_COUNT_SQL = """
 SELECT SUM(run_count) AS total_runs
