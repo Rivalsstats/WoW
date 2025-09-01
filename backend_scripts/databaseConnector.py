@@ -238,6 +238,16 @@ def insert_bonuses(connection, cursor, bonuses):
     return cursor.lastrowid
     
 
+INSERT_STATS_SQL= "INSERT INTO Mythistone.character_stats (`member`, stat, raw, percent) VALUES(%s, %s, %s, %s);"
+def insert_stats(connection, cursor, member: int, stat: str, raw: float, percent: float):
+    """Insert a stat into the character_stats table."""
+    val = (member, stat, raw, percent)
+    execute_with_retry(connection, cursor, INSERT_STATS_SQL, val)
+    return cursor.lastrowid
+
+def insert_stats_batch(connection, cursor, eq_vals):
+    return executemany_with_retry(connection, cursor, INSERT_STATS_SQL, eq_vals)
+
 INSERT_DUNGEON_SQL = (
     "INSERT INTO dungeon_data "
     "(dungeon_id, slug, name_en_us, upgrade_1_duration, upgrade_2_duration, upgrade_3_duration) "

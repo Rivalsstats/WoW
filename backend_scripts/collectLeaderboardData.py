@@ -459,6 +459,67 @@ async def get_equipment(
         return []
     return data.get("equipped_items", [])
 
+MAINSTATS = ["strength", "agility", "intellect"]
+NORMALSTATS = ["stamina"]
+VALUESTATS = ["mastery", "lifesteal", "speed"]
+RATINGBONUSSTATS = ['avoidance']
+CRITSTATS = ["spell_crit", "ranged_crit", "melee_crit"]
+HASTESTATS = ["spell_haste", "ranged_haste", "melee_haste"]
+VERSASTATS = ['versatility', "versatility_damage_done_bonus"]
+RAWSTATS = ['health']
+
+def normalize_stats(data):
+    normalized = {}
+    versatility = {}
+    for key, value in data.items():
+        if key in MAINSTATS:
+            if not normalized.get("mainstat") or value['effective'] > normalized["mainstat"]:
+                normalized["mainstat"] = value.get('effective', 0) if value.get('effective', 0) > 0 else 0
+        elif key in CRITSTATS:
+            if not normalized.get("crit") or value['rating_normalized'] > normalized["crit"].get('rating', 0):
+                normalized["crit"] = {
+                    "percent": value.get('value', 0) if value.get('value', 0) > 0 else 0,
+                    "rating": value.get('rating_normalized', 0) if value.get('rating_normalized', 0) > 0 else 0
+                }
+        elif key in HASTESTATS:
+            if not normalized.get("haste") or value['rating_normalized'] > normalized["haste"].get('rating', 0):
+                normalized["haste"] = {
+                    "percent": value.get('value', 0) if value.get('value', 0) > 0 else 0,
+                    "rating": value.get('rating_normalized', 0) if value.get('rating_normalized', 0) > 0 else 0
+                }
+        elif key in VALUESTATS:
+            normalized[key] = {
+                    "percent": value.get('value', 0) if value.get('value', 0) > 0 else 0,
+                    "rating": value.get('rating_normalized', 0) if value.get('rating_normalized', 0) > 0 else 0
+                }
+        elif key in RATINGBONUSSTATS:
+            normalized[key] = {
+                "percent": value.get('rating_bonus', 0) if value.get('rating_bonus', 0) > 0 else 0,
+                "rating": value.get('rating_normalized', 0) if value.get('rating_normalized', 0) > 0 else 0
+            }
+        elif key in RAWSTATS:
+            normalized[key] = value
+        elif key in VERSASTATS:
+            versatility[key] = value
+        elif key in NORMALSTATS:
+            normalized[key] = value.get('effective', 0)
+
+    normalized["versatility"] = {
+        'rating': versatility.get('versatility', 0) if versatility.get('versatility', 0) > 0 else 0,
+        "percent": versatility.get('versatility_damage_done_bonus', 0) if versatility.get('versatility_damage_done_bonus', 0) > 0 else 0,
+    }
+    return normalized
+
+async def get_stats(
+    session: ClientSession, region: str, realm_slug: str, name: str
+) -> list:
+    url = f"{API_BASE.format(region=region)}/profile/wow/character/{realm_slug}/{name}/statistics"
+    params = {"namespace": f"profile-{region}", "locale": LOCALE}
+    data = await fetch_json(session, url, params, region)
+    if not data:
+        return {}
+    return normalize_stats(data)
+
 
 async def get_specializations(
     session: ClientSession, region: str, realm_slug: str, name: str
@@ -584,6 +645,8 @@ async def advanced_worker(name: str, session: ClientSession):
 
                     eq_data = await get_equipment(session, region, realm_slug, name_l)
                     spec_all = await get_specializations(session, region, realm_slug, name_l)
+                    stats = await get_stats(session, region, realm_slug, name_l)
+                    
                     active_spec = next(s for s in spec_all if s["specialization"]["id"] == member["specialization"]["id"])
                     if active_spec.get('loadouts'):
                         active_loadout = next(l for l in active_spec["loadouts"] if l["is_active"])
@@ -613,7 +676,8 @@ async def advanced_worker(name: str, session: ClientSession):
                                 "bonuses": [b for b in item.get("bonus_list", []) if b]
                             }
                             for item in eq_data if item.get("item")
-                        ]
+                        ],
+                        "stats": stats
                     })
                     fetched_profiles += 1
 
@@ -712,6 +776,7 @@ def process_batch(name, conn, cursor, batch):
     ench_vals = [] 
     sock_vals = [] 
     bonus_vals = []
+    stat_vals = []
     # offset into new_member_ids to map to batch members
     new_idx = 0
     
@@ -721,6 +786,12 @@ def process_batch(name, conn, cursor, batch):
                 continue  # skip existing
             mid = new_member_ids[new_idx]
             new_idx += 1
+            # collect stats
+            for stat, value in m.get("stats", {}).items():
+                if isinstance(value, dict):
+                    stat_vals.append((mid, stat, value.get('rating', 0), value.get('percent', 0)))
+                else:
+                    stat_vals.append((mid, stat, value , None))
             # collect talents
             for t, rk in m["class_talents"]:
                 ct_vals.append((mid, t, rk))
@@ -739,8 +810,8 @@ def process_batch(name, conn, cursor, batch):
                     sock_vals.append((eq_id, stype, iid))
                 for b in e["bonuses"]:
                     bonus_vals.append((eq_id, b))
-    if len(ct_vals) > 0 or len(st_vals) > 0 or len(ht_vals) > 0 or len(ench_vals) > 0 or len(sock_vals)> 0 or len(bonus_vals) >  0:
-        print(f"[{datetime.now(timezone.utc).isoformat()}] [{name}] Inserting talents and equipment for {len(ct_vals)} class talents, {len(st_vals)} spec talents, {len(ht_vals)} hero talents, {len(ench_vals)} enchantments, {len(sock_vals)} sockets and {len(bonus_vals)} bonuses")
+    if len(ct_vals) > 0 or len(st_vals) > 0 or len(ht_vals) > 0 or len(ench_vals) > 0 or len(sock_vals)> 0 or len(bonus_vals) >  0 or len(stat_vals) > 0:
+        print(f"[{datetime.now(timezone.utc).isoformat()}] [{name}] Inserting talents and equipment for {len(ct_vals)} class talents, {len(st_vals)} spec talents, {len(ht_vals)} hero talents, {len(ench_vals)} enchantments, {len(sock_vals)} sockets and {len(bonus_vals)} bonuses and {len(stat_vals)} stats")
     if ct_vals and len(ct_vals) > 0:
         for sub in chunked(ct_vals, BATCH_SIZE):
             databaseConnector.insert_class_talents(conn, cursor, sub)
@@ -749,6 +820,14 @@ def process_batch(name, conn, cursor, batch):
         for sub in chunked(st_vals, BATCH_SIZE):
             databaseConnector.insert_spec_talents(conn, cursor, sub)
             databaseConnector.commit_changes(conn)
+    if stat_vals and len(stat_vals) > 0:
+        for sub in chunked(stat_vals, BATCH_SIZE):
+            try:
+                databaseConnector.insert_stats_batch(conn, cursor, sub)
+                databaseConnector.commit_changes(conn)
+            except Exception as e:
+                print(f"sub: {sub}")
+                print(f"Error inserting stats batch: {e}")
     if ht_vals and len(ht_vals) > 0:
         for sub in chunked(ht_vals, BATCH_SIZE):
             databaseConnector.insert_hero_talents(conn, cursor, sub)
