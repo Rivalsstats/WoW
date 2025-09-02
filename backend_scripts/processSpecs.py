@@ -1,6 +1,7 @@
 import csv
 import json
 import os
+from aggregateData import get_access_token, fetch_json, API_BASE, NAMESPACE_DYNAMIC, LOCALE
 
 # Paths
 INPUT_CSV = "data/static/specs.csv"
@@ -9,7 +10,6 @@ OUTPUT_JSON = "data/static/specs.json"
 # Names and classIDs to exclude
 EXCLUDE_NAMES = {"Initial", "Adventurer"}
 EXCLUDE_CLASSIDS = {"0"}
-
 # Fields we care about (header names in CSV)
 # The CSV is expected to have these exact headers
 CSV_FIELD_NAMES = [
@@ -20,6 +20,18 @@ CSV_FIELD_NAMES = [
     "Role",
     "SpellIconFileID",
 ]
+
+CLIENT_ID = os.environ["BLIZ_CLIENT_ID"]
+CLIENT_SECRET = os.environ["BLIZ_CLIENT_SECRET"]
+
+def get_primary_stat(token: str, specialization_id: int) -> int:
+    region = "us"
+    url = f"{API_BASE.format(region=region)}/data/wow/playable-specialization/{specialization_id}?namespace=static-us&locale=en_US"
+    params = {"namespace": NAMESPACE_DYNAMIC.format(region=region), "locale": LOCALE}
+    data = fetch_json(url, params, token)
+    if not data or not data.get("primary_stat_type"):
+        return None
+    return data["primary_stat_type"]["type"]
 
 
 def main():
@@ -47,6 +59,7 @@ def main():
                 "classID": class_id,
                 "role": row.get("Role", "").strip(),
                 "SpellIconFileId": row.get("SpellIconFileID", "").strip(),
+                "primary_stat": get_primary_stat(get_access_token(CLIENT_ID, CLIENT_SECRET), id_value)
             }
 
     # Write JSON file

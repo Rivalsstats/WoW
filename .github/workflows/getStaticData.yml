@@ -70,6 +70,9 @@ jobs:
           curl -L "https://wago.tools/db2/ManifestInterfaceData/csv" -o data/static/interfacedata.csv
 
       - name: Process CSV files
+        env:
+          BLIZ_CLIENT_ID:     ${{ secrets.BLIZ_CLIENT_ID }}
+          BLIZ_CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
         run: |
           python backend_scripts/processSpecs.py
           python backend_scripts/processClasses.py

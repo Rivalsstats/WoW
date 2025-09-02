@@ -9,7 +9,6 @@ LOCALE = "en_US"
 NAMESPACE_DYNAMIC = "dynamic-{region}"
 
 SPEC_PATH = Path("data", "static", "specs.json")
-AGGREGATED_PATH = Path("data", "aggregated")
 TALENT_POINTS_PATH = Path("data", "static", "spendableTalents.json")
 
 
