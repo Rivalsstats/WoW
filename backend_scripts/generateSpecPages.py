@@ -447,9 +447,9 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
             )
             valid_talents = {int(tid) for tid in talent_lookup.get("talents", {})}
             print(f"[{datetime.now(timezone.utc).isoformat()}] Fetching talents...")
-            hero_talents_difs = aggregateData.biggest_deviations_per_dungeon(aggregateData.get_hero_talent_differences(conn, cursor, spec_id, current_season_id))
-            spec_talents_difs = aggregateData.biggest_deviations_per_dungeon(aggregateData.get_spec_talent_differences(conn, cursor, spec_id, current_season_id))
-            class_talents_difs = aggregateData.biggest_deviations_per_dungeon(aggregateData.get_class_talent_differences(conn, cursor, spec_id, current_season_id))
+            hero_talents_difs = aggregateData.biggest_deviations_per_dungeon(aggregateData.get_hero_talent_differences(conn, cursor, spec_id, current_season_id, valid_talents))
+            spec_talents_difs = aggregateData.biggest_deviations_per_dungeon(aggregateData.get_spec_talent_differences(conn, cursor, spec_id, current_season_id, valid_talents))
+            class_talents_difs = aggregateData.biggest_deviations_per_dungeon(aggregateData.get_class_talent_differences(conn, cursor, spec_id, current_season_id, valid_talents))
             hero_tree_difs = aggregateData.get_hero_tree_differences(conn, cursor, spec_id, current_season_id)
             print(f"[{datetime.now(timezone.utc).isoformat()}] fetching slots...")
             # Split slots into left/right/weapon/trinket

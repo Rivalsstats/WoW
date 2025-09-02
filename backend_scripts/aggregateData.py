@@ -131,13 +131,16 @@ def get_loadout(conn, cursor, spec_id, current_season_id):
     return overall_loadouts
 
 
-def get_talent_differences(talent_diffs, points_available):
+def get_talent_differences(talent_diffs, points_available, valid_talents):
     overall_talent_diffs = {}
     dungeon_counts = {}
     total_count = 0
     talent_counts = {}
     dungeon_talent_counts = {}
     for hero_talent_id, dungeon, talent_id, count in talent_diffs:
+        if int(talent_id) not in valid_talents:
+            print("Talent ID not in valid talents:", talent_id)
+            continue
         dungeon_counts[dungeon] = dungeon_counts.get(dungeon, 0) + int(count)
         talent_counts[talent_id] = talent_counts.get(talent_id, 0) + int(count)
         total_count += int(count)
@@ -179,34 +182,34 @@ def get_talent_differences(talent_diffs, points_available):
     return overall_talent_diffs
 
 
-def get_hero_talent_differences(conn, cursor, spec_id, current_season_id):
+def get_hero_talent_differences(conn, cursor, spec_id, current_season_id, valid_talents):
     spendable_talents = load_existing_json(TALENT_POINTS_PATH)
     top_hero_talent_diffs = databaseConnector.fetch_hero_talents_differences(
         conn, cursor, spec_id, current_season_id
     )
     hero_talent_points_available = spendable_talents.get("hero", 0)
 
-    return get_talent_differences(top_hero_talent_diffs, hero_talent_points_available)
+    return get_talent_differences(top_hero_talent_diffs, hero_talent_points_available, valid_talents)
 
 
-def get_spec_talent_differences(conn, cursor, spec_id, current_season_id):
+def get_spec_talent_differences(conn, cursor, spec_id, current_season_id, valid_talents):
     spendable_talents = load_existing_json(TALENT_POINTS_PATH)
     top_spec_talent_diffs = databaseConnector.fetch_spec_talents_differences(
         conn, cursor, spec_id, current_season_id
     )
     spec_talent_points_available = spendable_talents.get("spec", 0)
 
-    return get_talent_differences(top_spec_talent_diffs, spec_talent_points_available)
+    return get_talent_differences(top_spec_talent_diffs, spec_talent_points_available, valid_talents)
 
 
-def get_class_talent_differences(conn, cursor, spec_id, current_season_id):
+def get_class_talent_differences(conn, cursor, spec_id, current_season_id, valid_talents):
     spendable_talents = load_existing_json(TALENT_POINTS_PATH)
     top_class_talent_diffs = databaseConnector.fetch_class_talents_differences(
         conn, cursor, spec_id, current_season_id
     )
     class_talent_points_available = spendable_talents.get("class", 0)
 
-    return get_talent_differences(top_class_talent_diffs, class_talent_points_available)
+    return get_talent_differences(top_class_talent_diffs, class_talent_points_available, valid_talents)
 
 
 def biggest_deviations_per_dungeon(data, top_n=3):
