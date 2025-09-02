@@ -150,6 +150,18 @@ def insert_runs_batch(connection, cursor, run_vals):
     executemany_with_retry(connection, cursor, INSERT_RUNS_SQL, run_vals)
     return cursor.lastrowid
 
+INSERT_HUNTER_PETS_SQL = "INSERT IGNORE INTO Mythistone.hunter_pets (`member`, `creature_id`) VALUES (%s, %s)"
+
+def insert_hunter_pets_batch(connection, cursor, run_vals):
+    """Bulk-insert hunter pets, returns first inserted run_id."""
+    executemany_with_retry(connection, cursor, INSERT_HUNTER_PETS_SQL, run_vals)
+    return cursor.lastrowid
+
+def insert_hunter_pets(connection,cursor, member: int, creature_id:int):
+    """Insert a member into the members table."""
+    val = (member, creature_id)
+    return execute_with_retry(connection, cursor, INSERT_HUNTER_PETS_SQL, val)
+
 SELECT_RUNS_SQL = "SELECT id, `dungeon_id`, `keystone_level`, `duration`, `timestamp`, `faction`, `run_id`, `region`, season FROM runs WHERE (`season`, `region`, `dungeon_id`) IN (%s, %s, %s)"
 def select_runs(connection, cursor, season, region, dungeon_id):
     param = (season, region, dungeon_id)

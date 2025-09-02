@@ -37,6 +37,8 @@ parser.add_argument("--database", required=True)
 
 args = parser.parse_args()
 
+HUNTER_SPEC_IDS = [253, 254, 255]
+
 DATABASE_WORKERS = int(os.environ.get("DATABASE_WORKERS", "1"))
 databaseConnector.init_connection_pool(
     args.database_host, args.database_user, args.database_password, args.database, DATABASE_WORKERS
@@ -459,6 +461,20 @@ async def get_equipment(
         return []
     return data.get("equipped_items", [])
 
+async def get_hunter_pets(
+    session: ClientSession, region: str, realm_slug: str, name: str
+) -> list:
+    url = f"{API_BASE.format(region=region)}/profile/wow/character/{realm_slug}/{name}/hunter-pets"
+    params = {"namespace": f"profile-{region}", "locale": LOCALE}
+    data = await fetch_json(session, url, params, region)
+    if not data or "hunter_pets" not in data:
+        return []
+    hunter_pets = []
+    for pet in data["hunter_pets"]:
+        hunter_pets.append(pet['creature']['id'])
+    return hunter_pets
+
+
 MAINSTATS = ["strength", "agility", "intellect"]
 NORMALSTATS = ["stamina"]
 VALUESTATS = ["mastery", "lifesteal", "speed"]
@@ -592,6 +608,7 @@ async def simple_worker(name: str, session: ClientSession):
                     "class_talents": [],
                     "spec_talents": [],
                     "hero_talents": [],
+                    "hunter_pets": [],
                     "equipment": []
                 })
 
@@ -646,7 +663,8 @@ async def advanced_worker(name: str, session: ClientSession):
                     eq_data = await get_equipment(session, region, realm_slug, name_l)
                     spec_all = await get_specializations(session, region, realm_slug, name_l)
                     stats = await get_stats(session, region, realm_slug, name_l)
-                    
+                    if member["specialization"]["id"] in HUNTER_SPEC_IDS:
+                        hunter_pets = await get_hunter_pets(session, region, realm_slug, name_l)
                     active_spec = next(s for s in spec_all if s["specialization"]["id"] == member["specialization"]["id"])
                     if active_spec.get('loadouts'):
                         active_loadout = next(l for l in active_spec["loadouts"] if l["is_active"])
@@ -677,6 +695,7 @@ async def advanced_worker(name: str, session: ClientSession):
                             }
                             for item in eq_data if item.get("item")
                         ],
+                        "hunter_pets": hunter_pets if member["specialization"]["id"] in HUNTER_SPEC_IDS and hunter_pets else [],
                         "stats": stats
                     })
                     fetched_profiles += 1
@@ -773,6 +792,7 @@ def process_batch(name, conn, cursor, batch):
     ct_vals = [] 
     st_vals = [] 
     ht_vals = []
+    hunter_pet_vals = []
     ench_vals = [] 
     sock_vals = [] 
     bonus_vals = []
@@ -799,6 +819,8 @@ def process_batch(name, conn, cursor, batch):
                 st_vals.append((mid, t, rk))
             for t, rk in m["hero_talents"]:
                 ht_vals.append((mid, t, rk))
+            for pet in m["hunter_pets"]:
+                hunter_pet_vals.append((mid, pet))
             # collect equipment
             for e in m["equipment"]:
                 eq_id = databaseConnector.insert_equipment(
@@ -810,8 +832,8 @@ def process_batch(name, conn, cursor, batch):
                     sock_vals.append((eq_id, stype, iid))
                 for b in e["bonuses"]:
                     bonus_vals.append((eq_id, b))
-    if len(ct_vals) > 0 or len(st_vals) > 0 or len(ht_vals) > 0 or len(ench_vals) > 0 or len(sock_vals)> 0 or len(bonus_vals) >  0 or len(stat_vals) > 0:
-        print(f"[{datetime.now(timezone.utc).isoformat()}] [{name}] Inserting talents and equipment for {len(ct_vals)} class talents, {len(st_vals)} spec talents, {len(ht_vals)} hero talents, {len(ench_vals)} enchantments, {len(sock_vals)} sockets and {len(bonus_vals)} bonuses and {len(stat_vals)} stats")
+    if len(ct_vals) > 0 or len(st_vals) > 0 or len(ht_vals) > 0 or len(ench_vals) > 0 or len(sock_vals)> 0 or len(bonus_vals) >  0 or len(stat_vals) > 0 or len(hunter_pet_vals) > 0:
+        print(f"[{datetime.now(timezone.utc).isoformat()}] [{name}] Inserting talents and equipment for {len(ct_vals)} class talents, {len(st_vals)} spec talents, {len(ht_vals)} hero talents, {len(ench_vals)} enchantments, {len(sock_vals)} sockets and {len(bonus_vals)} bonuses and {len(stat_vals)} stats and {len(hunter_pet_vals)} hunter pets")
     if ct_vals and len(ct_vals) > 0:
         for sub in chunked(ct_vals, BATCH_SIZE):
             databaseConnector.insert_class_talents(conn, cursor, sub)
@@ -828,6 +850,10 @@ def process_batch(name, conn, cursor, batch):
             except Exception as e:
                 print(f"sub: {sub}")
                 print(f"Error inserting stats batch: {e}")
+    if hunter_pet_vals and len(hunter_pet_vals) > 0:
+        for sub in chunked(hunter_pet_vals, BATCH_SIZE):
+            databaseConnector.insert_hunter_pets_batch(conn, cursor, sub)
+            databaseConnector.commit_changes(conn)
     if ht_vals and len(ht_vals) > 0:
         for sub in chunked(ht_vals, BATCH_SIZE):
             databaseConnector.insert_hero_talents(conn, cursor, sub)
