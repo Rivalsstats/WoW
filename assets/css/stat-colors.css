@@ -3,23 +3,25 @@
   :root,
   [data-bs-theme="light"] {
     /*–– Primary stats ––*/
-    --stat-stragiint: #FFD100; /* gold “all‑stat” */
-    --stat-stragi:    #8B008B; /* silver “str/agi” hybrid */
-    --stat-int:       #69CCF0; /* blue */
-    --stat-str:       #C41F3B; /* red */
-    --stat-agi:       #AACC22; /* green */
-    --stat-sta:       #FFFB00; /* bright yellow */
+    --stat-stragiint: #FFD100; 
+    --stat-stragi:    #8B008B; 
+    --stat-int:       #D26CD1; 
+    --stat-str:       #F33232;
+    --stat-agi:       #FFD955; 
+    --stat-sta:       #ff8b2d;
+    --stat-health:    #27cc4e;
+
 
     /*–– Secondary stats ––*/
-    --stat-mastery:   #3AD54F; /* green mastery icon */
-    --stat-haste:     #FF8000; /* orange */
-    --stat-crit:      #E52B50; /* crimson */
-    --stat-vers:      #00F5FF; /* cyan */
+    --stat-mastery:   #9256FF; 
+    --stat-haste:     #0ED59B; 
+    --stat-crit:      #E01C1C; 
+    --stat-vers:      #BFBFBF; 
 
     /*–– Tertiary stats ––*/
-    --stat-runspeed:  #888888; /* mid gray */
-    --stat-avoidance: #B0BEC5; /* cool gray */
-    --stat-leech:     #D4D4D4; /* dark magenta */
+    --stat-runspeed:  #00C2FF; 
+    --stat-avoidance: #1E90FF; 
+    --stat-leech:     #FF5A6C;
 
     /*–– Rarities ––*/
     --quality-0: #9D9D9D; /* poor */
@@ -35,23 +37,25 @@
   }
   [data-bs-theme="dark"] {
     /*–– Primary stats ––*/
-    --stat-stragiint: #FFDB4D;
-    --stat-stragi:    #A44DAA;
-    --stat-int:       #7FCFFB;
-    --stat-str:       #D45765;
-    --stat-agi:       #B6D94F;
-    --stat-sta:       #FFF266;
+    --stat-stragiint: #FFD100; 
+    --stat-stragi:    #8B008B; 
+    --stat-int:       #D26CD1; 
+    --stat-str:       #F33232;
+    --stat-agi:       #FFD955; 
+    --stat-sta:       #ff8b2d;
+    --stat-health:    #27cc4e;
+
 
     /*–– Secondary stats ––*/
-    --stat-mastery:   #5DD96E;
-    --stat-haste:     #FF9433;
-    --stat-crit:      #F16B82;
-    --stat-vers:      #33FFFF;
+    --stat-mastery:   #9256FF; 
+    --stat-haste:     #0ED59B; 
+    --stat-crit:      #E01C1C; 
+    --stat-vers:      #BFBFBF; 
 
     /*–– Tertiary stats ––*/
-    --stat-runspeed:  #AAAAAA;
-    --stat-avoidance: #CFD8DC;
-    --stat-leech:     #E0E0E0;
+    --stat-runspeed:  #00C2FF; 
+    --stat-avoidance: #1E90FF; 
+    --stat-leech:     #FF5A6C;
 
     /*–– Rarities ––*/
     --quality-0: #9D9D9D; /* poor */
@@ -70,18 +74,25 @@
 .stat-stragiint { background-color: var(--stat-stragiint); color: var(--bs-gray-dark);} 
 .stat-stragi    { background-color: var(--stat-stragi);    color: var(--bs-gray-dark); }
 .stat-int       { background-color: var(--stat-int);       color: var(--bs-gray-dark);  }
+.stat-intellect  { background-color: var(--stat-int);       color: var(--bs-gray-100); }
 .stat-str       { background-color: var(--stat-str);       color: var(--bs-gray-100); }
+.stat-strength  { background-color: var(--stat-str);       color: var(--bs-gray-100); }
 .stat-agi       { background-color: var(--stat-agi);       color: var(--bs-gray-dark); }
+.stat-agility       { background-color: var(--stat-agi);       color: var(--bs-gray-dark); }
 .stat-sta       { background-color: var(--stat-sta);       color: var(--bs-gray-dark); }
+.stat-stamina       { background-color: var(--stat-sta);       color: var(--bs-gray-dark); }
+.stat-health       { background-color: var(--stat-health);       color: var(--bs-gray-dark); }
 
-.stat-mastery   { background-color: var(--stat-mastery);   color: var(--bs-gray-dark); }
+.stat-mastery   { background-color: var(--stat-mastery);   color: var(--bs-gray-100); }
 .stat-haste     { background-color: var(--stat-haste);     color: var(--bs-gray-dark); }
 .stat-crit      { background-color: var(--stat-crit);      color:  var(--bs-gray-100); }
 .stat-vers      { background-color: var(--stat-vers);      color: var(--bs-gray-dark); }
-.stat-leech     { background-color: var(--stat-leech);     color:  var(--bs-gray-dark); }
-
+.stat-versatility { background-color: var(--stat-vers);      color: var(--bs-gray-dark); }
+.stat-leech     { background-color: var(--stat-leech);     color:  var(--bs-gray-100); }
+.stat-lifesteal     { background-color: var(--stat-leech);     color:  var(--bs-gray-100); }
+.stat-speed  { background-color: var(--stat-runspeed);  color:  var(--bs-gray-dark);}
 .stat-runspeed  { background-color: var(--stat-runspeed);  color:  var(--bs-gray-dark);}
-.stat-avoidance { background-color: var(--stat-avoidance); color: var(--bs-gray-dark); }
+.stat-avoidance { background-color: var(--stat-avoidance); color: var(--bs-gray-100); }
 
 
 /* === Rarity border classes === */

@@ -52,6 +52,23 @@ STAT_NAMES = {
     "stragi": "Str/Agi",
 }
 
+SECONDARY_STATS = [
+    "haste",
+    "versatility",
+    "mastery",
+    "crit"
+]
+TERTIARY_STATS = [
+    "avoidance",
+    "lifesteal",
+    "speed",
+]
+HEALTH_STATS = [
+    "health",
+    "stamina"
+]
+
+
 
 def load_json(path):
     with open(path, "r") as f:
@@ -614,6 +631,25 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
 
             print(f"[{datetime.now(timezone.utc).isoformat()}] fetching upgrade counts...")
             upgrade_counts = databaseConnector.fetch_spec_upgrade(conn, cursor, spec_id, current_season_id)
+            print(f"[{datetime.now(timezone.utc).isoformat()}] fetching stats...")
+            stats = databaseConnector.fetch_stats(conn, cursor, spec_id, current_season_id)
+            stat_priority = []
+            tertiary_priority = []
+            health_priority = []
+            for stat, value in stats.items():
+                if stat == 'mainstat':
+                    value['name'] = spec_lookup[spec_id].get('primary_stat')
+                    stat_priority.append(value)
+                elif stat in SECONDARY_STATS:
+                    value['name'] = stat
+                    stat_priority.append(value)
+                elif stat in TERTIARY_STATS:
+                    value['name'] = stat
+                    tertiary_priority.append(value)
+                elif stat in HEALTH_STATS:
+                    value['name'] = stat
+                    health_priority.append(value)
+
             print(f"[{datetime.now(timezone.utc).isoformat()}] generating page...")
             output_html = template.render(
                 generated_at=datetime.now(timezone.utc).timestamp(),
@@ -666,6 +702,9 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
                 hero_tree_difs = hero_tree_difs,
                 top_routes=top_routes,
                 season_info=season_info,
+                stats=stat_priority,
+                tertiary_priority=tertiary_priority,
+                health_priority=health_priority
 
             )
             print(f"[{datetime.now(timezone.utc).isoformat()}] saving page...")

@@ -1314,3 +1314,26 @@ def fetch_class_talent_overview(connection, cursor, spec_id, season):
     if not rows:
         return []
     return [{"talent_id": int(row[0]), "count": int(row[1])} for row in rows]
+
+FETCH_STATS_SQL = """
+SELECT run_count, stat, avg_percent, avg_raw, min_raw, max_raw 
+FROM Mythistone.aggregated_character_stats
+WHERE spec_id = %s and season = %s
+ORDER BY avg_raw DESC
+"""
+
+def fetch_stats(connection, cursor, spec_id, season):
+    params = (spec_id, season)
+    rows = fetch_with_retry(connection, cursor, FETCH_STATS_SQL, params)
+    if not rows:
+        return []
+    data = {}
+    for row in rows:
+        data[row[1]] = {
+         "run_count": int(row[0]),
+         "avg_percent": float(row[2]) if row[2] else None, 
+         "avg_raw": float(row[3]), 
+         "min_raw": float(row[4]), 
+         "max_raw": float(row[5])
+         }
+    return data
