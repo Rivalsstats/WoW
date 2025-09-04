@@ -504,10 +504,11 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
             hero_trees = aggregateData.get_hero_trees(
                 conn, cursor, spec_id, current_season_id
             )
-
+            hero_tree_count = 0
             for tree in hero_trees:
                 if tree.get("count"):
                     count = tree["count"]
+                    hero_tree_count += count
                     if count > popular_hero_tree_count:
                         popular_hero_tree_count = count
                         popular_hero_tree = tree.get("id")
@@ -700,6 +701,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
                     'Spec': spec_talents_difs,
                 },
                 hero_tree_difs = hero_tree_difs,
+                hero_tree_count = hero_tree_count,
                 top_routes=top_routes,
                 season_info=season_info,
                 stats=stat_priority,

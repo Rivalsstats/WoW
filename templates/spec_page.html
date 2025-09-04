@@ -528,12 +528,12 @@
                   {% for hero_tree in hero_trees %}
                   {% set subtree = talent_lookup['subTrees'][hero_tree['id']|string] %}
                   <div class="col-auto d-flex flex-column align-items-center text-center" data-bs-toggle="tooltip"
-                    data-bs-placement="top" title="{{ hero_tree.count }} seen out of {{ data_count }} total Trees">
+                    data-bs-placement="top" title="{{ hero_tree.count }} seen out of {{ hero_tree_count }} total Trees">
                     <h6 class="mb-1 small text-capitalize">{{ subtree.name }}</h6>
                     <img src="/data/icons/{{ subtree.icon }}.png" alt="{{ subtree.name }} Icon" class="img-fluid mb-1"
                       style="width:48px; height:48px;">
                     <span class="fw-bold">
-                      {{ ((hero_tree.count / data_count) * 100) | round(2) }}%
+                      {{ ((hero_tree.count / hero_tree_count) * 100) | round(2) }}%
                     </span>
 
                   </div>
