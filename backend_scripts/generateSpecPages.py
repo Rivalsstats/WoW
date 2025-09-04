@@ -620,8 +620,8 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
             oh = next((g for g in weapon_slots if g["slot"] == "OFF_HAND"), None)
             if mh and mh["entries"] and len(mh["entries"]) > 0:
                 mh_item_id = mh["entries"][0]["id"]
-                # look up its inventoryType; two‑handers are 17
-                if item_lookup.get(mh_item_id, {}).get("inventoryType") == 17:
+                # look up its inventoryType; two‑handers are 17 and ranged weapons are 26
+                if item_lookup.get(mh_item_id, {}).get("inventoryType") == 17 or item_lookup.get(mh_item_id, {}).get("itemSubClass") == 3:
                     # always build combined list (falls back to just mh entries if oh is None)
                     combined = mh["entries"] + (oh.get("entries", []) if oh else [])
                     # re‑sort + trim to top 10
