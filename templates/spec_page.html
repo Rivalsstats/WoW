@@ -1296,6 +1296,64 @@
                 </div>
               </div>
             </div>
+            {% if hunter_pets and hunter_pets|length > 0 %}
+            <div class="d-flex flex-column flex-md-row gap-3 mt-4">
+              {# Hunter Pets Overview #}
+              <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
+                <div class="accordion mx-2" id="hunterPetAccordion">
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingHunterPets">
+                      <button class="accordion-button collapsed text-white fw-semibold text-center w-100" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#collapseHunterPets" aria-expanded="false"
+                        aria-controls="collapseHunterPets">
+                        Hunter Pet Details
+                      </button>
+                    </h2>
+                    <div id="collapseHunterPets" class="accordion-collapse collapse w-100"
+                      aria-labelledby="headingHunterPets" data-bs-parent="#hunterPetAccordion">
+                      <div class="accordion-body">
+                        <div class="row">
+                          <div class="col-12">
+                            {% for pet in hunter_pets %}
+                            <div class="row align-items-center mb-2">
+                              <!-- Pet image -->
+                              <div class="col-auto">
+                                <a target="_blank" href="/creature/{{ pet.creature_id }}">
+                                  <div class="position-relative" style="width:32px; height:32px; display:inline-block;">
+                                    <img src="/{{ pet.image | trim('/') }}" alt="{{ pet.name }}"
+                                      class="position-absolute top-0 start-0 border border-grey-100"
+                                      style="width:100%; height:100%; object-fit:cover;">
+                                  </div>
+                                </a>
+                              </div>
+
+                              <!-- Name + family/type -->
+                              <div class="col">
+                                <a target="_blank" href="/creature/{{ pet.creature_id }}">
+                                  <p class="mb-1">{{ pet.name }}</p>
+                                </a>
+                                <small class="text-muted">{{ pet.family }}{% if pet.type %} · {{ pet.type }}{% endif
+                                  %}</small>
+                              </div>
+
+                              <!-- Popularity % -->
+                              <div class="col-md-2 text-end">
+                                <p data-bs-toggle="tooltip" data-bs-placement="top"
+                                  title="{{ pet.run_count }} runs with this pet" class="mb-0">
+                                  {{ '%.0f' % pet.pet_pct_spec }}%
+                                </p>
+                              </div>
+                            </div>
+                            {% endfor %}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
           </div>
         </div>
 

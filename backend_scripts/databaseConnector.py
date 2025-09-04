@@ -1337,3 +1337,14 @@ def fetch_stats(connection, cursor, spec_id, season):
          "max_raw": float(row[5])
          }
     return data
+
+FETCH_TOP_HUNTER_PETS_SQL ="""
+SELECT COUNT(hp.`member` ) as run_count, hp.creature_id  
+from Mythistone.hunter_pets hp GROUP BY hp.creature_id  ORDER BY run_count DESC LIMIT 10
+"""
+
+def fetch_top_hunter_pets(connection, cursor):
+    rows = fetch_with_retry(connection, cursor, FETCH_TOP_HUNTER_PETS_SQL)
+    if not rows:
+        return []
+    return [{"creature_id": int(row[1]), "run_count": int(row[0])} for row in rows]
