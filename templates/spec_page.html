@@ -489,8 +489,7 @@
               <div class="card-body">
                 <h4 class="mb-0 px-2" data-bs-toggle="tooltip" data-bs-placement="top"
                   title="{{summary_data.count|humanize}} seen in {{total_season_runs|humanize}} total runs">Overall
-                  Played: {{
-                  100*(summary_data.count/total_season_runs)|round(2)}}%</h4>
+                  Played: {{ ((summary_data.count / total_season_runs) * 100) | round(2) }}%%</h4>
                 <div class="px-2" style="height: 4rem;">
                   <span>Key Upgrades:</span>
                   <canvas id="runsBarChart"></canvas>
