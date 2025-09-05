@@ -4,6 +4,7 @@ import time
 import requests
 import databaseConnector
 from contextlib import closing
+from aggregateData import get_current_season_id, get_access_token , fetch_json
 
 # config
 CLIENT_ID = os.environ["BLIZ_CLIENT_ID"]
@@ -16,14 +17,6 @@ ICON_DIR = "data/icons"
 databaseConnector.init_connection_pool(
     os.environ['DATABASE_HOST'], os.environ['DATABASE_USER'], os.environ['DATABASE_PASSWORD'], os.environ['DATABASE_NAME'], 1
 )
-
-def get_token():
-    url = "https://oauth.battle.net/token"
-    resp = requests.post(
-        url, data={"grant_type": "client_credentials"}, auth=(CLIENT_ID, CLIENT_SECRET)
-    )
-    resp.raise_for_status()
-    return resp.json()["access_token"]
 
 
 meta_url = "https://www.raidbots.com/static/data/live/metadata.json"
@@ -47,25 +40,25 @@ for d in raider_data["dungeons"]:
     print(
         f"  journal-id={d['id']}, keystone-id={d['challenge_mode_id']}, short='{d['short_name']}'"
     )
-
+token = get_access_token(CLIENT_ID, CLIENT_SECRET)
 seasons = raider_data.get("seasons", [])
 
 short_name_map = {}
 
 slug_map = {}
+current_season = get_current_season_id(token)
 
 for season in seasons:
-    for d in season.get("dungeons", []):
-        short_name_map[d["challenge_mode_id"]] = d["short_name"]
-        slug_map[d["challenge_mode_id"]] = d["slug"]
+    if season.get("blizzard_season_id",0) == current_season:
+        for d in season.get("dungeons", []):
+            short_name_map[d["challenge_mode_id"]] = d["short_name"]
+            slug_map[d["challenge_mode_id"]] = d["slug"]
 
 
 print(short_name_map)
 
-token = get_token()
-headers = {"Authorization": f"Bearer {token}"}
 out = {}
-
+headers = {"Authorization": f"Bearer {token}"}
 for dungeon_id in short_name_map:
     print(f"Fetching data for dungeon {dungeon_id}...")
     url = f"{API_BASE}/data/wow/mythic-keystone/dungeon/{dungeon_id}"
