@@ -14,6 +14,7 @@ on:
       - 'assets/**'
       - 'data/static/**'
       - 'data/icons/**'
+      - 'data/creature_img/**'
   workflow_dispatch:
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -44,6 +45,14 @@ jobs:
       # we first have to clone the project, this is a required step
       - name: Clone project
         uses: actions/checkout@v4
+        with:
+          ref: main 
+          sparse-checkout: |
+            pages
+            assets
+            classes
+            data/icons
+            data/creature_img
       
       - name: Upload static files as artifact
         id: deployment
