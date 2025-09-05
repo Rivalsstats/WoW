@@ -38,6 +38,11 @@
   <!-- CSS Files -->
   <link id="pagestyle" href="/assets/css/material-dashboard.css" rel="stylesheet" />
   <link rel="stylesheet" href="/assets/css/bootstrap-select.min.css" />
+
+    <!-- KLaro cookie consent -->
+  <script defer type="text/javascript" src="/assets/js/plugins/klaro-config.js"></script>
+  <script defer type="text/javascript" src="/assets/js/plugins/klaro.js"></script>
+  <link href="/assets/css/klaro.css" rel="stylesheet" />
 </head>
 
 <body class="g-sidenav-show  bg-gray-100">
@@ -307,7 +312,7 @@
                       <span class="visually-hidden">Loading...</span>
                     </div>
                   </div>
-                  <iframe src="" loading="lazy"
+                  <iframe src="" loading="lazy" data-name="keystoneGuru"
                     data-src="https://keystone.guru/route/{{ dungeon_slug }}/{{ r.route_key }}/{{ dungeon_slug }}/embed"
                     class="w-100" style="
                               border: none;
@@ -344,6 +349,12 @@
                 <li class="nav-item">
                   <a href="/" class="nav-link text-muted" target="_blank">MythiStone</a>
                 </li>
+                <li class="nav-item">
+                  <a href="/pages/privacy" class="nav-link text-muted" target="_blank">Privacy</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/pages/impressum" class="nav-link text-muted" target="_blank">Impressum</a>
+                  </li>
                 <li class="nav-item">
                   <a href="/pages/about" class="nav-link text-muted" target="_blank">About Us</a>
                 </li>
@@ -671,9 +682,129 @@
       el.textContent = `${el.textContent} ${timeAgo(Number(timestamp))}`;
       el.setAttribute('title', new Date(Number(timestamp) * 1000).toLocaleString());
     });
-    // initialize lazy load iframes
-    document.querySelectorAll('#routeDungeonAccordion .accordion-collapse')
-      .forEach(function (panel) {
+  </script>
+    <script>
+    (function () {
+      // ---------- Klaro helpers ----------
+      function safeGetManager() {
+        try {
+          if (!window.klaro || typeof klaro.getManager !== 'function') return null;
+          return klaro.getManager();
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function hasConsentFor(name) {
+        try {
+          const mgr = safeGetManager();
+          if (mgr && typeof mgr.getConsent === 'function') return !!mgr.getConsent(name);
+          if (window.klaro && klaro.consents && Object.prototype.hasOwnProperty.call(klaro.consents, name)) {
+            return !!klaro.consents[name];
+          }
+        } catch (e) { }
+        return false;
+      }
+
+      // watch for consent changes (calls cb() when consent becomes true)
+      function watchForConsent(name, cb) {
+        const mgr = safeGetManager();
+        if (mgr && typeof mgr.watch === 'function') {
+          try {
+            mgr.watch({
+              update: function (obj /*, nameArg, data */) {
+                // Klaro's watcher shape differs by version, check for states or direct map
+                const states = obj && (obj.states || obj);
+                if (states && states[name]) cb();
+              }
+            });
+            return;
+          } catch (e) {
+            // fallback to poll below
+          }
+        }
+
+        // fallback short poll (stops after ~10s)
+        let attempts = 0;
+        const id = setInterval(() => {
+          attempts++;
+          if (hasConsentFor(name)) {
+            clearInterval(id);
+            cb();
+            return;
+          }
+          if (attempts > 20) clearInterval(id);
+        }, 500);
+      }
+
+      // ---------- helpers for the accordion/iframes ----------
+      function hideSpinner(panel) {
+        const spinner = panel.querySelector('.iframe-spinner');
+        if (spinner) spinner.classList.add('d-none');
+      }
+
+      function showSpinner(panel) {
+        const spinner = panel.querySelector('.iframe-spinner');
+        if (spinner) spinner.classList.remove('d-none');
+      }
+
+      // Attach a MutationObserver to detect if some external script (Klaro) later sets src
+      function observeIframeSrc(iframe, panel) {
+        // If iframe already has src and loaded, we might not need observation
+        if (iframe.src && iframe.src !== '' && iframe.complete) { hideSpinner(panel); return; }
+
+        // Add a load listener to hide spinner on load
+        function onLoad() {
+          hideSpinner(panel);
+          iframe.removeEventListener('load', onLoad);
+        }
+        iframe.addEventListener('load', onLoad, { once: true });
+
+        // observe src attribute changes to attach load handler if Klaro sets src later
+        const mo = new MutationObserver((mutations) => {
+          for (const m of mutations) {
+            if (m.type === 'attributes' && m.attributeName === 'src') {
+              // if src becomes non-empty, ensure we have load handler set (or hide spinner if already loaded)
+              if (iframe.src && iframe.src !== '') {
+                // If already completed (very fast), hide spinner immediately else the load handler will run
+                try {
+                  // Some browsers expose .complete only on images; still safe to add handler
+                  // Keep the existing load handler to hide when done.
+                } catch (e) { }
+              }
+            }
+          }
+        });
+        mo.observe(iframe, { attributes: true, attributeFilter: ['src'] });
+        // stop observing after 30s to avoid leak
+        setTimeout(() => mo.disconnect(), 30000);
+      }
+
+      // Load iframe for a given panel (if not already set)
+      function loadIframeInPanel(panel) {
+        const iframe = panel.querySelector('iframe[data-src]');
+        if (!iframe) return;
+        // if src already set and not empty -> do nothing (but hide spinner on load)
+        if (iframe.src && iframe.src !== '') {
+          // attach load listener to hide spinner (in case it's still loading)
+          iframe.addEventListener('load', () => hideSpinner(panel), { once: true });
+          return;
+        }
+
+        // set src from dataset and hide spinner on load
+        iframe.src = iframe.dataset.src;
+        iframe.addEventListener('load', () => hideSpinner(panel), { once: true });
+      }
+
+      // Load all currently visible/open panels' iframes
+      function loadAllVisibleIframes() {
+        document.querySelectorAll('#routeDungeonAccordion .accordion-collapse.show').forEach(panel => {
+          loadIframeInPanel(panel);
+        });
+      }
+
+      // ---------- main accordion wiring ----------
+      document.querySelectorAll('#routeDungeonAccordion .accordion-collapse').forEach(function (panel) {
         panel.addEventListener('shown.bs.collapse', function (event) {
           // once this panel opens, find its iframe
           const iframe = panel.querySelector('iframe[data-src]');
@@ -681,17 +812,24 @@
             console.warn('No iframe found in this panel:', panel);
             return;
           }
-          // if we haven't yet set its src, do so now
-          if (!iframe.src || iframe.src === '' || iframe.src !== iframe.dataset.src) {
-            iframe.src = iframe.dataset.src;
-            iframe.addEventListener('load', function () {
-              const spinner = panel.querySelector('.iframe-spinner');
-              spinner.classList.add('d-none');
-            }, { once: true });
+
+          showSpinner(panel);
+          observeIframeSrc(iframe, panel); // monitor changes (Klaro may set src)
+
+          const serviceName = iframe.getAttribute('data-name') || 'keystoneGuru';
+
+          if (hasConsentFor(serviceName)) {
+            // consent exists now -> set src immediately
+            loadIframeInPanel(panel);
+          } else {
+            watchForConsent(serviceName, () => {
+              loadAllVisibleIframes();
+            });
           }
         });
       });
 
+    })();
   </script>
   <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="/assets/js/material-dashboard.js"></script>

@@ -269,8 +269,10 @@
 }
 </script>
 
-
-
+  <!-- KLaro cookie consent -->
+  <script defer type="text/javascript" src="/assets/js/plugins/klaro-config.js"></script>
+  <script defer type="text/javascript" src="/assets/js/plugins/klaro.js"></script>
+  <link href="/assets/css/klaro.css" rel="stylesheet" />
 
 
   <!--     Fonts and icons     -->
@@ -613,7 +615,7 @@
       <div class="row">
         {% if loadout_code and loadout_code.code %}
         <div class="ratio ratio-16x9" id="sim-iframe-wrapper">
-          <iframe id="sim-iframe" style="pointer-events:none;"
+          <iframe id="sim-iframe" style="pointer-events:none;" data-name="raidbots"
             data-base-src="https://www.raidbots.com/simbot/render/talents/{{loadout_code.code}}?hideHeader=true&hideExport=true"
             scrolling="no"></iframe>
         </div>
@@ -1376,20 +1378,20 @@
               <div class="col-lg-6">
                 <ul class="nav nav-footer justify-content-center justify-content-lg-end">
                   <li class="nav-item">
-                    <a href="https://github.com/MythiStone" class="nav-link text-muted" target="_blank">MythiStone</a>
-                  </li>
-                  <li class="nav-item">
-                    <a href="/pages/about" class="nav-link text-muted" target="_blank">About Us</a>
-                  </li>
-                  <li class="nav-item">
-                    <a href="/pages/blog" class="nav-link text-muted" target="_blank">Blog</a>
-                  </li>
-                  <li class="nav-item">
+                  <a href="/" class="nav-link text-muted" target="_blank">MythiStone</a>
+                </li>
+                <li class="nav-item">
+                  <a href="/pages/privacy" class="nav-link text-muted" target="_blank">Privacy</a>
+                </li>
+                <li class="nav-item">
                     <a href="/pages/impressum" class="nav-link text-muted" target="_blank">Impressum</a>
                   </li>
-                  <li class="nav-item">
-                    <a href="/pages/privacy" class="nav-link text-muted" target="_blank">Privacy</a>
-                  </li>
+                <li class="nav-item">
+                  <a href="/pages/about" class="nav-link text-muted" target="_blank">About Us</a>
+                </li>
+                <li class="nav-item">
+                  <a href="/pages/blog" class="nav-link text-muted" target="_blank">Blog</a>
+                </li>
                 </ul>
               </div>
             </div>
@@ -1649,7 +1651,7 @@
                         <span class="visually-hidden">Loading...</span>
                       </div>
                     </div>
-                    <iframe src="" loading="lazy"
+                    <iframe loading="lazy" data-name="keystoneGuru"
                       data-src="https://keystone.guru/route/{{ds.dungeon_id}}/{{top_routes[ds.dungeon_id].route_key}}/{{ds.dungeon_id}}/embed"
                       class="w-100" style="
                                 border: none;
@@ -1832,33 +1834,160 @@
         }
       });
     })();
+  </script>
+  <script>
     (function () {
       const wrapper = document.getElementById('sim-iframe-wrapper');
-      const iframe = document.getElementById('sim-iframe');
-      const base = iframe.dataset.baseSrc;
+      let iframe = document.getElementById('sim-iframe'); // original placeholder node
+      if (!wrapper || !iframe) return;
+
+      const base = iframe.dataset.baseSrc || iframe.getAttribute('data-base-src') || '';
       let resizeTimeout;
 
-      function refreshTalentEmbed() {
-        let w = wrapper.clientWidth
-        if ((window.matchMedia("(any-hover:none)").matches)) {
-          w = w - 40
-          wrapper.classList.remove('ratio-16x9')
-          wrapper.classList.add('ratio-4x3')
-        }
-        else if (wrapper.classList.contains('ratio-4x3')) {
-          wrapper.classList.remove('ratio-16x9')
-          wrapper.classList.add('ratio-4x3')
-        }
-        iframe.src = base + '&width=' + w;
+      function buildSrc() {
+        const w0 = wrapper.clientWidth;
+        const w = (window.matchMedia("(any-hover:none)").matches) ? (w0 - 40) : w0;
+        return base + '&width=' + w;
       }
 
-      window.addEventListener('DOMContentLoaded', refreshTalentEmbed);
-      window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(refreshTalentEmbed, 500);
+      function createIframeWithSrc(src) {
+        const newIframe = document.createElement('iframe');
+        newIframe.id = 'sim-iframe';
+        newIframe.setAttribute('scrolling', 'no');
+        newIframe.style.pointerEvents = ''; // enable interaction
+        newIframe.src = src;
+        // mark this iframe as created/owned by our script so we can update it later instead of replacing
+        newIframe.dataset.ownIframe = '1';
+        if (iframe.className) newIframe.className = iframe.className;
+        return newIframe;
+      }
+
+      function refreshTalentEmbed() {
+        const src = buildSrc();
+
+        // If we already created and own the iframe, just update its src (and avoid replacing)
+        if (iframe && iframe.dataset && iframe.dataset.ownIframe === '1') {
+          // avoid unnecessary reloads
+          if (iframe.src !== src) {
+            iframe.src = src;
+          }
+          // ensure interactions enabled
+          iframe.style.pointerEvents = '';
+          return;
+        }
+
+        if (iframe && iframe.src === src && (!iframe.dataset || !iframe.dataset.modifiedByKlaro)) {
+          return;
+        }
+
+        // Otherwise: create/insert a fresh iframe (prevents Klaro from re-stomping attributes)
+        const newIframe = createIframeWithSrc(src);
+        try {
+          wrapper.replaceChild(newIframe, iframe);
+        } catch (e) {
+          wrapper.appendChild(newIframe);
+          if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+        }
+        iframe = newIframe;
+
+        // keep your ratio adjustments
+        if (window.matchMedia("(any-hover:none)").matches) {
+          wrapper.classList.remove('ratio-16x9');
+          wrapper.classList.add('ratio-4x3');
+        } else if (wrapper.classList.contains('ratio-4x3')) {
+          wrapper.classList.remove('ratio-16x9');
+          wrapper.classList.add('ratio-4x3');
+        }
+      }
+
+      // --- Klaro helpers ---
+      function safeGetManager() {
+        try {
+          if (!window.klaro || typeof klaro.getManager !== 'function') return null;
+          return klaro.getManager();
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function hasRaidbotsConsent() {
+        try {
+          const mgr = safeGetManager();
+          if (mgr && typeof mgr.getConsent === 'function') return !!mgr.getConsent('raidbots');
+          // fallback: klaro.consents may exist
+          if (window.klaro && klaro.consents && Object.prototype.hasOwnProperty.call(klaro.consents, 'raidbots')) {
+            return !!klaro.consents.raidbots;
+          }
+        } catch (e) { }
+        return false;
+      }
+
+      // register a watcher (preferred) or fallback to a short poll
+      function watchForConsentAndLoad() {
+        const mgr = safeGetManager();
+        if (mgr && typeof mgr.watch === 'function') {
+          try {
+            mgr.watch({
+              update: function (obj /*, name, data */) {
+                if (!obj) return;
+                if (obj.states && obj.states.raidbots) {
+                  refreshTalentEmbed();
+                }
+              }
+            });
+          } catch (e) {
+            startShortPoll();
+          }
+          return;
+        }
+        startShortPoll();
+      }
+
+      let pollId = null;
+      function startShortPoll() {
+        if (pollId) return;
+        let attempts = 0;
+        pollId = setInterval(() => {
+          attempts++;
+          if (hasRaidbotsConsent()) {
+            clearInterval(pollId);
+            pollId = null;
+            refreshTalentEmbed();
+            return;
+          }
+          if (attempts > 20) { // ~10s
+            clearInterval(pollId);
+            pollId = null;
+          }
+        }, 500);
+      }
+
+      // attach resize handling (debounced)
+      function attachResizeHandler() {
+        window.addEventListener('resize', () => {
+          clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(() => {
+            // if iframe is owned by us, refresh will only update src; otherwise, it will create-and-replace
+            if (iframe) refreshTalentEmbed();
+          }, 500);
+        });
+      }
+
+      // --- bootstrapping ---
+      document.addEventListener('DOMContentLoaded', function () {
+        // If consent already present at load time -> load right away
+        if (hasRaidbotsConsent()) {
+          refreshTalentEmbed();
+        } else {
+          // otherwise watch for consent being granted and then load
+          watchForConsentAndLoad();
+        }
+
+        attachResizeHandler();
       });
     })();
   </script>
+
   <script src="https://wow.zamimg.com/widgets/power.js"></script>
   <!-- Github buttons -->
   <script async defer src="https://buttons.github.io/buttons.js"></script>
@@ -1979,9 +2108,133 @@
         }
       }
     });
-    //lazy loading for routes
-    document.querySelectorAll('#routeDungeonAccordion .accordion-collapse')
-      .forEach(function (panel) {
+});
+
+  </script>
+
+
+  <script>
+    (function () {
+      // ---------- Klaro helpers ----------
+      function safeGetManager() {
+        try {
+          if (!window.klaro || typeof klaro.getManager !== 'function') return null;
+          return klaro.getManager();
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function hasConsentFor(name) {
+        try {
+          const mgr = safeGetManager();
+          if (mgr && typeof mgr.getConsent === 'function') return !!mgr.getConsent(name);
+          if (window.klaro && klaro.consents && Object.prototype.hasOwnProperty.call(klaro.consents, name)) {
+            return !!klaro.consents[name];
+          }
+        } catch (e) { }
+        return false;
+      }
+
+      // watch for consent changes (calls cb() when consent becomes true)
+      function watchForConsent(name, cb) {
+        const mgr = safeGetManager();
+        if (mgr && typeof mgr.watch === 'function') {
+          try {
+            mgr.watch({
+              update: function (obj /*, nameArg, data */) {
+                // Klaro's watcher shape differs by version, check for states or direct map
+                const states = obj && (obj.states || obj);
+                if (states && states[name]) cb();
+              }
+            });
+            return;
+          } catch (e) {
+            // fallback to poll below
+          }
+        }
+
+        // fallback short poll (stops after ~10s)
+        let attempts = 0;
+        const id = setInterval(() => {
+          attempts++;
+          if (hasConsentFor(name)) {
+            clearInterval(id);
+            cb();
+            return;
+          }
+          if (attempts > 20) clearInterval(id);
+        }, 500);
+      }
+
+      // ---------- helpers for the accordion/iframes ----------
+      function hideSpinner(panel) {
+        const spinner = panel.querySelector('.iframe-spinner');
+        if (spinner) spinner.classList.add('d-none');
+      }
+
+      function showSpinner(panel) {
+        const spinner = panel.querySelector('.iframe-spinner');
+        if (spinner) spinner.classList.remove('d-none');
+      }
+
+      // Attach a MutationObserver to detect if some external script (Klaro) later sets src
+      function observeIframeSrc(iframe, panel) {
+        // If iframe already has src and loaded, we might not need observation
+        if (iframe.src && iframe.src !== '' && iframe.complete) { hideSpinner(panel); return; }
+
+        // Add a load listener to hide spinner on load
+        function onLoad() {
+          hideSpinner(panel);
+          iframe.removeEventListener('load', onLoad);
+        }
+        iframe.addEventListener('load', onLoad, { once: true });
+
+        // observe src attribute changes to attach load handler if Klaro sets src later
+        const mo = new MutationObserver((mutations) => {
+          for (const m of mutations) {
+            if (m.type === 'attributes' && m.attributeName === 'src') {
+              // if src becomes non-empty, ensure we have load handler set (or hide spinner if already loaded)
+              if (iframe.src && iframe.src !== '') {
+                // If already completed (very fast), hide spinner immediately else the load handler will run
+                try {
+                  // Some browsers expose .complete only on images; still safe to add handler
+                  // Keep the existing load handler to hide when done.
+                } catch (e) { }
+              }
+            }
+          }
+        });
+        mo.observe(iframe, { attributes: true, attributeFilter: ['src'] });
+        // stop observing after 30s to avoid leak
+        setTimeout(() => mo.disconnect(), 30000);
+      }
+
+      // Load iframe for a given panel (if not already set)
+      function loadIframeInPanel(panel) {
+        const iframe = panel.querySelector('iframe[data-src]');
+        if (!iframe) return;
+        // if src already set and not empty -> do nothing (but hide spinner on load)
+        if (iframe.src && iframe.src !== '') {
+          // attach load listener to hide spinner (in case it's still loading)
+          iframe.addEventListener('load', () => hideSpinner(panel), { once: true });
+          return;
+        }
+
+        // set src from dataset and hide spinner on load
+        iframe.src = iframe.dataset.src;
+        iframe.addEventListener('load', () => hideSpinner(panel), { once: true });
+      }
+
+      // Load all currently visible/open panels' iframes
+      function loadAllVisibleIframes() {
+        document.querySelectorAll('#routeDungeonAccordion .accordion-collapse.show').forEach(panel => {
+          loadIframeInPanel(panel);
+        });
+      }
+
+      // ---------- main accordion wiring ----------
+      document.querySelectorAll('#routeDungeonAccordion .accordion-collapse').forEach(function (panel) {
         panel.addEventListener('shown.bs.collapse', function (event) {
           // once this panel opens, find its iframe
           const iframe = panel.querySelector('iframe[data-src]');
@@ -1989,18 +2242,24 @@
             console.warn('No iframe found in this panel:', panel);
             return;
           }
-          // if we haven't yet set its src, do so now
-          if (!iframe.src || iframe.src === '' || iframe.src !== iframe.dataset.src) {
-            iframe.src = iframe.dataset.src;
-            iframe.addEventListener('load', function () {
-              const spinner = panel.querySelector('.iframe-spinner');
-              spinner.classList.add('d-none');
-            }, { once: true });
+
+          showSpinner(panel);
+          observeIframeSrc(iframe, panel); // monitor changes (Klaro may set src)
+
+          const serviceName = iframe.getAttribute('data-name') || 'keystoneGuru';
+
+          if (hasConsentFor(serviceName)) {
+            // consent exists now -> set src immediately
+            loadIframeInPanel(panel);
+          } else {
+            watchForConsent(serviceName, () => {
+              loadAllVisibleIframes();
+            });
           }
         });
       });
-});
 
+    })();
   </script>
   <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="/assets/js/material-dashboard.js"></script>

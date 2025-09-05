@@ -73,6 +73,12 @@ jobs:
             --template templates/find_routes.html  \
             --output_dir pages  
 
+      - name: Generate Legal HTML page
+        run: |
+          python backend_scripts/generateLegalPages.py \
+            --template templates/privacy.html  \
+            --output_dir pages  
+
       - name: Commit and push pages
         run: |
           set -e  # Exit script on any command failure
