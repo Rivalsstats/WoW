@@ -67,7 +67,7 @@ jobs:
             --template templates/dashboard.html \
             --output_dir pages \
 
-      - name: Generate Runs HTML page
+      - name: Generate Routes HTML page
         run: |
           python backend_scripts/generateRoutesPage.py \
             --template templates/find_routes.html  \
