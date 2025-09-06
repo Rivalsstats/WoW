@@ -13,10 +13,15 @@ from generateSpecPages import (
     upgrade_info,
     load_json,
 )
+TEMPLATE_PATH = "templates"
+LEGAL_PAGES = {
+    "privacy": "privacy.html",
+    "impressum": "impressum.html"
+}
 
-def main(template_path, output_dir):
+def main(output_dir):
     env = Environment(
-        loader=FileSystemLoader(os.path.dirname(template_path)),
+        loader=FileSystemLoader(TEMPLATE_PATH),
         autoescape=select_autoescape(["html", "xml"]),
     )
     env.filters["humanize"] = humanize_number
@@ -46,33 +51,31 @@ def main(template_path, output_dir):
             }
         )
 
-    # Optionally sort each list by name:
     for lst in spec_nav.values():
         lst.sort(key=lambda x: x["name"])
 
+    for page, template_name in LEGAL_PAGES.items():
+        template = env.get_template(os.path.basename(template_name))
+        output_html = template.render(
+            generated_at=datetime.now(timezone.utc).timestamp(),
+            spec_nav=spec_nav,
+        )
 
-    template = env.get_template(os.path.basename(template_path))
-    output_html = template.render(
-        generated_at=datetime.now(timezone.utc).timestamp(),
-        spec_nav=spec_nav,
-    )
-
-    # Write output
-    out_path = os.path.join(
-        output_dir,
-        "privacy.html",
-    )
-    os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    with open(out_path, "w", encoding="utf-8") as f:
-        f.write(output_html)
-    print(f"Generated {out_path}")
+        # Write output
+        out_path = os.path.join(
+            output_dir,
+            template_name,
+        )
+        os.makedirs(os.path.dirname(out_path), exist_ok=True)
+        with open(out_path, "w", encoding="utf-8") as f:
+            f.write(output_html)
+        print(f"Generated {out_path}")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate WoW Dashboard page")
-    parser.add_argument("--template", required=True, help="Path to HTML template file")
     parser.add_argument(
         "--output_dir", required=True, help="Directory to write generated HTML pages"
     )
     args = parser.parse_args()
-    main(args.template, args.output_dir)
+    main(args.output_dir)
