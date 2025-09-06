@@ -1,0 +1,46 @@
+name: "Bug report"
+description: Create a report to help us improve
+labels: bug
+body:
+- type: markdown
+  attributes:
+    value: |
+      Please [search for existing issues](https://github.com/MythiStone/mythistone.github.io/issues) before creating a new one.
+
+- type: textarea
+  attributes:
+    label: Description
+    description: What did you expect to happen and what happened instead?
+  validations:
+    required: true
+
+ 
+- type: textarea
+  attributes:
+    label: Console Error
+    description: |
+      Do you have an error log of what happened? In your Browser open the devtools and check the console for any Errors.
+  validations:
+    required: false
+
+- type: textarea
+  attributes:
+    label: Reproduction Steps
+    description: Please list out the steps to reproduce your bug.
+    placeholder: |
+      1. Go to '...'
+      2. Click on '....'
+      3. Scroll down to '....'
+      4. See error
+  validations:
+    required: true
+    
+- type: input
+  attributes:
+    label: Last Good Version
+    description: |
+      Was it working in a previous version? If yes, do you know when it was still working?
+    placeholder: "31.12.1999"
+  validations:
+    required: false
+
