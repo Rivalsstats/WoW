@@ -54,12 +54,14 @@
       <p class="mb-1">{{ item_lookup[entry.id].name }}</p>
     </a>
     <div class="d-flex align-items-center gap-1 flex-nowrap">
-      {% if entry.embellishment %}
+      {% if entry.embellishment and reagent_lookup[entry.embellishment] %}
+      <!-- embellishment icon -->
       <a target="_blank" href="https://www.wowhead.com/item={{ entry.embellishment }}&spec={{ spec_id }}" {% if
         tag=='button' %}onclick="event.preventDefault();" {% endif %}>
         <div class="position-relative" style="width:16px; height:16px; display:inline-block;">
           <!-- Base icon -->
-          <img src="/data/icons/{{ reagent_lookup[entry.embellishment].itemIcon }}.png" alt=""
+           {% set icon = (reagent_lookup[entry.embellishment].itemIcon) or (reagent_lookup[entry.embellishment].icon) %}
+          <img src="/data/icons/{{ icon }}.png" alt=""
             class="position-absolute top-0 start-0 border {% if reagent_lookup[entry.embellishment].quality %}border-quality-{{reagent_lookup[entry.embellishment].quality}} {% else %}border-grey-100{% endif %}"
             style="width:100%; height:100%; object-fit:contain;">
 
@@ -72,12 +74,14 @@
 
       </a>
       {% endif %}
-      {% if entry.missive %}
+      {% if entry.missive and reagent_lookup[entry.missive] %}
       <a target="_blank" href="https://www.wowhead.com/item={{ entry.missive }}&spec={{ spec_id }}" {% if tag=='button'
         %}onclick="event.preventDefault();" {% endif %}>
+        {% set icon = (reagent_lookup[entry.missive].itemIcon) or (reagent_lookup[entry.missive].icon) %}
+
         <div class="position-relative" style="width:16px; height:16px; display:inline-block;">
           <!-- Base icon -->
-          <img src="/data/icons/{{ reagent_lookup[entry.missive].itemIcon }}.png" alt=""
+          <img src="/data/icons/{{ icon }}.png" alt=""
             class="position-absolute top-0 start-0 border {% if reagent_lookup[entry.missive].quality %}border-quality-{{reagent_lookup[entry.missive].quality}} {% else %}border-grey-100{% endif %}"
             style="width:100%; height:100%; object-fit:contain;">
 
@@ -90,13 +94,14 @@
 
       </a>
       {% endif %}
-      {% if entry.enchantment %}
+      {% if entry.enchantment and enchant_lookup[entry.enchantment.id] %}
       <a target="_blank"
         href="https://www.wowhead.com/item={{ enchant_lookup[entry.enchantment.id].itemId }}&spec={{ spec_id }}" {% if
         tag=='button' %}onclick="event.preventDefault();" {% endif %}>
         <div class="position-relative" style="width:16px; height:16px; display:inline-block;">
+          {% set icon = (enchant_lookup[entry.enchantment.id].itemIcon) or (enchant_lookup[entry.enchantment.id].icon) %}
           <!-- Base icon -->
-          <img src="/data/icons/{{ enchant_lookup[entry.enchantment.id].itemIcon }}.png" alt=""
+          <img src="/data/icons/{{ icon }}.png" alt=""
             class="position-absolute top-0 start-0 border {% if enchant_lookup[entry.enchantment.id].quality %}border-quality-{{enchant_lookup[entry.enchantment.id].quality}} {% else %}border-grey-100{% endif %}"
             style="width:100%; height:100%; object-fit:contain;">
           {% if enchant_lookup[entry.enchantment.id].craftingQuality %}
@@ -107,14 +112,16 @@
         </div>
       </a>
       {% endif %}
-      {% if entry.socket %}
+      {% if entry.socket and entry.socket | length > 0 %}
       <div class="d-flex align-items-center gap-1 flex-nowrap">
         {% for sock in entry.socket %}
         <a target="_blank" href="https://www.wowhead.com/item={{ sock.id }}&spec={{ spec_id }}" {% if tag=='button'
           %}onclick="event.preventDefault();" {% endif %}>
           <div class="position-relative" style="width:16px; height:16px; display:inline-block;">
+            {% set icon = (socket_lookup[sock.id | int].itemIcon) or (socket_lookup[sock.id | int].icon) %}
+
             <!-- Base icon -->
-            <img src="/data/icons/{{ socket_lookup[sock.id | int].itemIcon }}.png" alt=""
+            <img src="/data/icons/{{ icon }}.png" alt=""
               class="position-absolute top-0 start-0 border {% if socket_lookup[sock.id | int].quality %}border-quality-{{socket_lookup[sock.id | int].quality}} {% else %}border-grey-100{% endif %}"
               style="width:100%; height:100%; object-fit:contain;">
 
@@ -2266,6 +2273,18 @@
   <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="/assets/js/material-dashboard.js"></script>
   <script>
+    const selectors = '.klaro .context-notice, .klaro .cookie-notice, .klaro .cookie-modal, #klaro';
+    const observer = new MutationObserver(() => {
+      const nodes = document.querySelectorAll(selectors);
+      if (nodes.length) setDark(document.querySelector('#dark-version').checked);
+    });
+    function setDark(enabled) {
+      document.querySelectorAll(selectors).forEach(el => {
+        if (enabled) el.classList.add('cm-dark');
+        else el.classList.remove('cm-dark');
+      });
+    }
+    observer.observe(document.body, { childList: true, subtree: true });
     darkMode(document.querySelector('#dark-version'));
     sidebarColor(document.querySelector('#defaultColor'));
     document.querySelector('#defaultSidebarType').classList.add('active');

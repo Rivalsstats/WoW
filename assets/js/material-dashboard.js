@@ -633,9 +633,9 @@ function sidenavTypeOnResize() {
   }
 }
 
-
 // Light Mode / Dark Mode
 function darkMode(el) {
+  
   const body = document.getElementsByTagName('body')[0];
   const hr = document.querySelectorAll('div:not(.sidenav) > hr');
   const hr_card = document.querySelectorAll('div:not(.bg-gradient-dark) hr');
@@ -655,8 +655,12 @@ function darkMode(el) {
   const card_border_dark = document.querySelectorAll('.card.border.border-dark');
 
   const svg = document.querySelectorAll('g');
-
+  const selectors = '.klaro .context-notice, .klaro .cookie-notice, .klaro .cookie-modal, #klaro';
+  
   if (!el.getAttribute("checked")) {
+    document.querySelectorAll(selectors).forEach(el => {
+      el.classList.add('cm-dark');
+    });
     body.classList.add('dark-version');
     body.setAttribute('data-bs-theme', 'dark');
     for (var i = 0; i < hr.length; i++) {
@@ -723,6 +727,9 @@ function darkMode(el) {
     }
     el.setAttribute("checked", "true");
   } else {
+    document.querySelectorAll(selectors).forEach(el => {
+      el.classList.remove('cm-dark');
+    });
     body.classList.remove('dark-version');
     body.setAttribute('data-bs-theme', 'light');
     for (var i = 0; i < hr.length; i++) {
