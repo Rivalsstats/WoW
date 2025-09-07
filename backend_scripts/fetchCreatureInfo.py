@@ -148,6 +148,7 @@ def process_creatures(rows: List[Dict[str, Any]]):
         name = creature_json["name"]
         type_name = creature_json["type"]["name"]
         family_name = creature_json["family"]["name"]
+        family_id = creature_json["family"]["id"]
 
         display_id = None
         image_path = existing_entry.get("image")
@@ -197,6 +198,7 @@ def process_creatures(rows: List[Dict[str, Any]]):
             "name": name,
             "type": type_name,
             "family": family_name,
+            "family_id": family_id,
             "image": image_path,
         }
         print(entry)

@@ -1338,9 +1338,25 @@ def fetch_stats(connection, cursor, spec_id, season):
          }
     return data
 
+FETCH_TOP_HUNTER_PETS_BY_SPEC_SQL ="""
+SELECT COUNT(hp.`member` ) as run_count, hp.creature_id  
+from Mythistone.hunter_pets hp 
+JOIN Mythistone.members m on hp.`member` = m.`member` 
+WHERE m.spec_id = %s
+GROUP BY hp.creature_id  ORDER BY run_count DESC LIMIT 100
+"""
+
+def fetch_top_hunter_pets_by_spec(connection, cursor, spec_id):
+    params = (spec_id,)
+    rows = fetch_with_retry(connection, cursor, FETCH_TOP_HUNTER_PETS_BY_SPEC_SQL, params)
+    if not rows:
+        return []
+    return [{"creature_id": int(row[1]), "run_count": int(row[0])} for row in rows]
+
+
 FETCH_TOP_HUNTER_PETS_SQL ="""
 SELECT COUNT(hp.`member` ) as run_count, hp.creature_id  
-from Mythistone.hunter_pets hp GROUP BY hp.creature_id  ORDER BY run_count DESC LIMIT 10
+from Mythistone.hunter_pets hp GROUP BY hp.creature_id  ORDER BY run_count DESC LIMIT 500
 """
 
 def fetch_top_hunter_pets(connection, cursor):

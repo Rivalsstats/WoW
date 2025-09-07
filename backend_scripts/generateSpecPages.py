@@ -405,6 +405,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
     season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
     creature_lookup = load_json(os.path.join(LOOKUP_DIR, "creatures.json"))
+    non_tameable_creatures = load_json(os.path.join(LOOKUP_DIR, "notTamablePetFamilies.json"))
     os.makedirs(output_dir, exist_ok=True)
 
     set_members = defaultdict(list)
@@ -659,7 +660,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
             if str(spec_data.get("classID")) == "3":
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching hunter pets for spec {spec_id}...")
                 try:
-                    pet_rows = databaseConnector.fetch_top_hunter_pets(conn, cursor)
+                    pet_rows = databaseConnector.fetch_top_hunter_pets_by_spec(conn, cursor, spec_id)
                 except Exception as e:
                     print(f"Error fetching hunter pets: {e}")
                     pet_rows = []
@@ -685,6 +686,10 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
                     info = creature_lookup.get(cid, {})
                     name = info.get("name", {}).get("en_US") or info.get("name") or cid
                     family = info.get("family", {}).get("en_US") or ""
+                    family_id = info.get("family_id") or ""
+                    if family_id in non_tameable_creatures[spec_id]:
+                        print(f"Skipping non-tameable pet {name} ({cid}) for spec {spec_id}")
+                        continue
                     ctype = info.get("type", {}).get("en_US") or ""
                     image = info.get("image") or f"data/creature_img/{cid}.jpg"
                     run_count = int(p.get("run_count", 0))
@@ -701,6 +706,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
                         "pet_pct_of_pet_total": (run_count / total_pet_runs) * 100,
                     }
                     hunter_pets.append(pet)
+            hunter_pets = hunter_pets[:10]
             print(hunter_pets)
 
             print(f"[{datetime.now(timezone.utc).isoformat()}] generating page...")
