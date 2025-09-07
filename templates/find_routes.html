@@ -372,7 +372,18 @@
       const dungeons = {{ dungeon_lookup| safe }};
       const spec_data = {{ specs| tojson | safe }};
       const current_season = "{{season_info.current_season}}";
-
+      const sortFunc = (a, b) => { 
+        if (a.level !== b.level) {
+          return b.level - a.level; // descending level
+        }
+        if(a.duration !== b.duration) {
+          return a.duration - b.duration; // ascending duration
+        }
+        if(a.dungeon !== b.dungeon) {
+          return a.dungeon.localeCompare(b.dungeon); // ascending dungeon name
+        }
+        return a.timestamp - b.timestamp; // ascending timestamp
+      }
       document.getElementById('compForm').addEventListener('submit', e => {
         e.preventDefault();
 
@@ -396,7 +407,7 @@
           accordion.innerHTML = '<p>No routes found.</p>';
           return;
         }
-
+        matches.sort(sortFunc)
         // helper to make safe HTML IDs
         function safeId(str) {
           return str.replace(/[^A-Za-z0-9_-]/g, '_');
