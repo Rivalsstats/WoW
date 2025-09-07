@@ -297,13 +297,6 @@ var klaroConfig = {
 
         // The services will appear in the modal in the same order as defined here.
         // {
-        //     name: 'inlineTracker',
-        //     title: 'Inline Tracker',
-        //     purposes: ['analytics'],
-        //     cookies: ['inline-tracker'],
-        //     optOut: false,
-        // },
-        // {
         //     name: 'externalTracker',
         //     title: 'External Tracker',
         //     purposes: ['analytics', 'security'],
@@ -337,6 +330,11 @@ var klaroConfig = {
         //     title: 'Google Fonts',
         //     purposes: ['styling'],
         // },
+        {
+            name: 'cloudflare-analytics',
+            title: 'Cloudflare Web Analytics',
+            purposes: ['analytics'],
+        },
         {
             name: 'raidbots',
             title: 'Raidbots',
