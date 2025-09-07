@@ -2,11 +2,6 @@
   "specName": "Holy",
   "className": "Priest",
   "talents": {
-    "82717": {
-      "name": "Renew",
-      "icon": "spell_holy_renew",
-      "spellId": 139
-    },
     "82715": {
       "name": "Dispel Magic",
       "icon": "spell_nature_nullifydisease",
@@ -16,11 +11,6 @@
       "name": "Shadowfiend",
       "icon": "spell_shadow_shadowfiend",
       "spellId": 34433
-    },
-    "82718": {
-      "name": "Prayer of Mending",
-      "icon": "spell_holy_prayerofmendingtga",
-      "spellId": 33076
     },
     "82714": {
       "name": "Improved Flash Heal",
@@ -461,16 +451,6 @@
       "name": "Answered Prayers",
       "icon": "inv_staff_2h_artifactheartofkure_d_06",
       "spellId": 391387
-    },
-    "94683": {
-      "name": "Premonition",
-      "icon": "inv_ability_oraclepriest_premonitioninsight",
-      "spellId": 428924
-    },
-    "94697": {
-      "name": "Power Surge",
-      "icon": "inv_ability_holyfire_groundstate",
-      "spellId": 453109
     },
     "94698": {
       "name": "Preventive Measures",

@@ -2,11 +2,6 @@
   "specName": "Devastation",
   "className": "Evoker",
   "talents": {
-    "93305": {
-      "name": "Landslide",
-      "icon": "ability_earthen_pillar",
-      "spellId": 358385
-    },
     "93304": {
       "name": "Obsidian Scales",
       "icon": "inv_artifact_dragonscales",
@@ -16,11 +11,6 @@
       "name": "Expunge",
       "icon": "ability_evoker_fontofmagic_green",
       "spellId": 365585
-    },
-    "93312": {
-      "name": "Natural Convergence",
-      "icon": "spell_frost_frostblast",
-      "spellId": 369913
     },
     "103843": {
       "name": "Heavy Wingbeats",
@@ -426,16 +416,6 @@
       "name": "Iridescence",
       "icon": "ability_evoker_powerswell",
       "spellId": 370867
-    },
-    "94939": {
-      "name": "Mass Disintegrate",
-      "icon": "ability_evoker_disintegrate",
-      "spellId": 436335
-    },
-    "94950": {
-      "name": "Engulf",
-      "icon": "inv_ability_flameshaperevoker_engulf",
-      "spellId": 443328
     },
     "94952": {
       "name": "Might of the Black Dragonflight",

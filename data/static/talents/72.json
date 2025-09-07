@@ -2,16 +2,6 @@
   "specName": "Fury",
   "className": "Warrior",
   "talents": {
-    "90325": {
-      "name": "Berserker Stance",
-      "icon": "ability_racial_avatar",
-      "spellId": 386196
-    },
-    "92538": {
-      "name": "Defensive Stance",
-      "icon": "ability_warrior_defensivestance",
-      "spellId": 386208
-    },
     "90344": {
       "name": "Fast Footwork",
       "icon": "ability_hunter_posthaste",
@@ -417,11 +407,6 @@
       "icon": "inv_sword_1h_artifactvigfus_d_01dual",
       "spellId": 391683
     },
-    "94803": {
-      "name": "Lightning Strikes",
-      "icon": "ability_vehicle_electrocharge",
-      "spellId": 434969
-    },
     "94816": {
       "name": "Crashing Thunder",
       "icon": "spell_nature_thunderclap",
@@ -436,11 +421,6 @@
       "name": "Strength of the Mountain",
       "icon": "ability_warrior_titansgrip",
       "spellId": 437068
-    },
-    "94814": {
-      "name": "Slayer's Dominance",
-      "icon": "inv_ability_slayerwarrior_slayersdominance",
-      "spellId": 444767
     },
     "94785": {
       "name": "Thunder Blast",

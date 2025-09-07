@@ -29,6 +29,8 @@ def build_lookup(talents_data):
         for node_key in NODE_TYPES:
             for node in spec.get(node_key, []):
                 node_id = node["id"]
+                if node.get("freeNode"):
+                    continue
                 for entry in node.get("entries", []):
                     # Avoid overwriting if duplicate across node types
                     if node_id not in mapping["talents"]:

@@ -2,11 +2,6 @@
   "specName": "Fire",
   "className": "Mage",
   "talents": {
-    "62119": {
-      "name": "Blazing Barrier",
-      "icon": "ability_mage_moltenarmor",
-      "spellId": 235313
-    },
     "62122": {
       "name": "Ice Block",
       "icon": "spell_frost_frost",
@@ -442,11 +437,6 @@
       "icon": "spell_fire_elementaldevastation",
       "spellId": 451755
     },
-    "94636": {
-      "name": "Frostfire Mastery",
-      "icon": "spell_frostresistancetotem_01",
-      "spellId": 431038
-    },
     "94642": {
       "name": "Imbued Warding",
       "icon": "inv_10_jewelcrafting_gem3primal_fire_cut_blue",
@@ -496,11 +486,6 @@
       "name": "Flash Freezeburn",
       "icon": "spell_fire_elementaldevastation",
       "spellId": 431178
-    },
-    "94647": {
-      "name": "Spellfire Spheres",
-      "icon": "inv_1115_mage_spellfirespheresgeneration",
-      "spellId": 448601
     },
     "94653": {
       "name": "Mana Cascade",

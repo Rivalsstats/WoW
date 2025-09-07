@@ -2,16 +2,6 @@
   "specName": "Protection",
   "className": "Warrior",
   "talents": {
-    "90261": {
-      "name": "Battle Stance",
-      "icon": "ability_warrior_offensivestance",
-      "spellId": 386164
-    },
-    "90330": {
-      "name": "Defensive Stance",
-      "icon": "ability_warrior_defensivestance",
-      "spellId": 386208
-    },
     "90344": {
       "name": "Fast Footwork",
       "icon": "ability_hunter_posthaste",
@@ -412,11 +402,6 @@
       "icon": "warrior_talent_icon_ravager",
       "spellId": 1235113
     },
-    "94803": {
-      "name": "Lightning Strikes",
-      "icon": "ability_vehicle_electrocharge",
-      "spellId": 434969
-    },
     "94816": {
       "name": "Crashing Thunder",
       "icon": "spell_nature_thunderclap",
@@ -466,11 +451,6 @@
       "name": "Avatar of the Storm",
       "icon": "achievement_dungeon_blackrockcaverns_ascendantlordobsidius",
       "spellId": 437134
-    },
-    "94818": {
-      "name": "Demolish",
-      "icon": "inv_ability_colossuswarrior_demolish",
-      "spellId": 436358
     },
     "94812": {
       "name": "Martial Expert",

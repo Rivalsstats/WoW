@@ -2,11 +2,6 @@
   "specName": "Frost",
   "className": "Death Knight",
   "talents": {
-    "76081": {
-      "name": "Icebound Fortitude",
-      "icon": "spell_deathknight_iceboundfortitude",
-      "spellId": 48792
-    },
     "76071": {
       "name": "Death Strike",
       "icon": "spell_deathknight_butcher2",
@@ -412,11 +407,6 @@
       "icon": "spell_deathknight_breathofsindragosa",
       "spellId": 1249658
     },
-    "95062": {
-      "name": "Reaper's Mark",
-      "icon": "inv_ability_deathbringerdeathknight_reapersmark",
-      "spellId": 439843
-    },
     "95036": {
       "name": "Wave of Souls",
       "icon": "spell_animamaw_wave",
@@ -466,11 +456,6 @@
       "name": "Exterminate",
       "icon": "inv_polearm_2h_titanargus_d_01",
       "spellId": 441378
-    },
-    "95066": {
-      "name": "Rider's Champion",
-      "icon": "achievement_zone_icecrown_01",
-      "spellId": 444005
     },
     "95060": {
       "name": "On a Paler Horse",

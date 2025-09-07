@@ -2,16 +2,6 @@
   "specName": "Augmentation",
   "className": "Evoker",
   "talents": {
-    "93305": {
-      "name": "Landslide",
-      "icon": "ability_earthen_pillar",
-      "spellId": 358385
-    },
-    "93304": {
-      "name": "Obsidian Scales",
-      "icon": "inv_artifact_dragonscales",
-      "spellId": 363916
-    },
     "93306": {
       "name": "Expunge",
       "icon": "ability_evoker_fontofmagic_green",
@@ -452,11 +442,6 @@
       "icon": "ability_evoker_earthensky",
       "spellId": 459725
     },
-    "98931": {
-      "name": "Mass Eruption",
-      "icon": "ability_evoker_eruption",
-      "spellId": 438587
-    },
     "94952": {
       "name": "Might of the Black Dragonflight",
       "icon": "ability_evoker_blackattunementalt",
@@ -506,11 +491,6 @@
       "name": "Maneuverability",
       "icon": "ability_evoker_deepbreath",
       "spellId": 433871
-    },
-    "94954": {
-      "name": "Chrono Flame",
-      "icon": "inv_ability_chronowardenevoker_chronoflame",
-      "spellId": 431442
     },
     "94948": {
       "name": "Warp",

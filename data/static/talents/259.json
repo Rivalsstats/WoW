@@ -2,11 +2,6 @@
   "specName": "Assassination",
   "className": "Rogue",
   "talents": {
-    "90740": {
-      "name": "Shiv",
-      "icon": "inv_throwingknife_04",
-      "spellId": 5938
-    },
     "90684": {
       "name": "Blind",
       "icon": "spell_shadow_mindsteal",
@@ -391,16 +386,6 @@
       "name": "Sudden Demise",
       "icon": "ability_deathknight_hemorrhagicfever",
       "spellId": 423136
-    },
-    "95125": {
-      "name": "Hand of Fate",
-      "icon": "inv_ability_fateboundrogue_handoffateheads",
-      "spellId": 452536
-    },
-    "95136": {
-      "name": "Deathstalker's Mark",
-      "icon": "inv_ability_deathstalkerrogue_deathstalkersmark",
-      "spellId": 457052
     },
     "95138": {
       "name": "Chosen's Revelry",

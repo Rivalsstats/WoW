@@ -2,16 +2,6 @@
   "specName": "Protection",
   "className": "Paladin",
   "talents": {
-    "81597": {
-      "name": "Lay on Hands",
-      "icon": "spell_holy_layonhands",
-      "spellId": 633
-    },
-    "81600": {
-      "name": "Auras of the Resolute",
-      "icon": "spell_holy_devotionaura",
-      "spellId": 385633
-    },
     "81510": {
       "name": "Hammer of Wrath",
       "icon": "spell_paladin_hammerofwrath",
@@ -51,11 +41,6 @@
       "name": "Afterimage",
       "icon": "spell_holy_aspiration",
       "spellId": 385414
-    },
-    "81632": {
-      "name": "Divine Steed",
-      "icon": "ability_paladin_divinesteed",
-      "spellId": 190784
     },
     "103854": {
       "name": "Light's Countenance",
@@ -457,11 +442,6 @@
       "icon": "ability_paladin_shieldofthetemplar",
       "spellId": 204074
     },
-    "95180": {
-      "name": "Light's Guidance",
-      "icon": "ability_paladin_longarmofthelaw",
-      "spellId": 427445
-    },
     "95183": {
       "name": "Zealous Vindication",
       "icon": "spell_holy_surgeoflight",
@@ -511,11 +491,6 @@
       "name": "Light's Deliverance",
       "icon": "inv_glove_plate_raidpaladinmythic_q_01",
       "spellId": 425518
-    },
-    "95234": {
-      "name": "Holy Armaments",
-      "icon": "inv_ability_lightsmithpaladin_holybulwark",
-      "spellId": 432459
     },
     "95233": {
       "name": "Rite of Sanctification",

@@ -2,11 +2,6 @@
   "specName": "Feral",
   "className": "Druid",
   "talents": {
-    "82199": {
-      "name": "Rake",
-      "icon": "ability_druid_disembowel",
-      "spellId": 1822
-    },
     "82220": {
       "name": "Frenzied Regeneration",
       "icon": "ability_bullrush",
@@ -27,11 +22,6 @@
       "icon": "ability_xavius_tormentingswipe",
       "spellId": 474526
     },
-    "82223": {
-      "name": "Thrash",
-      "icon": "spell_druid_thrash",
-      "spellId": 106832
-    },
     "82219": {
       "name": "Ursoc's Spirit",
       "icon": "spell_nature_spiritarmor",
@@ -46,11 +36,6 @@
       "name": "Starsurge",
       "icon": "spell_arcane_arcane03",
       "spellId": 197626
-    },
-    "82222": {
-      "name": "Rip",
-      "icon": "ability_ghoulfrenzy",
-      "spellId": 1079
     },
     "82218": {
       "name": "Verdant Heart",
@@ -457,11 +442,6 @@
       "icon": "ability_druid_primaltenacity",
       "spellId": 391881
     },
-    "94626": {
-      "name": "Thriving Growth",
-      "icon": "inv_ability_wildstalkerdruid_thrivinggrowth",
-      "spellId": 439528
-    },
     "94629": {
       "name": "Hunt Beneath the Open Skies",
       "icon": "spell_druid_lunarinspiration",
@@ -511,11 +491,6 @@
       "name": "Vigorous Creepers",
       "icon": "spell_druid_massentanglement",
       "spellId": 440119
-    },
-    "94609": {
-      "name": "Ravage",
-      "icon": "inv_ability_druidoftheclawdruid_ravage",
-      "spellId": 441583
     },
     "94618": {
       "name": "Fount of Strength",

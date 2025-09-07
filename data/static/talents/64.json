@@ -2,11 +2,6 @@
   "specName": "Frost",
   "className": "Mage",
   "talents": {
-    "62117": {
-      "name": "Ice Barrier",
-      "icon": "spell_ice_lament",
-      "spellId": 11426
-    },
     "62122": {
       "name": "Ice Block",
       "icon": "spell_frost_frost",
@@ -411,16 +406,6 @@
       "name": "Splintering Ray",
       "icon": "spell_fire_blueflamestrike",
       "spellId": 418733
-    },
-    "94664": {
-      "name": "Splintering Sorcery",
-      "icon": "achievement_dungeon_arcanevaults",
-      "spellId": 443739
-    },
-    "94636": {
-      "name": "Frostfire Mastery",
-      "icon": "spell_frostresistancetotem_01",
-      "spellId": 431038
     },
     "94662": {
       "name": "Augury Abounds",

@@ -2,20 +2,10 @@
   "specName": "Discipline",
   "className": "Priest",
   "talents": {
-    "82717": {
-      "name": "Renew",
-      "icon": "spell_holy_renew",
-      "spellId": 139
-    },
     "82715": {
       "name": "Dispel Magic",
       "icon": "spell_nature_nullifydisease",
       "spellId": 528
-    },
-    "82713": {
-      "name": "Shadowfiend",
-      "icon": "spell_shadow_shadowfiend",
-      "spellId": 34433
     },
     "82718": {
       "name": "Prayer of Mending",
@@ -442,11 +432,6 @@
       "icon": "spell_shadow_soulleech_3",
       "spellId": 123040
     },
-    "94683": {
-      "name": "Premonition",
-      "icon": "inv_ability_oraclepriest_premonitioninsight",
-      "spellId": 428924
-    },
     "94698": {
       "name": "Preventive Measures",
       "icon": "spell_holy_powerwordshield",
@@ -496,11 +481,6 @@
       "name": "Clairvoyance",
       "icon": "inv_ability_oraclepriest_clairvoyance",
       "spellId": 428940
-    },
-    "94684": {
-      "name": "Entropic Rift",
-      "icon": "inv_ability_voidweaverpriest_entropicrift",
-      "spellId": 447444
     },
     "94693": {
       "name": "No Escape",

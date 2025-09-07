@@ -2,16 +2,6 @@
   "specName": "Restoration",
   "className": "Shaman",
   "talents": {
-    "103588": {
-      "name": "Chain Heal",
-      "icon": "inv_1115_shaman_chainheal",
-      "spellId": 1064
-    },
-    "103598": {
-      "name": "Lava Burst",
-      "icon": "spell_shaman_lavaburst",
-      "spellId": 51505
-    },
     "103616": {
       "name": "Astral Shift",
       "icon": "ability_shaman_astralshift",
@@ -451,16 +441,6 @@
       "name": "Deeply Rooted Elements",
       "icon": "inv_misc_herb_liferoot_stem",
       "spellId": 378270
-    },
-    "94888": {
-      "name": "Call of the Ancestors",
-      "icon": "ability_racial_ancestralcall",
-      "spellId": 443450
-    },
-    "94877": {
-      "name": "Surging Totem",
-      "icon": "inv_ability_totemicshaman_surgingtotem",
-      "spellId": 455630
     },
     "94862": {
       "name": "Latent Wisdom",

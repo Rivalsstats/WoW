@@ -2,16 +2,6 @@
   "specName": "Arms",
   "className": "Warrior",
   "talents": {
-    "90327": {
-      "name": "Battle Stance",
-      "icon": "ability_warrior_offensivestance",
-      "spellId": 386164
-    },
-    "92537": {
-      "name": "Defensive Stance",
-      "icon": "ability_warrior_defensivestance",
-      "spellId": 386208
-    },
     "90344": {
       "name": "Fast Footwork",
       "icon": "ability_hunter_posthaste",
@@ -417,11 +407,6 @@
       "icon": "inv_sword_48",
       "spellId": 386634
     },
-    "94814": {
-      "name": "Slayer's Dominance",
-      "icon": "inv_ability_slayerwarrior_slayersdominance",
-      "spellId": 444767
-    },
     "94788": {
       "name": "Imminent Demise",
       "icon": "ability_warrior_improveddisciplines",
@@ -471,11 +456,6 @@
       "name": "Unrelenting Onslaught",
       "icon": "ability_warrior_commandingshout",
       "spellId": 444780
-    },
-    "94818": {
-      "name": "Demolish",
-      "icon": "inv_ability_colossuswarrior_demolish",
-      "spellId": 436358
     },
     "94812": {
       "name": "Martial Expert",

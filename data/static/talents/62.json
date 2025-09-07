@@ -2,11 +2,6 @@
   "specName": "Arcane",
   "className": "Mage",
   "talents": {
-    "62121": {
-      "name": "Prismatic Barrier",
-      "icon": "spell_magearmor",
-      "spellId": 235450
-    },
     "62122": {
       "name": "Ice Block",
       "icon": "spell_frost_frost",
@@ -417,11 +412,6 @@
       "icon": "spell_shadow_manafeed",
       "spellId": 452196
     },
-    "94664": {
-      "name": "Splintering Sorcery",
-      "icon": "achievement_dungeon_arcanevaults",
-      "spellId": 443739
-    },
     "94662": {
       "name": "Augury Abounds",
       "icon": "spell_arcane_arcanepotency",
@@ -471,11 +461,6 @@
       "name": "Splinterstorm",
       "icon": "ability_mage_burstofcold",
       "spellId": 443742
-    },
-    "94647": {
-      "name": "Spellfire Spheres",
-      "icon": "inv_1115_mage_spellfirespheresgeneration",
-      "spellId": 448601
     },
     "94653": {
       "name": "Mana Cascade",

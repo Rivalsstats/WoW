@@ -2,16 +2,6 @@
   "specName": "Holy",
   "className": "Paladin",
   "talents": {
-    "81597": {
-      "name": "Lay on Hands",
-      "icon": "spell_holy_layonhands",
-      "spellId": 633
-    },
-    "81600": {
-      "name": "Auras of the Resolute",
-      "icon": "spell_holy_devotionaura",
-      "spellId": 385633
-    },
     "81510": {
       "name": "Hammer of Wrath",
       "icon": "spell_paladin_hammerofwrath",
@@ -51,11 +41,6 @@
       "name": "Afterimage",
       "icon": "spell_holy_aspiration",
       "spellId": 385414
-    },
-    "81632": {
-      "name": "Divine Steed",
-      "icon": "ability_paladin_divinesteed",
-      "spellId": 190784
     },
     "103854": {
       "name": "Light's Countenance",
@@ -482,11 +467,6 @@
       "icon": "ability_paladin_artofwar",
       "spellId": 461273
     },
-    "95099": {
-      "name": "Dawnlight",
-      "icon": "inv_ability_heraldofthesunpaladin_dawnlight",
-      "spellId": 431377
-    },
     "95073": {
       "name": "Morning Star",
       "icon": "spell_holy_persecution",
@@ -536,11 +516,6 @@
       "name": "Sun's Avatar",
       "icon": "ability_paladin_holyavenger",
       "spellId": 431425
-    },
-    "95234": {
-      "name": "Holy Armaments",
-      "icon": "inv_ability_lightsmithpaladin_holybulwark",
-      "spellId": 432459
     },
     "95233": {
       "name": "Rite of Sanctification",
