@@ -248,7 +248,7 @@
           ">
                 <div class="flex-fill text-start">
                   <span class="badge bg-dark bg-opacity-50 text-white rounded px-2 mx-1">
-                    {{ dungeon_slug }}
+                    {{ dungeon['name']['en_US'] }}
                   </span>
                   <span class="badge bg-dark bg-opacity-50 text-success rounded px-2 mx-1">
                     +{{ r.level }}
@@ -399,6 +399,8 @@
         matches.forEach((r, idx) => {
           const slug = r.dungeon;
           const runKey = safeId(`${slug}-${r.route_key}-${r.run_id}`);
+          const dungeon = Object.values(dungeons).find(d => d.slug === slug);
+          const englishName = dungeon?.name?.en_US || slug; 
           const headerId = `heading-${runKey}`;
           const collapseId = `collapse-${runKey}`;
 
@@ -430,7 +432,7 @@
           left.className = 'flex-fill text-start';
           left.innerHTML = `
       <span class="badge bg-dark bg-opacity-50 text-white rounded px-2 mx-1">
-        ${slug}
+        ${englishName}
       </span>
       <span class="badge bg-dark bg-opacity-50 text-success rounded px-2 mx-1">
         +${r.level}
