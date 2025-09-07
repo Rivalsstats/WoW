@@ -94,14 +94,8 @@ jobs:
             git commit -m "Updated Spec Pages"
           fi
       
-          # Pull latest changes, fail only on actual errors
-          if ! git fetch --depth=1 origin main; then
-            echo "Error during shallow fetch" >&2
-            exit 1
-          fi
-
-          if ! git rebase origin/main; then
-            echo "Error during rebase" >&2
+          if ! git pull --rebase; then
+            echo "Error during git pull" >&2
             exit 1
           fi
 
