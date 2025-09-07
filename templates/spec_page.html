@@ -1309,7 +1309,7 @@
                             <div class="row align-items-center mb-2">
                               <!-- Pet image -->
                               <div class="col-auto">
-                                <a target="_blank" href="/creature/{{ pet.creature_id }}">
+                                <a target="_blank" href="https://www.wowhead.com/npc={{ pet.creature_id }}">
                                   <div class="position-relative" style="width:32px; height:32px; display:inline-block;">
                                     <img src="/{{ pet.image | trim('/') }}" alt="{{ pet.name }}"
                                       class="position-absolute top-0 start-0 border border-grey-100"
@@ -1320,7 +1320,7 @@
 
                               <!-- Name + family/type -->
                               <div class="col">
-                                <a target="_blank" href="/creature/{{ pet.creature_id }}">
+                                <a target="_blank" href="https://www.wowhead.com/npc={{ pet.creature_id }}">
                                   <p class="mb-1">{{ pet.name }}</p>
                                 </a>
                                 <small class="text-muted">{{ pet.family }}{% if pet.type %} · {{ pet.type }}{% endif
