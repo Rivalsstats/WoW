@@ -40,20 +40,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install jinja2 pyyaml requests mysql-connector-python
 
-      - name: Generate Spec HTML pages
-        run: |
-          python backend_scripts/generateSpecPages.py \
-            --database_host ${{secrets.DATABASE_HOST}} \
-            --database_user ${{secrets.DATABASE_USER}} \
-            --database_password ${{secrets.DATABASE_PASSWORT}} \
-            --database ${{secrets.DATABASE_NAME}} \
-            --CLIENT_ID ${{secrets.BLIZ_CLIENT_ID}} \
-            --CLIENT_SECRET ${{secrets.BLIZ_CLIENT_SECRET}} \
-            --template templates/spec_page.html \
-            --output_dir classes
-
-
-
       - name: Generate Dashboard HTML page
         env:
           DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
@@ -76,8 +62,19 @@ jobs:
       - name: Generate Legal HTML page
         run: |
           python backend_scripts/generateLegalPages.py \
-            --template templates/privacy.html  \
             --output_dir pages  
+
+      - name: Generate Spec HTML pages
+        run: |
+          python backend_scripts/generateSpecPages.py \
+            --database_host ${{secrets.DATABASE_HOST}} \
+            --database_user ${{secrets.DATABASE_USER}} \
+            --database_password ${{secrets.DATABASE_PASSWORT}} \
+            --database ${{secrets.DATABASE_NAME}} \
+            --CLIENT_ID ${{secrets.BLIZ_CLIENT_ID}} \
+            --CLIENT_SECRET ${{secrets.BLIZ_CLIENT_SECRET}} \
+            --template templates/spec_page.html \
+            --output_dir classes
 
       - name: Commit and push pages
         run: |
