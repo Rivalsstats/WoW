@@ -327,22 +327,28 @@ def checkItemLimits(sockets, socket_lookup, socket_limits):
             return socket
     return 
 
-def handleSocketsForItem(conn, cursor, spec_id, current_season_id, item_id, amount, sockets, socket_limits, socket_lookup):
+def handleSocketsForItem(conn, cursor, spec_id, current_season_id, item_id, amount, sockets, socket_limits, socket_lookup, socket_map=None):
     sockets_data = []
     if amount > 0:
-        current_socket_items = databaseConnector.fetch_top_sockets_for_item(conn, cursor, spec_id, current_season_id, item_id)
-        used_sockets = [pair[0] for pair in current_socket_items if len(pair) > 0]
-        for i in range(0, amount):
-            active_socket = None
-            if len(sockets) > 0 and sockets[0] in used_sockets:  # might want to change this
-                active_socket = checkItemLimits(sockets, socket_lookup, socket_limits)
+        # prefer socket_map if provided (no db roundtrip)
+        if socket_map is not None:
+            current_socket_items = socket_map.get(str(item_id), [])
+            used_sockets = [pair[0] for pair in current_socket_items]
+        else:
+            current_socket_items = databaseConnector.fetch_top_sockets_for_item(conn, cursor, spec_id, current_season_id, item_id)
+            used_sockets = [pair[0] for pair in current_socket_items if len(pair) > 0]
 
+        for _ in range(0, amount):
+            active_socket = None
+            if len(sockets) > 0 and sockets[0] in used_sockets:
+                active_socket = checkItemLimits(sockets, socket_lookup, socket_limits)
             elif used_sockets and len(used_sockets) > 0:
                 used_sockets_converted = [{"id": socket} for socket in used_sockets]
                 active_socket = checkItemLimits(used_sockets_converted, socket_lookup, socket_limits)
             if active_socket:
                 sockets_data.append(active_socket)
     return sockets_data
+
 
 def fetch_slot_info(conn, cursor, spec_id, current_season_id,slot):
     if MULTI_SLOT_GROUPS.get(slot):
@@ -531,8 +537,6 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
                         if enchant_id and enchant_lookup.get(enchant_id):
                             valid_enchants.append(enchant)
                             total_enchant_counts[slot_group] += enchant.get('count')
-                        else:
-                            print(f"Missing enchant lookup for {enchant_id}")
                     enchant_slots[slot_group] = valid_enchants
             print(f"[{datetime.now(timezone.utc).isoformat()}] fetching missives...")
             missives = databaseConnector.fetch_missive_count(
@@ -570,6 +574,13 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
                 int(items[0]['item']) for items in left_slots + right_slots + weapon_slots + trinket_slots if len(items) > 0
             }
 
+            all_item_ids = set()
+            for items in (left_slots + right_slots + weapon_slots + trinket_slots):
+                for it in items:
+                    all_item_ids.add(int(it.get('item')))
+            socket_map = databaseConnector.fetch_top_sockets_for_items(conn, cursor, spec_id, current_season_id, list(all_item_ids))
+
+
             socket_limits = {}
             for items, slot in zip(left_slots + right_slots + weapon_slots + trinket_slots, LEFT_ORDER+RIGHT_ORDER+WEAPON_SLOTS+TRINKET_SLOTS):
                 for item in items:
@@ -600,7 +611,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
                         print(f"Adjusting amount for item {item['item']}: {amount} {len(item_lookup.get(int(item['item']), {}).get('socketInfo', {}).get('sockets', []))}")
                         amount = len(item_lookup.get(int(item['item']), {}).get('socketInfo', {}).get('sockets', []))
 
-                    sockets_data = handleSocketsForItem(conn, cursor, spec_id, current_season_id, item['item'], amount, sockets, socket_limits, socket_lookup)
+                    sockets_data = handleSocketsForItem(conn, cursor, spec_id, current_season_id, item['item'], amount, sockets, socket_limits, socket_lookup, socket_map)
                     if sockets_data:
                         item["socket"] = sockets_data
 
@@ -611,12 +622,12 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
                         enchantment_data = enchant_slots.get(MULTI_SLOT_GROUPS[slot], [])[0]
                     item["enchantment"] = enchantment_data
 
-
+            print(f"[{datetime.now(timezone.utc).isoformat()}] normalizing slots...")
             left_slots = normalize_slot_collections(left_slots, LEFT_ORDER)
             right_slots = normalize_slot_collections(right_slots, RIGHT_ORDER)
             weapon_slots = normalize_slot_collections(weapon_slots, WEAPON_SLOTS)
             trinket_slots = normalize_slot_collections(trinket_slots, TRINKET_SLOTS)
-
+            print(f"[{datetime.now(timezone.utc).isoformat()}] adjusting weapon slots...")
             # remove offhand if 2 hander is equipped
             mh = next((g for g in weapon_slots if g["slot"] == "MAIN_HAND"), None)
             oh = next((g for g in weapon_slots if g["slot"] == "OFF_HAND"), None)

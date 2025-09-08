@@ -138,7 +138,6 @@ def get_talent_differences(talent_diffs, points_available, valid_talents):
     dungeon_talent_counts = {}
     for hero_talent_id, dungeon, talent_id, count in talent_diffs:
         if int(talent_id) not in valid_talents:
-            print("Talent ID not in valid talents:", talent_id)
             continue
         dungeon_counts[dungeon] = dungeon_counts.get(dungeon, 0) + int(count)
         talent_counts[talent_id] = talent_counts.get(talent_id, 0) + int(count)

@@ -498,6 +498,36 @@ def fetch_top_sockets_for_item(connection, cursor, spec_id, season, item_id):
     return fetch_with_retry(connection, cursor, FETCH_TOP_SOCKET_FOR_ITEM_SQL, params)
 
 
+FETCH_TOP_SOCKETS_FOR_ITEMS_SQL = """
+SELECT ais.item_id, ais.socket_item_id, SUM(ais.run_count) AS equip_count
+FROM Mythistone.aggregated_item_sockets AS ais
+WHERE ais.spec_id = %s
+  AND ais.season  = %s
+  AND ais.item_id IN ({placeholders})
+GROUP BY ais.item_id, ais.socket_item_id
+ORDER BY ais.item_id, equip_count DESC;
+"""
+
+def fetch_top_sockets_for_items(connection, cursor, spec_id, season, item_ids):
+    """
+    Return dict: { str(item_id): [ (socket_item_id, equip_count), ... ], ... }
+    Runs one query for all item_ids.
+    """
+    if not item_ids:
+        return {}
+    # ensure items are strings/ints, and build placeholders
+    item_ids_clean = [str(i) for i in item_ids]
+    placeholders = ",".join(["%s"] * len(item_ids_clean))
+    sql = FETCH_TOP_SOCKETS_FOR_ITEMS_SQL.format(placeholders=placeholders)
+    params = [spec_id, season] + item_ids_clean
+    rows = fetch_with_retry(connection, cursor, sql, params)
+    out = {}
+    for item_id, socket_item_id, equip_count in rows:
+        key = str(item_id)
+        out.setdefault(key, []).append((socket_item_id, int(equip_count)))
+    return out
+
+
 FETCH_TOP_BONUS_IDS_FOR_ITEM_SQL = """
 SELECT
   bonus_list,
