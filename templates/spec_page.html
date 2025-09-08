@@ -281,12 +281,8 @@
   <script defer type="text/javascript" src="/assets/js/plugins/klaro.js"></script>
   <link href="/assets/css/klaro.css" rel="stylesheet" />
   <!-- Simple Web Analytics -->
-   <script 
-    type="text/plain"
-    data-hostname="mythistone.github.io"
-    data-type="application/javascript"
-    data-name="simple-analytics"
-    data-src='https://scripts.simpleanalyticscdn.com/latest.js'></script>
+  <script type="text/plain" data-hostname="mythistone.github.io" data-type="application/javascript"
+    data-name="simple-analytics" data-src='https://scripts.simpleanalyticscdn.com/latest.js'></script>
   <!-- End Simple Web Analytics -->
 
 
@@ -295,6 +291,8 @@
   <!-- Nucleo Icons -->
   <link href="/assets/css/nucleo-icons.css" rel="stylesheet" />
   <link href="/assets/css/nucleo-svg.css" rel="stylesheet" />
+  <!-- bootstrap Icons-->
+  <link href="/assets/css/bootstrap-icons.css" rel="stylesheet" />
   <!-- Material Icons -->
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
@@ -387,13 +385,36 @@
         </li>
       </ul>
     </div>
-    <div class="sidenav-footer position-absolute w-100 bottom-0 ">
+
+    <div class="sidenav-footer position-absolute bottom-0 start-0 end-0 shadow border-top py-3"
+      role="contentinfo">
       <div class="mx-3">
-        <a class="btn btn-outline mt-4 w-100" href="https://discord.com/invite/v3gYmYamGJ" type="button">Join the
-          discord</a>
+        <div class="w-100 text-center">
+          <a class="btn btn-outline-primary w-100 mb-2" href="https://www.patreon.com/c/Jodsderechte">Support the Site
+            Development</a>
+          <a class="btn btn-outline-primary w-100 mb-2" href="https://discord.com/invite/v3gYmYamGJ">Give Feedback on
+            Discord</a>
+
+          <h6 class="mt-3">Share on Socials!</h6>
+          <div class="d-inline-flex gap-2">
+            <a href="https://twitter.com/intent/tweet?text=Check%20@Mythistone%20WoW%20M%20Plus%20Meta&amp;url=https%3A%2F%2Fwww.MythiStone.github.io%2FWoW"
+              class="btn btn-primary mb-0" target="_blank" rel="noopener noreferrer" aria-label="Share on X">
+              <i class="bi bi-twitter-x"></i>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=https://www.MythiStone.github.io"
+              class="btn btn-primary mb-0" target="_blank" rel="noopener noreferrer" aria-label="Share on Facebook">
+              <i class="bi bi-facebook"></i>
+            </a>
+            <a href="https://bsky.app/intent/compose?text=Check%20@mythistone.bsky.social%20WoW%20M%20Plus%20Meta%20https%3A%2F%2Fwww.MythiStone.github.io%2FWoW"
+              class="btn btn-primary mb-0" target="_blank" rel="noopener noreferrer" aria-label="Share on Bluesky">
+              <i class="bi bi-bluesky"></i>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </aside>
+
   <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <!-- Navbar -->
     <nav class="navbar navbar-main navbar-expand-lg px-0 mx-3 shadow-none border-radius-xl" id="navbarBlur"
@@ -1977,8 +1998,6 @@
   </script>
 
   <script src="https://wow.zamimg.com/widgets/power.js"></script>
-  <!-- Github buttons -->
-  <script async defer src="https://buttons.github.io/buttons.js"></script>
   <!-- chart.js -->
   <script src="/assets/js/plugins/chartjs.min.js"></script>
   <script src="/assets/js/plugins/chartjs-plugin-datalabels.min.js"></script>
