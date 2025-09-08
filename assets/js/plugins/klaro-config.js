@@ -331,8 +331,8 @@ var klaroConfig = {
         //     purposes: ['styling'],
         // },
         {
-            name: 'cloudflare-analytics',
-            title: 'Cloudflare Web Analytics',
+            name: 'simple-analytics',
+            title: 'Simple Web Analytics',
             purposes: ['analytics'],
         },
         {
