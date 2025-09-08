@@ -97,8 +97,8 @@
   --bs-tertiary-bg: #f5f5f5;
   --bs-tertiary-bg-rgb: 245, 245, 245;
   --bs-heading-color: #262626;
-  --bs-link-color: #e91e63;
-  --bs-link-color-rgb: 233, 30, 99;
+  --bs-link-color: #262626;
+  --bs-link-color-rgb: 38, 38, 38;
   --bs-link-decoration: none;
   --bs-link-hover-color: #e91e63;
   --bs-link-hover-color-rgb: 233, 30, 99;
@@ -130,6 +130,11 @@
   --bs-form-invalid-border-color: #fd5c70;
   --bs-nav-tabs-link-active-color: var(--bs-emphasis-color);
   --bs-nav-tabs-link-active-bg: var(--bs-body-bg);
+  --bs-emphasis-contrast: #ffffff;
+  --bs-emphasis-bg-subtle: rgba(var(--bs-emphasis-color-rgb), 0.08);
+  --bs-emphasis-bg-solid: var(--bs-emphasis-color);
+  --bs-emphasis-border-subtle: rgba(var(--bs-emphasis-color-rgb), 0.18);
+  --bs-card-bg: #ffffff8a;
 }
 
 [data-bs-theme=dark] {
@@ -171,10 +176,10 @@
   --bs-danger-border-subtle: rgb(146.4, 40.2, 31.8);
   --bs-light-border-subtle: #404040;
   --bs-dark-border-subtle: #262626;
-  --bs-heading-color: inherit;
-  --bs-link-color: rgb(241.8, 120, 161.4);
+  --bs-heading-color: #d4d4d4;
+  --bs-link-color: #fff;
   --bs-link-hover-color: rgb(244.44, 147, 180.12);
-  --bs-link-color-rgb: 242, 120, 161;
+  --bs-link-color-rgb: 255, 255, 255;
   --bs-link-hover-color-rgb: 244, 147, 180;
   --bs-code-color: rgb(230.4, 132.6, 181.2);
   --bs-highlight-color: #d4d4d4;
@@ -187,6 +192,11 @@
   --bs-form-invalid-border-color: rgb(245.4, 107.16, 107.16);
   --bs-nav-tabs-link-active-color: var(--bs-emphasis-color);
   --bs-nav-tabs-link-active-bg: var(--bs-body-bg);
+  --bs-emphasis-contrast: var(--bs-dark, #0a0a0a);
+  --bs-emphasis-bg-subtle: rgba(var(--bs-emphasis-color-rgb), 0.12);
+  --bs-emphasis-bg-solid: var(--bs-emphasis-color);
+  --bs-emphasis-border-subtle: rgba(var(--bs-emphasis-color-rgb), 0.20);
+  --bs-card-bg: #1d1d1d;
 }
 
 *,
@@ -4158,6 +4168,23 @@ fieldset:disabled .btn {
   --bs-gradient: none;
 }
 
+.btn-outline-emphasis {
+  --bs-btn-color: var(--bs-emphasis-color);
+  --bs-btn-border-color: var(--bs-emphasis-border-subtle);
+  --bs-btn-hover-color: var(--bs-emphasis-contrast);
+  --bs-btn-hover-bg: var(--bs-emphasis-bg-solid);
+  --bs-btn-hover-border-color: var(--bs-emphasis-bg-solid);
+  --bs-btn-focus-shadow-rgb: var(--bs-emphasis-color-rgb);
+  --bs-btn-active-color: var(--bs-emphasis-contrast);
+  --bs-btn-active-bg: var(--bs-emphasis-bg-solid);
+  --bs-btn-active-border-color: var(--bs-emphasis-bg-solid);
+  --bs-btn-active-shadow: none;
+  --bs-btn-disabled-color: rgba(var(--bs-emphasis-color-rgb), 0.35);
+  --bs-btn-disabled-bg: transparent;
+  --bs-btn-disabled-border-color: rgba(var(--bs-emphasis-color-rgb), 0.12);
+  --bs-gradient: none;
+}
+
 .btn-outline-dark {
   --bs-btn-color: #262626;
   --bs-btn-border-color: #262626;
@@ -5432,7 +5459,6 @@ fieldset:disabled .btn {
   --bs-card-cap-color: ;
   --bs-card-height: ;
   --bs-card-color: ;
-  --bs-card-bg: #fff;
   --bs-card-img-overlay-padding: 1rem;
   --bs-card-group-margin: 0.75rem;
   position: relative;
@@ -5440,7 +5466,7 @@ fieldset:disabled .btn {
   flex-direction: column;
   min-width: 0;
   height: var(--bs-card-height);
-  color: var(--bs-body-color);
+  color: var(--bs-body-color-emphasis);
   word-wrap: break-word;
   background-color: var(--bs-card-bg);
   background-clip: border-box;
@@ -5504,7 +5530,6 @@ fieldset:disabled .btn {
   padding: var(--bs-card-cap-padding-y) var(--bs-card-cap-padding-x);
   margin-bottom: 0;
   color: var(--bs-card-cap-color);
-  background-color: var(--bs-card-cap-bg);
   border-bottom: var(--bs-card-border-width) solid var(--bs-card-border-color);
 }
 
@@ -11147,6 +11172,10 @@ fieldset:disabled .btn {
 
 .text-body {
   color: #737373 !important;
+}
+
+.text-body-emphasis {
+  color: var(--bs-emphasis-color) !important;
 }
 
 .text-rose {
@@ -22823,18 +22852,6 @@ fieldset:disabled .btn {
   }
 }
 
-.dark-version {
-  background-color: #171717 !important;
-}
-
-.dark-version .main-content {
-  background-color: #171717 !important;
-}
-
-.dark-version.virtual-reality>div {
-  background-image: none !important;
-}
-
 .dark-version .sidenav {
   background: #1d1d1d !important;
   border: 1px solid rgba(255, 255, 255, 0.04);
@@ -22913,13 +22930,6 @@ fieldset:disabled .btn {
 .dark-version .kanban-board {
   background: #1d1d1d;
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
-}
-
-.dark-version .card .card-header,
-.dark-version .swal2-popup .card-header,
-.dark-version .dropdown .dropdown-menu .card-header,
-.dark-version .kanban-board .card-header {
-  background: transparent;
 }
 
 .dark-version .card p,
@@ -24923,7 +24933,6 @@ hr.horizontal.gray-light {
   padding-left: 0.75rem;
   padding-right: 0.75rem;
   font-weight: 500;
-  color: #fff;
   font-size: 0.75rem;
 }
 
@@ -24979,7 +24988,14 @@ hr.horizontal.gray-light {
 .navbar-vertical.navbar-expand-xs .navbar-collapse {
   display: block;
   overflow: auto;
-  height: calc(100vh - 200px);
+  height: auto;
+  height: calc(72vh);
+}
+
+.sidenav .sidenav-footer {
+  position: absolute; /* you already have this */
+  z-index: 1100 !important; /* higher than .sidenav and internal parts */
+  height: 20vh;
 }
 
 .navbar-vertical.navbar-expand-xs>[class*=container] {
@@ -27347,7 +27363,6 @@ h4,
 
 a {
   letter-spacing: 0rem;
-  color: #262626;
 }
 
 .text-sm {

@@ -60,7 +60,7 @@
         tag=='button' %}onclick="event.preventDefault();" {% endif %}>
         <div class="position-relative" style="width:16px; height:16px; display:inline-block;">
           <!-- Base icon -->
-           {% set icon = (reagent_lookup[entry.embellishment].itemIcon) or (reagent_lookup[entry.embellishment].icon) %}
+          {% set icon = (reagent_lookup[entry.embellishment].itemIcon) or (reagent_lookup[entry.embellishment].icon) %}
           <img src="/data/icons/{{ icon }}.png" alt=""
             class="position-absolute top-0 start-0 border {% if reagent_lookup[entry.embellishment].quality %}border-quality-{{reagent_lookup[entry.embellishment].quality}} {% else %}border-grey-100{% endif %}"
             style="width:100%; height:100%; object-fit:contain;">
@@ -99,7 +99,8 @@
         href="https://www.wowhead.com/item={{ enchant_lookup[entry.enchantment.id].itemId }}&spec={{ spec_id }}" {% if
         tag=='button' %}onclick="event.preventDefault();" {% endif %}>
         <div class="position-relative" style="width:16px; height:16px; display:inline-block;">
-          {% set icon = (enchant_lookup[entry.enchantment.id].itemIcon) or (enchant_lookup[entry.enchantment.id].icon) %}
+          {% set icon = (enchant_lookup[entry.enchantment.id].itemIcon) or (enchant_lookup[entry.enchantment.id].icon)
+          %}
           <!-- Base icon -->
           <img src="/data/icons/{{ icon }}.png" alt=""
             class="position-absolute top-0 start-0 border {% if enchant_lookup[entry.enchantment.id].quality %}border-quality-{{enchant_lookup[entry.enchantment.id].quality}} {% else %}border-grey-100{% endif %}"
@@ -301,56 +302,57 @@
   <link id="pagestyle" href="/assets/css/stat-colors.css" rel="stylesheet" />
 </head>
 
-<body class="g-sidenav-show  bg-gray-100">
+<body class="g-sidenav-show" data-bs-theme="dark">
 
-  <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2  bg-white my-2"
+  <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2 bg-white my-2"
     id="sidenav-main">
     <div class="sidenav-header">
-      <i class="fas fa-times p-3 cursor-pointer text-dark opacity-5 position-absolute end-0 top-0 d-none d-xl-none"
+      <i class="fas fa-times p-3 cursor-pointer opacity-5 position-absolute end-0 top-0 d-none d-xl-none"
         aria-hidden="true" id="iconSidenav"></i>
-      <a class="navbar-brand px-4 py-3 m-0" href=" https://Rivalsstats.com/WoW/pages/dashboard " target="_blank">
+      <a class="navbar-brand px-4 py-3 m-0" href="/" target="_blank">
         <img src="/assets/img/favicon/favicon-96x96.png" class="navbar-brand-img" width="26" height="26"
           alt="main_logo">
-        <span class="ms-1 text-sm text-dark">MythiStone</span>
+        <span class="ms-1 text-sm text-body-emphasis">MythiStone</span>
       </a>
     </div>
     <hr class="horizontal dark mt-0 mb-2">
-    <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
+
+    <div class="collapse navbar-collapse w-auto pb-5" id="sidenav-collapse-main">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link text-dark" href="/pages/dashboard">
-            <i class="material-symbols-rounded opacity-5">dashboard</i>
-            <span class="nav-link-text ms-1">Dashboard</span>
+          <a class="nav-link " href="/pages/dashboard">
+            <i class="material-symbols-rounded text-body-emphasis opacity-5">dashboard</i>
+            <span class="nav-link-text text-body-emphasis ms-1">Dashboard</span>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-dark" href="/pages/routes">
-            <i class="material-symbols-rounded opacity-5">Route</i>
-            <span class="nav-link-text ms-1">Routes</span>
+          <a class="nav-link " href="/pages/routes">
+            <i class="material-symbols-rounded text-body-emphasis opacity-5">Route</i>
+            <span class="nav-link-text text-body-emphasis ms-1">Routes</span>
           </a>
         </li>
+
         <li class="nav-item mt-3">
-          <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-5">Classes</h6>
+          <h6 class="ps-4 ms-2 text-uppercase text-xs text-body-emphasis font-weight-bolder opacity-5">Classes</h6>
         </li>
+
         <div class="accordion" id="specNavAccordion">
           {% for role_name, specs in spec_nav.items() %}
           {% set rid = role_name|replace(' ', '') %}
           <div class="accordion-item bg-transparent border-0">
-            <!-- Accordion header / button -->
             <h2 class="accordion-header" id="heading-{{ rid }}">
-              <button class="nav-link text-dark collapsed" type="button" data-bs-toggle="collapse"
+              <button class="nav-link collapsed" type="button" data-bs-toggle="collapse"
                 data-bs-target="#collapse-{{ rid }}" aria-expanded="false" aria-controls="collapse-{{ rid }}">
                 {% set ROLE_ICONS = {
                 'Tank' : 'shield',
                 'Healer': 'health_cross',
                 'Dps' : 'swords'
                 } %}
-                <i class="material-symbols-rounded opacity-5">{{ ROLE_ICONS[role_name] }}</i>
-                <span class="nav-link-text ms-1">{{ role_name }}</span>
+                <i class="material-symbols-rounded text-body-emphasis opacity-5">{{ ROLE_ICONS[role_name] }}</i>
+                <span class="nav-link-text text-body-emphasis ms-1">{{ role_name }}</span>
               </button>
             </h2>
 
-            <!-- Accordion body: list of specs -->
             <div id="collapse-{{ rid }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ rid }}"
               data-bs-parent="#specNavAccordion">
               <div class="accordion-body px-0 py-1">
@@ -359,7 +361,7 @@
                   <li class="nav-item">
                     <a href="{{ nav.url }}"
                       class="nav-link d-flex align-items-center
-                         {% if nav.name == current_spec %}active bg-gradient-dark text-white{% else %}text-dark{% endif %}">
+                       {% if nav.name == current_spec %}active bg-gradient-dark text-white{% endif %}">
                       <img width="24" src="/data/icons/{{ nav.icon }}.jpg" class="img-fluid" alt="{{ nav.name }} Icon">
                       <span class="nav-link-text ms-2" {% if nav.name !=current_spec %}
                         style="color: rgb({{ nav.color.r }}, {{ nav.color.g }}, {{ nav.color.b }})" {% endif %}>
@@ -374,11 +376,12 @@
           </div>
           {% endfor %}
         </div>
+
         <li class="nav-item mt-3">
           <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-5">Other Pages</h6>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-dark">
+          <a class="nav-link">
             <i class="material-symbols-rounded opacity-5">Upcoming</i>
             <span class="nav-link-text ms-1">Coming Soon</span>
           </a>
@@ -390,9 +393,9 @@
       role="contentinfo">
       <div class="mx-3">
         <div class="w-100 text-center">
-          <a class="btn btn-outline-primary w-100 mb-2" href="https://www.patreon.com/c/Jodsderechte">Support the Site
+          <a class="btn btn-outline-emphasis w-100 mb-2" href="https://www.patreon.com/c/Jodsderechte">Support the Site
             Development</a>
-          <a class="btn btn-outline-primary w-100 mb-2" href="https://discord.com/invite/v3gYmYamGJ">Give Feedback on
+          <a class="btn btn-outline-emphasis w-100 mb-2" href="https://discord.com/invite/v3gYmYamGJ">Give Feedback on
             Discord</a>
 
           <h6 class="mt-3">Share on Socials!</h6>
@@ -422,10 +425,10 @@
       <div class="container-fluid py-1 px-3">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
-            <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">Classes</a></li>
-            <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">{{role}}</a></li>
-            <li class="breadcrumb-item text-sm text-dark active" aria-current="page">
-              {{spec.get('name')}}_{{class_info.get('name')}}</li>
+            <li class="breadcrumb-item text-sm text-body"><a class="opacity-5" href="javascript:;">Classes</a></li>
+            <li class="breadcrumb-item text-sm text-body"><a class="opacity-5" href="javascript:;">{{role}}</a></li>
+            <li class="breadcrumb-item text-sm text-body-emphasis active" aria-current="page">
+              {{spec.get('name')}} {{class_info.get('name')}}</li>
           </ol>
         </nav>
         <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
@@ -437,7 +440,7 @@
           </div>
           <ul class="navbar-nav d-flex align-items-center  justify-content-end">
             <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
-              <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
+              <a href="javascript:;" class="nav-link text-body-emphasis p-0" id="iconNavbarSidenav">
                 <div class="sidenav-toggler-inner">
                   <i class="sidenav-toggler-line"></i>
                   <i class="sidenav-toggler-line"></i>
@@ -446,7 +449,7 @@
               </a>
             </li>
             <li class="nav-item px-3 d-flex align-items-center">
-              <a href="javascript:;" class="nav-link text-body p-0">
+              <a href="javascript:;" class="nav-link text-body-emphasis p-0">
                 <i class="material-symbols-rounded fixed-plugin-button-nav">settings</i>
               </a>
             </li>
@@ -478,7 +481,7 @@
     <div class="container-fluid py-2">
       <h3> <span style="color: rgb({{ class_info.color.r }}, {{ class_info.color.g }}, {{ class_info.color.b }})">{{
           spec.name }} {{ class_info.name }} </span> Mythic + build</h6>
-        <div class="row justify-content-center text-start gx-4 align-items-stretch">
+        <div class="row justify-content-center text-start gx-4 align-items-stretch text-body-emphasis">
           <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
             <div class="card h-100" style="
               background-image: url('/data/icons/{{ spec_lookup[spec_id|string].SpellIconFileId }}.jpg');
@@ -855,7 +858,7 @@
                 <div class="accordion mx-2" id="enchantAccordion">
                   <div class="accordion-item">
                     <h2 class="accordion-header" id="headingEnchant">
-                      <button class="accordion-button collapsed text-white fw-semibold text-center w-100" type="button"
+                      <button class="accordion-button collapsed fw-semibold text-center w-100" type="button"
                         data-bs-toggle="collapse" data-bs-target="#collapseEnchant" aria-expanded="false"
                         aria-controls="collapseEnchant">
                         Enchantment Details
@@ -1049,7 +1052,7 @@
                 <div class="accordion mx-2" id="socketAccordion">
                   <div class="accordion-item">
                     <h2 class="accordion-header" id="headingSocket">
-                      <button class="accordion-button collapsed text-white fw-semibold text-center w-100" type="button"
+                      <button class="accordion-button collapsed fw-semibold text-center w-100" type="button"
                         data-bs-toggle="collapse" data-bs-target="#collapseSocket" aria-expanded="false"
                         aria-controls="collapseSocket">
                         Socket (Gem) Details
@@ -1133,7 +1136,7 @@
                 <div class="accordion mx-2" id="embellishmentAccordion">
                   <div class="accordion-item">
                     <h2 class="accordion-header" id="headingEmbellishment">
-                      <button class="accordion-button collapsed text-white fw-semibold text-center w-100" type="button"
+                      <button class="accordion-button collapsed fw-semibold text-center w-100" type="button"
                         data-bs-toggle="collapse" data-bs-target="#collapseEmbellishment" aria-expanded="false"
                         aria-controls="collapseEmbellishment">
                         Embellishment Details
@@ -1222,7 +1225,7 @@
                   <div class="accordion mx-2" id="missiveAccordion">
                     <div class="accordion-item">
                       <h2 class="accordion-header" id="headingMissive">
-                        <button class="accordion-button collapsed text-white fw-semibold text-center w-100"
+                        <button class="accordion-button collapsed fw-semibold text-center w-100"
                           type="button" data-bs-toggle="collapse" data-bs-target="#collapseMissive"
                           aria-expanded="false" aria-controls="collapseMissive">
                           Missive Details
@@ -1315,7 +1318,7 @@
                 <div class="accordion mx-2" id="hunterPetAccordion">
                   <div class="accordion-item">
                     <h2 class="accordion-header" id="headingHunterPets">
-                      <button class="accordion-button collapsed text-white fw-semibold text-center w-100" type="button"
+                      <button class="accordion-button collapsed fw-semibold text-center w-100" type="button"
                         data-bs-toggle="collapse" data-bs-target="#collapseHunterPets" aria-expanded="false"
                         aria-controls="collapseHunterPets">
                         Hunter Pet Details
@@ -1388,20 +1391,20 @@
               <div class="col-lg-6">
                 <ul class="nav nav-footer justify-content-center justify-content-lg-end">
                   <li class="nav-item">
-                  <a href="/" class="nav-link text-muted" target="_blank">MythiStone</a>
-                </li>
-                <li class="nav-item">
-                  <a href="/pages/privacy" class="nav-link text-muted" target="_blank">Privacy</a>
-                </li>
-                <li class="nav-item">
+                    <a href="/" class="nav-link text-muted" target="_blank">MythiStone</a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="/pages/privacy" class="nav-link text-muted" target="_blank">Privacy</a>
+                  </li>
+                  <li class="nav-item">
                     <a href="/pages/impressum" class="nav-link text-muted" target="_blank">Impressum</a>
                   </li>
-                <li class="nav-item">
-                  <a href="/pages/about" class="nav-link text-muted" target="_blank">About Us</a>
-                </li>
-                <li class="nav-item">
-                  <a href="/pages/blog" class="nav-link text-muted" target="_blank">Blog</a>
-                </li>
+                  <li class="nav-item">
+                    <a href="/pages/about" class="nav-link text-muted" target="_blank">About Us</a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="/pages/blog" class="nav-link text-muted" target="_blank">Blog</a>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -1429,7 +1432,7 @@
                           background-repeat: no-repeat;
                           background-blend-mode: overlay;
                         ">
-                  <span class="badge bg-dark bg-opacity-50 text-white rounded px-2">{{
+                  <span class="badge bg-dark bg-opacity-50 rounded px-2">{{
                     dungeon_lookup[dungeon].name['en_US'] }}</span>
                 </button>
               </h2>
@@ -1614,7 +1617,7 @@
                             background-blend-mode: overlay;
                           ">
                   <div class="flex-fill text-start text-nowrap">
-                    <span class="badge bg-dark bg-opacity-50 text-white rounded px-2">{{
+                    <span class="badge bg-dark bg-opacity-50 rounded px-2">{{
                       dungeon_lookup_slug[ds.dungeon_id|string].name['en_US'] }}</span>
                     {% set info = top_routes[ds.dungeon_id].duration|
                     upgrade_info(dungeon_lookup_slug[ds.dungeon_id|string].keystone_upgrades,
@@ -1624,10 +1627,10 @@
                     </span>
                   </div>
                   <div class="flex-fill text-center p-2">
-                    <span class="badge bg-dark bg-opacity-50 text-white rounded px-2 mr-1">
+                    <span class="badge bg-dark bg-opacity-50 rounded px-2 mr-1">
                       {{ top_routes[ds.dungeon_id].duration|duration }}
                     </span>
-                    <span class="timestamp badge bg-dark bg-opacity-50 text-white rounded px-2 ml-1"
+                    <span class="timestamp badge bg-dark bg-opacity-50 rounded px-2 ml-1"
                       data-bs-toggle="tooltip" data-bs-placement="top"
                       data-timestamp={{top_routes[ds.dungeon_id].timestamp|int}}></span>
                   </div>
@@ -1697,7 +1700,7 @@
           <p>Config the Ui</p>
         </div>
         <div class="float-end mt-4">
-          <button class="btn btn-link text-dark p-0 fixed-plugin-close-button">
+          <button class="btn btn-link p-0 fixed-plugin-close-button">
             <i class="material-symbols-rounded">clear</i>
           </button>
         </div>
@@ -1738,23 +1741,8 @@
         <div class="mt-2 d-flex">
           <h6 class="mb-0">Light / Dark</h6>
           <div class="form-check form-switch ps-0 ms-auto my-auto">
-            <input class="form-check-input mt-1 ms-auto" type="checkbox" id="dark-version" onclick="darkMode(this)">
+            <input class="form-check-input mt-1 ms-auto" type="checkbox" id="dark-version" >
           </div>
-        </div>
-        <hr class="horizontal dark my-sm-4">
-        <a class="btn btn-outline-dark w-100" href="https://discord.com/invite/v3gYmYamGJ">Give Feedback on Discord</a>
-        <div class="w-100 text-center">
-          <a class="github-button" href="https://github.com/MythiStone/mythistone.github.io" data-icon="octicon-star" data-size="large"
-            data-show-count="true" aria-label="Star MythiStone on GitHub">Star</a>
-          <h6 class="mt-3">Thank you for sharing!</h6>
-          <a href="https://twitter.com/intent/tweet?text=Check%20Mythistone%20WoW%20M%20Plus%20Meta&amp;url=https%3A%2F%2Fwww.MythiStone.github.io%2FWoW"
-            class="btn btn-dark mb-0 me-2" target="_blank">
-            <i class="fab fa-twitter me-1" aria-hidden="true"></i> Tweet
-          </a>
-          <a href="https://www.facebook.com/sharer/sharer.php?u=https://www.MythiStone.github.io"
-            class="btn btn-dark mb-0 me-2" target="_blank">
-            <i class="fab fa-facebook-square me-1" aria-hidden="true"></i> Share
-          </a>
         </div>
       </div>
     </div>
@@ -1762,8 +1750,6 @@
   <!--   Core JS Files   -->
   <script src="/assets/js/core/popper.min.js"></script>
   <script src="/assets/js/core/bootstrap.min.js"></script>
-  <script src="/assets/js/plugins/perfect-scrollbar.min.js"></script>
-  <script src="/assets/js/plugins/smooth-scrollbar.min.js"></script>
   <script>
     var win = navigator.platform.indexOf('Win') > -1;
     if (win && document.querySelector('#sidenav-scrollbar')) {
@@ -1899,7 +1885,6 @@
         }
         iframe = newIframe;
 
-        // keep your ratio adjustments
         if (window.matchMedia("(any-hover:none)").matches) {
           wrapper.classList.remove('ratio-16x9');
           wrapper.classList.add('ratio-4x3');
@@ -2251,7 +2236,7 @@
           }
 
           showSpinner(panel);
-          observeIframeSrc(iframe, panel); // monitor changes (Klaro may set src)
+          observeIframeSrc(iframe, panel);
 
           const serviceName = iframe.getAttribute('data-name') || 'keystoneGuru';
 
@@ -2271,23 +2256,11 @@
   <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="/assets/js/material-dashboard.js"></script>
   <script>
-    const selectors = '.klaro .context-notice, .klaro .cookie-notice, .klaro .cookie-modal, #klaro';
-    const observer = new MutationObserver(() => {
-      const nodes = document.querySelectorAll(selectors);
-      if (nodes.length) setDark(document.querySelector('#dark-version').checked);
-    });
-    function setDark(enabled) {
-      document.querySelectorAll(selectors).forEach(el => {
-        if (enabled) el.classList.add('cm-dark');
-        else el.classList.remove('cm-dark');
-      });
-    }
-    observer.observe(document.body, { childList: true, subtree: true });
-    darkMode(document.querySelector('#dark-version'));
     sidebarColor(document.querySelector('#defaultColor'));
     document.querySelector('#defaultSidebarType').classList.add('active');
     sidebarType(document.querySelector('#defaultSidebarType'));
   </script>
+
 </body>
 
 </html>
