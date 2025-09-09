@@ -1168,7 +1168,6 @@ FETCH_RUNS_PER_PERIOD = """
 -- params: (season, season)
 SELECT
   t.week,
-  t.day_in_week,
   SUM(CASE WHEN t.upgrade_tier = '3' THEN 1 ELSE 0 END) AS tier_3,
   SUM(CASE WHEN t.upgrade_tier = '2' THEN 1 ELSE 0 END) AS tier_2,
   SUM(CASE WHEN t.upgrade_tier = '1' THEN 1 ELSE 0 END) AS tier_1,
@@ -1213,8 +1212,8 @@ FROM (
    AND r.timestamp < rp.end_timestamp
   WHERE r.season = %s
 ) AS t
-GROUP BY t.week, t.day_in_week
-ORDER BY t.week, t.day_in_week;
+GROUP BY t.week
+ORDER BY t.week;
 """
 
 def fetch_runs_per_period(connection, cursor, season):
@@ -1222,7 +1221,7 @@ def fetch_runs_per_period(connection, cursor, season):
     rows = fetch_with_retry(connection, cursor, FETCH_RUNS_PER_PERIOD, params)
     if not rows:
         return []
-    return [{"week": int(row[0]), "day_in_week": int(row[1]), "upgrade_3": int(row[2]), "upgrade_2": int(row[3]), "upgrade_1": int(row[4]), "depleted": int(row[5]), "total_runs": int(row[6])} for row in rows]
+    return [{"week": int(row[0]), "upgrade_3": int(row[1]), "upgrade_2": int(row[2]), "upgrade_1": int(row[3]), "depleted": int(row[4]), "total_runs": int(row[5])} for row in rows]
 
 DUNGEON_UPGRADES_SQL = """
 SELECT
