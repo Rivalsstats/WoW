@@ -21,7 +21,6 @@ season_index_url = "https://{region}.api.blizzard.com/data/wow/mythic-keystone/s
 season_details_url = "https://{region}.api.blizzard.com/data/wow/mythic-keystone/season/{season_id}"
 period_details_url = "https://{region}.api.blizzard.com/data/wow/mythic-keystone/period/{period_id}"
 
-# Your Blizzard API client credentials (set these as environment variables)
 CLIENT_ID = os.getenv('BLIZ_CLIENT_ID')
 CLIENT_SECRET = os.getenv('BLIZ_CLIENT_SECRET')
 

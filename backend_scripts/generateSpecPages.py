@@ -9,13 +9,9 @@ from datetime import datetime, timezone
 from contextlib import closing
 import re
 from urllib.parse import quote_plus
+from pageGeneration import ROLE_FOLDERS, generateSpecNav
 
 LOOKUP_DIR = "data/static"  # Default lookup directory, can be overridden by command line argument
-ROLE_FOLDERS = {
-    "0": "Tank",
-    "1": "Healer",
-    "2": "Dps",
-}
 LEFT_ORDER = ["HEAD", "NECK", "SHOULDER", "BACK", "CHEST", "WRIST"]
 RIGHT_ORDER = ["HANDS", "WAIST", "LEGS", "FEET", "FINGER_1", "FINGER_2"]
 
@@ -193,7 +189,7 @@ def format_duration(ms):
     """
     Turn a millisecond count into:
       - "MM:SS.mmm" if under an hour
-      - "HH:MM:SS.mmm" once you hit one hour or more
+      - "HH:MM:SS.mmm" if one hour or more
 
     Examples:
       34567    → "00:34.567"
@@ -364,6 +360,197 @@ def fetch_slot_info(conn, cursor, spec_id, current_season_id,slot):
         return databaseConnector.fetch_top_items_for_slot_with_bonus(
                     conn, cursor, spec_id, current_season_id, slot
                 )
+    
+def fetch_hero_tree_info(conn, cursor, spec_id, current_season_id):
+    popular_hero_tree = 0
+    popular_hero_tree_count = 0
+    hero_trees = aggregateData.get_hero_trees(
+        conn, cursor, spec_id, current_season_id
+    )
+    hero_tree_count = 0
+    for tree in hero_trees:
+        if tree.get("count"):
+            count = tree["count"]
+            hero_tree_count += count
+            if count > popular_hero_tree_count:
+                popular_hero_tree_count = count
+                popular_hero_tree = tree.get("id")
+    return hero_trees, popular_hero_tree, popular_hero_tree_count, hero_tree_count
+
+def fetch_top_routes(route_data, spec_id):
+    dungeon_entries = route_data.get(spec_id, {}).get("dungeons", [])
+    # produce a mapping dungeon_id → best route_key
+    top_routes = {}
+    for d in dungeon_entries:
+        if d.get("routes"):
+            top_routes[d["dungeon_id"]] = get_top_route(d["routes"])
+            top_routes[d["dungeon_id"]]["dungeon_id"] = d["dungeon_id"]
+    return top_routes
+
+def fetch_enchant_info(conn, cursor, spec_id, current_season_id, enchant_lookup):
+    enchant_slots_raw = {
+        slot_group: aggregateData.get_enchants_for_slot(
+            conn, cursor, spec_id, current_season_id, slot_group
+        )
+        for slot_group in SLOT_GROUPS
+    }
+    total_enchant_counts = {slot_group: 0 for slot_group in SLOT_GROUPS}
+    enchant_slots = {}
+    for slot_group, enchants in enchant_slots_raw.items():
+        if enchants and len(enchants) > 0:
+            valid_enchants = []
+            for enchant in enchants:
+                enchant_id = enchant.get("id")
+                if enchant_id and enchant_lookup.get(enchant_id):
+                    valid_enchants.append(enchant)
+                    total_enchant_counts[slot_group] += enchant.get('count')
+            enchant_slots[slot_group] = valid_enchants
+    return enchant_slots, total_enchant_counts
+
+
+def convert_slots(conn, cursor, spec_id, current_season_id, slots, item_lookup, bonus_lookup, missive_lookup, embellishment_lookup, bonus_quality_lookup, sockets, socket_lookup, enchant_slots, set_members, spec_talents_difs=None, missives=None, embellishments=None):
+    primary_ids = {
+        int(items[0]['item']) for items in slots if len(items) > 0
+    }
+
+    all_item_ids = set()
+    for items in (slots):
+        for it in items:
+            all_item_ids.add(int(it.get('item')))
+    socket_map = databaseConnector.fetch_top_sockets_for_items(conn, cursor, spec_id, current_season_id, list(all_item_ids))
+
+
+    socket_limits = {}
+    for items, slot in zip(slots, LEFT_ORDER+RIGHT_ORDER+WEAPON_SLOTS+TRINKET_SLOTS):
+        for item in items:
+            sid = item_lookup[int(item['item'])].get("itemSetId")
+            if sid:
+                raw_peers = [pid for pid in set_members[sid]]
+                peers = [pid for pid in raw_peers if pid in primary_ids]
+                if peers:
+                    item["pcs"] = peers
+
+            amount = 0
+            if not item.get("bonus"):
+                continue
+            bonus = item.get('bonus', {}).get('ids','')
+            bonus_ids = bonus.split(',')
+            for bonus in bonus_ids:
+                if bonus_lookup.get(str(bonus)) and bonus_lookup[str(bonus)].get('socket'):
+                    amount += bonus_lookup[str(bonus)].get('socket')
+                if missive_lookup.get(str(bonus)):
+                    if missives and len(missives) > 0:
+                        item["missive"] = missives[0][0]
+                if embellishment_lookup.get(str(bonus)):
+                    if embellishments and len(embellishments) > 0:
+                        item["embellishment"] = embellishments[0][0]
+                if bonus_quality_lookup.get(str(bonus)):
+                    item["quality_override"] = bonus_quality_lookup[str(bonus)]
+            if amount < len(item_lookup.get(int(item['item']), {}).get('socketInfo', {}).get('sockets', [])):
+                print(f"Adjusting amount for item {item['item']}: {amount} {len(item_lookup.get(int(item['item']), {}).get('socketInfo', {}).get('sockets', []))}")
+                amount = len(item_lookup.get(int(item['item']), {}).get('socketInfo', {}).get('sockets', []))
+
+            sockets_data = handleSocketsForItem(conn, cursor, spec_id, current_season_id, item['item'], amount, sockets, socket_limits, socket_lookup, socket_map)
+            if sockets_data:
+                item["socket"] = sockets_data
+
+            enchantment_data = {}
+            if enchant_slots.get(slot) and len(enchant_slots[slot]) > 0:
+                enchantment_data = enchant_slots[slot][0]
+            elif MULTI_SLOT_GROUPS.get(slot) and enchant_slots.get(MULTI_SLOT_GROUPS[slot]) and len(enchant_slots[MULTI_SLOT_GROUPS[slot]]) > 0:
+                enchantment_data = enchant_slots.get(MULTI_SLOT_GROUPS[slot], [])[0]
+            item["enchantment"] = enchantment_data
+
+def handle_offhand(weapon_slots, item_lookup):
+    mh = next((g for g in weapon_slots if g["slot"] == "MAIN_HAND"), None)
+    oh = next((g for g in weapon_slots if g["slot"] == "OFF_HAND"), None)
+    if mh and mh["entries"] and len(mh["entries"]) > 0:
+        mh_item_id = mh["entries"][0]["id"]
+        # look up its inventoryType; two‑handers are 17 and ranged weapons are 26
+        if item_lookup.get(mh_item_id, {}).get("inventoryType") == 17 or item_lookup.get(mh_item_id, {}).get("itemSubClass") == 3:
+            # always build combined list (falls back to just mh entries if oh is None)
+            combined = mh["entries"] + (oh.get("entries", []) if oh else [])
+            # re‑sort + trim to top 10
+            mh["entries"] = combined
+            # if there was an Off Hand slot, drop it entirely
+            if oh:
+                weapon_slots = [g for g in weapon_slots if g["slot"] != "OFF_HAND"]
+
+def fetch_stat_info(conn, cursor, spec_id, current_season_id, spec_lookup):
+    stats = databaseConnector.fetch_stats(conn, cursor, spec_id, current_season_id)
+    stat_priority = []
+    tertiary_priority = []
+    health_priority = []
+    for stat, value in stats.items():
+        if stat == 'mainstat':
+            value['name'] = spec_lookup[spec_id].get('primary_stat')
+            stat_priority.append(value)
+        elif stat in SECONDARY_STATS:
+            value['name'] = stat
+            stat_priority.append(value)
+        elif stat in TERTIARY_STATS:
+            value['name'] = stat
+            tertiary_priority.append(value)
+        elif stat in HEALTH_STATS:
+            value['name'] = stat
+            health_priority.append(value)
+    return stat_priority, tertiary_priority, health_priority
+
+def fetch_hunter_pets(conn, cursor, spec_id, spec_data, spec_runs, creature_lookup, non_tameable_creatures):
+    hunter_pets = []
+
+    # check for hunter
+    if str(spec_data.get("classID")) == "3":
+        print(f"[{datetime.now(timezone.utc).isoformat()}] fetching hunter pets for spec {spec_id}...")
+        try:
+            pet_rows = databaseConnector.fetch_top_hunter_pets_by_spec(conn, cursor, spec_id)
+        except Exception as e:
+            print(f"Error fetching hunter pets: {e}")
+            pet_rows = []
+
+        # pet_rows expected: list of dicts { 'creature_id': int, 'run_count': int }
+        # Determine spec_runs_count: spec_runs may be an int or list — be defensive
+        if isinstance(spec_runs, int):
+            spec_runs_count = spec_runs
+        elif isinstance(spec_runs, (list, tuple)):
+            spec_runs_count = len(spec_runs)
+        else:
+            # fallback if spec_runs is missing or something else
+            spec_runs_count = int(spec_runs) if spec_runs else 0
+
+        # avoid zero division later
+        if spec_runs_count == 0:
+            spec_runs_count = 1
+
+        total_pet_runs = sum(int(p.get("run_count", 0)) for p in pet_rows) or 1
+
+        for p in pet_rows:
+            cid = str(p.get("creature_id"))
+            info = creature_lookup.get(cid, {})
+            name = info.get("name", {}).get("en_US") or info.get("name") or cid
+            family = info.get("family", {}).get("en_US") or ""
+            family_id = info.get("family_id") or ""
+            if family_id in non_tameable_creatures[spec_id]:
+                print(f"Skipping non-tameable pet {name} ({cid}) for spec {spec_id}")
+                continue
+            ctype = info.get("type", {}).get("en_US") or ""
+            image = info.get("image") or f"data/creature_img/{cid}.jpg"
+            run_count = int(p.get("run_count", 0))
+            pet = {
+                "creature_id": cid,
+                "name": name,
+                "family": family,
+                "type": ctype,
+                "image": image,
+                "run_count": run_count,
+                # % of this spec's runs that included this pet
+                "pet_pct_spec": (run_count / spec_runs_count) * 100,
+                # % of total pet observations
+                "pet_pct_of_pet_total": (run_count / total_pet_runs) * 100,
+            }
+            hunter_pets.append(pet)
+    hunter_pets = hunter_pets[:10]
+    return hunter_pets
 
 def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec=None):
     # Prepare Jinja2 environment
@@ -420,30 +607,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
         if sid:
             set_members[sid].append(iid)
 
-    # Build a dict mapping role names to lists of specs
-    spec_nav = {role_name: [] for role_name in ROLE_FOLDERS.values()}
-
-    for sid, sdata in spec_lookup.items():
-        role_key = str(sdata.get("role", 2))
-        role_name = ROLE_FOLDERS.get(role_key, "Other")
-        class_data = class_lookup.get(str(sdata.get("classID", "")), {})
-        filename = f"{sdata['name']}_{class_data.get('name')}"
-        spec_nav[role_name].append(
-            {
-                "name": f"{sdata['name']} {class_data.get('name')}",
-                "url": f"/classes/{role_name}/{filename}",
-                "icon": sdata.get("SpellIconFileId"),
-                "color": {
-                    "r": class_data.get("color", {}).get("r", 0),
-                    "g": class_data.get("color", {}).get("g", 0),
-                    "b": class_data.get("color", {}).get("b", 0),
-                },
-            }
-        )
-
-    # Optionally sort each list by name:
-    for lst in spec_nav.values():
-        lst.sort(key=lambda x: x["name"])
+    spec_nav = generateSpecNav(spec_lookup, class_lookup) 
 
     access_token = aggregateData.get_access_token(CLIENT_ID, CLIENT_SECRET)
     current_season_id = aggregateData.get_current_season_id(access_token)
@@ -453,6 +617,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
 
     notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
 
+    # if only single page should be rendered set spec_keys to just that one spec
     if spec:
         spec_keys = [spec]
     else:
@@ -495,49 +660,13 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
                 for s in TRINKET_SLOTS
             ]
             print(f"[{datetime.now(timezone.utc).isoformat()}] fetching routes...")
-            dungeon_entries = route_data.get(spec_id, {}).get("dungeons", [])
-            # produce a mapping dungeon_id → best route_key
-            top_routes = {}
-            for d in dungeon_entries:
-                if d.get("routes"):
-                    top_routes[d["dungeon_id"]] = get_top_route(d["routes"])
-                    top_routes[d["dungeon_id"]]["dungeon_id"] = d["dungeon_id"]
-            # Render template
-
-            
-
-            popular_hero_tree = 0
-            popular_hero_tree_count = 0
+            top_routes = fetch_top_routes(route_data, spec_id)
             print(f"[{datetime.now(timezone.utc).isoformat()}] fetching hero tree info...")
-            hero_trees = aggregateData.get_hero_trees(
-                conn, cursor, spec_id, current_season_id
-            )
-            hero_tree_count = 0
-            for tree in hero_trees:
-                if tree.get("count"):
-                    count = tree["count"]
-                    hero_tree_count += count
-                    if count > popular_hero_tree_count:
-                        popular_hero_tree_count = count
-                        popular_hero_tree = tree.get("id")
+            hero_trees, popular_hero_tree, popular_hero_tree_count, hero_tree_count = fetch_hero_tree_info(conn, cursor, spec_id, current_season_id)
             print(f"[{datetime.now(timezone.utc).isoformat()}] fetching enchants...")
-            enchant_slots_raw = {
-                slot_group: aggregateData.get_enchants_for_slot(
-                    conn, cursor, spec_id, current_season_id, slot_group
-                )
-                for slot_group in SLOT_GROUPS
-            }
-            total_enchant_counts = {slot_group: 0 for slot_group in SLOT_GROUPS}
-            enchant_slots = {}
-            for slot_group, enchants in enchant_slots_raw.items():
-                if enchants and len(enchants) > 0:
-                    valid_enchants = []
-                    for enchant in enchants:
-                        enchant_id = enchant.get("id")
-                        if enchant_id and enchant_lookup.get(enchant_id):
-                            valid_enchants.append(enchant)
-                            total_enchant_counts[slot_group] += enchant.get('count')
-                    enchant_slots[slot_group] = valid_enchants
+            enchant_slots, total_enchant_counts = fetch_enchant_info(
+                conn, cursor, spec_id, current_season_id, enchant_lookup
+            )
             print(f"[{datetime.now(timezone.utc).isoformat()}] fetching missives...")
             missives = databaseConnector.fetch_missive_count(
                 conn, cursor, spec_id, current_season_id
@@ -547,11 +676,9 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
             embellishments = databaseConnector.fetch_embellishment_count(
                 conn, cursor, spec_id, current_season_id
             )
-
-            total_embellishment_count = sum(e[1]for e in embellishments)
+            total_embellishment_count = sum(e[1] for e in embellishments)
             print(f"[{datetime.now(timezone.utc).isoformat()}] fetching sockets...")
             sockets = aggregateData.get_sockets(conn, cursor, spec_id, current_season_id)
-
             total_socket_count = sum(s.get("count", 0) for s in sockets)
             print(f"[{datetime.now(timezone.utc).isoformat()}] fetching spec data count...")
             data_count = databaseConnector.fetch_spec_data_count(
@@ -570,58 +697,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
             highest_run = databaseConnector.fetch_max_key_run_per_spec(conn, cursor, spec_id, current_season_id)
 
             print(f"[{datetime.now(timezone.utc).isoformat()}] converting slots...")
-            primary_ids = {
-                int(items[0]['item']) for items in left_slots + right_slots + weapon_slots + trinket_slots if len(items) > 0
-            }
-
-            all_item_ids = set()
-            for items in (left_slots + right_slots + weapon_slots + trinket_slots):
-                for it in items:
-                    all_item_ids.add(int(it.get('item')))
-            socket_map = databaseConnector.fetch_top_sockets_for_items(conn, cursor, spec_id, current_season_id, list(all_item_ids))
-
-
-            socket_limits = {}
-            for items, slot in zip(left_slots + right_slots + weapon_slots + trinket_slots, LEFT_ORDER+RIGHT_ORDER+WEAPON_SLOTS+TRINKET_SLOTS):
-                for item in items:
-                    sid = item_lookup[int(item['item'])].get("itemSetId")
-                    if sid:
-                        raw_peers = [pid for pid in set_members[sid]]
-                        peers = [pid for pid in raw_peers if pid in primary_ids]
-                        if peers:
-                            item["pcs"] = peers
-
-                    amount = 0
-                    if not item.get("bonus"):
-                        continue
-                    bonus = item.get('bonus', {}).get('ids','')
-                    bonus_ids = bonus.split(',')
-                    for bonus in bonus_ids:
-                        if bonus_lookup.get(str(bonus)) and bonus_lookup[str(bonus)].get('socket'):
-                            amount += bonus_lookup[str(bonus)].get('socket')
-                        if missive_lookup.get(str(bonus)):
-                            if missives and len(missives) > 0:
-                                item["missive"] = missives[0][0]
-                        if embellishment_lookup.get(str(bonus)):
-                            if embellishments and len(embellishments) > 0:
-                                item["embellishment"] = embellishments[0][0]
-                        if bonus_quality_lookup.get(str(bonus)):
-                            item["quality_override"] = bonus_quality_lookup[str(bonus)]
-                    if amount < len(item_lookup.get(int(item['item']), {}).get('socketInfo', {}).get('sockets', [])):
-                        print(f"Adjusting amount for item {item['item']}: {amount} {len(item_lookup.get(int(item['item']), {}).get('socketInfo', {}).get('sockets', []))}")
-                        amount = len(item_lookup.get(int(item['item']), {}).get('socketInfo', {}).get('sockets', []))
-
-                    sockets_data = handleSocketsForItem(conn, cursor, spec_id, current_season_id, item['item'], amount, sockets, socket_limits, socket_lookup, socket_map)
-                    if sockets_data:
-                        item["socket"] = sockets_data
-
-                    enchantment_data = {}
-                    if enchant_slots.get(slot) and len(enchant_slots[slot]) > 0:
-                        enchantment_data = enchant_slots[slot][0]
-                    elif MULTI_SLOT_GROUPS.get(slot) and enchant_slots.get(MULTI_SLOT_GROUPS[slot]) and len(enchant_slots[MULTI_SLOT_GROUPS[slot]]) > 0:
-                        enchantment_data = enchant_slots.get(MULTI_SLOT_GROUPS[slot], [])[0]
-                    item["enchantment"] = enchantment_data
-
+            convert_slots(conn, cursor, spec_id, current_season_id, left_slots + right_slots + weapon_slots + trinket_slots, item_lookup, bonus_lookup, missive_lookup, embellishment_lookup, bonus_quality_lookup, sockets, socket_lookup, enchant_slots, set_members, spec_talents_difs, missives, embellishments)
             print(f"[{datetime.now(timezone.utc).isoformat()}] normalizing slots...")
             left_slots = normalize_slot_collections(left_slots, LEFT_ORDER)
             right_slots = normalize_slot_collections(right_slots, RIGHT_ORDER)
@@ -629,96 +705,13 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
             trinket_slots = normalize_slot_collections(trinket_slots, TRINKET_SLOTS)
             print(f"[{datetime.now(timezone.utc).isoformat()}] adjusting weapon slots...")
             # remove offhand if 2 hander is equipped
-            mh = next((g for g in weapon_slots if g["slot"] == "MAIN_HAND"), None)
-            oh = next((g for g in weapon_slots if g["slot"] == "OFF_HAND"), None)
-            if mh and mh["entries"] and len(mh["entries"]) > 0:
-                mh_item_id = mh["entries"][0]["id"]
-                # look up its inventoryType; two‑handers are 17 and ranged weapons are 26
-                if item_lookup.get(mh_item_id, {}).get("inventoryType") == 17 or item_lookup.get(mh_item_id, {}).get("itemSubClass") == 3:
-                    # always build combined list (falls back to just mh entries if oh is None)
-                    combined = mh["entries"] + (oh.get("entries", []) if oh else [])
-                    # re‑sort + trim to top 10
-                    mh["entries"] = combined
-                    # if there was an Off Hand slot, drop it entirely
-                    if oh:
-                        weapon_slots = [g for g in weapon_slots if g["slot"] != "OFF_HAND"]
-
+            handle_offhand(weapon_slots, item_lookup)
             print(f"[{datetime.now(timezone.utc).isoformat()}] fetching upgrade counts...")
             upgrade_counts = databaseConnector.fetch_spec_upgrade(conn, cursor, spec_id, current_season_id)
             print(f"[{datetime.now(timezone.utc).isoformat()}] fetching stats...")
-            stats = databaseConnector.fetch_stats(conn, cursor, spec_id, current_season_id)
-            stat_priority = []
-            tertiary_priority = []
-            health_priority = []
-            for stat, value in stats.items():
-                if stat == 'mainstat':
-                    value['name'] = spec_lookup[spec_id].get('primary_stat')
-                    stat_priority.append(value)
-                elif stat in SECONDARY_STATS:
-                    value['name'] = stat
-                    stat_priority.append(value)
-                elif stat in TERTIARY_STATS:
-                    value['name'] = stat
-                    tertiary_priority.append(value)
-                elif stat in HEALTH_STATS:
-                    value['name'] = stat
-                    health_priority.append(value)
-
+            stat_priority, tertiary_priority, health_priority = fetch_stat_info(conn, cursor, spec_id, current_season_id, spec_lookup)
             print(f"[{datetime.now(timezone.utc).isoformat()}] fetching hunter pets...")
-            hunter_pets = []
-
-            # check for hunter
-            if str(spec_data.get("classID")) == "3":
-                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching hunter pets for spec {spec_id}...")
-                try:
-                    pet_rows = databaseConnector.fetch_top_hunter_pets_by_spec(conn, cursor, spec_id)
-                except Exception as e:
-                    print(f"Error fetching hunter pets: {e}")
-                    pet_rows = []
-
-                # pet_rows expected: list of dicts { 'creature_id': int, 'run_count': int }
-                # Determine spec_runs_count: spec_runs may be an int or list — be defensive
-                if isinstance(spec_runs, int):
-                    spec_runs_count = spec_runs
-                elif isinstance(spec_runs, (list, tuple)):
-                    spec_runs_count = len(spec_runs)
-                else:
-                    # fallback if spec_runs is missing or something else
-                    spec_runs_count = int(spec_runs) if spec_runs else 0
-
-                # avoid zero division later
-                if spec_runs_count == 0:
-                    spec_runs_count = 1
-
-                total_pet_runs = sum(int(p.get("run_count", 0)) for p in pet_rows) or 1
-
-                for p in pet_rows:
-                    cid = str(p.get("creature_id"))
-                    info = creature_lookup.get(cid, {})
-                    name = info.get("name", {}).get("en_US") or info.get("name") or cid
-                    family = info.get("family", {}).get("en_US") or ""
-                    family_id = info.get("family_id") or ""
-                    if family_id in non_tameable_creatures[spec_id]:
-                        print(f"Skipping non-tameable pet {name} ({cid}) for spec {spec_id}")
-                        continue
-                    ctype = info.get("type", {}).get("en_US") or ""
-                    image = info.get("image") or f"data/creature_img/{cid}.jpg"
-                    run_count = int(p.get("run_count", 0))
-                    pet = {
-                        "creature_id": cid,
-                        "name": name,
-                        "family": family,
-                        "type": ctype,
-                        "image": image,
-                        "run_count": run_count,
-                        # % of this spec's runs that included this pet
-                        "pet_pct_spec": (run_count / spec_runs_count) * 100,
-                        # % of total pet observations (useful if you prefer this view)
-                        "pet_pct_of_pet_total": (run_count / total_pet_runs) * 100,
-                    }
-                    hunter_pets.append(pet)
-            hunter_pets = hunter_pets[:10]
-            print(hunter_pets)
+            hunter_pets = fetch_hunter_pets(conn, cursor, spec_id, spec_data, spec_runs, creature_lookup, non_tameable_creatures)
 
             print(f"[{datetime.now(timezone.utc).isoformat()}] generating page...")
             output_html = template.render(

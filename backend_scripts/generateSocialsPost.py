@@ -236,8 +236,6 @@ def create_MplusImage(active_run, run, donesocials, check_socials=True, add_regi
     canvas  = Image.alpha_composite(bg_crop, overlay).convert('RGB')
     draw    = ImageDraw.Draw(canvas)
 
-    # fonts (ensure these .ttf files exist in your fonts dir)
-
     # --- header: dungeon icon + name ---
     header_text = f"{dungeon_name} {upgrade_info(duration=duration_ms, upgrade_map=dungeon_meta['keystone_upgrades'],keystone_level=level)['text']}"
     max_header_w = WIDTH * 0.8
@@ -1072,7 +1070,6 @@ def create_dungeon_tierlist(output_dir, donesocials, api_key, url, season,
         y = y_positions[t]
         x = x_offsets[t]
 
-        # load & border your icon as before…
         icon = Image.open(os.path.join(ICON_DIR, dungeon_lookup[str(row['id'])]['icon']))
         icon = icon.resize((icon_px, icon_px))
         canv = Image.new('RGBA', (icon_px+2*border_w, icon_px+2*border_w), (0,0,0,0))

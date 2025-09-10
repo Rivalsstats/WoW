@@ -10,7 +10,7 @@ from aggregateData import get_current_season_id, get_access_token , fetch_json
 CLIENT_ID = os.environ["BLIZ_CLIENT_ID"]
 CLIENT_SECRET = os.environ["BLIZ_CLIENT_SECRET"]
 RAIDERIO_API_KEY = os.environ["RAIDERIO_API_KEY"]
-NAMESPACE = "dynamic-us"  # or your target namespaceR
+NAMESPACE = "dynamic-us"  
 API_BASE = "https://us.api.blizzard.com"
 ICON_DIR = "data/icons"
 

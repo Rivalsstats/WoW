@@ -186,7 +186,6 @@ async def main():
                     # store a 5‑tuple: (level, run_id, comp, duration, timestamp)
                     grouped.setdefault(key, []).append((lvl, rid, comp, duration, timestamp))
 
-                    # still build your overall comp_routes as before
                     existing = comp_routes.get(comp)
                     if not existing or lvl > existing["level"]:
                        comp_routes[comp] = {
@@ -206,7 +205,6 @@ async def main():
                     comp_lists = [comp             for *_, comp, _, _ in entries]
                     durations  = [duration         for *_, duration, _ in entries]
                     timestamps = [timestamp        for *_, _, timestamp in entries]
-                    # pick the highest‐level run’s duration & timestamp if you want a single value:
                     max_idx    = levels.index(max(levels))
                     max_duration  = durations[max_idx]
                     max_timestamp = timestamps[max_idx]

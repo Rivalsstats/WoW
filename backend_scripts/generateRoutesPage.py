@@ -4,9 +4,9 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from collections import OrderedDict, defaultdict
 from datetime import datetime, timezone
 import argparse
+from pageGeneration import generateSpecNav
 from generateSpecPages import (
     LOOKUP_DIR,
-    ROLE_FOLDERS,
     humanize_number,
     format_duration,
     format_utc_timestamp,
@@ -29,29 +29,7 @@ def main(template_path, output_dir):
     season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
     dungeon_lookup = load_json(os.path.join(LOOKUP_DIR, "dungeons.json"))
 
-    spec_nav = {role_name: [] for role_name in ROLE_FOLDERS.values()}
-
-    for sid, sdata in spec_lookup.items():
-        role_key = str(sdata.get("role", 2))
-        role_name = ROLE_FOLDERS.get(role_key, "Other")
-        class_data = class_lookup.get(str(sdata.get("classID", "")), {})
-        filename = f"{sdata['name']}_{class_data.get('name')}"
-        spec_nav[role_name].append(
-            {
-                "name": f"{sdata['name']} {class_data.get('name')}",
-                "url": f"/classes/{role_name}/{filename}",
-                "icon": sdata.get("SpellIconFileId"),
-                "color": {
-                    "r": class_data.get("color", {}).get("r", 0),
-                    "g": class_data.get("color", {}).get("g", 0),
-                    "b": class_data.get("color", {}).get("b", 0),
-                },
-            }
-        )
-
-    # Optionally sort each list by name:
-    for lst in spec_nav.values():
-        lst.sort(key=lambda x: x["name"])
+    spec_nav = generateSpecNav(spec_lookup, class_lookup)
 
     comp_routes_by_dungeon = defaultdict(list)
     for key, info in comp_routes.items():
@@ -60,7 +38,6 @@ def main(template_path, output_dir):
         info['specs'] = key.split(',')
         comp_routes_by_dungeon[info['dungeon']].append(info)
 
-    # sort each dungeon’s runs however you like, e.g. by level desc:
     for runs in comp_routes_by_dungeon.values():
         runs.sort(key=lambda r: r['level'], reverse=True)
 

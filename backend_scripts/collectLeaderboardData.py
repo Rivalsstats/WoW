@@ -307,7 +307,6 @@ async def fetch_leaderboard_and_queue(
             member["profile"]["timestamp"] = (
                 datetime.now(timezone.utc).date().isoformat()
             )
-        # tag group for downstream CSV worker
         group.update(
             {
                 "run_hash": run_hash,
@@ -601,7 +600,6 @@ async def simple_worker(name: str, session: ClientSession):
             }
             for member in group["members"]:
                 run_obj["members"].append({
-                    # these are "new" members: no member_id key
                     "spec_id": member["specialization"]["id"],
                     "loadout": None,
                     "hero_talent_id": None,
@@ -1073,7 +1071,7 @@ async def timeout_watcher(collector_task: asyncio.Task):
 
 
 async def runner():
-    # Kick off both your main collector and the timeout watcher
+    # Kick off both main collector and the timeout watcher
     print(
         f"[{datetime.now(timezone.utc).isoformat()}] Starting data collection runner…"
     )

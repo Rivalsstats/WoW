@@ -8,9 +8,9 @@ import aggregateData
 import argparse
 import databaseConnector
 from collections import defaultdict, Counter
+from pageGeneration import generateSpecNav
 from generateSpecPages import (
     LOOKUP_DIR,
-    ROLE_FOLDERS,
     humanize_number,
     format_duration,
     format_utc_timestamp,
@@ -54,7 +54,6 @@ def createKeysPerWeek(periods):
     plus_two_counts = [p["upgrade_2"] for p in periods]
     plus_three_counts = [p["upgrade_3"] for p in periods]
 
-    # map your colors (you can pull these from a lookup or hard‑code)
     line_colors = {
         "Total": "#4A90E2",
         "Depleted": RARITY_COLORS["Depleted"],
@@ -176,7 +175,7 @@ def create_spec_scatter(spec_upgrades, spec_lookup, class_lookup, highest_key):
         # lookup spec & class data (safe lookups)
         sdata = spec_lookup.get(str(spec_id))
         if not sdata:
-            # skip unknown specs (or you could fallback to label=f"Spec {spec_id}")
+            # skip unknown specs
             continue
         cdata = class_lookup.get(str(sdata.get("classID", "")), {})
 
@@ -201,7 +200,7 @@ def create_spec_scatter(spec_upgrades, spec_lookup, class_lookup, highest_key):
 
 def create_dungeon_ease(dungeon_data, dungeon_lookup, top_n=None):
     """
-    rows: list of dicts from your SQL:
+    rows: list of dicts from  SQL:
       { "dungeon_id": ..., "keystone_level": ..., "tier_3": ..., "tier_2": ..., "tier_1": ..., "depleted": ..., "total_runs": ... }
     dungeon_lookup: mapping keyed by string dungeon_id -> info (with name.en_US)
     top_n: optional int to limit returned dungeons to top N by total runs
@@ -362,10 +361,7 @@ def assemble_spec_level_datasets(rows, spec_lookup, class_lookup, top_n, include
 
     if not levels_set:
         return [], json.dumps([])
-    
-    
 
-    # sorted key levels ascending (you can reverse if you prefer)
     key_levels = sorted(levels_set)
 
     # pick top N specs by overall total
@@ -443,7 +439,7 @@ def assemble_spec_level_datasets(rows, spec_lookup, class_lookup, top_n, include
                 pct = (raw_counts[i] / denom) * 100.0
             else:
                 pct = 0.0
-            # clamp to small decimals if you like
+            # clamp to small decimals
             data_pcts.append(round(pct, 3))
 
         dataset = {
@@ -455,9 +451,6 @@ def assemble_spec_level_datasets(rows, spec_lookup, class_lookup, top_n, include
         }
         datasets.append(dataset)
 
-    # Order datasets is important for stacking: Chart.js will draw datasets in order.
-    # If you want the biggest specs on top, reverse datasets or reorder as needed.
-    # We'll keep top_specs first (largest) so they appear at the top of the stack/legend.
     return key_levels, json.dumps(datasets)
 
 
@@ -475,29 +468,7 @@ def main(template_path, output_dir):
     spec_lookup = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
 
-    spec_nav = {role_name: [] for role_name in ROLE_FOLDERS.values()}
-
-    for sid, sdata in spec_lookup.items():
-        role_key = str(sdata.get("role", 2))
-        role_name = ROLE_FOLDERS.get(role_key, "Other")
-        class_data = class_lookup.get(str(sdata.get("classID", "")), {})
-        filename = f"{sdata['name']}_{class_data.get('name')}"
-        spec_nav[role_name].append(
-            {
-                "name": f"{sdata['name']} {class_data.get('name')}",
-                "url": f"/classes/{role_name}/{filename}",
-                "icon": sdata.get("SpellIconFileId"),
-                "color": {
-                    "r": class_data.get("color", {}).get("r", 0),
-                    "g": class_data.get("color", {}).get("g", 0),
-                    "b": class_data.get("color", {}).get("b", 0),
-                },
-            }
-        )
-
-    # Optionally sort each list by name:
-    for lst in spec_nav.values():
-        lst.sort(key=lambda x: x["name"])
+    spec_nav = generateSpecNav(spec_lookup, class_lookup) 
 
 
 

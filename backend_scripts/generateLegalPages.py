@@ -4,9 +4,9 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from collections import OrderedDict, defaultdict
 from datetime import datetime, timezone
 import argparse
+from pageGeneration import generateSpecNav
 from generateSpecPages import (
     LOOKUP_DIR,
-    ROLE_FOLDERS,
     humanize_number,
     format_duration,
     format_utc_timestamp,
@@ -31,28 +31,7 @@ def main(output_dir):
     spec_lookup = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
 
-    spec_nav = {role_name: [] for role_name in ROLE_FOLDERS.values()}
-
-    for sid, sdata in spec_lookup.items():
-        role_key = str(sdata.get("role", 2))
-        role_name = ROLE_FOLDERS.get(role_key, "Other")
-        class_data = class_lookup.get(str(sdata.get("classID", "")), {})
-        filename = f"{sdata['name']}_{class_data.get('name')}"
-        spec_nav[role_name].append(
-            {
-                "name": f"{sdata['name']} {class_data.get('name')}",
-                "url": f"/classes/{role_name}/{filename}",
-                "icon": sdata.get("SpellIconFileId"),
-                "color": {
-                    "r": class_data.get("color", {}).get("r", 0),
-                    "g": class_data.get("color", {}).get("g", 0),
-                    "b": class_data.get("color", {}).get("b", 0),
-                },
-            }
-        )
-
-    for lst in spec_nav.values():
-        lst.sort(key=lambda x: x["name"])
+    spec_nav = generateSpecNav(spec_lookup, class_lookup)
 
     for page, template_name in LEGAL_PAGES.items():
         template = env.get_template(os.path.basename(template_name))

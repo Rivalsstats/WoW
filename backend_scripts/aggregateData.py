@@ -234,7 +234,7 @@ def biggest_deviations_per_dungeon(data, top_n=3):
             tid = int(t["id"])
             dungeon_pct = float(t.get("pct", 0))
             overall_pct = overall_map.get(tid)
-            # skip talents that don't have an overall baseline (optional: treat as 0 instead)
+            # skip talents that don't have an overall baseline
             if overall_pct is None:
                 continue
             pct_point_diff = (
@@ -243,7 +243,6 @@ def biggest_deviations_per_dungeon(data, top_n=3):
             rel_change = None
             if overall_pct != 0:
                 rel_change = (pct_point_diff / overall_pct) * 100.0
-            # if overall_pct == 0 -> rel_change stays None (or set to float('inf') if you prefer)
             rows.append(
                 {
                     "talent_id": tid,
