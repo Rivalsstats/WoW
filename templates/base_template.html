@@ -243,7 +243,7 @@
       </footer>
     </div>
   </main>
-  <div class="fixed-plugin">
+    <div class="fixed-plugin">
     <div class="card shadow-lg">
       <div class="card-header pb-0 pt-3">
         <div class="float-start">
@@ -251,7 +251,7 @@
           <p>Config the Ui</p>
         </div>
         <div class="float-end mt-4">
-          <button class="btn btn-link text-dark p-0 fixed-plugin-close-button">
+          <button class="btn btn-link p-0 fixed-plugin-close-button">
             <i class="material-symbols-rounded">clear</i>
           </button>
         </div>
@@ -292,23 +292,8 @@
         <div class="mt-2 d-flex">
           <h6 class="mb-0">Light / Dark</h6>
           <div class="form-check form-switch ps-0 ms-auto my-auto">
-            <input class="form-check-input mt-1 ms-auto" type="checkbox" id="dark-version" onclick="darkMode(this)">
+            <input class="form-check-input mt-1 ms-auto" type="checkbox" id="dark-version" >
           </div>
-        </div>
-        <hr class="horizontal dark my-sm-4">
-        <a class="btn btn-outline-dark w-100" href="https://discord.com/invite/v3gYmYamGJ">Give Feedback on Discord</a>
-        <div class="w-100 text-center">
-          <a class="github-button" href="https://github.com/MythiStone/mythistone.github.io" data-icon="octicon-star" data-size="large"
-            data-show-count="true" aria-label="Star MythiStone on GitHub">Star</a>
-          <h6 class="mt-3">Thank you for sharing!</h6>
-          <a href="https://twitter.com/intent/tweet?text=Check%20Mythistone%20WoW%20M%20Plus%20Meta&amp;url=https%3A%2F%2Fwww.MythiStone.github.io%2FWoW"
-            class="btn btn-dark mb-0 me-2" target="_blank">
-            <i class="fab fa-twitter me-1" aria-hidden="true"></i> Tweet
-          </a>
-          <a href="https://www.facebook.com/sharer/sharer.php?u=https://www.MythiStone.github.io"
-            class="btn btn-dark mb-0 me-2" target="_blank">
-            <i class="fab fa-facebook-square me-1" aria-hidden="true"></i> Share
-          </a>
         </div>
       </div>
     </div>
@@ -364,7 +349,6 @@
   <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="../assets/js/material-dashboard.js"></script>
   <script>
-    darkMode(document.querySelector('#dark-version'));
     sidebarColor(document.querySelector('#defaultColor'));
     document.querySelector('#defaultSidebarType').classList.add('active');
     sidebarType(document.querySelector('#defaultSidebarType'));
