@@ -135,6 +135,9 @@
   --bs-emphasis-bg-solid: var(--bs-emphasis-color);
   --bs-emphasis-border-subtle: rgba(var(--bs-emphasis-color-rgb), 0.18);
   --bs-card-bg: #ffffff8a;
+  --bs-modal-bg: #fff;
+  --bs-modal-header-border-color: #d4d4d4;
+  --bs-modal-footer-border-color: #d4d4d4;
 }
 
 [data-bs-theme=dark] {
@@ -197,6 +200,9 @@
   --bs-emphasis-bg-solid: var(--bs-emphasis-color);
   --bs-emphasis-border-subtle: rgba(var(--bs-emphasis-color-rgb), 0.20);
   --bs-card-bg: #1d1d1d;
+  --bs-modal-bg: #1d1d1d;
+  --bs-modal-header-border-color: #d4d4d4;
+  --bs-modal-footer-border-color: #d4d4d4;
 }
 
 *,
@@ -6684,8 +6690,6 @@ fieldset:disabled .btn {
   --bs-modal-width: 500px;
   --bs-modal-padding: 1rem;
   --bs-modal-margin: 0.5rem;
-  --bs-modal-color: ;
-  --bs-modal-bg: #fff;
   --bs-modal-border-color: rgba(10, 10, 10, 0.2);
   --bs-modal-border-width: 1px;
   --bs-modal-border-radius: 0.5rem;
@@ -6694,12 +6698,10 @@ fieldset:disabled .btn {
   --bs-modal-header-padding-x: 1rem;
   --bs-modal-header-padding-y: 1rem;
   --bs-modal-header-padding: 1rem 1rem;
-  --bs-modal-header-border-color: #d4d4d4;
   --bs-modal-header-border-width: 1px;
   --bs-modal-title-line-height: 1.5;
   --bs-modal-footer-gap: 0.5rem;
   --bs-modal-footer-bg: ;
-  --bs-modal-footer-border-color: #d4d4d4;
   --bs-modal-footer-border-width: 1px;
   position: fixed;
   top: 0;

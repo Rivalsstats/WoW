@@ -57,9 +57,7 @@ def request_with_retries(url: str, headers: Dict[str, str], params: Optional[Dic
     raise ScriptError(f"Failed to GET {url}")
 
 
-# ---------------------------
-# File helpers
-# ---------------------------
+
 def safe_read_json(path: Path) -> Dict[str, Any]:
     if not path.exists():
         return {}
@@ -209,21 +207,16 @@ def process_creatures(rows: List[Dict[str, Any]]):
                 merged[k] = v
         existing[str(creature_id)] = merged
 
-    # atomic write
     atomic_write_json(STATIC_CREATURES_PATH, existing)
     print(f"Saved metadata to {STATIC_CREATURES_PATH}")
     print(f"Images stored under {CREATURE_IMG_DIR}")
 
 
-# ---------------------------
-# Main
-# ---------------------------
 def main():
     with closing(get_connection()) as conn:
         cursor = conn.cursor()
         rows = fetch_top_hunter_pets(conn, cursor)
 
-    # rows expected like: [{"creature_id": 42722, "run_count": 5}, ...]
     if not rows:
         print("fetch_top_hunter_pets returned no rows. Nothing to do.")
         return
