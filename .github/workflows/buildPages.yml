@@ -1,6 +1,8 @@
 name: Build Jinja Pages
 
 on:
+  schedule:
+    - cron: '0 6 * * SUN,MON,TUE,THU,FRI,SAT' #skip wednesday as we run full update on wednesday
   push:
     paths:
       - 'data/aggregated/final/specs/**'
