@@ -57,6 +57,11 @@ def main(template_path, output_dir):
         specs = spec_lookup,
         class_lookup=class_lookup,
         season_info=season_info,
+        active_page="routes",
+        breadcrumbs=[
+            {"title": "Pages", "href": "/Pages"},
+            {"title": "Routes", "href": "/Routes"}
+        ]
     )
 
     # Write output

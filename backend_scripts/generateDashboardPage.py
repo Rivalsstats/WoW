@@ -512,9 +512,9 @@ def main(template_path, output_dir):
     print("Creating Dungeon Ease...")
     ease_data = create_dungeon_ease(dungeon_runs_per_level, dungeon_lookup)
     runs = [
-        {"name": "Shortest", "data": shortest_run},
-        {"name": "Longest",  "data": longest_run},
-        {"name": "Highest",  "data": highest_run},
+        {"name": "Shortest", "data": shortest_run, "icon": "sprint"},
+        {"name": "Longest",  "data": longest_run, "icon": "hourglass_bottom"},
+        {"name": "Highest",  "data": highest_run, "icon": "leaderboard"},
     ]
     print("Rendering template...")
     
@@ -539,6 +539,10 @@ def main(template_path, output_dir):
         scatter_data=scatter_data,
         dungeon_ease_levels=ease_data["keyLevels"],
         dungeon_ease_datasets=ease_data["datasets"],
+        breadcrumbs=[
+            {"title": "Pages", "href": "/Pages"},
+            {"title": "Dashboard", "href": "/Dashboard"}
+        ]
     )
 
     # Write output

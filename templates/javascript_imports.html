@@ -1,0 +1,61 @@
+<!--   Core JS Files   -->
+<script src="/assets/js/core/popper.min.js"></script>
+<script src="/assets/js/core/jquery.min.js"></script>
+<script src="/assets/js/core/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/bootstrap-select.min.js"></script>
+
+<!-- Material Dashboard JS -->
+<script>
+    var win = navigator.platform.indexOf('Win') > -1;
+    if (win && document.querySelector('#sidenav-scrollbar')) {
+        var options = {
+            damping: '0.5'
+        }
+        Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+    }
+    function timeAgo(unixTsSeconds) {
+        const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+        const now = Date.now() / 1000;
+        const diff = now - unixTsSeconds;
+
+        const units = [
+            { name: 'year', secs: 60 * 60 * 24 * 365 },
+            { name: 'month', secs: 60 * 60 * 24 * 30 },
+            { name: 'day', secs: 60 * 60 * 24 },
+            { name: 'hour', secs: 60 * 60 },
+            { name: 'minute', secs: 60 },
+            { name: 'second', secs: 1 },
+        ];
+
+        for (const { name, secs } of units) {
+            const delta = Math.floor(diff / secs);
+            if (Math.abs(delta) >= 1) {
+                return rtf.format(-delta, name);
+            }
+        }
+        return 'just now';
+    }
+
+    function formatDuration(ms) {
+        const minutes = Math.floor(ms / 60000);
+        const seconds = Math.floor((ms % 60000) / 1000);
+        const milliseconds = ms % 1000;
+
+        const mm = String(minutes).padStart(2, '0');
+        const ss = String(seconds).padStart(2, '0');
+        const mmm = String(milliseconds).padStart(3, '0');
+
+        return `${mm}:${ss}.${mmm}`;
+    }
+    //initialize timestamps
+    document.querySelectorAll('.timestamp').forEach(function (el) {
+        const timestamp = el.getAttribute('data-timestamp');
+        el.textContent = `${el.textContent} ${timeAgo(Number(timestamp))}`;
+        el.setAttribute('title', new Date(Number(timestamp) * 1000).toLocaleString());
+    });
+</script>
+<!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
+<script src="/assets/js/material-dashboard.js"></script>
+<script>
+    sidebarColor(document.querySelector('#defaultColor'));
+</script>

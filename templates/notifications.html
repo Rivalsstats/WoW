@@ -1,0 +1,17 @@
+{% for notification in notifications %}
+{% if notification and notification.message %}
+<div class="container-fluid">
+    <div id="page-notification"
+        class="alert alert-{{ notification.type | default('warning') }} alert-dismissible text-white d-flex align-items-center mx-3 my-2"
+        role="alert">
+        <span class="material-symbols-rounded me-2" aria-hidden="true">announcement</span>
+        <div class="flex-fill">{{ notification.message | safe }}</div>
+
+        {% if notification.dismissible %}
+        <button type="button" class="btn-close ms-3" data-bs-dismiss="alert" aria-label="Close"><span
+                class="material-symbols-rounded me-2" aria-hidden="true">close</span></button>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endfor %}

@@ -772,6 +772,11 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
                 hunter_pets=hunter_pets,
                 creature_lookup=creature_lookup,
                 spec_runs = spec_runs,
+                breadcrumbs=[
+                    {"title": "Classes", "href": "/Classes"},
+                    {"title": ROLE_FOLDERS[spec_data.get("role", 2)], "href": f"/Classes/{ROLE_FOLDERS[spec_data.get("role", 2)]}"},
+                    {"title": f"{spec_data.get("name")} {class_data.get("name")}", "href": f"/Classes/{ROLE_FOLDERS[spec_data.get("role", 2)]}/{spec_data.get("name")}_{class_data.get("name")}"}
+                ]
 
             )
             print(f"[{datetime.now(timezone.utc).isoformat()}] saving page...")

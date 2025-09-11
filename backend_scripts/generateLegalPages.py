@@ -15,8 +15,20 @@ from generateSpecPages import (
 )
 TEMPLATE_PATH = "templates"
 LEGAL_PAGES = {
-    "privacy": "privacy.html",
-    "impressum": "impressum.html"
+    "privacy": {
+        "template": "privacy.html",
+        "breadcrumbs": [
+            {"title": "Pages", "href": "/Pages"},
+            {"title": "Privacy"}
+        ]
+    },
+    "impressum": {
+        "template": "impressum.html",
+        "breadcrumbs": [
+            {"title": "Pages", "href": "/Pages"},
+            {"title": "Impressum"}
+        ]
+    }
 }
 
 def main(output_dir):
@@ -33,13 +45,14 @@ def main(output_dir):
 
     spec_nav = generateSpecNav(spec_lookup, class_lookup)
 
-    for page, template_name in LEGAL_PAGES.items():
+    for page, value in LEGAL_PAGES.items():
+        template_name = value["template"]
         template = env.get_template(os.path.basename(template_name))
         output_html = template.render(
             generated_at=datetime.now(timezone.utc).timestamp(),
             spec_nav=spec_nav,
+            breadcrumbs=value.get("breadcrumbs", [])
         )
-
         # Write output
         out_path = os.path.join(
             output_dir,
