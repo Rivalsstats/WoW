@@ -775,7 +775,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
                 breadcrumbs=[
                     {"title": "Classes", "href": "/Classes"},
                     {"title": ROLE_FOLDERS[spec_data.get("role", 2)], "href": f"/Classes/{ROLE_FOLDERS[spec_data.get("role", 2)]}"},
-                    {"title": f"{spec_data.get("name")} {class_data.get("name")}", "href": f"/Classes/{ROLE_FOLDERS[spec_data.get("role", 2)]}/{spec_data.get("name")}_{class_data.get("name")}"}
+                    {"title": f"{spec_data.get('name')} {class_data.get('name')}", "href": f"/Classes/{ROLE_FOLDERS[spec_data.get('role', 2)]}/{spec_data.get('name')}_{class_data.get('name')}"}
                 ]
 
             )
