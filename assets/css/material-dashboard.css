@@ -134,7 +134,7 @@
   --bs-emphasis-bg-subtle: rgba(var(--bs-emphasis-color-rgb), 0.08);
   --bs-emphasis-bg-solid: var(--bs-emphasis-color);
   --bs-emphasis-border-subtle: rgba(var(--bs-emphasis-color-rgb), 0.18);
-  --bs-card-bg: #ffffff8a;
+  --bs-card-bg: #adacac;
   --bs-modal-bg: #fff;
   --bs-modal-header-border-color: #d4d4d4;
   --bs-modal-footer-border-color: #d4d4d4;
@@ -11456,7 +11456,7 @@ fieldset:disabled .btn {
 }
 
 .bg-body {
-  background-color: #fff !important;
+  background-color: var(--bs-body-bg) !important;
 }
 
 .bg-transparent {
