@@ -1,34 +1,39 @@
 <footer class="footer py-4  ">
     <div class="container-fluid">
         <div class="row align-items-center justify-content-lg-between">
-            <div class="col-lg-6 mb-lg-0 mb-4">
-                <div class="copyright text-center text-sm text-muted text-lg-start">
+            <!-- left: copyright -->
+            <div class="col-12 col-lg-4 mb-3 mb-lg-0 order-1 order-lg-1">
+                <div class="text-center text-sm text-muted text-lg-start">
                     ©
-                    <script>
-                        document.write(new Date().getFullYear())
-                    </script>,
+                    <script>document.write(new Date().getFullYear())</script>,
                     made by <a href="https://linktr.ee/jodsderechte" class="font-weight-bold" target="_blank">Jods</a>
                     with <a href="https://www.creative-tim.com/product/material-dashboard" class="font-weight-bold"
                         target="_blank">Material-dashboard</a>
                 </div>
             </div>
-            <div class="col-lg-6">
+
+            <!-- middle: trademark (same element for all sizes) -->
+            <div class="col-12 col-lg-4 order-2 order-lg-2">
+                <div class="text-center text-sm text-muted">
+                    <em>
+                        World of Warcraft, Warcraft and Blizzard Entertainment are trademarks or registered trademarks
+                        of Blizzard Entertainment, Inc. in the U.S. and/or other countries. This website is not
+                        affiliated with Blizzard Entertainment.
+                    </em>
+                </div>
+            </div>
+
+            <!-- right: links -->
+            <div class="col-12 col-lg-4 order-3 order-lg-3">
                 <ul class="nav nav-footer justify-content-center justify-content-lg-end">
-                    <li class="nav-item">
-                        <a href="/" class="nav-link text-muted" target="_blank">MythiStone</a>
+                    <li class="nav-item"><a href="/" class="nav-link text-muted" target="_blank">MythiStone</a></li>
+                    <li class="nav-item"><a href="/pages/privacy" class="nav-link text-muted"
+                            target="_blank">Privacy</a></li>
+                    <li class="nav-item"><a href="/pages/impressum" class="nav-link text-muted"
+                            target="_blank">Impressum</a></li>
+                    <li class="nav-item"><a href="/pages/about" class="nav-link text-muted" target="_blank">About Us</a>
                     </li>
-                    <li class="nav-item">
-                        <a href="/pages/privacy" class="nav-link text-muted" target="_blank">Privacy</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/pages/impressum" class="nav-link text-muted" target="_blank">Impressum</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/pages/about" class="nav-link text-muted" target="_blank">About Us</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/pages/blog" class="nav-link text-muted" target="_blank">Blog</a>
-                    </li>
+                    <li class="nav-item"><a href="/pages/blog" class="nav-link text-muted" target="_blank">Blog</a></li>
                 </ul>
             </div>
         </div>
