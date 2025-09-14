@@ -55,7 +55,7 @@
 
   <!-- Structured Data: WebSite + WebPage + SoftwareApplication + Breadcrumb -->
   {% set page_url = (request.url if request is defined else 'https://mythistone.com/routes') %}
-  {% set published_iso = (generated_at_iso if (generated_at_iso is defined) else (generated_at | format_ts('%Y-%m-%dT%H:%M:%SZ') if (generated_at is defined) else '') ) %}
+  {% set published_iso = (generated_at | format_ts) %}
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
