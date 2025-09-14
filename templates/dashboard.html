@@ -16,10 +16,90 @@
 <html lang="en">
 
 <head>
-  <title>
-    WoW Stats - MythiStone
-  </title>
+  <title>WoW Mythic+ Dashboard - Stats, Spec Popularity & Dungeon Trends | MythiStone</title>
   {% include "header_imports.html" %}
+
+  <!-- Primary SEO -->
+  <meta name="description"
+    content="Interactive Mythic+ dashboard for World of Warcraft. Find spec popularity, keys per week, dungeon popularity, performance vs. popularity and more. Data updated {{ generated_at | format_ts }}.">
+  <meta name="keywords" content="MythiStone, Mythic+, WoW, Dungeon popularity, spec popularity, keys per week, M+ dashboard, WoW stats">
+
+  <!-- Canonical & hreflang -->
+  <link rel="canonical" href="https://mythistone.com/dashboard">
+  <link rel="alternate" href="https://mythistone.com/dashboard" hreflang="en-US">
+  <link rel="alternate" href="https://mythistone.com/dashboard" hreflang="en">
+
+  <!-- Robots / preview controls -->
+  <meta name="robots" content="index, follow, max-snippet:180, max-image-preview:large, max-video-preview:-1">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="MythiStone">
+  <meta property="og:url" content="https://mythistone.com/dashboard">
+  <meta property="og:title" content="MythiStone - Mythic+ Dashboard: Spec & Dungeon Trends">
+  <meta property="og:description"
+    content="Live Mythic+ dashboard: spec popularity, dungeon trends, keys per week and performance scoring (updated {{ generated_at | format_ts }}).">
+  <meta property="og:image" content="https://mythistone.com/assets/img/favicon/favicon-96x96.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="MythiStone Mythic+ Dashboard screenshot">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@MythiStone">
+  <meta name="twitter:creator" content="@MythiStone">
+  <meta name="twitter:title" content="MythiStone - Mythic+ Dashboard">
+  <meta name="twitter:description" content="Explore Mythic+ trends: spec popularity, dungeon picks and keys per week.">
+  <meta name="twitter:image" content="https://mythistone.com/assets/img/favicon/favicon-96x96.png">
+
+  <!-- Structured Data: WebSite + WebPage + Breadcrumb + SearchAction -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "url": "https://mythistone.com",
+        "name": "MythiStone",
+        "publisher": {
+          "@type": "Organization",
+          "name": "MythiStone",
+          "url": "https://mythistone.com"
+        },
+      },
+      {
+        "@type": "WebPage",
+        "url": "https://mythistone.com/dashboard",
+        "name": "MythiStone Mythic+ Dashboard",
+        "description": "Interactive Mythic+ dashboard: spec popularity, dungeon popularity, keys per week and performance scoring.",
+        "isAccessibleForFree": true,
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://mythistone.com"},
+            {"@type": "ListItem", "position": 2, "name": "Dashboard", "item": "https://mythistone.com/dashboard"}
+          ]
+        },
+        "dateModified": "{{ generated_at | format_ts }}"
+      },
+      {
+        "@type": "SiteNavigationElement",
+        "name": "Specs navigation",
+        "url": "https://mythistone.com/pages/classes",
+        "hasPart": [
+          {% for nav in specs %}
+          {
+            "@type": "SiteNavigationElement",
+            "name": "{{ nav.name | e }}",
+            "url": "{{ nav.url }}"
+          }{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
+      }
+    ]
+  }
+  </script>
+
 </head>
 
 <body class="g-sidenav-show" data-bs-theme="dark">

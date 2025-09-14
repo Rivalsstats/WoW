@@ -16,10 +16,100 @@
 <html lang="en">
 
 <head>
-  <title>
-    WoW Stats - MythiStone
-  </title>
   {% include "header_imports.html" %}
+  <!-- Primary SEO -->
+  <title>Route Finder - Find Routes for Your Team-Comp | MythiStone</title>
+  <meta name="description"
+    content="Find optimal Mythic+ routes for your team composition. Pick dungeons & specs and search curated RaiderIO / Keystone.Guru routes used by high-level players.">
+  <meta name="keywords" content="MythiStone, Mythic+, route finder, Keystone.Guru, RaiderIO, dungeon routes, team comp, M+ routes">
+  <meta name="author" content="MythiStone">
+
+  <!-- canonical / hreflang -->
+  <link rel="canonical" href="https://mythistone.com/routes">
+  <link rel="alternate" href="https://mythistone.com/routes" hreflang="en-US">
+  <link rel="alternate" href="https://mythistone.com/routes" hreflang="en">
+
+  <!-- Robots -->
+  <meta name="robots" content="index, follow, max-snippet:180, max-image-preview:large">
+
+  <!-- Open Graph / Social -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="MythiStone">
+  <meta property="og:url" content="{{ request.url if request is defined else 'https://mythistone.com/routes' }}">
+  <meta property="og:title" content="Route Finder - Mythic + Routes for Your Team">
+  <meta property="og:description"
+    content="Find Mythic+ routes for your team composition. Filter by dungeon and specs to find the best route for your team.">
+  <meta property="og:image" content="https://mythistone.com/assets/img/favicon/favicon-96x96.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="MythiStone Route Finder preview">
+  <meta property="og:locale" content="en_US">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@MythiStone">
+  <meta name="twitter:creator" content="@MythiStone">
+  <meta name="twitter:title" content="Route Finder - Mythic + Routes for Your Team">
+  <meta name="twitter:description" content="Find Mythic+ routes for your team composition. Filter by dungeon and specs to find the best route for your team.">
+  <meta name="twitter:image" content="https://mythistone.com/assets/img/favicon/favicon-96x96.png">
+
+  <!-- Structured Data: WebSite + WebPage + SoftwareApplication + Breadcrumb -->
+  {% set page_url = (request.url if request is defined else 'https://mythistone.com/routes') %}
+  {% set published_iso = (generated_at_iso if (generated_at_iso is defined) else (generated_at | format_ts('%Y-%m-%dT%H:%M:%SZ') if (generated_at is defined) else '') ) %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "url": "https://mythistone.com",
+        "name": "MythiStone",
+      },
+      {
+        "@type": "WebPage",
+        "url": "{{ page_url }}",
+        "name": "Route Finder — MythiStone",
+        "description": "Find Mythic+ routes for your team composition. Filter by dungeon and specs to find the best route for your team.",
+        "isAccessibleForFree": true,
+        "dateModified": "{{ published_iso }}"
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "MythiStone Route Finder",
+        "url": "{{ page_url }}",
+        "applicationCategory": "WebApplication",
+        "operatingSystem": "All",
+        "description": "Find Mythic+ routes for your team composition. Filter by dungeon and specs to find the best route for your team.",
+        "provider": {
+          "@type": "Organization",
+          "name": "MythiStone",
+          "url": "https://mythistone.com"
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://mythistone.com" },
+          { "@type": "ListItem", "position": 3, "name": "Route Finder", "item": "{{ page_url }}" },
+        ]
+      },
+      {
+        "@type": "SiteNavigationElement",
+        "name": "Specs navigation",
+        "url": "https://mythistone.com/pages/classes",
+        "hasPart": [
+          {% for nav in specs %}
+          {
+            "@type": "SiteNavigationElement",
+            "name": "{{ nav.name | e }}",
+            "url": "{{ nav.url }}"
+          }{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
+      }
+    ]
+  }
+  </script>
 </head>
 
 <body class="g-sidenav-show" data-bs-theme="dark">
