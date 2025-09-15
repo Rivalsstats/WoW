@@ -67,7 +67,7 @@ jobs:
         run: |
           python backend_scripts/generateIndexPage.py \
           --template templates/index.html \
-          --output_dir pages
+          --output_dir .
 
       - name: Generate Routes HTML page
         run: |
