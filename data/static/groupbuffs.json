@@ -1,0 +1,86 @@
+[
+    {
+        "id": 1459,
+        "icon": "135932.jpg",
+        "name": "Arcane Intellect",
+        "classIDs": [8],
+        "specIDs": [62, 63, 64]
+    },
+    {
+        "id": 6673,
+        "icon": "ability_warrior_battleshout.jpg",
+        "name": "Battle Shout",
+        "classIDs": [1],
+        "specIDs": [71, 72, 73]
+    },
+    {
+        "id": 21562,
+        "icon": "spell_holy_wordfortitude.png",
+        "name": "Power Word: Fortitude",
+        "classIDs": [5],
+        "specIDs": [256, 257, 258]
+    },
+    {
+        "id": 465,
+        "icon": "spell_holy_devotionaura.png",
+        "name": "Devotion Aura",
+        "classIDs": [2],
+        "specIDs": [65, 66, 70]
+    },
+    {
+        "id": 8647,
+        "icon": "ability_monk_sparring.png",
+        "name": "Mystic Touch",
+        "classIDs": [10],
+        "specIDs": [268, 269, 270]
+    },
+    {
+        "id": 255260,
+        "icon": "ability_demonhunter_empowerwards.png",
+        "name": "Chaos Brand",
+        "classIDs": [12],
+        "specIDs": [577, 581]
+    },
+    {
+        "id": 1126,
+        "icon": "spell_nature_regeneration.jpg",
+        "name": "Mark of the Wild",
+        "classIDs": [11],
+        "specIDs": [102, 103, 104, 105]
+    },
+    {
+        "id": 462854,
+        "icon": "achievement_raidprimalist_windelemental.png",
+        "name": "Skyfury",
+        "classIDs": [7],
+        "specIDs": [262,263,264]
+    },
+    {
+        "id": 257284,
+        "icon": "ability_hunter_markedfordeath.jpg",
+        "name": "Hunter's Mark",
+        "classIDs": [3],
+        "specIDs": [253, 254, 255]
+    },
+    {
+        "id": 364342,
+        "icon": "ability_evoker_blessingofthebronze.jpg",
+        "name": "Blessing of the Bronze",
+        "classIDs": [13],
+        "specIDs": [1467, 1468, 1473]
+    },
+    {
+        "id": 2825,
+        "icon": "spell_nature_bloodlust.png",
+        "name": "Bloodlust",
+        "classIDs": [3, 7, 8, 13],
+        "specIDs": [62, 63, 64, 253, 254, 255, 262, 263, 264, 1467, 1468, 1473]
+    },
+    {
+        "id": 20484,
+        "icon": "spell_nature_reincarnation.png",
+        "name": "Battlerez",
+        "classIDs": [2,6,9,11],
+        "specIDs": [65, 66, 70, 250, 251, 252, 265, 266, 267, 102, 103, 104, 105]
+    }
+]

@@ -1,0 +1,604 @@
+<!--
+=========================================================
+* Material Dashboard 3 - v3.2.0
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/material-dashboard
+* Copyright 2024 Creative Tim (https://www.creative-tim.com)
+* Licensed under MIT (https://www.creative-tim.com/license)
+* Coded by Creative Tim
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>
+    WoW Stats - MythiStone
+  </title>
+  {% include "header_imports.html" %}
+</head>
+
+<body class="g-sidenav-show" data-bs-theme="dark">
+  {% include "sidenav.html" %}
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+    <!-- Navbar -->
+    {% include "navbar.html" %}
+    <!-- End Navbar -->
+    <!-- Notifications -->
+    {% include "notifications.html" %}
+    <!-- End Notifications -->
+    <div class="container-fluid py-2">
+
+      <section id="tierlists" class="mb-4">
+        <style>
+          /* shared tier styles */
+          .tier-row {
+            align-items: flex-start;
+          }
+
+          .tier-left {
+            width: 140px;
+            min-width: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding-right: 12px;
+          }
+
+          .tier-badge-large {
+            width: 96px;
+            height: 96px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 34px;
+            color: #fff;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+            text-transform: uppercase;
+          }
+
+          .tier-label-small {
+            text-align: center;
+            font-weight: 600;
+          }
+
+          .tier-count-small {
+            font-size: 0.85rem;
+            color: var(--bs-gray-400, #9aa0a6);
+          }
+
+          /* color mappings (mirrors badge classes) */
+          .tier-S {
+            background: linear-gradient(90deg, #ffd27f 0%, #ffb84d 45%, #ff8c00 100%);
+            color: #1b1200;
+          }
+
+          .tier-A {
+            background: linear-gradient(90deg, #caa3ff 0%, #a86bff 45%, #8e44ad 100%);
+            color: #fff;
+          }
+
+          .tier-B {
+            background: linear-gradient(90deg, #8fcfff 0%, #5aa9ff 45%, #0070dd 100%);
+            color: #fff;
+          }
+
+          .tier-C {
+            background: linear-gradient(90deg, #9fee9a 0%, #57d06b 45%, #2ecc71 100%);
+            color: #072e10;
+          }
+
+          .tier-D {
+            background: linear-gradient(90deg, #e9e9e9 0%, #d1d1d1 50%, #9e9e9e 100%);
+            color: #1e1e1e;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+          }
+
+          .tier-F {
+            background: linear-gradient(90deg, #ff6b6b, #dc3545);
+            color: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+          }
+
+          /* Grid tweaks for tiles */
+          .dungeon-tiles-grid {
+            gap: 0.75rem;
+          }
+
+          /* Dungeon tile (unchanged visual) */
+          .dungeon-tile {
+            height: 110px;
+            border-radius: 10px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+            border: 0;
+            transition: transform .12s ease, box-shadow .12s ease;
+            display: block;
+          }
+
+          .dungeon-tile::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            box-shadow: inset 0 -24px 40px rgba(0, 0, 0, 0.45);
+            border-radius: 10px;
+          }
+
+          .dungeon-tile:hover,
+          .dungeon-tile:focus {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+            z-index: 2;
+            outline: none;
+          }
+
+          /* shared icon used for both dungeon and spec (when present) */
+          .dungeon-tile-icon {
+            position: absolute;
+            left: 10px;
+            bottom: 10px;
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 50%;
+            padding: 4px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .dungeon-tile-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+          }
+
+          .fallback-initial {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e9ecef;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.06));
+            font-weight: 700;
+            border-radius: 50%;
+          }
+
+          .dungeon-tile-title .text-truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
+          .dungeon-tile:focus-visible {
+            box-shadow: 0 0 0 3px rgba(100, 150, 255, 0.25), 0 8px 22px rgba(0, 0, 0, 0.45);
+          }
+
+          .visually-hidden {
+            position: absolute !important;
+            height: 1px;
+            width: 1px;
+            overflow: hidden;
+            clip: rect(1px, 1px, 1px, 1px);
+            white-space: nowrap;
+            border: 0;
+            padding: 0;
+            margin: -1px;
+          }
+
+          /* SPEC: compact tile with circular icon on lower-left (Archon-like) */
+          .spec-tile {
+            height: 84px;
+            border-radius: 10px;
+            padding-left: 64px;
+            /* reserve room for circular icon */
+            background-size: cover;
+            background-position: center;
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+            border: 0;
+            transition: transform .12s ease, box-shadow .12s ease;
+            display: block;
+            position: relative;
+            overflow: hidden;
+          }
+
+          .spec-tile:hover,
+          .spec-tile:focus {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+            z-index: 2;
+          }
+
+          .spec-tile .dungeon-tile-icon {
+            left: 10px;
+            bottom: 12px;
+            width: 40px;
+            height: 40px;
+            padding: 3px;
+          }
+
+          .spec-tile .dungeon-tile-title {
+            bottom: 8px;
+            left: 0;
+            right: 0;
+            padding-left: 8px;
+          }
+
+          .spec-tile .dungeon-tile-title strong {
+            font-size: 0.95rem;
+          }
+
+          .spec-tile .dungeon-tile-title small {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.85);
+          }
+
+          /* responsive */
+          @media (max-width: 768px) {
+            .tier-left {
+              width: 100%;
+              min-width: 0;
+              flex-direction: row;
+              gap: 12px;
+              align-items: center;
+              padding-right: 0;
+            }
+
+            .tier-badge-large {
+              width: 64px;
+              height: 64px;
+              font-size: 22px;
+              border-radius: 10px;
+            }
+
+            .dungeon-tile {
+              height: 96px;
+            }
+
+            .dungeon-tile-title {
+              padding-left: 56px;
+            }
+
+            .spec-tile {
+              height: 72px;
+              padding-left: 56px;
+            }
+
+            .spec-tile .dungeon-tile-icon {
+              width: 36px;
+              height: 36px;
+              bottom: 10px;
+              left: 8px;
+            }
+          }
+        </style>
+
+        {# -------------------- Shared macro + variables -------------------- #}
+        {% set tiers = ["S","A","B","C","D","F"] %}
+
+        {# Generic tier-row macro that prints the left badge on md+ and a compact badge on small screens.
+        Caller should render the specific content (spec-row or dungeon grid) inside the call. #}
+        {% macro tier_row(tier, items, count_label='items') -%}
+        <div class="row tier-row mb-4 gx-3">
+          <div class="col-auto tier-left d-none d-md-flex">
+            <div class="tier-badge-large tier-{{ tier }}">{{ tier }}</div>
+          </div>
+
+          <div class="d-md-none mb-2 w-100 d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+              <div class="tier-badge-large tier-{{ tier }}">{{ tier }}</div>
+              <div>
+                <div class="tier-label-small">{{ tier }} Tier</div>
+                <div class="tier-count-small">{{ items|length }} {{ count_label }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col">
+            {{ caller() }}
+          </div>
+        </div>
+        {%- endmacro %}
+
+        <!-- Spec tierlist  -->
+        <section id="spec-tierlist" class="mb-4 round-tierlist">
+          <style>
+            /* Scoped to round-tierlist so it can be applied to Spec and Buff sections alike */
+            .round-tierlist {
+              --spec-size: 84px;
+              /* change this to 72px/96px to tune icon size */
+              --spec-gap: 12px;
+              /* change this to adjust spacing between icons */
+            }
+
+            .round-tierlist .spec-row {
+              display: flex;
+              flex-wrap: wrap;
+              gap: var(--spec-gap);
+              justify-content: flex-start;
+              /* left aligned */
+              align-items: flex-start;
+              padding: 6px 0;
+              /* small vertical breathing room */
+            }
+
+            .round-tierlist .spec-col {
+              flex: 0 0 auto;
+              /* fixed-size items that don't stretch */
+              width: var(--spec-size);
+              height: var(--spec-size);
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+            }
+
+            .round-tierlist .spec-btn {
+              width: 100%;
+              height: 100%;
+              padding: 0;
+              border-radius: 50%;
+              overflow: hidden;
+              border: 0;
+              background: transparent;
+              display: inline-block;
+              position: relative;
+            }
+
+            .round-tierlist .spec-btn img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+              display: block;
+            }
+
+            /* small overlay pill (optional) */
+            .round-tierlist .spec-label {
+              position: absolute;
+              left: 50%;
+              top: 50%;
+              transform: translate(-50%, -50%);
+              pointer-events: none;
+              display: inline-block;
+              background: rgba(0, 0, 0, 0.45);
+              color: #fff;
+              padding: 2px 8px;
+              border-radius: 999px;
+              font-size: 0.78rem;
+              font-weight: 600;
+              white-space: nowrap;
+              max-width: calc(var(--spec-size) - 10px);
+              overflow: hidden;
+              text-overflow: ellipsis;
+              text-align: center;
+            }
+
+            /* accessibility: visually hidden text still allowed */
+            .round-tierlist .visually-hidden {
+              position: absolute !important;
+              clip: rect(1px, 1px, 1px, 1px);
+              height: 1px;
+              width: 1px;
+              overflow: hidden;
+              white-space: nowrap;
+              border: 0;
+              padding: 0;
+              margin: -1px;
+            }
+
+            /* responsive tweak: if you want smaller icons on very small screens, override --spec-size via media query */
+            @media (max-width:420px) {
+              .round-tierlist {
+                --spec-size: 68px;
+                --spec-gap: 10px;
+              }
+            }
+          </style>
+
+
+          <div class="row card shadow-sm">
+            <div class="card-header d-flex align-items-center justify-content-between">
+              <div>
+                <h2 class="mb-0">Spec Tierlist</h2>
+              </div>
+              {% if spec_scores_available %}
+              <div class="text-end"><span class="badge bg-gradient-info">Learn how we Score</span></div>
+              {% else %}
+              <div class="text-end"><span class="badge bg-gradient-warning">No data available</span></div>
+              {% endif %}
+            </div>
+
+            <div class="card-body">
+              <div class="container-fluid">
+                {% for tier in tiers %}
+                {% set tier_items = spec_tiers[tier] %}
+                {% call tier_row(tier, tier_items, 'specs') %}
+                <div class="spec-row">
+                  {% for s in tier_items %}
+                  {% set spec_meta = specs.get(s.spec_id|string) or {} %}
+                  {% set icon_file = (spec_meta.get('SpellIconFileId') if spec_meta else None) or s.icon %}
+                  {% set class_meta = class_lookup.get((spec_meta.get('classID')|string) if spec_meta.get('classID') is
+                  not none else (s.class_id|string) ) or s.class_meta or {} %}
+                  <div class="spec-col">
+                    <a class="spec-btn"
+                      href="/classes/{{ role_lookup.get(spec_meta['role'])}}/{{spec_meta['name']}}_{{class_meta['name']}}"
+                      aria-label="Open page for {{spec_meta['name']}} {{class_meta['name']}}">
+                      {% if icon_file %}
+                      <img
+                        src="{{ '/data/icons/' + icon_file + ('.jpg' if icon_file|string and not icon_file.endswith('.png') and not icon_file.endswith('.jpg') else '') }}"
+                        alt="{{ (s.name['en_US'] if s.name is mapping else s.name) }} icon">
+                      {% else %}
+                      <span class="d-flex align-items-center justify-content-center bg-secondary text-white fw-bold"
+                        style="width:100%;height:100%;">
+                        {{ (s.name['en_US'] if s.name is mapping else s.name)[:1] }}
+                      </span>
+                      {% endif %}
+
+                      <div class="spec-label">{{ (s.name['en_US'] if s.name is mapping else s.name) }}</div>
+
+                      <span class="visually-hidden">{{ (s.name['en_US'] if s.name is mapping else s.name) }} — open
+                        page</span>
+                    </a>
+                  </div>
+                  {% else %}
+                  <div class="text-muted">No specs in this tier.</div>
+                  {% endfor %}
+                </div>
+                {% endcall %}
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
+        </section>
+        <!-- End Spec tierlist -->
+
+        <!-- Dungeon tierlist -->
+        <section id="dungeon-tierlist" class="mb-4">
+          <div class="row card shadow-sm">
+            <div class="card-header d-flex align-items-center justify-content-between">
+              <div>
+                <h2 class="mb-0">Dungeon Tierlist</h2>
+              </div>
+              {% if dungeon_scores_available %}
+              <div class="text-end"><span class="badge bg-gradient-info">Learn how we Score</span></div>
+              {% else %}
+              <div class="text-end"><span class="badge bg-gradient-warning">No data available</span></div>
+              {% endif %}
+            </div>
+
+            <div class="card-body">
+              <div class="container-fluid">
+                {% for tier in tiers %}
+                {% set tier_items = dungeon_tiers[tier] %}
+                {% call tier_row(tier, tier_items, 'dungeons') %}
+                <div class="row dungeon-tiles-grid row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 gap-0">
+                  {% for d in tier_items %}
+                  <div class="col mb-0">
+                    <button type="button"
+                      class="dungeon-tile btn w-100 text-start p-0 position-relative overflow-hidden"
+                      data-bs-toggle="modal" data-bs-target="#dungeonModal"
+                      aria-label="Open details for {{ d.name['en_US'] }}" data-dungeon-id="{{ d.dungeon_id }}"
+                      data-name="{{ d.name['en_US']|e }}" data-icon="{{ d.icon if d.icon else '' }}"
+                      data-tier="{{ tier }}" data-score="{{ '%.3f'|format(d.score) if d.score is not none else '' }}"
+                      data-total-runs="{{ d.total_runs if d.total_runs is defined else 0 }}"
+                      data-u3="{{ d.upgrade_3 if d.upgrade_3 is defined else 0 }}"
+                      data-u2="{{ d.upgrade_2 if d.upgrade_2 is defined else 0 }}"
+                      data-u1="{{ d.upgrade_1 if d.upgrade_1 is defined else 0 }}"
+                      data-depleted="{{ d.depleted if d.depleted is defined else 0 }}"
+                      data-mean="{{ d.mean if d.mean is defined else '' }}" {% if d.icon %}
+                      style="background-image: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.25)), url('{{ '/data/icons/' + d.icon }}');"
+                      {% else %}
+                      style="background-image: linear-gradient(90deg, rgba(30,30,30,0.9), rgba(50,50,50,0.85));" {%
+                      endif %}>
+                      <div class="dungeon-tile-title position-absolute w-100 px-2 pb-2">
+                        <div class="text-center">
+                          <strong class="d-block text-truncate">{{ d.name['en_US'] }}</strong>
+                        </div>
+                      </div>
+                      <span class="visually-hidden">{{ d.name['en_US'] }} — open details</span>
+                    </button>
+                  </div>
+                  {% else %}
+                  <div class="col">
+                    <div class="card border-0 p-3 text-center">
+                      <div class="card-body text-muted">No dungeons in this tier.</div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endcall %}
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </section>
+        <!-- End Dungeon tierlist -->
+
+        <!-- Buff tierlist -->
+
+        <section id="buff-tierlist" class="mb-4 round-tierlist">
+          <div class="row card shadow-sm">
+            <div class="card-header d-flex align-items-center justify-content-between">
+              <div>
+                <h2 class="mb-0">Raidbuff Popularity Tierlist</h2>
+              </div>
+              {% if buff_scores_available %}
+              <div class="text-end"><span class="badge bg-gradient-info">Learn how we Score</span></div>
+              {% endif %}
+            </div>
+
+            <div class="card-body">
+              <div class="container-fluid">
+                {% for tier in tiers %}
+                {% set tier_items = buff_tiers[tier] %}
+                {% call tier_row(tier, tier_items, 'buffs') %}
+                <div class="spec-row">
+                  {% for b in tier_items %}
+                  {# normalize name (handles mapping or plain string) #}
+                  {% set buff_name = (b.name['en_US'] if b.name is mapping else b.name) %}
+                  {% set icon_file = b.icon %}
+                  <div class="spec-col" title="{{ buff_name }}">
+                    <button type="button" class="spec-btn btn p-0" data-bs-toggle="modal" data-bs-target="#specModal"
+                      aria-label="Open details for {{ buff_name }}" data-buff-id="{{ b.buff_id }}"
+                      data-name="{{ buff_name|e }}" data-icon="{{ icon_file if icon_file else '' }}"
+                      data-tier="{{ tier }}" data-score="{{ '%.3f'|format(b.lb_ci) if b.lb_ci is defined else '' }}"
+                      data-runs="{{b.runs if b.runs is defined else 0}}"
+                      data-total-runs="{{ b.total_runs if b.total_runs is defined else 0 }}">
+                      {% if icon_file %}
+                      <img
+                        src="{{ '/data/icons/' + icon_file + ('.jpg' if icon_file|string and not icon_file.endswith('.png') and not icon_file.endswith('.jpg') else '') }}"
+                        alt="{{ buff_name }} icon">
+                      {% else %}
+                      <span class="d-flex align-items-center justify-content-center bg-secondary text-white fw-bold"
+                        style="width:100%;height:100%;">
+                        {{ buff_name[:1] }}
+                      </span>
+                      {% endif %}
+
+                      <div class="spec-label">{{ buff_name }}</div>
+                      <span class="visually-hidden">{{ buff_name }} — open details</span>
+                    </button>
+
+                  </div>
+                  {% else %}
+                  <div class="text-muted">No buffs in this tier.</div>
+                  {% endfor %}
+                </div>
+                {% endcall %}
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- End Buff tierlist -->
+      </section>
+
+
+
+
+
+      {% include "footer.html" %}
+    </div>
+  </main>
+  {% include "fixed_plugin.html" %}
+  {% include "javascript_imports.html" %}
+</body>
+
+</html>

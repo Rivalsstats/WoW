@@ -1257,7 +1257,6 @@ def fetch_runs_per_dungeon(connection, cursor, season):
 
 
 FETCH_SPEC_UPGRADES_SQL = """
--- params: (season)
 SELECT
     spec_id,
     keystone_level,
@@ -1279,6 +1278,58 @@ def fetch_spec_upgrades(connection, cursor, season):
     if not rows:
         return []
     return [{"spec_id": int(row[0]), "keystone_level": int(row[1]), "upgrade_3": int(row[2]), "upgrade_2": int(row[3]), "upgrade_1": int(row[4]), "depleted": int(row[5]), "total_runs": int(row[6])} for row in rows]
+
+FETCH_SPEC_UPGRADES_ABOVE_LEVEL_SQL = """
+SELECT
+    spec_id,
+    keystone_level,
+    SUM(CASE WHEN upgrade_tier = '3' THEN run_count ELSE 0 END) AS tier_3,
+    SUM(CASE WHEN upgrade_tier = '2' THEN run_count ELSE 0 END) AS tier_2,
+    SUM(CASE WHEN upgrade_tier = '1' THEN run_count ELSE 0 END) AS tier_1,
+    SUM(CASE WHEN upgrade_tier = 'depleted' THEN run_count ELSE 0 END) AS depleted,
+    SUM(run_count) AS total_runs
+FROM aggregated_spec
+WHERE season = %s AND keystone_level > %s
+GROUP BY spec_id, keystone_level
+ORDER BY total_runs DESC;
+
+"""
+
+def fetch_spec_upgrades_above_level(connection, cursor, season, min_keylevel=15):
+    params = (season, min_keylevel)
+    rows = fetch_with_retry(connection, cursor, FETCH_SPEC_UPGRADES_ABOVE_LEVEL_SQL, params)
+    if not rows:
+        return []
+    return [{"spec_id": int(row[0]), "keystone_level": int(row[1]), "upgrade_3": int(row[2]), "upgrade_2": int(row[3]), "upgrade_1": int(row[4]), "depleted": int(row[5]), "total_runs": int(row[6])} for row in rows]
+
+
+
+
+FETCH_UPGRADES_FOR_SPECS_SQL = """
+SELECT
+    keystone_level,
+    SUM(CASE WHEN upgrade_tier = '3' THEN run_count ELSE 0 END) AS tier_3,
+    SUM(CASE WHEN upgrade_tier = '2' THEN run_count ELSE 0 END) AS tier_2,
+    SUM(CASE WHEN upgrade_tier = '1' THEN run_count ELSE 0 END) AS tier_1,
+    SUM(CASE WHEN upgrade_tier = 'depleted' THEN run_count ELSE 0 END) AS depleted,
+    SUM(run_count) AS total_runs
+FROM aggregated_spec
+WHERE season = %s AND spec_id IN ({placeholders}) and keystone_level > %s
+GROUP BY keystone_level
+ORDER BY total_runs DESC;
+
+"""
+
+def fetch_upgrade_for_specs(connection, cursor, season, specs, min_keylevel=15):
+    spec_placeholder = ",".join(["%s"] * len(specs))
+    specs_clean = [str(i) for i in specs]
+    sql = FETCH_UPGRADES_FOR_SPECS_SQL.format(placeholders=spec_placeholder)
+    params = [season] + specs_clean + [min_keylevel]
+    rows = fetch_with_retry(connection, cursor, sql, params)
+    if not rows:
+        return []
+    return [{"keystone_level": int(row[0]), "upgrade_3": int(row[1]), "upgrade_2": int(row[2]), "upgrade_1": int(row[3]), "depleted": int(row[4]), "total_runs": int(row[5])} for row in rows]
+
 
 
 DUNGEON_UPGRADES_PER_KEYLEVEL_SQL = """
@@ -1314,6 +1365,39 @@ def fetch_runs_per_dungeon_per_level(connection, cursor, season):
     return [{"dungeon_id": int(row[0]), "keystone_level": int(row[1]), "upgrade_3": int(row[2]), "upgrade_2": int(row[3]), "upgrade_1": int(row[4]), "depleted": int(row[5]), "total_runs": int(row[6])} for row in rows]
 
 
+DUNGEON_UPGRADES_PER_KEYLEVEL_ABOVE_LEVEL_SQL = """
+SELECT
+  r.dungeon_id,
+  r.keystone_level,
+  SUM(CASE WHEN r.duration IS NOT NULL
+               AND dd.upgrade_3_duration IS NOT NULL
+               AND r.duration <= dd.upgrade_3_duration THEN 1 ELSE 0 END) AS tier_3,
+  SUM(CASE WHEN r.duration IS NOT NULL
+               AND dd.upgrade_2_duration IS NOT NULL
+               AND r.duration <= dd.upgrade_2_duration
+               AND NOT (r.duration <= dd.upgrade_3_duration) THEN 1 ELSE 0 END) AS tier_2,
+  SUM(CASE WHEN r.duration IS NOT NULL
+               AND dd.upgrade_1_duration IS NOT NULL
+               AND r.duration <= dd.upgrade_1_duration
+               AND NOT (r.duration <= dd.upgrade_2_duration) THEN 1 ELSE 0 END) AS tier_1,
+  SUM(CASE WHEN r.duration IS NULL
+               OR (dd.upgrade_1_duration IS NOT NULL AND r.duration > dd.upgrade_1_duration)
+               THEN 1 ELSE 0 END) AS depleted,
+  COUNT(*) AS total_runs
+FROM runs r
+JOIN dungeon_data dd ON dd.dungeon_id = r.dungeon_id
+WHERE r.season = %s AND r.keystone_level > %s
+GROUP BY r.dungeon_id, r.keystone_level 
+"""
+
+def fetch_runs_per_dungeon_per_level_above_level(connection, cursor, season, min_keylevel=15):
+    params = (season, min_keylevel)
+    rows = fetch_with_retry(connection, cursor, DUNGEON_UPGRADES_PER_KEYLEVEL_ABOVE_LEVEL_SQL, params)
+    if not rows:
+        return []
+    return [{"dungeon_id": int(row[0]), "keystone_level": int(row[1]), "upgrade_3": int(row[2]), "upgrade_2": int(row[3]), "upgrade_1": int(row[4]), "depleted": int(row[5]), "total_runs": int(row[6])} for row in rows]
+
+
 FETCH_SPEC_TALENT_OVERVIEW_SQL ="""
 SELECT talent_id, SUM(run_count) as count
 FROM Mythistone.aggregated_spec_talent aht 
@@ -1328,6 +1412,84 @@ def fetch_spec_talent_overview(connection, cursor, spec_id, season):
     if not rows:
         return []
     return [{"talent_id": int(row[0]), "count": int(row[1])} for row in rows]
+
+FETCH_GROUPBUFFS_SQL_TEMPLATE = """
+SELECT
+  COUNT(*) AS total_runs,
+  {select_cols}
+FROM (
+  SELECT
+    r.run_id,
+    {has_cols}
+  FROM runs r
+  LEFT JOIN run_members rm ON rm.run_id = r.run_id
+  LEFT JOIN members m ON m.member = rm.member
+  WHERE r.season = %s
+    AND r.keystone_level > %s
+    AND r.timestamp >= CAST(UNIX_TIMESTAMP(NOW() - INTERVAL %s DAY) * 1000 AS UNSIGNED)
+  GROUP BY r.run_id
+) sub;
+"""
+
+def build_simple_groupbuffs_query(groupbuffs):
+    """
+    groupbuffs: list of dicts like {"name": "Arcane Intellect", "spec_ids": [62,63,64]}
+    returns: sql string and number of buffs (for result mapping)
+    """
+    has_cols = []
+    select_cols = []
+    for i, buff in enumerate(groupbuffs):
+        has_alias = f"has_{i}"
+        runs_alias = f"runs_{i}"
+        pct_alias  = f"pct_{i}"
+
+        spec_ids = buff.get("specIDs", [])
+        if not spec_ids:
+            # no specs -> always 0
+            has_expr = "0"
+        else:
+            # safe because we convert to ints here
+            ids = ",".join(str(int(x)) for x in spec_ids)
+            has_expr = f"COALESCE(MAX(m.spec_id IN ({ids})), 0)"
+
+        has_cols.append(f"{has_expr} AS {has_alias}")
+        select_cols.append(f"SUM({has_alias}) AS {runs_alias}")
+        select_cols.append(f"ROUND(100.0 * SUM({has_alias}) / NULLIF(COUNT(*), 0), 4) AS {pct_alias}")
+    return FETCH_GROUPBUFFS_SQL_TEMPLATE.format(
+        has_cols=",\n    ".join(has_cols),
+        select_cols=",\n  ".join(select_cols)
+    ), len(groupbuffs)
+
+def fetch_groupbuffs_stats(connection, cursor, groupbuffs, season, keystone_threshold=11, days_back=14):
+    """
+    Executes the dynamically built SQL and returns:
+      {"total_runs": int, "buffs": [ { "name":..., "spec_ids":..., "runs":int, "pct":float }, ... ] }
+    - Uses fetch_with_retry(connection, cursor, sql, params) if available; otherwise uses cursor.execute.
+    """
+    sql, n = build_simple_groupbuffs_query(groupbuffs)
+    params = (int(season), int(keystone_threshold), int(days_back))
+
+    rows = fetch_with_retry(connection, cursor, sql, params)
+
+    if not rows:
+        return {"total_runs": 0, "buffs": []}
+
+    row = rows[0]
+    total_runs = int(row[0] or 0)
+    buffs_out = []
+    off = 1
+    for i, buff in enumerate(groupbuffs):
+        runs = int(row[off] or 0)
+        pct  = float(row[off + 1] or 0.0)
+        buffs_out.append({
+            "id": buff.get("id"),
+            "runs": runs,
+            "pct": pct
+        })
+        off += 2
+
+    return {"total_runs": total_runs, "buffs": buffs_out}
+
 
 FETCH_CLASS_TALENT_OVERVIEW_SQL ="""
 SELECT talent_id, SUM(run_count) as count
