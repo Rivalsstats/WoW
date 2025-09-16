@@ -118,12 +118,12 @@ var klaroConfig = {
         // translationsed defined under the 'zz' language code act as default
         // translations.
         zz: {
-            privacyPolicyUrl: '/privacy',
+            privacyPolicyUrl: '/pages/privacy',
         },
         // If you erase the "consentModal" translations, Klaro will use the
         // bundled translations.
         de: {
-            privacyPolicyUrl: '/datenschutz',
+            privacyPolicyUrl: '/pages/datenschutz',
             consentModal: {
                 description:
                     'Hier können Sie einsehen und anpassen, welche Information wir über Sie sammeln. Einträge die als "Beispiel" gekennzeichnet sind dienen lediglich zu Demonstrationszwecken und werden nicht wirklich verwendet.',
@@ -202,13 +202,22 @@ var klaroConfig = {
             googleFonts: {
                 description: 'Web fonts hosted by Google',
             },
+            wowhead: {
+                description: 'Wowhead tooltips and data integration',
+            },
+            raidbots: {
+                description: 'Talent Frame integration',
+            },
+            keystoneGuru: {
+                description: 'Route display',
+            },
             purposes: {
                 analytics: 'Analytics',
                 security: 'Security',
                 livechat: 'Livechat',
                 advertising: 'Advertising',
                 styling: 'Styling',
-                talentFrame: 'Talent Frame',
+                functional: 'Functional',
             },
         },
     },
@@ -333,20 +342,29 @@ var klaroConfig = {
         {
             name: 'simple-analytics',
             title: 'Simple Web Analytics',
+            default: true,
             purposes: ['analytics'],
         },
         {
             name: 'raidbots',
             title: 'Raidbots',
-            purposes: ['talentFrame'],
+            purposes: ['functional'],
+            default: true,
             contextualConsentOnly: true,
         },
 
         {
             name: 'keystoneGuru',
             title: 'Keystone Guru',
-            purposes: ['routeInfo'],
+            purposes: ['functional'],
+            default: true,
             contextualConsentOnly: true,
+        },
+        {
+            name: 'wowhead',
+            title: 'Wowhead',
+            purposes: ['functional'],
+            default: true,
         },
         // {
         //     name: 'cloudflare',
