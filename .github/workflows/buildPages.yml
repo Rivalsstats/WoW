@@ -103,6 +103,7 @@ jobs:
           git add classes/
           git add pages/
           git add index.html
+          git add 404.html
           
           # Commit only if there are changes
           if git diff --cached --quiet; then
