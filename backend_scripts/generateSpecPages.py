@@ -461,21 +461,6 @@ def convert_slots(conn, cursor, spec_id, current_season_id, slots, item_lookup, 
                 enchantment_data = enchant_slots.get(MULTI_SLOT_GROUPS[slot], [])[0]
             item["enchantment"] = enchantment_data
 
-def handle_offhand(weapon_slots, item_lookup):
-    mh = next((g for g in weapon_slots if g["slot"] == "MAIN_HAND"), None)
-    oh = next((g for g in weapon_slots if g["slot"] == "OFF_HAND"), None)
-    if mh and mh["entries"] and len(mh["entries"]) > 0:
-        mh_item_id = mh["entries"][0]["id"]
-        # look up its inventoryType; two‑handers are 17 and ranged weapons are 26
-        if item_lookup.get(mh_item_id, {}).get("inventoryType") == 17 or item_lookup.get(mh_item_id, {}).get("itemSubClass") == 3:
-            # always build combined list (falls back to just mh entries if oh is None)
-            combined = mh["entries"] + (oh.get("entries", []) if oh else [])
-            # re‑sort + trim to top 10
-            mh["entries"] = combined
-            # if there was an Off Hand slot, drop it entirely
-            if oh:
-                weapon_slots = [g for g in weapon_slots if g["slot"] != "OFF_HAND"]
-
 def fetch_stat_info(conn, cursor, spec_id, current_season_id, spec_lookup):
     stats = databaseConnector.fetch_stats(conn, cursor, spec_id, current_season_id)
     stat_priority = []
@@ -705,7 +690,19 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
             trinket_slots = normalize_slot_collections(trinket_slots, TRINKET_SLOTS)
             print(f"[{datetime.now(timezone.utc).isoformat()}] adjusting weapon slots...")
             # remove offhand if 2 hander is equipped
-            handle_offhand(weapon_slots, item_lookup)
+            mh = next((g for g in weapon_slots if g["slot"] == "MAIN_HAND"), None)
+            oh = next((g for g in weapon_slots if g["slot"] == "OFF_HAND"), None)
+            if mh and mh["entries"] and len(mh["entries"]) > 0:
+                mh_item_id = mh["entries"][0]["id"]
+                # look up its inventoryType; two‑handers are 17 and ranged weapons are 26
+                if item_lookup.get(mh_item_id, {}).get("inventoryType") == 17 or item_lookup.get(mh_item_id, {}).get("itemSubClass") == 3:
+                    # always build combined list (falls back to just mh entries if oh is None)
+                    combined = mh["entries"] + (oh.get("entries", []) if oh else [])
+                    # re‑sort + trim to top 10
+                    mh["entries"] = combined
+                    # if there was an Off Hand slot, drop it entirely
+                    if oh:
+                        weapon_slots = [g for g in weapon_slots if g["slot"] != "OFF_HAND"]
             print(f"[{datetime.now(timezone.utc).isoformat()}] fetching upgrade counts...")
             upgrade_counts = databaseConnector.fetch_spec_upgrade(conn, cursor, spec_id, current_season_id)
             print(f"[{datetime.now(timezone.utc).isoformat()}] fetching stats...")
