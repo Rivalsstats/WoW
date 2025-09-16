@@ -16,10 +16,91 @@
 <html lang="en">
 
 <head>
-  <title>
-    WoW Stats - MythiStone
-  </title>
+{# ===========================
+   SEO + Social meta for Tierlist page
+   Insert this directly after {% include "header_imports.html" %}
+   ============================ #}
+
+  <!-- Primary SEO -->
+  <title>MythiStone | World of Warcraft Meta, Tier Lists and Statistics</title>
+  <meta name="description"
+    content="Dominate Mythic+: data-powered tierlists, per-spec guides, route-finder tools and more. Plan smarter, push higher, time your keys to perfection.">
+  <meta name="keywords" content="MythiStone, Mythic+, tierlist, spec tierlist, dungeon tierlist, raidbuffs, M+ rankings">
+  <meta name="author" content="MythiStone">
+
+  <!-- Canonical & hreflang -->
+  {% set page_url = request.url if request is defined else ('https://mythistone.com/tierlists') %}
+  <link rel="canonical" href="{{ page_url }}">
+  <link rel="alternate" href="{{ page_url }}" hreflang="en-US">
+  <link rel="alternate" href="{{ page_url }}" hreflang="en">
+
+  <!-- Robots -->
+  <meta name="robots" content="index, follow, max-snippet:200, max-image-preview:large">
+
+  <!-- Open Graph / Social -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="MythiStone">
+  <meta property="og:url" content="{{ page_url }}">
+  <meta property="og:title" content="MythiStone | World of Warcraft Meta, Tier Lists and Statistics">
+  <meta property="og:description"
+    content="Dominate Mythic+: data-powered tierlists, per-spec guides, route-finder tools and more. Plan smarter, push higher, time your keys to perfection.">
+  <meta property="og:image" content="https://mythistone.com/assets/img/favicon/favicon-96x96.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="MythiStone Tierlists preview">
+  <meta property="og:locale" content="en_US">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@MythiStone">
+  <meta name="twitter:creator" content="@MythiStone">
+  <meta name="twitter:title" content="MythiStone | World of Warcraft Meta, Tier Lists and Statistics">
+  <meta name="twitter:description" content="Dominate Mythic+: data-powered tierlists, per-spec guides, route-finder tools and more. Plan smarter, push higher, time your keys to perfection.">
+  <meta name="twitter:image" content="https://mythistone.com/assets/img/favicon/favicon-96x96.png">
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "url": "https://mythistone.com",
+  "name": "MythiStone | World of Warcraft Meta, Tier Lists and Statistics",
+  "description": "Dominate Mythic+: data-powered tierlists, per-spec guides, route-finder tools and more. Plan smarter, push higher, time your keys to perfection.",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://mythistone.com" },
+        { "@type": "ListItem", "position": 2, "name": "Classes", "item": "https://mythistone.com/pages/classes" },
+    ]
+    },
+    {
+      "@type": "SiteNavigationElement",
+      "name": "Specs navigation",
+      "url": "https://mythistone.com/pages/classes",
+      "hasPart": [
+        {% for nav in specs %}
+        {
+          "@type": "SiteNavigationElement",
+          "name": "{{ nav.name | e }}",
+          "url": "{{ nav.url }}"
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ]
+    }
+  ]
+  "author": {
+    "@type": "Organization",
+    "name": "MythiStone",
+    "url": "https://mythistone.com"
+  },
+  "datePublished": "01/07/2025",
+  "dateModified": "{{ generated_at|format_ts }}"
+}
+  </script>
+
+
   {% include "header_imports.html" %}
+  <link rel="stylesheet" href="/assets/css/tierlist.css" />
 </head>
 
 <body class="g-sidenav-show" data-bs-theme="dark">
@@ -34,260 +115,6 @@
     <div class="container-fluid py-2">
 
       <section id="tierlists" class="mb-4">
-        <style>
-          /* shared tier styles */
-          .tier-row {
-            align-items: flex-start;
-          }
-
-          .tier-left {
-            width: 140px;
-            min-width: 120px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            padding-right: 12px;
-          }
-
-          .tier-badge-large {
-            width: 96px;
-            height: 96px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 34px;
-            color: #fff;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
-            text-transform: uppercase;
-          }
-
-          .tier-label-small {
-            text-align: center;
-            font-weight: 600;
-          }
-
-          .tier-count-small {
-            font-size: 0.85rem;
-            color: var(--bs-gray-400, #9aa0a6);
-          }
-
-          /* color mappings (mirrors badge classes) */
-          .tier-S {
-            background: linear-gradient(90deg, #ffd27f 0%, #ffb84d 45%, #ff8c00 100%);
-            color: #1b1200;
-          }
-
-          .tier-A {
-            background: linear-gradient(90deg, #caa3ff 0%, #a86bff 45%, #8e44ad 100%);
-            color: #fff;
-          }
-
-          .tier-B {
-            background: linear-gradient(90deg, #8fcfff 0%, #5aa9ff 45%, #0070dd 100%);
-            color: #fff;
-          }
-
-          .tier-C {
-            background: linear-gradient(90deg, #9fee9a 0%, #57d06b 45%, #2ecc71 100%);
-            color: #072e10;
-          }
-
-          .tier-D {
-            background: linear-gradient(90deg, #e9e9e9 0%, #d1d1d1 50%, #9e9e9e 100%);
-            color: #1e1e1e;
-            border: 1px solid rgba(0, 0, 0, 0.08);
-          }
-
-          .tier-F {
-            background: linear-gradient(90deg, #ff6b6b, #dc3545);
-            color: #fff;
-            border: 1px solid rgba(0, 0, 0, 0.12);
-          }
-
-          /* Grid tweaks for tiles */
-          .dungeon-tiles-grid {
-            gap: 0.75rem;
-          }
-
-          /* Dungeon tile (unchanged visual) */
-          .dungeon-tile {
-            height: 110px;
-            border-radius: 10px;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            color: #fff;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
-            border: 0;
-            transition: transform .12s ease, box-shadow .12s ease;
-            display: block;
-          }
-
-          .dungeon-tile::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            box-shadow: inset 0 -24px 40px rgba(0, 0, 0, 0.45);
-            border-radius: 10px;
-          }
-
-          .dungeon-tile:hover,
-          .dungeon-tile:focus {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
-            z-index: 2;
-            outline: none;
-          }
-
-          /* shared icon used for both dungeon and spec (when present) */
-          .dungeon-tile-icon {
-            position: absolute;
-            left: 10px;
-            bottom: 10px;
-            width: 44px;
-            height: 44px;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 50%;
-            padding: 4px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-
-          .dungeon-tile-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-          }
-
-          .fallback-initial {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #e9ecef;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.06));
-            font-weight: 700;
-            border-radius: 50%;
-          }
-
-          .dungeon-tile-title .text-truncate {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-          }
-
-          .dungeon-tile:focus-visible {
-            box-shadow: 0 0 0 3px rgba(100, 150, 255, 0.25), 0 8px 22px rgba(0, 0, 0, 0.45);
-          }
-
-          .visually-hidden {
-            position: absolute !important;
-            height: 1px;
-            width: 1px;
-            overflow: hidden;
-            clip: rect(1px, 1px, 1px, 1px);
-            white-space: nowrap;
-            border: 0;
-            padding: 0;
-            margin: -1px;
-          }
-
-          /* SPEC: compact tile with circular icon on lower-left (Archon-like) */
-          .spec-tile {
-            height: 84px;
-            border-radius: 10px;
-            padding-left: 64px;
-            /* reserve room for circular icon */
-            background-size: cover;
-            background-position: center;
-            color: #fff;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
-            border: 0;
-            transition: transform .12s ease, box-shadow .12s ease;
-            display: block;
-            position: relative;
-            overflow: hidden;
-          }
-
-          .spec-tile:hover,
-          .spec-tile:focus {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
-            z-index: 2;
-          }
-
-          .spec-tile .dungeon-tile-icon {
-            left: 10px;
-            bottom: 12px;
-            width: 40px;
-            height: 40px;
-            padding: 3px;
-          }
-
-          .spec-tile .dungeon-tile-title {
-            bottom: 8px;
-            left: 0;
-            right: 0;
-            padding-left: 8px;
-          }
-
-          .spec-tile .dungeon-tile-title strong {
-            font-size: 0.95rem;
-          }
-
-          .spec-tile .dungeon-tile-title small {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.85);
-          }
-
-          /* responsive */
-          @media (max-width: 768px) {
-            .tier-left {
-              width: 100%;
-              min-width: 0;
-              flex-direction: row;
-              gap: 12px;
-              align-items: center;
-              padding-right: 0;
-            }
-
-            .tier-badge-large {
-              width: 64px;
-              height: 64px;
-              font-size: 22px;
-              border-radius: 10px;
-            }
-
-            .dungeon-tile {
-              height: 96px;
-            }
-
-            .dungeon-tile-title {
-              padding-left: 56px;
-            }
-
-            .spec-tile {
-              height: 72px;
-              padding-left: 56px;
-            }
-
-            .spec-tile .dungeon-tile-icon {
-              width: 36px;
-              height: 36px;
-              bottom: 10px;
-              left: 8px;
-            }
-          }
-        </style>
 
         {# -------------------- Shared macro + variables -------------------- #}
         {% set tiers = ["S","A","B","C","D","F"] %}
@@ -318,98 +145,6 @@
 
         <!-- Spec tierlist  -->
         <section id="spec-tierlist" class="mb-4 round-tierlist">
-          <style>
-            /* Scoped to round-tierlist so it can be applied to Spec and Buff sections alike */
-            .round-tierlist {
-              --spec-size: 84px;
-              /* change this to 72px/96px to tune icon size */
-              --spec-gap: 12px;
-              /* change this to adjust spacing between icons */
-            }
-
-            .round-tierlist .spec-row {
-              display: flex;
-              flex-wrap: wrap;
-              gap: var(--spec-gap);
-              justify-content: flex-start;
-              /* left aligned */
-              align-items: flex-start;
-              padding: 6px 0;
-              /* small vertical breathing room */
-            }
-
-            .round-tierlist .spec-col {
-              flex: 0 0 auto;
-              /* fixed-size items that don't stretch */
-              width: var(--spec-size);
-              height: var(--spec-size);
-              display: inline-flex;
-              align-items: center;
-              justify-content: center;
-            }
-
-            .round-tierlist .spec-btn {
-              width: 100%;
-              height: 100%;
-              padding: 0;
-              border-radius: 50%;
-              overflow: hidden;
-              border: 0;
-              background: transparent;
-              display: inline-block;
-              position: relative;
-            }
-
-            .round-tierlist .spec-btn img {
-              width: 100%;
-              height: 100%;
-              object-fit: cover;
-              display: block;
-            }
-
-            /* small overlay pill (optional) */
-            .round-tierlist .spec-label {
-              position: absolute;
-              left: 50%;
-              top: 50%;
-              transform: translate(-50%, -50%);
-              pointer-events: none;
-              display: inline-block;
-              background: rgba(0, 0, 0, 0.45);
-              color: #fff;
-              padding: 2px 8px;
-              border-radius: 999px;
-              font-size: 0.78rem;
-              font-weight: 600;
-              white-space: nowrap;
-              max-width: calc(var(--spec-size) - 10px);
-              overflow: hidden;
-              text-overflow: ellipsis;
-              text-align: center;
-            }
-
-            /* accessibility: visually hidden text still allowed */
-            .round-tierlist .visually-hidden {
-              position: absolute !important;
-              clip: rect(1px, 1px, 1px, 1px);
-              height: 1px;
-              width: 1px;
-              overflow: hidden;
-              white-space: nowrap;
-              border: 0;
-              padding: 0;
-              margin: -1px;
-            }
-
-            /* responsive tweak: if you want smaller icons on very small screens, override --spec-size via media query */
-            @media (max-width:420px) {
-              .round-tierlist {
-                --spec-size: 68px;
-                --spec-gap: 10px;
-              }
-            }
-          </style>
-
 
           <div class="row card shadow-sm">
             <div class="card-header d-flex align-items-center justify-content-between">
@@ -417,7 +152,7 @@
                 <h2 class="mb-0">Spec Tierlist</h2>
               </div>
               {% if spec_scores_available %}
-              <div class="text-end"><span class="badge bg-gradient-info">Learn how we Score</span></div>
+              <div class="text-end"><span class="badge bg-gradient-info">Ranked by Performance</span></div>
               {% else %}
               <div class="text-end"><span class="badge bg-gradient-warning">No data available</span></div>
               {% endif %}
@@ -476,7 +211,7 @@
                 <h2 class="mb-0">Dungeon Tierlist</h2>
               </div>
               {% if dungeon_scores_available %}
-              <div class="text-end"><span class="badge bg-gradient-info">Learn how we Score</span></div>
+              <div class="text-end"><span class="badge bg-gradient-info">Ranked by Ease</span></div>
               {% else %}
               <div class="text-end"><span class="badge bg-gradient-warning">No data available</span></div>
               {% endif %}
@@ -539,7 +274,7 @@
                 <h2 class="mb-0">Raidbuff Popularity Tierlist</h2>
               </div>
               {% if buff_scores_available %}
-              <div class="text-end"><span class="badge bg-gradient-info">Learn how we Score</span></div>
+              <div class="text-end"><span class="badge bg-gradient-info">Ranked by Popularity</span></div>
               {% endif %}
             </div>
 

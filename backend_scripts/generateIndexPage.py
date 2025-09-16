@@ -684,7 +684,7 @@ def main(template_path, output_dir):
         dungeon_lookup=dungeon_lookup,
         specs = spec_lookup,
         class_lookup=class_lookup,
-        active_page="Home",
+        active_page="home",
         breadcrumbs=[
             {"title": "Home", "href": "/"},
         ],

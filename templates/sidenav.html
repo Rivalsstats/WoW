@@ -12,6 +12,15 @@
   <div class="collapse navbar-collapse w-auto pb-5" id="sidenav-collapse-main">
     <ul class="navbar-nav">
       <li class="nav-item">
+        <a class="nav-link {% if active_page == 'home' %}active bg-gradient-dark text-white{% endif %}"
+          href="/">
+          <i
+            class="material-symbols-rounded {% if active_page == 'home' %}text-white{% else %}text-body-emphasis{% endif %} opacity-5">leaderboard</i>
+          <span
+            class="nav-link-text {% if active_page == 'home' %}text-white{% else %}text-body-emphasis{% endif %} ms-1">Tierlists</span>
+        </a>
+      </li>
+      <li class="nav-item">
         <a class="nav-link {% if active_page == 'dashboard' %}active bg-gradient-dark text-white{% endif %}"
           href="/pages/dashboard">
           <i
