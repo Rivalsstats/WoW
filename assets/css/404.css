@@ -1,0 +1,208 @@
+.ms-404-fullscreen-wrap {
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  padding: 0;
+  box-sizing: border-box;
+  display: block;
+}
+
+.ms-404-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.ms-404-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  padding: 0;
+  box-sizing: border-box;
+  background: radial-gradient(
+      800px 360px at 50% 8%,
+      rgba(120, 90, 255, 0.05),
+      transparent 12%
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.01), rgba(0, 0, 0, 0.12));
+}
+
+.ms-404-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.95;
+  mix-blend-mode: screen;
+}
+
+.ms-404-content {
+  position: relative;
+  z-index: 6;
+  display: flex;
+  gap: 36px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  color: #e7eef7;
+  height: 100%;
+  padding: 48px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.ms-keystone-outer {
+  position: relative;
+  width: min(42vw, 520px);
+  height: min(42vw, 520px);
+  min-width: 220px;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  z-index: 6;
+}
+
+.ms-keystone-wrap {
+  position: relative;
+  z-index: 8;
+  width: 56%;
+  height: 62%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 300ms ease;
+}
+
+.ms-keystone-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  transform-origin: center center;
+}
+
+.keystone-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(0deg);
+  transform-origin: 50% 50%;
+  pointer-events: none;
+  z-index: 2;
+  will-change: transform, filter;
+  opacity: 0.98;
+  user-select: none;
+}
+
+.ring-bg {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.ring-outer {
+  width: 94%;
+  height: 94%;
+  z-index: 3;
+}
+
+.ring-inner {
+  width: 46%;
+  height: 46%;
+  z-index: 5;
+  filter: drop-shadow(0 12px 24px rgba(110, 80, 255, 0.18));
+}
+
+.ring-outer {
+  animation: spinCW 30s linear infinite;
+}
+
+.ring-inner {
+  animation: spinCW 10s linear infinite;
+}
+
+@keyframes spinCW {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes spinCCW {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(-360deg);
+  }
+}
+
+.ms-404-text {
+  max-width: 560px;
+  text-align: center;
+}
+
+.ms-404-text h1 {
+  font-size: clamp(26px, 3.6vw, 44px);
+  margin: 0 0 8px;
+  color: #fff;
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.ms-404-text p {
+  margin: 0 0 18px;
+  color: rgba(231, 238, 247, 0.92);
+}
+
+@media (max-width: 1000px) {
+  .ms-keystone-outer {
+    width: 360px;
+    height: 360px;
+  }
+
+  .ms-keystone-wrap {
+    width: 60%;
+    height: 56%;
+  }
+}
+
+@media (max-width: 560px) {
+  .ms-404-content {
+    flex-direction: column;
+    gap: 18px;
+    padding: 20px;
+  }
+
+  .ms-keystone-outer {
+    width: 220px;
+    height: 220px;
+  }
+
+  .ring-outer {
+    width: 96%;
+    height: 96%;
+  }
+
+  .ring-inner {
+    width: 52%;
+    height: 52%;
+  }
+}
+
+.keystone-ring {
+  -webkit-user-drag: none;
+  user-select: none;
+}

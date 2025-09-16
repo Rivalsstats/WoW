@@ -17,6 +17,7 @@ TEMPLATE_PATH = "templates"
 LEGAL_PAGES = {
     "privacy": {
         "template": "privacy.html",
+        "output": os.path.join("pages", "privacy.html"),
         "breadcrumbs": [
             {"title": "Pages", "href": "/Pages"},
             {"title": "Privacy"}
@@ -24,14 +25,22 @@ LEGAL_PAGES = {
     },
     "impressum": {
         "template": "impressum.html",
+        "output": os.path.join("pages", "impressum.html"),
         "breadcrumbs": [
             {"title": "Pages", "href": "/Pages"},
             {"title": "Impressum"}
         ]
+    },
+    "404": {
+        "template": "404Page.html",
+        "output": "404.html",
+        "breadcrumbs": [
+            {"title": "Not Found"}
+        ]
     }
 }
 
-def main(output_dir):
+def main():
     env = Environment(
         loader=FileSystemLoader(TEMPLATE_PATH),
         autoescape=select_autoescape(["html", "xml"]),
@@ -54,20 +63,12 @@ def main(output_dir):
             breadcrumbs=value.get("breadcrumbs", [])
         )
         # Write output
-        out_path = os.path.join(
-            output_dir,
-            template_name,
-        )
-        os.makedirs(os.path.dirname(out_path), exist_ok=True)
-        with open(out_path, "w", encoding="utf-8") as f:
+        if os.path.dirname(value["output"]):
+            os.makedirs(os.path.dirname(value["output"]), exist_ok=True)
+        with open(value["output"], "w", encoding="utf-8") as f:
             f.write(output_html)
-        print(f"Generated {out_path}")
+        print(f"Generated {value['output']}")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate WoW Dashboard page")
-    parser.add_argument(
-        "--output_dir", required=True, help="Directory to write generated HTML pages"
-    )
-    args = parser.parse_args()
-    main(args.output_dir)
+    main()

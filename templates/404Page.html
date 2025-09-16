@@ -1,0 +1,209 @@
+<!--
+=========================================================
+* Material Dashboard 3 - v3.2.0
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/material-dashboard
+* Copyright 2024 Creative Tim (https://www.creative-tim.com)
+* Licensed under MIT (https://www.creative-tim.com/license)
+* Coded by Creative Tim
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>
+    WoW Stats - MythiStone
+  </title>
+  {% include "header_imports.html" %}
+  <link rel="stylesheet" href="/assets/css/404.css" />
+</head>
+
+<body class="g-sidenav-show" data-bs-theme="dark">
+  {% include "sidenav.html" %}
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+    <!-- Navbar -->
+    {% include "navbar.html" %}
+    <!-- End Navbar -->
+    <!-- Notifications -->
+    {% include "notifications.html" %}
+    <!-- End Notifications -->
+    <div class="container-fluid py-2">
+
+      <div class="ms-404-fullscreen-wrap" aria-labelledby="ms404-title" role="region">
+        <section class="ms-404-wrap">
+          <div class="ms-404-stage" id="ms404-stage">
+            <canvas id="ms404-canvas" class="ms-404-canvas" aria-hidden="true"></canvas>
+
+            <div class="ms-404-content" role="article" aria-live="polite">
+              <div class="ms-keystone-outer" id="ms-keystone-outer" tabindex="0" aria-pressed="false"
+                aria-label="Keystone">
+                <img class="keystone-ring ring-bg" id="ring-bg" src="/static/img/ring_bg.png" alt="" aria-hidden="true">
+                <img class="keystone-ring ring-outer" id="ring-outer" src="/static/img/outer_ring.png" alt=""
+                  aria-hidden="true">
+                <img class="keystone-ring ring-inner" id="ring-inner" src="/static/img/inner_ring.png" width="64px"
+                  height="64px" alt="" aria-hidden="true">
+
+                <div class="ms-keystone-wrap" id="ms-keystone-wrap" aria-hidden="false">
+                  <svg class="ms-keystone-svg" viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" role="img"
+                    aria-label="keystone">
+                    <defs>
+                      <linearGradient id="kgA" x1="0" x2="1">
+                        <stop offset="0%" stop-color="#8fe3ff" />
+                        <stop offset="55%" stop-color="#7be6a3" />
+                        <stop offset="100%" stop-color="#c7a7ff" />
+                      </linearGradient>
+                      <filter id="ks-glow" x="-60%" y="-60%" width="220%" height="220%">
+                        <feGaussianBlur stdDeviation="8" result="b" />
+                        <feMerge>
+                          <feMergeNode in="b" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                        </feMerge>
+                        <radialGradient id="ks-shine" cx="45%" cy="30%" r="60%">
+                          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
+                          <stop offset="45%" stop-color="#ffffff" stop-opacity="0.18" />
+                          <stop offset="100%" stop-color="#fff" stop-opacity="0" />
+                        </radialGradient>
+                    </defs>
+
+                    <g transform="translate(100,120)">
+                      <circle r="72" fill="none" stroke="url(#kgA)" stroke-width="2" opacity="0.18" />
+                      <g filter="url(#ks-glow)">
+                        <circle r="92" fill="none" stroke="url(#kgA)" stroke-width="6" opacity="0.08" />
+                      </g>
+                    </g>
+
+                    <g transform="translate(30,10)">
+                      <g transform="translate(70,100)" class="keystone-core">
+                        <path d="M0,-60 L48,-12 L48,44 L0,92 L-48,44 L-48,-12 Z" fill="url(#kgA)" />
+                        <path d="M0,-60 L24,-12 L0,24 L-24,-12 Z" fill="rgba(255,255,255,0.06)" />
+                        <path d="M0,24 L24,-12 L48,44 L0,92 Z" fill="rgba(255,255,255,0.03)" />
+                        <path d="M0,24 L-24,-12 L-48,44 L0,92 Z" fill="rgba(0,0,0,0.06)" />
+                        <ellipse cx="0" cy="4" rx="18" ry="36" fill="url(#ks-shine)" opacity="0.95" />
+                      </g>
+                    </g>
+                  </svg>
+                </div>
+              </div>
+
+              <div class="ms-404-text">
+                <h1 id="ms404-title">404 Page not Found</h1>
+                <p>The Page you're looking for cannot be found.</p>
+                <div class="ms-404-cta">
+                  <a href="/" class="btn btn-primary btn-lg">Return Home</a>
+                  <a href="/pages" class="btn btn-outline-light btn-lg">Browse Pages</a>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+      </div>
+
+      <script>
+        (function () {
+          // Canvas initialization and particle loop to ensure full-coverage and proper DPI scaling
+          const canvas = document.getElementById('ms404-canvas');
+          if (!canvas) return;
+          const ctx = canvas.getContext('2d');
+          let DPR = window.devicePixelRatio || 1;
+
+          function resizeCanvas() {
+            // Set CSS width/height remain, but ensure backing buffer matches DPR
+            const cssW = canvas.offsetWidth || canvas.clientWidth || window.innerWidth;
+            const cssH = canvas.offsetHeight || canvas.clientHeight || window.innerHeight;
+            canvas.width = Math.max(1, Math.round(cssW * DPR));
+            canvas.height = Math.max(1, Math.round(cssH * DPR));
+            // scale so drawing operations use CSS pixels
+            ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+          }
+
+          // Simple drifting particles
+          let particles = [];
+          function createParticles() {
+            const w = canvas.offsetWidth || window.innerWidth;
+            const h = canvas.offsetHeight || window.innerHeight;
+            const count = Math.max(30, Math.floor((w * h) / 48000));
+            particles = [];
+            for (let i = 0; i < count; i++) {
+              particles.push({
+                x: Math.random() * w,
+                y: Math.random() * h,
+                vx: (Math.random() - 0.5) * 0.14,
+                vy: - (0.05 + Math.random() * 0.4),
+                r: 0.6 + Math.random() * 2.6,
+                a: 0.02 + Math.random() * 0.36,
+                tw: 0.006 + Math.random() * 0.02
+              });
+            }
+          }
+
+          // draw loop
+          let last = performance.now();
+          function draw(now) {
+            const dt = Math.min(50, now - last) / 16.666;
+            last = now;
+            const w = canvas.offsetWidth || window.innerWidth;
+            const h = canvas.offsetHeight || window.innerHeight;
+
+            // clear + subtle gradient
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const grad = ctx.createLinearGradient(0, 0, 0, h);
+            grad.addColorStop(0, 'rgba(255,255,255,0.01)');
+            grad.addColorStop(1, 'rgba(0,0,0,0.12)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, w, h);
+
+            // particles
+            for (let p of particles) {
+              p.x += p.vx * dt * 12;
+              p.y += p.vy * dt * 12;
+              p.a += Math.sin(now * p.tw) * 0.004;
+              if (p.y < -10) { p.y = h + 10; p.x = Math.random() * w; }
+              if (p.x < -20) p.x = w + 20;
+              if (p.x > w + 20) p.x = -20;
+              ctx.beginPath();
+              ctx.globalAlpha = Math.max(0, Math.min(1, p.a));
+              ctx.fillStyle = 'rgba(170,140,255,0.95)';
+              ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.globalAlpha = 1;
+            }
+
+            requestAnimationFrame(draw);
+          }
+
+          // on resize, recreate backing buffer and particles
+          function handleResize() {
+            DPR = window.devicePixelRatio || 1;
+            resizeCanvas();
+            createParticles();
+          }
+
+          window.addEventListener('resize', () => {
+            clearTimeout(window.__ms404_resize);
+            window.__ms404_resize = setTimeout(handleResize, 96);
+          });
+
+          // initial setup
+          handleResize();
+          requestAnimationFrame(draw);
+
+        })();
+      </script>
+
+
+
+      {% include "footer.html" %}
+    </div>
+  </main>
+  {% include "fixed_plugin.html" %}
+  {% include "javascript_imports.html" %}
+</body>
+
+</html>
