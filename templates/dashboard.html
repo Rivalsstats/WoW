@@ -22,7 +22,8 @@
   <!-- Primary SEO -->
   <meta name="description"
     content="Interactive Mythic+ dashboard for World of Warcraft. Find spec popularity, keys per week, dungeon popularity, performance vs. popularity and more. Data updated {{ generated_at | format_ts }}.">
-  <meta name="keywords" content="MythiStone, Mythic+, WoW, Dungeon popularity, spec popularity, keys per week, M+ dashboard, WoW stats">
+  <meta name="keywords"
+    content="MythiStone, Mythic+, WoW, Dungeon popularity, spec popularity, keys per week, M+ dashboard, WoW stats">
 
   <!-- Canonical & hreflang -->
   <link rel="canonical" href="https://mythistone.com/dashboard">
@@ -87,12 +88,16 @@
         "name": "Specs navigation",
         "url": "https://mythistone.com/pages/classes",
         "hasPart": [
+         {% for role_name, specs in spec_nav.items() %}
+          {% set rid = role_name|replace(' ', '') %}
           {% for nav in specs %}
           {
             "@type": "SiteNavigationElement",
             "name": "{{ nav.name | e }}",
             "url": "{{ nav.url }}"
           }{% if not loop.last %},{% endif %}
+          {% endfor %}
+          {% if not loop.last %},{% endif %}
           {% endfor %}
         ]
       }

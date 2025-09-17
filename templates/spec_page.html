@@ -252,13 +252,17 @@
       "name": "Specs navigation",
       "url": "https://mythistone.com/pages/classes",
       "hasPart": [
-        {% for nav in specs %}
-        {
-          "@type": "SiteNavigationElement",
-          "name": "{{ nav.name | e }}",
-          "url": "{{ nav.url }}"
-        }{% if not loop.last %},{% endif %}
-        {% endfor %}
+         {% for role_name, specs in spec_nav.items() %}
+          {% set rid = role_name|replace(' ', '') %}
+          {% for nav in specs %}
+          {
+            "@type": "SiteNavigationElement",
+            "name": "{{ nav.name | e }}",
+            "url": "{{ nav.url }}"
+          }{% if not loop.last %},{% endif %}
+          {% endfor %}
+          {% if not loop.last %},{% endif %}
+          {% endfor %}
       ]
     }
   ],
@@ -1625,8 +1629,8 @@
     })();
   </script>
 
-  <script type="text/plain" data-type="application/javascript"
-    data-name="wowhead" data-src='https://wow.zamimg.com/widgets/power.js'></script>
+  <script type="text/plain" data-type="application/javascript" data-name="wowhead"
+    data-src='https://wow.zamimg.com/widgets/power.js'></script>
   <!-- chart.js -->
   <script src="/assets/js/plugins/chartjs.min.js"></script>
   <script src="/assets/js/plugins/chartjs-plugin-datalabels.min.js"></script>

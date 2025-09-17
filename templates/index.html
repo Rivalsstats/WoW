@@ -16,16 +16,17 @@
 <html lang="en">
 
 <head>
-{# ===========================
-   SEO + Social meta for Tierlist page
-   Insert this directly after {% include "header_imports.html" %}
-   ============================ #}
+  {# ===========================
+  SEO + Social meta for Tierlist page
+  Insert this directly after {% include "header_imports.html" %}
+  ============================ #}
 
   <!-- Primary SEO -->
   <title>MythiStone | World of Warcraft Meta, Tier Lists and Statistics</title>
   <meta name="description"
     content="Dominate Mythic+: data-powered tierlists, per-spec guides, route-finder tools and more. Plan smarter, push higher, time your keys to perfection.">
-  <meta name="keywords" content="MythiStone, Mythic+, tierlist, spec tierlist, dungeon tierlist, raidbuffs, M+ rankings">
+  <meta name="keywords"
+    content="MythiStone, Mythic+, tierlist, spec tierlist, dungeon tierlist, raidbuffs, M+ rankings">
   <meta name="author" content="MythiStone">
 
   <!-- Canonical & hreflang -->
@@ -55,7 +56,8 @@
   <meta name="twitter:site" content="@MythiStone">
   <meta name="twitter:creator" content="@MythiStone">
   <meta name="twitter:title" content="MythiStone | World of Warcraft Meta, Tier Lists and Statistics">
-  <meta name="twitter:description" content="Dominate Mythic+: data-powered tierlists, per-spec guides, route-finder tools and more. Plan smarter, push higher, time your keys to perfection.">
+  <meta name="twitter:description"
+    content="Dominate Mythic+: data-powered tierlists, per-spec guides, route-finder tools and more. Plan smarter, push higher, time your keys to perfection.">
   <meta name="twitter:image" content="https://mythistone.com/assets/img/favicon/favicon-96x96.png">
 
   <script type="application/ld+json">
@@ -78,13 +80,19 @@
       "name": "Specs navigation",
       "url": "https://mythistone.com/pages/classes",
       "hasPart": [
-        {% for nav in specs %}
-        {
-          "@type": "SiteNavigationElement",
-          "name": "{{ nav.name | e }}",
-          "url": "{{ nav.url }}"
-        }{% if not loop.last %},{% endif %}
-        {% endfor %}
+        "hasPart": [
+         {% for role_name, specs in spec_nav.items() %}
+          {% set rid = role_name|replace(' ', '') %}
+          {% for nav in specs %}
+          {
+            "@type": "SiteNavigationElement",
+            "name": "{{ nav.name | e }}",
+            "url": "{{ nav.url }}"
+          }{% if not loop.last %},{% endif %}
+          {% endfor %}
+          {% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
       ]
     }
   ],
