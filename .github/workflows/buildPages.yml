@@ -109,7 +109,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Updated Spec Pages"
+            git commit -m "Updated Pages"
           fi
       
           if ! git pull --rebase; then
