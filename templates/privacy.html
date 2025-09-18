@@ -23,7 +23,7 @@
   {% include "header_imports.html" %}
 </head>
 
-<body class="g-sidenav-show" data-bs-theme="dark">
+<body class="g-sidenav-show g-sidenav-show-right" data-bs-theme="dark">
   {% include "sidenav.html" %}
   <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <!-- Navbar -->
@@ -33,13 +33,7 @@
     {% include "notifications.html" %}
     <!-- End Notifications -->
     <div class="container-fluid py-2">
-
-
-      <section id="starter-section" class="starter-section section">
-
-        <div class="container aos-init aos-animate" data-aos="fade-up">
-
-          <p>&nbsp;</p>
+      <p>&nbsp;</p>
           <h1>Datenschutz&shy;erkl&auml;rung</h1>
           <h2>1. Datenschutz auf einen Blick</h2>
           <h3>Allgemeine Hinweise</h3>
@@ -400,14 +394,11 @@
             von
             der <a href="https://www.kanzlei-hasselbach.de/" rel="nofollow">Kanzlei Hasselbach</a>
 
-        </div>
-
-      </section>
-
 
       {% include "footer.html" %}
     </div>
   </main>
+  {% include "right_aside.html" %}
   {% include "fixed_plugin.html" %}
   {% include "javascript_imports.html" %}
 </body>

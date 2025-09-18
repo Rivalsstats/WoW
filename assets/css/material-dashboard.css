@@ -23456,7 +23456,7 @@ body.dark-version {
   border-radius: 0;
   padding: 0 10px;
   transition: 0.2s ease;
-  z-index: 1020;
+  z-index: 10020;
 }
 
 .fixed-plugin .badge {
@@ -24688,6 +24688,7 @@ hr.horizontal.gray-light {
   margin-left: 0;
 }
 
+
 @media (min-width: 1200px) {
   .g-sidenav-hidden.rtl .main-content {
     margin-right: 7rem !important;
@@ -25781,22 +25782,40 @@ hr.horizontal.gray-light {
 }
 
 @media (max-width: 1199.98px) {
-  .g-sidenav-show.rtl .sidenav {
-    transform: translateX(15.5rem);
-  }
-
-  .g-sidenav-show:not(.rtl) .sidenav {
+  /* -----------------------
+     LEFT sidebar (fixed-start)
+     ----------------------- */
+  .g-sidenav-show:not(.rtl) .sidenav.fixed-start {
     transform: translateX(-15.5rem);
   }
-
-  .g-sidenav-show .sidenav.fixed-start+.main-content {
+  .g-sidenav-show.rtl .sidenav.fixed-start {
+    transform: translateX(15.5rem);
+  }
+  .g-sidenav-show.g-sidenav-pinned .sidenav.fixed-start {
+    transform: translateX(0);
+  }
+  .g-sidenav-show .sidenav.fixed-start + .main-content {
     margin-left: 0 !important;
   }
 
-  .g-sidenav-show.g-sidenav-pinned .sidenav {
+  /* -----------------------
+     RIGHT sidebar (fixed-end)
+     ----------------------- */
+  .g-sidenav-show-right:not(.rtl) .sidenav.fixed-end {
+    transform: translateX(15.5rem);
+  }
+  .g-sidenav-show-right.rtl .sidenav.fixed-end {
+    transform: translateX(-15.5rem);
+  }
+  .g-sidenav-show-right.g-sidenav-pinned .sidenav.fixed-end {
     transform: translateX(0);
   }
+   .g-sidenav-show .sidenav.fixed-end + .main-content {
+    margin-right: 0 !important;
+  }
 }
+
+
 
 .navbar-vertical.bg-white {
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -29178,4 +29197,43 @@ pre[class*=language-] {
   }
 }
 
-/*# sourceMappingURL=dashboard-free.css.map */
+
+@media (min-width: 1200px) {
+  body.g-sidenav-show .main-content {
+    margin-left: 15rem !important; 
+  }
+
+  body.g-sidenav-show-right .main-content {
+    margin-right: 15rem !important;
+  }
+
+  body.g-sidenav-show.g-sidenav-show-right .main-content {
+    margin-left: 15rem !important;
+    margin-right: 15rem !important;
+  }
+
+  .sidenav.fixed-end {
+    position: fixed !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    max-width: 14rem !important;
+    width: 14rem !important;
+    transform: none !important;  
+    z-index: 9999 !important;
+  }
+
+  .sidenav.fixed-start {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    max-width: 14rem !important;
+    width: 14rem !important;
+    z-index: 9999 !important;
+  }
+
+  .main-content {
+    transition: margin 0.2s ease-in-out !important;
+  }
+}

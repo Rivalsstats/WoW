@@ -23,7 +23,7 @@
   {% include "header_imports.html" %}
 </head>
 
-<body class="g-sidenav-show" data-bs-theme="dark">
+<body class="g-sidenav-show g-sidenav-show-right" data-bs-theme="dark">
   {% include "sidenav.html" %}
   <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <!-- Navbar -->
@@ -49,6 +49,7 @@
         {% include "footer.html" %}
     </div>
   </main>
+  {% include "right_aside.html" %}
   {% include "fixed_plugin.html" %}
   {% include "javascript_imports.html" %}
 </body>

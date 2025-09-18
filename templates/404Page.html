@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="/assets/css/404.css" />
 </head>
 
-<body class="g-sidenav-show" data-bs-theme="dark">
+<body class="g-sidenav-show g-sidenav-show-right" data-bs-theme="dark">
   {% include "sidenav.html" %}
   <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <!-- Navbar -->
@@ -43,11 +43,12 @@
             <div class="ms-404-content" role="article" aria-live="polite">
               <div class="ms-keystone-outer" id="ms-keystone-outer" tabindex="0" aria-pressed="false"
                 aria-label="Keystone">
-                <img class="keystone-ring ring-bg" id="ring-bg" src="/assets/img/404page/ring_bg.png" alt="" aria-hidden="true">
+                <img class="keystone-ring ring-bg" id="ring-bg" src="/assets/img/404page/ring_bg.png" alt=""
+                  aria-hidden="true">
                 <img class="keystone-ring ring-outer" id="ring-outer" src="/assets/img/404page/outer_ring.png" alt=""
                   aria-hidden="true">
-                <img class="keystone-ring ring-inner" id="ring-inner" src="/assets/img/404page/inner_ring.png" width="64px"
-                  height="64px" alt="" aria-hidden="true">
+                <img class="keystone-ring ring-inner" id="ring-inner" src="/assets/img/404page/inner_ring.png"
+                  width="64px" height="64px" alt="" aria-hidden="true">
 
                 <div class="ms-keystone-wrap" id="ms-keystone-wrap" aria-hidden="false">
                   <svg class="ms-keystone-svg" viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" role="img"
@@ -203,6 +204,7 @@
       {% include "footer.html" %}
     </div>
   </main>
+  {% include "right_aside.html" %}
   {% include "fixed_plugin.html" %}
   {% include "javascript_imports.html" %}
 </body>
