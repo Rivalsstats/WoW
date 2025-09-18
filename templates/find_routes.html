@@ -127,7 +127,7 @@
           <h3 class="mb-0 h4 font-weight-bolder">Find a Route for your Team-Comp</h3>
         </div>
       </div>
-      <div class="">
+      <div class="row">
         <div class="col">
           <form id="compForm" class="row g-3">
             <div class="row g-3 d-flex justify-content-between">
@@ -163,7 +163,7 @@
           </form>
         </div>
       </div>
-      <div class="pe-3">
+      <div class="row">
         <div class="col">
           <div class="accordion" id="routeDungeonAccordion">
             {# one skeleton panel per dungeon #}
@@ -176,45 +176,53 @@
 
             <div class="accordion-item mb-2">
               <h2 class="accordion-header" id="heading-{{ runKey }}">
-                <button class="accordion-button collapsed d-flex" type="button" data-bs-toggle="collapse"
+                <button class="accordion-button collapsed p-0" type="button" data-bs-toggle="collapse"
                   data-bs-target="#collapse-{{ runKey }}" aria-expanded="false" aria-controls="collapse-{{ runKey }}"
                   style="
-            background-image: url('/data/icons/{{ dungeon.icon }}');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-blend-mode: overlay;
-          ">
-                  <div class="flex-fill text-start">
-                    <span class="badge bg-dark bg-opacity-50 text-white rounded px-2 mx-1">
-                      {{ dungeon['name']['en_US'] }}
-                    </span>
-                    <span class="badge bg-dark bg-opacity-50 text-success rounded px-2 mx-1">
-                      +{{ r.level }}
-                    </span>
-                  </div>
+          background-image: url('/data/icons/{{ dungeon.icon }}');
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+          background-blend-mode: overlay;
+        ">
+                  <!-- content wrapper: padding applied here so the button bg covers full area -->
+                  <div class="w-100 row w-100 gx-2 align-items-center py-3 px-4">
+                    <div class="col-12 col-sm-4 text-start">
+                      <span class="badge bg-dark bg-opacity-50 text-white rounded px-2 mx-1">
+                        {{ dungeon['name']['en_US'] }}
+                      </span>
+                      <span class="badge bg-dark bg-opacity-50 text-success rounded px-2 mx-1">
+                        +{{ r.level }}
+                      </span>
+                    </div>
 
-                  <div class="flex-fill text-center p-2">
-                    <span class="badge bg-dark bg-opacity-50 text-white rounded px-2 mx-2">
-                      {{ r.duration|duration }}
-                    </span>
-                    <span class="timestamp badge bg-dark bg-opacity-50 text-white rounded px-2 mx-2"
-                      data-bs-toggle="tooltip" data-bs-placement="top" data-timestamp={{r.timestamp|int}}></span>
-                  </div>
-                  <div class="flex-fill text-end">
-                    <div class="d-inline-flex align-items-center">
-                      {% for role in ['0','1','2'] %}
-                      {% for sid in r.specs %}
-                      {% set spec = specs[sid] %}
-                      {% if spec and spec.role|string == role %}
-                      <img src="/data/icons/{{ spec.SpellIconFileId }}.jpg" alt="{{ spec.name }}"
-                        title="{{ spec.name }}" class="me-1">
-                      {% endif %}
-                      {% endfor %}
-                      {% endfor %}
+                    <div class="col-12 col-sm-4 text-center">
+                      <span class="badge bg-dark bg-opacity-50 text-white rounded px-2 mx-2">
+                        {{ r.duration|duration }}
+                      </span>
+                      <span class="timestamp badge bg-dark bg-opacity-50 text-white rounded px-2 mx-2"
+                        data-bs-toggle="tooltip" data-bs-placement="top" data-timestamp={{r.timestamp|int}}></span>
+                    </div>
+
+                    <div class="col-12 col-sm-4 text-end">
+                      <div class="d-inline-flex align-items-center">
+                        {% for role in ['0','1','2'] %}
+                        {% for sid in r.specs %}
+                        {% set spec = specs[sid] %}
+                        {% if spec and spec.role|string == role %}
+                        <img src="/data/icons/{{ spec.SpellIconFileId }}.jpg" alt="{{ spec.name }}"
+                          title="{{ spec.name }}" class="me-1 img-fluid"
+                          style="width:24px;height:24px;object-fit:cover;">
+                        {% endif %}
+                        {% endfor %}
+                        {% endfor %}
+                      </div>
                     </div>
                   </div>
                 </button>
+
+
+
               </h2>
 
               <div id="collapse-{{ runKey }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ runKey }}"
@@ -237,11 +245,11 @@
                     <iframe src="" loading="lazy" data-name="keystoneGuru"
                       data-src="https://keystone.guru/route/{{ dungeon_slug }}/{{ r.route_key }}/{{ dungeon_slug }}/embed"
                       class="w-100" style="
-                              border: none;
-                              width: 100%;
-                              height: calc(80vh - 3rem);
-                              display: block;
-                            "></iframe>
+                                border: none;
+                                width: 100%;
+                                height: calc(80vh - 3rem);
+                                display: block;
+                              "></iframe>
                   </div>
                 </div>
               </div>
@@ -322,69 +330,81 @@
         h2.id = headerId;
 
         const btn = document.createElement('button');
-        btn.className = 'accordion-button collapsed d-flex';
+        btn.className = 'accordion-button collapsed p-0';
         btn.type = 'button';
         btn.setAttribute('data-bs-toggle', 'collapse');
         btn.setAttribute('data-bs-target', `#${collapseId}`);
         btn.setAttribute('aria-expanded', 'false');
         btn.setAttribute('aria-controls', collapseId);
-        btn.style.backgroundImage = `url('/data/icons/${Object.values(dungeons)
-          .find(d => d.slug === slug).icon}')`;
+
+        // set background image on button so it covers entire clickable area
+        const bgIcon = (dungeon && dungeon.icon) ? dungeon.icon : Object.values(dungeons).find(d => d.slug === slug).icon;
+        btn.style.backgroundImage = `url('/data/icons/${bgIcon}')`;
         btn.style.backgroundSize = 'cover';
         btn.style.backgroundPosition = 'center';
         btn.style.backgroundRepeat = 'no-repeat';
         btn.style.backgroundBlendMode = 'overlay';
 
-        // left: dungeon badge + level
-        const left = document.createElement('div');
-        left.className = 'flex-fill text-start';
-        left.innerHTML = `
-      <span class="badge bg-dark bg-opacity-50 text-white rounded px-2 mx-1">
-        ${englishName}
-      </span>
-      <span class="badge bg-dark bg-opacity-50 text-success rounded px-2 mx-1">
-        +${r.level}
-      </span>
-    `;
-        const center = document.createElement('div');
-        center.className = 'flex-fill text-center p-2';
+        // inner wrapper provides padding and contains the grid
+        const inner = document.createElement('div');
+        inner.className = 'w-100 row w-100 gx-2 align-items-center py-3 px-4';
+
+        // left column (dungeon name + level)
+        const leftCol = document.createElement('div');
+        leftCol.className = 'col-12 col-sm-4 text-start';
+        leftCol.innerHTML = `
+  <span class="badge bg-dark bg-opacity-50 text-white rounded px-2 mx-1">${englishName}</span>
+  <span class="badge bg-dark bg-opacity-50 text-success rounded px-2 mx-1">+${r.level}</span>
+`;
+
+        // center column (duration + timestamp)
+        const centerCol = document.createElement('div');
+        centerCol.className = 'col-12 col-sm-4 text-center';
         const durationspan = document.createElement('span');
         durationspan.className = 'badge bg-dark bg-opacity-50 text-white rounded px-2 mx-2';
         durationspan.textContent = formatDuration(r.duration);
-        center.appendChild(durationspan);
-        const timestamp = r.timestamp; // use current time if no timestamp
         const timestampspan = document.createElement('span');
-        timestampspan.className = 'badge bg-dark bg-opacity-50 text-white timestamp rounded px-2 mx-2';
-        timestampspan.setAttribute('title', new Date(Number(timestamp) * 1000).toLocaleString());
-        timestampspan.setAttribute('data-bs-toggle', "tooltip");
-        timestampspan.setAttribute('data-bs-placement', "top");
-        timestampspan.textContent = timeAgo(Number(timestamp));
-        center.appendChild(timestampspan);
-        new bootstrap.Tooltip(timestampspan);
+        timestampspan.className = 'timestamp badge bg-dark bg-opacity-50 text-white rounded px-2 mx-2';
+        timestampspan.setAttribute('title', new Date(Number(r.timestamp) * 1000).toLocaleString());
+        timestampspan.setAttribute('data-bs-toggle', 'tooltip');
+        timestampspan.setAttribute('data-bs-placement', 'top');
+        timestampspan.textContent = timeAgo(Number(r.timestamp));
+        centerCol.appendChild(durationspan);
+        centerCol.appendChild(timestampspan);
 
-        // right: spec icons, sorted tank→heal→dps
-        const right = document.createElement('div');
-        right.className = 'flex-fill text-end';
+        // init tooltip for dynamically created timestamp
+        try { new bootstrap.Tooltip(timestampspan); } catch (e) { /* noop if bootstrap missing */ }
+
+        // right column (spec icons)
+        const rightCol = document.createElement('div');
+        rightCol.className = 'col-12 col-sm-4 text-end';
         const iconBar = document.createElement('div');
         iconBar.className = 'd-inline-flex align-items-center';
+
+        // create small, constrained images (tank -> heal -> dps)
         ['0', '1', '2'].forEach(role => {
           r.specs.forEach(sid => {
             const spec = spec_data[sid];
-            if (spec && spec.role == role) {
+            if (spec && String(spec.role) === role) {
               const img = document.createElement('img');
               img.src = `/data/icons/${spec.SpellIconFileId}.jpg`;
-              img.alt = spec.name;
-              img.title = spec.name;
-              img.className = 'me-1';
+              img.alt = spec.name || '';
+              img.title = spec.name || '';
+              img.className = 'me-1 img-fluid';
+              img.style.width = '24px';
+              img.style.height = '24px';
+              img.style.objectFit = 'cover';
               iconBar.appendChild(img);
             }
           });
         });
-        right.appendChild(iconBar);
+        rightCol.appendChild(iconBar);
 
-        btn.appendChild(left);
-        btn.appendChild(center);
-        btn.appendChild(right);
+        // assemble header button
+        inner.appendChild(leftCol);
+        inner.appendChild(centerCol);
+        inner.appendChild(rightCol);
+        btn.appendChild(inner);
         h2.appendChild(btn);
         item.appendChild(h2);
 
