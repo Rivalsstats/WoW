@@ -107,7 +107,7 @@ async def collect_for_dungeon(session, dungeon_slug, spec_ids):
     global CURRENT_SEASON
     found = {spec: set() for spec in spec_ids}
     page = 1
-    while page < 100:  # current raider.io API max is 100 pages
+    while page < 500:  # current raider.io API max is 1000 pages with an api key
         data = await fetch_page(session, dungeon_slug, page)
         rankings = data.get("rankings", [])
         if not rankings:
