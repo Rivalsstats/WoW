@@ -1,0 +1,62 @@
+ /* === Theme variables === */
+
+  :root,
+  [data-bs-theme="light"] {
+    --class-Warrior: #c79b6d; 
+    --class-Paladin: #f48cba;
+    --class-Hunter: #abd372;
+    --class-Rogue: #fff568;
+    --class-Priest: #000000;
+    --class-DeathKnight:#c41e3a;
+    --class-Shaman:#006fdd;
+    --class-Mage: #3fc6eb;
+    --class-Warlock: #8789ee;
+    --class-Monk: #00ff99;
+    --class-Druid:#ff7c0a;
+    --class-DemonHunter: #a330c9;
+    --class-Evoker: #339380;
+
+  }
+  [data-bs-theme="dark"] {
+    --class-Warrior: #c79b6d; 
+    --class-Paladin: #f48cba;
+    --class-Hunter: #abd372;
+    --class-Rogue: #fff568;
+    --class-Priest: #ffffff;
+    --class-DeathKnight:#c41e3a;
+    --class-Shaman:#006fdd;
+    --class-Mage: #3fc6eb;
+    --class-Warlock: #8789ee;
+    --class-Monk: #00ff99;
+    --class-Druid:#ff7c0a;
+    --class-DemonHunter: #a330c9;
+    --class-Evoker: #339380;
+  }
+
+
+.class-Warrior-text {color: var(--class-Warrior) !important;} 
+.class-Warrior-bg {background-color: var(--class-Warrior) !important;} 
+.class-Paladin-text {color: var(--class-Paladin) !important;} 
+.class-Paladin-bg {background-color: var(--class-Paladin) !important;} 
+.class-Hunter-text {color: var(--class-Hunter) !important;} 
+.class-Hunter-bg {background-color: var(--class-Hunter) !important;} 
+.class-Rogue-text {color: var(--class-Rogue) !important;} 
+.class-Rogue-bg {background-color: var(--class-Rogue) !important;} 
+.class-Priest-text {color: var(--class-Priest) !important;} 
+.class-Priest-bg {background-color: var(--class-Priest) !important;} 
+.class-DeathKnight-text {color: var(--class-DeathKnight) !important;} 
+.class-DeathKnight-bg {background-color: var(--class-DeathKnight) !important;} 
+.class-Shaman-text {color: var(--class-Shaman) !important;} 
+.class-Shaman-bg {background-color: var(--class-Shaman) !important;} 
+.class-Mage-text {color: var(--class-Mage) !important;} 
+.class-Mage-bg {background-color: var(--class-Mage) !important;} 
+.class-Warlock-text {color: var(--class-Warlock) !important;} 
+.class-Warlock-bg {background-color: var(--class-Warlock) !important;} 
+.class-Monk-text {color: var(--class-Monk) !important;} 
+.class-Monk-bg {background-color: var(--class-Monk) !important;}
+.class-Druid-text {color: var(--class-Druid) !important;} 
+.class-Druid-bg {background-color: var(--class-Druid) !important;}
+.class-DemonHunter-text {color: var(--class-DemonHunter) !important;} 
+.class-DemonHunter-bg {background-color: var(--class-DemonHunter) !important;}
+.class-Evoker-text {color: var(--class-Evoker) !important;} 
+.class-Evoker-bg {background-color: var(--class-Evoker) !important;}

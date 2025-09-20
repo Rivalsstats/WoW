@@ -290,7 +290,7 @@
     {% include "notifications.html" %}
     <!-- End Notifications -->
     <div class="container-fluid py-2">
-      <h3> <span style="color: rgb({{ class_info.color.r }}, {{ class_info.color.g }}, {{ class_info.color.b }})">{{
+      <h3> <span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{
           spec.name }} {{ class_info.name }} </span> Mythic + build</h6>
         <div class="row justify-content-center text-start gx-4 align-items-stretch text-body-emphasis">
           <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
@@ -503,14 +503,14 @@
           <div id="gear-overview" class="mx-auto my-4">
             <h6> Gear Overview</h6>
             <p>
-              This overview shows the most popular items used by {{ spec.name }} {{ class_info.name }} players in Mythic
-              +
+              This overview shows the most popular items used by
+              <span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{ spec.name }} {{ class_info.name }}</span>
+              players in Mythic +
               dungeons. Gear and Talent data is collected from the top 5 Keystone levels at any given point meaning if
               the rank 1 key is lvl 17 all keystones above lvl 12 will be counted. The popularity percentage is based on
               the number of times an item was seen in comparison to the
               total amount of items.
-              Popularity of 50% indicates that every 2. item of this type is used by {{ spec.name }} {{ class_info.name
-              }}s.
+              Popularity of 50% indicates that every 2. item of this type is used by <span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{ spec.name }} {{ class_info.name }}'s</span>.
               You can hover over the percentage to see more details.</p>
             <div class="d-flex flex-column flex-md-row gap-3">
               <div class="flex-fill" style="flex: 1 1 0 !important; min-width: 0;">
@@ -1376,7 +1376,7 @@
     <div class="modal-dialog modal-dialog-scrollable modal-lg modal-dialog-centered">
       <div class="modal-content card">
         <div class="modal-header">
-          <h5 class="modal-title" id="routeModalLabel">Top Route for {{ spec.name }} {{ class_info.name }}</h5>
+          <h5 class="modal-title" id="routeModalLabel">Top Route for <span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{ spec.name }} {{ class_info.name }}</span></h5>
         </div>
         <div class="modal-body">
           <div class="accordion" id="routeDungeonAccordion">

@@ -18,11 +18,7 @@ def generateSpecNav(spec_lookup, class_lookup):
                 "name": f"{sdata['name']} {class_data.get('name')}",
                 "url": f"/classes/{role_name}/{filename}",
                 "icon": sdata.get("SpellIconFileId"),
-                "color": {
-                    "r": class_data.get("color", {}).get("r", 0),
-                    "g": class_data.get("color", {}).get("g", 0),
-                    "b": class_data.get("color", {}).get("b", 0),
-                },
+                "class": class_data.get("name", "Unknown").replace(" ", ""),
             }
         )
 

@@ -69,8 +69,8 @@
                   <a href="{{ nav.url }}" class="nav-link d-flex align-items-center
                        {% if nav.name == current_spec %}active bg-gradient-dark text-white{% endif %}">
                     <img width="24" src="/data/icons/{{ nav.icon }}.jpg" class="img-fluid" alt="{{ nav.name }} Icon">
-                    <span class="nav-link-text ms-2" {% if nav.name !=current_spec %}
-                      style="color: rgb({{ nav.color.r }}, {{ nav.color.g }}, {{ nav.color.b }})" {% endif %}>
+                    <span class="nav-link-text ms-2 {% if nav.name !=current_spec %} class-{{ nav.class }}-text
+                      {% endif %}">
                       {{ nav.name }}
                     </span>
                   </a>
