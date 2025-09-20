@@ -138,6 +138,7 @@
   --bs-modal-bg: #fff;
   --bs-modal-header-border-color: #d4d4d4;
   --bs-modal-footer-border-color: #d4d4d4;
+  --bs-accordion-active-color: #262626;
 }
 
 [data-bs-theme=dark] {
@@ -203,6 +204,7 @@
   --bs-modal-bg: #1d1d1d;
   --bs-modal-header-border-color: #d4d4d4;
   --bs-modal-footer-border-color: #d4d4d4;
+  --bs-accordion-active-color: #e0dfdf;
 }
 
 *,
@@ -5670,7 +5672,6 @@ fieldset:disabled .btn {
   --bs-accordion-btn-focus-box-shadow: none;
   --bs-accordion-body-padding-x: 0rem;
   --bs-accordion-body-padding-y: 1rem;
-  --bs-accordion-active-color: #262626;
   --bs-accordion-active-bg: transparent;
 }
 
