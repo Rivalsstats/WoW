@@ -139,6 +139,17 @@
   --bs-modal-header-border-color: #d4d4d4;
   --bs-modal-footer-border-color: #d4d4d4;
   --bs-accordion-active-color: #262626;
+  --bs-list-group-bg: #fff;
+  --bs-list-group-action-color: #404040;
+  --bs-list-group-action-hover-color: #404040;
+  --bs-list-group-action-hover-bg: #f5f5f5;
+  --bs-list-group-action-active-color: #737373;
+  --bs-list-group-action-active-bg: #e5e5e5;
+  --bs-list-group-disabled-color: #525252;
+  --bs-list-group-disabled-bg: #fff;
+  --bs-list-group-active-color: #fff;
+  --bs-list-group-active-bg: #e91e63;
+  --bs-list-group-active-border-color: #e91e63;
 }
 
 [data-bs-theme=dark] {
@@ -205,6 +216,17 @@
   --bs-modal-header-border-color: #d4d4d4;
   --bs-modal-footer-border-color: #d4d4d4;
   --bs-accordion-active-color: #e0dfdf;
+  --bs-list-group-bg: #1d1d1d;
+  --bs-list-group-action-color: #eceaea;
+  --bs-list-group-action-hover-color: #eceaea;
+  --bs-list-group-action-hover-bg: #2e2e2e;
+  --bs-list-group-action-active-color: #a5a5a5;
+  --bs-list-group-action-active-bg: #2e2e2e;
+  --bs-list-group-disabled-color: #afaeae;
+  --bs-list-group-disabled-bg: #000000;
+  --bs-list-group-active-color: #030303;
+  --bs-list-group-active-bg: #e91e63;
+  --bs-list-group-active-border-color: #e91e63;
 }
 
 *,
@@ -6154,22 +6176,11 @@ fieldset:disabled .btn {
 
 .list-group {
   --bs-list-group-color: inherit;
-  --bs-list-group-bg: #fff;
   --bs-list-group-border-color: rgba(10, 10, 10, 0.125);
   --bs-list-group-border-width: 1px;
   --bs-list-group-border-radius: 0.375rem;
   --bs-list-group-item-padding-x: 1rem;
   --bs-list-group-item-padding-y: 0.5rem;
-  --bs-list-group-action-color: #404040;
-  --bs-list-group-action-hover-color: #404040;
-  --bs-list-group-action-hover-bg: #f5f5f5;
-  --bs-list-group-action-active-color: #737373;
-  --bs-list-group-action-active-bg: #e5e5e5;
-  --bs-list-group-disabled-color: #525252;
-  --bs-list-group-disabled-bg: #fff;
-  --bs-list-group-active-color: #fff;
-  --bs-list-group-active-bg: #e91e63;
-  --bs-list-group-active-border-color: #e91e63;
   display: flex;
   flex-direction: column;
   padding-left: 0;
