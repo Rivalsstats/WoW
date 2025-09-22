@@ -74,6 +74,9 @@ jobs:
           python backend_scripts/generateRoutesPage.py \
             --template templates/find_routes.html  \
             --output_dir pages  
+      - name: Generate Blog HTML page
+        run: |   
+            python backend_scripts/generateBlogPage.py
 
       - name: Generate Legal HTML page
         run: |
