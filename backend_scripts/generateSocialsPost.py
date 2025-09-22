@@ -4,6 +4,7 @@ import argparse
 import re
 import random
 from openai import OpenAI
+import openai
 import json
 import time
 from datetime import datetime, timedelta, timezone
@@ -25,6 +26,7 @@ from generateSpecPages import (
     format_duration,
     load_json,
     humanize_number,
+    fetch_stat_info,
     MULTI_SLOT_GROUPS,
 )
 
@@ -120,35 +122,55 @@ Produce one single social-media post (max 210 characters) that:
 Output only the post text (no explanation, Comments or Quotation marks).
 """
 
+MODELS = ["deepseek/deepseek-r1:free", "deepseek/deepseek-chat-v3.1:free"]
 
-def generate_post_text(client, data, url, max_retries=10):
+def generate_post_text(client, data, url, max_retries=5):
     prompt = PROMPT_TEMPLATE.format(data=data).strip()
 
     for attempt in range(1, max_retries + 1):
-        resp = client.chat.completions.create(
-            model="deepseek/deepseek-r1:free",
-            messages=[{"role": "user", "content": prompt}],
-        )
-        text = resp.choices[0].message.content.strip()
-        # strip any extraneous quotes or markdown
-        cleanText = re.sub(r"^['\"]|['\"]$", "", text)
-        # check length including URL
-        total_length = len(cleanText) + len(url)
-        if total_length < 250:
-            return f"{cleanText} {url}"
-        elif len(cleanText) <= 250:
-            return cleanText
+        any_model_succeeded = False
+        any_model_rate_limited = False
 
-        # if too long, retry
-        if attempt < max_retries:
-            print(f"Attempt {attempt}/{max_retries}: Post too long ({len(cleanText)} chars), retrying...")
-            time.sleep(0.5)  # brief pause before retry
-            continue
-        else:
-            raise ValueError(
-                f"Exceeded {max_retries} attempts: generated post is too long ({len(cleanText)} chars)."
+        for model in MODELS:
+            try:
+                resp = client.chat.completions.create(
+                    model=model,
+                    messages=[{"role": "user", "content": prompt}],
+                )
+
+                any_model_succeeded = True
+                text = resp.choices[0].message.content.strip()
+                cleanText = re.sub(r"^['\"]|['\"]$", "", text)
+
+                total_length = len(cleanText) + len(url)
+                if total_length < 250:
+                    return f"{cleanText} {url}"
+                elif len(cleanText) <= 250:
+                    return cleanText
+
+                # if too long -> log and break to retry
+                print(f"[Attempt {attempt}] Model {model} returned too-long post (len {len(cleanText)}). Retrying...")
+                break
+
+            except openai.RateLimitError as e:
+                any_model_rate_limited = True
+                print(f"[Attempt {attempt}] Model {model} rate-limited: {e}. Trying next model...")
+                continue
+
+            except Exception as e:
+                # other errors: log and try next model
+                print(f"[Attempt {attempt}] Model {model} failed: {e}. Trying next model...")
+                continue
+
+        # If we never got to try any model successfully and all were rate-limited, bail early
+        if not any_model_succeeded and any_model_rate_limited:
+            raise RuntimeError(
+                "All models are rate-limited upstream"
             )
 
+        time.sleep(0.5)  # small backoff and retry
+
+    raise RuntimeError(f"Failed to generate a post in {max_retries} attempts (too long / errors / rate limits).")
     
 
 def fit_font_to_width(draw: ImageDraw.Draw,
@@ -1209,6 +1231,9 @@ def createSpecOverview(output_dir, donesocials, api_key, url, spec_id, season):
 
         total_socket_count = sum(s.get("count", 0) for s in sockets)
 
+        stat_priority, tertiary_priority, health_priority = fetch_stat_info(conn, cursor, spec_id, season, spec_lookup)
+
+
 
     # canvas
     bg_dir = os.path.join('data', 'bg_imgs')
@@ -1273,8 +1298,8 @@ def createSpecOverview(output_dir, donesocials, api_key, url, spec_id, season):
         )
         txt.set_path_effects([path_effects.withStroke(linewidth=1.5, foreground='black')])
         left += frac
-    ax.axis('off') 
-    ax.set_position([0, 0, 1, 1]) 
+    ax.axis('off')
+    ax.set_position([0, 0, 1, 1])
     ax.set_xlim(0,100)
     buf = os.path.join(output_dir,'tmp_upgrade.png')
     os.makedirs(os.path.dirname(buf),exist_ok=True)
@@ -1290,7 +1315,7 @@ def createSpecOverview(output_dir, donesocials, api_key, url, spec_id, season):
         tree_icon = os.path.join(ICON_DIR,f"{talent_lookup['subTrees'][str(ht['tree_id'])]['icon']}.png")
         pct = ht['count']/hero_total*100 if hero_total else 0
         if os.path.exists(tree_icon):
-            img = Image.open(tree_icon).convert("RGBA")  
+            img = Image.open(tree_icon).convert("RGBA")
             img = img.resize((icon_size, icon_size), Image.LANCZOS)
 
             x = x0 + i * 150
@@ -1305,8 +1330,8 @@ def createSpecOverview(output_dir, donesocials, api_key, url, spec_id, season):
                 text,
                 font=font_sm,
                 anchor='mm',
-                fill=class_color, 
-                stroke_width=2, 
+                fill=class_color,
+                stroke_width=2,
                 stroke_fill=(0, 0, 0)
             )
             name_x = cx
@@ -1316,61 +1341,354 @@ def createSpecOverview(output_dir, donesocials, api_key, url, spec_id, season):
                 talent_lookup["subTrees"][str(ht["tree_id"])]["name"],
                 font=font_vsm,
                 anchor="mt",
-                fill=class_color, 
-                stroke_width=2, 
+                fill=class_color,
+                stroke_width=2,
                 stroke_fill=(0, 0, 0)
             )
-            
+
 
     # Panel: runs
-    run_titles = ['Highest Key']
-    run_paths  = [highest_run['out_path']]
-    n_runs     = 3#len(run_titles)
+    # ------------------- PANEL: Highest Key (1/3) + Primary & Tertiary stat panels (filled backgrounds) -------------------
+    # prepare primary (skip first element) and tertiary lists
+    if stat_priority and len(stat_priority) > 1:
+        prim_list = stat_priority[1:5]  # skip first element, up to 4
+    else:
+        prim_list = stat_priority[:4] if stat_priority else []
+    tert_list = tertiary_priority[:4] if tertiary_priority else []
 
-    # margins and sizing
-    outer_margin      = 30
-    inner_margin      = 20                             # space between panels
-    total_inner_space = inner_margin * (n_runs - 1)
-    panel_width       = round((WIDTH - 2*outer_margin - total_inner_space) / n_runs)
-    panel_height      = round(HEIGHT/3)
-    panel_y_offset    = HEIGHT - panel_height - 30
-    panel_y_text_off  = panel_y_offset - 20
-    corner_radius     = 16                              # for rounding corners
-    inset             = 5                               # padding inside panel
+    outer_margin = 30
+    inner_margin = 18
 
-    for i, (title, path) in enumerate(zip(run_titles, run_paths)):
-        # x position for this panel
-        x0 = outer_margin + i * (panel_width + inner_margin)
-        
-        # draw title
-        draw.text(
-            (x0 + panel_width//2, panel_y_text_off),
-            title,
-            anchor='mm',
-            font=font_med,
-            fill=class_color, 
-            stroke_width=2, 
-            stroke_fill=(0, 0, 0)
-        )
+    image_panel_w = round(WIDTH * 0.33)
+    remaining = WIDTH - 2 * outer_margin - image_panel_w - 2 * inner_margin
+    stat_panel_w = max(180, round(remaining / 2))
+    panel_height = round(HEIGHT / 3)
+    panel_y_offset = HEIGHT - panel_height - 30
+    panel_y_text_off = panel_y_offset - 20
+    corner_radius = 12
+    inset = 10
 
-        # load & resize image
-        img = Image.open(path).resize((panel_width - 2*inset, panel_height - 2*inset))
-        # create rounded-corners mask
-        mask = Image.new('L', img.size, 0)
-        mask_draw = ImageDraw.Draw(mask)
-        mask_draw.rounded_rectangle(
-            [(0,0), img.size],
+    # fonts
+    stat_label_font = ImageFont.truetype(FONT_FILE, max(10, SMALL_SIZE))
+    stat_value_font = ImageFont.truetype(FONT_FILE, max(12, SMALL_SIZE + 2))
+    panel_title_font = font_med if 'font_med' in globals() else ImageFont.truetype(FONT_FILE, SUBTITLE_SIZE)
+
+    x_image = outer_margin
+    x_stat_primary = x_image + image_panel_w + inner_margin
+    x_stat_tertiary = x_stat_primary + stat_panel_w + inner_margin
+
+    # ---------- draw image panel (left) with filled background ----------
+    try:
+        draw.rounded_rectangle(
+            [(x_image, panel_y_offset), (x_image + image_panel_w, panel_y_offset + panel_height)],
             radius=corner_radius,
-            fill=255
+            fill=(0, 0, 0, 200)
         )
-        img.putalpha(mask)
+    except Exception:
+        draw.rectangle(
+            [(x_image, panel_y_offset), (x_image + image_panel_w, panel_y_offset + panel_height)],
+            fill=(0, 0, 0, 200)
+        )
 
-        # paste rounded image with transparency mask
-        canvas.paste(
-            img,
-            (x0 + inset, panel_y_offset + inset),
-            img  # use its own alpha channel
+    draw.text(
+        (x_image + image_panel_w // 2, panel_y_text_off),
+        "Highest Key",
+        anchor='mm',
+        font=panel_title_font,
+        fill=class_color,
+        stroke_width=2,
+        stroke_fill=(0, 0, 0)
+    )
+
+    content_x = x_image + inset
+    content_y = panel_y_offset + inset
+    content_w = image_panel_w - 2 * inset
+    content_h = panel_height - 2 * inset
+
+    if highest_run and isinstance(highest_run, dict) and highest_run.get('out_path'):
+        try:
+            img = Image.open(highest_run['out_path']).convert("RGBA")
+            img_ratio = img.width / img.height
+            content_ratio = content_w / content_h
+            if img_ratio > content_ratio:
+                scaled_h = content_h
+                scaled_w = int(img_ratio * scaled_h)
+            else:
+                scaled_w = content_w
+                scaled_h = int(scaled_w / img_ratio)
+            img = img.resize((scaled_w, scaled_h), Image.LANCZOS)
+            left = (scaled_w - content_w) // 2
+            top = (scaled_h - content_h) // 2
+            img = img.crop((left, top, left + content_w, top + content_h))
+            mask = Image.new('L', img.size, 0)
+            md = ImageDraw.Draw(mask)
+            md.rounded_rectangle([(0, 0), img.size], radius=corner_radius, fill=255)
+            img.putalpha(mask)
+            canvas.paste(img, (content_x, content_y), img)
+        except Exception:
+            draw.rectangle([(content_x, content_y), (content_x + content_w, content_y + content_h)], fill=(40, 40, 40))
+            draw.text((content_x + content_w / 2, content_y + content_h / 2), "Image\nmissing", anchor="mm", font=stat_label_font, fill="white")
+    else:
+        draw.rectangle([(content_x, content_y), (content_x + content_w, content_y + content_h)], fill=(40, 40, 40))
+        draw.text((content_x + content_w / 2, content_y + content_h / 2), "No run", anchor="mm", font=stat_label_font, fill="white")
+
+    # ---------- draw PRIMARY stat panel (middle) filled ----------
+    try:
+        draw.rounded_rectangle(
+            [(x_stat_primary, panel_y_offset), (x_stat_primary + stat_panel_w, panel_y_offset + panel_height)],
+            radius=corner_radius,
+            fill=(0, 0, 0, 200)
         )
+    except Exception:
+        draw.rectangle(
+            [(x_stat_primary, panel_y_offset), (x_stat_primary + stat_panel_w, panel_y_offset + panel_height)],
+            fill=(0, 0, 0, 200)
+        )
+
+    draw.text(
+        (x_stat_primary + stat_panel_w // 2, panel_y_text_off),
+        "Stat Priority",
+        anchor='mm',
+        font=panel_title_font,
+        fill=class_color,
+        stroke_width=2,
+        stroke_fill=(0, 0, 0)
+    )
+
+    # content region for primary panel
+    content_x = x_stat_primary + inset
+    content_y = panel_y_offset + inset
+    content_w = stat_panel_w - 2 * inset
+    content_h = panel_height - 2 * inset
+
+    # fixed horizontal center for chevrons (same for every row in this panel)
+    chevron_center_x_primary = content_x + content_w // 2
+
+    # evenly spaced blocks, center-first assignment
+    # ---------- PRIMARY stats: vertical stacked rows, centered vertically ----------
+    n = len(prim_list)
+    if n == 0:
+        draw.text((x_stat_primary + stat_panel_w // 2, content_y + content_h // 2), "No data", font=stat_label_font, anchor="mm", fill=(160,160,160))
+    else:
+        padding = 8
+        icon_sz = min(36, int(content_h * 0.18))
+        row_h = max(icon_sz, stat_label_font.size + stat_value_font.size) + 8
+        total_h = n * row_h - 8  # remove extra gap after last
+        start_y = content_y + max(0, (content_h - total_h) // 2)
+
+        for i, s in enumerate(prim_list):
+            row_top = int(start_y + i * row_h)
+            # icon
+            ix = content_x + padding
+            iy = row_top + (row_h - icon_sz) // 2
+            stat_name_raw = (s.get('name') or '').lower().replace(" ", "_")
+            icon_file = os.path.join(ICON_DIR, "stats", f"{stat_name_raw}.png")
+            if not os.path.exists(icon_file):
+                icon_file = os.path.join(ICON_DIR, f"{stat_name_raw}.png")
+            if os.path.exists(icon_file):
+                try:
+                    ic = Image.open(icon_file).convert("RGBA").resize((icon_sz, icon_sz), Image.LANCZOS)
+                    canvas.paste(ic, (ix, iy), ic)
+                except Exception:
+                    draw.rectangle((ix, iy, ix + icon_sz, iy + icon_sz), fill=(100, 100, 100))
+                    draw.text((ix + icon_sz // 2, iy + icon_sz // 2), (s.get('name','')[:1] or "?"), font=stat_label_font, anchor="mm", fill="white")
+            else:
+                draw.rectangle((ix, iy, ix + icon_sz, iy + icon_sz), fill=(100, 100, 100))
+                draw.text((ix + icon_sz // 2, iy + icon_sz // 2), (s.get('name','')[:1] or "?"), font=stat_label_font, anchor="mm", fill="white")
+
+            # name (left of center)
+            name_x = ix + icon_sz + 8
+
+            # value (right aligned)
+            if s.get('avg_percent') is not None:
+                try:
+                    val_txt = f"{float(s['avg_percent']):.2f}%"
+                except Exception:
+                    val_txt = "-"
+            else:
+                try:
+                    val_txt = f"{float(s.get('avg_raw', 0)):.0f}"
+                except Exception:
+                    val_txt = "-"
+
+            # measure value bbox precisely (we will use draw.textbbox to compute top/bottom)
+            val_bbox = draw.textbbox((0,0), val_txt, font=stat_value_font)
+            val_w = val_bbox[2] - val_bbox[0]
+            val_x = content_x + content_w - padding - val_w
+
+            # truncate name to avoid collision with value
+            max_name_w = val_x - 6 - name_x
+            name_text = (s.get('name') or '').capitalize()
+            if max_name_w <= 0:
+                name_draw = ""
+            else:
+                name_draw = name_text
+                nbbox = draw.textbbox((0,0), name_draw, font=stat_label_font)
+                # shorten until it fits
+                while nbbox[2] - nbbox[0] > max_name_w and len(name_draw) > 1:
+                    name_draw = name_draw[:-1]
+                    nbbox = draw.textbbox((0,0), name_draw + "…", font=stat_label_font)
+                if nbbox[2] - nbbox[0] > max_name_w:
+                    name_draw = ""
+                elif name_draw != name_text:
+                    name_draw = name_draw + "…"
+
+            # compute precise bboxes for vertical centering
+            if name_draw:
+                name_bbox = draw.textbbox((0,0), name_draw, font=stat_label_font)
+            else:
+                name_bbox = (0,0,0,0)
+            val_bbox = draw.textbbox((0,0), val_txt, font=stat_value_font)
+
+            # icon center
+            icon_center = iy + icon_sz / 2.0
+
+            # text vertical center when drawn at y is y + (bbox_top + bbox_bottom)/2
+            # so solve for y = icon_center - (bbox_top + bbox_bottom)/2
+            name_y = int(icon_center - (name_bbox[1] + name_bbox[3]) / 2.0)
+            val_y = int(icon_center - (val_bbox[1] + val_bbox[3]) / 2.0)
+
+            # draw name and value
+            if name_draw:
+                draw.text((name_x, name_y), name_draw, font=stat_label_font, fill="white")
+            draw.text((val_x, val_y), val_txt, font=stat_value_font, fill=(200,200,200))
+
+            # draw a small downward chevron between this row and the next (if not last row)
+            if i < n - 1:
+                center_x = chevron_center_x_primary
+                mid_y = int(row_top + row_h - max(6, int(row_h * 0.18)))
+                csize = max(4, int(row_h * 0.12))
+                tri = [
+                    (center_x - csize, mid_y - csize),
+                    (center_x + csize, mid_y - csize),
+                    (center_x, mid_y + csize)
+                ]
+                draw.polygon(tri, fill=(200,200,200))
+
+    # ---------- draw TERTIARY stat panel (right) filled ----------
+    try:
+        draw.rounded_rectangle(
+            [(x_stat_tertiary, panel_y_offset), (x_stat_tertiary + stat_panel_w, panel_y_offset + panel_height)],
+            radius=corner_radius,
+            fill=(0, 0, 0, 200)
+        )
+    except Exception:
+        draw.rectangle(
+            [(x_stat_tertiary, panel_y_offset), (x_stat_tertiary + stat_panel_w, panel_y_offset + panel_height)],
+            fill=(0, 0, 0, 200)
+        )
+
+    draw.text(
+        (x_stat_tertiary + stat_panel_w // 2, panel_y_text_off),
+        "Tertiary Priority",
+        anchor='mm',
+        font=panel_title_font,
+        fill=class_color,
+        stroke_width=2,
+        stroke_fill=(0, 0, 0)
+    )
+
+    content_x = x_stat_tertiary + inset
+    content_y = panel_y_offset + inset
+    content_w = stat_panel_w - 2 * inset
+    content_h = panel_height - 2 * inset
+
+    # fixed horizontal center for chevrons (tertiary)
+    chevron_center_x_tertiary = content_x + content_w // 2
+
+    # ---------- TERTIARY stats: vertical stacked rows, centered vertically ----------
+    m = len(tert_list)
+    if m == 0:
+        draw.text((x_stat_tertiary + stat_panel_w // 2, content_y + content_h // 2), "No data", font=stat_label_font, anchor="mm", fill=(160,160,160))
+    else:
+        padding = 8
+        icon_sz2 = min(34, int(content_h * 0.16))
+        row_h2 = max(icon_sz2, stat_label_font.size + stat_value_font.size) + 8
+        total_h2 = m * row_h2 - 8
+        start_y2 = content_y + max(0, (content_h - total_h2) // 2)
+
+        for i, s in enumerate(tert_list):
+            row_top = int(start_y2 + i * row_h2)
+            # icon
+            ix = content_x + padding
+            iy = row_top + (row_h2 - icon_sz2) // 2
+            stat_name_raw = (s.get('name') or '').lower().replace(" ", "_")
+            icon_file = os.path.join(ICON_DIR, "stats", f"{stat_name_raw}.png")
+            if not os.path.exists(icon_file):
+                icon_file = os.path.join(ICON_DIR, f"{stat_name_raw}.png")
+            if os.path.exists(icon_file):
+                try:
+                    ic = Image.open(icon_file).convert("RGBA").resize((icon_sz2, icon_sz2), Image.LANCZOS)
+                    canvas.paste(ic, (ix, iy), ic)
+                except Exception:
+                    draw.rectangle((ix, iy, ix + icon_sz2, iy + icon_sz2), fill=(100, 100, 100))
+                    draw.text((ix + icon_sz2 // 2, iy + icon_sz2 // 2), (s.get('name','')[:1] or "?"), font=stat_label_font, anchor="mm", fill="white")
+            else:
+                draw.rectangle((ix, iy, ix + icon_sz2, iy + icon_sz2), fill=(100, 100, 100))
+                draw.text((ix + icon_sz2 // 2, iy + icon_sz2 // 2), (s.get('name','')[:1] or "?"), font=stat_label_font, anchor="mm", fill="white")
+
+            # name and value
+            name_x = ix + icon_sz2 + 8
+
+            if s.get('avg_percent') is not None:
+                try:
+                    val_txt = f"{float(s['avg_percent']):.2f}%"
+                except Exception:
+                    val_txt = "-"
+            else:
+                try:
+                    val_txt = f"{float(s.get('avg_raw', 0)):.0f}"
+                except Exception:
+                    val_txt = "-"
+
+            val_bbox = draw.textbbox((0,0), val_txt, font=stat_value_font)
+            val_w = val_bbox[2] - val_bbox[0]
+            val_x = content_x + content_w - padding - val_w
+
+            # truncate name to avoid collision with value
+            max_name_w = val_x - 6 - name_x
+            name_text = (s.get('name') or '').capitalize()
+            if max_name_w <= 0:
+                name_draw = ""
+            else:
+                name_draw = name_text
+                nbbox = draw.textbbox((0,0), name_draw, font=stat_label_font)
+                while nbbox[2] - nbbox[0] > max_name_w and len(name_draw) > 1:
+                    name_draw = name_draw[:-1]
+                    nbbox = draw.textbbox((0,0), name_draw + "…", font=stat_label_font)
+                if nbbox[2] - nbbox[0] > max_name_w:
+                    name_draw = ""
+                elif name_draw != name_text:
+                    name_draw = name_draw + "…"
+
+            # compute precise bboxes for vertical centering
+            if name_draw:
+                name_bbox = draw.textbbox((0,0), name_draw, font=stat_label_font)
+            else:
+                name_bbox = (0,0,0,0)
+            val_bbox = draw.textbbox((0,0), val_txt, font=stat_value_font)
+
+            # icon center
+            icon_center = iy + icon_sz2 / 2.0
+
+            name_y = int(icon_center - (name_bbox[1] + name_bbox[3]) / 2.0)
+            val_y = int(icon_center - (val_bbox[1] + val_bbox[3]) / 2.0)
+
+            if name_draw:
+                draw.text((name_x, name_y), name_draw, font=stat_label_font, fill="white")
+            draw.text((val_x, val_y), val_txt, font=stat_value_font, fill=(200,200,200))
+
+            # draw downward chevron between rows (fixed horizontal position)
+            if i < m - 1:
+                center_x = chevron_center_x_tertiary
+                mid_y = int(row_top + row_h2 - max(6, int(row_h2 * 0.18)))
+                csize = max(4, int(row_h2 * 0.12))
+                tri = [
+                    (center_x - csize, mid_y - csize),
+                    (center_x + csize, mid_y - csize),
+                    (center_x, mid_y + csize)
+                ]
+                draw.polygon(tri, fill=(200,200,200))
 
 
     # --- Panel: top 2 and worst 2 talents by pick-rate ---
@@ -1429,7 +1747,7 @@ def createSpecOverview(output_dir, donesocials, api_key, url, spec_id, season):
     missive_counts = {e[0]: e[1] for e in missives}
     socket_counts = {s["id"]: s["count"] for s in sockets}
 
-    missive_best2_raw = sorted(missive_counts.items(), 
+    missive_best2_raw = sorted(missive_counts.items(),
                           key=lambda x: x[1], reverse=True)[:2]
     missive_best2 = []
     for m, count in missive_best2_raw[:2]:
@@ -1438,8 +1756,8 @@ def createSpecOverview(output_dir, donesocials, api_key, url, spec_id, season):
             "icon": reagent_lookup[m]["icon"],
             "count": count,
             "pick_rate": count / total_missive_count * 100
-        })  
-    missive_worst2_raw = sorted(missive_counts.items(), 
+        })
+    missive_worst2_raw = sorted(missive_counts.items(),
                           key=lambda x: x[1])[:2]
     missive_worst2= []
     for m, count in missive_worst2_raw[:2]:
@@ -1448,9 +1766,9 @@ def createSpecOverview(output_dir, donesocials, api_key, url, spec_id, season):
             "icon": reagent_lookup[m]["icon"],
             "count": count,
             "pick_rate": count / total_missive_count * 100
-        })  
-    
-    embell_best2_raw = sorted(embellishment_counts.items(), 
+        })
+
+    embell_best2_raw = sorted(embellishment_counts.items(),
                           key=lambda x: x[1], reverse=True)[:2]
     embell_best2= []
     for m, count in embell_best2_raw[:2]:
@@ -1459,8 +1777,8 @@ def createSpecOverview(output_dir, donesocials, api_key, url, spec_id, season):
             "icon": reagent_lookup[m]["icon"],
             "count": count,
             "pick_rate": count / total_embellishment_count * 100
-        })  
-    embell_worst2_raw = sorted(embellishment_counts.items(), 
+        })
+    embell_worst2_raw = sorted(embellishment_counts.items(),
                           key=lambda x: x[1])[:2]
     embell_worst2= []
     for m, count in embell_worst2_raw[:2]:
@@ -1469,9 +1787,9 @@ def createSpecOverview(output_dir, donesocials, api_key, url, spec_id, season):
             "icon": reagent_lookup[m]["icon"],
             "count": count,
             "pick_rate": count / total_embellishment_count * 100
-        }) 
-    
-    socket_best2_raw = sorted(socket_counts.items(), 
+        })
+
+    socket_best2_raw = sorted(socket_counts.items(),
                           key=lambda x: x[1], reverse=True)[:2]
     socket_best2= []
     for m, count in socket_best2_raw[:2]:
@@ -1480,9 +1798,10 @@ def createSpecOverview(output_dir, donesocials, api_key, url, spec_id, season):
             "icon": socket_lookup[int(m)]["itemIcon"],
             "count": count,
             "pick_rate": count / total_socket_count * 100
-        }) 
-    socket_worst2_raw = sorted(socket_counts.items(), 
-                          key=lambda x: x[1])[:2]
+        })
+    socket_worst2_raw = sorted(socket_counts.items(),
+                          key=lambda x: x[1])[:2
+                          ]
     socket_worst2= []
     for m, count in socket_worst2_raw[:2]:
         socket_worst2.append({
@@ -1490,7 +1809,7 @@ def createSpecOverview(output_dir, donesocials, api_key, url, spec_id, season):
             "icon": socket_lookup[int(m)]["itemIcon"],
             "count": count,
             "pick_rate": count / total_socket_count * 100
-        }) 
+        })
 
     panels = [
         ("Class Talents",        class_best2,  class_worst2,  "lime",   "orange"),
@@ -1499,7 +1818,7 @@ def createSpecOverview(output_dir, donesocials, api_key, url, spec_id, season):
         ("Embellishment",    embell_best2, embell_worst2, "lime",   "orange"),
         ("Gems",      socket_best2, socket_worst2, "lime",   "orange"),
     ]
-    
+
     panel_sizes = []
     for label, best, worst, bc, wc in panels:
         w = compute_panel_width(draw, [best, worst], font_vsm, icon_sz, text_offset, pad)
@@ -1573,9 +1892,8 @@ def createSpecOverview(output_dir, donesocials, api_key, url, spec_id, season):
 
     os.makedirs(output_dir,exist_ok=True)
     canvas.save(out_path)
-
     client = get_openai_client(api_key)
-    
+
     if hero_trees:
         # find the single subtree with the highest count
         top = max(hero_trees, key=lambda ht: ht['count'])
