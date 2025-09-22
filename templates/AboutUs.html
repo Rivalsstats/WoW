@@ -1,0 +1,183 @@
+<!--
+=========================================================
+* Material Dashboard 3 - v3.2.0
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/material-dashboard
+* Copyright 2024 Creative Tim (https://www.creative-tim.com)
+* Licensed under MIT (https://www.creative-tim.com/license)
+* Coded by Creative Tim
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>
+    WoW Stats - MythiStone
+  </title>
+  {% include "header_imports.html" %}
+</head>
+
+<body class="g-sidenav-show g-sidenav-show-right" data-bs-theme="dark">
+  {% include "sidenav.html" %}
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+    <!-- Navbar -->
+    {% include "navbar.html" %}
+    <!-- End Navbar -->
+    <!-- Notifications -->
+    {% include "notifications.html" %}
+    <!-- End Notifications -->
+    <div class="container-fluid py-2">
+      <section class="py-4">
+        <div class="row"> <!-- Main column -->
+          <div class="col-lg-8 mb-4"> <!-- About card -->
+            <div class="card">
+              <div class="card-header pb-0">
+                <h4 class="mb-0">About MythiStone</h4>
+                <p class="text-sm text-muted mb-0">Data-driven meta-analysis for World of
+                  Warcraft players.</p>
+              </div>
+              <div class="card-body">
+                <p class="text-sm"> MythiStone produces tier lists and tools so players can make informed
+                  decisions. We aggregate leaderboard data to rank
+                  specializations, dungeon routes, items, talents and more. </p>
+                <div class="row mt-3">
+                  <div class="col-md-6">
+                    <h6 class="mb-2">Mission</h6>
+                    <p class="text-sm text-muted">Provide clear, timely and transparent recommendations.</p>
+                  </div>
+                  <div class="col-md-6">
+                    <h6 class="mb-2">Values</h6>
+                    <ul class="text-sm text-muted mb-0">
+                      <li>Player-first recommendations</li>
+                      <li>Open data & clear methods</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Methodology card -->
+            <div class="card mt-3">
+              <div class="card-header pb-0">
+                <h5 class="mb-0">How we build our data</h5>
+              </div>
+              <div class="card-body">
+                <p class="text-sm text-muted">
+                  Our methodology is designed to use automated data collection and analysis. We aim to be transparent about
+                  sources and calculations.
+                </p>
+                <ul class="text-sm">
+                  <li>Collect Blizzard leaderboard data.</li>
+                  <li>Compute performance metrics (effectiveness, utility, consistency, popularity) from the last two
+                    weeks.</li>
+                </ul>
+
+                <div class="mt-3">
+                  <a class="btn btn-outline-emphasis btn-sm me-2"
+                    href="https://github.com/MythiStone/mythistone.github.io" target="_blank" rel="noopener">View source
+                    on GitHub</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contributing / Reporting -->
+            <div class="card mt-3">
+              <div class="card-header pb-0">
+                <h6 class="mb-0">Contribute & Report</h6>
+              </div>
+              <div class="card-body">
+                <p class="text-sm text-muted">Found an issue in data or a tier placement you disagree with? Help us
+                  improve:</p>
+                <ol class="text-sm">
+                  <li>Check existing issues on the repo and search for similar reports.</li>
+                  <li>Open a new issue with as much information as possible.</li>
+                  <li>Or drop a message in Discord with relevant links/screenshots.</li>
+                </ol>
+
+                <div class="mt-2">
+                  <a class="btn btn-outline-emphasis btn-sm me-2"
+                    href="https://github.com/MythiStone/mythistone.github.io/issues/new/choose" target="_blank"
+                    rel="noopener">New GitHub issue</a>
+                  <a class="btn btn-outline-emphasis btn-sm" href="mailto:contact@mythistone.com">Email:
+                    contact@mythistone.com</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aside column -->
+          <div class="col-lg-4">
+            <!-- Team -->
+            <div class="card">
+              <div class="card-header pb-0">
+                <h6 class="mb-0">Team</h6>
+              </div>
+              <div class="card-body">
+                <div class="d-flex align-items-start mb-3">
+                  <div class="avatar avatar-sm me-3 d-flex align-items-center justify-content-center rounded-circle">
+                    <span class="fw-bold"><img src="/assets/img/logos/Jods_logo.png" alt="Jods"></span>
+                  </div>
+                  <div>
+                    <div class="fw-bold">Jods</div>
+                    <div class="text-sm text-muted">Founder & site maintainer</div>
+                    <a class="text-sm mt-1 d-inline-block" href="https://linktr.ee/jodsderechte" target="_blank"
+                      rel="noopener">linktr.ee</a>
+                  </div>
+                </div>
+
+                <!-- placeholder for more members 
+          <div class="d-flex align-items-start mb-3">
+            <div
+              class="avatar avatar-sm bg-gradient-secondary me-3 d-flex align-items-center justify-content-center rounded-circle">
+              <span class="fw-bold">C</span>
+            </div>
+            <div>
+              <div class="fw-bold">Contributor</div>
+              <div class="text-sm text-muted">Community contributor — analytics</div>
+              <div class="text-sm mt-1"><a href="https://github.com" target="_blank" rel="noopener">GitHub</a></div>
+            </div>
+          </div>
+          -->
+              </div>
+            </div>
+
+            <!-- Quick facts -->
+            <div class="card mt-3">
+              <div class="card-header pb-0">
+                <h6 class="mb-0">Quick facts</h6>
+              </div>
+              <div class="card-body">
+                <dl class="row text-sm mb-0">
+                  <dt class="col-5 text-muted">Owner</dt>
+                  <dd class="col-7">Jods</dd>
+
+                  <dt class="col-5 text-muted">Repository</dt>
+                  <dd class="col-7"><a href="https://github.com/MythiStone/mythistone.github.io" target="_blank"
+                      rel="noopener" class="text-sm">MythiStone</a></dd>
+
+                  <dt class="col-5 text-muted">Live site</dt>
+                  <dd class="col-7"><a href="https://mythistone.com" target="_blank" rel="noopener"
+                      class="text-sm">mythistone.com</a></dd>
+
+                  <dt class="col-5 text-muted">Contact</dt>
+                  <dd class="col-7"><a href="mailto:contact@mythistone.com" class="text-sm">contact@mythistone.com</a>
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+
+          {% include "footer.html" %}
+        </div>
+  </main>
+  {% include "right_aside.html" %}
+  {% include "fixed_plugin.html" %}
+  {% include "javascript_imports.html" %}
+</body>
+
+</html>

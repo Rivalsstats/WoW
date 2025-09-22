@@ -37,6 +37,13 @@ LEGAL_PAGES = {
         "breadcrumbs": [
             {"title": "Not Found"}
         ]
+    },
+    "AboutUs": {
+        "template": "AboutUs.html",
+        "output": os.path.join("pages", "about.html"),
+        "breadcrumbs": [
+            {"title": "About Us"}
+        ]
     }
 }
 
