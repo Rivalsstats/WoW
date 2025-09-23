@@ -35,7 +35,7 @@ CLASS_LOOKUP_PATH = "data/classes.json"
 spec_lookup = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
 class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
 
-spec_id_lookup = {f"{spec_lookup[s]["name"]}_{class_lookup[spec_lookup[s]["classID"]]["name"]}": s for s in spec_lookup}
+spec_id_lookup = {f"{spec_lookup[s]['name']}_{class_lookup[spec_lookup[s]['classID']]['name']}": s for s in spec_lookup}
 
 # Cap content length (keeps index size reasonable)
 MAX_CONTENT_CHARS = 60_000
