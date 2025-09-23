@@ -1901,6 +1901,34 @@
       });
 
     })();
+    (function () {
+      const copyBtn = document.getElementById('copyBtn');
+      const btnText = document.getElementById('btnText');
+      // Your predefined text:
+      const toCopy = btnText.getAttribute('data-loadout') || '';
+      const text = btnText.getAttribute('data-text')
+
+      copyBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(toCopy);
+          // Show success state
+          btnText.textContent = 'Copied!';
+          copyBtn.classList.replace('btn-primary', 'btn-success');
+          setTimeout(() => {
+            btnText.textContent = text;
+            copyBtn.classList.replace('btn-success', 'btn-primary');
+          }, 2000);
+        } catch (err) {
+          console.error('Copy failed', err);
+          btnText.textContent = 'Error';
+          copyBtn.classList.replace('btn-primary', 'btn-danger');
+          setTimeout(() => {
+            btnText.textContent = text;
+            copyBtn.classList.replace('btn-danger', 'btn-primary');
+          }, 2000);
+        }
+      });
+    })();
   </script>
 
 </body>
