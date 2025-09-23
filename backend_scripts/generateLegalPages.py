@@ -46,7 +46,7 @@ LEGAL_PAGES = {
         ]
     },
     "Search": {
-        "template": "Search.html",
+        "template": "search.html",
         "output": os.path.join("pages", "search.html"),
         "breadcrumbs": [
             {"title": "Search"}
