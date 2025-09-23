@@ -1,3 +1,8 @@
 [
-  
+   {
+    "message": "Since patch 11.2, the Blizzard Armory is returning some incorrect data. As a result, some stat priorities may be shown incorrectly.",
+    "type": "warning",
+    "dismissible": true,
+    "auto_hide": 0
+  }
 ]
