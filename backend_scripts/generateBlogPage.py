@@ -45,7 +45,7 @@ def main():
         os.makedirs(os.path.dirname(os.path.join("pages", "blog.html")), exist_ok=True)
     with open(os.path.join("pages", "blog.html"), "w", encoding="utf-8") as f:
         f.write(output_html)
-    print(f"Generated {os.path.join("pages", "blog.html")}")
+    print(f"Generated {os.path.join('pages', 'blog.html')}")
 
 
 if __name__ == "__main__":
