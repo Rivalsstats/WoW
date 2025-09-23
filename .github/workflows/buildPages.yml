@@ -97,7 +97,7 @@ jobs:
 
       - name: Generate Search index
         run: |
-          python backend_scripts\generateSearchIndex.py 
+          python backend_scripts/generateSearchIndex.py
 
       - name: Commit and push pages
         run: |
