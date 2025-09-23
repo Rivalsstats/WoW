@@ -95,6 +95,10 @@ jobs:
             --template templates/spec_page.html \
             --output_dir classes
 
+      - name: Generate Search index
+        run: |
+          python backend_scripts\generateSearchIndex.py 
+
       - name: Commit and push pages
         run: |
           set -e  # Exit script on any command failure
@@ -105,6 +109,7 @@ jobs:
       
           git add classes/
           git add pages/
+          git add assets/json/search_index.json
           git add index.html
           git add 404.html
           

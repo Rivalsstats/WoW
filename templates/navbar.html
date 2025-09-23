@@ -14,10 +14,33 @@
     </nav>
     <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
       <div class="ms-md-auto pe-md-3 d-flex align-items-center">
-        <div class="input-group input-group-outline">
-          <label class="form-label">Type here...</label>
-          <input type="text" class="form-control">
+        <!-- paste into navbar (replaces the current input-group) -->
+        <div class="ms-md-auto pe-md-3 d-flex align-items-center">
+          <div class="position-relative w-100">
+            <form id="site-search-form" role="search" class="mb-0" onsubmit="return false;">
+              <div class="input-group input-group-outline">
+                <label class="form-label visually-hidden" for="site-search-input">Search site</label>
+                <input id="site-search-input" type="search" class="form-control text-body-emphasis"
+                  placeholder="Search pages, classes, guides..." aria-label="Search site" autocomplete="off" />
+                <button id="site-search-clear" class="btn btn-link px-2 d-none" aria-label="Clear search" type="button">
+                  <i class="material-symbols-rounded">close</i>
+                </button>
+              </div>
+            </form>
+
+            <!-- Dropdown / results panel -->
+            <div id="site-search-results" class="dropdown-menu dropdown-menu-end p-2 mt-2 shadow-sm"
+              style="width: 480px; max-width:calc(100vw - 40px); display:none;" role="listbox"
+              aria-label="Search results">
+              <div id="site-search-results-inner" class="list-group list-group-flush"></div>
+              <div id="site-search-noresults" class="px-3 py-2 text-muted small d-none">No results.</div>
+              <div class="px-3 py-2 text-end">
+                <a href="/pages/search" id="site-search-all-results" class="small">View all results</a>
+              </div>
+            </div>
+          </div>
         </div>
+
       </div>
       <ul class="navbar-nav d-flex align-items-center  justify-content-end">
         <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
