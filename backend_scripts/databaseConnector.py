@@ -1121,7 +1121,10 @@ def fetch_spec_upgrade(connection, cursor, spec_id, season):
     rows = fetch_with_retry(connection, cursor, FETCH_SPEC_UPGRADE_SQL, params)
     if not rows:
         return []
-    return [{"upgrade_tier": row[0], "run_count": row[1]} for row in rows]
+    upgrades = [{"upgrade_tier": row[0], "run_count": row[1]} for row in rows]
+    upgrades.sort(key=lambda x: (x["upgrade_tier"] != "depleted",
+                             int(x["upgrade_tier"]) if x["upgrade_tier"] != "depleted" else -1))
+    return upgrades
 
 
 INSERT_PERIODS_SQL = """
