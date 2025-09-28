@@ -1558,3 +1558,212 @@ def fetch_top_hunter_pets(connection, cursor):
     if not rows:
         return []
     return [{"creature_id": int(row[1]), "run_count": int(row[0])} for row in rows]
+
+INSERT_PULL_ENEMIES_SQL = """
+INSERT INTO Mythistone.pull_enemies (`route_key`, `pull_id`, `npc_id`, `count`) VALUES(%s, %s, %s, %s);
+"""
+
+def insert_pull_enemies(connection, cursor, route_key, pull_id, npc_id, count):
+    """Insert a new enemy to a pull."""
+    val = (route_key, pull_id, npc_id, count)
+    execute_with_retry(connection, cursor, INSERT_PULL_ENEMIES_SQL, val)
+    return cursor.rowcount
+
+INSERT_PULL_SPELLS_SQL = """
+INSERT INTO Mythistone.pull_spells (`route_key`, `pull_id`, `spell_id`) VALUES(%s, %s, %s);
+"""
+
+def insert_pull_spells(connection, cursor, route_key, pull_id, spell_id):
+    """Insert a new spell to a pull."""
+    val = (route_key, pull_id, spell_id)
+    execute_with_retry(connection, cursor, INSERT_PULL_SPELLS_SQL, val)
+    return cursor.rowcount
+
+INSERT_ROUTE_DATA_SQL = """
+INSERT IGNORE INTO Mythistone.route_data (`rio_run_id`, `mapping_version`, `enemy_forces`, `timestamp`, `keystone_level`, `duration`, `dungeon_id`, `route_key`) VALUES(%s, %s, %s, %s, %s, %s, %s, %s);
+"""
+
+def insert_route_data(connection, cursor, rio_run_id, mapping_version, enemy_forces, timestamp, keystone_level, duration, dungeon_id, route_key):
+    """Insert a new route into the database."""
+    val = (rio_run_id, mapping_version, enemy_forces, timestamp, keystone_level, duration, dungeon_id, route_key)
+    execute_with_retry(connection, cursor, INSERT_ROUTE_DATA_SQL, val)
+    return cursor.rowcount
+
+INSERT_ROUTE_PULL_SQL ="""
+INSERT INTO Mythistone.route_pulls (`route_key`) VALUES(%s);
+"""
+
+def insert_route_pull(connection, cursor, route_key):
+    """Add a new pull to a route"""
+    val = (route_key,)
+    execute_with_retry(connection, cursor, INSERT_ROUTE_PULL_SQL, val)
+    return cursor.lastrowid
+
+INSERT_ROUTE_SPEC_SQL = """
+INSERT INTO Mythistone.route_specs (`route_key`, `spec_id`) VALUES(%s, %s);
+"""
+
+def insert_route_spec(connection, cursor, route_key, spec_id):
+    """Insert a new spec to a route."""
+    val = (route_key, spec_id)
+    execute_with_retry(connection, cursor, INSERT_ROUTE_SPEC_SQL, val)
+    return cursor.rowcount
+
+
+def fetch_route_specs_map(connection, cursor):
+    """
+    Return dict: { route_key: [spec_id, ...], ... }
+    """
+    sql = "SELECT route_key, spec_id FROM Mythistone.route_specs;"
+    rows = fetch_with_retry(connection, cursor, sql, None)
+    out = {}
+    for r in rows:
+        rk = r[0]
+        sid = int(r[1])
+        out.setdefault(rk, []).append(sid)
+    for rk in out:
+        out[rk] = sorted(list(set(out[rk])))
+    return out
+
+def fetch_route_npcs_map(connection, cursor):
+    """
+    Return dict: { route_key: [npc_id, ...], ... }
+    Aggregates NPCs across pulls for each route.
+    """
+    sql = """
+    SELECT route_key, npc_id, SUM(count) as total_count
+    FROM Mythistone.pull_enemies
+    GROUP BY route_key, npc_id;
+    """
+    rows = fetch_with_retry(connection, cursor, sql, None)
+    out = {}
+    for r in rows:
+        rk = r[0]
+        npc = int(r[1])
+        out.setdefault(rk, []).append(npc)
+    # unique + sorted
+    return { rk: sorted(list(set(v))) for rk, v in out.items() }
+
+def fetch_route_spells_map(connection, cursor):
+    """
+    Return dict: { route_key: [spell_id, ...], ... }
+    """
+    sql = "SELECT route_key, spell_id FROM Mythistone.pull_spells;"
+    rows = fetch_with_retry(connection, cursor, sql, None)
+    out = {}
+    for r in rows:
+        rk = r[0]
+        sid = int(r[1])
+        out.setdefault(rk, []).append(sid)
+    return { rk: sorted(list(set(v))) for rk, v in out.items() }
+
+def fetch_comp_routes(connection, cursor, recent_only_days=None, min_level=0, limit=None):
+    """
+    Build compRoutes-style dict directly from DB.
+    Returns: { "specA,specB": { route_key, run_id, dungeon, level, duration, timestamp, specs, npcs, spells, enemy_forces }, ... }
+    This function raises on DB errors (caller should catch).
+    """
+    # base SELECT
+    sql = "SELECT route_key, rio_run_id, enemy_forces, timestamp, keystone_level, duration, dungeon_id FROM Mythistone.route_data"
+    clauses = []
+    params = []
+
+    if min_level and int(min_level) > 0:
+        clauses.append("keystone_level >= %s")
+        params.append(int(min_level))
+
+    # handle recent_only_days: convert to unix timestamp seconds
+    if recent_only_days:
+        # We conservatively assume 'timestamp' is unix seconds OR milliseconds; we'll filter by seconds threshold,
+        # and callers can interpret timestamps accordingly. Use UNIX_TIMESTAMP() to compute seconds.
+        clauses.append("timestamp >= CAST(UNIX_TIMESTAMP(NOW() - INTERVAL %s DAY) AS UNSIGNED)")
+        params.append(int(recent_only_days))
+
+    if clauses:
+        sql += " WHERE " + " AND ".join(clauses)
+
+    if limit:
+        sql += f" LIMIT {int(limit)}"
+
+    sql += ";"
+
+    rows = fetch_with_retry(connection, cursor, sql, tuple(params) if params else None)
+
+    route_specs_map = fetch_route_specs_map(connection, cursor)
+    route_npcs_map = fetch_route_npcs_map(connection, cursor)
+    route_spells_map = fetch_route_spells_map(connection, cursor)
+
+    out = {}
+    # We'll create a unique key per route based on sorted spec list (same pattern as compRoutes)
+    for row in rows:
+        route_key = row[0]
+        rio_run_id = row[1]
+        enemy_forces = int(row[2]) if row[2] is not None else None
+        timestamp = int(row[3]) if row[3] is not None else None
+        keystone_level = int(row[4]) if row[4] is not None else None
+        duration = int(row[5]) if row[5] is not None else None
+        dungeon_id = str(row[6]) if row[6] is not None else None
+
+        specs = route_specs_map.get(route_key, [])
+        spec_key = ",".join(str(s) for s in sorted(specs)) if specs else "unknown"
+
+        out[spec_key] = {
+            "route_key": route_key,
+            "run_id": int(rio_run_id) if rio_run_id is not None else None,
+            "dungeon": dungeon_id,
+            "level": keystone_level,
+            "duration": duration,
+            "timestamp": timestamp,
+            "specs": specs,
+            "npcs": route_npcs_map.get(route_key, []),
+            "spells": route_spells_map.get(route_key, []),
+            "enemy_forces": enemy_forces
+        }
+    return out
+
+FETCH_DISTINCT_SPELL_IDS_SQL = """
+SELECT DISTINCT ps.spell_id from Mythistone.pull_spells ps
+"""
+
+def fetch_distinct_spell_ids(connection, cursor):
+    """
+    Fetch all distinct spell IDs recorded in pull_spells.
+    Returns list of int spell IDs (may be empty).
+    """
+    rows = fetch_with_retry(connection, cursor, FETCH_DISTINCT_SPELL_IDS_SQL, None)
+    if not rows:
+        return []
+    return [int(r[0]) for r in rows if r and r[0] is not None]
+
+
+FETCH_DISTINCT_NPC_IDS_SQL = """
+SELECT DISTINCT pe.npc_id from Mythistone.pull_enemies pe
+"""
+
+def fetch_distinct_npc_ids(connection, cursor):
+    """
+    Fetch all distinct NPC IDs recorded in pull_enemies.
+    Returns list of int NPC IDs (may be empty).
+    """
+    rows = fetch_with_retry(connection, cursor, FETCH_DISTINCT_NPC_IDS_SQL, None)
+    if not rows:
+        return []
+    return [int(r[0]) for r in rows if r and r[0] is not None]
+
+
+FETCH_DISTINCT_NPC_IDS_FOR_DUNGEON_SQL = """
+SELECT DISTINCT pe.npc_id from Mythistone.pull_enemies pe
+join Mythistone.route_pulls rp on rp.pull_id = pe.pull_id 
+join Mythistone.route_data rd on rd.route_key = rp.route_key 
+WHERE rd.dungeon_id = %s
+"""
+
+def fetch_distinct_npc_ids_for_dungeon(connection, cursor, dungeon_id):
+    """
+    Fetch all distinct NPC IDs recorded in pull_enemies for a specific dungeon.
+    Returns list of int NPC IDs (may be empty).
+    """
+    rows = fetch_with_retry(connection, cursor, FETCH_DISTINCT_NPC_IDS_FOR_DUNGEON_SQL, (dungeon_id,))
+    if not rows:
+        return []
+    return [int(r[0]) for r in rows if r and r[0] is not None]

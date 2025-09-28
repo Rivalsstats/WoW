@@ -1,0 +1,33 @@
+#route-search-overlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10800;
+}
+#route-search-overlay.visible {
+  display: flex !important;
+  pointer-events: auto;
+}
+#route-search-overlay .overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: var(--bs-body-bg, #000);
+  opacity: 0.75;
+}
+#route-search-overlay .overlay-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+  color: var(--bs-body-color, #fff);
+}
+#route-search-overlay .overlay-content .small {
+  margin-top: 0.5rem;
+}

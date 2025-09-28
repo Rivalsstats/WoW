@@ -1,22 +1,9 @@
-<!--
-=========================================================
-* Material Dashboard 3 - v3.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard
-* Copyright 2024 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://www.creative-tim.com/license)
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
--->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   {% include "header_imports.html" %}
+  <link rel="stylesheet" href="/assets/css/routes.css" />
   <!-- Primary SEO -->
   <title>Route Finder - Find Routes for Your Team-Comp | MythiStone</title>
   <meta name="description"
@@ -65,7 +52,7 @@
       {
         "@type": "WebSite",
         "url": "https://mythistone.com",
-        "name": "MythiStone",
+        "name": "MythiStone"
       },
       {
         "@type": "WebPage",
@@ -92,7 +79,7 @@
         "@type": "BreadcrumbList",
         "itemListElement": [
           { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://mythistone.com" },
-          { "@type": "ListItem", "position": 3, "name": "Route Finder", "item": "{{ page_url }}" },
+          { "@type": "ListItem", "position": 3, "name": "Route Finder", "item": "{{ page_url }}" }
         ]
       },
       {
@@ -115,6 +102,7 @@
 </head>
 
 <body class="g-sidenav-show g-sidenav-show-right" data-bs-theme="dark">
+
   {% include "sidenav.html" %}
   <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <!-- Navbar -->
@@ -129,51 +117,105 @@
           <h3 class="mb-0 h4 font-weight-bolder">Find a Route for your Team-Comp</h3>
         </div>
       </div>
-      <div class="row">
-        <div class="col">
+      <div class="card route-search-card mb-3">
+
+        <div class="card-body">
           <form id="compForm" class="row g-3">
-            <div class="row g-3 d-flex justify-content-between">
-              <div class="col-md-4">
+            <!-- top row: Dungeons + Specs -->
+            <div class="row gx-3">
+              <div class="col-12 col-lg-6">
                 <label class="form-label">Dungeons</label>
-                <div class="d-flex flex-wrap">
-                  <select id="dungeonSelect" class="selectpicker" data-style="btn-outline-primary"
-                    data-live-search="true" multiple title="Select Dungeon(s)…" data-selected-text-format="count >1">
-                    {% for d in dungeon_lookup %}
-                    <option value="{{ dungeon_lookup[d].slug }}">{{ dungeon_lookup[d].name['en_US'] }}</option>
-                    {% endfor %}
-                  </select>
-                </div>
+                <select id="dungeonSelect" class="selectpicker form-control" data-style="btn-outline-primary"
+                  data-live-search="true" multiple title="Select Dungeon(s)…" data-selected-text-format="count >1">
+                  {% for d in dungeon_lookup %}
+                  <option value="{{ d }}">{{ dungeon_lookup[d].name['en_US'] }}</option>
+                  {% endfor %}
+                </select>
               </div>
-              <div class="col-md-4">
-                <label class="form-label">Specs (pick 1-5)</label>
-                <div class="d-flex flex-wrap">
-                  <select id="specSelect" class="selectpicker" data-style="btn-outline-primary" data-live-search="true"
-                    multiple title="Select Spec(s)…" data-selected-text-format="count >1" maxOptions="5">
-                    {% for sid in specs %}
-                    <option value="{{ sid }}">{{ specs[sid].name if specs[sid] else sid }} {{
-                      class_lookup[specs[sid].classID].name if specs[sid] }}</option>
-                    {% endfor %}
-                  </select>
-                </div>
+
+              <div class="col-12 col-lg-6">
+                <label class="form-label">Specs (pick 1–5)</label>
+                <select id="specSelect" class="selectpicker form-control" data-style="btn-outline-primary"
+                  data-live-search="true" multiple title="Select Spec(s)…" data-selected-text-format="count >1"
+                  maxOptions="5">
+                  {% for sid in specs %}
+                  <option value="{{ sid }}">{{ specs[sid].name if specs[sid] else sid }} {{
+                    class_lookup[specs[sid].classID].name if specs[sid] }}</option>
+                  {% endfor %}
+                </select>
               </div>
             </div>
-            <div class="row align-items-center justify-content-center">
-              <div class="col-md-auto">
-                <button type="submit" class="btn btn-primary">Search Routes</button>
+
+            <!-- extra filters: spells & NPCs -->
+            <div class="row gx-3 mt-2">
+              <div class="col-12 col-md-4">
+                <label class="form-label">Spells (match if route uses ANY)</label>
+                <select id="spellSelect" class="selectpicker form-control" data-style="btn-outline-primary"
+                  data-live-search="true" multiple title="Select Spell(s)…" data-selected-text-format="count >1"
+                  data-actions-box="true">
+                  {% for sid, sval in spell_lookup.items() %}
+                  <option value="{{ sid }}">{{ sval.name['en_US'] if sval.name is defined else sval }}</option>
+                  {% endfor %}
+                </select>
+                </div>
+
+              <div class="col-12 col-md-4">
+                <label class="form-label">NPCs include (must include all)</label>
+                <select id="npcIncludeSelect" class="selectpicker form-control" data-style="btn-outline-primary"
+                  data-live-search="true" multiple title="Include NPC(s)…" data-selected-text-format="count >1"
+                  data-actions-box="true">
+                  {% for did in npc_map %}
+                  <optgroup label="{{ dungeon_lookup[did]['name']['en_US'] }}">
+                    {% for nid in npc_map[did] %}
+                    <option value="{{ nid }}" data-tokens="{{ nid }} {{ dungeon_lookup[did]['name']['en_US'] }}">{{
+                      npc_lookup['en_US'][nid|string] }} ({{ nid }})</option>
+                    {% endfor %}
+                    <option value="{{ did }}" data-divider="true"></option>
+                  </optgroup>
+                  {% endfor %}
+                </select>
+                </div>
+
+              <div class="col-12 col-md-4">
+                <label class="form-label">NPCs exclude (must NOT include either)</label>
+                <select id="npcExcludeSelect" class="selectpicker form-control" data-style="btn-outline-primary"
+                  data-live-search="true" multiple title="Exclude NPC(s)…" data-selected-text-format="count >1"
+                  data-actions-box="true">
+                  {% for did in npc_map %}
+                  <optgroup label="{{ dungeon_lookup[did]['name']['en_US'] }}">
+                    {% for nid in npc_map[did] %}
+                    <option value="{{ nid }}" data-tokens="{{ nid }} {{ dungeon_lookup[did]['name']['en_US'] }}">{{
+                      npc_lookup['en_US'][nid|string] }} ({{ nid }})</option>
+                    {% endfor %}
+                    <option value="{{ did }}" data-divider="true"></option>
+                  </optgroup>
+                  {% endfor %}
+                </select>
+                </div>
+            </div>
+
+            <!-- actions -->
+            <div class="row form-actions mt-3">
+              <div class="col-12 d-flex justify-content-center">
+                <button type="submit" class="btn btn-primary btn-lg">Search Routes</button>
               </div>
             </div>
           </form>
         </div>
       </div>
+
+    <div class="ms-3 align-self-center small text-muted pagination-summary" style="display:none">
+    </div>
       <div class="row">
         <div class="col">
           <div class="accordion" id="routeDungeonAccordion">
             {# one skeleton panel per dungeon #}
-            {% for dungeon_slug, runs in comp_routes_by_dungeon.items() %}
+            {% for dungeon, runs in comp_routes_by_dungeon.items() %}
             {% if runs %}
             {# pick the very first run in this dungeon’s list #}
             {% set r = runs[0] %}
-            {% set dungeon = slug_lookup[dungeon_slug] %}
+            {% set dungeon = dungeon_lookup[dungeon] %}
+            {% set dungeon_slug = dungeon['slug'] %}
             {% set runKey = dungeon_slug ~ '-' ~ r.route_key ~ '-' ~ r.run_id %}
 
             <div class="accordion-item mb-2">
@@ -262,6 +304,22 @@
           </div>
         </div>
       </div>
+      <div class="d-flex justify-content-center my-3">
+  <nav id="route-pagination" class="d-flex align-items-center" aria-label="Route pagination">
+    <ul class="pagination mb-0" aria-label="Route pagination-list" role="navigation">
+      <!-- JS will populate <li class="page-item"> items here -->
+    </ul>
+    <!-- Jump input (progressive enhancement): JS will move or fill this slot if needed -->
+    <div class="ms-3 align-self-center pagination-jump" style="display:none">
+      <div class="input-group input-group-sm" style="width:120px;">
+        <input id="route-page-jump-input" type="number" min="1" class="form-control form-control-sm" aria-label="Page number" />
+        <button id="route-page-jump-go" class="btn btn-sm btn-outline-secondary" type="button">Go</button>
+      </div>
+    </div>
+  </nav>
+</div>
+
+
 
       {% include "footer.html" %}
     </div>
@@ -269,214 +327,17 @@
   {% include "right_aside.html" %}
   {% include "fixed_plugin.html" %}
   {% include "javascript_imports.html" %}
+
+  <script src="/assets/js/route-search.js"></script>
   <script>
-    const compRoutes = {{ comp_routes| safe }};
-    const dungeons = {{ dungeon_lookup| safe }};
-    const spec_data = {{ specs| tojson | safe }};
-    const current_season = "{{season_info.current_season}}";
-    const sortFunc = (a, b) => {
-      if (a.level !== b.level) {
-        return b.level - a.level; // descending level
-      }
-      if (a.duration !== b.duration) {
-        return a.duration - b.duration; // ascending duration
-      }
-      if (a.dungeon !== b.dungeon) {
-        return a.dungeon.localeCompare(b.dungeon); // ascending dungeon name
-      }
-      return a.timestamp - b.timestamp; // ascending timestamp
-    }
-    document.getElementById('compForm').addEventListener('submit', e => {
-      e.preventDefault();
-
-      const chosenDungeon = $('#dungeonSelect').selectpicker('val') || [];
-      const chosenSpecs = $('#specSelect').selectpicker('val') || [];
-
-      const matches = [];
-      for (const [key, info] of Object.entries(compRoutes)) {
-        const specs = key.split(',');
-        const dungeonOK = chosenDungeon.length === 0 || chosenDungeon.includes(info.dungeon);
-        const hasAll = chosenSpecs.length === 0 || chosenSpecs.every(cs => specs.includes(cs));
-        if (hasAll && dungeonOK) {
-          matches.push({ ...info, specs });
-        }
-      }
-
-      const accordion = document.getElementById('routeDungeonAccordion');
-      accordion.innerHTML = '';
-
-      if (!matches.length) {
-        accordion.innerHTML = '<p>No routes found.</p>';
-        return;
-      }
-      matches.sort(sortFunc)
-      // helper to make safe HTML IDs
-      function safeId(str) {
-        return str.replace(/[^A-Za-z0-9_-]/g, '_');
-      }
-
-      matches.forEach((r, idx) => {
-        const slug = r.dungeon;
-        const runKey = safeId(`${slug}-${r.route_key}-${r.run_id}`);
-        const dungeon = Object.values(dungeons).find(d => d.slug === slug);
-        const englishName = dungeon?.name?.en_US || slug;
-        const headerId = `heading-${runKey}`;
-        const collapseId = `collapse-${runKey}`;
-
-        // item wrapper
-        const item = document.createElement('div');
-        item.className = 'accordion-item mb-2';
-
-        // header
-        const h2 = document.createElement('h2');
-        h2.className = 'accordion-header';
-        h2.id = headerId;
-
-        const btn = document.createElement('button');
-        btn.className = 'accordion-button collapsed p-0';
-        btn.type = 'button';
-        btn.setAttribute('data-bs-toggle', 'collapse');
-        btn.setAttribute('data-bs-target', `#${collapseId}`);
-        btn.setAttribute('aria-expanded', 'false');
-        btn.setAttribute('aria-controls', collapseId);
-
-        // set background image on button so it covers entire clickable area
-        const bgIcon = (dungeon && dungeon.icon) ? dungeon.icon : Object.values(dungeons).find(d => d.slug === slug).icon;
-        btn.style.backgroundImage = `url('/data/icons/${bgIcon}')`;
-        btn.style.backgroundSize = 'cover';
-        btn.style.backgroundPosition = 'center';
-        btn.style.backgroundRepeat = 'no-repeat';
-        btn.style.backgroundBlendMode = 'overlay';
-
-        // inner wrapper provides padding and contains the grid
-        const inner = document.createElement('div');
-        inner.className = 'w-100 row w-100 gx-2 align-items-center py-3 px-4';
-
-        // left column (dungeon name + level)
-        const leftCol = document.createElement('div');
-        leftCol.className = 'col-12 col-sm-4 text-start';
-        leftCol.innerHTML = `
-  <span class="badge bg-dark bg-opacity-50 text-white rounded px-2 mx-1">${englishName}</span>
-  <span class="badge bg-dark bg-opacity-50 text-success rounded px-2 mx-1">+${r.level}</span>
-`;
-
-        // center column (duration + timestamp)
-        const centerCol = document.createElement('div');
-        centerCol.className = 'col-12 col-sm-4 text-center';
-        const durationspan = document.createElement('span');
-        durationspan.className = 'badge bg-dark bg-opacity-50 text-white rounded px-2 mx-2';
-        durationspan.textContent = formatDuration(r.duration);
-        const timestampspan = document.createElement('span');
-        timestampspan.className = 'timestamp badge bg-dark bg-opacity-50 text-white rounded px-2 mx-2';
-        timestampspan.setAttribute('title', new Date(Number(r.timestamp) * 1000).toLocaleString());
-        timestampspan.setAttribute('data-bs-toggle', 'tooltip');
-        timestampspan.setAttribute('data-bs-placement', 'top');
-        timestampspan.textContent = timeAgo(Number(r.timestamp));
-        centerCol.appendChild(durationspan);
-        centerCol.appendChild(timestampspan);
-
-        // init tooltip for dynamically created timestamp
-        try { new bootstrap.Tooltip(timestampspan); } catch (e) { /* noop if bootstrap missing */ }
-
-        // right column (spec icons)
-        const rightCol = document.createElement('div');
-        rightCol.className = 'col-12 col-sm-4 text-end';
-        const iconBar = document.createElement('div');
-        iconBar.className = 'd-inline-flex align-items-center';
-
-        // create small, constrained images (tank -> heal -> dps)
-        ['0', '1', '2'].forEach(role => {
-          r.specs.forEach(sid => {
-            const spec = spec_data[sid];
-            if (spec && String(spec.role) === role) {
-              const img = document.createElement('img');
-              img.src = `/data/icons/${spec.SpellIconFileId}.jpg`;
-              img.alt = spec.name || '';
-              img.title = spec.name || '';
-              img.className = 'me-1 img-fluid';
-              img.style.width = '24px';
-              img.style.height = '24px';
-              img.style.objectFit = 'cover';
-              iconBar.appendChild(img);
-            }
-          });
-        });
-        rightCol.appendChild(iconBar);
-
-        // assemble header button
-        inner.appendChild(leftCol);
-        inner.appendChild(centerCol);
-        inner.appendChild(rightCol);
-        btn.appendChild(inner);
-        h2.appendChild(btn);
-        item.appendChild(h2);
-
-        // body
-        const collapseDiv = document.createElement('div');
-        collapseDiv.id = collapseId;
-        collapseDiv.className = 'accordion-collapse collapse';
-        collapseDiv.setAttribute('aria-labelledby', headerId);
-        collapseDiv.setAttribute('data-bs-parent', '#routeDungeonAccordion');
-
-        const body = document.createElement('div');
-        body.className = 'accordion-body';
-        body.innerHTML = `
-      <p>
-        <a href="https://raider.io/mythic-plus-runs/${current_season}/${r.run_id}" target="_blank">
-          <img src="/assets/img/logos/RaiderIOLogo.png"
-               alt="RaiderIO run link"
-               title="RaiderIO run link"
-               class="me-1"
-               height="24" width="24">
-          View on RaiderIO
-        </a>
-      </p>
-      <div class="iframe-container position-relative">
-        <div class="iframe-spinner position-absolute top-50 start-50 translate-middle">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-        </div>
-        <iframe
-          src=""
-          loading="lazy"
-          data-src="https://keystone.guru/route/${slug}/${r.route_key}/${slug}/embed"
-          class="w-100"
-          style="
-                              border: none;
-                              width: 100%;
-                              height: calc(80vh - 3rem);
-                              display: block;
-                            "
-        ></iframe>
-      </div>
-    `;
-
-        collapseDiv.appendChild(body);
-        item.appendChild(collapseDiv);
-        accordion.appendChild(item);
-
-        collapseDiv.addEventListener('shown.bs.collapse', function (event) {
-          // once this panel opens, find its iframe
-          const iframe = collapseDiv.querySelector('iframe[data-src]');
-          if (!iframe) {
-            console.warn('No iframe found in this accordion:', collapseDiv);
-            return;
-          }
-          // if we haven't yet set its src, do so now
-          if (!iframe.src || iframe.src === '' || iframe.src !== iframe.dataset.src) {
-            iframe.src = iframe.dataset.src;
-            iframe.addEventListener('load', function () {
-              const spinner = collapseDiv.querySelector('.iframe-spinner');
-              spinner.classList.add('d-none');
-            }, { once: true });
-          }
-        });
-      });
-
-    });
-
+    // small global stubs needed by the script (template injects)
+    window.dungeons = {{ dungeon_lookup | tojson | safe }};
+    window.spec_data = {{ specs | tojson | safe }};
+    window.current_season = "{{ season_info.current_season }}";
+    window.spell_lookup = {{ spell_lookup | tojson | safe }};
+    window.npc_lookup = {{ npc_lookup | tojson | safe }};
   </script>
+
   <script>
     (function () {
       // ---------- Klaro helpers ----------
@@ -625,6 +486,16 @@
 
     })();
   </script>
+
+<div id="route-search-overlay" role="status" aria-hidden="true" aria-live="polite">
+  <div class="overlay-backdrop" aria-hidden="true"></div>
+  <div class="overlay-content text-center">
+    <div class="spinner-border" role="status" aria-hidden="true"></div>
+    <div class="small text-muted">Searching routes…</div>
+  </div>
+</div>
+
+
 </body>
 
 </html>
