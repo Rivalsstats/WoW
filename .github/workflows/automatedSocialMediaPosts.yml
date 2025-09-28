@@ -96,10 +96,15 @@ jobs:
           name: social-image
           path: uploaded
 
+      - name: Debug resolved social text
+        run: |
+          echo "MSG:'${{ needs.setup.outputs.social_text }}'"
+
+
       - name: Post to Twitter
         uses: nearform-actions/github-action-notify-twitter@v1.2.3
         with:
-          message: ${{ needs.setup.outputs.social_text }}
+          message: "${{ needs.setup.outputs.social_text }}"
           twitter-app-key: ${{ secrets.TWITTER_APP_KEY }}
           twitter-app-secret: ${{ secrets.TWITTER_APP_SECRET }}
           twitter-access-token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
@@ -154,7 +159,7 @@ jobs:
       - name: Post to Bluesky
         uses: myConsciousness/bluesky-post@v5
         with:
-          text: ${{ needs.setup.outputs.social_text }}
+          text: "${{ needs.setup.outputs.social_text }}"
           media: uploaded/compressed.png
           media-alt: "M+ run highlight"
           identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
