@@ -203,7 +203,7 @@ function initSearch() {
     }
   };
 
-  fetch("/data/static/compRoutes.json")
+  fetch("/assets/json/compRoutes.json")
     .then((r) => {
       if (!r.ok) throw new Error("Failed to load compRoutes.json: " + r.status);
       return r.json();
