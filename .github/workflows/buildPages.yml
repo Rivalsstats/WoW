@@ -70,6 +70,11 @@ jobs:
           --output_dir .
 
       - name: Generate Routes HTML page
+        env:
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORT }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
         run: |
           python backend_scripts/generateRoutesPage.py \
             --template templates/find_routes.html  \
