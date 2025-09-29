@@ -1225,7 +1225,7 @@
                     {% for tid in hero_tree_difs['dungeons'][dungeon] %}
                     {% set delta = hero_tree_difs['dungeons'][dungeon][tid].diff %}
                     <div class="col-auto text-center mx-2">
-                      <a target="_blank" href="https://www.wowhead.com/talent-tree={{ tid }}?spec={{ spec_id }}">
+                      <a target="_blank" href="https://www.wowhead.com/talent-calc/{{ class_info.name | lower }}/{{ spec.name | lower }}/{{ lookup[tid|string].name | lower }}">
                         <img src="/data/icons/{{ lookup[tid|string].icon }}.png" alt="{{ lookup[tid|string].name }}"
                           style="width:32px; height:32px;" /><br />
                         <small>{{ lookup[tid|string].name }}</small><br />
