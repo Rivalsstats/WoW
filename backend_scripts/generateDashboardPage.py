@@ -542,7 +542,7 @@ def main(template_path, output_dir):
         breadcrumbs=[
             {"title": "Pages", "href": "/Pages"},
             {"title": "Dashboard", "href": "/Dashboard"}
-        ]
+        ],
         active_page="dashboard",
         notifications=notifications,
     )
