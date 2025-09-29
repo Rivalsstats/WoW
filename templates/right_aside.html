@@ -1,6 +1,25 @@
-{# templates/rightside.html #}
-<aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-end me-2 my-2 mt-6 d-none d-xl-block"
-       id="sidenav-right" role="complementary" aria-label="Right sidebar">
+{% macro ad_card(base, title, desc, href, alt) -%}
+<a href="{{ href }}" target="_blank" rel="noopener">
+  <div class="card mb-3">
+    <picture>
+      {# Serve the HD image on large screens (xl and up ~=1200px) #}
+      <source media="(min-width:1200px)" srcset="/assets/img/rightside/{{ base }}Hd.png">
+      {# Fallback + density-aware: normal image for 1x, Hd for 2x displays #}
+      <img src="/assets/img/rightside/{{ base }}.png" srcset="/assets/img/rightside/{{ base }}HD.png 2x"
+        class="card-img-top img-fluid rounded-top" alt="{{ alt }}" loading="lazy" style="object-fit:cover; width:100%;">
+    </picture>
+
+    <div class="card-body text-center">
+      <h6 class="card-title mb-1">{{ title }}</h6>
+      <p class="small text-muted mb-0">{{ desc|safe }}</p>
+    </div>
+  </div>
+</a>
+{%- endmacro %}
+
+<aside
+  class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-end me-2 my-2 mt-6 d-none d-xl-block"
+  id="sidenav-right" role="complementary" aria-label="Right sidebar">
   <div class="sidenav-header">
     Advertisements
   </div>
@@ -8,18 +27,175 @@
   <hr class="horizontal dark mt-0 mb-2">
 
   <div class="collapse navbar-collapse w-auto pb-5" id="sidenav-right-collapse">
-    <div class="card mb-3">
-      <div class="card-body text-center">
-        <h6 class="card-title mb-2">Sponsored</h6>
-        <div class="ratio ratio-3x5 mb-2">
-          <img src="/assets/img/placeholder-300x600.png" class="img-fluid rounded" alt="Ad placeholder">
+    <!-- Fallback static card if JS is disabled -->
+    <noscript>
+      <div class="card mb-3">
+        <div class="card-body text-center">
+          <h6 class="card-title mb-2">Sponsored</h6>
+          <div class="ratio ratio-3x5 mb-2">
+            <img src="/assets/img/rightside/WantThisSpace.png" class="img-fluid rounded" alt="Ad placeholder">
+          </div>
+          <p class="small text-muted mb-0">Want this space? <a href="mailto:sponsor@mythistone.com">Contact us</a></p>
         </div>
-        <p class="small text-muted mb-0">Want this space? <a href="mailto:sponsor@mythistone.com">Contact us</a></p>
       </div>
+    </noscript>
+
+    <!-- Rotating internal ads (Bootstrap Carousel) -->
+    <div id="rightsideCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="6000"
+      aria-label="Right sidebar carousel">
+      <div class="carousel-inner">
+
+        <!-- Slide 1: CustomNames -->
+        <div class="carousel-item active">
+          {{ ad_card(
+          'CustomNames',
+          'CustomNames',
+          'Name-variation for addons. Perfect for nicknames & roleplay. <span class=\"d-block
+            mt-1\"><small>CurseForge</small></span>',
+          'https://www.curseforge.com/wow/addons/libcustomnames',
+          'CustomNames addon'
+          )|safe }}
+        </div>
+
+        <!-- Slide 2: Dungeon Aura Tools -->
+        <div class="carousel-item">
+          {{ ad_card(
+          'DungeonAuraTools',
+          'Dungeon Aura Tools',
+          'Auto-generate dungeon WeakAuras for boss/trash/affixes. <small>CurseForge</small>',
+          'https://www.curseforge.com/wow/addons/dungeon-aura-tools',
+          'Dungeon Aura Tools'
+          )|safe }}
+        </div>
+
+        <!-- Slide 3: GroupFinderRio -->
+        <div class="carousel-item">
+          {{ ad_card(
+          'GroupFinderRio',
+          'GroupFinderRio',
+          'Show Rio scores in Group Finder & sort by rating. <small>CurseForge</small>',
+          'https://www.curseforge.com/wow/addons/groupfinderrio',
+          'GroupFinderRio screenshot'
+          )|safe }}
+        </div>
+
+        <!-- Slide 4: WeakAuras Creator -->
+        <div class="carousel-item">
+          {{ ad_card(
+          'WACreator',
+          'WeakAuras Creator',
+          'Generate WeakAuras easily Online. <small>weakaurascreator.github.io</small>',
+          'https://weakaurascreator.github.io/Create/',
+          'WeakAuras Creator icon'
+          )|safe }}
+        </div>
+
+        <!-- Slide 5: MInterruptTracker (Wago) -->
+        <div class="carousel-item">
+          {{ ad_card(
+          'InterruptTracker',
+          'M+ Interrupt Tracker',
+          'Track Interrupt Cooldowns for the entire group. <small>wago.io</small>',
+          'https://wago.io/MInterruptTracker',
+          'M+ Interrupt Tracker'
+          )|safe }}
+        </div>
+
+        <!-- Slide 6: Raid Ability Timeline (Wago) -->
+        <div class="carousel-item">
+          {{ ad_card(
+          'AbilityTimeline',
+          'Raid Ability Timeline',
+          'Vertical timeline replacing bossmod timer bars. <small>wago.io</small>',
+          'https://wago.io/RaidAbilityTimeline',
+          'Raid Ability Timeline'
+          )|safe }}
+        </div>
+
+        <!-- Slide 7: Current Season Dungeons (Wago) -->
+        <div class="carousel-item">
+          {{ ad_card(
+          'CurrentSeason',
+          'Current Season Dungeons',
+          "A WeakAura pack for the current Season's dungeons. <small>wago.io</small>",
+          'https://wago.io/Current-Dungeons',
+          'Current Season Dungeons WA'
+          )|safe }}
+        </div>
+
+        <!-- Slide 8: Want This Space -->
+        <div class="carousel-item">
+          {{ ad_card(
+          'WantThisSpace',
+          'Want This Space',
+          'Contact Us',
+          'mailto:sponsor@mythistone.com',
+          'Want This Space'
+          )|safe }}
+        </div>
+
+      </div>
+
+      <!-- Controls -->
+      <button class="carousel-control-prev" type="button" data-bs-target="#rightsideCarousel" data-bs-slide="prev"
+        aria-label="Previous ad">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#rightsideCarousel" data-bs-slide="next"
+        aria-label="Next ad">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      </button>
     </div>
 
-    <div class="text-center small text-muted px-3">
+    <div class="text-center small text-muted px-3 mt-2">
       Ads help keep Mythistone free. Thank you for your support!
     </div>
   </div>
 </aside>
+
+<style>
+  #sidenav-right .card {
+    border: none;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  }
+
+  #sidenav-right .carousel {
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  @media (min-width:1200px) {
+    #sidenav-right .carousel {
+      max-width: 340px;
+    }
+  }
+
+  #sidenav-right .card-img-top {
+    height: auto;
+    display: block;
+  }
+
+  #sidenav-right .card-body {
+    padding: 0.75rem;
+  }
+</style>
+
+<!-- randomize first slide and pause on hover -->
+<script>
+  (function () {
+    const carouselEl = document.getElementById('rightsideCarousel');
+    if (!carouselEl || typeof bootstrap === 'undefined') return;
+
+    // randomize starting slide
+    const inner = carouselEl.querySelector('.carousel-inner');
+    const items = inner.querySelectorAll('.carousel-item');
+    const start = Math.floor(Math.random() * items.length);
+    items.forEach((it, i) => it.classList.toggle('active', i === start));
+
+    const carousel = new bootstrap.Carousel(carouselEl, { interval: 6000, pause: false });
+
+    // pause rotation on hover for accessibility
+    carouselEl.addEventListener('mouseenter', () => carousel.pause());
+    carouselEl.addEventListener('mouseleave', () => carousel.cycle());
+  })();
+</script>

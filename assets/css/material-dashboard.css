@@ -24987,12 +24987,14 @@ hr.horizontal.gray-light {
   padding: 0;
   box-shadow: none;
 }
+#sidenav-collapse-main {
+  height: calc(72vh) !important;
+}
 
 .navbar-vertical.navbar-expand-xs .navbar-collapse {
   display: block;
   overflow: auto;
   height: auto;
-  height: calc(72vh);
 }
 
 .sidenav .sidenav-footer {
