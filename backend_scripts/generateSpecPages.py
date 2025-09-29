@@ -234,20 +234,6 @@ def escape_raidbot_code(code):
     loadout['code'] = quote_plus(code, safe="")
     return loadout
 
-def get_top_route(routes):
-    """
-    Given a list of route dicts (with keys 'count', 'avg_key', 'highest_key', 'route_key'),
-    return the route_key of the route that wins the tiebreaker:
-      1) highest count
-      2) if tie, highest avg_key
-      3) if tie, highest highest_key
-    """
-    return max(
-        routes,
-        key=lambda r: (r["count"], r["highest_key"]),
-    )
-
-
 def normalize_slot_collections(list_of_lists, slot_names):
     """
     Convert list-of-lists (raw items) into template-friendly slot dicts:
@@ -376,16 +362,6 @@ def fetch_hero_tree_info(conn, cursor, spec_id, current_season_id):
                 popular_hero_tree_count = count
                 popular_hero_tree = tree.get("id")
     return hero_trees, popular_hero_tree, popular_hero_tree_count, hero_tree_count
-
-def fetch_top_routes(route_data, spec_id):
-    dungeon_entries = route_data.get(spec_id, {}).get("dungeons", [])
-    # produce a mapping dungeon_id → best route_key
-    top_routes = {}
-    for d in dungeon_entries:
-        if d.get("routes"):
-            top_routes[d["dungeon_id"]] = get_top_route(d["routes"])
-            top_routes[d["dungeon_id"]]["dungeon_id"] = d["dungeon_id"]
-    return top_routes
 
 def fetch_enchant_info(conn, cursor, spec_id, current_season_id, enchant_lookup):
     enchant_slots_raw = {
@@ -557,7 +533,6 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
         os.path.join(LOOKUP_DIR, "commodities", "eu.json")
     )  # this is temporarily just using eu prices
     bonus_lookup = load_json(os.path.join(LOOKUP_DIR, "bonuses.json"))
-    route_data = load_json(os.path.join(LOOKUP_DIR, "routeData.json"))
     dungeon_lookup = load_json(os.path.join(LOOKUP_DIR, "dungeons.json"))
     dungeon_lookup_slug = {}
     for id, value in dungeon_lookup.items():
@@ -645,7 +620,11 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
                 for s in TRINKET_SLOTS
             ]
             print(f"[{datetime.now(timezone.utc).isoformat()}] fetching routes...")
-            top_routes = fetch_top_routes(route_data, spec_id)
+            top_routes = databaseConnector.fetch_top_routes_for_spec(conn, cursor, spec_id)
+            
+            for route in top_routes:
+                print(dungeon_lookup[route])
+            
             print(f"[{datetime.now(timezone.utc).isoformat()}] fetching hero tree info...")
             hero_trees, popular_hero_tree, popular_hero_tree_count, hero_tree_count = fetch_hero_tree_info(conn, cursor, spec_id, current_season_id)
             print(f"[{datetime.now(timezone.utc).isoformat()}] fetching enchants...")

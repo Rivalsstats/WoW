@@ -1376,18 +1376,28 @@
     <div class="modal-dialog modal-dialog-scrollable modal-lg modal-dialog-centered">
       <div class="modal-content card">
         <div class="modal-header">
-          <h5 class="modal-title" id="routeModalLabel">Top Route for <span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{ spec.name }} {{ class_info.name }}</span></h5>
+          <h5 class="modal-title" id="routeModalLabel">
+            Top Route for <span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{ spec.name }} {{ class_info.name }}</span>
+          </h5>
+           <div class="ms-auto d-flex align-items-center">
+            <a
+              href="/pages/routes?specs={{spec_id}}"
+              class="btn btn-sm btn-outline-primary me-2"
+              title="Find more routes">
+              Find more routes
+            </a>
+          </div>
         </div>
         <div class="modal-body">
           <div class="accordion" id="routeDungeonAccordion">
-            {% for ds in top_routes.values() %}
-            {% if dungeon_lookup_slug[ds.dungeon_id] %}
+            {% for ds in top_routes %}
+            {% if dungeon_lookup[ds] %}
             <div class="accordion-item mb-2">
-              <h2 class="accordion-header" id="routeDungeonHeading-{{ ds.dungeon_id }}">
+              <h2 class="accordion-header" id="routeDungeonHeading-{{ ds }}">
                 <button class="accordion-button collapsed d-flex" type="button" data-bs-toggle="collapse"
-                  data-bs-target="#routeDungeonCollapse-{{ ds.dungeon_id }}" aria-expanded="false"
-                  aria-controls="routeDungeonCollapse-{{ ds.dungeon_id }}" style="
-                            background-image: url('/data/icons/{{ dungeon_lookup_slug[ds.dungeon_id].icon }}');
+                  data-bs-target="#routeDungeonCollapse-{{ ds }}" aria-expanded="false"
+                  aria-controls="routeDungeonCollapse-{{ ds }}" style="
+                            background-image: url('/data/icons/{{ dungeon_lookup[ds].icon }}');
                             background-size: cover;
                             background-position: center;
                             background-repeat: no-repeat;
@@ -1395,27 +1405,27 @@
                           ">
                   <div class="flex-fill text-start text-nowrap">
                     <span class="badge bg-dark bg-opacity-50 rounded px-2">{{
-                      dungeon_lookup_slug[ds.dungeon_id|string].name['en_US'] }}</span>
-                    {% set info = top_routes[ds.dungeon_id].duration|
-                    upgrade_info(dungeon_lookup_slug[ds.dungeon_id|string].keystone_upgrades,
-                    top_routes[ds.dungeon_id].highest_key) %}
+                      dungeon_lookup[ds|string].name['en_US'] }}</span>
+                    {% set info = top_routes[ds|string].duration|
+                    upgrade_info(dungeon_lookup[ds|string].keystone_upgrades,
+                    top_routes[ds|string].highest_key) %}
                     <span class="badge bg-dark bg-opacity-50  {{ info.css }} rounded px-2 mx-1">
                       {{ info.text }}
                     </span>
                   </div>
                   <div class="flex-fill text-center p-2">
                     <span class="badge bg-dark bg-opacity-50 rounded px-2 mr-1">
-                      {{ top_routes[ds.dungeon_id].duration|duration }}
+                      {{ top_routes[ds|string].duration|duration }}
                     </span>
                     <span class="timestamp badge bg-dark bg-opacity-50 rounded px-2 ml-1" data-bs-toggle="tooltip"
-                      data-bs-placement="top" data-timestamp={{top_routes[ds.dungeon_id].timestamp|int}}></span>
+                      data-bs-placement="top" data-timestamp={{top_routes[ds|string].timestamp|int}}></span>
                   </div>
                   <div class="flex-fill text-end">
                     <div class="d-inline-flex align-items-center">
                       {% set role_order = ['0','1','2'] %}
                       {# sort members tank -> heal -> dps #}
                       {% for role in role_order %}
-                      {% for member in top_routes[ds.dungeon_id].comps[0] %}
+                      {% for member in top_routes[ds|string].specs %}
                       {% set spec = spec_lookup[ member|string ] %}
                       {% if spec.role == role %}
                       <img src="/data/icons/{{ spec.SpellIconFileId }}.jpg" alt="{{ spec.name }}"
@@ -1427,12 +1437,12 @@
                   </div>
                 </button>
               </h2>
-              <div id="routeDungeonCollapse-{{ ds.dungeon_id }}" class="accordion-collapse collapse"
-                aria-labelledby="routeDungeonHeading-{{ ds.dungeon_id }}" data-bs-parent="#routeDungeonAccordion">
+              <div id="routeDungeonCollapse-{{ ds }}" class="accordion-collapse collapse"
+                aria-labelledby="routeDungeonHeading-{{ ds }}" data-bs-parent="#routeDungeonAccordion">
                 <div class="accordion-body">
-                  Route Taken from + {{top_routes[ds.dungeon_id].highest_key}}. Checkout full run
+                  Route Taken from + {{top_routes[ds].highest_key}}. Checkout full run
                   details: <a
-                    href="https://raider.io/mythic-plus-runs/{{season_info.current_season}}/{{top_routes[ds.dungeon_id].keystone_run_ids[0]}}">
+                    href="https://raider.io/mythic-plus-runs/{{season_info.current_season}}/{{top_routes[ds].run_id}}">
                     <img src="/assets/img/logos/RaiderIOLogo.png" alt="RaiderIo run link" title="RaiderIo run link"
                       class="me-1" height="24em" width="24em" /></a>
                   <div class="iframe-container position-relative">
@@ -1443,7 +1453,7 @@
                       </div>
                     </div>
                     <iframe loading="lazy" data-name="keystoneGuru"
-                      data-src="https://keystone.guru/route/{{ds.dungeon_id}}/{{top_routes[ds.dungeon_id].route_key}}/{{ds.dungeon_id}}/embed"
+                      data-src="https://keystone.guru/route/{{ds}}/{{top_routes[ds].route_key}}/{{ds}}/embed"
                       class="w-100" style="
                                 border: none;
                                 width: 100%;

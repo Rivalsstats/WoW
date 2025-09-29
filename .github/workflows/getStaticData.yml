@@ -132,9 +132,6 @@ jobs:
         run: |
           python backend_scripts/fetchCommodityPrices.py
       
-      - name: Fetch Raider.IO route data
-        run: |
-          python backend_scripts/raiderIoRouteData.py
 
       - name: Fetch season and period info
         env:

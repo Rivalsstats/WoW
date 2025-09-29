@@ -1767,3 +1767,57 @@ def fetch_distinct_npc_ids_for_dungeon(connection, cursor, dungeon_id):
     if not rows:
         return []
     return [int(r[0]) for r in rows if r and r[0] is not None]
+
+
+FETCH_TOP_ROUTES_FOR_SPEC_SQL = """
+WITH filtered AS (
+  SELECT rd.*
+  FROM route_data rd
+  JOIN route_specs rs_filter
+    ON rd.route_key = rs_filter.route_key
+    AND rs_filter.spec_id = %s
+  WHERE rd.timestamp >= (UNIX_TIMESTAMP() - 4*7*24*3600)
+),
+ranked AS (
+  SELECT
+    f.*,
+    ROW_NUMBER() OVER (
+      PARTITION BY dungeon_id
+      ORDER BY keystone_level DESC, duration ASC, timestamp DESC
+    ) AS rn
+  FROM filtered f
+)
+SELECT
+  r.dungeon_id,
+  ANY_VALUE(r.route_key)                   AS route_key,
+  ANY_VALUE(r.rio_run_id)                  AS rio_run_id,
+  ANY_VALUE(r.mapping_version)             AS mapping_version,
+  ANY_VALUE(r.enemy_forces)                AS enemy_forces,
+  ANY_VALUE(r.keystone_level)              AS highest_key,
+  ANY_VALUE(r.duration)                    AS duration,
+  ANY_VALUE(r.timestamp)                   AS timestamp,
+  GROUP_CONCAT(rs.spec_id ORDER BY rs.id SEPARATOR ',') AS comps_csv
+FROM ranked r
+JOIN route_specs rs
+  ON rs.route_key = r.route_key
+WHERE r.rn = 1
+GROUP BY r.dungeon_id;
+
+"""
+
+def fetch_top_routes_for_spec(connection, cursor, spec_id):
+    rows = fetch_with_retry(connection, cursor, FETCH_TOP_ROUTES_FOR_SPEC_SQL, (spec_id,))
+    routes = {}
+    for row in rows:
+        routes[row[0]] = {
+            "route_key": row[1],
+            "run_id": row[2],
+            "mapping_version": row[3],
+            "enemy_forces": row[4],
+            "highest_key": row[5],
+            "duration": row[6],
+            "timestamp": row[7],
+            "specs": row[8].split(',')
+        }
+
+    return routes
