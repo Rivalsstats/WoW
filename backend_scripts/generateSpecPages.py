@@ -696,6 +696,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
                 spec=spec_data,
                 class_info=class_data,
                 data_count=data_count,
+                active_page="spec",
                 summary_data={
                     "count" : spec_runs,
                     "upgrade_counts": upgrade_counts

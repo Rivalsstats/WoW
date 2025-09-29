@@ -65,6 +65,7 @@ def main():
     env.filters["upgrade_info"] = upgrade_info
     spec_lookup = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
+    notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
 
     spec_nav = generateSpecNav(spec_lookup, class_lookup)
 
@@ -74,7 +75,9 @@ def main():
         output_html = template.render(
             generated_at=datetime.now(timezone.utc).timestamp(),
             spec_nav=spec_nav,
-            breadcrumbs=value.get("breadcrumbs", [])
+            breadcrumbs=value.get("breadcrumbs", []),
+            active_page=page.lower(),
+            notifications=notifications,
         )
         # Write output
         if os.path.dirname(value["output"]):

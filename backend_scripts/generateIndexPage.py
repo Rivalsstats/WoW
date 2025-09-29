@@ -658,6 +658,7 @@ def main(template_path, output_dir):
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
     dungeon_lookup = load_json(os.path.join(LOOKUP_DIR, "dungeons.json"))
     group_buffs = load_json(os.path.join(LOOKUP_DIR, "groupbuffs.json"))
+    notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
     buff_lookup = {b.get("id"): b for b in group_buffs}
 
     spec_nav = generateSpecNav(spec_lookup, class_lookup)
@@ -685,6 +686,7 @@ def main(template_path, output_dir):
         specs = spec_lookup,
         class_lookup=class_lookup,
         active_page="home",
+        notifications=notifications,
         breadcrumbs=[
             {"title": "Home", "href": "/"},
         ],

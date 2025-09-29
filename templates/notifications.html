@@ -1,5 +1,5 @@
 {% for notification in notifications %}
-{% if notification and notification.message %}
+{% if notification and notification.message and (not notification.page or notification.page == active_page) %}
 <div class="container-fluid">
     <div id="page-notification"
         class="alert alert-{{ notification.type | default('warning') }} alert-dismissible text-white d-flex align-items-center mx-3 my-2"

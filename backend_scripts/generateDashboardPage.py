@@ -467,7 +467,7 @@ def main(template_path, output_dir):
     dungeon_lookup = load_json(os.path.join(LOOKUP_DIR, "dungeons.json"))
     spec_lookup = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
-
+    notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
     spec_nav = generateSpecNav(spec_lookup, class_lookup) 
 
 
@@ -543,6 +543,8 @@ def main(template_path, output_dir):
             {"title": "Pages", "href": "/Pages"},
             {"title": "Dashboard", "href": "/Dashboard"}
         ]
+        active_page="dashboard",
+        notifications=notifications,
     )
 
     # Write output

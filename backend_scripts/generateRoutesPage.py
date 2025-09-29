@@ -43,6 +43,7 @@ def main(template_path, output_dir, limit):
     spell_lookup = load_json(os.path.join(LOOKUP_DIR, "spells.json"))
     npc_lookup = load_json(os.path.join(LOOKUP_DIR, "npcs.json"))
     season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
+    notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
 
     # init DB pool (this will raise on error)
     try:
@@ -111,6 +112,7 @@ def main(template_path, output_dir, limit):
         npc_map=npc_map,
         season_info=season_info,
         active_page="routes",
+        notifications=notifications,
         breadcrumbs=[
             {"title": "Pages", "href": "/Pages"},
             {"title": "Routes", "href": "/Routes"}

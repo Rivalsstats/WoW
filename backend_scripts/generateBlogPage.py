@@ -26,6 +26,7 @@ def main():
     env.filters["upgrade_info"] = upgrade_info
     spec_lookup = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
+    notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
     posts = load_json(os.path.join('data', "socials.json"))
 
     posts = OrderedDict(sorted(posts.items(), key=lambda t: t[1]['timestamp'], reverse=True))
@@ -38,6 +39,8 @@ def main():
         breadcrumbs=[
             {"title": "Blog"}
         ],
+        active_page="blog",
+        notifications=notifications,
         posts=posts
     )
     # Write output
