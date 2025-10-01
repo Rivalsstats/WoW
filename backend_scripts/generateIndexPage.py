@@ -20,7 +20,12 @@ CLIENT_ID = os.environ["BLIZ_CLIENT_ID"]
 CLIENT_SECRET = os.environ["BLIZ_CLIENT_SECRET"]
 
 databaseConnector.init_connection_pool(
-    os.environ['DATABASE_HOST'], os.environ['DATABASE_USER'], os.environ['DATABASE_PASSWORD'], os.environ['DATABASE_NAME'], 1
+    os.environ.get("DATABASE_HOST"),
+    os.environ.get("DATABASE_USER"),
+    os.environ.get("DATABASE_PASSWORD"),
+    os.environ.get("DATABASE_NAME"),
+    os.environ.get("DATABASE_PORT"),
+    1,
 )
 
 def _finish_building_tiers_from_items(items, k=6):

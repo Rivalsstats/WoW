@@ -45,6 +45,7 @@ jobs:
           DATABASE_USER: ${{ secrets.DATABASE_USER }}
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORT }}
           DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
           CLIENT_ID: ${{ secrets.BLIZ_CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
         # we run your create_socials_post entrypoint, which should:

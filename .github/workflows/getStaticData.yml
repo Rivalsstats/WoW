@@ -38,11 +38,7 @@ jobs:
 
       - name: process crafting data
         run: |
-          python backend_scripts/processBonusIds.py \
-            --database_host ${{secrets.DATABASE_HOST}}  \
-            --database_user ${{secrets.DATABASE_USER}} \
-            --database_password ${{secrets.DATABASE_PASSWORT}} \
-            --database ${{secrets.DATABASE_NAME}}  
+          python backend_scripts/processBonusIds.py
       - name: Download crafting icons
         run: |
           python backend_scripts/downloadCraftingIcons.py   
@@ -91,6 +87,7 @@ jobs:
           DATABASE_USER: ${{secrets.DATABASE_USER}} 
           DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORT}} 
           DATABASE_NAME: ${{secrets.DATABASE_NAME}} 
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
         run: |
           python backend_scripts/fetchDungeonData.py
 
@@ -100,6 +97,7 @@ jobs:
           DATABASE_USER: ${{secrets.DATABASE_USER}} 
           DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORT}} 
           DATABASE_NAME: ${{secrets.DATABASE_NAME}} 
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
         run: |
           python backend_scripts/fetchNpcInfo.py
 
@@ -111,6 +109,7 @@ jobs:
           DATABASE_USER: ${{secrets.DATABASE_USER}} 
           DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORT}} 
           DATABASE_NAME: ${{secrets.DATABASE_NAME}} 
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
           RAIDERIO_API_KEY: ${{ secrets.RAIDERIO_API_KEY }}
           KEYSTONE_GURU_USER: ${{ secrets.KEYSTONE_GURU_USER }}
           KEYSTONE_GURU_PW: ${{ secrets.KEYSTONE_GURU_SECRET }}
@@ -125,6 +124,7 @@ jobs:
           DATABASE_USER: ${{secrets.DATABASE_USER}} 
           DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORT}} 
           DATABASE_NAME: ${{secrets.DATABASE_NAME}} 
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
         run: |
           python backend_scripts/fetchSpellInfo.py
 
@@ -136,6 +136,7 @@ jobs:
           DATABASE_USER: ${{secrets.DATABASE_USER}} 
           DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORT}} 
           DATABASE_NAME: ${{secrets.DATABASE_NAME}} 
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
         run: |
           python backend_scripts/fetchCreatureInfo.py
 
@@ -155,6 +156,7 @@ jobs:
           DATABASE_USER: ${{secrets.DATABASE_USER}} 
           DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORT}} 
           DATABASE_NAME: ${{secrets.DATABASE_NAME}} 
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
         run: |
           python backend_scripts/fetchSeasonAndPeriodInfo.py    
 

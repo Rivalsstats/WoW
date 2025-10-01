@@ -33,7 +33,12 @@ from generateSpecPages import (
 from generateDashboardPage import compute_shades, create_dungeon_ease, create_spec_scatter, RARITY_COLORS
 
 databaseConnector.init_connection_pool(
-    os.environ['DATABASE_HOST'], os.environ['DATABASE_USER'], os.environ['DATABASE_PASSWORD'], os.environ['DATABASE_NAME'], 2
+    os.environ.get("DATABASE_HOST"),
+    os.environ.get("DATABASE_USER"),
+    os.environ.get("DATABASE_PASSWORD"),
+    os.environ.get("DATABASE_NAME"),
+    os.environ.get("DATABASE_PORT"),
+    1,
 )
 
 ICON_DIR = os.path.join('data', 'icons')

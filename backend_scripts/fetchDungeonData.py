@@ -14,8 +14,15 @@ NAMESPACE = "dynamic-us"
 API_BASE = "https://us.api.blizzard.com"
 ICON_DIR = "data/icons"
 
+
+
 databaseConnector.init_connection_pool(
-    os.environ['DATABASE_HOST'], os.environ['DATABASE_USER'], os.environ['DATABASE_PASSWORD'], os.environ['DATABASE_NAME'], 1
+    os.environ.get("DATABASE_HOST"),
+    os.environ.get("DATABASE_USER"),
+    os.environ.get("DATABASE_PASSWORD"),
+    os.environ.get("DATABASE_NAME"),
+    os.environ.get("DATABASE_PORT"),
+    1,
 )
 
 

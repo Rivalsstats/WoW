@@ -121,6 +121,7 @@ def main():
         os.environ.get("DATABASE_USER"),
         os.environ.get("DATABASE_PASSWORD"),
         os.environ.get("DATABASE_NAME"),
+        os.environ.get("DATABASE_PORT"),
         1,
     )
 

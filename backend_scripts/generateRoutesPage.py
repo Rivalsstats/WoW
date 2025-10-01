@@ -18,13 +18,8 @@ def fail(msg):
 
 def main(template_path, output_dir, limit):
     # ensure env vars exist
-    DB_HOST = os.environ.get("DATABASE_HOST")
-    DB_USER = os.environ.get("DATABASE_USER")
-    DB_PASSWORD = os.environ.get("DATABASE_PASSWORD")
-    DB_NAME = os.environ.get("DATABASE_NAME", "Mythistone")
-    POOL_SIZE = int(os.environ.get("DB_POOL_SIZE", "5"))
 
-    if not DB_HOST or not DB_USER or not DB_PASSWORD:
+    if not os.environ.get("DATABASE_HOST") or not os.environ.get("DATABASE_USER") or not os.environ.get("DATABASE_PASSWORD"):
         fail("Missing DB credentials. Ensure DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD are set in the environment.")
 
     # jinja env
@@ -47,7 +42,14 @@ def main(template_path, output_dir, limit):
 
     # init DB pool (this will raise on error)
     try:
-        databaseConnector.init_connection_pool(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, pool_size=POOL_SIZE)
+        databaseConnector.init_connection_pool(
+            os.environ.get("DATABASE_HOST"),
+            os.environ.get("DATABASE_USER"),
+            os.environ.get("DATABASE_PASSWORD"),
+            os.environ.get("DATABASE_NAME"),
+            os.environ.get("DATABASE_PORT"),
+            1,
+        )
     except Exception as e:
         fail(f"init_connection_pool failed: {e}")
 

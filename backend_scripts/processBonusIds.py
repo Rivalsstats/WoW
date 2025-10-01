@@ -14,7 +14,12 @@ parser.add_argument("--database", required=True)
 args = parser.parse_args()
 
 databaseConnector.init_connection_pool(
-    args.database_host, args.database_user, args.database_password, args.database, 1
+    os.environ.get("DATABASE_HOST"),
+    os.environ.get("DATABASE_USER"),
+    os.environ.get("DATABASE_PASSWORD"),
+    os.environ.get("DATABASE_NAME"),
+    os.environ.get("DATABASE_PORT"),
+    1,
 )
 
 CRAFTING_JSON = "data/static/crafting.json"

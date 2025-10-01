@@ -17,12 +17,12 @@ def get_connection():
     conn = CONNECTION_POOL.get_connection()
     return conn
 
-def init_connection_pool(host, user, password, database, pool_size=30):
+def init_connection_pool(host, user, password, database, port, pool_size=30):
     global CONNECTION_POOL 
     CONNECTION_POOL = pooling.MySQLConnectionPool(
         pool_name="region_pool",
         pool_size=pool_size,
-        host=host, user=user, password=password, database=database, autocommit = False, use_pure=True, 
+        host=host, user=user, password=password, database=database, port=port, autocommit=False, use_pure=True,
     )
 
 def commit_with_retry(connection):

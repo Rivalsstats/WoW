@@ -48,6 +48,7 @@ jobs:
           DATABASE_USER: ${{ secrets.DATABASE_USER }}
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORT }}
           DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
           CLIENT_ID: ${{ secrets.BLIZ_CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
         run: |
@@ -61,6 +62,7 @@ jobs:
           DATABASE_USER: ${{ secrets.DATABASE_USER }}
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORT }}
           DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
           BLIZ_CLIENT_ID: ${{ secrets.BLIZ_CLIENT_ID }}
           BLIZ_CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
           RAIDERIO_API_KEY: ${{ secrets.RAIDERIO_API_KEY }}
@@ -75,6 +77,7 @@ jobs:
           DATABASE_USER: ${{ secrets.DATABASE_USER }}
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORT }}
           DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
         run: |
           python backend_scripts/generateRoutesPage.py \
             --template templates/find_routes.html  \
@@ -91,10 +94,6 @@ jobs:
       - name: Generate Spec HTML pages
         run: |
           python backend_scripts/generateSpecPages.py \
-            --database_host ${{secrets.DATABASE_HOST}} \
-            --database_user ${{secrets.DATABASE_USER}} \
-            --database_password ${{secrets.DATABASE_PASSWORT}} \
-            --database ${{secrets.DATABASE_NAME}} \
             --CLIENT_ID ${{secrets.BLIZ_CLIENT_ID}} \
             --CLIENT_SECRET ${{secrets.BLIZ_CLIENT_SECRET}} \
             --template templates/spec_page.html \

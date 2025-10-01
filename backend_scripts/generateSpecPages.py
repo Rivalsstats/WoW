@@ -776,11 +776,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "--output_dir", required=True, help="Directory to write generated HTML pages"
     )
-
-    parser.add_argument("--database_host", required=True)
-    parser.add_argument("--database_user", required=True)
-    parser.add_argument("--database_password", required=True)
-    parser.add_argument("--database", required=True)
     parser.add_argument("--CLIENT_ID", required=True)
     parser.add_argument("--CLIENT_SECRET", required=True)
     parser.add_argument("--debug", required=False)
@@ -789,6 +784,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     databaseConnector.init_connection_pool(
-        args.database_host, args.database_user, args.database_password, args.database, 1
+        os.environ.get("DATABASE_HOST"),
+        os.environ.get("DATABASE_USER"),
+        os.environ.get("DATABASE_PASSWORD"),
+        os.environ.get("DATABASE_NAME"),
+        os.environ.get("DATABASE_PORT"),
+        1,
     )
     main(args.template, args.output_dir, args.CLIENT_ID, args.CLIENT_SECRET, args.debug, args.spec)

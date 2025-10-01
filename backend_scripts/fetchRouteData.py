@@ -9,12 +9,11 @@ from datetime import datetime, timezone
 from collections import defaultdict
 from contextlib import closing
 from typing import Any
-
 import aiohttp
 from aiohttp import ClientError, BasicAuth
 from aiolimiter import AsyncLimiter
 
-import databaseConnector  # must provide init_connection_pool, get_connection, insert_* functions
+import databaseConnector 
 
 # ---------------- Config ----------------
 API_URL = "https://raider.io/api/v1/mythic-plus/runs"
@@ -32,12 +31,13 @@ DB_HOST = os.environ.get("DATABASE_HOST")
 DB_USER = os.environ.get("DATABASE_USER")
 DB_PASS = os.environ.get("DATABASE_PASSWORD")
 DB_NAME = os.environ.get("DATABASE_NAME")
+DB_PORT = os.environ.get("DATABASE_PORT")
 KEYSTONE_USER = os.environ.get("KEYSTONE_GURU_USER")
 KEYSTONE_PW = os.environ.get("KEYSTONE_GURU_PW")
 
 if not API_KEY:
     raise EnvironmentError("RAIDERIO_API_KEY env var is required")
-if not all([DB_HOST, DB_USER, DB_PASS, DB_NAME]):
+if not all([DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT]):
     raise EnvironmentError(
         "DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME env vars are required"
     )
@@ -60,8 +60,14 @@ KEYSTONE_RATE_LIMIT = AsyncLimiter(
 )
 
 # initialize DB pool (use small pool; the worker will take a single connection)
-databaseConnector.init_connection_pool(DB_HOST, DB_USER, DB_PASS, DB_NAME, 1)
-
+databaseConnector.init_connection_pool(
+    DB_HOST,
+    DB_USER,
+    DB_PASS,
+    DB_NAME,
+    DB_PORT,
+    1,
+)
 CURRENT_SEASON = ""
 run_details_cache: dict[int, dict] = {}
 
