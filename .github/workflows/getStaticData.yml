@@ -103,6 +103,18 @@ jobs:
         run: |
           python backend_scripts/fetchNpcInfo.py
 
+      - name: Fetch route data
+        env:
+          BLIZ_CLIENT_ID:     ${{ secrets.BLIZ_CLIENT_ID }}
+          BLIZ_CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
+          DATABASE_HOST: ${{secrets.DATABASE_HOST}}  
+          DATABASE_USER: ${{secrets.DATABASE_USER}} 
+          DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORT}} 
+          DATABASE_NAME: ${{secrets.DATABASE_NAME}} 
+          RAIDERIO_API_KEY: ${{ secrets.RAIDERIO_API_KEY }}
+        run: |
+          python backend_scripts/fetchRouteData.py
+
       - name: Fetch spell data
         env:
           BLIZ_CLIENT_ID:     ${{ secrets.BLIZ_CLIENT_ID }}
