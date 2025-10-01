@@ -112,6 +112,8 @@ jobs:
           DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORT}} 
           DATABASE_NAME: ${{secrets.DATABASE_NAME}} 
           RAIDERIO_API_KEY: ${{ secrets.RAIDERIO_API_KEY }}
+          KEYSTONE_GURU_USER: ${{ secrets.KEYSTONE_GURU_USER }}
+          KEYSTONE_GURU_PW: ${{ secrets.KEYSTONE_GURU_SECRET }}
         run: |
           python backend_scripts/fetchRouteData.py
 
