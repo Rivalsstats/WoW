@@ -13,9 +13,9 @@
   <meta name="author" content="MythiStone">
 
   <!-- canonical / hreflang -->
-  <link rel="canonical" href="https://mythistone.com/routes">
-  <link rel="alternate" href="https://mythistone.com/routes" hreflang="en-US">
-  <link rel="alternate" href="https://mythistone.com/routes" hreflang="en">
+  <link rel="canonical" href="https://mythistone.com/pages/routes">
+  <link rel="alternate" href="https://mythistone.com/pages/routes" hreflang="en-US">
+  <link rel="alternate" href="https://mythistone.com/pages/routes" hreflang="en">
 
   <!-- Robots -->
   <meta name="robots" content="index, follow, max-snippet:180, max-image-preview:large">
@@ -23,7 +23,7 @@
   <!-- Open Graph / Social -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="MythiStone">
-  <meta property="og:url" content="{{ request.url if request is defined else 'https://mythistone.com/routes' }}">
+  <meta property="og:url" content="{{ request.url if request is defined else 'https://mythistone.com/pages/routes' }}">
   <meta property="og:title" content="Route Finder - Mythic + Routes for Your Team">
   <meta property="og:description"
     content="Find Mythic+ routes for your team composition. Filter by dungeon and specs to find the best route for your team.">
@@ -43,7 +43,7 @@
   <meta name="twitter:image" content="https://mythistone.com/assets/img/favicon/favicon-96x96.png">
 
   <!-- Structured Data: WebSite + WebPage + SoftwareApplication + Breadcrumb -->
-  {% set page_url = (request.url if request is defined else 'https://mythistone.com/routes') %}
+  {% set page_url = (request.url if request is defined else 'https://mythistone.com/pages/routes') %}
   {% set published_iso = (generated_at | format_ts) %}
   <script type="application/ld+json">
   {
