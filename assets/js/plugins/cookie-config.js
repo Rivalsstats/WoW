@@ -135,8 +135,8 @@ var klaroConfig = {
                 description: 'Beispiel für ein externes Tracking Skript',
             },
             adsense: {
-                description: 'Anzeigen von Werbeanzeigen (Beispiel)',
-                title: 'Google AdSense Werbezeugs',
+                description: 'Anzeigen von Werbeanzeigen',
+                title: 'Google AdSense Werbung',
             },
             matomo: {
                 description: 'Sammeln von Besucherstatistiken',
@@ -179,7 +179,7 @@ var klaroConfig = {
                 description: 'Example of an external tracking script',
             },
             adsense: {
-                description: 'Displaying of advertisements (just an example)',
+                description: 'Displaying of advertisements',
                 title: 'Google Adsense Advertisement',
             },
             matomo: {
@@ -322,13 +322,14 @@ var klaroConfig = {
         //     title: 'Mouseflow',
         //     purposes: ['analytics'],
         // },
-        // {
-        //     name: 'adsense',
-        //     // if you omit the title here Klaro will try to look it up in the
-        //     // translations
-        //     //title: 'Google AdSense',
-        //     purposes: ['advertising'],
-        // },
+        {
+            name: 'adsense',
+            // if you omit the title here Klaro will try to look it up in the
+            // translations
+            title: 'Google AdSense',
+            default: true,
+            purposes: ['advertising'],
+        },
         // {
         //     name: 'camera',
         //     title: 'Surveillance Camera',
