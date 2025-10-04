@@ -158,7 +158,7 @@ jobs:
       - name: Clone project
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1  # Fetch all history for all branches and tags
+          fetch-depth: 1  
           ref: main 
           sparse-checkout: |
             pages
@@ -166,6 +166,10 @@ jobs:
             classes
             data/icons
             data/creature_img
+            404.html
+            index.html
+            ads.txt
+
       
       - name: Upload static files as artifact
         id: deployment

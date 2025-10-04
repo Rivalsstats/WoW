@@ -53,6 +53,9 @@ jobs:
             classes
             data/icons
             data/creature_img
+            404.html
+            index.html
+            ads.txt
       
       - name: Upload static files as artifact
         id: deployment
