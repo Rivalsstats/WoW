@@ -586,6 +586,9 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
     # Iterate over each spec folder
     for spec_id in spec_keys:
         print(f"[{datetime.now(timezone.utc).isoformat()}] Processing spec {spec_id}...")
+        if not os.path.exists(os.path.join(LOOKUP_DIR, "talents", f"{spec_id}.json")):
+            print(f"No talent data for spec {spec_id}, skipping")
+            return
         with closing(databaseConnector.get_connection()) as conn:
             cursor = conn.cursor()
 
