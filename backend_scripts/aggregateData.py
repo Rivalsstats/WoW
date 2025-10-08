@@ -26,10 +26,14 @@ def get_access_token(CLIENT_ID: str, CLIENT_SECRET: str) -> str:
 
 
 def fetch_json(url: str, params: dict, token: str) -> dict | None:
-    headers = {"Authorization": f"Bearer {token}"}
-    resp = requests.get(url, params=params, headers=headers)
-    resp.raise_for_status()
-    return resp.json()
+    try:
+        headers = {"Authorization": f"Bearer {token}"}
+        resp = requests.get(url, params=params, headers=headers)
+        resp.raise_for_status()
+        return resp.json()
+    except requests.RequestException as e:
+        print(f"Error fetching JSON from {url}: {e}")
+        return None
 
 
 def get_current_season_id(token: str) -> int:
