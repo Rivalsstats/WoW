@@ -24416,5 +24416,143 @@
     },
     "family_id": 44,
     "image": "data/creature_img/130664.jpg"
+  },
+  "5427": {
+    "name": {
+      "en_US": "Rabid Blisterpaw",
+      "es_MX": "Llagapata rabiosa",
+      "pt_BR": "Patapústula Raivoso",
+      "de_DE": "Tollwütige Eiterpfote",
+      "en_GB": "Rabid Blisterpaw",
+      "es_ES": "Llagapata rabiosa",
+      "fr_FR": "Brûlepatte enragée",
+      "it_IT": "Zampamarcia Rabbiosa",
+      "ru_RU": "Бешеный стертолап",
+      "ko_KR": "광포한 문둥발하이에나",
+      "zh_TW": "瘋狂的皰爪土狼",
+      "zh_CN": "疯狂的疱爪土狼"
+    },
+    "type": {
+      "en_US": "Beast",
+      "es_MX": "Bestia",
+      "pt_BR": "Fera",
+      "de_DE": "Wildtier",
+      "en_GB": "Beast",
+      "es_ES": "Bestia",
+      "fr_FR": "Bête",
+      "it_IT": "Bestia",
+      "ru_RU": "Животное",
+      "ko_KR": "야수",
+      "zh_TW": "野獸",
+      "zh_CN": "野兽"
+    },
+    "family": {
+      "en_US": "Hyena",
+      "es_MX": "Hiena",
+      "pt_BR": "Hiena",
+      "de_DE": "Hyäne",
+      "en_GB": "Hyena",
+      "es_ES": "Hiena",
+      "fr_FR": "Hyène",
+      "it_IT": "Iena",
+      "ru_RU": "Гиена",
+      "ko_KR": "하이에나",
+      "zh_TW": "土狼",
+      "zh_CN": "土狼"
+    },
+    "family_id": 25,
+    "image": "data/creature_img/5427.jpg"
+  },
+  "124548": {
+    "name": {
+      "en_US": "Betsy",
+      "es_MX": "Betsy",
+      "pt_BR": "Betty",
+      "de_DE": "Betti",
+      "en_GB": "Betsy",
+      "es_ES": "Betsy",
+      "fr_FR": "Betsy",
+      "it_IT": "Betsy",
+      "ru_RU": "Бетси",
+      "ko_KR": "벳지",
+      "zh_TW": "貝琪",
+      "zh_CN": "贝茜"
+    },
+    "type": {
+      "en_US": "Beast",
+      "es_MX": "Bestia",
+      "pt_BR": "Fera",
+      "de_DE": "Wildtier",
+      "en_GB": "Beast",
+      "es_ES": "Bestia",
+      "fr_FR": "Bête",
+      "it_IT": "Bestia",
+      "ru_RU": "Животное",
+      "ko_KR": "야수",
+      "zh_TW": "野獸",
+      "zh_CN": "野兽"
+    },
+    "family": {
+      "en_US": "Boar",
+      "es_MX": "Jabalí",
+      "pt_BR": "Javali",
+      "de_DE": "Eber",
+      "en_GB": "Boar",
+      "es_ES": "Jabalí",
+      "fr_FR": "Sanglier",
+      "it_IT": "Cinghiale",
+      "ru_RU": "Вепрь",
+      "ko_KR": "멧돼지",
+      "zh_TW": "野豬",
+      "zh_CN": "野猪"
+    },
+    "family_id": 5,
+    "image": "data/creature_img/124548.jpg"
+  },
+  "222619": {
+    "name": {
+      "en_US": "Meandering Shalehorn",
+      "es_MX": "Esquistocornio disperso",
+      "pt_BR": "Xistorno Vagante",
+      "de_DE": "Wanderndes Schieferhorn",
+      "en_GB": "Meandering Shalehorn",
+      "es_ES": "Cuernoesquisto errante",
+      "fr_FR": "Corne-de-schiste flâneur",
+      "it_IT": "Cornoroccia Errante",
+      "ru_RU": "Блуждающий глинорог",
+      "ko_KR": "방랑하는 혈암뿔",
+      "zh_TW": "漫步的岩角獸",
+      "zh_CN": "漫步的岩角麋"
+    },
+    "type": {
+      "en_US": "Beast",
+      "es_MX": "Bestia",
+      "pt_BR": "Fera",
+      "de_DE": "Wildtier",
+      "en_GB": "Beast",
+      "es_ES": "Bestia",
+      "fr_FR": "Bête",
+      "it_IT": "Bestia",
+      "ru_RU": "Животное",
+      "ko_KR": "야수",
+      "zh_TW": "野獸",
+      "zh_CN": "野兽"
+    },
+    "family": {
+      "en_US": "Stag",
+      "es_MX": "Venado",
+      "pt_BR": "Cervo",
+      "de_DE": "Hirsch",
+      "en_GB": "Stag",
+      "es_ES": "Venado",
+      "fr_FR": "Cerf",
+      "it_IT": "Cervo",
+      "ru_RU": "Олень",
+      "ko_KR": "순록",
+      "zh_TW": "雄鹿",
+      "zh_CN": "雄鹿"
+    },
+    "family_id": 151,
+    "image": "data/creature_img/222619.jpg"
   }
 }

@@ -20378,7 +20378,7 @@
             "id": 115570,
             "definitionId": 120582,
             "maxRanks": 1,
-            "type": "active",
+            "type": "passive",
             "name": "Temporal Artificer",
             "spellId": 381922,
             "icon": "ability_evoker_rewind",
@@ -20388,7 +20388,7 @@
             "id": 115569,
             "definitionId": 120581,
             "maxRanks": 1,
-            "type": "passive",
+            "type": "active",
             "name": "Stasis",
             "spellId": 370537,
             "icon": "ability_evoker_stasis",
@@ -58899,7 +58899,7 @@
       },
       {
         "id": 95114,
-        "name": "Inevitabile End / Destiny Defined",
+        "name": "Inevitable End / Destiny Defined",
         "type": "choice",
         "posX": 15300,
         "posY": 2700,
@@ -58917,7 +58917,7 @@
             "definitionId": 122723,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Inevitabile End",
+            "name": "Inevitable End",
             "spellId": 454434,
             "icon": "spell_ice_lament",
             "index": 100
@@ -61993,7 +61993,7 @@
       },
       {
         "id": 95114,
-        "name": "Inevitabile End / Destiny Defined",
+        "name": "Inevitable End / Destiny Defined",
         "type": "choice",
         "posX": 15300,
         "posY": 2700,
@@ -62011,7 +62011,7 @@
             "definitionId": 122723,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Inevitabile End",
+            "name": "Inevitable End",
             "spellId": 454434,
             "icon": "spell_ice_lament",
             "index": 100
