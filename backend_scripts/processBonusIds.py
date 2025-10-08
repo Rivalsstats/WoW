@@ -2,16 +2,7 @@ import json
 import os
 from itertools import chain
 import databaseConnector
-import argparse
 from contextlib import closing
-parser = argparse.ArgumentParser()
-
-parser.add_argument("--database_host", required=True)
-parser.add_argument("--database_user", required=True)
-parser.add_argument("--database_password", required=True)
-parser.add_argument("--database", required=True)
-
-args = parser.parse_args()
 
 databaseConnector.init_connection_pool(
     os.environ.get("DATABASE_HOST"),

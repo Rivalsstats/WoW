@@ -34,6 +34,7 @@ parser.add_argument("--database_host", required=True)
 parser.add_argument("--database_user", required=True)
 parser.add_argument("--database_password", required=True)
 parser.add_argument("--database", required=True)
+parser.add_argument("--port", type=int, required=True)
 
 args = parser.parse_args()
 
@@ -41,7 +42,7 @@ HUNTER_SPEC_IDS = [253, 254, 255]
 
 DATABASE_WORKERS = int(os.environ.get("DATABASE_WORKERS", "1"))
 databaseConnector.init_connection_pool(
-    args.database_host, args.database_user, args.database_password, args.database, DATABASE_WORKERS
+    args.database_host, args.database_user, args.database_password, args.database, args.port, DATABASE_WORKERS
 )
 
 if args.region:
