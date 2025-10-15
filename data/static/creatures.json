@@ -24554,5 +24554,51 @@
     },
     "family_id": 151,
     "image": "data/creature_img/222619.jpg"
+  },
+  "1557": {
+    "name": {
+      "en_US": "Elder Mistvale Gorilla",
+      "es_MX": "Gorila Velo de Bruma anciano",
+      "pt_BR": "Gorila Ancião do Vale da Névoa",
+      "de_DE": "Alter Nebeltalgorilla",
+      "en_GB": "Elder Mistvale Gorilla",
+      "es_ES": "Gorila Velo de Bruma anciano",
+      "fr_FR": "Ancien gorille de Valbrume",
+      "it_IT": "Gorilla Anziano di Vallebruma",
+      "ru_RU": "Старая горилла из Мглистой долины",
+      "ko_KR": "덩치 큰 안개계곡고릴라",
+      "zh_TW": "老邁的薄霧山谷猩猩",
+      "zh_CN": "老迈的薄雾谷猩猩"
+    },
+    "type": {
+      "en_US": "Beast",
+      "es_MX": "Bestia",
+      "pt_BR": "Fera",
+      "de_DE": "Wildtier",
+      "en_GB": "Beast",
+      "es_ES": "Bestia",
+      "fr_FR": "Bête",
+      "it_IT": "Bestia",
+      "ru_RU": "Животное",
+      "ko_KR": "야수",
+      "zh_TW": "野獸",
+      "zh_CN": "野兽"
+    },
+    "family": {
+      "en_US": "Gorilla",
+      "es_MX": "Gorila",
+      "pt_BR": "Gorila",
+      "de_DE": "Gorilla",
+      "en_GB": "Gorilla",
+      "es_ES": "Gorila",
+      "fr_FR": "Gorille",
+      "it_IT": "Gorilla",
+      "ru_RU": "Горилла",
+      "ko_KR": "고릴라",
+      "zh_TW": "猩猩",
+      "zh_CN": "猩猩"
+    },
+    "family_id": 9,
+    "image": "data/creature_img/1557.jpg"
   }
 }
