@@ -38,7 +38,7 @@ databaseConnector.init_connection_pool(
     os.environ.get("DATABASE_PASSWORD"),
     os.environ.get("DATABASE_NAME"),
     os.environ.get("DATABASE_PORT"),
-    1,
+    2,
 )
 
 ICON_DIR = os.path.join('data', 'icons')
