@@ -127,7 +127,7 @@ Produce one single social-media post (max 210 characters) that:
 Output only the post text (no explanation, Comments or Quotation marks).
 """
 
-MODELS = ["deepseek/deepseek-r1:free", "deepseek/deepseek-chat-v3.1:free"]
+MODELS = ["deepseek/deepseek-r1:free", "deepseek/deepseek-chat-v3.1:free", "meta-llama/llama-3.3-8b-instruct:free", "openai/gpt-oss-20b:free", "mistralai/mistral-small-3.2-24b-instruct:free"]
 
 def generate_post_text(client, data, url, max_retries=5):
     prompt = PROMPT_TEMPLATE.format(data=data).strip()
