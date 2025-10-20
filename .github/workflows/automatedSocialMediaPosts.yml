@@ -66,9 +66,13 @@ jobs:
           echo "${{ env.OUTPUT_DIR }}/post.json"
           # ────────────────────────────────────────────────────────────────
     
-          echo "social_text=$social_text" >> $GITHUB_OUTPUT
-          echo "image_path=$image_path"  >> $GITHUB_OUTPUT
-          echo "filename=$filename"      >> $GITHUB_OUTPUT
+          # multiline-safe export for social_text
+          echo "social_text<<'EOF'" >> $GITHUB_OUTPUT
+          printf '%s\n' "$social_text" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+          echo "image_path=$image_path" >> $GITHUB_OUTPUT
+          echo "filename=$filename" >> $GITHUB_OUTPUT
 
 
       - name: Commit updated socials.json back to repo
