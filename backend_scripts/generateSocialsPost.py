@@ -1906,7 +1906,7 @@ def createSpecOverview(output_dir, donesocials, api_key, url, spec_id, season):
     else:
         top_hero_tree = ""
     post_data = {
-        "spec": name_text,
+        "spec": f"{spec_meta.get('name', '')} {class_meta.get('name', '')}",
         "amount_data_source_runs": humanize_number(play_count),
         "highest_run": f"+{highest_run['level']} {highest_run['dungeon_name']} Completed in ({highest_run['duration_str']})",
         "top_hero_tree": top_hero_tree,
