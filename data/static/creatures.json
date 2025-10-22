@@ -24600,5 +24600,97 @@
     },
     "family_id": 9,
     "image": "data/creature_img/1557.jpg"
+  },
+  "25489": {
+    "name": {
+      "en_US": "Wooly Rhino Bull",
+      "es_MX": "Rinoceronte lanudo dominante",
+      "pt_BR": "Rinoceronte Macho Lanoso",
+      "de_DE": "Wollhornbulle",
+      "en_GB": "Wooly Rhino Bull",
+      "es_ES": "Rinoceronte lanudo dominante",
+      "fr_FR": "Rhinocéros laineux mâle",
+      "it_IT": "Rinoceronte Lanoso Adulto",
+      "ru_RU": "Самец шерстистого люторога",
+      "ko_KR": "수컷 털북숭이 코뿔소",
+      "zh_TW": "蓬毛公犀牛",
+      "zh_CN": "雄性长毛犀牛"
+    },
+    "type": {
+      "en_US": "Beast",
+      "es_MX": "Bestia",
+      "pt_BR": "Fera",
+      "de_DE": "Wildtier",
+      "en_GB": "Beast",
+      "es_ES": "Bestia",
+      "fr_FR": "Bête",
+      "it_IT": "Bestia",
+      "ru_RU": "Животное",
+      "ko_KR": "야수",
+      "zh_TW": "野獸",
+      "zh_CN": "野兽"
+    },
+    "family": {
+      "en_US": "Clefthoof",
+      "es_MX": "Uñagrieta",
+      "pt_BR": "Fenoceronte",
+      "de_DE": "Grollhuf",
+      "en_GB": "Clefthoof",
+      "es_ES": "Uñagrieta",
+      "fr_FR": "Sabot-fourchu",
+      "it_IT": "Mammuceronte",
+      "ru_RU": "Копытень",
+      "ko_KR": "갈래발굽",
+      "zh_TW": "裂蹄",
+      "zh_CN": "裂蹄牛"
+    },
+    "family_id": 43,
+    "image": "data/creature_img/25489.jpg"
+  },
+  "139385": {
+    "name": {
+      "en_US": "Deepfang",
+      "es_MX": "Colmillo Abisal",
+      "pt_BR": "Presafunda",
+      "de_DE": "Tiefzahn",
+      "en_GB": "Deepfang",
+      "es_ES": "Dientehondo",
+      "fr_FR": "Gouffrecroc",
+      "it_IT": "Zannafonda",
+      "ru_RU": "Длинноклык",
+      "ko_KR": "긴송곳니",
+      "zh_TW": "深牙",
+      "zh_CN": "深牙"
+    },
+    "type": {
+      "en_US": "Beast",
+      "es_MX": "Bestia",
+      "pt_BR": "Fera",
+      "de_DE": "Wildtier",
+      "en_GB": "Beast",
+      "es_ES": "Bestia",
+      "fr_FR": "Bête",
+      "it_IT": "Bestia",
+      "ru_RU": "Животное",
+      "ko_KR": "야수",
+      "zh_TW": "野獸",
+      "zh_CN": "野兽"
+    },
+    "family": {
+      "en_US": "Wolf",
+      "es_MX": "Lobo",
+      "pt_BR": "Lobo",
+      "de_DE": "Wolf",
+      "en_GB": "Wolf",
+      "es_ES": "Lobo",
+      "fr_FR": "Loup",
+      "it_IT": "Lupo",
+      "ru_RU": "Волк",
+      "ko_KR": "늑대",
+      "zh_TW": "狼",
+      "zh_CN": "狼"
+    },
+    "family_id": 1,
+    "image": "data/creature_img/139385.jpg"
   }
 }
