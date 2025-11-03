@@ -161,18 +161,60 @@ async def get_max_keys_by_dungeon(session: ClientSession) -> dict[int, int]:
             pass
     return max_keys
 
-def load_processed_runs():
+async def load_processed_runs(session):
     print(
         f"[{datetime.now(timezone.utc).isoformat()}] Loading previously processed runs…"
     )
     ensure_dir(RUNS_DIR)
+    active_seasons = {}
+    active_periods = {}
+    for region in REGIONS:
+        current_season = await get_current_season_id(session, region)
+        active_period = max(await get_season_periods(session, region, current_season))
+        active_seasons[region] = str(current_season)
+        active_periods[region] = str(active_period)
+
     for runs_csv in RUNS_DIR.rglob("*.csv"):
-        with open(runs_csv, newline="") as f:
-            reader = csv.reader(f)
-            next(reader, None)
-            for row in reader:
-                if row:
-                    processed_runs.add(row[0])
+        try:
+            rel = runs_csv.relative_to(RUNS_DIR)
+        except Exception:
+            # file outside expected root; skip
+            continue
+
+        parts = rel.parts
+
+        region, realm, season_part, period_file = parts[0], parts[1], parts[2], parts[3]
+        period = Path(period_file).stem  
+
+        active_season = active_seasons.get(region)
+        active_period = active_periods.get(region)
+
+        if active_season is None or active_period is None:
+            continue
+
+        is_active = (season_part == active_season and period == active_period)
+
+        if is_active:
+            with runs_csv.open(newline="") as f:
+                reader = csv.reader(f)
+                next(reader, None) 
+                for row in reader:
+                    if row:
+                        processed_runs.add(row[0])
+        else:
+            try:
+                runs_csv.unlink()
+                print(f"Removed old runs file: {runs_csv}")
+                parent = runs_csv.parent 
+                while parent != RUNS_DIR and parent.exists():
+                    if any(parent.iterdir()):
+                        break
+                    parent.rmdir()
+                    parent = parent.parent
+            except Exception as e:
+                print(f"failed to remove {runs_csv}: {e}")
+
+    return processed_runs
 
 
 def load_existing_json(path: Path) -> dict:
@@ -912,10 +954,6 @@ async def database_worker(name: str):
         conn.close()
 
 async def main():
-    load_processed_runs()
-    print(
-        f"[{datetime.now(timezone.utc).isoformat()}] Loaded {len(processed_runs)} previously processed runs."
-    )
     connector = aiohttp.TCPConnector(
         limit=100,                
         keepalive_timeout=75,     
@@ -946,6 +984,11 @@ async def main():
     ) as session:
         print(
             f"[{datetime.now(timezone.utc).isoformat()}] Starting data collection for regions: {', '.join(REGIONS)}"
+        )
+
+        processed_runs = await load_processed_runs(session)
+        print(
+            f"[{datetime.now(timezone.utc).isoformat()}] Loaded {len(processed_runs)} previously processed runs."
         )
         max_keys = await get_max_keys_by_dungeon(session)
         print(
