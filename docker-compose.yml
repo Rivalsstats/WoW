@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  mythistone-collector:
+    image: ghcr.io/MythiStone/mythistone-collector:latest
+    container_name: mythistone-collector
+    restart: always
+    volumes:
+      - ./.env:/app/.env:ro
+      - ./runs:/data/runs
+    environment:
+      - GIT_BRANCH=main
+      - CHECK_INTERVAL=60
