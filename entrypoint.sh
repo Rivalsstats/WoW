@@ -72,4 +72,27 @@ CHECK_INTERVAL="${CHECK_INTERVAL:-60}"
        mkdir -p /app/data/static
        cp -f /opt/repo/data/static/dungeons.json /app/data/static/dungeons.json || true
        send_webhook updated
-       # ask python pro
+       # ask python process to terminate so Docker restarts the container with updated files
+       kill -TERM "$APP_PID" 2>/dev/null || true
+       exit 0
+    fi
+    sleep "$CHECK_INTERVAL"
+done ) &
+
+WATCHER_PID=$!
+
+_term(){
+  send_webhook stopping
+  kill -TERM "$APP_PID" 2>/dev/null || true
+  wait "$APP_PID" 2>/dev/null || true
+  kill "$WATCHER_PID" 2>/dev/null || true
+  exit 0
+}
+trap _term SIGTERM SIGINT
+
+wait "$APP_PID"
+EXIT_CODE=$?
+
+send_webhook exited
+kill "$WATCHER_PID" 2>/dev/null || true
+exit $EXIT_CODE
