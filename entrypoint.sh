@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-MAIN_PID=$$
-
 # load .env if mounted at /app/.env
 if [ -f /app/.env ]; then
   set -a
@@ -11,19 +9,53 @@ if [ -f /app/.env ]; then
   set +a
 fi
 
- # kill the process and throw an error if no webhook is set
-if [ -z "${WEBHOOK_URL:-}" ]; then
-    echo "ERROR: WEBHOOK_URL is not set in environment or .env file."
-    exit 1
+REQUIRED=("WEBHOOK_URL" "DATABASE_HOST" "DATABASE_USER" "DATABASE_PASSWORD" "DATABASE_NAME" "DATABASE_PORT" "RAIDERIO_API_KEY")
+missing=()
+for v in "${REQUIRED[@]}"; do
+  if [ -z "${!v:-}" ]; then
+    missing+=("$v")
+  fi
+done
+
+REGIONS="${REGIONS:-us,eu,kr,tw}"
+IFS=',' read -r -a REGION_ARR <<< "$REGIONS"
+
+for r in "${REGION_ARR[@]}"; do
+  up=$(printf "%s" "$r" | awk '{print toupper($0)}')
+  idvar="BLIZ_CLIENT_ID_${up}"
+  secvar="BLIZ_CLIENT_SECRET_${up}"
+  if [ -z "${!idvar:-}" ] || [ -z "${!secvar:-}" ]; then
+    missing+=("$idvar" "$secvar")
+  fi
+done
+
+if [ "${#missing[@]}" -ne 0 ]; then
+  echo "ERROR: missing required env vars: ${missing[*]}" >&2
+  exit 2
 fi
 
 send_webhook(){
-  [ -z "${WEBHOOK_URL:-}" ] && return 0
   payload="{\"status\":\"$1\",\"container\":\"${HOSTNAME:-unknown}\"}"
   curl --max-time 5 -s -X POST -H "Content-Type: application/json" -d "$payload" "$WEBHOOK_URL" || true
 }
 
 send_webhook started
+
+# ensure /data/runs exists (volume mount target)
+mkdir -p /data/runs || true
+
+
+DB_ARGS=(
+  --database_host "${DATABASE_HOST}"
+  --database_user "${DATABASE_USER}"
+  --database_password "${DATABASE_PASSWORD}"
+  --database "${DATABASE_NAME}"
+  --port "${DATABASE_PORT}"
+)
+
+# start python app as child so we can trap signals and report webhooks
+python /app/collectLeaderboardData.py "${DB_ARGS[@]}" &
+APP_PID=$!
 
 GIT_BRANCH="${GIT_BRANCH:-main}"
 CHECK_INTERVAL="${CHECK_INTERVAL:-60}"
@@ -36,36 +68,8 @@ CHECK_INTERVAL="${CHECK_INTERVAL:-60}"
     if [ -n "$REMOTE" ] && [ "$REMOTE" != "$LOCAL" ]; then
        git -C /opt/repo reset --hard "$REMOTE" || git -C /opt/repo pull --ff-only || true
        cp -f /opt/repo/backend_scripts/collectLeaderboardData.py /app/ || true
-       cp -f /opt/repo/data/static/dungeons.json /app/ || true
+       cp -f /opt/repo/backend_scripts/databaseConnector.py /app/ || true
+       mkdir -p /app/data/static
+       cp -f /opt/repo/data/static/dungeons.json /app/data/static/dungeons.json || true
        send_webhook updated
-       # ask main process to terminate so Docker restarts the container with updated files
-       kill -TERM "$MAIN_PID" 2>/dev/null || true
-       exit 0
-    fi
-    sleep "$CHECK_INTERVAL"
-done ) &
-
-WATCHER_PID=$!
-
-# run python app as child so we can trap signals and report webhook
-python /app/collectLeaderboardData.py &
-APP_PID=$!
-
-_term(){
-  send_webhook stopping
-  # forward termination to python app
-  kill -TERM "$APP_PID" 2>/dev/null || true
-  wait "$APP_PID" 2>/dev/null || true
-  # stop watcher
-  kill "$WATCHER_PID" 2>/dev/null || true
-  exit 0
-}
-trap _term SIGTERM SIGINT
-
-wait "$APP_PID"
-EXIT_CODE=$?
-
-# normal exit
-send_webhook exited
-kill "$WATCHER_PID" 2>/dev/null || true
-exit $EXIT_CODE
+       # ask python pro

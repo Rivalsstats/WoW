@@ -18,9 +18,11 @@ from contextlib import closing
 import shutil
 from dotenv import load_dotenv
 load_dotenv() # Load environment variables from .env file if it exists
-
-policy = asyncio.WindowsSelectorEventLoopPolicy()
-asyncio.set_event_loop_policy(policy)
+try:
+    policy = asyncio.WindowsSelectorEventLoopPolicy()
+    asyncio.set_event_loop_policy(policy)
+except Exception:
+    print("Not on Windows, skipping event loop policy set.")
 
 # Configuration
 

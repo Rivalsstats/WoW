@@ -1,7 +1,6 @@
-version: "3.9"
 services:
   mythistone-collector:
-    image: ghcr.io/MythiStone/mythistone-collector:latest
+    image: ghcr.io/mythistone/mythistone-collector:latest
     container_name: mythistone-collector
     restart: always
     volumes:

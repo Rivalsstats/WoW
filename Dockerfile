@@ -14,9 +14,13 @@ RUN git clone https://github.com/MythiStone/mythistone.github.io . \
  && git config --global --add safe.directory /opt/repo
 
 # app folder contains only the runtime files used by the worker
-RUN mkdir -p /app \
- && cp -f backend_scripts/collectLeaderboardData.py /app/ \
- && cp -f data/static/dungeons.json /app/ || true
+RUN mkdir -p /app
+
+COPY backend_scripts/collectLeaderboardData.py /app/collectLeaderboardData.py
+COPY backend_scripts/databaseConnector.py /app/databaseConnector.py
+
+RUN mkdir -p /app/data/static
+COPY data/static/dungeons.json /app/data/static/dungeons.json
 
 WORKDIR /app
 
@@ -24,7 +28,14 @@ WORKDIR /app
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-RUN pip install --no-cache-dir aiohttp aiolimiter mysql-connector-python  aiohttp_retry || true
+RUN pip install --no-cache-dir \
+    aiohttp \
+    aiohttp_retry \
+    aiolimiter \
+    python-dotenv \
+    mysql-connector-python \
+    aiomysql \
+    pymysql
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["python","/app/collectLeaderboardData.py"]
