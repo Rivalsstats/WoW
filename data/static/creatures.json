@@ -24922,5 +24922,51 @@
     },
     "family_id": 2,
     "image": "data/creature_img/188274.jpg"
+  },
+  "222618": {
+    "name": {
+      "en_US": "Alert Shalehorn",
+      "es_MX": "Esquistocornio alerta",
+      "pt_BR": "Xistorno Alerta",
+      "de_DE": "Wachsames Schieferhorn",
+      "en_GB": "Alert Shalehorn",
+      "es_ES": "Cuernoesquisto alerta",
+      "fr_FR": "Corne-de-schiste alerte",
+      "it_IT": "Cornoroccia Vigile",
+      "ru_RU": "Встревоженный глинорог",
+      "ko_KR": "경계하는 혈암뿔",
+      "zh_TW": "警覺的岩角獸",
+      "zh_CN": "警惕的岩角麋"
+    },
+    "type": {
+      "en_US": "Beast",
+      "es_MX": "Bestia",
+      "pt_BR": "Fera",
+      "de_DE": "Wildtier",
+      "en_GB": "Beast",
+      "es_ES": "Bestia",
+      "fr_FR": "Bête",
+      "it_IT": "Bestia",
+      "ru_RU": "Животное",
+      "ko_KR": "야수",
+      "zh_TW": "野獸",
+      "zh_CN": "野兽"
+    },
+    "family": {
+      "en_US": "Stag",
+      "es_MX": "Venado",
+      "pt_BR": "Cervo",
+      "de_DE": "Hirsch",
+      "en_GB": "Stag",
+      "es_ES": "Venado",
+      "fr_FR": "Cerf",
+      "it_IT": "Cervo",
+      "ru_RU": "Олень",
+      "ko_KR": "순록",
+      "zh_TW": "雄鹿",
+      "zh_CN": "雄鹿"
+    },
+    "family_id": 151,
+    "image": "data/creature_img/222618.jpg"
   }
 }
