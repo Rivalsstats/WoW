@@ -4,11 +4,11 @@ set -euo pipefail
 # load .env if mounted at /app/.env
 if [ -f /app/.env ]; then
   set -a
-  # shellcheck disable=SC1091
   . /app/.env
   set +a
 fi
 
+# required envs
 REQUIRED=("WEBHOOK_URL" "DATABASE_HOST" "DATABASE_USER" "DATABASE_PASSWORD" "DATABASE_NAME" "DATABASE_PORT" "RAIDERIO_API_KEY")
 missing=()
 for v in "${REQUIRED[@]}"; do
@@ -17,9 +17,9 @@ for v in "${REQUIRED[@]}"; do
   fi
 done
 
+# check Blizzard client id/secret for configured regions
 REGIONS="${REGIONS:-us,eu,kr,tw}"
 IFS=',' read -r -a REGION_ARR <<< "$REGIONS"
-
 for r in "${REGION_ARR[@]}"; do
   up=$(printf "%s" "$r" | awk '{print toupper($0)}')
   idvar="BLIZ_CLIENT_ID_${up}"
@@ -41,9 +41,8 @@ send_webhook(){
 
 send_webhook started
 
-# ensure /data/runs exists (volume mount target)
+# ensure /data/runs exists (volume)
 mkdir -p /data/runs || true
-
 
 DB_ARGS=(
   --database_host "${DATABASE_HOST}"
@@ -53,46 +52,31 @@ DB_ARGS=(
   --port "${DATABASE_PORT}"
 )
 
-# start python app as child so we can trap signals and report webhooks
-python /app/collectLeaderboardData.py "${DB_ARGS[@]}" &
+# run app, log to file so we can include tail on failure
+LOGFILE=/app/collector.log
+: > "$LOGFILE"
+python /app/collectLeaderboardData.py "${DB_ARGS[@]}" >>"$LOGFILE" 2>&1 &
 APP_PID=$!
-
-GIT_BRANCH="${GIT_BRANCH:-main}"
-CHECK_INTERVAL="${CHECK_INTERVAL:-60}"
-
-# watcher: fetch origin, compare origin/branch to local HEAD.
-( while true; do
-    git -C /opt/repo fetch origin "$GIT_BRANCH" >/dev/null 2>&1 || true
-    REMOTE=$(git -C /opt/repo rev-parse "origin/${GIT_BRANCH}" 2>/dev/null || true)
-    LOCAL=$(git -C /opt/repo rev-parse HEAD 2>/dev/null || true)
-    if [ -n "$REMOTE" ] && [ "$REMOTE" != "$LOCAL" ]; then
-       git -C /opt/repo reset --hard "$REMOTE" || git -C /opt/repo pull --ff-only || true
-       cp -f /opt/repo/backend_scripts/collectLeaderboardData.py /app/ || true
-       cp -f /opt/repo/backend_scripts/databaseConnector.py /app/ || true
-       mkdir -p /app/data/static
-       cp -f /opt/repo/data/static/dungeons.json /app/data/static/dungeons.json || true
-       send_webhook updated
-       # ask python process to terminate so Docker restarts the container with updated files
-       kill -TERM "$APP_PID" 2>/dev/null || true
-       exit 0
-    fi
-    sleep "$CHECK_INTERVAL"
-done ) &
-
-WATCHER_PID=$!
 
 _term(){
   send_webhook stopping
   kill -TERM "$APP_PID" 2>/dev/null || true
   wait "$APP_PID" 2>/dev/null || true
-  kill "$WATCHER_PID" 2>/dev/null || true
   exit 0
 }
 trap _term SIGTERM SIGINT
 
+# wait for collector to exit and then report
 wait "$APP_PID"
 EXIT_CODE=$?
 
-send_webhook exited
-kill "$WATCHER_PID" 2>/dev/null || true
+if [ "$EXIT_CODE" -eq 0 ]; then
+  send_webhook exited
+else
+  LOG_TAIL=$(tail -n 200 "$LOGFILE" 2>/dev/null || true)
+  JSON_LOG_TAIL=$(printf '%s' "$LOG_TAIL" | python -c 'import json,sys; print(json.dumps(sys.stdin.read()))')
+  payload="{\"status\":\"failed\",\"exit_code\":$EXIT_CODE,\"container\":\"${HOSTNAME:-unknown}\",\"log_tail\":$JSON_LOG_TAIL}"
+  curl --max-time 5 -s -X POST -H "Content-Type: application/json" -d "$payload" "$WEBHOOK_URL" || true
+fi
+
 exit $EXIT_CODE

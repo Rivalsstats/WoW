@@ -1,33 +1,26 @@
 FROM python:3.11-slim
 
 ENV DEBIAN_FRONTEND=noninteractive \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    APP_DIR=/app
 
-# system deps
 RUN apt-get update \
- && apt-get install -y --no-install-recommends git curl ca-certificates \
+ && apt-get install -y --no-install-recommends curl ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
-# repo clone (keeps .git so container can pull updates)
-WORKDIR /opt/repo
-RUN git clone https://github.com/MythiStone/mythistone.github.io . \
- && git config --global --add safe.directory /opt/repo
+WORKDIR ${APP_DIR}
 
-# app folder contains only the runtime files used by the worker
-RUN mkdir -p /app
+# copy only required runtime files into the image
+COPY backend_scripts/collectLeaderboardData.py ${APP_DIR}/collectLeaderboardData.py
+COPY backend_scripts/databaseConnector.py ${APP_DIR}/databaseConnector.py
+RUN mkdir -p ${APP_DIR}/data/static
+COPY data/static/dungeons.json ${APP_DIR}/data/static/dungeons.json
 
-COPY backend_scripts/collectLeaderboardData.py /app/collectLeaderboardData.py
-COPY backend_scripts/databaseConnector.py /app/databaseConnector.py
-
-RUN mkdir -p /app/data/static
-COPY data/static/dungeons.json /app/data/static/dungeons.json
-
-WORKDIR /app
-
-# copy entrypoint which manages pulls, webhooks and restarts
+# entrypoint and executable
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+# python deps
 RUN pip install --no-cache-dir \
     aiohttp \
     aiohttp_retry \
@@ -35,7 +28,7 @@ RUN pip install --no-cache-dir \
     python-dotenv \
     mysql-connector-python \
     aiomysql \
-    pymysql
+    pymysql \
+    requests
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["python","/app/collectLeaderboardData.py"]
