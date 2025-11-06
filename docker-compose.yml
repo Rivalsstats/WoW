@@ -18,10 +18,12 @@ services:
     image: containrrr/watchtower:latest
     container_name: watchtower
     restart: always
+    env_file: .env             
     environment:
-      - WATCHTOWER_CLEANUP=true           # remove old images
-      - WATCHTOWER_POLL_INTERVAL=60       # seconds
-      - WATCHTOWER_TIMEOUT=120            # seconds for docker operations
+      - WATCHTOWER_POLL_INTERVAL=60
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_TIMEOUT=120
+      - WATCHTOWER_NOTIFICATION_URL=discord://${WEBHOOK_TOKEN}@${WEBHOOK_CHANNEL}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 

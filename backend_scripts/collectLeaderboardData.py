@@ -42,6 +42,13 @@ args = parser.parse_args()
 
 HUNTER_SPEC_IDS = [253, 254, 255]
 
+print(f"[{datetime.now(timezone.utc).isoformat()}] Initializing database connection pool…")
+print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB host: {args.database_host}")
+print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB user: {args.database_user}")
+print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB password: {args.database_password}")
+print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB name: {args.database}")
+print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB port: {args.port}")
+
 DATABASE_WORKERS = int(os.environ.get("DATABASE_WORKERS", "1"))
 databaseConnector.init_connection_pool(
     args.database_host, args.database_user, args.database_password, args.database, args.port, DATABASE_WORKERS
