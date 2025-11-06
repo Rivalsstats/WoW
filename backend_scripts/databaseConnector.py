@@ -22,7 +22,7 @@ def init_connection_pool(host, user, password, database, port, pool_size=30):
     CONNECTION_POOL = pooling.MySQLConnectionPool(
         pool_name="region_pool",
         pool_size=pool_size,
-        host=host, user=user, password=password, database=database, port=port, autocommit=False, use_pure=True,
+        host=host, user=user, password=password, database=database, port=port, autocommit=False, use_pure=True, ssl_disabled=True
     )
 
 def commit_with_retry(connection):
