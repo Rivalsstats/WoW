@@ -70,13 +70,4 @@ trap _term SIGTERM SIGINT
 wait "$APP_PID"
 EXIT_CODE=$?
 
-if [ "$EXIT_CODE" -eq 0 ]; then
-  send_webhook exited
-else
-  LOG_TAIL=$(tail -n 200 "$LOGFILE" 2>/dev/null || true)
-  JSON_LOG_TAIL=$(printf '%s' "$LOG_TAIL" | python -c 'import json,sys; print(json.dumps(sys.stdin.read()))')
-  payload="{\"status\":\"failed\",\"exit_code\":$EXIT_CODE,\"container\":\"${HOSTNAME:-unknown}\",\"log_tail\":$JSON_LOG_TAIL}"
-  curl --max-time 5 -s -X POST -H "Content-Type: application/json" -d "$payload" "$WEBHOOK_URL" || true
-fi
-
 exit $EXIT_CODE
