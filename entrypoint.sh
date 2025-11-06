@@ -36,7 +36,7 @@ fi
 
 send_webhook(){
   payload="{\"status\":\"$1\",\"container\":\"${HOSTNAME:-unknown}\"}"
-  curl --max-time 5 -s -X POST -H "Content-Type: application/json" -d "$payload" "$WEBHOOK_URL" || true
+  curl --max-time 5 -s -X POST -H "Content-Type: application/json" -d "$payload" "$WEBHOOK_URL"
 }
 
 send_webhook started
@@ -55,7 +55,7 @@ DB_ARGS=(
 # run app, log to file so we can include tail on failure
 LOGFILE=/app/collector.log
 : > "$LOGFILE"
-python /app/collectLeaderboardData.py "${DB_ARGS[@]}" >>"$LOGFILE" 2>&1 &
+python /app/collectLeaderboardData.py "${DB_ARGS[@]}" &
 APP_PID=$!
 
 _term(){
