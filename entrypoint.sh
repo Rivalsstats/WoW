@@ -55,8 +55,12 @@ DB_ARGS=(
 # run app, log to file so we can include tail on failure
 LOGFILE=/app/collector.log
 : > "$LOGFILE"
-python /app/collectLeaderboardData.py "${DB_ARGS[@]}" &
+python -u /app/collectLeaderboardData.py "${DB_ARGS[@]}" >>"$LOGFILE" 2>&1 &
 APP_PID=$!
+
+#stream logfile to container
+tail -n +1 -F "$LOGFILE" &
+TAIL_PID=$!
 
 _term(){
   send_webhook stopping
@@ -69,5 +73,8 @@ trap _term SIGTERM SIGINT
 # wait for collector to exit and then report
 wait "$APP_PID"
 EXIT_CODE=$?
+
+kill "$TAIL_PID" 2>/dev/null || true
+wait "$TAIL_PID" 2>/dev/null || true
 
 exit $EXIT_CODE
