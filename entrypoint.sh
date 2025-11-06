@@ -36,7 +36,8 @@ fi
 
 send_webhook(){
   payload="{\"status\":\"$1\",\"container\":\"${HOSTNAME:-unknown}\"}"
-  curl --max-time 5 -s -X POST -H "Content-Type: application/json" -d "$payload" "$WEBHOOK_URL"
+  # best-effort, don't exit on failure
+  curl --max-time 5 -s -X POST -H "Content-Type: application/json" -d "$payload" "$WEBHOOK_URL" || true
 }
 
 send_webhook started
@@ -52,15 +53,8 @@ DB_ARGS=(
   --port "${DATABASE_PORT}"
 )
 
-# run app, log to file so we can include tail on failure
-LOGFILE=/app/collector.log
-: > "$LOGFILE"
-python -u /app/collectLeaderboardData.py "${DB_ARGS[@]}" >>"$LOGFILE" 2>&1 &
+python -u /app/collectLeaderboardData.py "${DB_ARGS[@]}" &
 APP_PID=$!
-
-#stream logfile to container
-tail -n +1 -F "$LOGFILE" &
-TAIL_PID=$!
 
 _term(){
   send_webhook stopping
@@ -74,7 +68,6 @@ trap _term SIGTERM SIGINT
 wait "$APP_PID"
 EXIT_CODE=$?
 
-kill "$TAIL_PID" 2>/dev/null || true
-wait "$TAIL_PID" 2>/dev/null || true
+send_webhook "exited:${EXIT_CODE}"
 
 exit $EXIT_CODE
