@@ -36,20 +36,26 @@ parser.add_argument(
 HUNTER_SPEC_IDS = [253, 254, 255]
 args = parser.parse_args()
 
-print(f"[{datetime.now(timezone.utc).isoformat()}] Initializing database connection pool…")
-print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB host: {repr(os.environ.get('DATABASE_HOST'))}")
-print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB user: {repr(os.environ.get('DATABASE_USER'))}")
-print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB password: {repr(os.environ.get('DATABASE_PASSWORD'))}")
-print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB name: {repr(os.environ.get('DATABASE_NAME'))}")
-print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB port: {repr(os.environ.get('DATABASE_PORT'))}")
+def getenv_clean(key, default=None):
+    v = os.environ.get(key, default)
+    if isinstance(v, str):
+        return v.rstrip('\r\n')  # remove CR and LF at end
+    return v
 
-DATABASE_WORKERS = int(os.environ.get("DATABASE_WORKERS", "1"))
+print(f"[{datetime.now(timezone.utc).isoformat()}] Initializing database connection pool…")
+print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB host: {repr(getenv_clean('DATABASE_HOST'))}")
+print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB user: {repr(getenv_clean('DATABASE_USER'))}")
+print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB password: {repr(getenv_clean('DATABASE_PASSWORD'))}")
+print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB name: {repr(getenv_clean('DATABASE_NAME'))}")
+print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB port: {repr(getenv_clean('DATABASE_PORT'))}")
+
+DATABASE_WORKERS = int(getenv_clean("DATABASE_WORKERS", "1"))
 databaseConnector.init_connection_pool(
-    os.environ.get('DATABASE_HOST'),
-    os.environ.get('DATABASE_USER'),
-    os.environ.get('DATABASE_PASSWORD'),
-    os.environ.get('DATABASE_NAME'),
-    os.environ.get('DATABASE_PORT'),
+    getenv_clean('DATABASE_HOST'),
+    getenv_clean('DATABASE_USER'),
+    getenv_clean('DATABASE_PASSWORD'),
+    getenv_clean('DATABASE_NAME'),
+    getenv_clean('DATABASE_PORT'),
     DATABASE_WORKERS
 )
 
