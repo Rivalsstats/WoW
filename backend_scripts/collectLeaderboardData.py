@@ -17,6 +17,7 @@ import traceback
 from contextlib import closing
 import shutil
 from dotenv import load_dotenv
+import reprlib, sys
 load_dotenv() # Load environment variables from .env file if it exists
 try:
     policy = asyncio.WindowsSelectorEventLoopPolicy()
@@ -36,11 +37,11 @@ HUNTER_SPEC_IDS = [253, 254, 255]
 args = parser.parse_args()
 
 print(f"[{datetime.now(timezone.utc).isoformat()}] Initializing database connection pool…")
-print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB host: {os.environ.get('DATABASE_HOST')}")
-print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB user: {os.environ.get('DATABASE_USER')}")
-print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB password: {os.environ.get('DATABASE_PASSWORD')}")
-print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB name: {os.environ.get('DATABASE_NAME')}")
-print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB port: {os.environ.get('DATABASE_PORT')}")
+print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB host: {repr(os.environ.get('DATABASE_HOST'))}")
+print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB user: {repr(os.environ.get('DATABASE_USER'))}")
+print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB password: {repr(os.environ.get('DATABASE_PASSWORD'))}")
+print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB name: {repr(os.environ.get('DATABASE_NAME'))}")
+print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB port: {repr(os.environ.get('DATABASE_PORT'))}")
 
 DATABASE_WORKERS = int(os.environ.get("DATABASE_WORKERS", "1"))
 databaseConnector.init_connection_pool(
