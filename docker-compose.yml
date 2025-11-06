@@ -2,10 +2,12 @@ services:
   mythistone-collector:
     image: ghcr.io/mythistone/mythistone-collector:latest
     container_name: mythistone-collector
+    network_mode: "host"
     restart: always
     volumes:
       - ./.env:/app/.env:ro
       - ./runs:/data/runs
+    env_file: .env 
     environment:
       - GIT_BRANCH=main
       - CHECK_INTERVAL=60
@@ -18,7 +20,8 @@ services:
     image: containrrr/watchtower:latest
     container_name: watchtower
     restart: always
-    env_file: .env             
+    env_file: .env   
+    network_mode: "host"          
     environment:
       - WATCHTOWER_POLL_INTERVAL=60
       - WATCHTOWER_CLEANUP=true
