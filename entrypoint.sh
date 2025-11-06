@@ -45,15 +45,7 @@ send_webhook started
 # ensure /data/runs exists (volume)
 mkdir -p /data/runs || true
 
-DB_ARGS=(
-  --database_host "${DATABASE_HOST}"
-  --database_user "${DATABASE_USER}"
-  --database_password "${DATABASE_PASSWORD}"
-  --database "${DATABASE_NAME}"
-  --port "${DATABASE_PORT}"
-)
-
-python -u /app/collectLeaderboardData.py "${DB_ARGS[@]}" &
+python -u /app/collectLeaderboardData.py &
 APP_PID=$!
 
 _term(){

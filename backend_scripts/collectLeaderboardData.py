@@ -32,26 +32,24 @@ parser.add_argument(
     help="If set, only collect this Blizzard region (e.g. 'us').",
     choices=["us", "eu", "kr", "tw"],
 )
-parser.add_argument("--database_host", required=True)
-parser.add_argument("--database_user", required=True)
-parser.add_argument("--database_password", required=True)
-parser.add_argument("--database", required=True)
-parser.add_argument("--port", type=int, required=True)
-
+HUNTER_SPEC_IDS = [253, 254, 255]
 args = parser.parse_args()
 
-HUNTER_SPEC_IDS = [253, 254, 255]
-
 print(f"[{datetime.now(timezone.utc).isoformat()}] Initializing database connection pool…")
-print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB host: {args.database_host}")
-print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB user: {args.database_user}")
-print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB password: {args.database_password}")
-print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB name: {args.database}")
-print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB port: {args.port}")
+print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB host: {os.environ.get('DATABASE_HOST')}")
+print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB user: {os.environ.get('DATABASE_USER')}")
+print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB password: {os.environ.get('DATABASE_PASSWORD')}")
+print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB name: {os.environ.get('DATABASE_NAME')}")
+print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB port: {os.environ.get('DATABASE_PORT')}")
 
 DATABASE_WORKERS = int(os.environ.get("DATABASE_WORKERS", "1"))
 databaseConnector.init_connection_pool(
-    args.database_host, args.database_user, args.database_password, args.database, args.port, DATABASE_WORKERS
+    os.environ.get('DATABASE_HOST'),
+    os.environ.get('DATABASE_USER'),
+    os.environ.get('DATABASE_PASSWORD'),
+    os.environ.get('DATABASE_NAME'),
+    os.environ.get('DATABASE_PORT'),
+    DATABASE_WORKERS
 )
 
 if args.region:
