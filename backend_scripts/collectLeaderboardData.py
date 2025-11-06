@@ -62,13 +62,13 @@ databaseConnector.init_connection_pool(
 if args.region:
     REGIONS = [args.region]
 else:
-    REGIONS = os.environ.get("REGIONS", "us,eu,kr,tw").split(",")
+    REGIONS = getenv_clean("REGIONS", "us,eu,kr,tw").split(",")
 
 API_BASE = "https://{region}.api.blizzard.com"
 
 OAUTH_BASE = "https://oauth.battle.net/token"
 NAMESPACE_DYNAMIC = "dynamic-{region}"
-LOCALE = os.environ.get("LOCALE", "en_US")
+LOCALE = getenv_clean("LOCALE", "en_US")
 DATA_DIR = Path("data")
 RUNS_DIR = DATA_DIR / "runs"
 DUNGEON_STATIC = DATA_DIR / "static" / "dungeons.json"
@@ -106,8 +106,8 @@ HARD_TIMEOUT = GHA_TIMEOUT + 30 * 60  # force cancel after 30 minutes past GHA_T
 cancel_event = asyncio.Event()
 shutdown_event = asyncio.Event()
 MAX_GLOBAL_BACKOFF = 60.0
-WORKERS_PER_REALM = int(os.environ.get("WORKERS_PER_REALM", "5"))
-POLL_INTERVAL_SECONDS = int(os.environ.get("POLL_INTERVAL_SECONDS", "300"))
+WORKERS_PER_REALM = int(getenv_clean("WORKERS_PER_REALM", "5"))
+POLL_INTERVAL_SECONDS = int(getenv_clean("POLL_INTERVAL_SECONDS", "300"))
 
 # stat variables
 fetched_runs = 0
@@ -119,18 +119,18 @@ RUN_TIME = datetime.now(timezone.utc)
 simple_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
 advanced_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
 database_queue: asyncio.Queue[dict] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
-BATCH_SIZE = int(os.environ.get("DB_BATCH_SIZE", "50"))
+BATCH_SIZE = int(getenv_clean("DB_BATCH_SIZE", "50"))
 
 # Blizzard OAuth
 
 REGION_CREDENTIALS: dict[str, dict[str, str]] = {}
 
-RAIDERIO_API_KEY = os.environ["RAIDERIO_API_KEY"]
+RAIDERIO_API_KEY = getenv_clean("RAIDERIO_API_KEY")
 for region in REGIONS:
     id_var = f"BLIZ_CLIENT_ID_{region.upper()}"
     sec_var = f"BLIZ_CLIENT_SECRET_{region.upper()}"
-    cid = os.getenv(id_var)
-    csec = os.getenv(sec_var)
+    cid = getenv_clean(id_var)
+    csec = getenv_clean(sec_var)
     if not cid or not csec:
         raise RuntimeError(f"{id_var} and {sec_var} must be set")
     REGION_CREDENTIALS[region] = {
