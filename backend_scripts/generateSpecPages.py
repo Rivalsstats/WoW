@@ -589,189 +589,192 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
         if not os.path.exists(os.path.join(LOOKUP_DIR, "talents", f"{spec_id}.json")):
             print(f"No talent data for spec {spec_id}, skipping")
             return
-        with closing(databaseConnector.get_connection()) as conn:
-            cursor = conn.cursor()
+        try:
+            with closing(databaseConnector.get_connection()) as conn:
+                cursor = conn.cursor()
 
-            spec_data = spec_lookup.get(spec_id, {})
-            class_data = class_lookup.get(spec_data.get("classID", ""), {})
+                spec_data = spec_lookup.get(spec_id, {})
+                class_data = class_lookup.get(spec_data.get("classID", ""), {})
 
-            talent_lookup = load_json(
-                os.path.join(LOOKUP_DIR, "talents", f"{spec_id}.json")
-            )
-            valid_talents = {int(tid) for tid in talent_lookup.get("talents", {})}
-            print(f"[{datetime.now(timezone.utc).isoformat()}] Fetching talents...")
-            hero_talents_difs = aggregateData.biggest_deviations_per_dungeon(aggregateData.get_hero_talent_differences(conn, cursor, spec_id, current_season_id, valid_talents))
-            spec_talents_difs = aggregateData.biggest_deviations_per_dungeon(aggregateData.get_spec_talent_differences(conn, cursor, spec_id, current_season_id, valid_talents))
-            class_talents_difs = aggregateData.biggest_deviations_per_dungeon(aggregateData.get_class_talent_differences(conn, cursor, spec_id, current_season_id, valid_talents))
-            hero_tree_difs = aggregateData.get_hero_tree_differences(conn, cursor, spec_id, current_season_id)
-            print(f"[{datetime.now(timezone.utc).isoformat()}] fetching slots...")
-            # Split slots into left/right/weapon/trinket
-            left_slots = [
-                fetch_slot_info(conn, cursor, spec_id, current_season_id, s)
-                for s in LEFT_ORDER
-            ]
-            right_slots = [
-                fetch_slot_info(conn, cursor, spec_id, current_season_id, s)
-                for s in RIGHT_ORDER
-            ]
-            weapon_slots = [
-                fetch_slot_info(conn, cursor, spec_id, current_season_id, s)
-                for s in WEAPON_SLOTS
-            ]
-            trinket_slots = [
-                fetch_slot_info(conn, cursor, spec_id, current_season_id, s)
-                for s in TRINKET_SLOTS
-            ]
-            print(f"[{datetime.now(timezone.utc).isoformat()}] fetching routes...")
-            top_routes = databaseConnector.fetch_top_routes_for_spec(conn, cursor, spec_id)
-            
-            for route in top_routes:
-                print(dungeon_lookup[route])
-            
-            print(f"[{datetime.now(timezone.utc).isoformat()}] fetching hero tree info...")
-            hero_trees, popular_hero_tree, popular_hero_tree_count, hero_tree_count = fetch_hero_tree_info(conn, cursor, spec_id, current_season_id)
-            print(f"[{datetime.now(timezone.utc).isoformat()}] fetching enchants...")
-            enchant_slots, total_enchant_counts = fetch_enchant_info(
-                conn, cursor, spec_id, current_season_id, enchant_lookup
-            )
-            print(f"[{datetime.now(timezone.utc).isoformat()}] fetching missives...")
-            missives = databaseConnector.fetch_missive_count(
-                conn, cursor, spec_id, current_season_id
-            )
-            total_missive_count = sum(e[1] for e in missives)
-            print(f"[{datetime.now(timezone.utc).isoformat()}] fetching embellishments...")
-            embellishments = databaseConnector.fetch_embellishment_count(
-                conn, cursor, spec_id, current_season_id
-            )
-            total_embellishment_count = sum(e[1] for e in embellishments)
-            print(f"[{datetime.now(timezone.utc).isoformat()}] fetching sockets...")
-            sockets = aggregateData.get_sockets(conn, cursor, spec_id, current_season_id)
-            total_socket_count = sum(s.get("count", 0) for s in sockets)
-            print(f"[{datetime.now(timezone.utc).isoformat()}] fetching spec data count...")
-            data_count = databaseConnector.fetch_spec_data_count(
-                conn, cursor, spec_id, current_season_id
-            )
-            print(f"[{datetime.now(timezone.utc).isoformat()}] fetching total runs...")
-            total_runs = databaseConnector.fetch_total_season_runs(
-                conn, cursor, current_season_id
-            )
-            print(f"[{datetime.now(timezone.utc).isoformat()}] fetching spec runs...")
-            spec_runs = databaseConnector.fetch_runs_per_spec(conn, cursor, current_season_id, spec_id)
-
-            print(f"[{datetime.now(timezone.utc).isoformat()}] fetching loadout...")
-            loadouts = aggregateData.get_loadout(conn, cursor, spec_id, current_season_id)
-            print(f"[{datetime.now(timezone.utc).isoformat()}] fetching highest run...")
-            highest_run = databaseConnector.fetch_max_key_run_per_spec(conn, cursor, spec_id, current_season_id)
-
-            print(f"[{datetime.now(timezone.utc).isoformat()}] converting slots...")
-            convert_slots(conn, cursor, spec_id, current_season_id, left_slots + right_slots + weapon_slots + trinket_slots, item_lookup, bonus_lookup, missive_lookup, embellishment_lookup, bonus_quality_lookup, sockets, socket_lookup, enchant_slots, set_members, spec_talents_difs, missives, embellishments)
-            print(f"[{datetime.now(timezone.utc).isoformat()}] normalizing slots...")
-            left_slots = normalize_slot_collections(left_slots, LEFT_ORDER)
-            right_slots = normalize_slot_collections(right_slots, RIGHT_ORDER)
-            weapon_slots = normalize_slot_collections(weapon_slots, WEAPON_SLOTS)
-            trinket_slots = normalize_slot_collections(trinket_slots, TRINKET_SLOTS)
-            print(f"[{datetime.now(timezone.utc).isoformat()}] adjusting weapon slots...")
-            # remove offhand if 2 hander is equipped
-            mh = next((g for g in weapon_slots if g["slot"] == "MAIN_HAND"), None)
-            oh = next((g for g in weapon_slots if g["slot"] == "OFF_HAND"), None)
-            if mh and mh["entries"] and len(mh["entries"]) > 0:
-                mh_item_id = mh["entries"][0]["id"]
-                # look up its inventoryType; two‑handers are 17 and ranged weapons are 26
-                if item_lookup.get(mh_item_id, {}).get("inventoryType") == 17 or item_lookup.get(mh_item_id, {}).get("itemSubClass") == 3:
-                    # always build combined list (falls back to just mh entries if oh is None)
-                    combined = mh["entries"] + (oh.get("entries", []) if oh else [])
-                    # re‑sort + trim to top 10
-                    mh["entries"] = combined
-                    # if there was an Off Hand slot, drop it entirely
-                    if oh:
-                        weapon_slots = [g for g in weapon_slots if g["slot"] != "OFF_HAND"]
-            print(f"[{datetime.now(timezone.utc).isoformat()}] fetching upgrade counts...")
-            upgrade_counts = databaseConnector.fetch_spec_upgrade(conn, cursor, spec_id, current_season_id)
-            print(f"[{datetime.now(timezone.utc).isoformat()}] fetching stats...")
-            stat_priority, tertiary_priority, health_priority = fetch_stat_info(conn, cursor, spec_id, current_season_id, spec_lookup)
-            print(f"[{datetime.now(timezone.utc).isoformat()}] fetching hunter pets...")
-            hunter_pets = fetch_hunter_pets(conn, cursor, spec_id, spec_data, spec_runs, creature_lookup, non_tameable_creatures)
-
-            print(f"[{datetime.now(timezone.utc).isoformat()}] generating page...")
-            output_html = template.render(
-                generated_at=datetime.now(timezone.utc).timestamp(),
-                spec_id=spec_id,
-                spec=spec_data,
-                class_info=class_data,
-                data_count=data_count,
-                active_page="spec",
-                summary_data={
-                    "count" : spec_runs,
-                    "upgrade_counts": upgrade_counts
-                },
-                total_enchant_counts = total_enchant_counts,
-                total_socket_count=total_socket_count,
-                total_embellishment_count=total_embellishment_count,
-                total_missive_count = total_missive_count,
-                total_season_runs=total_runs,
-                left_slots=left_slots,
-                right_slots=right_slots,
-                weapon_slots=weapon_slots,
-                trinket_slots=trinket_slots,
-                enchant_slots=enchant_slots,
-                hero_trees=hero_trees,
-                loadout_code=escape_raidbot_code(loadouts.get(popular_hero_tree, {}).get("loadout")),
-                enchant_lookup=enchant_lookup,
-                embellishment_lookup=embellishment_lookup,
-                missive_lookup=missive_lookup,
-                socket_lookup=socket_lookup,
-                spec_lookup=spec_lookup,
-                item_lookup=item_lookup,
-                notifications=notifications,
-                reagent_lookup=reagent_lookup,
-                dungeon_lookup=dungeon_lookup,
-                dungeon_lookup_slug=dungeon_lookup_slug,
-                role=ROLE_FOLDERS[spec_data.get("role", 2)],
-                talent_lookup=talent_lookup,
-                spec_nav=spec_nav,
-                current_spec=f"{spec_data['name']} {class_data.get('name')}",
-                sockets=sockets,
-                embellishments=embellishments,
-                missives=missives,
-                formatted_price=formatted_price,
-                stat_names=STAT_NAMES,
-                trending=spec_runs/total_runs if total_runs > 0 else 0,
-                highest_run=highest_run,                
-                talent_difs = {
-                    'Class': class_talents_difs,
-                    'Hero': hero_talents_difs,
-                    'Spec': spec_talents_difs,
-                },
-                hero_tree_difs = hero_tree_difs,
-                hero_tree_count = hero_tree_count,
-                top_routes=top_routes,
-                season_info=season_info,
-                stats=stat_priority,
-                tertiary_priority=tertiary_priority,
-                health_priority=health_priority,
-                hunter_pets=hunter_pets,
-                creature_lookup=creature_lookup,
-                spec_runs = spec_runs,
-                breadcrumbs=[
-                    {"title": "Classes"},
-                    {"title": ROLE_FOLDERS[spec_data.get('role', 2)], "href": f"/pages/search?q={ROLE_FOLDERS[spec_data.get('role', 2)]}"},
-                    {"title": f"{spec_data.get('name')} {class_data.get('name')}", "href": f"/Classes/{ROLE_FOLDERS[spec_data.get('role', 2)]}/{spec_data.get('name')}_{class_data.get('name')}"}
+                talent_lookup = load_json(
+                    os.path.join(LOOKUP_DIR, "talents", f"{spec_id}.json")
+                )
+                valid_talents = {int(tid) for tid in talent_lookup.get("talents", {})}
+                print(f"[{datetime.now(timezone.utc).isoformat()}] Fetching talents...")
+                hero_talents_difs = aggregateData.biggest_deviations_per_dungeon(aggregateData.get_hero_talent_differences(conn, cursor, spec_id, current_season_id, valid_talents))
+                spec_talents_difs = aggregateData.biggest_deviations_per_dungeon(aggregateData.get_spec_talent_differences(conn, cursor, spec_id, current_season_id, valid_talents))
+                class_talents_difs = aggregateData.biggest_deviations_per_dungeon(aggregateData.get_class_talent_differences(conn, cursor, spec_id, current_season_id, valid_talents))
+                hero_tree_difs = aggregateData.get_hero_tree_differences(conn, cursor, spec_id, current_season_id)
+                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching slots...")
+                # Split slots into left/right/weapon/trinket
+                left_slots = [
+                    fetch_slot_info(conn, cursor, spec_id, current_season_id, s)
+                    for s in LEFT_ORDER
                 ]
+                right_slots = [
+                    fetch_slot_info(conn, cursor, spec_id, current_season_id, s)
+                    for s in RIGHT_ORDER
+                ]
+                weapon_slots = [
+                    fetch_slot_info(conn, cursor, spec_id, current_season_id, s)
+                    for s in WEAPON_SLOTS
+                ]
+                trinket_slots = [
+                    fetch_slot_info(conn, cursor, spec_id, current_season_id, s)
+                    for s in TRINKET_SLOTS
+                ]
+                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching routes...")
+                top_routes = databaseConnector.fetch_top_routes_for_spec(conn, cursor, spec_id)
+                
+                for route in top_routes:
+                    print(dungeon_lookup[route])
+                
+                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching hero tree info...")
+                hero_trees, popular_hero_tree, popular_hero_tree_count, hero_tree_count = fetch_hero_tree_info(conn, cursor, spec_id, current_season_id)
+                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching enchants...")
+                enchant_slots, total_enchant_counts = fetch_enchant_info(
+                    conn, cursor, spec_id, current_season_id, enchant_lookup
+                )
+                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching missives...")
+                missives = databaseConnector.fetch_missive_count(
+                    conn, cursor, spec_id, current_season_id
+                )
+                total_missive_count = sum(e[1] for e in missives)
+                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching embellishments...")
+                embellishments = databaseConnector.fetch_embellishment_count(
+                    conn, cursor, spec_id, current_season_id
+                )
+                total_embellishment_count = sum(e[1] for e in embellishments)
+                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching sockets...")
+                sockets = aggregateData.get_sockets(conn, cursor, spec_id, current_season_id)
+                total_socket_count = sum(s.get("count", 0) for s in sockets)
+                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching spec data count...")
+                data_count = databaseConnector.fetch_spec_data_count(
+                    conn, cursor, spec_id, current_season_id
+                )
+                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching total runs...")
+                total_runs = databaseConnector.fetch_total_season_runs(
+                    conn, cursor, current_season_id
+                )
+                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching spec runs...")
+                spec_runs = databaseConnector.fetch_runs_per_spec(conn, cursor, current_season_id, spec_id)
 
-            )
-            print(f"[{datetime.now(timezone.utc).isoformat()}] saving page...")
-            # Write output
-            out_path = os.path.join(
-                output_dir,
-                ROLE_FOLDERS[spec_data.get("role", 2)],
-                f"{spec_data.get('name')}_{class_data.get('name')}.html",
-            )
-            os.makedirs(os.path.dirname(out_path), exist_ok=True)
-            with open(out_path, "w", encoding="utf-8") as f:
-                f.write(output_html)
-            print(f"Generated {out_path}")
-            if debug: 
-                raise ValueError("Debug mode: stopping after first spec")
+                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching loadout...")
+                loadouts = aggregateData.get_loadout(conn, cursor, spec_id, current_season_id)
+                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching highest run...")
+                highest_run = databaseConnector.fetch_max_key_run_per_spec(conn, cursor, spec_id, current_season_id)
+
+                print(f"[{datetime.now(timezone.utc).isoformat()}] converting slots...")
+                convert_slots(conn, cursor, spec_id, current_season_id, left_slots + right_slots + weapon_slots + trinket_slots, item_lookup, bonus_lookup, missive_lookup, embellishment_lookup, bonus_quality_lookup, sockets, socket_lookup, enchant_slots, set_members, spec_talents_difs, missives, embellishments)
+                print(f"[{datetime.now(timezone.utc).isoformat()}] normalizing slots...")
+                left_slots = normalize_slot_collections(left_slots, LEFT_ORDER)
+                right_slots = normalize_slot_collections(right_slots, RIGHT_ORDER)
+                weapon_slots = normalize_slot_collections(weapon_slots, WEAPON_SLOTS)
+                trinket_slots = normalize_slot_collections(trinket_slots, TRINKET_SLOTS)
+                print(f"[{datetime.now(timezone.utc).isoformat()}] adjusting weapon slots...")
+                # remove offhand if 2 hander is equipped
+                mh = next((g for g in weapon_slots if g["slot"] == "MAIN_HAND"), None)
+                oh = next((g for g in weapon_slots if g["slot"] == "OFF_HAND"), None)
+                if mh and mh["entries"] and len(mh["entries"]) > 0:
+                    mh_item_id = mh["entries"][0]["id"]
+                    # look up its inventoryType; two‑handers are 17 and ranged weapons are 26
+                    if item_lookup.get(mh_item_id, {}).get("inventoryType") == 17 or item_lookup.get(mh_item_id, {}).get("itemSubClass") == 3:
+                        # always build combined list (falls back to just mh entries if oh is None)
+                        combined = mh["entries"] + (oh.get("entries", []) if oh else [])
+                        # re‑sort + trim to top 10
+                        mh["entries"] = combined
+                        # if there was an Off Hand slot, drop it entirely
+                        if oh:
+                            weapon_slots = [g for g in weapon_slots if g["slot"] != "OFF_HAND"]
+                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching upgrade counts...")
+                upgrade_counts = databaseConnector.fetch_spec_upgrade(conn, cursor, spec_id, current_season_id)
+                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching stats...")
+                stat_priority, tertiary_priority, health_priority = fetch_stat_info(conn, cursor, spec_id, current_season_id, spec_lookup)
+                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching hunter pets...")
+                hunter_pets = fetch_hunter_pets(conn, cursor, spec_id, spec_data, spec_runs, creature_lookup, non_tameable_creatures)
+
+                print(f"[{datetime.now(timezone.utc).isoformat()}] generating page...")
+                output_html = template.render(
+                    generated_at=datetime.now(timezone.utc).timestamp(),
+                    spec_id=spec_id,
+                    spec=spec_data,
+                    class_info=class_data,
+                    data_count=data_count,
+                    active_page="spec",
+                    summary_data={
+                        "count" : spec_runs,
+                        "upgrade_counts": upgrade_counts
+                    },
+                    total_enchant_counts = total_enchant_counts,
+                    total_socket_count=total_socket_count,
+                    total_embellishment_count=total_embellishment_count,
+                    total_missive_count = total_missive_count,
+                    total_season_runs=total_runs,
+                    left_slots=left_slots,
+                    right_slots=right_slots,
+                    weapon_slots=weapon_slots,
+                    trinket_slots=trinket_slots,
+                    enchant_slots=enchant_slots,
+                    hero_trees=hero_trees,
+                    loadout_code=escape_raidbot_code(loadouts.get(popular_hero_tree, {}).get("loadout")),
+                    enchant_lookup=enchant_lookup,
+                    embellishment_lookup=embellishment_lookup,
+                    missive_lookup=missive_lookup,
+                    socket_lookup=socket_lookup,
+                    spec_lookup=spec_lookup,
+                    item_lookup=item_lookup,
+                    notifications=notifications,
+                    reagent_lookup=reagent_lookup,
+                    dungeon_lookup=dungeon_lookup,
+                    dungeon_lookup_slug=dungeon_lookup_slug,
+                    role=ROLE_FOLDERS[spec_data.get("role", 2)],
+                    talent_lookup=talent_lookup,
+                    spec_nav=spec_nav,
+                    current_spec=f"{spec_data['name']} {class_data.get('name')}",
+                    sockets=sockets,
+                    embellishments=embellishments,
+                    missives=missives,
+                    formatted_price=formatted_price,
+                    stat_names=STAT_NAMES,
+                    trending=spec_runs/total_runs if total_runs > 0 else 0,
+                    highest_run=highest_run,                
+                    talent_difs = {
+                        'Class': class_talents_difs,
+                        'Hero': hero_talents_difs,
+                        'Spec': spec_talents_difs,
+                    },
+                    hero_tree_difs = hero_tree_difs,
+                    hero_tree_count = hero_tree_count,
+                    top_routes=top_routes,
+                    season_info=season_info,
+                    stats=stat_priority,
+                    tertiary_priority=tertiary_priority,
+                    health_priority=health_priority,
+                    hunter_pets=hunter_pets,
+                    creature_lookup=creature_lookup,
+                    spec_runs = spec_runs,
+                    breadcrumbs=[
+                        {"title": "Classes"},
+                        {"title": ROLE_FOLDERS[spec_data.get('role', 2)], "href": f"/pages/search?q={ROLE_FOLDERS[spec_data.get('role', 2)]}"},
+                        {"title": f"{spec_data.get('name')} {class_data.get('name')}", "href": f"/Classes/{ROLE_FOLDERS[spec_data.get('role', 2)]}/{spec_data.get('name')}_{class_data.get('name')}"}
+                    ]
+
+                )
+                print(f"[{datetime.now(timezone.utc).isoformat()}] saving page...")
+                # Write output
+                out_path = os.path.join(
+                    output_dir,
+                    ROLE_FOLDERS[spec_data.get("role", 2)],
+                    f"{spec_data.get('name')}_{class_data.get('name')}.html",
+                )
+                os.makedirs(os.path.dirname(out_path), exist_ok=True)
+                with open(out_path, "w", encoding="utf-8") as f:
+                    f.write(output_html)
+                print(f"Generated {out_path}")
+                if debug: 
+                    raise ValueError("Debug mode: stopping after first spec")
+        except Exception as e:
+            print(f"Error processing spec {spec_id}: {e}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate WoW M+ spec pages")
