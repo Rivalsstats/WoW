@@ -278,8 +278,12 @@ class DiscordReporter:
         embed = discord.Embed(
             title="Collector status",
             description=f"Rolling 5 minute stats. Next update in: <t:{epoch + 300}:R>" if not final else "Final stats snapshot",
-            timestamp=datetime.fromisoformat(timestamp)
+            timestamp=datetime.fromisoformat(timestamp),
+            url="https://mythistone.com",
+            color=discord.Color.gold()
         )
+        embed.set_thumbnail(url="https://mythistone.com/assets/img/favicon/favicon-96x96.png")
+        embed.set_footer(text="Mythistone Collector", icon_url="https://mythistone.com/assets/img/favicon/favicon-96x96.png")
         embedlist.append(embed)
 
         # fields
@@ -298,18 +302,22 @@ class DiscordReporter:
         embed.add_field(name="Bonuses", value=str(window_counts.get("bonuses", 0)), inline=True)
         embed.add_field(name="Stats", value=str(window_counts.get("stats", 0)),  inline=True)
         embed.add_field(name="Hunter Pets", value=str(window_counts.get("hunter_pets", 0)), inline=True)
-        embed.add_field(name="Simple Queue Size", value=str(queue_sizes.get("simple_queue", 0)), inline=True)
-        embed.add_field(name="Advanced Queue Size", value=str(queue_sizes.get("advanced_queue", 0)), inline=True)
-        embed.add_field(name="Database Queue Size", value=str(queue_sizes.get("database_queue", 0)), inline=True)
+        embed.add_field(name="Simple Queue", value=str(queue_sizes.get("simple_queue", 0)), inline=True)
+        embed.add_field(name="Advanced Queue", value=str(queue_sizes.get("advanced_queue", 0)), inline=True)
+        embed.add_field(name="Database Queue", value=str(queue_sizes.get("database_queue", 0)), inline=True)
         embed.add_field(name="Timestamp", value=f"<t:{epoch}:R>", inline=False)
 
         # totals
 
         totals_embed = discord.Embed(
             title="Totals (since start)",
-            description=f"Started <t:{start_epoch}:R>. Uptime: ({uptime_str})." if not final else f"Was up for ({uptime_str}).",
-            timestamp=datetime.fromisoformat(timestamp)
+            description=f"Started <t:{start_epoch}:R>. Rough Uptime: ({uptime_str})." if not final else f"Was up for ({uptime_str}).",
+            timestamp=datetime.fromisoformat(timestamp),
+            color=discord.Color.dark_gold()
         )
+        totals_embed.set_thumbnail(url="https://mythistone.com/assets/img/favicon/favicon-96x96.png")
+        totals_embed.set_footer(text="Mythistone Collector", icon_url="https://mythistone.com/assets/img/favicon/favicon-96x96.png")
+        
         embedlist.append(totals_embed)
         totals_embed.add_field(name="Checked Realms", value=str(totals.get("checked_realm", 0)), inline=True)
         totals_embed.add_field(name="Checked Runs", value=str(totals.get("checked_runs", 0)), inline=True)
