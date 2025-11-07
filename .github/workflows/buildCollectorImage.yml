@@ -4,6 +4,9 @@ on:
   push:
     paths:
       - 'backend_scripts/collectLeaderboardData.py'
+      - 'backend_scripts/databaseConnector.py'
+      - 'backend_scripts/discordHandler.py'
+      - 'backend_scripts/stats.py'
       - 'data/static/dungeons.json'
       - 'Dockerfile'
       - 'entrypoint.sh'
