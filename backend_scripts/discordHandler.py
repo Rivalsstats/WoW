@@ -310,8 +310,8 @@ class DiscordReporter:
         # totals
 
         totals_embed = discord.Embed(
-            title="Totals (since start)",
-            description=f"Started <t:{start_epoch}:R>. Rough Uptime: ({uptime_str})." if not final else f"Was up for ({uptime_str}).",
+            title="Total Values (added since the start)",
+            description=f"Started <t:{start_epoch}:R>. Uptime (when last updated): ({uptime_str})." if not final else f"Was up for ({uptime_str}).",
             timestamp=datetime.fromisoformat(timestamp),
             color=discord.Color.dark_gold()
         )
