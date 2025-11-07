@@ -29,6 +29,7 @@ RUN pip install --no-cache-dir \
     mysql-connector-python \
     aiomysql \
     pymysql \
-    requests
+    requests \
+    discord.py
 
 ENTRYPOINT ["/entrypoint.sh"]

@@ -17,7 +17,9 @@ import traceback
 from contextlib import closing
 import shutil
 from dotenv import load_dotenv
-import reprlib, sys
+import stats
+import discordHandler
+
 load_dotenv() # Load environment variables from .env file if it exists
 try:
     policy = asyncio.WindowsSelectorEventLoopPolicy()
@@ -34,6 +36,7 @@ parser.add_argument(
     choices=["us", "eu", "kr", "tw"],
 )
 HUNTER_SPEC_IDS = [253, 254, 255]
+
 args = parser.parse_args()
 
 def getenv_clean(key, default=None):
@@ -114,6 +117,7 @@ fetched_runs = 0
 fetched_profiles = 0
 
 RUN_TIME = datetime.now(timezone.utc)
+GLOBAL_STATS = stats.StatsCollector(window_seconds=300)
 
 # queues
 simple_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
@@ -346,6 +350,8 @@ async def fetch_leaderboard_and_queue(
             f"[{datetime.now(timezone.utc).isoformat()}] No Correct leaderboard data for {region}/{realm}/{dungeon['dungeon_id']}/{period} got unexpected result."
         )
         return
+    
+    await GLOBAL_STATS.increment("checked_runs", len(lb.get("leading_groups", [])))
 
     for group in lb["leading_groups"]:
         # build run_hash, skip processed, then:
@@ -622,6 +628,7 @@ async def realm_poller(region: str, session: ClientSession, max_keys):
     while True:
         for realm in realms:
             dungeons = await get_leaderboard_index(session, region, realm)
+            await GLOBAL_STATS.increment("checked_realm")
             for dungeon in dungeons:
                 print(f"[{datetime.now(timezone.utc).isoformat()}] {region} {realm} checking dungeon {dungeon['dungeon_id']} for period {active_period}")
                 # fetch the leaderboard
@@ -669,7 +676,7 @@ async def simple_worker(name: str, session: ClientSession):
 
             # hand off to loader
             await database_queue.put(run_obj)
-
+            await GLOBAL_STATS.increment("enqueued_runs")
             fetched_runs += 1
 
         except Exception:
@@ -720,6 +727,7 @@ async def advanced_worker(name: str, session: ClientSession):
                     stats = await get_stats(session, region, realm_slug, name_l)
                     if member["specialization"]["id"] in HUNTER_SPEC_IDS:
                         hunter_pets = await get_hunter_pets(session, region, realm_slug, name_l)
+                    await GLOBAL_STATS.increment("fetched_profile")
                     active_spec = next(s for s in spec_all if s["specialization"]["id"] == member["specialization"]["id"])
                     if active_spec.get('loadouts'):
                         active_loadout = next(l for l in active_spec["loadouts"] if l["is_active"])
@@ -757,6 +765,7 @@ async def advanced_worker(name: str, session: ClientSession):
 
             # enqueue the whole run object
             await database_queue.put(run_obj)
+            await GLOBAL_STATS.increment("enqueued_runs")
 
         except Exception as e:
             print(f"[{datetime.now(timezone.utc).isoformat()}] [{name}] fetch error: {e}", flush=True)
@@ -768,7 +777,7 @@ def chunked(lst, size):
     for i in range(0, len(lst), size):
         yield lst[i:i+size]
 
-def process_batch(name, conn, cursor, batch):
+async def process_batch(name, conn, cursor, batch, stats_collector=None):
     new_batch = []
     run_ids: list[int] = []
 
@@ -800,6 +809,9 @@ def process_batch(name, conn, cursor, batch):
             process_group(r["region"],r['season'],r['period_id'],r['realm'],r["run_hash"])
         return
 
+    if stats_collector:
+        await stats_collector.increment("db_insert_run", len(run_ids))
+
     # now process members/etc only for new_batch
     batch = new_batch
     # members: separate existing vs new
@@ -820,6 +832,9 @@ def process_batch(name, conn, cursor, batch):
     else:
         new_member_ids = []
     databaseConnector.commit_changes(conn)
+
+    if stats_collector and new_member_ids:
+        await stats_collector.increment("db_insert_member", len(new_member_ids))
     # reconstruct full member_id list in original order
     mem_ids = []
     new_idx = 0
@@ -950,13 +965,13 @@ async def database_worker(name: str):
             database_queue.task_done()
             if run_obj is None:
                 if batch:
-                    await process_batch(name, conn, cursor, batch)
+                    await process_batch(name, conn, cursor, batch, GLOBAL_STATS)
                     cursor.close()
                     conn.close()
                 break
             if len(batch) >= BATCH_SIZE:
                 try:
-                    process_batch(name, conn, cursor, batch)
+                    await process_batch(name, conn, cursor, batch, GLOBAL_STATS)
                     batch.clear()
                 except Exception as err:
                     print(f"{name}: batch failed skipping {len(batch)} rows: {err}")
@@ -1008,6 +1023,8 @@ async def main():
         print(
             f"[{datetime.now(timezone.utc).isoformat()}] Fetched max keys for dungeons: {max_keys}"
         )
+        reporter = discordHandler.DiscordReporter(session, GLOBAL_STATS, interval_seconds=300)
+        await reporter.start()
         tasks = []
         for region in REGIONS:
             print(
@@ -1107,6 +1124,7 @@ async def main():
         await database_queue.join()
         for w in database_workers:
             w.cancel()
+        await reporter.stop()
         await asyncio.gather(*database_workers, return_exceptions=True)
 
 
