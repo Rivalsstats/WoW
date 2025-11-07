@@ -36,6 +36,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Read commit message (full + one-line)
+        id: commit_msg
+        run: |
+          # full (multiline) commit message, safe output
+          echo "full<<'EOF'" >> $GITHUB_OUTPUT
+          git log -1 --pretty=%B >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          # one-line version for labels (no quotes/newlines)
+          oneline=$(git log -1 --pretty=%B | tr '\n' ' ' | sed -E 's/  +/ /g' | sed -E "s/\"/'/g")
+          echo "one=$oneline" >> $GITHUB_OUTPUT
+
       - name: Build and push image to GHCR
         uses: docker/build-push-action@v4
         with:
@@ -46,3 +58,6 @@ jobs:
             ghcr.io/mythistone/mythistone-collector:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.description=${{ steps.commit_msg.outputs.one }}
