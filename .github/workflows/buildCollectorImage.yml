@@ -39,14 +39,14 @@ jobs:
       - name: Read commit message (full + one-line)
         id: commit_msg
         run: |
-          # full (multiline) commit message, safe output
-          echo "full<<'EOF'" >> $GITHUB_OUTPUT
-          git log -1 --pretty=%B >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          commit_msg="$(git log -1 --pretty=%B)"
 
-          # one-line version for labels (no quotes/newlines)
-          oneline=$(git log -1 --pretty=%B | tr '\n' ' ' | sed -E 's/  +/ /g' | sed -E "s/\"/'/g")
-          echo "one=$oneline" >> $GITHUB_OUTPUT
+          # write multiline output reliably
+          printf "full<<EOF\n%s\nEOF\n" "$commit_msg" >> "$GITHUB_OUTPUT"
+
+          # one-line safe version for labels (remove newlines, compress spaces, replace double quotes)
+          oneline=$(printf "%s" "$commit_msg" | tr '\n' ' ' | sed -E 's/  +/ /g' | sed -E 's/"/'\''/g')
+          echo "one=$oneline" >> "$GITHUB_OUTPUT"
 
       - name: Build and push image to GHCR
         uses: docker/build-push-action@v4
