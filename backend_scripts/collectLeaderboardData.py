@@ -117,7 +117,6 @@ fetched_runs = 0
 fetched_profiles = 0
 
 RUN_TIME = datetime.now(timezone.utc)
-GLOBAL_STATS = stats.StatsCollector(window_seconds=300)
 
 # queues
 simple_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
@@ -125,6 +124,7 @@ advanced_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
 database_queue: asyncio.Queue[dict] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
 BATCH_SIZE = int(getenv_clean("DB_BATCH_SIZE", "50"))
 
+GLOBAL_STATS = stats.StatsCollector(window_seconds=300, simple_queue=simple_queue, advanced_queue=advanced_queue, database_queue=database_queue)
 # Blizzard OAuth
 
 REGION_CREDENTIALS: dict[str, dict[str, str]] = {}
@@ -728,7 +728,11 @@ async def advanced_worker(name: str, session: ClientSession):
                     if member["specialization"]["id"] in HUNTER_SPEC_IDS:
                         hunter_pets = await get_hunter_pets(session, region, realm_slug, name_l)
                     await GLOBAL_STATS.increment("fetched_profile")
-                    active_spec = next(s for s in spec_all if s["specialization"]["id"] == member["specialization"]["id"])
+                    try:
+                        active_spec = next(s for s in spec_all if s["specialization"]["id"] == member["specialization"]["id"])
+                    except StopIteration:
+                        active_spec = {"id": member["specialization"]["id"], "name": "", "loadouts": []}
+                        await GLOBAL_STATS.increment("no_active_spec")
                     if active_spec.get('loadouts'):
                         active_loadout = next(l for l in active_spec["loadouts"] if l["is_active"])
                     else:
@@ -942,6 +946,16 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
             databaseConnector.commit_changes(conn)
     for r in batch:
         process_group(r["region"],r['season'],r['period_id'],r['realm'],r["run_hash"])
+
+    if stats_collector:
+        await stats_collector.increment("class_talents", len(ct_vals))
+        await stats_collector.increment("spec_talents", len(st_vals))
+        await stats_collector.increment("hero_talents", len(ht_vals))
+        await stats_collector.increment("enchantments", len(ench_vals))
+        await stats_collector.increment("sockets", len(sock_vals))
+        await stats_collector.increment("bonuses", len(bonus_vals))
+        await stats_collector.increment("stats", len(stat_vals))
+        await stats_collector.increment("hunter_pets", len(hunter_pet_vals))
 
 
 async def database_worker(name: str):

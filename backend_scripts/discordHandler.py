@@ -9,6 +9,14 @@ import discord
 
 STATUS_FILE = Path("data/discord_status.json")
 
+def _format_duration(seconds: int) -> str:
+    days, rem = divmod(seconds, 86400)
+    hours, rem = divmod(rem, 3600)
+    minutes, secs = divmod(rem, 60)
+    if days:
+        return f"{days}d {hours:02}:{minutes:02}:{secs:02}"
+    return f"{hours:02}:{minutes:02}:{secs:02}"
+
 class DiscordReporter:
     """
     Reports periodic stats in a single embed message using discord.py.
@@ -57,6 +65,7 @@ class DiscordReporter:
         self.session = session
         self.interval = interval_seconds
 
+        self.startTime = datetime.now(timezone.utc)
         # config
         self.webhook_url = os.getenv("WEBHOOK_URL")
         self.bot_token = os.getenv("WEBHOOK_TOKEN")
@@ -256,26 +265,68 @@ class DiscordReporter:
     # -------------------------
     async def _update_embed(self, probe: bool = False, final: bool = False):
         # get snapshot
-        window_counts, totals = await self.stats.snapshot()
-        timestamp = datetime.now(timezone.utc).isoformat()
+        window_counts, totals, queue_sizes = await self.stats.snapshot()
+        now = datetime.now(timezone.utc)
+        timestamp = now.isoformat()
+        epoch = int(datetime.now(timezone.utc).timestamp())
 
+        start_epoch = int(self.startTime.timestamp()) 
+        uptime_seconds = int((now - self.startTime).total_seconds())
+        uptime_str = _format_duration(uptime_seconds)
         # build discord.Embed using discord.py classes
+        embedlist = []
         embed = discord.Embed(
             title="Collector status",
-            description="Rolling 5 minute stats" if not final else "Final stats snapshot",
+            description=f"Rolling 5 minute stats. Next update in: <t:{epoch + 300}:R>" if not final else "Final stats snapshot",
             timestamp=datetime.fromisoformat(timestamp)
         )
+        embedlist.append(embed)
 
         # fields
-        embed.add_field(name="checked_realms (5m)", value=str(window_counts.get("checked_realm", 0)), inline=True)
-        embed.add_field(name="checked_runs (5m)", value=str(window_counts.get("checked_runs", 0)), inline=True)
-        embed.add_field(name="enqueued_runs (5m)", value=str(window_counts.get("enqueued_runs", 0)), inline=True)
-        embed.add_field(name="fetched_profiles (5m)", value=str(window_counts.get("fetched_profile", 0)), inline=True)
-        embed.add_field(name="db_runs_inserted (5m)", value=str(window_counts.get("db_insert_run", 0)), inline=True)
-        embed.add_field(name="db_members_inserted (5m)", value=str(window_counts.get("db_insert_member", 0)), inline=True)
-        embed.add_field(name="timestamp", value=timestamp, inline=False)
-        # totals as one field (stringified)
-        embed.add_field(name="totals (since start)", value=json.dumps(totals, default=str), inline=False)
+        embed.add_field(name="Checked Realms", value=str(window_counts.get("checked_realm", 0)), inline=True)
+        embed.add_field(name="Checked Runs", value=str(window_counts.get("checked_runs", 0)), inline=True)
+        embed.add_field(name="Enqueued Runs", value=str(window_counts.get("enqueued_runs", 0)), inline=True)
+        embed.add_field(name="Fetched Profiles", value=str(window_counts.get("fetched_profile", 0)), inline=True)
+        embed.add_field(name="Runs", value=str(window_counts.get("db_insert_run", 0)), inline=True)
+        embed.add_field(name="Members", value=str(window_counts.get("db_insert_member", 0)), inline=True)
+        embed.add_field(name="No Active Spec", value=str(window_counts.get("no_active_spec", 0)), inline=True)
+        embed.add_field(name="Class Talents", value=str(queue_sizes.get("class_talents", 0)), inline=True)
+        embed.add_field(name="Spec Talents", value=str(queue_sizes.get("spec_talents", 0)), inline=True)
+        embed.add_field(name="Hero Talents", value=str(queue_sizes.get("hero_talents", 0)), inline=True)
+        embed.add_field(name="Enchantments", value=str(queue_sizes.get("enchantments", 0)), inline=True)
+        embed.add_field(name="Sockets", value=str(queue_sizes.get("sockets", 0)), inline=True)
+        embed.add_field(name="Bonuses", value=str(queue_sizes.get("bonuses", 0)), inline=True)
+        embed.add_field(name="Stats", value=str(queue_sizes.get("stats", 0)),  inline=True)
+        embed.add_field(name="Hunter Pets", value=str(queue_sizes.get("hunter_pets", 0)), inline=True)
+        embed.add_field(name="Simple Queue Size", value=str(queue_sizes.get("simple_queue", 0)), inline=True)
+        embed.add_field(name="Advanced Queue Size", value=str(queue_sizes.get("advanced_queue", 0)), inline=True)
+        embed.add_field(name="Database Queue Size", value=str(queue_sizes.get("database_queue", 0)), inline=True)
+        embed.add_field(name="Timestamp", value=f"<t:{epoch}:R>", inline=False)
+
+        # totals
+
+        totals_embed = discord.Embed(
+            title="Totals (since start)",
+            description=f"Started <t:{start_epoch}:R>. Uptime: ({uptime_str})." if not final else f"Was up for ({uptime_str}).",
+            timestamp=datetime.fromisoformat(timestamp)
+        )
+        embedlist.append(totals_embed)
+        totals_embed.add_field(name="Checked Realms", value=str(totals.get("checked_realm", 0)), inline=True)
+        totals_embed.add_field(name="Checked Runs", value=str(totals.get("checked_runs", 0)), inline=True)
+        totals_embed.add_field(name="Enqueued Runs", value=str(totals.get("enqueued_runs", 0)), inline=True)
+        totals_embed.add_field(name="Profiles", value=str(totals.get("fetched_profile", 0)), inline=True)
+        totals_embed.add_field(name="Runs", value=str(totals.get("db_insert_run", 0)), inline=True)
+        totals_embed.add_field(name="Members", value=str(totals.get("db_insert_member", 0)), inline=True)
+        totals_embed.add_field(name="No Active Spec", value=str(window_counts.get("no_active_spec", 0)), inline=True)
+        totals_embed.add_field(name="Class Talents", value=str(queue_sizes.get("class_talents", 0)), inline=True)
+        totals_embed.add_field(name="Spec Talents", value=str(queue_sizes.get("spec_talents", 0)), inline=True)
+        totals_embed.add_field(name="Hero Talents", value=str(queue_sizes.get("hero_talents", 0)), inline=True)
+        totals_embed.add_field(name="Enchantments", value=str(queue_sizes.get("enchantments", 0)), inline=True)
+        totals_embed.add_field(name="Sockets", value=str(queue_sizes.get("sockets", 0)), inline=True)
+        totals_embed.add_field(name="Bonuses", value=str(queue_sizes.get("bonuses", 0)), inline=True)
+        totals_embed.add_field(name="Stats", value=str(queue_sizes.get("stats", 0)),  inline=True)
+        totals_embed.add_field(name="Hunter Pets", value=str(queue_sizes.get("hunter_pets", 0)), inline=True)
+
 
         # send/edit depending on mode
         if self.mode == "webhook":
@@ -290,12 +341,12 @@ class DiscordReporter:
             # try edit first if we have message id
             if self.message_id:
                 try:
-                    await self._webhook.edit_message(message_id=self.message_id, embed=embed)
+                    await self._webhook.edit_message(message_id=self.message_id, embeds=embedlist)
                     return
                 except Exception:
                     # fallback to creating a new webhook message
                     try:
-                        msg = await self._webhook.send(embed=embed, wait=True)
+                        msg = await self._webhook.send(embeds=embedlist, wait=True)
                         if msg and getattr(msg, "id", None):
                             self.message_id = int(msg.id)
                             self._persist()
@@ -304,7 +355,7 @@ class DiscordReporter:
                         return
             else:
                 try:
-                    msg = await self._webhook.send(embed=embed, wait=True)
+                    msg = await self._webhook.send(embeds=embedlist, wait=True)
                     if msg and getattr(msg, "id", None):
                         self.message_id = int(msg.id)
                         self._persist()
@@ -328,14 +379,14 @@ class DiscordReporter:
             if self.message_id:
                 try:
                     msg = await channel.fetch_message(self.message_id)
-                    await msg.edit(embed=embed)
+                    await msg.edit(embeds=embedlist)
                     return
                 except Exception:
                     self.message_id = None
 
             # send new
             try:
-                new_msg = await channel.send(embed=embed)
+                new_msg = await channel.send(embeds=embedlist)
                 if new_msg and getattr(new_msg, "id", None):
                     self.message_id = int(new_msg.id)
                     self._persist()
