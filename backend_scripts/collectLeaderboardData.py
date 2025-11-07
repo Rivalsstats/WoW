@@ -908,6 +908,34 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
                     bonus_vals.append((eq_id, b))
     if len(ct_vals) > 0 or len(st_vals) > 0 or len(ht_vals) > 0 or len(ench_vals) > 0 or len(sock_vals)> 0 or len(bonus_vals) >  0 or len(stat_vals) > 0 or len(hunter_pet_vals) > 0:
         print(f"[{datetime.now(timezone.utc).isoformat()}] [{name}] Inserting talents and equipment for {len(ct_vals)} class talents, {len(st_vals)} spec talents, {len(ht_vals)} hero talents, {len(ench_vals)} enchantments, {len(sock_vals)} sockets and {len(bonus_vals)} bonuses and {len(stat_vals)} stats and {len(hunter_pet_vals)} hunter pets")
+    
+    if stats_collector:
+        print("Incrementing stats with talents and equipment counts")
+        if len(ct_vals) > 0:
+            print(f"Class talents: {len(ct_vals)}")
+            await stats_collector.increment("class_talents", len(ct_vals))
+        if len(st_vals) > 0:
+            print(f"Spec talents: {len(st_vals)}")
+            await stats_collector.increment("spec_talents", len(st_vals))
+        if len(ht_vals) > 0:
+            print(f"Hero talents: {len(ht_vals)}")
+            await stats_collector.increment("hero_talents", len(ht_vals))
+        if len(ench_vals) > 0:
+            print(f"Enchantments: {len(ench_vals)}")
+            await stats_collector.increment("enchantments", len(ench_vals))
+        if len(sock_vals) > 0:
+            print(f"Sockets: {len(sock_vals)}")
+            await stats_collector.increment("sockets", len(sock_vals))
+        if len(bonus_vals) > 0:
+            print(f"Bonuses: {len(bonus_vals)}")
+            await stats_collector.increment("bonuses", len(bonus_vals))
+        if len(stat_vals) > 0:
+            print(f"Stats: {len(stat_vals)}")
+            await stats_collector.increment("stats", len(stat_vals))
+        if len(hunter_pet_vals) > 0:
+            print(f"Hunter Pets: {len(hunter_pet_vals)}")
+            await stats_collector.increment("hunter_pets", len(hunter_pet_vals))
+
     if ct_vals and len(ct_vals) > 0:
         for sub in chunked(ct_vals, BATCH_SIZE):
             databaseConnector.insert_class_talents(conn, cursor, sub)
@@ -946,16 +974,6 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
             databaseConnector.commit_changes(conn)
     for r in batch:
         process_group(r["region"],r['season'],r['period_id'],r['realm'],r["run_hash"])
-
-    if stats_collector:
-        await stats_collector.increment("class_talents", len(ct_vals))
-        await stats_collector.increment("spec_talents", len(st_vals))
-        await stats_collector.increment("hero_talents", len(ht_vals))
-        await stats_collector.increment("enchantments", len(ench_vals))
-        await stats_collector.increment("sockets", len(sock_vals))
-        await stats_collector.increment("bonuses", len(bonus_vals))
-        await stats_collector.increment("stats", len(stat_vals))
-        await stats_collector.increment("hunter_pets", len(hunter_pet_vals))
 
 
 async def database_worker(name: str):
