@@ -23,9 +23,9 @@ services:
     env_file: .env   
     network_mode: "host"          
     environment:
-      - WATCHTOWER_POLL_INTERVAL=60
+      - WATCHTOWER_POLL_INTERVAL=600
       - WATCHTOWER_CLEANUP=true
-      - WATCHTOWER_TIMEOUT=120
+      - WATCHTOWER_TIMEOUT=1200
       - WATCHTOWER_NOTIFICATION_URL=discord://${WEBHOOK_TOKEN}@${WEBHOOK_CHANNEL}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
