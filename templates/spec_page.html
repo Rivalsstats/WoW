@@ -155,8 +155,8 @@
 {% macro render_stat_bar(s,loop, include_separator) -%}
 {% set stat = s['name'] %}
 {% set label = s['name'] %}
-<div class="col">
-  <div class="card">
+<div class="col mb-2 mb-md-0">
+  <div class="card h-100">
     <div class="card-body d-flex align-items-start gap-3 p-2">
       <div class="flex-shrink-0" style="width:40px; height:40px;">
         <img src="/assets/img/icons/stats/{{ stat|lower }}.svg" alt="{{ label }} icon" class="img-fluid rounded"
@@ -276,6 +276,7 @@
 }
   </script>
   <link id="pagestyle" href="/assets/css/stat-colors.css" rel="stylesheet" />
+  <link id="pagestyle" href="/assets/css/spec-page.css" rel="stylesheet" />
 </head>
 
 <body class="g-sidenav-show g-sidenav-show-right" data-bs-theme="dark">
@@ -445,14 +446,14 @@
         </div>
         {% endif %}
         <div class="row align-items-center justify-content-center my-2">
-          <div class="col-md-auto">
+          <div class="col-12 col-md-auto d-flex justify-content-center mb-2 mb-md-0">
             <button class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal"
               data-bs-target="#routeModal">
               Routes for every Dungeon
             </button>
           </div>
           {% if loadout_code and loadout_code.code %}
-          <div class="col-md-auto">
+          <div class="col-12 col-md-auto d-flex justify-content-center mb-2 mb-md-0">
             <button id="copyBtn" class="btn btn-primary d-flex align-items-center">
               <i class="fas fa-copy me-2"></i>
               <span id="btnText" data-loadout="{{loadout_code.original}}" data-text="Export Talent String">Export Talent
@@ -460,7 +461,7 @@
             </button>
           </div>
           {% endif %}
-          <div class="col-md-auto">
+          <div class="col-12 col-md-auto d-flex justify-content-center mb-2 mb-md-0">
             <button class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal"
               data-bs-target="#talentModal">
               Talent Differences per Dungeon
@@ -471,7 +472,7 @@
           <div id="stat-overview" class="mx-auto my-4">
             <h6 class="mb-1">Stat Priority</h6>
 
-            <div class="row my-2">
+            <div class="row gy-2 gx-3 my-2">
               {% for s in stats %}
 
               {{ render_stat_bar(s, loop, true) }}
@@ -504,14 +505,18 @@
             <h6> Gear Overview</h6>
             <p>
               This overview shows the most popular items used by
-              <span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{ spec.name }} {{ class_info.name }}</span>
+              <span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{ spec.name }} {{
+                class_info.name }}</span>
               players in Mythic +
               dungeons. Gear and Talent data is collected from the top 5 Keystone levels at any given point meaning if
               the rank 1 key is lvl 17 all keystones above lvl 12 will be counted. The popularity percentage is based on
               the number of times an item was seen in comparison to the
               total amount of items.
-              Popularity of 50% indicates that every 2. item of this type is used by <span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{ spec.name }} {{ class_info.name }}'s</span>.
-              You can hover over the percentage to see more details.</p>
+              Popularity of 50% indicates that every 2. item of this type is used by <span
+                class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{ spec.name }} {{
+                class_info.name }}'s</span>.
+              You can hover over the percentage to see more details.
+            </p>
             <div class="d-flex flex-column flex-md-row gap-3">
               <div class="flex-fill" style="flex: 1 1 0 !important; min-width: 0;">
                 <!-- Header for this pane -->
@@ -705,43 +710,37 @@
                               <div class="accordion-item">
                                 <h2 class="accordion-header" id="enchantHeading-{{ slot_name }}">
                                   <button
-                                    class="accordion-button border {% if enchant_lookup[enchant].quality %}border-quality-{{ enchant_lookup[enchant].quality }}{% else %}border-grey-100{% endif %} collapsed text-start"
+                                    class="accordion-button border {% if enchant_lookup[enchant].quality %}border-quality-{{ enchant_lookup[enchant].quality }}{% else %}border-grey-100{% endif %} collapsed text-start overflow-hidden"
                                     type="button" data-bs-toggle="collapse"
                                     data-bs-target="#enchantCollapse-{{ slot_name }}" aria-expanded="false"
                                     aria-controls="enchantCollapse-{{ slot_name }}" onclick="event.preventDefault();">
-                                    <div class="row align-items-center justify-items-center px-2 flex-nowrap w-100">
-                                      <div class="col-auto">
-                                        {{slot_name}}
-                                      </div>
-                                      <!-- Item icon & link -->
-                                      <div class="col-auto">
-                                        <a target="_blank" href={{ url }}>
-                                          <div class="position-relative"
-                                            style="width:24px; height:24px; display:inline-block;">
-                                            <!-- Base icon -->
-                                            <img
-                                              src="/data/icons/{% if enchant_lookup[enchant].itemIcon %}{{ enchant_lookup[enchant].itemIcon }}.png {% else %}{{enchant_lookup[enchant].spellIcon}}.png{% endif %}"
-                                              alt=""
-                                              class="position-absolute top-0 start-0 border {% if enchant_lookup[enchant].quality %}border-quality-{{ enchant_lookup[enchant].quality }}{% else %}border-grey-100{% endif %}"
-                                              style="width:100%; height:100%; object-fit:contain;">
-                                            {% if enchant_lookup[enchant].craftingQuality %}
-                                            <!-- Overlay icon -->
-                                            <img
-                                              src="/data/icons/crafting-quality-{{ enchant_lookup[enchant].craftingQuality }}.png"
-                                              alt="" class="position-absolute top-0 start-0"
-                                              style="width:100%; height:100%; object-fit:contain; z-index:1;">
-                                            {% endif %}
-                                          </div>
+                                    <div class="d-flex align-items-center flex-nowrap w-100 px-2">
+                                      <div class="flex-shrink-0 me-2">{{ slot_name }}</div>
+
+                                      <div class="col-auto d-flex align-items-center me-2">
+                                        <a target="_blank" href="{{ url }}" class="icon-link position-relative"
+                                          aria-hidden="true">
+                                          <img
+                                            src="/data/icons/{% if enchant_lookup[enchant].itemIcon %}{{ enchant_lookup[enchant].itemIcon }}.png{% else %}{{ enchant_lookup[enchant].spellIcon }}.png{% endif %}"
+                                            alt=""
+                                            class="border {% if enchant_lookup[enchant].quality %}border-quality-{{ enchant_lookup[enchant].quality }}{% else %}border-grey-100{% endif %}">
+                                          {% if enchant_lookup[enchant].craftingQuality %}
+                                          <img
+                                            src="/data/icons/crafting-quality-{{ enchant_lookup[enchant].craftingQuality }}.png"
+                                            alt="" class="icon-overlay">
+                                          {% endif %}
                                         </a>
                                       </div>
-                                      <!-- Name -->
-                                      <div class="col-auto d-none d-md-block">
-                                        <a target="_blank" href={{ url }}>
+
+
+
+                                      <div class="d-none d-md-block me-auto">
+                                        <a target="_blank" href="{{ url }}">
                                           <p class="mb-1">{{ name }}</p>
                                         </a>
                                       </div>
-                                      <div class="col-md-2 ms-auto text-end">
 
+                                      <div class="ms-auto text-end flex-shrink-0">
                                         <p data-bs-toggle="tooltip" data-bs-placement="top"
                                           title="{{ total }} seen in {{ total_enchant_counts[slot_name] }} total enchants"
                                           class="mb-0">
@@ -749,9 +748,8 @@
                                           total_enchant_counts[slot_name] * 100 < 100 else 100) }}% </p>
                                       </div>
                                     </div>
-
-
                                   </button>
+
                                 </h2>
                                 <div id="enchantCollapse-{{ slot_name }}" class="accordion-collapse collapse"
                                   aria-labelledby="enchantHeading-{{ slot_name }}"
@@ -778,27 +776,21 @@
                                     {% endif %}
                                     <div class="row align-items-center mb-2">
                                       <!-- Item icon & link -->
-                                      <div class="col-auto">
-                                        <a target="_blank"
-                                          href="https://www.wowhead.com/item={{ enchant_lookup[enchant].itemId }}&spec={{ spec_id }}">
-                                          <div class="position-relative"
-                                            style="width:24px; height:24px; display:inline-block;">
-                                            <!-- Base icon -->
-                                            <img
-                                              src="/data/icons/{% if enchant_lookup[enchant].itemIcon %}{{ enchant_lookup[enchant].itemIcon }}.png {% else %}{{enchant_lookup[enchant].spellIcon}}.png{% endif %}"
-                                              alt=""
-                                              class="position-absolute top-0 start-0 border {% if enchant_lookup[enchant].quality %}border-quality-{{ enchant_lookup[enchant].quality }}{% else %}border-grey-100{% endif %}"
-                                              style="width:100%; height:100%; object-fit:contain;">
-                                            {% if enchant_lookup[enchant].craftingQuality %}
-                                            <!-- Overlay icon -->
-                                            <img
-                                              src="/data/icons/crafting-quality-{{ enchant_lookup[enchant].craftingQuality }}.png"
-                                              alt="" class="position-absolute top-0 start-0"
-                                              style="width:100%; height:100%; object-fit:contain; z-index:1;">
-                                            {% endif %}
-                                          </div>
+                                      <div class="col-auto d-flex align-items-center me-2">
+                                        <a target="_blank" href="{{ url }}" class="icon-link position-relative"
+                                          aria-hidden="true">
+                                          <img
+                                            src="/data/icons/{% if enchant_lookup[enchant].itemIcon %}{{ enchant_lookup[enchant].itemIcon }}.png{% else %}{{ enchant_lookup[enchant].spellIcon }}.png{% endif %}"
+                                            alt=""
+                                            class="border {% if enchant_lookup[enchant].quality %}border-quality-{{ enchant_lookup[enchant].quality }}{% else %}border-grey-100{% endif %}">
+                                          {% if enchant_lookup[enchant].craftingQuality %}
+                                          <img
+                                            src="/data/icons/crafting-quality-{{ enchant_lookup[enchant].craftingQuality }}.png"
+                                            alt="" class="icon-overlay">
+                                          {% endif %}
                                         </a>
                                       </div>
+
                                       <!-- Name -->
                                       <div class="col">
                                         <a target="_blank" href="{{ url }}">
@@ -833,7 +825,7 @@
                                         {% endif %}
                                       </div>
                                       <!-- Popularity % -->
-                                      <div class="col-md-2 text-end">
+                                      <div class="col-auto ms-auto text-end d-flex align-items-center">
 
                                         <p data-bs-toggle="tooltip" data-bs-placement="top"
                                           title="{{ total }} seen in {{ total_enchant_counts[slot_name] }} total enchants"
@@ -882,14 +874,14 @@
                             <div class="row align-items-center mb-2">
                               <!-- Gem icon & link -->
                               <div class="col-auto">
-                                <a target="_blank"
-                                  href="https://www.wowhead.com/item={{ gem.itemId }}&spec={{ spec_id }}">
-                                  <div class="position-relative" style="width:24px; height:24px; display:inline-block;">
-                                    <img src="/data/icons/{{ gem.itemIcon }}.png" alt=""
-                                      class="position-absolute top-0 start-0 border {% if gem.quality %}border-quality-{{gem.quality}} {% else %}border-grey-100{% endif %}"
-                                      style="width:100%; height:100%; object-fit:contain;">
-                                  </div>
-                                </a>
+                                <a target="_blank" href="https://www.wowhead.com/item={{ gem.itemId }}&spec={{ spec_id }}"
+   class="icon-link position-relative" style="width:24px; height:24px;">
+  <img src="/data/icons/{{ gem.itemIcon }}.png" alt=""
+       class="base-icon border {% if gem.quality %}border-quality-{{gem.quality}}{% else %}border-grey-100{% endif %}">
+  {% if gem.craftingQuality %}
+  <img src="/data/icons/crafting-quality-{{ gem.craftingQuality }}.png" alt="" class="icon-overlay">
+  {% endif %}
+</a>
                               </div>
                               <!-- Gem Name -->
                               <div class="col">
@@ -925,7 +917,7 @@
                                 {% endif %}
                               </div>
                               <!-- Popularity % -->
-                              <div class="col-md-2 text-end">
+                              <div class="col-auto ms-auto text-end d-flex align-items-center">
                                 <p data-bs-toggle="tooltip" data-bs-placement="top"
                                   title="{{ total }} out of {{total_socket_count}} gems" class="mb-0">
                                   {%if (total / total_socket_count * 100) < 100%} {{ '%.0f' % (total /
@@ -966,22 +958,14 @@
                             <div class="row align-items-center mb-2">
                               <!-- Item icon & link -->
                               <div class="col-auto">
-                                <a target="_blank"
-                                  href="https://www.wowhead.com/item={{ embellishment}}&spec={{ spec_id }}">
-                                  <div class="position-relative" style="width:24px; height:24px; display:inline-block;">
-                                    <!-- Base icon -->
-                                    <img src="/data/icons/{{ reagent_lookup[embellishment].icon }}.png" alt=""
-                                      class="position-absolute top-0 start-0 border {% if reagent_lookup[embellishment].quality %}border-quality-{{reagent_lookup[embellishment].quality}} {% else %}border-grey-100{% endif %}"
-                                      style="width:100%; height:100%; object-fit:contain;">
-                                    {% if reagent_lookup[embellishment].craftingQuality %}
-                                    <!-- Overlay icon -->
-                                    <img
-                                      src="/data/icons/crafting-quality-{{ reagent_lookup[embellishment].craftingQuality }}.png"
-                                      alt="" class="position-absolute top-0 start-0"
-                                      style="width:100%; height:100%; object-fit:contain; z-index:1;">
-                                    {% endif %}
-                                  </div>
-                                </a>
+                                <a target="_blank" href="https://www.wowhead.com/item={{ embellishment}}&spec={{ spec_id }}"
+   class="icon-link position-relative" style="width:24px; height:24px;">
+  <img src="/data/icons/{{ reagent_lookup[embellishment].icon }}.png" alt=""
+       class="base-icon border {% if reagent_lookup[embellishment].quality %}border-quality-{{reagent_lookup[embellishment].quality}}{% else %}border-grey-100{% endif %}">
+  {% if reagent_lookup[embellishment].craftingQuality %}
+  <img src="/data/icons/crafting-quality-{{ reagent_lookup[embellishment].craftingQuality }}.png" alt="" class="icon-overlay">
+  {% endif %}
+</a>
                               </div>
                               <!-- Name -->
                               <div class="col">
@@ -1015,7 +999,7 @@
                                 {% endif %}
                               </div>
                               <!-- Popularity % -->
-                              <div class="col-md-2 text-end">
+                              <div class="col-auto ms-auto text-end d-flex align-items-center">
                                 <p data-bs-toggle="tooltip" data-bs-placement="top"
                                   title="{{ total }} seen in {{total_embellishment_count}} runs" class="mb-0">
                                   {%if (total / total_embellishment_count * 100) < 100%} {{ '%.0f' % (total /
@@ -1054,23 +1038,14 @@
                               <div class="row align-items-center mb-2">
                                 <!-- Item icon & link -->
                                 <div class="col-auto">
-                                  <a target="_blank"
-                                    href="https://www.wowhead.com/item={{ missive }}&spec={{ spec_id }}">
-                                    <div class="position-relative"
-                                      style="width:24px; height:24px; display:inline-block;">
-                                      <!-- Base icon -->
-                                      <img src="/data/icons/{{ reagent_lookup[missive].icon }}.png" alt=""
-                                        class="position-absolute top-0 start-0 border {% if reagent_lookup[missive].quality %}border-quality-{{reagent_lookup[missive].quality}} {% else %}border-grey-100{% endif %}"
-                                        style="width:100%; height:100%; object-fit:contain;">
-                                      {% if reagent_lookup[missive].craftingQuality %}
-                                      <!-- Overlay icon -->
-                                      <img
-                                        src="/data/icons/crafting-quality-{{ reagent_lookup[missive].craftingQuality }}.png"
-                                        alt="" class="position-absolute top-0 start-0"
-                                        style="width:100%; height:100%; object-fit:contain; z-index:1;">
-                                      {% endif %}
-                                    </div>
-                                  </a>
+                                  <a target="_blank" href="https://www.wowhead.com/item={{ missive }}&spec={{ spec_id }}"
+   class="icon-link position-relative" style="width:24px; height:24px;">
+  <img src="/data/icons/{{ reagent_lookup[missive].icon }}.png" alt=""
+       class="base-icon border {% if reagent_lookup[missive].quality %}border-quality-{{reagent_lookup[missive].quality}}{% else %}border-grey-100{% endif %}">
+  {% if reagent_lookup[missive].craftingQuality %}
+  <img src="/data/icons/crafting-quality-{{ reagent_lookup[missive].craftingQuality }}.png" alt="" class="icon-overlay">
+  {% endif %}
+</a>
                                 </div>
                                 <!-- Name -->
                                 <div class="col">
@@ -1105,7 +1080,7 @@
                                   {% endif %}
                                 </div>
                                 <!-- Popularity % -->
-                                <div class="col-md-2 text-end">
+                                <div class="col-auto ms-auto text-end d-flex align-items-center">
                                   <p data-bs-toggle="tooltip" data-bs-placement="top"
                                     title="{{ total }} seen in {{total_missive_count}} runs" class="mb-0">
                                     {%if (total / total_missive_count * 100) < 100%} {{ '%.0f' % (total /
@@ -1225,7 +1200,8 @@
                     {% for tid in hero_tree_difs['dungeons'][dungeon] %}
                     {% set delta = hero_tree_difs['dungeons'][dungeon][tid].diff %}
                     <div class="col-auto text-center mx-2">
-                      <a target="_blank" href="https://www.wowhead.com/talent-calc/{{ class_info.name | lower }}/{{ spec.name | lower }}/{{ lookup[tid|string].name | lower }}">
+                      <a target="_blank"
+                        href="https://www.wowhead.com/talent-calc/{{ class_info.name | lower }}/{{ spec.name | lower }}/{{ lookup[tid|string].name | lower }}">
                         <img src="/data/icons/{{ lookup[tid|string].icon }}.png" alt="{{ lookup[tid|string].name }}"
                           style="width:32px; height:32px;" /><br />
                         <small>{{ lookup[tid|string].name }}</small><br />
@@ -1377,12 +1353,11 @@
       <div class="modal-content card">
         <div class="modal-header">
           <h5 class="modal-title" id="routeModalLabel">
-            Top Route for <span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{ spec.name }} {{ class_info.name }}</span>
+            Top Route for <span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{
+              spec.name }} {{ class_info.name }}</span>
           </h5>
-           <div class="ms-auto d-flex align-items-center">
-            <a
-              href="/pages/routes?specs={{spec_id}}"
-              class="btn btn-sm btn-outline-primary me-2"
+          <div class="ms-auto d-flex align-items-center">
+            <a href="/pages/routes?specs={{spec_id}}" class="btn btn-sm btn-outline-primary me-2"
               title="Find more routes">
               Find more routes
             </a>
