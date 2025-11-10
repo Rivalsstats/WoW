@@ -874,14 +874,16 @@
                             <div class="row align-items-center mb-2">
                               <!-- Gem icon & link -->
                               <div class="col-auto">
-                                <a target="_blank" href="https://www.wowhead.com/item={{ gem.itemId }}&spec={{ spec_id }}"
-   class="icon-link position-relative" style="width:24px; height:24px;">
-  <img src="/data/icons/{{ gem.itemIcon }}.png" alt=""
-       class="base-icon border {% if gem.quality %}border-quality-{{gem.quality}}{% else %}border-grey-100{% endif %}">
-  {% if gem.craftingQuality %}
-  <img src="/data/icons/crafting-quality-{{ gem.craftingQuality }}.png" alt="" class="icon-overlay">
-  {% endif %}
-</a>
+                                <a target="_blank"
+                                  href="https://www.wowhead.com/item={{ gem.itemId }}&spec={{ spec_id }}"
+                                  class="icon-link position-relative" style="width:24px; height:24px;">
+                                  <img src="/data/icons/{{ gem.itemIcon }}.png" alt=""
+                                    class="base-icon border {% if gem.quality %}border-quality-{{gem.quality}}{% else %}border-grey-100{% endif %}">
+                                  {% if gem.craftingQuality %}
+                                  <img src="/data/icons/crafting-quality-{{ gem.craftingQuality }}.png" alt=""
+                                    class="icon-overlay">
+                                  {% endif %}
+                                </a>
                               </div>
                               <!-- Gem Name -->
                               <div class="col">
@@ -958,14 +960,17 @@
                             <div class="row align-items-center mb-2">
                               <!-- Item icon & link -->
                               <div class="col-auto">
-                                <a target="_blank" href="https://www.wowhead.com/item={{ embellishment}}&spec={{ spec_id }}"
-   class="icon-link position-relative" style="width:24px; height:24px;">
-  <img src="/data/icons/{{ reagent_lookup[embellishment].icon }}.png" alt=""
-       class="base-icon border {% if reagent_lookup[embellishment].quality %}border-quality-{{reagent_lookup[embellishment].quality}}{% else %}border-grey-100{% endif %}">
-  {% if reagent_lookup[embellishment].craftingQuality %}
-  <img src="/data/icons/crafting-quality-{{ reagent_lookup[embellishment].craftingQuality }}.png" alt="" class="icon-overlay">
-  {% endif %}
-</a>
+                                <a target="_blank"
+                                  href="https://www.wowhead.com/item={{ embellishment}}&spec={{ spec_id }}"
+                                  class="icon-link position-relative" style="width:24px; height:24px;">
+                                  <img src="/data/icons/{{ reagent_lookup[embellishment].icon }}.png" alt=""
+                                    class="base-icon border {% if reagent_lookup[embellishment].quality %}border-quality-{{reagent_lookup[embellishment].quality}}{% else %}border-grey-100{% endif %}">
+                                  {% if reagent_lookup[embellishment].craftingQuality %}
+                                  <img
+                                    src="/data/icons/crafting-quality-{{ reagent_lookup[embellishment].craftingQuality }}.png"
+                                    alt="" class="icon-overlay">
+                                  {% endif %}
+                                </a>
                               </div>
                               <!-- Name -->
                               <div class="col">
@@ -1038,14 +1043,17 @@
                               <div class="row align-items-center mb-2">
                                 <!-- Item icon & link -->
                                 <div class="col-auto">
-                                  <a target="_blank" href="https://www.wowhead.com/item={{ missive }}&spec={{ spec_id }}"
-   class="icon-link position-relative" style="width:24px; height:24px;">
-  <img src="/data/icons/{{ reagent_lookup[missive].icon }}.png" alt=""
-       class="base-icon border {% if reagent_lookup[missive].quality %}border-quality-{{reagent_lookup[missive].quality}}{% else %}border-grey-100{% endif %}">
-  {% if reagent_lookup[missive].craftingQuality %}
-  <img src="/data/icons/crafting-quality-{{ reagent_lookup[missive].craftingQuality }}.png" alt="" class="icon-overlay">
-  {% endif %}
-</a>
+                                  <a target="_blank"
+                                    href="https://www.wowhead.com/item={{ missive }}&spec={{ spec_id }}"
+                                    class="icon-link position-relative" style="width:24px; height:24px;">
+                                    <img src="/data/icons/{{ reagent_lookup[missive].icon }}.png" alt=""
+                                      class="base-icon border {% if reagent_lookup[missive].quality %}border-quality-{{reagent_lookup[missive].quality}}{% else %}border-grey-100{% endif %}">
+                                    {% if reagent_lookup[missive].craftingQuality %}
+                                    <img
+                                      src="/data/icons/crafting-quality-{{ reagent_lookup[missive].craftingQuality }}.png"
+                                      alt="" class="icon-overlay">
+                                    {% endif %}
+                                  </a>
                                 </div>
                                 <!-- Name -->
                                 <div class="col">
