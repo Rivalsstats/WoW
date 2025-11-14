@@ -2,6 +2,13 @@
 import time
 import asyncio
 from collections import deque, Counter
+import threading
+from datetime import datetime, timezone
+from typing import List
+
+_CONSOLE_MAX_LINES = 500
+_console_buf = deque(maxlen=_CONSOLE_MAX_LINES)
+_console_lock = threading.Lock()
 
 class StatsCollector:
     """
@@ -32,3 +39,18 @@ class StatsCollector:
                 self.events.popleft()
             window_counts = Counter(e[1] for e in self.events)
             return window_counts, dict(self.totals), {k: q.qsize() for k, q in self.queues.items()}
+
+
+    def console_log(self, *args, sep: str = " ", end: str = "\n", file=None, flush: bool = False) -> None:
+        try:
+            text = sep.join(str(a) for a in args)
+            timestamped = f"[{datetime.now(timezone.utc).isoformat()}] {text}"
+            with _console_lock:
+                _console_buf.append(timestamped)
+        except Exception:
+            pass
+        print(*args, sep=sep, end=end, file=file, flush=flush)
+
+    def get_last_lines(self, n: int = 5) -> List[str]:
+        with _console_lock:
+            return list(_console_buf)[-n:]

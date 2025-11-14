@@ -21,11 +21,34 @@ import stats
 import discordHandler
 
 load_dotenv() # Load environment variables from .env file if it exists
+
+def getenv_clean(key, default=None):
+    v = os.environ.get(key, default)
+    if isinstance(v, str):
+        return v.rstrip('\r\n')  # remove CR and LF at end
+    return v
+
+# Queue settings
+QUEUE_MAXSIZE = 1000
+GHA_TIMEOUT = 60 * 60 *24
+HARD_TIMEOUT = GHA_TIMEOUT + 30 * 60  # force cancel after 30 minutes past GHA_TIMEOUT
+cancel_event = asyncio.Event()
+shutdown_event = asyncio.Event()
+MAX_GLOBAL_BACKOFF = 60.0
+WORKERS_PER_REALM = int(getenv_clean("WORKERS_PER_REALM", "5"))
+POLL_INTERVAL_SECONDS = int(getenv_clean("POLL_INTERVAL_SECONDS", "300"))
+
+# queues
+simple_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
+advanced_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
+database_queue: asyncio.Queue[dict] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
+GLOBAL_STATS = stats.StatsCollector(window_seconds=300, simple_queue=simple_queue, advanced_queue=advanced_queue, database_queue=database_queue)
+
 try:
     policy = asyncio.WindowsSelectorEventLoopPolicy()
     asyncio.set_event_loop_policy(policy)
 except Exception:
-    print("Not on Windows, skipping event loop policy set.")
+    GLOBAL_STATS.console_log("Not on Windows, skipping event loop policy set.")
 
 # Configuration
 
@@ -39,13 +62,7 @@ HUNTER_SPEC_IDS = [253, 254, 255]
 
 args = parser.parse_args()
 
-def getenv_clean(key, default=None):
-    v = os.environ.get(key, default)
-    if isinstance(v, str):
-        return v.rstrip('\r\n')  # remove CR and LF at end
-    return v
-
-print(f"[{datetime.now(timezone.utc).isoformat()}] Initializing database connection pool…")
+GLOBAL_STATS.console_log("Initializing database connection pool…")
 print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB host: {repr(getenv_clean('DATABASE_HOST'))}")
 print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB user: {repr(getenv_clean('DATABASE_USER'))}")
 print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB password: {repr(getenv_clean('DATABASE_PASSWORD'))}")
@@ -102,29 +119,13 @@ MAX_GLOBAL_BACKOFF = 60.0
 base_backoff = 1.0
 max_backoff = 60.0
 
-# Queue settings
-QUEUE_MAXSIZE = 1000
-GHA_TIMEOUT = 60 * 60 *24
-HARD_TIMEOUT = GHA_TIMEOUT + 30 * 60  # force cancel after 30 minutes past GHA_TIMEOUT
-cancel_event = asyncio.Event()
-shutdown_event = asyncio.Event()
-MAX_GLOBAL_BACKOFF = 60.0
-WORKERS_PER_REALM = int(getenv_clean("WORKERS_PER_REALM", "5"))
-POLL_INTERVAL_SECONDS = int(getenv_clean("POLL_INTERVAL_SECONDS", "300"))
-
 # stat variables
 fetched_runs = 0
 fetched_profiles = 0
 
 RUN_TIME = datetime.now(timezone.utc)
 
-# queues
-simple_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
-advanced_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
-database_queue: asyncio.Queue[dict] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
 BATCH_SIZE = int(getenv_clean("DB_BATCH_SIZE", "50"))
-
-GLOBAL_STATS = stats.StatsCollector(window_seconds=300, simple_queue=simple_queue, advanced_queue=advanced_queue, database_queue=database_queue)
 # Blizzard OAuth
 
 REGION_CREDENTIALS: dict[str, dict[str, str]] = {}
@@ -173,15 +174,15 @@ async def get_max_keys_by_dungeon(session: ClientSession) -> dict[int, int]:
                     r["run"]["mythic_level"] for r in data["rankings"]
                 )
         except Exception as e:
-            print(
-                f"[{datetime.now(timezone.utc).isoformat()}] Error fetching max keys for dungeon {did} ({slug}): {e}"
+            GLOBAL_STATS.console_log(
+                f"Error fetching max keys for dungeon {did} ({slug}): {e}"
             )
             pass
     return max_keys
 
 async def load_processed_runs(session):
-    print(
-        f"[{datetime.now(timezone.utc).isoformat()}] Loading previously processed runs…"
+    GLOBAL_STATS.console_log(
+        "Loading previously processed runs…"
     )
     ensure_dir(RUNS_DIR)
     active_seasons = {}
@@ -222,7 +223,7 @@ async def load_processed_runs(session):
         else:
             try:
                 runs_csv.unlink()
-                print(f"Removed old runs file: {runs_csv}")
+                GLOBAL_STATS.console_log(f"Removed old runs file: {runs_csv}")
                 parent = runs_csv.parent 
                 while parent != RUNS_DIR and parent.exists():
                     if any(parent.iterdir()):
@@ -230,7 +231,7 @@ async def load_processed_runs(session):
                     parent.rmdir()
                     parent = parent.parent
             except Exception as e:
-                print(f"failed to remove {runs_csv}: {e}")
+                GLOBAL_STATS.console_log(f"failed to remove {runs_csv}: {e}")
 
     return processed_runs
 
@@ -324,7 +325,7 @@ async def fetch_json(
 
     except ClientResponseError as e:
         # non-retryable server errors (400, 403, etc)
-        print(f"[{datetime.now(timezone.utc)}] HTTP {e.status} for {url}")
+        GLOBAL_STATS.console_log(f"HTTP {e.status} for {url}")
         return None
 
     except (asyncio.TimeoutError, aiohttp.ClientConnectionError,
@@ -336,7 +337,7 @@ async def fetch_json(
 
     except Exception as e:
         # any other unexpected error—log and re-raise
-        print(f"Unexpected error {type(e).__name__}: {e}")
+        GLOBAL_STATS.console_log(f"Unexpected error {type(e).__name__}: {e}")
         raise
 
 
@@ -346,8 +347,8 @@ async def fetch_leaderboard_and_queue(
 
     lb = await get_leaderboard(session, region, realm, dungeon["dungeon_id"], period)
     if not lb or "leading_groups" not in lb:
-        print(
-            f"[{datetime.now(timezone.utc).isoformat()}] No Correct leaderboard data for {region}/{realm}/{dungeon['dungeon_id']}/{period} got unexpected result."
+        GLOBAL_STATS.console_log(
+            f"No Correct leaderboard data for {region}/{realm}/{dungeon['dungeon_id']}/{period} got unexpected result."
         )
         return
     
@@ -413,29 +414,29 @@ async def process_realm(
 ):
     try:
         if cancel_event.is_set():
-            print(
-                f"[{datetime.now(timezone.utc).isoformat()}] {region} cancellation requested, stopping"
+            GLOBAL_STATS.console_log(
+                f"{region} cancellation requested, stopping"
             )
             return
-        print(
-            f"[{datetime.now(timezone.utc).isoformat()}] {region} enqueuing realm {realm}"
+        GLOBAL_STATS.console_log(
+            f"{region} enqueuing realm {realm}"
         )
 
         # Enqueue all period/dungeon work onto this realm's queue
         for period in periods:
             if cancel_event.is_set():
-                print(
-                    f"[{datetime.now(timezone.utc).isoformat()}] {period} - cancellation requested, stopping"
+                GLOBAL_STATS.console_log(
+                    f"{period} - cancellation requested, stopping"
                 )
                 return
-            print(
-                f"[{datetime.now(timezone.utc).isoformat()}] {region} {realm} enqueuing period {period} "
+            GLOBAL_STATS.console_log(
+                f"{region} {realm} enqueuing period {period} "
             )
             dungeons = await get_leaderboard_index(session, region, realm)
             for dungeon in dungeons:
                 if cancel_event.is_set():
-                    print(
-                        f"[{datetime.now(timezone.utc).isoformat()}] {dungeon} - cancellation requested, stopping"
+                    GLOBAL_STATS.console_log(
+                        f"{dungeon} - cancellation requested, stopping"
                     )
                     return
                 try:
@@ -443,13 +444,13 @@ async def process_realm(
                         session, current_season, region, realm, period, dungeon, max_keys
                     )
                 except Exception as e:
-                    print(
-                        f"[{datetime.now(timezone.utc).isoformat()}] {dungeon} - error occurred: {e}"
+                    GLOBAL_STATS.console_log(
+                        f"{dungeon} - error occurred: {e}"
                     )
                     traceback.print_exc()
     except Exception as e:
-        print(
-            f"[{datetime.now(timezone.utc).isoformat()}][process realm] failed for realm {realm} in {region} : {e}"
+        GLOBAL_STATS.console_log(
+            f"[process realm] failed for realm {realm} in {region} : {e}"
         )
         traceback.print_exc()
 
@@ -630,7 +631,7 @@ async def realm_poller(region: str, session: ClientSession, max_keys):
             dungeons = await get_leaderboard_index(session, region, realm)
             await GLOBAL_STATS.increment("checked_realm")
             for dungeon in dungeons:
-                print(f"[{datetime.now(timezone.utc).isoformat()}] {region} {realm} checking dungeon {dungeon['dungeon_id']} for period {active_period}")
+                GLOBAL_STATS.console_log(f"{region} {realm} checking dungeon {dungeon['dungeon_id']} for period {active_period}")
                 # fetch the leaderboard
                 await fetch_leaderboard_and_queue(
                     session, current_season, region, realm,
@@ -680,7 +681,7 @@ async def simple_worker(name: str, session: ClientSession):
             fetched_runs += 1
 
         except Exception:
-            print(f"[{datetime.now(timezone.utc).isoformat()}] [{name}] Error enqueuing simple run")
+            GLOBAL_STATS.console_log(f"[{name}] Error enqueuing simple run")
             traceback.print_exc()
 
         finally:
@@ -772,7 +773,7 @@ async def advanced_worker(name: str, session: ClientSession):
             await GLOBAL_STATS.increment("enqueued_runs")
 
         except Exception as e:
-            print(f"[{datetime.now(timezone.utc).isoformat()}] [{name}] fetch error: {e}", flush=True)
+            GLOBAL_STATS.console_log(f"[{name}] fetch error: {e}", flush=True)
             traceback.print_exc()
         finally:
             advanced_queue.task_done()
@@ -802,7 +803,7 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
             else:
                 continue
         except Exception as e:
-            print(f"[{datetime.now(timezone.utc).isoformat()}] [{name}] "
+            GLOBAL_STATS.console_log(f"[{name}] "
                 f"Error inserting run {r['season']}-{r['region']}-"
                 f"{r['realm']}-{r['dungeon_id']}-{r['timestamp']}: {e}")
             continue
@@ -907,33 +908,33 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
                 for b in e["bonuses"]:
                     bonus_vals.append((eq_id, b))
     if len(ct_vals) > 0 or len(st_vals) > 0 or len(ht_vals) > 0 or len(ench_vals) > 0 or len(sock_vals)> 0 or len(bonus_vals) >  0 or len(stat_vals) > 0 or len(hunter_pet_vals) > 0:
-        print(f"[{datetime.now(timezone.utc).isoformat()}] [{name}] Inserting talents and equipment for {len(ct_vals)} class talents, {len(st_vals)} spec talents, {len(ht_vals)} hero talents, {len(ench_vals)} enchantments, {len(sock_vals)} sockets and {len(bonus_vals)} bonuses and {len(stat_vals)} stats and {len(hunter_pet_vals)} hunter pets")
+        GLOBAL_STATS.console_log(f"[{name}] Inserting talents and equipment for {len(ct_vals)} class talents, {len(st_vals)} spec talents, {len(ht_vals)} hero talents, {len(ench_vals)} enchantments, {len(sock_vals)} sockets and {len(bonus_vals)} bonuses and {len(stat_vals)} stats and {len(hunter_pet_vals)} hunter pets")
     
     if stats_collector:
-        print("Incrementing stats with talents and equipment counts")
+        GLOBAL_STATS.console_log("Incrementing stats with talents and equipment counts")
         if len(ct_vals) > 0:
-            print(f"Class talents: {len(ct_vals)}")
+            GLOBAL_STATS.console_log(f"Class talents: {len(ct_vals)}")
             await stats_collector.increment("class_talents", len(ct_vals))
         if len(st_vals) > 0:
-            print(f"Spec talents: {len(st_vals)}")
+            GLOBAL_STATS.console_log(f"Spec talents: {len(st_vals)}")
             await stats_collector.increment("spec_talents", len(st_vals))
         if len(ht_vals) > 0:
-            print(f"Hero talents: {len(ht_vals)}")
+            GLOBAL_STATS.console_log(f"Hero talents: {len(ht_vals)}")
             await stats_collector.increment("hero_talents", len(ht_vals))
         if len(ench_vals) > 0:
-            print(f"Enchantments: {len(ench_vals)}")
+            GLOBAL_STATS.console_log(f"Enchantments: {len(ench_vals)}")
             await stats_collector.increment("enchantments", len(ench_vals))
         if len(sock_vals) > 0:
-            print(f"Sockets: {len(sock_vals)}")
+            GLOBAL_STATS.console_log(f"Sockets: {len(sock_vals)}")
             await stats_collector.increment("sockets", len(sock_vals))
         if len(bonus_vals) > 0:
-            print(f"Bonuses: {len(bonus_vals)}")
+            GLOBAL_STATS.console_log(f"Bonuses: {len(bonus_vals)}")
             await stats_collector.increment("bonuses", len(bonus_vals))
         if len(stat_vals) > 0:
-            print(f"Stats: {len(stat_vals)}")
+            GLOBAL_STATS.console_log(f"Stats: {len(stat_vals)}")
             await stats_collector.increment("stats", len(stat_vals))
         if len(hunter_pet_vals) > 0:
-            print(f"Hunter Pets: {len(hunter_pet_vals)}")
+            GLOBAL_STATS.console_log(f"Hunter Pets: {len(hunter_pet_vals)}")
             await stats_collector.increment("hunter_pets", len(hunter_pet_vals))
 
     if ct_vals and len(ct_vals) > 0:
@@ -950,8 +951,8 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
                 databaseConnector.insert_stats_batch(conn, cursor, sub)
                 databaseConnector.commit_changes(conn)
             except Exception as e:
-                print(f"sub: {sub}")
-                print(f"Error inserting stats batch: {e}")
+                GLOBAL_STATS.console_log(f"sub: {sub}")
+                GLOBAL_STATS.console_log(f"Error inserting stats batch: {e}")
     if hunter_pet_vals and len(hunter_pet_vals) > 0:
         for sub in chunked(hunter_pet_vals, BATCH_SIZE):
             databaseConnector.insert_hunter_pets_batch(conn, cursor, sub)
@@ -1006,7 +1007,7 @@ async def database_worker(name: str):
                     await process_batch(name, conn, cursor, batch, GLOBAL_STATS)
                     batch.clear()
                 except Exception as err:
-                    print(f"{name}: batch failed skipping {len(batch)} rows: {err}")
+                    GLOBAL_STATS.console_log(f"{name}: batch failed skipping {len(batch)} rows: {err}")
                     traceback.print_exc()
                     conn.rollback()
                     continue
@@ -1043,34 +1044,34 @@ async def main():
         retry_options=retry_options,
         raise_for_status=False,
     ) as session:
-        print(
-            f"[{datetime.now(timezone.utc).isoformat()}] Starting data collection for regions: {', '.join(REGIONS)}"
+        GLOBAL_STATS.console_log(
+            f"Starting data collection for regions: {', '.join(REGIONS)}"
         )
 
         processed_runs = await load_processed_runs(session)
-        print(
-            f"[{datetime.now(timezone.utc).isoformat()}] Loaded {len(processed_runs)} previously processed runs."
+        GLOBAL_STATS.console_log(
+            f"Loaded {len(processed_runs)} previously processed runs."
         )
         max_keys = await get_max_keys_by_dungeon(session)
-        print(
-            f"[{datetime.now(timezone.utc).isoformat()}] Fetched max keys for dungeons: {max_keys}"
+        GLOBAL_STATS.console_log(
+            f"Fetched max keys for dungeons: {max_keys}"
         )
         reporter = discordHandler.DiscordReporter(session, GLOBAL_STATS, interval_seconds=300)
         await reporter.start()
         tasks = []
         for region in REGIONS:
-            print(
-                f"[{datetime.now(timezone.utc).isoformat()}] Processing region: {region}"
+            GLOBAL_STATS.console_log(
+                f"Processing region: {region}"
             )
             if cancel_event.is_set():
-                print(
-                    f"[{datetime.now(timezone.utc).isoformat()}] {region} - cancellation requested, stopping"
+                GLOBAL_STATS.console_log(
+                    f"{region} - cancellation requested, stopping"
                 )
                 return
             current_season = await get_current_season_id(session, region)
             if current_season is None:
-                print(
-                    f"[{datetime.now(timezone.utc).isoformat()}] {region} - no season data, skipping"
+                GLOBAL_STATS.console_log(
+                    f"{region} - no season data, skipping"
                 )
                 continue
 
@@ -1089,21 +1090,21 @@ async def main():
                         # delete the entire season folder
                         try:
                             shutil.rmtree(season_dir)
-                            print(f"Deleted old season folder: {season_dir}")
+                            GLOBAL_STATS.console_log(f"Deleted old season folder: {season_dir}")
                         except Exception as e:
-                            print(f"Warning: could not delete {season_dir}: {e}")
+                            GLOBAL_STATS.console_log(f"Warning: could not delete {season_dir}: {e}")
 
             all_periods = await get_season_periods(session, region, current_season)
             if not all_periods:
-                print(
-                    f"[{datetime.now(timezone.utc).isoformat()}] {region} - no periods, skipping"
+                GLOBAL_STATS.console_log(
+                    f"{region} - no periods, skipping"
                 )
                 continue
 
             realms = await get_connected_realms(session, region)
             if not realms:
-                print(
-                    f"[{datetime.now(timezone.utc).isoformat()}] {region} - no realms, skipping"
+                GLOBAL_STATS.console_log(
+                    f"{region} - no realms, skipping"
                 )
                 continue
 
@@ -1112,8 +1113,8 @@ async def main():
                 asyncio.create_task(realm_poller(region, session, max_keys))
             )
 
-        print(
-            f"[{datetime.now(timezone.utc).isoformat()}] Started {len(tasks)} tasks for processing realms across all regions."
+        GLOBAL_STATS.console_log(
+            f"Started {len(tasks)} tasks for processing realms across all regions."
         )
         simple_workers = [
             asyncio.create_task(simple_worker(f"simple-{i}", session))
@@ -1130,28 +1131,28 @@ async def main():
 
         await asyncio.gather(*tasks, return_exceptions=True)
         # Wait for all queues to be processed
-        print(
-            f"[{datetime.now(timezone.utc).isoformat()}] All work enqueued, waiting for queues to finish processing…"
+        GLOBAL_STATS.console_log(
+            "All work enqueued, waiting for queues to finish processing…"
         )
-        print(
-            f"[{datetime.now(timezone.utc).isoformat()}] Simple queue size: {simple_queue.qsize()}"
+        GLOBAL_STATS.console_log(
+            f"Simple queue size: {simple_queue.qsize()}"
         )
-        print(
-            f"[{datetime.now(timezone.utc).isoformat()}] Advanced queue size: {advanced_queue.qsize()}"
+        GLOBAL_STATS.console_log(
+            f"Advanced queue size: {advanced_queue.qsize()}"
         )
         await simple_queue.join()
         for w in simple_workers:
             w.cancel()
         await asyncio.gather(*simple_workers, return_exceptions=True)
-        print(
-            f"[{datetime.now(timezone.utc).isoformat()}] Finished processing simple queue waiting for {advanced_queue.qsize()} runs in advanced queue..."
+        GLOBAL_STATS.console_log(
+            f"Finished processing simple queue waiting for {advanced_queue.qsize()} runs in advanced queue..."
         )
         await advanced_queue.join()
         for w in advanced_workers:
             w.cancel()
         await asyncio.gather(*advanced_workers, return_exceptions=True)
-        print(
-            f"[{datetime.now(timezone.utc).isoformat()}] Finished processing advanced queue, waiting for database workers to finish…"
+        GLOBAL_STATS.console_log(
+            "Finished processing advanced queue, waiting for database workers to finish…"
         )
         await database_queue.join()
         for w in database_workers:
@@ -1162,12 +1163,12 @@ async def main():
 
 async def timeout_watcher(collector_task: asyncio.Task):
     """Sleep for GHA_TIMEOUT seconds, then signal cancellation."""
-    print(
-        f"[{datetime.now(timezone.utc).isoformat()}] Starting timeout watcher for {GHA_TIMEOUT} seconds…"
+    GLOBAL_STATS.console_log(
+        f"Starting timeout watcher for {GHA_TIMEOUT} seconds…"
     )
     await asyncio.sleep(GHA_TIMEOUT)
-    print(
-        f"[{datetime.now(timezone.utc).isoformat()}] Soft timeout reached; signaling cancellation…"
+    GLOBAL_STATS.console_log(
+        "Soft timeout reached; signaling cancellation…"
     )
     cancel_event.set()
 
@@ -1180,8 +1181,8 @@ async def timeout_watcher(collector_task: asyncio.Task):
 
 async def runner():
     # Kick off both main collector and the timeout watcher
-    print(
-        f"[{datetime.now(timezone.utc).isoformat()}] Starting data collection runner…"
+    GLOBAL_STATS.console_log(
+        "Starting data collection runner…"
     )
     collector = asyncio.create_task(main(), name="collector")
     timer = asyncio.create_task(timeout_watcher(collector), name="timeout_watcher")
@@ -1193,14 +1194,14 @@ async def runner():
 
     if timer in done:
         # Timer fired -> we set cancel_event above; now wait for collector to finish cleanly
-        print(
-            f"[{datetime.now(timezone.utc).isoformat()}] Waiting for in-flight runs to complete…"
+        GLOBAL_STATS.console_log(
+            "Waiting for in-flight runs to complete…"
         )
         await collector
     else:
         # main() finished before the timeout
-        print(
-            f"[{datetime.now(timezone.utc).isoformat()}] Data collection finished before timeout."
+        GLOBAL_STATS.console_log(
+            "Data collection finished before timeout."
         )
         timer.cancel()
 
@@ -1210,15 +1211,19 @@ if __name__ == "__main__":
         asyncio.run(runner())
     except asyncio.CancelledError:
         # this will now catch the cancellation cleanly
-        print(
-            f"[{datetime.now(timezone.utc).isoformat()}] Data collection cancelled by timeout."
+        GLOBAL_STATS.console_log(
+            "Data collection cancelled by timeout."
         )
     except Exception as e:
-        print(
-            f"[{datetime.now(timezone.utc).isoformat()}] Error during data collection: {e}"
+        GLOBAL_STATS.console_log(
+            f"Error during data collection: {e}"
         )
-    print(
-        f"[{datetime.now(timezone.utc).isoformat()}] Committing changes to the database…"
+    GLOBAL_STATS.console_log(
+        "Committing changes to the database…"
     )
-    print(f"[{datetime.now(timezone.utc).isoformat()}] All tasks done.")
-    print(f"Fetched runs: {fetched_runs}, Fetched profiles: {fetched_profiles}")
+    GLOBAL_STATS.console_log(
+        "All tasks done."
+    )
+    GLOBAL_STATS.console_log(
+        f"Fetched runs: {fetched_runs}, Fetched profiles: {fetched_profiles}"
+    )

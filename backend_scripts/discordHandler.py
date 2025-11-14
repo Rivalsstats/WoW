@@ -6,6 +6,7 @@ from pathlib import Path
 from datetime import datetime, timezone
 from typing import Optional
 import discord
+import shutil
 
 STATUS_FILE = Path("data/discord_status.json")
 
@@ -70,6 +71,9 @@ class DiscordReporter:
         self.webhook_url = os.getenv("WEBHOOK_URL")
         self.bot_token = os.getenv("WEBHOOK_TOKEN")
         self.channel_id = os.getenv("WEBHOOK_CHANNEL")
+        self._low_space_warn_sent: dict[str, bool] = {}
+        self._disk_warn_pct = float(os.getenv("DISK_WARN_PCT", "5.0"))      # percent free
+        self._disk_warn_bytes = int(os.getenv("DISK_WARN_BYTES", str(1 * 1024**3)))  # bytes
 
         # mode selection
         if self.webhook_url:
@@ -91,6 +95,171 @@ class DiscordReporter:
 
         # webhook object cached (only for webhook mode)
         self._webhook: Optional[discord.Webhook] = None
+
+    def _disk_usage_info(path: str | None = None):
+        """Return (mount, total, used, free, free_pct, total_hr, free_hr)."""
+        try:
+            root = Path(path or Path.cwd().anchor or "/")
+            du = shutil.disk_usage(str(root))
+            total, used, free = du.total, du.used, du.free
+            free_pct = (free / total) * 100 if total else 0.0
+
+            def _hr(n: int) -> str:
+                suf = ("B","KB","MB","GB","TB")
+                f = float(n)
+                i = 0
+                while f >= 1024.0 and i < len(suf)-1:
+                    f /= 1024.0
+                    i += 1
+                return f"{f:.1f}{suf[i]}"
+
+            return str(root), total, used, free, free_pct, _hr(total), _hr(free)
+        except Exception:
+            return "/", 0, 0, 0, 0.0, "0B", "0B"
+
+
+    def _iter_mounts(self) -> list[str]:
+        """
+        Read /proc/mounts and return a deduped list of real mountpoints
+        (skipping pseudo filesystems). Order is preserved (will be re-ordered
+        later to prefer the app data mount).
+        """
+        mounts = []
+        try:
+            with open("/proc/mounts", "r", encoding="utf-8") as f:
+                for line in f:
+                    parts = line.split()
+                    if len(parts) < 3:
+                        continue
+                    device, mnt, fstype = parts[0], parts[1], parts[2]
+                    if fstype in (
+                        "proc", "sysfs", "tmpfs", "devtmpfs", "devpts", "overlay",
+                        "securityfs", "pstore", "efivarfs", "mqueue", "hugetlbfs",
+                        "tracefs", "configfs", "cgroup", "cgroup2"
+                    ):
+                        continue
+                    if not mnt.startswith("/"):
+                        continue
+                    mounts.append(mnt)
+        except Exception:
+            mounts = ["/"]
+        # dedupe while preserving order
+        seen = set()
+        out = []
+        for m in mounts:
+            if m in seen:
+                continue
+            seen.add(m)
+            out.append(m)
+        return out
+
+    def _collect_disks_info(self) -> list[dict]:
+        """
+        Return list of disk dicts. First entry is the filesystem containing
+        STATUS_FILE.parent (the app data dir) so the report shows the service
+        disk first. Then include other mounts discovered via /proc/mounts.
+        """
+        out = []
+
+        # resolve app data path (where STATUS_FILE lives)
+        try:
+            app_path = STATUS_FILE.parent.resolve()
+        except Exception:
+            app_path = Path("/").resolve()
+
+        # first, gather usage for the app path's filesystem directly
+        try:
+            du = shutil.disk_usage(str(app_path))
+            total, used, free = du.total, du.used, du.free
+            free_pct = (free / total) * 100 if total else 0.0
+
+            def _hr(n: int) -> str:
+                suf = ("B", "KB", "MB", "GB", "TB")
+                f = float(n)
+                i = 0
+                while f >= 1024.0 and i < len(suf) - 1:
+                    f /= 1024.0
+                    i += 1
+                return f"{f:.1f}{suf[i]}"
+
+            out.append({
+                "mount": str(app_path),
+                "total": total,
+                "used": used,
+                "free": free,
+                "free_pct": free_pct,
+                "total_hr": _hr(total),
+                "free_hr": _hr(free),
+            })
+        except Exception:
+            # ignore if we can't stat that path
+
+            pass
+
+        # then enumerate other mounts for context (skip pseudo filesystems)
+        try:
+            with open("/proc/mounts", "r", encoding="utf-8") as f:
+                seen = set()
+                for line in f:
+                    parts = line.split()
+                    if len(parts) < 3:
+                        continue
+                    mnt = parts[1]
+                    fstype = parts[2]
+                    if fstype in (
+                        "proc", "sysfs", "tmpfs", "devtmpfs", "devpts", "overlay",
+                        "securityfs", "pstore", "efivarfs", "mqueue", "hugetlbfs",
+                        "tracefs", "configfs", "cgroup", "cgroup2"
+                    ):
+                        continue
+                    if not mnt.startswith("/"):
+                        continue
+                    if str(mnt) == str(app_path):
+                        # skip duplicate of the preferred entry
+                        continue
+                    if mnt in seen:
+                        continue
+                    seen.add(mnt)
+                    try:
+                        du = shutil.disk_usage(mnt)
+                        total, used, free = du.total, du.used, du.free
+                        free_pct = (free / total) * 100 if total else 0.0
+                        def _hr2(n: int) -> str:
+                            suf = ("B", "KB", "MB", "GB", "TB")
+                            f = float(n)
+                            i = 0
+                            while f >= 1024.0 and i < len(suf) - 1:
+                                f /= 1024.0
+                                i += 1
+                            return f"{f:.1f}{suf[i]}"
+                        out.append({
+                            "mount": mnt,
+                            "total": total,
+                            "used": used,
+                            "free": free,
+                            "free_pct": free_pct,
+                            "total_hr": _hr2(total),
+                            "free_hr": _hr2(free),
+                        })
+                    except Exception:
+                        continue
+        except Exception:
+            # best-effort only
+            pass
+
+            # fallback: if still empty, include root
+            if not out:
+                root, total, used, free, free_pct, total_hr, free_hr = self._disk_usage_info()
+                out.append({
+                    "mount": root,
+                    "total": total,
+                    "used": used,
+                    "free": free,
+                    "free_pct": free_pct,
+                    "total_hr": total_hr,
+                    "free_hr": free_hr,
+                })
+            return out
 
     # -------------------------
     # Public lifecycle
@@ -334,6 +503,107 @@ class DiscordReporter:
         totals_embed.add_field(name="Bonuses", value=str(totals.get("bonuses", 0)), inline=True)
         totals_embed.add_field(name="Stats", value=str(totals.get("stats", 0)),  inline=True)
         totals_embed.add_field(name="Hunter Pets", value=str(totals.get("hunter_pets", 0)), inline=True)
+
+
+        # -------------------------
+        # Recent console lines (from stats.get_last_lines)
+        # -------------------------
+        try:
+            last_lines = self.stats.get_last_lines(5)
+            if last_lines:
+                joined = "\n".join(last_lines)
+                if len(joined) > 900:
+                    joined = "…(truncated)\n" + joined[-900:]
+                embed.add_field(name="Recent console", value=f"```{joined}```", inline=False)
+        except Exception as e:
+            try:
+                self.stats.console_log("discordHandler: failed to read recent console lines:", e)
+            except Exception:
+                pass
+
+        # -------------------------
+        # Disk usage across mounts
+        # -------------------------
+        low_mounts = []
+        try:
+            disks = self._collect_disks_info()
+            disk_lines = []
+            for d in disks:
+                disk_lines.append(f"{d['mount']}: {d['free_hr']} free ({d['free_pct']:.1f}%)")
+                if d["total"] and (d["free_pct"] <= self._disk_warn_pct or d["free"] <= self._disk_warn_bytes):
+                    low_mounts.append(d)
+            disk_text = "\n".join(disk_lines)
+            if len(disk_text) > 900:
+                disk_text = disk_text[:900] + "\n…"
+            embed.add_field(name="Disk usage", value=f"```\n{disk_text}\n```", inline=False)
+        except Exception as e:
+            try:
+                self.stats.console_log("discordHandler: failed to collect disk info:", e)
+            except Exception:
+                pass
+
+        # -------------------------
+        # Low-disk warning: per-mount one-time messages
+        # -------------------------
+        if low_mounts:
+            # compose warning description
+            lines = [f"{m['mount']} — {m['free_hr']} free ({m['free_pct']:.1f}%)" for m in low_mounts]
+            warn_desc = "\n".join(lines)
+            warning_embed = discord.Embed(
+                title="⚠️ Low disk space",
+                description=warn_desc,
+                color=discord.Color.red(),
+                timestamp=datetime.now(timezone.utc)
+            )
+            # append the warning embed to the embed list so it appears in the status update
+            try:
+                embedlist.append(warning_embed)
+            except Exception:
+                pass
+
+            # send one-time message per mount (webhook or bot)
+            for m in low_mounts:
+                mount = m["mount"]
+                already_sent = bool(self._low_space_warn_sent.get(mount))
+                if already_sent:
+                    continue
+
+                # send as a separate message so it is visible in channel history
+                try:
+                    if self.mode == "webhook" and getattr(self, "_webhook", None) is not None:
+                        try:
+                            await self._webhook.send(embed=warning_embed, wait=True)
+                        except Exception:
+                            try:
+                                await self._webhook.send(embeds=[warning_embed], wait=True)
+                            except Exception:
+                                pass
+                    elif self.mode == "bot":
+                        try:
+                            # channel variable may not be in scope here; fetch it
+                            channel = None
+                            try:
+                                channel = self._client.get_channel(int(self.channel_id))
+                                if channel is None:
+                                    channel = await self._client.fetch_channel(int(self.channel_id))
+                            except Exception:
+                                channel = None
+                            if channel:
+                                await channel.send(embed=warning_embed)
+                        except Exception:
+                            pass
+                except Exception:
+                    pass
+
+                # mark this mount as warned
+                self._low_space_warn_sent[mount] = True
+        else:
+            # reset any previously-sent flags for mounts that are no longer low
+            if self._low_space_warn_sent:
+                # create list to avoid mutation during iteration
+                for mount in list(self._low_space_warn_sent.keys()):
+                    # assume it recovered unless still present in current low_mounts
+                    self._low_space_warn_sent.pop(mount, None)
 
 
         # send/edit depending on mode
