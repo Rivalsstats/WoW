@@ -473,6 +473,7 @@ def main(template_path, output_dir):
     spec_lookup = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
     notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
+    season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
     spec_nav = generateSpecNav(spec_lookup, class_lookup) 
 
 
@@ -550,6 +551,7 @@ def main(template_path, output_dir):
         ],
         active_page="dashboard",
         notifications=notifications,
+        season_info=season_info,
     )
 
     # Write output

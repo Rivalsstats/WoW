@@ -23,7 +23,6 @@ REGION = "world"
 
 DUNGEONS_JSON = os.path.join("data", "static", "dungeons.json")
 SPECS_JSON = os.path.join("data", "static", "specs.json")
-SEASON_INFO_JSON = os.path.join("data", "static", "seasonInfo.json")
 
 # required env vars
 API_KEY = os.getenv("RAIDERIO_API_KEY")
@@ -537,10 +536,6 @@ async def main():
         print(
             f"[{datetime.now(timezone.utc).isoformat()}] Inserted {inserted_count} new valid routes into the DB."
         )
-
-    # persist season info
-    with open(SEASON_INFO_JSON, "w", encoding="utf-8") as f:
-        json.dump({"current_season": CURRENT_SEASON}, f, indent=2)
 
     # shutdown DB worker cleanly
     DB_JOB_QUEUE.put(None)

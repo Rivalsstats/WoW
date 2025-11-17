@@ -16,14 +16,14 @@
 <html lang="en">
 
 <head>
-  <title>WoW Mythic+ Dashboard - Stats, Spec Popularity & Dungeon Trends | MythiStone</title>
+  <title>WoW Mythic+ Dashboard - Stats, Spec Popularity & Dungeon Trends for {{ season_info.name }} | MythiStone</title>
   {% include "header_imports.html" %}
 
   <!-- Primary SEO -->
   <meta name="description"
-    content="Interactive Mythic+ dashboard for World of Warcraft. Find spec popularity, keys per week, dungeon popularity, performance vs. popularity and more. Data updated {{ generated_at | format_ts }}.">
+    content="Interactive Mythic+ dashboard for World of Warcraft {{ season_info.name }}. Find spec popularity, keys per week, dungeon popularity, performance vs. popularity and more. Data updated {{ generated_at | format_ts }}.">
   <meta name="keywords"
-    content="MythiStone, Mythic+, WoW, Dungeon popularity, spec popularity, keys per week, M+ dashboard, WoW stats">
+    content="MythiStone, Mythic+, WoW, Dungeon popularity, spec popularity, keys per week, M+ dashboard, WoW stats, WoW meta {{ season_info.name }}">
 
   <!-- Canonical & hreflang -->
   <link rel="canonical" href="https://mythistone.com/pages/dashboard">
@@ -37,9 +37,9 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="MythiStone">
   <meta property="og:url" content="https://mythistone.com/pages/dashboard">
-  <meta property="og:title" content="MythiStone - Mythic+ Dashboard: Spec & Dungeon Trends">
+  <meta property="og:title" content=" Mythic+ Dashboard: Spec & Dungeon Trends for {{ season_info.name }} | MythiStone">
   <meta property="og:description"
-    content="Live Mythic+ dashboard: spec popularity, dungeon trends, keys per week and performance scoring (updated {{ generated_at | format_ts }}).">
+    content="Live Mythic+ dashboard for {{ season_info.name }}: spec popularity, dungeon trends, keys per week and performance scoring (updated {{ generated_at | format_ts }}).">
   <meta property="og:image" content="https://mythistone.com/assets/img/favicon/favicon-96x96.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -49,8 +49,8 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@MythiStone">
   <meta name="twitter:creator" content="@MythiStone">
-  <meta name="twitter:title" content="MythiStone - Mythic+ Dashboard">
-  <meta name="twitter:description" content="Explore Mythic+ trends: spec popularity, dungeon picks and keys per week.">
+  <meta name="twitter:title" content="Mythic+ Dashboard for {{ season_info.name }} | MythiStone">
+  <meta name="twitter:description" content="Explore Mythic+ trends for {{ season_info.name }}: spec popularity, dungeon picks and keys per week.">
   <meta name="twitter:image" content="https://mythistone.com/assets/img/favicon/favicon-96x96.png">
 
   <!-- Structured Data: WebSite + WebPage + Breadcrumb + SearchAction -->
@@ -71,8 +71,8 @@
       {
         "@type": "WebPage",
         "url": "https://mythistone.com/pages/dashboard",
-        "name": "MythiStone Mythic+ Dashboard",
-        "description": "Interactive Mythic+ dashboard: spec popularity, dungeon popularity, keys per week and performance scoring.",
+        "name": "Mythic+ Dashboard for {{ season_info.name }} | MythiStone",
+        "description": "Interactive Mythic+ dashboard for {{ season_info.name }}: spec popularity, dungeon popularity, keys per week and performance scoring.",
         "isAccessibleForFree": true,
         "breadcrumb": {
           "@type": "BreadcrumbList",
@@ -128,7 +128,7 @@
         <div class="ms-3">
           <h3 class="mb-0 h4 font-weight-bolder">Dashboard</h3>
           <p class="mb-4">
-            Check M+ Overall Statistics.
+            Overall Mythic+ Statistics for {{ season_info.name }}.
           </p>
         </div>
         {% for run_entry in runs %}

@@ -664,6 +664,7 @@ def main(template_path, output_dir):
     dungeon_lookup = load_json(os.path.join(LOOKUP_DIR, "dungeons.json"))
     group_buffs = load_json(os.path.join(LOOKUP_DIR, "groupbuffs.json"))
     notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
+    season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
     buff_lookup = {b.get("id"): b for b in group_buffs}
 
     spec_nav = generateSpecNav(spec_lookup, class_lookup)
@@ -704,6 +705,7 @@ def main(template_path, output_dir):
         buff_tiers=buff_tiers,
         buff_lookup=buff_lookup,
         buff_scores_available=bool(groupbuffs_stats),
+        season_info=season_info,
     )
 
     # Write output

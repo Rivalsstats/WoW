@@ -28,6 +28,10 @@ period_details_url = "https://{region}.api.blizzard.com/data/wow/mythic-keystone
 
 CLIENT_ID = os.getenv('BLIZ_CLIENT_ID')
 CLIENT_SECRET = os.getenv('BLIZ_CLIENT_SECRET')
+RAIDERIO_API_KEY = os.getenv('RAIDERIO_API_KEY')
+CURRENT_EXPANSION_ID = 10  # TWW
+
+SEASON_INFO_JSON = os.path.join("data", "static", "seasonInfo.json")
 
 # Obtain an access token
 def get_access_token():
@@ -44,11 +48,16 @@ def blizzard_get(url, params=None, token=None):
     resp.raise_for_status()
     return resp.json()
 
+def fetch_rio_season():
+    rio_season_url = f"https://raider.io/api/v1/mythic-plus/static-data?expansion_id={CURRENT_EXPANSION_ID}"
+    resp = requests.get(rio_season_url, {"access_key": RAIDERIO_API_KEY})
+    resp.raise_for_status()
+    return resp.json().get('seasons', [])
 
 def main():
     token = get_access_token()
     all_regions_data = {}
-
+    highest_season_id = 0
     for region in regions:
         print(f"Fetching data for region: {region}")
         namespace = f"dynamic-{region}"
@@ -59,6 +68,8 @@ def main():
             token=token
         )
         season_id = idx_resp['current_season']['id']
+        if season_id > highest_season_id:
+            highest_season_id = season_id
 
         # Get season details to extract period IDs
         season_resp = blizzard_get(
@@ -92,7 +103,16 @@ def main():
             'periods': region_periods
         }
 
-
+    season_info = fetch_rio_season()
+    print(season_info)
+    for season in season_info:
+        print(season)
+        if season.get('blizzard_season_id') == highest_season_id:
+            CURRENT_SEASON = season
+            break
+    # persist season info
+    with open(SEASON_INFO_JSON, "w", encoding="utf-8") as f:
+        json.dump(CURRENT_SEASON, f, indent=2)
     # Write to JSON file
     output_path = os.path.join('data', 'static')
     os.makedirs(output_path, exist_ok=True)
