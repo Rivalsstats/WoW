@@ -80,19 +80,17 @@
       "name": "Specs navigation",
       "url": "https://mythistone.com/pages/classes",
       "hasPart": [
-        "hasPart": [
-         {% for role_name, specs in spec_nav.items() %}
-          {% set rid = role_name|replace(' ', '') %}
-          {% for nav in specs %}
-          {
-            "@type": "SiteNavigationElement",
-            "name": "{{ nav.name | e }}",
-            "url": "{{ nav.url }}"
-          }{% if not loop.last %},{% endif %}
-          {% endfor %}
-          {% if not loop.last %},{% endif %}
-          {% endfor %}
-        ]
+        {% for role_name, specs in spec_nav.items() %}
+        {% set rid = role_name|replace(' ', '') %}
+        {% for nav in specs %}
+        {
+          "@type": "SiteNavigationElement",
+          "name": "{{ nav.name | e }}",
+          "url": "{{ nav.url }}"
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+        {% if not loop.last %},{% endif %}
+        {% endfor %}
       ]
     }
   ],
