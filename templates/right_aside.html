@@ -28,17 +28,12 @@
 
     {# ADSENSE container is hidden by default. Klaro will inject the real script when consented. #}
     <div id="adsense-container" class="text-center my-2 d-none" aria-hidden="true">
-      <ins class="adsbygoogle ad-300x600"
-           style="display:inline-block;width:300px;height:600px;"
-           data-ad-client="ca-pub-5589411805810733"
-           data-ad-slot="7750521835"
-           data-adtest="on"></ins>
+      <ins class="adsbygoogle ad-300x600" style="display:inline-block;width:300px;height:600px;"
+        data-ad-client="ca-pub-5589411805810733" data-ad-slot="7750521835" data-adtest="on"></ins>
 
-      <script async
-              type="text/plain"
-              data-name="adsense"
-              data-src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5589411805810733"
-              crossorigin="anonymous"></script>
+      <script async type="text/plain" data-name="adsense"
+        data-src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5589411805810733"
+        crossorigin="anonymous"></script>
     </div>
 
     {# Carousel fallback (visible by default)#}
@@ -55,112 +50,112 @@
         </div>
       </noscript>
 
-    <!-- Rotating internal ads (Bootstrap Carousel) -->
-    <div id="rightsideCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="6000"
-      aria-label="Right sidebar carousel">
-      <div class="carousel-inner">
+      <!-- Rotating internal ads (Bootstrap Carousel) -->
+      <div id="rightsideCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="6000"
+        aria-label="Right sidebar carousel">
+        <div class="carousel-inner">
 
-        <!-- Slide 1: CustomNames -->
-        <div class="carousel-item active">
-          {{ ad_card(
-          'CustomNames',
-          'CustomNames',
-          'Name-variation for addons. Perfect for nicknames & roleplay. <span class=\"d-block
-            mt-1\"><small>CurseForge</small></span>',
-          'https://www.curseforge.com/wow/addons/libcustomnames',
-          'CustomNames addon'
-          )|safe }}
+          <!-- Slide 1: CustomNames -->
+          <div class="carousel-item active">
+            {{ ad_card(
+            'CustomNames',
+            'CustomNames',
+            'Name-variation for addons. Perfect for nicknames & roleplay. <span class=\"d-block
+              mt-1\"><small>CurseForge</small></span>',
+            'https://www.curseforge.com/wow/addons/libcustomnames',
+            'CustomNames addon'
+            )|safe }}
+          </div>
+
+          <!-- Slide 2: Dungeon Aura Tools -->
+          <div class="carousel-item">
+            {{ ad_card(
+            'DungeonAuraTools',
+            'Dungeon Aura Tools',
+            'Auto-generate dungeon WeakAuras for boss/trash/affixes. <small>CurseForge</small>',
+            'https://www.curseforge.com/wow/addons/dungeon-aura-tools',
+            'Dungeon Aura Tools'
+            )|safe }}
+          </div>
+
+          <!-- Slide 3: GroupFinderRio -->
+          <div class="carousel-item">
+            {{ ad_card(
+            'GroupFinderRio',
+            'GroupFinderRio',
+            'Show Rio scores in Group Finder & sort by rating. <small>CurseForge</small>',
+            'https://www.curseforge.com/wow/addons/groupfinderrio',
+            'GroupFinderRio screenshot'
+            )|safe }}
+          </div>
+
+          <!-- Slide 4: WeakAuras Creator -->
+          <div class="carousel-item">
+            {{ ad_card(
+            'WACreator',
+            'WeakAuras Creator',
+            'Generate WeakAuras easily Online. <small>weakaurascreator.github.io</small>',
+            'https://weakaurascreator.github.io/Create/',
+            'WeakAuras Creator icon'
+            )|safe }}
+          </div>
+
+          <!-- Slide 5: MInterruptTracker (Wago) -->
+          <div class="carousel-item">
+            {{ ad_card(
+            'InterruptTracker',
+            'M+ Interrupt Tracker',
+            'Track Interrupt Cooldowns for the entire group. <small>wago.io</small>',
+            'https://wago.io/MInterruptTracker',
+            'M+ Interrupt Tracker'
+            )|safe }}
+          </div>
+
+          <!-- Slide 6: Raid Ability Timeline (Wago) -->
+          <div class="carousel-item">
+            {{ ad_card(
+            'AbilityTimeline',
+            'Raid Ability Timeline',
+            'Vertical timeline replacing bossmod timer bars. <small>wago.io</small>',
+            'https://wago.io/RaidAbilityTimeline',
+            'Raid Ability Timeline'
+            )|safe }}
+          </div>
+
+          <!-- Slide 7: Current Season Dungeons (Wago) -->
+          <div class="carousel-item">
+            {{ ad_card(
+            'CurrentSeason',
+            'Current Season Dungeons',
+            "A WeakAura pack for the current Season's dungeons. <small>wago.io</small>",
+            'https://wago.io/Current-Dungeons',
+            'Current Season Dungeons WA'
+            )|safe }}
+          </div>
+
+          <!-- Slide 8: Want This Space -->
+          <div class="carousel-item">
+            {{ ad_card(
+            'WantThisSpace',
+            'Want This Space',
+            'Contact Us',
+            'mailto:sponsor@mythistone.com',
+            'Want This Space'
+            )|safe }}
+          </div>
+
         </div>
 
-        <!-- Slide 2: Dungeon Aura Tools -->
-        <div class="carousel-item">
-          {{ ad_card(
-          'DungeonAuraTools',
-          'Dungeon Aura Tools',
-          'Auto-generate dungeon WeakAuras for boss/trash/affixes. <small>CurseForge</small>',
-          'https://www.curseforge.com/wow/addons/dungeon-aura-tools',
-          'Dungeon Aura Tools'
-          )|safe }}
-        </div>
-
-        <!-- Slide 3: GroupFinderRio -->
-        <div class="carousel-item">
-          {{ ad_card(
-          'GroupFinderRio',
-          'GroupFinderRio',
-          'Show Rio scores in Group Finder & sort by rating. <small>CurseForge</small>',
-          'https://www.curseforge.com/wow/addons/groupfinderrio',
-          'GroupFinderRio screenshot'
-          )|safe }}
-        </div>
-
-        <!-- Slide 4: WeakAuras Creator -->
-        <div class="carousel-item">
-          {{ ad_card(
-          'WACreator',
-          'WeakAuras Creator',
-          'Generate WeakAuras easily Online. <small>weakaurascreator.github.io</small>',
-          'https://weakaurascreator.github.io/Create/',
-          'WeakAuras Creator icon'
-          )|safe }}
-        </div>
-
-        <!-- Slide 5: MInterruptTracker (Wago) -->
-        <div class="carousel-item">
-          {{ ad_card(
-          'InterruptTracker',
-          'M+ Interrupt Tracker',
-          'Track Interrupt Cooldowns for the entire group. <small>wago.io</small>',
-          'https://wago.io/MInterruptTracker',
-          'M+ Interrupt Tracker'
-          )|safe }}
-        </div>
-
-        <!-- Slide 6: Raid Ability Timeline (Wago) -->
-        <div class="carousel-item">
-          {{ ad_card(
-          'AbilityTimeline',
-          'Raid Ability Timeline',
-          'Vertical timeline replacing bossmod timer bars. <small>wago.io</small>',
-          'https://wago.io/RaidAbilityTimeline',
-          'Raid Ability Timeline'
-          )|safe }}
-        </div>
-
-        <!-- Slide 7: Current Season Dungeons (Wago) -->
-        <div class="carousel-item">
-          {{ ad_card(
-          'CurrentSeason',
-          'Current Season Dungeons',
-          "A WeakAura pack for the current Season's dungeons. <small>wago.io</small>",
-          'https://wago.io/Current-Dungeons',
-          'Current Season Dungeons WA'
-          )|safe }}
-        </div>
-
-        <!-- Slide 8: Want This Space -->
-        <div class="carousel-item">
-          {{ ad_card(
-          'WantThisSpace',
-          'Want This Space',
-          'Contact Us',
-          'mailto:sponsor@mythistone.com',
-          'Want This Space'
-          )|safe }}
-        </div>
-
+        <!-- Controls -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#rightsideCarousel" data-bs-slide="prev"
+          aria-label="Previous ad">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#rightsideCarousel" data-bs-slide="next"
+          aria-label="Next ad">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        </button>
       </div>
-
-      <!-- Controls -->
-      <button class="carousel-control-prev" type="button" data-bs-target="#rightsideCarousel" data-bs-slide="prev"
-        aria-label="Previous ad">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#rightsideCarousel" data-bs-slide="next"
-        aria-label="Next ad">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      </button>
-    </div>
     </div>
 
     <div class="text-center small text-muted px-3 mt-2">
@@ -170,40 +165,48 @@
 </aside>
 
 <style>
-  #sidenav-right .collapse { max-width: 340px; margin: 0 auto; }
-  @media (min-width:1200px) { #sidenav-right .collapse { max-width: 340px; } }
+  #sidenav-right .collapse {
+    max-width: 340px;
+    margin: 0 auto;
+  }
+
+  @media (min-width:1200px) {
+    #sidenav-right .collapse {
+      max-width: 340px;
+    }
+  }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-  const adsenseContainer = document.getElementById('adsense-container');
-  const carouselContainer = document.getElementById('ad-carousel-container');
+  document.addEventListener('DOMContentLoaded', function () {
+    const adsenseContainer = document.getElementById('adsense-container');
+    const carouselContainer = document.getElementById('ad-carousel-container');
 
-  function showAdsense() {
-    carouselContainer.classList.add('d-none');
-    adsenseContainer.classList.remove('d-none');
-    adsenseContainer.setAttribute('aria-hidden', 'false');
+    function showAdsense() {
+      carouselContainer.classList.add('d-none');
+      adsenseContainer.classList.remove('d-none');
+      adsenseContainer.setAttribute('aria-hidden', 'false');
 
-    // If the ad script already loaded, ensure it is initialised
-    try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) { /* ignore */ }
-  }
-
-  // quick checks
-  if (window.adsbygoogle || document.querySelector('script[src*="pagead2.googlesyndication.com"]')) {
-    showAdsense();
-    return;
-  }
-
-  // watch briefly for an injected script (e.g. Klaro injecting the script shortly after)
-  const observer = new MutationObserver((records, obs) => {
-    if (window.adsbygoogle || document.querySelector('script[src*="pagead2.googlesyndication.com"]')) {
-      obs.disconnect();
-      showAdsense();
+      // If the ad script already loaded, ensure it is initialised
+      try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) { /* ignore */ }
     }
-  });
-  observer.observe(document.head || document.documentElement, { childList: true, subtree: true });
 
-  // stop observing after a short grace period (3s)
-  setTimeout(() => observer.disconnect(), 3000);
-});
+    // quick checks
+    if (window.adsbygoogle || document.querySelector('script[src*="pagead2.googlesyndication.com"]')) {
+      showAdsense();
+      return;
+    }
+
+    // watch briefly for an injected script (e.g. Klaro injecting the script shortly after)
+    const observer = new MutationObserver((records, obs) => {
+      if (window.adsbygoogle || document.querySelector('script[src*="pagead2.googlesyndication.com"]')) {
+        obs.disconnect();
+        showAdsense();
+      }
+    });
+    observer.observe(document.head || document.documentElement, { childList: true, subtree: true });
+
+    // stop observing after a short grace period (3s)
+    setTimeout(() => observer.disconnect(), 3000);
+  });
 </script>

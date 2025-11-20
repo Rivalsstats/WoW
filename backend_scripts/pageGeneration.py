@@ -4,8 +4,9 @@ ROLE_FOLDERS = {
     "2": "Dps",
 }
 
+
 def generateSpecNav(spec_lookup, class_lookup):
-        # Build a dict mapping role names to lists of specs
+    # Build a dict mapping role names to lists of specs
     spec_nav = {role_name: [] for role_name in ROLE_FOLDERS.values()}
 
     for sid, sdata in spec_lookup.items():

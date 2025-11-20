@@ -13,7 +13,9 @@ from generateSpecPages import (
     upgrade_info,
     load_json,
 )
+
 TEMPLATE_PATH = "templates"
+
 
 def main():
     env = Environment(
@@ -27,21 +29,21 @@ def main():
     spec_lookup = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
     notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
-    posts = load_json(os.path.join('data', "socials.json"))
+    posts = load_json(os.path.join("data", "socials.json"))
 
-    posts = OrderedDict(sorted(posts.items(), key=lambda t: t[1]['timestamp'], reverse=True))
+    posts = OrderedDict(
+        sorted(posts.items(), key=lambda t: t[1]["timestamp"], reverse=True)
+    )
 
     spec_nav = generateSpecNav(spec_lookup, class_lookup)
     template = env.get_template(os.path.basename("blog.html"))
     output_html = template.render(
         generated_at=datetime.now(timezone.utc).timestamp(),
         spec_nav=spec_nav,
-        breadcrumbs=[
-            {"title": "Blog"}
-        ],
+        breadcrumbs=[{"title": "Blog"}],
         active_page="blog",
         notifications=notifications,
-        posts=posts
+        posts=posts,
     )
     # Write output
     if os.path.dirname(os.path.join("pages", "blog.html")):

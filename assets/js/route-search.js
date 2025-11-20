@@ -1,7 +1,3 @@
-// routesSearch.js
-// Assumes you have bootstrap, jQuery, selectpicker present (same as before)
-
-// config
 const PAGE_SIZE = 50;
 let compRoutesLoaded = false;
 let workerReady = false;
@@ -9,7 +5,6 @@ let worker = null;
 let pendingBuild = false;
 let lastResults = { total: 0, results: [] };
 
-// small helper debounce
 function debounce(fn, ms) {
   let t = null;
   return function (...args) {
@@ -18,7 +13,10 @@ function debounce(fn, ms) {
   };
 }
 
-// renderMatches: reuses your previous DOM building code but expects an array of route objects
+function safeId(str) {
+  return str.replace(/[^A-Za-z0-9_-]/g, "_");
+}
+
 function renderMatches(routes, append = false) {
   const accordion = document.getElementById("routeDungeonAccordion");
   if (!append) accordion.innerHTML = "";
@@ -27,12 +25,6 @@ function renderMatches(routes, append = false) {
     return;
   }
 
-  // helper safeId
-  function safeId(str) {
-    return str.replace(/[^A-Za-z0-9_-]/g, "_");
-  }
-
-  // create DOM for each route (re-using your earlier logic but lighter)
   routes.forEach((r) => {
     const slug = dungeons[r.dungeon]?.slug || r.dungeon;
     const runKey = safeId(`${slug}-${r.route_key}-${r.run_id}`);
@@ -372,7 +364,6 @@ function updateUrlFromParams(params, { replace = true } = {}) {
 }
 
 function applyParamsToForm(params) {
-  // only set values if there are values present
   if (params.dungeons && params.dungeons.length)
     $("#dungeonSelect").selectpicker("val", params.dungeons);
   if (params.specs && params.specs.length)
@@ -386,40 +377,29 @@ function applyParamsToForm(params) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  // Expose a small convenience to update URL from the current form (replace state)
   function replaceUrlFromForm() {
     const p = paramsFromForm();
     updateUrlFromParams(p, { replace: true });
   }
 
-  // parse incoming url and decide whether to run query
   const initialParams = parseUrlParams();
 
-  // If there are any params present, re-apply them to the form and trigger the query
-  // If no params, leave the server-rendered content as-is.
   if (hasAnyParams(initialParams)) {
     showOverlayUntilAccordionMutates(10000);
-    // apply UI values first (so selects reflect state)
     applyParamsToForm(initialParams);
 
-    // set currentPage from params
     currentPage = initialParams.page || 1;
 
-    // ensure the index exists and then query once ready
     if (!worker) initSearch();
-    // Wait until worker is ready before querying; the worker will update UI via postMessage.
     const waitForWorker = setInterval(() => {
       if (workerReady) {
         clearInterval(waitForWorker);
         doQuery({ page: currentPage, pageSize: PAGE_SIZE });
       }
     }, 150);
-    // also give a timeout fallback to avoid infinite wait
     setTimeout(() => clearInterval(waitForWorker), 10000);
   } else {
-    // still initialize the worker in background so subsequent searches are snappy
     initSearch();
-    // ensure the current URL is stored as baseline replaceState (so popstate has state object)
     updateUrlFromParams(
       {
         dungeons: [],
@@ -438,7 +418,6 @@ document.addEventListener("DOMContentLoaded", function () {
     "#dungeonSelect, #specSelect, #spellSelect, #npcIncludeSelect, #npcExcludeSelect"
   ).on("changed.bs.select change", onSelectChange);
 
-  // handle back/forward navigation
   window.addEventListener("popstate", function (ev) {
     const state = ev.state || parseUrlParams();
     if (!state) return;
@@ -458,230 +437,232 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-
-
-// ---------- overlay helpers ----------
 function showLoadingOverlay() {
-  const el = document.getElementById('route-search-overlay');
-  if (!el) return; // overlay not present in DOM -> no-op
-  el.style.display = 'flex';
-  el.setAttribute('aria-hidden', 'false');
+  const el = document.getElementById("route-search-overlay");
+  if (!el) return;
+  el.style.display = "flex";
+  el.setAttribute("aria-hidden", "false");
 }
 
 function hideLoadingOverlay() {
-  const el = document.getElementById('route-search-overlay');
-  if (!el) return; // overlay not present -> no-op
-  el.style.display = 'none';
-  el.setAttribute('aria-hidden', 'true');
+  const el = document.getElementById("route-search-overlay");
+  if (!el) return;
+  el.style.display = "none";
+  el.setAttribute("aria-hidden", "true");
 }
 
-// Show overlay and hide it when accordion content changes (or when timeout hits)
 function showOverlayUntilAccordionMutates(timeoutMs = 10000) {
-  // show the (HTML-provided) overlay if present
   showLoadingOverlay();
 
-  const accordion = document.getElementById('routeDungeonAccordion');
+  const accordion = document.getElementById("routeDungeonAccordion");
   if (!accordion) {
-    // nothing to observe -> hide shortly to avoid stuck overlay
     setTimeout(hideLoadingOverlay, 200);
     return;
   }
 
-  // hide overlay when accordion DOM changes (childList/subtree)
   const mo = new MutationObserver((mutations, observer) => {
     if (mutations && mutations.length) {
-      try { observer.disconnect(); } catch (e) {}
+      try {
+        observer.disconnect();
+      } catch (e) {}
       hideLoadingOverlay();
     }
   });
   mo.observe(accordion, { childList: true, subtree: true });
 
-  // fallback: hide after timeout and disconnect observer
   const to = setTimeout(() => {
-    try { mo.disconnect(); } catch (e) {}
+    try {
+      mo.disconnect();
+    } catch (e) {}
     hideLoadingOverlay();
   }, timeoutMs);
 
-  // cleanup observer: watch overlay attributes and cancel fallback timer if overlay is hidden
   const cleanupObserver = new MutationObserver(() => {
-    const overlay = document.getElementById('route-search-overlay');
+    const overlay = document.getElementById("route-search-overlay");
     if (!overlay) return;
-    if (overlay.style.display === 'none' || overlay.getAttribute('aria-hidden') === 'true') {
+    if (
+      overlay.style.display === "none" ||
+      overlay.getAttribute("aria-hidden") === "true"
+    ) {
       clearTimeout(to);
-      try { mo.disconnect(); } catch (e) {}
+      try {
+        mo.disconnect();
+      } catch (e) {}
       cleanupObserver.disconnect();
     }
   });
 
-  const overlayEl = document.getElementById('route-search-overlay');
+  const overlayEl = document.getElementById("route-search-overlay");
   if (overlayEl) {
-    cleanupObserver.observe(overlayEl, { attributes: true, attributeFilter: ['style', 'aria-hidden'] });
+    cleanupObserver.observe(overlayEl, {
+      attributes: true,
+      attributeFilter: ["style", "aria-hidden"],
+    });
   } else {
-    // overlay missing -> rely on fallback timeout only
     cleanupObserver.disconnect();
   }
 }
 
 (function () {
+  function renderPagination(total, page = 1, pageSize = PAGE_SIZE) {
+    const root = document.getElementById("route-pagination");
+    const list = root.querySelector(".pagination");
+    const summary = document.querySelector(".pagination-summary");
 
-// Render the pagination based on metadata
-function renderPagination(total, page = 1, pageSize = PAGE_SIZE) {
-  const root = document.getElementById("route-pagination");
-  const list = root.querySelector('.pagination');
-  const summary = document.querySelector('.pagination-summary');
-
-  // validate inputs
-  if (!list || typeof total !== 'number' || total <= 0) {
-    if (root) root.style.display = 'none';
-    return;
-  }
-
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  page = Math.max(1, Math.min(page, totalPages));
-  list.innerHTML = '';
-
-  // helper to create page item
-  function mkItem(labelHtml, cls = '', disabled = false, ariaLabel = null, pageNum = null) {
-    const li = document.createElement('li');
-    li.className = `page-item ${cls} ${disabled ? 'disabled' : ''}`.trim();
-    const a = document.createElement('a');
-    a.className = 'page-link';
-    a.href = 'javascript:void(0);';
-    a.setAttribute('role', 'button');
-    if (ariaLabel) a.setAttribute('aria-label', ariaLabel);
-    a.innerHTML = labelHtml;
-    if (!disabled && typeof pageNum === 'number') {
-      a.addEventListener('click', (ev) => {
-        ev.preventDefault();
-        goToPage(pageNum, { push: true });
-      });
+    if (!list || typeof total !== "number" || total <= 0) {
+      if (root) root.style.display = "none";
+      return;
     }
-    li.appendChild(a);
-    return li;
-  }
 
-  // small windowing function
-  function pageWindow(current, totalP, maxButtons = 7) {
-    if (totalP <= maxButtons) return Array.from({ length: totalP }, (_, i) => i + 1);
-    const half = Math.floor(maxButtons / 2);
-    let start = Math.max(1, current - half);
-    let end = Math.min(totalP, current + half);
-    if (current - start < half) end = Math.min(totalP, start + maxButtons - 1);
-    if (end - current < half) start = Math.max(1, end - maxButtons + 1);
-    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-  }
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+    page = Math.max(1, Math.min(page, totalPages));
+    list.innerHTML = "";
 
-  // Use material icon HTML for prev/next
-  const prevHtml = `<i class="material-symbols-rounded" aria-hidden="true" style="vertical-align:middle">arrow_back_ios</i>`;
-  const nextHtml = `<i class="material-symbols-rounded" aria-hidden="true" style="vertical-align:middle">arrow_forward_ios</i>`;
-
-  // Prev
-  list.appendChild(mkItem(prevHtml, '', page <= 1, 'Previous page', Math.max(1, page - 1)));
-
-  // page numbers window
-  const pages = pageWindow(page, totalPages, 7);
-  if (pages[0] > 1) {
-    list.appendChild(mkItem('1', '', false, 'Page 1', 1));
-    if (pages[0] > 2) {
-      const ell = document.createElement('li');
-      ell.className = 'page-item disabled';
-      ell.innerHTML = `<span class="page-link">…</span>`;
-      list.appendChild(ell);
+    function mkItem(
+      labelHtml,
+      cls = "",
+      disabled = false,
+      ariaLabel = null,
+      pageNum = null
+    ) {
+      const li = document.createElement("li");
+      li.className = `page-item ${cls} ${disabled ? "disabled" : ""}`.trim();
+      const a = document.createElement("a");
+      a.className = "page-link";
+      a.href = "javascript:void(0);";
+      a.setAttribute("role", "button");
+      if (ariaLabel) a.setAttribute("aria-label", ariaLabel);
+      a.innerHTML = labelHtml;
+      if (!disabled && typeof pageNum === "number") {
+        a.addEventListener("click", (ev) => {
+          ev.preventDefault();
+          goToPage(pageNum, { push: true });
+        });
+      }
+      li.appendChild(a);
+      return li;
     }
-  }
 
-  pages.forEach((pn) => {
-    const activeClass = pn === page ? 'active' : '';
-    const li = mkItem(String(pn), activeClass, false, `Page ${pn}`, pn);
-    if (pn === page) li.classList.add('active');
-    list.appendChild(li);
-  });
-
-  if (pages[pages.length - 1] < totalPages) {
-    if (pages[pages.length - 1] < totalPages - 1) {
-      const ell = document.createElement('li');
-      ell.className = 'page-item disabled';
-      ell.innerHTML = `<span class="page-link">…</span>`;
-      list.appendChild(ell);
+    function pageWindow(current, totalP, maxButtons = 7) {
+      if (totalP <= maxButtons)
+        return Array.from({ length: totalP }, (_, i) => i + 1);
+      const half = Math.floor(maxButtons / 2);
+      let start = Math.max(1, current - half);
+      let end = Math.min(totalP, current + half);
+      if (current - start < half)
+        end = Math.min(totalP, start + maxButtons - 1);
+      if (end - current < half) start = Math.max(1, end - maxButtons + 1);
+      return Array.from({ length: end - start + 1 }, (_, i) => start + i);
     }
-    list.appendChild(mkItem(String(totalPages), '', false, `Page ${totalPages}`, totalPages));
-  }
 
-  // Next
-  list.appendChild(mkItem(nextHtml, '', page >= totalPages, 'Next page', Math.min(totalPages, page + 1)));
+    const prevHtml = `<i class="material-symbols-rounded" aria-hidden="true" style="vertical-align:middle">arrow_back_ios</i>`;
+    const nextHtml = `<i class="material-symbols-rounded" aria-hidden="true" style="vertical-align:middle">arrow_forward_ios</i>`;
 
-  // show summary
-  if (summary) {
-    summary.style.display = 'inline-block';
-    summary.textContent = `Page ${page} of ${totalPages} (${total} Routes)`;
-  }
+    list.appendChild(
+      mkItem(prevHtml, "", page <= 1, "Previous page", Math.max(1, page - 1))
+    );
 
-  // expose data attributes & show root
-  root.dataset.totalPages = String(totalPages);
-  root.dataset.currentPage = String(page);
-  root.style.display = 'flex';
-}
-
-  
-// navigate programmatically 
-function goToPage(n, { push = false } = {}) {
-  n = Math.max(1, Math.floor(n || 1));
-  currentPage = n;
-
-  // update URL params from current form + new page
-  const params = paramsFromForm();
-  params.page = currentPage;
-  updateUrlFromParams(params, { replace: !push });
-
-  // scroll to top of the accordion so users see new content
-  try {
-    const target =
-      document.getElementById("routeDungeonAccordion") ||
-      document.querySelector("main") ||
-      document.body;
-
-    let offset = 20;
-    const navbar =
-      document.querySelector(".navbar") ||
-      document.querySelector(".navbar-expand") ||
-      document.querySelector(".main-nav");
-    if (navbar) {
-      try {
-        const nbRect = navbar.getBoundingClientRect();
-        if (nbRect && nbRect.height) offset = Math.round(nbRect.height) + 12;
-      } catch (e) {
-        /* ignore */
+    const pages = pageWindow(page, totalPages, 7);
+    if (pages[0] > 1) {
+      list.appendChild(mkItem("1", "", false, "Page 1", 1));
+      if (pages[0] > 2) {
+        const ell = document.createElement("li");
+        ell.className = "page-item disabled";
+        ell.innerHTML = `<span class="page-link">…</span>`;
+        list.appendChild(ell);
       }
     }
 
-    const rect = target.getBoundingClientRect();
-    const top = Math.max(0, rect.top + window.scrollY - offset);
+    pages.forEach((pn) => {
+      const activeClass = pn === page ? "active" : "";
+      const li = mkItem(String(pn), activeClass, false, `Page ${pn}`, pn);
+      if (pn === page) li.classList.add("active");
+      list.appendChild(li);
+    });
 
-    window.scrollTo({ top, behavior: "smooth" });
+    if (pages[pages.length - 1] < totalPages) {
+      if (pages[pages.length - 1] < totalPages - 1) {
+        const ell = document.createElement("li");
+        ell.className = "page-item disabled";
+        ell.innerHTML = `<span class="page-link">…</span>`;
+        list.appendChild(ell);
+      }
+      list.appendChild(
+        mkItem(String(totalPages), "", false, `Page ${totalPages}`, totalPages)
+      );
+    }
 
-    try {
-      target.setAttribute("tabindex", "-1");
-      target.focus({ preventScroll: true });
-    } catch (e) {}
-  } catch (e) {
-    console.warn("scroll-to-results failed", e);
+    list.appendChild(
+      mkItem(
+        nextHtml,
+        "",
+        page >= totalPages,
+        "Next page",
+        Math.min(totalPages, page + 1)
+      )
+    );
+
+    if (summary) {
+      summary.style.display = "inline-block";
+      summary.textContent = `Page ${page} of ${totalPages} (${total} Routes)`;
+    }
+
+    root.dataset.totalPages = String(totalPages);
+    root.dataset.currentPage = String(page);
+    root.style.display = "flex";
   }
 
-  // show overlay and request query
-  showOverlayUntilAccordionMutates(10000);
-  if (!worker) initSearch();
+  function goToPage(n, { push = false } = {}) {
+    n = Math.max(1, Math.floor(n || 1));
+    currentPage = n;
 
-  const waitForWorker = setInterval(() => {
-    if (workerReady) {
-      clearInterval(waitForWorker);
-      doQuery({ page: currentPage, pageSize: PAGE_SIZE });
+    const params = paramsFromForm();
+    params.page = currentPage;
+    updateUrlFromParams(params, { replace: !push });
+
+    try {
+      const target =
+        document.getElementById("routeDungeonAccordion") ||
+        document.querySelector("main") ||
+        document.body;
+
+      let offset = 20;
+      const navbar =
+        document.querySelector(".navbar") ||
+        document.querySelector(".navbar-expand") ||
+        document.querySelector(".main-nav");
+      if (navbar) {
+        try {
+          const nbRect = navbar.getBoundingClientRect();
+          if (nbRect && nbRect.height) offset = Math.round(nbRect.height) + 12;
+        } catch (e) {}
+      }
+
+      const rect = target.getBoundingClientRect();
+      const top = Math.max(0, rect.top + window.scrollY - offset);
+
+      window.scrollTo({ top, behavior: "smooth" });
+
+      try {
+        target.setAttribute("tabindex", "-1");
+        target.focus({ preventScroll: true });
+      } catch (e) {}
+    } catch (e) {
+      console.warn("scroll-to-results failed", e);
     }
-  }, 100);
-  setTimeout(() => clearInterval(waitForWorker), 10000);
-}
 
+    showOverlayUntilAccordionMutates(10000);
+    if (!worker) initSearch();
 
-  // Listen for worker results so we can render pagination when metadata arrives
+    const waitForWorker = setInterval(() => {
+      if (workerReady) {
+        clearInterval(waitForWorker);
+        doQuery({ page: currentPage, pageSize: PAGE_SIZE });
+      }
+    }, 100);
+    setTimeout(() => clearInterval(waitForWorker), 10000);
+  }
+
   function attachWorkerPaginationListener() {
     if (!window.worker) return;
     if (window.__pager_attached) return;
@@ -722,10 +703,8 @@ function goToPage(n, { push = false } = {}) {
     });
   }
 
-  // If worker already ready, attach now; else attach once it's ready via existing workerReady checks
   if (window.worker && window.workerReady) attachWorkerPaginationListener();
   else {
-    // fallback: poll for worker creation
     const poll = setInterval(() => {
       if (window.worker) {
         attachWorkerPaginationListener();

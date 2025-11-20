@@ -14,12 +14,12 @@ h1 {
 #talent-tree {
   display: flex;
   width: 90vw;
-  height: 60vh;      /* <— now actually used */
+  height: 60vh;
   margin: 0 auto 2rem;
   border: 1px solid #444;
   background-color: #2e2e2e;
   overflow: hidden;
-  position: relative;  /* for the SVG overlay */
+  position: relative;
 }
 
 .talent {
@@ -37,8 +37,6 @@ h1 {
 .talent:hover {
   transform: scale(1.1);
 }
-
-
 
 .talent {
   position: absolute;
@@ -63,7 +61,6 @@ h1 {
 }
 
 .talent.choice {
-  /* width & height will be set in JS per node */
   background: transparent;
   border: none;
 }
@@ -82,48 +79,43 @@ h1 {
   transform: scale(1.1);
 }
 
-
-/* --- base shapes --- */
-/* square is the default for .talent and .choice-option */
-
-/* passive = circle */
 .talent.single.passive,
 .choice-option.passive {
   border-radius: 50%;
 }
 
-/* choice-container = octagon */
-.talent.choice .shape{
+.talent.choice .shape {
   clip-path: polygon(
-    30% 0%, 70% 0%, 
-    100% 30%, 100% 70%, 
-    70% 100%, 30% 100%, 
-    0% 70%, 0% 30%
+    30% 0%,
+    70% 0%,
+    100% 30%,
+    100% 70%,
+    70% 100%,
+    30% 100%,
+    0% 70%,
+    0% 30%
   );
   width: 100%;
   height: 100%;
-  background: #3a3a3a;  /* subtle bg so octagon is visible */
+  background: #3a3a3a;
   border: 2px solid #888;
   box-sizing: border-box;
 }
 
-/* inside a choice, individual options keep their shapes */
 .choice-option {
-  clip-path: none; /* reset any inherited clip-path */
+  clip-path: none;
 }
 
-/* if a choice-option is passive */
 .choice-option.passive {
   clip-path: circle(50% at 50% 50%);
 }
 
-/* selected styling (all types) */
 .talent.single.selected,
 .talent.choice.selected {
   border-color: gold !important;
   filter: drop-shadow(0 0 8px gold) !important;
 }
-/* choice container before pick: show half-&-half icon */
+
 .talent.choice {
   position: absolute;
   background-size: 200% 100%;
@@ -133,17 +125,15 @@ h1 {
   overflow: visible;
   z-index: 2;
 }
-/* left half from entry[0], right half from entry[1] */
+
 .talent.choice.unpicked {
   padding: 0;
   margin: 0;
   position: absolute;
-  overflow: visible; /* keep dropdown visible */
+  overflow: visible;
   cursor: pointer;
 }
 
-
-/* dropdown menu */
 .choice-menu {
   position: absolute;
   background: #2e2e2e;
@@ -152,13 +142,13 @@ h1 {
   padding: 4px;
   display: flex;
   gap: 4px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.8);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
   z-index: 10;
 }
 .choice-menu.hidden {
   display: none;
 }
-/* options inside dropdown */
+
 .choice-menu .choice-option {
   width: 40px;
   height: 40px;
@@ -178,7 +168,7 @@ h1 {
   height: 100%;
   overflow: hidden;
   top: 0;
-  left: 0; /* overridden for .right */
+  left: 0;
   margin: 0;
   padding: 0;
   border: none;
@@ -190,53 +180,48 @@ h1 {
   left: 50%;
 }
 
-/* the image itself, positioned so only the correct half is visible */
 .talent.choice .half img {
-  display: block;         /* remove inline‐gap */
+  display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;      /* zoom & crop to fill */
+  object-fit: cover;
 }
 .talent.choice .half.right img {
-  left: -50%;         /* shift left by half to crop left half of second icon */
+  left: -50%;
 }
-/* single talents */
+
 .talent.single:not(.selected) {
   filter: grayscale(100%);
 }
 
-/* choice node halves, before pick */
 .talent.choice:not(.selected) .half img {
   filter: grayscale(100%);
 }
 
-.talent.choice.selected .shape .half{
-  display:none;
+.talent.choice.selected .shape .half {
+  display: none;
 }
 
-
 .tree-col {
-  flex: 1;               /* each column takes 1/3 of the width */
-  position: relative;    /* so children with absolute pos are scoped here */
+  flex: 1;
+  position: relative;
 }
 .center {
   display: flex;
   justify-content: center;
-  align-items: center;   /* center any non-absolute children */
+  align-items: center;
 }
-/* for subtree-selector nodes, we'll still absolutely position them at 50/50 */
+
 .subtree-selector-node {
   position: absolute;
-  left:  50%;
+  left: 50%;
   width: 128px;
   height: 128px;
-  top:   50%;
-  /* keep centering in place */
+  top: 50%;
   transform: none !important;
   transform-origin: center center;
 }
 
 .subtree-selector-node:hover {
-  /* now scale _and_ keep the centering translate */
   transform: translate(-50%, -50%) scale(1.1);
 }

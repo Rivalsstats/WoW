@@ -15,6 +15,7 @@ from generateSpecPages import (
     upgrade_info,
     load_json,
 )
+
 # config
 CLIENT_ID = os.environ["BLIZ_CLIENT_ID"]
 CLIENT_SECRET = os.environ["BLIZ_CLIENT_SECRET"]
@@ -27,6 +28,7 @@ databaseConnector.init_connection_pool(
     os.environ.get("DATABASE_PORT"),
     1,
 )
+
 
 def _finish_building_tiers_from_items(items, k=6):
     tier_letters = ["S", "A", "B", "C", "D", "F"]
@@ -56,10 +58,14 @@ def _finish_building_tiers_from_items(items, k=6):
         v = it["lb_ci"]
         cluster_sums[lab] = cluster_sums.get(lab, 0.0) + v
         cluster_counts[lab] = cluster_counts.get(lab, 0) + 1
-    cluster_means = {lab: (cluster_sums[lab] / cluster_counts[lab]) for lab in cluster_sums}
+    cluster_means = {
+        lab: (cluster_sums[lab] / cluster_counts[lab]) for lab in cluster_sums
+    }
 
     # order clusters by descending mean and map to tier letters
-    ordered_clusters = sorted(cluster_means.keys(), key=lambda L: cluster_means[L], reverse=True)
+    ordered_clusters = sorted(
+        cluster_means.keys(), key=lambda L: cluster_means[L], reverse=True
+    )
     cluster_to_tier = {}
     for i, cid in enumerate(ordered_clusters):
         if i < len(tier_letters):
@@ -81,7 +87,9 @@ def _finish_building_tiers_from_items(items, k=6):
         letters = tier_letters
         k_len = len(letters)
         for L in letters:
-            tiers_dict[L] = sorted(tiers_dict.get(L, []), key=lambda d: d["score"], reverse=True)
+            tiers_dict[L] = sorted(
+                tiers_dict.get(L, []), key=lambda d: d["score"], reverse=True
+            )
 
         for i, L in enumerate(letters):
             if len(tiers_dict[L]) == 0:
@@ -121,7 +129,9 @@ def _finish_building_tiers_from_items(items, k=6):
                         moved = True
                         break
         for L in letters:
-            tiers_dict[L] = sorted(tiers_dict.get(L, []), key=lambda d: d["score"], reverse=True)
+            tiers_dict[L] = sorted(
+                tiers_dict.get(L, []), key=lambda d: d["score"], reverse=True
+            )
         return tiers_dict
 
     repaired = repair_tiers({L: list(tiers[L]) for L in tier_letters})
@@ -136,7 +146,7 @@ def _finish_building_tiers_from_items(items, k=6):
     for i, L in enumerate(tier_letters):
         take = base + (1 if i < rem else 0)
         if take > 0:
-            slice_items = items[idx: idx + take]
+            slice_items = items[idx : idx + take]
             for it in slice_items:
                 it["score"] = it["lb_ci"]
             out[L].extend(slice_items)
@@ -144,6 +154,7 @@ def _finish_building_tiers_from_items(items, k=6):
     for L in out:
         out[L] = sorted(out[L], key=lambda d: d["score"], reverse=True)
     return out
+
 
 # --------------------------
 # 1D ckmeans (optimal 1D k-means) implementation
@@ -221,7 +232,7 @@ def ckmeans_1d(values, k):
     # assign labels per sorted index
     labels_sorted = [None] * n
     label = 0
-    for (start, end) in boundaries:
+    for start, end in boundaries:
         for t in range(start, end + 1):
             labels_sorted[t] = label
         label += 1
@@ -231,6 +242,7 @@ def ckmeans_1d(values, k):
     for sorted_pos, orig_idx in enumerate(idx_sorted):
         labels[orig_idx] = labels_sorted[sorted_pos]
     return labels
+
 
 # --------------------------
 # compute LB_CI from aggregated counts using exponential weighting by level
@@ -370,6 +382,7 @@ def compute_weighted_stats_and_lbci(
         }
     return out
 
+
 # --------------------------
 # build tiers using LB_CI + ckmeans clustering
 # --------------------------
@@ -388,21 +401,23 @@ def build_ckmeans_tiers(dungeon_lookup, runs_rows, weight_base=1.6, k=6):
     items = []
     for did, s in stats.items():
         meta = dungeon_lookup.get(str(did)) or dungeon_lookup.get(did) or {}
-        items.append({
-            "dungeon_id": did,
-            "name": meta.get("name", f"Dungeon {did}"),
-            "short": meta.get("short", ""),
-            "icon": meta.get("icon", None),
-            "lb_ci": s["lb_ci"],
-            "mean": s["mean"],
-            "var": s["var"],
-            "total_runs": s.get("total_runs", 0),
-            "upgrade_3": s.get("upgrade_3", 0),
-            "upgrade_2": s.get("upgrade_2", 0),
-            "upgrade_1": s.get("upgrade_1", 0),
-            "depleted": s.get("depleted", 0),
-            "N": s["N"],
-        })
+        items.append(
+            {
+                "dungeon_id": did,
+                "name": meta.get("name", f"Dungeon {did}"),
+                "short": meta.get("short", ""),
+                "icon": meta.get("icon", None),
+                "lb_ci": s["lb_ci"],
+                "mean": s["mean"],
+                "var": s["var"],
+                "total_runs": s.get("total_runs", 0),
+                "upgrade_3": s.get("upgrade_3", 0),
+                "upgrade_2": s.get("upgrade_2", 0),
+                "upgrade_1": s.get("upgrade_1", 0),
+                "depleted": s.get("depleted", 0),
+                "N": s["N"],
+            }
+        )
 
     # if no items, return empty structure
     n = len(items)
@@ -435,10 +450,14 @@ def build_ckmeans_tiers(dungeon_lookup, runs_rows, weight_base=1.6, k=6):
         v = it["lb_ci"]
         cluster_sums[lab] = cluster_sums.get(lab, 0.0) + v
         cluster_counts[lab] = cluster_counts.get(lab, 0) + 1
-    cluster_means = {lab: (cluster_sums[lab] / cluster_counts[lab]) for lab in cluster_sums}
+    cluster_means = {
+        lab: (cluster_sums[lab] / cluster_counts[lab]) for lab in cluster_sums
+    }
 
     # order cluster ids by descending mean (highest LB_CI -> top)
-    ordered_clusters = sorted(cluster_means.keys(), key=lambda L: cluster_means[L], reverse=True)
+    ordered_clusters = sorted(
+        cluster_means.keys(), key=lambda L: cluster_means[L], reverse=True
+    )
 
     # Map available clusters to top-most tiers (deterministic)
     cluster_to_tier = {}
@@ -473,7 +492,9 @@ def build_ckmeans_tiers(dungeon_lookup, runs_rows, weight_base=1.6, k=6):
         k_len = len(letters)
         # ensure sorted inside tiers
         for L in letters:
-            tiers_dict[L] = sorted(tiers_dict.get(L, []), key=lambda d: d["score"], reverse=True)
+            tiers_dict[L] = sorted(
+                tiers_dict.get(L, []), key=lambda d: d["score"], reverse=True
+            )
 
         for i, L in enumerate(letters):
             if len(tiers_dict[L]) == 0:
@@ -518,7 +539,9 @@ def build_ckmeans_tiers(dungeon_lookup, runs_rows, weight_base=1.6, k=6):
                 # if still not moved, give up here (will be handled by fallback)
         # final sort
         for L in letters:
-            tiers_dict[L] = sorted(tiers_dict.get(L, []), key=lambda d: d["score"], reverse=True)
+            tiers_dict[L] = sorted(
+                tiers_dict.get(L, []), key=lambda d: d["score"], reverse=True
+            )
         return tiers_dict
 
     repaired = repair_tiers({L: list(tiers[L]) for L in tier_letters})
@@ -534,7 +557,7 @@ def build_ckmeans_tiers(dungeon_lookup, runs_rows, weight_base=1.6, k=6):
     for i, L in enumerate(tier_letters):
         take = base + (1 if i < rem else 0)
         if take > 0:
-            slice_items = items[idx: idx + take]
+            slice_items = items[idx : idx + take]
             for it in slice_items:
                 it["score"] = it["lb_ci"]
             out[L].extend(slice_items)
@@ -543,6 +566,7 @@ def build_ckmeans_tiers(dungeon_lookup, runs_rows, weight_base=1.6, k=6):
     for L in out:
         out[L] = sorted(out[L], key=lambda d: d["score"], reverse=True)
     return out
+
 
 def build_buff_tiers(buff_lookup, buff_rows, k=6):
     """
@@ -565,22 +589,37 @@ def build_buff_tiers(buff_lookup, buff_rows, k=6):
             runs = int(b.get("runs", 0) or 0)
             pct = b.get("pct")
             if pct is None:
-                pct = (runs / total_runs_global * 100.0) if total_runs_global > 0 else 0.0
-            items.append({
-                "buff_id": bid,
-                "name": (buff_lookup.get(str(bid)) or buff_lookup.get(bid) or {}).get("name")
-                        or (buff_lookup.get(str(bid)) or buff_lookup.get(bid) or {}).get("display_name")
-                        or f"Buff {bid}",
-                "short": (buff_lookup.get(str(bid)) or buff_lookup.get(bid) or {}).get("short", ""),
-                "icon": (buff_lookup.get(str(bid)) or buff_lookup.get(bid) or {}).get("icon") or (buff_lookup.get(str(bid)) or buff_lookup.get(bid) or {}).get("icon_file"),
-                # use pct (0..100) as the score field expected by downstream code (lb_ci)
-                "lb_ci": float(pct),
-                "mean": float(pct),
-                "var": 0.0,
-                "total_runs": total_runs_global,
-                "runs": runs,
-                "N": total_runs_global or runs,
-            })
+                pct = (
+                    (runs / total_runs_global * 100.0) if total_runs_global > 0 else 0.0
+                )
+            items.append(
+                {
+                    "buff_id": bid,
+                    "name": (
+                        buff_lookup.get(str(bid)) or buff_lookup.get(bid) or {}
+                    ).get("name")
+                    or (buff_lookup.get(str(bid)) or buff_lookup.get(bid) or {}).get(
+                        "display_name"
+                    )
+                    or f"Buff {bid}",
+                    "short": (
+                        buff_lookup.get(str(bid)) or buff_lookup.get(bid) or {}
+                    ).get("short", ""),
+                    "icon": (
+                        buff_lookup.get(str(bid)) or buff_lookup.get(bid) or {}
+                    ).get("icon")
+                    or (buff_lookup.get(str(bid)) or buff_lookup.get(bid) or {}).get(
+                        "icon_file"
+                    ),
+                    # use pct (0..100) as the score field expected by downstream code (lb_ci)
+                    "lb_ci": float(pct),
+                    "mean": float(pct),
+                    "var": 0.0,
+                    "total_runs": total_runs_global,
+                    "runs": runs,
+                    "N": total_runs_global or runs,
+                }
+            )
     else:
         # assume iterable of rows (flexible shapes)
         for r in buff_rows or []:
@@ -595,18 +634,22 @@ def build_buff_tiers(buff_lookup, buff_rows, k=6):
             if pct is None:
                 pct = (runs / total_runs_row * 100.0) if total_runs_row > 0 else 0.0
             meta = buff_lookup.get(str(bid)) or buff_lookup.get(bid) or {}
-            items.append({
-                "buff_id": bid,
-                "name": meta.get("name") or meta.get("display_name") or f"Buff {bid}",
-                "short": meta.get("short", ""),
-                "icon": meta.get("icon") or meta.get("icon_file"),
-                "lb_ci": float(pct),
-                "mean": float(pct),
-                "var": 0.0,
-                "total_runs": total_runs_row or runs,
-                "runs": runs,
-                "N": total_runs_row or runs,
-            })
+            items.append(
+                {
+                    "buff_id": bid,
+                    "name": meta.get("name")
+                    or meta.get("display_name")
+                    or f"Buff {bid}",
+                    "short": meta.get("short", ""),
+                    "icon": meta.get("icon") or meta.get("icon_file"),
+                    "lb_ci": float(pct),
+                    "mean": float(pct),
+                    "var": 0.0,
+                    "total_runs": total_runs_row or runs,
+                    "runs": runs,
+                    "N": total_runs_row or runs,
+                }
+            )
 
     # if nothing to do, return empty tier structure
     if not items:
@@ -631,24 +674,33 @@ def build_spec_tiers(spec_lookup, class_lookup, spec_rows, weight_base=1.6, k=6)
     for sid, s in stats.items():
         meta = spec_lookup.get(str(sid)) or spec_lookup.get(sid) or {}
         class_id = meta.get("class_id") or meta.get("class") or None
-        items.append({
-            "spec_id": sid,
-            "name": meta.get("name", {"en_US": f"Spec {sid}"}) if isinstance(meta.get("name"), dict) else meta.get("name", f"Spec {sid}"),
-            "icon": meta.get("icon"),
-            "class_id": class_id,
-            "class_meta": class_lookup.get(str(class_id)) or class_lookup.get(class_id) if class_lookup else None,
-            "lb_ci": s["lb_ci"],
-            "mean": s["mean"],
-            "var": s["var"],
-            "total_runs": s.get("total_runs", 0),
-            "upgrade_3": s.get("upgrade_3", 0),
-            "upgrade_2": s.get("upgrade_2", 0),
-            "upgrade_1": s.get("upgrade_1", 0),
-            "depleted": s.get("depleted", 0),
-            "N": s["N"],
-        })
+        items.append(
+            {
+                "spec_id": sid,
+                "name": meta.get("name", {"en_US": f"Spec {sid}"})
+                if isinstance(meta.get("name"), dict)
+                else meta.get("name", f"Spec {sid}"),
+                "icon": meta.get("icon"),
+                "class_id": class_id,
+                "class_meta": class_lookup.get(str(class_id))
+                or class_lookup.get(class_id)
+                if class_lookup
+                else None,
+                "lb_ci": s["lb_ci"],
+                "mean": s["mean"],
+                "var": s["var"],
+                "total_runs": s.get("total_runs", 0),
+                "upgrade_3": s.get("upgrade_3", 0),
+                "upgrade_2": s.get("upgrade_2", 0),
+                "upgrade_1": s.get("upgrade_1", 0),
+                "depleted": s.get("depleted", 0),
+                "N": s["N"],
+            }
+        )
 
     return _finish_building_tiers_from_items(items, k)
+
+
 def main(template_path, output_dir):
     print("Generating index page...")
     env = Environment(
@@ -675,13 +727,21 @@ def main(template_path, output_dir):
     print(f"Fetching database data {current_season}...")
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()
-        dungeon_data = databaseConnector.fetch_runs_per_dungeon_per_level(conn, cursor, current_season)
+        dungeon_data = databaseConnector.fetch_runs_per_dungeon_per_level(
+            conn, cursor, current_season
+        )
         spec_data = databaseConnector.fetch_spec_upgrades(conn, cursor, current_season)
-        groupbuffs_stats = databaseConnector.fetch_groupbuffs_stats(conn, cursor, group_buffs, current_season, 12, 14)
+        groupbuffs_stats = databaseConnector.fetch_groupbuffs_stats(
+            conn, cursor, group_buffs, current_season, 12, 14
+        )
     print(groupbuffs_stats)
     print("Building tiers...")
-    dungeon_tiers = build_ckmeans_tiers(dungeon_lookup, dungeon_data, weight_base=1.6, k=6)
-    spec_tiers = build_spec_tiers(spec_lookup, class_lookup, spec_data, weight_base=1.6, k=6)
+    dungeon_tiers = build_ckmeans_tiers(
+        dungeon_lookup, dungeon_data, weight_base=1.6, k=6
+    )
+    spec_tiers = build_spec_tiers(
+        spec_lookup, class_lookup, spec_data, weight_base=1.6, k=6
+    )
     buff_tiers = build_buff_tiers(buff_lookup, groupbuffs_stats)
 
     print("Rendering template...")
@@ -689,7 +749,7 @@ def main(template_path, output_dir):
         generated_at=datetime.now(timezone.utc).timestamp(),
         spec_nav=spec_nav,
         dungeon_lookup=dungeon_lookup,
-        specs = spec_lookup,
+        specs=spec_lookup,
         class_lookup=class_lookup,
         active_page="home",
         notifications=notifications,
@@ -701,7 +761,7 @@ def main(template_path, output_dir):
         spec_tiers=spec_tiers,
         spec_scores_available=bool(spec_data),
         season=current_season,
-        role_lookup = ROLE_FOLDERS,
+        role_lookup=ROLE_FOLDERS,
         buff_tiers=buff_tiers,
         buff_lookup=buff_lookup,
         buff_scores_available=bool(groupbuffs_stats),

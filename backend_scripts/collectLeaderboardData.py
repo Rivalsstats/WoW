@@ -6,7 +6,13 @@ from datetime import datetime, timedelta, timezone
 import time
 import csv
 from pathlib import Path
-from aiohttp import ClientSession, ClientTimeout, BasicAuth, ClientResponseError, ClientConnectionResetError
+from aiohttp import (
+    ClientSession,
+    ClientTimeout,
+    BasicAuth,
+    ClientResponseError,
+    ClientConnectionResetError,
+)
 from aiohttp_retry import RetryClient, ExponentialRetry
 import aiohttp
 from aiolimiter import AsyncLimiter
@@ -20,17 +26,20 @@ from dotenv import load_dotenv
 import stats
 import discordHandler
 
-load_dotenv() # Load environment variables from .env file if it exists
+# Load environment variables first as we need it for some of the configs
+load_dotenv()
+
 
 def getenv_clean(key, default=None):
     v = os.environ.get(key, default)
     if isinstance(v, str):
-        return v.rstrip('\r\n')  # remove CR and LF at end
+        return v.rstrip("\r\n")
     return v
+
 
 # Queue settings
 QUEUE_MAXSIZE = 1000
-GHA_TIMEOUT = 60 * 60 *24
+GHA_TIMEOUT = 60 * 60 * 24
 HARD_TIMEOUT = GHA_TIMEOUT + 30 * 60  # force cancel after 30 minutes past GHA_TIMEOUT
 cancel_event = asyncio.Event()
 shutdown_event = asyncio.Event()
@@ -42,7 +51,12 @@ POLL_INTERVAL_SECONDS = int(getenv_clean("POLL_INTERVAL_SECONDS", "300"))
 simple_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
 advanced_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
 database_queue: asyncio.Queue[dict] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
-GLOBAL_STATS = stats.StatsCollector(window_seconds=300, simple_queue=simple_queue, advanced_queue=advanced_queue, database_queue=database_queue)
+GLOBAL_STATS = stats.StatsCollector(
+    window_seconds=300,
+    simple_queue=simple_queue,
+    advanced_queue=advanced_queue,
+    database_queue=database_queue,
+)
 
 try:
     policy = asyncio.WindowsSelectorEventLoopPolicy()
@@ -58,25 +72,19 @@ parser.add_argument(
     help="If set, only collect this Blizzard region (e.g. 'us').",
     choices=["us", "eu", "kr", "tw"],
 )
-HUNTER_SPEC_IDS = [253, 254, 255]
 
 args = parser.parse_args()
 
 GLOBAL_STATS.console_log("Initializing database connection pool…")
-print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB host: {repr(getenv_clean('DATABASE_HOST'))}")
-print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB user: {repr(getenv_clean('DATABASE_USER'))}")
-print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB password: {repr(getenv_clean('DATABASE_PASSWORD'))}")
-print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB name: {repr(getenv_clean('DATABASE_NAME'))}")
-print(f"[{datetime.now(timezone.utc).isoformat()}] Using DB port: {repr(getenv_clean('DATABASE_PORT'))}")
 
 DATABASE_WORKERS = int(getenv_clean("DATABASE_WORKERS", "1"))
 databaseConnector.init_connection_pool(
-    getenv_clean('DATABASE_HOST'),
-    getenv_clean('DATABASE_USER'),
-    getenv_clean('DATABASE_PASSWORD'),
-    getenv_clean('DATABASE_NAME'),
-    getenv_clean('DATABASE_PORT'),
-    DATABASE_WORKERS
+    getenv_clean("DATABASE_HOST"),
+    getenv_clean("DATABASE_USER"),
+    getenv_clean("DATABASE_PASSWORD"),
+    getenv_clean("DATABASE_NAME"),
+    getenv_clean("DATABASE_PORT"),
+    DATABASE_WORKERS,
 )
 
 if args.region:
@@ -84,24 +92,27 @@ if args.region:
 else:
     REGIONS = getenv_clean("REGIONS", "us,eu,kr,tw").split(",")
 
+# Blizzard API settings
 API_BASE = "https://{region}.api.blizzard.com"
-
 OAUTH_BASE = "https://oauth.battle.net/token"
 NAMESPACE_DYNAMIC = "dynamic-{region}"
 LOCALE = getenv_clean("LOCALE", "en_US")
+
+# Paths and constants
 DATA_DIR = Path("data")
 RUNS_DIR = DATA_DIR / "runs"
 DUNGEON_STATIC = DATA_DIR / "static" / "dungeons.json"
+HUNTER_SPEC_IDS = [253, 254, 255]
 
-# rio info
+# rio settings to get Highest Key Levels
 PAGE_TO_FETCH = 100
 KEYLEVELS_DOWN = 5
 
-# Rate limits
+# Rate limits (they are 30k/hour and 100/second globally)
 per_second_limiter = AsyncLimiter(90, 1)
 per_hour_limiter = AsyncLimiter(29500, 3600)
 
-# Rate limits (per‑region)
+# Rate limits (per‑region) Assumes we use one api key per region and not one for all of them
 REGION_LIMITERS: dict[str, dict[str, AsyncLimiter]] = {
     region: {
         "per_second": AsyncLimiter(90, 1),
@@ -110,20 +121,17 @@ REGION_LIMITERS: dict[str, dict[str, AsyncLimiter]] = {
     for region in REGIONS
 }
 
-# “Global” backoff, per region
+# backoff, per region
 region_backoff_until: dict[str, float] = {region: 0.0 for region in REGIONS}
 region_backoff_lock: dict[str, asyncio.Lock] = {
     region: asyncio.Lock() for region in REGIONS
 }
 MAX_GLOBAL_BACKOFF = 60.0
-base_backoff = 1.0
-max_backoff = 60.0
+BASE_BACKOFF = 1.0
 
-# stat variables
+# stat tracking variables
 fetched_runs = 0
 fetched_profiles = 0
-
-RUN_TIME = datetime.now(timezone.utc)
 
 BATCH_SIZE = int(getenv_clean("DB_BATCH_SIZE", "50"))
 # Blizzard OAuth
@@ -147,7 +155,6 @@ _token_cache = {}
 # In-memory cache for previously fetched data
 processed_runs: set[str] = set()
 enqueued_profiles: dict[str, dict[str, Path]] = {}
-
 
 
 # Utils
@@ -180,10 +187,9 @@ async def get_max_keys_by_dungeon(session: ClientSession) -> dict[int, int]:
             pass
     return max_keys
 
+
 async def load_processed_runs(session):
-    GLOBAL_STATS.console_log(
-        "Loading previously processed runs…"
-    )
+    GLOBAL_STATS.console_log("Loading previously processed runs…")
     ensure_dir(RUNS_DIR)
     active_seasons = {}
     active_periods = {}
@@ -203,7 +209,7 @@ async def load_processed_runs(session):
         parts = rel.parts
 
         region, realm, season_part, period_file = parts[0], parts[1], parts[2], parts[3]
-        period = Path(period_file).stem  
+        period = Path(period_file).stem
 
         active_season = active_seasons.get(region)
         active_period = active_periods.get(region)
@@ -211,12 +217,12 @@ async def load_processed_runs(session):
         if active_season is None or active_period is None:
             continue
 
-        is_active = (season_part == active_season and period == active_period)
+        is_active = season_part == active_season and period == active_period
 
         if is_active:
             with runs_csv.open(newline="") as f:
                 reader = csv.reader(f)
-                next(reader, None) 
+                next(reader, None)
                 for row in reader:
                     if row:
                         processed_runs.add(row[0])
@@ -224,7 +230,7 @@ async def load_processed_runs(session):
             try:
                 runs_csv.unlink()
                 GLOBAL_STATS.console_log(f"Removed old runs file: {runs_csv}")
-                parent = runs_csv.parent 
+                parent = runs_csv.parent
                 while parent != RUNS_DIR and parent.exists():
                     if any(parent.iterdir()):
                         break
@@ -272,10 +278,7 @@ async def get_access_token(session: ClientSession, region: str) -> str:
 
 
 async def fetch_json(
-    session: RetryClient,
-    url: str,
-    params: dict,
-    region: str
+    session: RetryClient, url: str, params: dict, region: str
 ) -> dict | None:
     """
     Single-shot fetch through an aiohttp_retry.RetryClient — rate-limited per-region,
@@ -301,8 +304,9 @@ async def fetch_json(
     try:
         # fire the request — RetryClient will automatically retry on
         #    configured statuses/exceptions (429, 5xx, network errors, etc).
-        async with session.get(url, params=params, headers=headers, raise_for_status=False) as resp:
-
+        async with session.get(
+            url, params=params, headers=headers, raise_for_status=False
+        ) as resp:
             # short‑circuit for 404 (private profile)
             if resp.status == 404:
                 return None
@@ -314,7 +318,9 @@ async def fetch_json(
                 backoff = float(ra) if ra else base_backoff
                 expiry = time.time() + backoff
                 async with region_backoff_lock[region]:
-                    region_backoff_until[region] = max(region_backoff_until[region], expiry)
+                    region_backoff_until[region] = max(
+                        region_backoff_until[region], expiry
+                    )
                 # let the RetryClient also see the 429 and retry if it wants,
                 # or we can just return None here if it’s past its retry count
                 return None
@@ -328,10 +334,13 @@ async def fetch_json(
         GLOBAL_STATS.console_log(f"HTTP {e.status} for {url}")
         return None
 
-    except (asyncio.TimeoutError, aiohttp.ClientConnectionError,
-            aiohttp.ServerDisconnectedError,
-            aiohttp.ClientPayloadError,
-            ClientConnectionResetError) as e:
+    except (
+        asyncio.TimeoutError,
+        aiohttp.ClientConnectionError,
+        aiohttp.ServerDisconnectedError,
+        aiohttp.ClientPayloadError,
+        ClientConnectionResetError,
+    ) as e:
         # *re*-raise so RetryClient can back off & retry
         raise
 
@@ -344,14 +353,13 @@ async def fetch_json(
 async def fetch_leaderboard_and_queue(
     session, season, region, realm, period, dungeon, max_keys
 ):
-
     lb = await get_leaderboard(session, region, realm, dungeon["dungeon_id"], period)
     if not lb or "leading_groups" not in lb:
         GLOBAL_STATS.console_log(
             f"No Correct leaderboard data for {region}/{realm}/{dungeon['dungeon_id']}/{period} got unexpected result."
         )
         return
-    
+
     await GLOBAL_STATS.increment("checked_runs", len(lb.get("leading_groups", [])))
 
     for group in lb["leading_groups"]:
@@ -410,28 +418,20 @@ async def process_realm(
     session: ClientSession,
     current_season: int,
     periods: list[int],
-    max_keys
+    max_keys,
 ):
     try:
         if cancel_event.is_set():
-            GLOBAL_STATS.console_log(
-                f"{region} cancellation requested, stopping"
-            )
+            GLOBAL_STATS.console_log(f"{region} cancellation requested, stopping")
             return
-        GLOBAL_STATS.console_log(
-            f"{region} enqueuing realm {realm}"
-        )
+        GLOBAL_STATS.console_log(f"{region} enqueuing realm {realm}")
 
         # Enqueue all period/dungeon work onto this realm's queue
         for period in periods:
             if cancel_event.is_set():
-                GLOBAL_STATS.console_log(
-                    f"{period} - cancellation requested, stopping"
-                )
+                GLOBAL_STATS.console_log(f"{period} - cancellation requested, stopping")
                 return
-            GLOBAL_STATS.console_log(
-                f"{region} {realm} enqueuing period {period} "
-            )
+            GLOBAL_STATS.console_log(f"{region} {realm} enqueuing period {period} ")
             dungeons = await get_leaderboard_index(session, region, realm)
             for dungeon in dungeons:
                 if cancel_event.is_set():
@@ -441,12 +441,16 @@ async def process_realm(
                     return
                 try:
                     await fetch_leaderboard_and_queue(
-                        session, current_season, region, realm, period, dungeon, max_keys
+                        session,
+                        current_season,
+                        region,
+                        realm,
+                        period,
+                        dungeon,
+                        max_keys,
                     )
                 except Exception as e:
-                    GLOBAL_STATS.console_log(
-                        f"{dungeon} - error occurred: {e}"
-                    )
+                    GLOBAL_STATS.console_log(f"{dungeon} - error occurred: {e}")
                     traceback.print_exc()
     except Exception as e:
         GLOBAL_STATS.console_log(
@@ -524,6 +528,7 @@ async def get_equipment(
         return []
     return data.get("equipped_items", [])
 
+
 async def get_hunter_pets(
     session: ClientSession, region: str, realm_slug: str, name: str
 ) -> list:
@@ -534,60 +539,89 @@ async def get_hunter_pets(
         return []
     hunter_pets = []
     for pet in data["hunter_pets"]:
-        hunter_pets.append(pet['creature']['id'])
+        hunter_pets.append(pet["creature"]["id"])
     return hunter_pets
 
 
 MAINSTATS = ["strength", "agility", "intellect"]
 NORMALSTATS = ["stamina"]
 VALUESTATS = ["mastery", "lifesteal", "speed"]
-RATINGBONUSSTATS = ['avoidance']
+RATINGBONUSSTATS = ["avoidance"]
 CRITSTATS = ["spell_crit", "ranged_crit", "melee_crit"]
 HASTESTATS = ["spell_haste", "ranged_haste", "melee_haste"]
-VERSASTATS = ['versatility', "versatility_damage_done_bonus"]
-RAWSTATS = ['health']
+VERSASTATS = ["versatility", "versatility_damage_done_bonus"]
+RAWSTATS = ["health"]
+
 
 def normalize_stats(data):
     normalized = {}
     versatility = {}
     for key, value in data.items():
         if key in MAINSTATS:
-            if not normalized.get("mainstat") or value['effective'] > normalized["mainstat"]:
-                normalized["mainstat"] = value.get('effective', 0) if value.get('effective', 0) > 0 else 0
+            if (
+                not normalized.get("mainstat")
+                or value["effective"] > normalized["mainstat"]
+            ):
+                normalized["mainstat"] = (
+                    value.get("effective", 0) if value.get("effective", 0) > 0 else 0
+                )
         elif key in CRITSTATS:
-            if not normalized.get("crit") or value['rating_normalized'] > normalized["crit"].get('rating', 0):
+            if not normalized.get("crit") or value["rating_normalized"] > normalized[
+                "crit"
+            ].get("rating", 0):
                 normalized["crit"] = {
-                    "percent": value.get('value', 0) if value.get('value', 0) > 0 else 0,
-                    "rating": value.get('rating_normalized', 0) if value.get('rating_normalized', 0) > 0 else 0
+                    "percent": value.get("value", 0)
+                    if value.get("value", 0) > 0
+                    else 0,
+                    "rating": value.get("rating_normalized", 0)
+                    if value.get("rating_normalized", 0) > 0
+                    else 0,
                 }
         elif key in HASTESTATS:
-            if not normalized.get("haste") or value['rating_normalized'] > normalized["haste"].get('rating', 0):
+            if not normalized.get("haste") or value["rating_normalized"] > normalized[
+                "haste"
+            ].get("rating", 0):
                 normalized["haste"] = {
-                    "percent": value.get('value', 0) if value.get('value', 0) > 0 else 0,
-                    "rating": value.get('rating_normalized', 0) if value.get('rating_normalized', 0) > 0 else 0
+                    "percent": value.get("value", 0)
+                    if value.get("value", 0) > 0
+                    else 0,
+                    "rating": value.get("rating_normalized", 0)
+                    if value.get("rating_normalized", 0) > 0
+                    else 0,
                 }
         elif key in VALUESTATS:
             normalized[key] = {
-                    "percent": value.get('value', 0) if value.get('value', 0) > 0 else 0,
-                    "rating": value.get('rating_normalized', 0) if value.get('rating_normalized', 0) > 0 else 0
-                }
+                "percent": value.get("value", 0) if value.get("value", 0) > 0 else 0,
+                "rating": value.get("rating_normalized", 0)
+                if value.get("rating_normalized", 0) > 0
+                else 0,
+            }
         elif key in RATINGBONUSSTATS:
             normalized[key] = {
-                "percent": value.get('rating_bonus', 0) if value.get('rating_bonus', 0) > 0 else 0,
-                "rating": value.get('rating_normalized', 0) if value.get('rating_normalized', 0) > 0 else 0
+                "percent": value.get("rating_bonus", 0)
+                if value.get("rating_bonus", 0) > 0
+                else 0,
+                "rating": value.get("rating_normalized", 0)
+                if value.get("rating_normalized", 0) > 0
+                else 0,
             }
         elif key in RAWSTATS:
             normalized[key] = value
         elif key in VERSASTATS:
             versatility[key] = value
         elif key in NORMALSTATS:
-            normalized[key] = value.get('effective', 0)
+            normalized[key] = value.get("effective", 0)
 
     normalized["versatility"] = {
-        'rating': versatility.get('versatility', 0) if versatility.get('versatility', 0) > 0 else 0,
-        "percent": versatility.get('versatility_damage_done_bonus', 0) if versatility.get('versatility_damage_done_bonus', 0) > 0 else 0,
+        "rating": versatility.get("versatility", 0)
+        if versatility.get("versatility", 0) > 0
+        else 0,
+        "percent": versatility.get("versatility_damage_done_bonus", 0)
+        if versatility.get("versatility_damage_done_bonus", 0) > 0
+        else 0,
     }
     return normalized
+
 
 async def get_stats(
     session: ClientSession, region: str, realm_slug: str, name: str
@@ -612,13 +646,17 @@ async def get_specializations(
 
 
 def process_group(
-    region, season, period_id, realm_id, run_hash,
+    region,
+    season,
+    period_id,
+    realm_id,
+    run_hash,
 ):
-
     seen_file = RUNS_DIR / region / str(realm_id) / str(season) / f"{period_id}.csv"
     ensure_dir(seen_file.parent)
     with open(seen_file, "a", newline="") as f:
         csv.writer(f).writerow([run_hash])
+
 
 async def realm_poller(region: str, session: ClientSession, max_keys):
     # fetch once
@@ -631,11 +669,18 @@ async def realm_poller(region: str, session: ClientSession, max_keys):
             dungeons = await get_leaderboard_index(session, region, realm)
             await GLOBAL_STATS.increment("checked_realm")
             for dungeon in dungeons:
-                GLOBAL_STATS.console_log(f"{region} {realm} checking dungeon {dungeon['dungeon_id']} for period {active_period}")
+                GLOBAL_STATS.console_log(
+                    f"{region} {realm} checking dungeon {dungeon['dungeon_id']} for period {active_period}"
+                )
                 # fetch the leaderboard
                 await fetch_leaderboard_and_queue(
-                    session, current_season, region, realm,
-                    active_period, dungeon, max_keys
+                    session,
+                    current_season,
+                    region,
+                    realm,
+                    active_period,
+                    dungeon,
+                    max_keys,
                 )
         await asyncio.sleep(POLL_INTERVAL_SECONDS)
 
@@ -661,19 +706,21 @@ async def simple_worker(name: str, session: ClientSession):
                 "duration": group["duration"],
                 "timestamp": group["completed_timestamp"],
                 "faction": group["majority_faction"],
-                "members": []
+                "members": [],
             }
             for member in group["members"]:
-                run_obj["members"].append({
-                    "spec_id": member["specialization"]["id"],
-                    "loadout": None,
-                    "hero_talent_id": None,
-                    "class_talents": [],
-                    "spec_talents": [],
-                    "hero_talents": [],
-                    "hunter_pets": [],
-                    "equipment": []
-                })
+                run_obj["members"].append(
+                    {
+                        "spec_id": member["specialization"]["id"],
+                        "loadout": None,
+                        "hero_talent_id": None,
+                        "class_talents": [],
+                        "spec_talents": [],
+                        "hero_talents": [],
+                        "hunter_pets": [],
+                        "equipment": [],
+                    }
+                )
 
             # hand off to loader
             await database_queue.put(run_obj)
@@ -706,7 +753,7 @@ async def advanced_worker(name: str, session: ClientSession):
                 duration=group["duration"],
                 timestamp=group["completed_timestamp"],
                 faction=group["majority_faction"],
-                members=[]
+                members=[],
             )
 
             # for each member, fetch equipment & active spec
@@ -715,8 +762,9 @@ async def advanced_worker(name: str, session: ClientSession):
                 profile_hash = hash_object(profile)
                 if profile_hash in enqueued_profiles:
                     member_id = enqueued_profiles[profile_hash]
-                    run_obj["members"].append({
-                        "member_id": member_id["id"],
+                    run_obj["members"].append(
+                        {
+                            "member_id": member_id["id"],
                         }
                     )
                 else:
@@ -724,48 +772,90 @@ async def advanced_worker(name: str, session: ClientSession):
                     realm_slug = profile["realm"]["slug"].lower()
 
                     eq_data = await get_equipment(session, region, realm_slug, name_l)
-                    spec_all = await get_specializations(session, region, realm_slug, name_l)
+                    spec_all = await get_specializations(
+                        session, region, realm_slug, name_l
+                    )
                     stats = await get_stats(session, region, realm_slug, name_l)
                     if member["specialization"]["id"] in HUNTER_SPEC_IDS:
-                        hunter_pets = await get_hunter_pets(session, region, realm_slug, name_l)
+                        hunter_pets = await get_hunter_pets(
+                            session, region, realm_slug, name_l
+                        )
                     await GLOBAL_STATS.increment("fetched_profile")
                     try:
-                        active_spec = next(s for s in spec_all if s["specialization"]["id"] == member["specialization"]["id"])
+                        active_spec = next(
+                            s
+                            for s in spec_all
+                            if s["specialization"]["id"]
+                            == member["specialization"]["id"]
+                        )
                     except StopIteration:
-                        active_spec = {"id": member["specialization"]["id"], "name": "", "loadouts": []}
+                        active_spec = {
+                            "id": member["specialization"]["id"],
+                            "name": "",
+                            "loadouts": [],
+                        }
                         await GLOBAL_STATS.increment("no_active_spec")
-                    if active_spec.get('loadouts'):
-                        active_loadout = next(l for l in active_spec["loadouts"] if l["is_active"])
+                    if active_spec.get("loadouts"):
+                        active_loadout = next(
+                            l for l in active_spec["loadouts"] if l["is_active"]
+                        )
                     else:
                         active_loadout = {
                             "talent_loadout_code": None,
                             "selected_hero_talent_tree": {"id": None},
                             "selected_class_talents": [],
                             "selected_spec_talents": [],
-                            "selected_hero_talents": []
+                            "selected_hero_talents": [],
                         }
 
-                    run_obj["members"].append({
-                        "spec_id": member["specialization"]["id"],
-                        "loadout": active_loadout["talent_loadout_code"],
-                        "hero_talent_id": active_loadout["selected_hero_talent_tree"]["id"],
-                        "class_talents": [(ct["id"], ct["rank"]) for ct in active_loadout["selected_class_talents"]],
-                        "spec_talents":  [(st["id"], st["rank"]) for st in active_loadout["selected_spec_talents"]],
-                        "hero_talents":  [(ht["id"], ht["rank"]) for ht in active_loadout["selected_hero_talents"]],
-                        "equipment": [
-                            {
-                                "slot": item["slot"]["type"],
-                                "item_id": item["item"]["id"],
-                                "item_level": item["level"]["value"],
-                                "enchantments": [e["enchantment_id"] for e in item.get("enchantments", []) if e],
-                                "sockets": [(s["socket_type"]["type"], s["item"]["id"]) for s in item.get("sockets", []) if s.get("socket_type") and s.get("item")],
-                                "bonuses": [b for b in item.get("bonus_list", []) if b]
-                            }
-                            for item in eq_data if item.get("item")
-                        ],
-                        "hunter_pets": hunter_pets if member["specialization"]["id"] in HUNTER_SPEC_IDS and hunter_pets else [],
-                        "stats": stats
-                    })
+                    run_obj["members"].append(
+                        {
+                            "spec_id": member["specialization"]["id"],
+                            "loadout": active_loadout["talent_loadout_code"],
+                            "hero_talent_id": active_loadout[
+                                "selected_hero_talent_tree"
+                            ]["id"],
+                            "class_talents": [
+                                (ct["id"], ct["rank"])
+                                for ct in active_loadout["selected_class_talents"]
+                            ],
+                            "spec_talents": [
+                                (st["id"], st["rank"])
+                                for st in active_loadout["selected_spec_talents"]
+                            ],
+                            "hero_talents": [
+                                (ht["id"], ht["rank"])
+                                for ht in active_loadout["selected_hero_talents"]
+                            ],
+                            "equipment": [
+                                {
+                                    "slot": item["slot"]["type"],
+                                    "item_id": item["item"]["id"],
+                                    "item_level": item["level"]["value"],
+                                    "enchantments": [
+                                        e["enchantment_id"]
+                                        for e in item.get("enchantments", [])
+                                        if e
+                                    ],
+                                    "sockets": [
+                                        (s["socket_type"]["type"], s["item"]["id"])
+                                        for s in item.get("sockets", [])
+                                        if s.get("socket_type") and s.get("item")
+                                    ],
+                                    "bonuses": [
+                                        b for b in item.get("bonus_list", []) if b
+                                    ],
+                                }
+                                for item in eq_data
+                                if item.get("item")
+                            ],
+                            "hunter_pets": hunter_pets
+                            if member["specialization"]["id"] in HUNTER_SPEC_IDS
+                            and hunter_pets
+                            else [],
+                            "stats": stats,
+                        }
+                    )
                     fetched_profiles += 1
 
             # enqueue the whole run object
@@ -778,9 +868,11 @@ async def advanced_worker(name: str, session: ClientSession):
         finally:
             advanced_queue.task_done()
 
+
 def chunked(lst, size):
     for i in range(0, len(lst), size):
-        yield lst[i:i+size]
+        yield lst[i : i + size]
+
 
 async def process_batch(name, conn, cursor, batch, stats_collector=None):
     new_batch = []
@@ -791,9 +883,16 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
         try:
             # INSERT IGNORE will skip duplicates (requires IGNORE keyword)
             databaseConnector.insert_run(
-                conn, cursor,  r["season"], r["region"],
-                r["dungeon_id"], r["keystone_level"],
-                r["duration"], r["timestamp"], r["faction"])
+                conn,
+                cursor,
+                r["season"],
+                r["region"],
+                r["dungeon_id"],
+                r["keystone_level"],
+                r["duration"],
+                r["timestamp"],
+                r["faction"],
+            )
             # lastrowid == 0 means the row was ignored (duplicate)
             run_id = cursor.lastrowid
             if run_id:
@@ -803,15 +902,19 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
             else:
                 continue
         except Exception as e:
-            GLOBAL_STATS.console_log(f"[{name}] "
+            GLOBAL_STATS.console_log(
+                f"[{name}] "
                 f"Error inserting run {r['season']}-{r['region']}-"
-                f"{r['realm']}-{r['dungeon_id']}-{r['timestamp']}: {e}")
+                f"{r['realm']}-{r['dungeon_id']}-{r['timestamp']}: {e}"
+            )
             continue
     # nothing new?
     if not new_batch or len(new_batch) == 0:
         batch.clear()
         for r in batch:
-            process_group(r["region"],r['season'],r['period_id'],r['realm'],r["run_hash"])
+            process_group(
+                r["region"], r["season"], r["period_id"], r["realm"], r["run_hash"]
+            )
         return
 
     if stats_collector:
@@ -864,17 +967,17 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
     databaseConnector.insert_run_members_batch(conn, cursor, rm_vals)
     databaseConnector.commit_changes(conn)
     # for only newly‑inserted members, insert talents & equipment
-    ct_vals = [] 
-    st_vals = [] 
+    ct_vals = []
+    st_vals = []
     ht_vals = []
     hunter_pet_vals = []
-    ench_vals = [] 
-    sock_vals = [] 
+    ench_vals = []
+    sock_vals = []
     bonus_vals = []
     stat_vals = []
     # offset into new_member_ids to map to batch members
     new_idx = 0
-    
+
     for r in batch:
         for m in r["members"]:
             if "member_id" in m:
@@ -884,9 +987,11 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
             # collect stats
             for stat, value in m.get("stats", {}).items():
                 if isinstance(value, dict):
-                    stat_vals.append((mid, stat, value.get('rating', 0), value.get('percent', 0)))
+                    stat_vals.append(
+                        (mid, stat, value.get("rating", 0), value.get("percent", 0))
+                    )
                 else:
-                    stat_vals.append((mid, stat, value , None))
+                    stat_vals.append((mid, stat, value, None))
             # collect talents
             for t, rk in m["class_talents"]:
                 ct_vals.append((mid, t, rk))
@@ -907,9 +1012,20 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
                     sock_vals.append((eq_id, stype, iid))
                 for b in e["bonuses"]:
                     bonus_vals.append((eq_id, b))
-    if len(ct_vals) > 0 or len(st_vals) > 0 or len(ht_vals) > 0 or len(ench_vals) > 0 or len(sock_vals)> 0 or len(bonus_vals) >  0 or len(stat_vals) > 0 or len(hunter_pet_vals) > 0:
-        GLOBAL_STATS.console_log(f"[{name}] Inserting talents and equipment for {len(ct_vals)} class talents, {len(st_vals)} spec talents, {len(ht_vals)} hero talents, {len(ench_vals)} enchantments, {len(sock_vals)} sockets and {len(bonus_vals)} bonuses and {len(stat_vals)} stats and {len(hunter_pet_vals)} hunter pets")
-    
+    if (
+        len(ct_vals) > 0
+        or len(st_vals) > 0
+        or len(ht_vals) > 0
+        or len(ench_vals) > 0
+        or len(sock_vals) > 0
+        or len(bonus_vals) > 0
+        or len(stat_vals) > 0
+        or len(hunter_pet_vals) > 0
+    ):
+        GLOBAL_STATS.console_log(
+            f"[{name}] Inserting talents and equipment for {len(ct_vals)} class talents, {len(st_vals)} spec talents, {len(ht_vals)} hero talents, {len(ench_vals)} enchantments, {len(sock_vals)} sockets and {len(bonus_vals)} bonuses and {len(stat_vals)} stats and {len(hunter_pet_vals)} hunter pets"
+        )
+
     if stats_collector:
         GLOBAL_STATS.console_log("Incrementing stats with talents and equipment counts")
         if len(ct_vals) > 0:
@@ -974,7 +1090,9 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
             databaseConnector.insert_bonuses(conn, cursor, sub)
             databaseConnector.commit_changes(conn)
     for r in batch:
-        process_group(r["region"],r['season'],r['period_id'],r['realm'],r["run_hash"])
+        process_group(
+            r["region"], r["season"], r["period_id"], r["realm"], r["run_hash"]
+        )
 
 
 async def database_worker(name: str):
@@ -1007,7 +1125,9 @@ async def database_worker(name: str):
                     await process_batch(name, conn, cursor, batch, GLOBAL_STATS)
                     batch.clear()
                 except Exception as err:
-                    GLOBAL_STATS.console_log(f"{name}: batch failed skipping {len(batch)} rows: {err}")
+                    GLOBAL_STATS.console_log(
+                        f"{name}: batch failed skipping {len(batch)} rows: {err}"
+                    )
                     traceback.print_exc()
                     conn.rollback()
                     continue
@@ -1015,29 +1135,30 @@ async def database_worker(name: str):
         cursor.close()
         conn.close()
 
+
 async def main():
     connector = aiohttp.TCPConnector(
-        limit=100,                
-        keepalive_timeout=75,     
-        force_close=False,  
-        enable_cleanup_closed=True,      
-        ssl=False                   
+        limit=100,
+        keepalive_timeout=75,
+        force_close=False,
+        enable_cleanup_closed=True,
+        ssl=False,
     )
     timeout = ClientTimeout(total=60)
     retry_options = ExponentialRetry(
-        attempts=5,              # total tries (initial + 4 retries)
-        start_timeout=1,         # initial backoff delay in seconds
-        max_timeout=30,          # maximum backoff
+        attempts=5,  # total tries (initial + 4 retries)
+        start_timeout=1,  # initial backoff delay in seconds
+        max_timeout=30,  # maximum backoff
         statuses={429, 500, 502, 503, 504},  # HTTP statuses to retry
-        exceptions={             # also retry on these client errors
+        exceptions={  # also retry on these client errors
             asyncio.TimeoutError,
             aiohttp.ClientConnectionError,
             aiohttp.ServerDisconnectedError,
             aiohttp.ClientPayloadError,
             aiohttp.ClientOSError,
             ClientConnectionResetError,
-        }
-    )  
+        },
+    )
     async with RetryClient(
         connector=connector,
         timeout=timeout,
@@ -1053,26 +1174,20 @@ async def main():
             f"Loaded {len(processed_runs)} previously processed runs."
         )
         max_keys = await get_max_keys_by_dungeon(session)
-        GLOBAL_STATS.console_log(
-            f"Fetched max keys for dungeons: {max_keys}"
+        GLOBAL_STATS.console_log(f"Fetched max keys for dungeons: {max_keys}")
+        reporter = discordHandler.DiscordReporter(
+            session, GLOBAL_STATS, interval_seconds=300
         )
-        reporter = discordHandler.DiscordReporter(session, GLOBAL_STATS, interval_seconds=300)
         await reporter.start()
         tasks = []
         for region in REGIONS:
-            GLOBAL_STATS.console_log(
-                f"Processing region: {region}"
-            )
+            GLOBAL_STATS.console_log(f"Processing region: {region}")
             if cancel_event.is_set():
-                GLOBAL_STATS.console_log(
-                    f"{region} - cancellation requested, stopping"
-                )
+                GLOBAL_STATS.console_log(f"{region} - cancellation requested, stopping")
                 return
             current_season = await get_current_season_id(session, region)
             if current_season is None:
-                GLOBAL_STATS.console_log(
-                    f"{region} - no season data, skipping"
-                )
+                GLOBAL_STATS.console_log(f"{region} - no season data, skipping")
                 continue
 
             # anything under data/runs/<region>/*/<season> that isn't current_season, 0 or "nil" can go
@@ -1090,28 +1205,26 @@ async def main():
                         # delete the entire season folder
                         try:
                             shutil.rmtree(season_dir)
-                            GLOBAL_STATS.console_log(f"Deleted old season folder: {season_dir}")
+                            GLOBAL_STATS.console_log(
+                                f"Deleted old season folder: {season_dir}"
+                            )
                         except Exception as e:
-                            GLOBAL_STATS.console_log(f"Warning: could not delete {season_dir}: {e}")
+                            GLOBAL_STATS.console_log(
+                                f"Warning: could not delete {season_dir}: {e}"
+                            )
 
             all_periods = await get_season_periods(session, region, current_season)
             if not all_periods:
-                GLOBAL_STATS.console_log(
-                    f"{region} - no periods, skipping"
-                )
+                GLOBAL_STATS.console_log(f"{region} - no periods, skipping")
                 continue
 
             realms = await get_connected_realms(session, region)
             if not realms:
-                GLOBAL_STATS.console_log(
-                    f"{region} - no realms, skipping"
-                )
+                GLOBAL_STATS.console_log(f"{region} - no realms, skipping")
                 continue
 
             # For each realm, create its single worker
-            tasks.append(
-                asyncio.create_task(realm_poller(region, session, max_keys))
-            )
+            tasks.append(asyncio.create_task(realm_poller(region, session, max_keys)))
 
         GLOBAL_STATS.console_log(
             f"Started {len(tasks)} tasks for processing realms across all regions."
@@ -1134,12 +1247,8 @@ async def main():
         GLOBAL_STATS.console_log(
             "All work enqueued, waiting for queues to finish processing…"
         )
-        GLOBAL_STATS.console_log(
-            f"Simple queue size: {simple_queue.qsize()}"
-        )
-        GLOBAL_STATS.console_log(
-            f"Advanced queue size: {advanced_queue.qsize()}"
-        )
+        GLOBAL_STATS.console_log(f"Simple queue size: {simple_queue.qsize()}")
+        GLOBAL_STATS.console_log(f"Advanced queue size: {advanced_queue.qsize()}")
         await simple_queue.join()
         for w in simple_workers:
             w.cancel()
@@ -1163,13 +1272,9 @@ async def main():
 
 async def timeout_watcher(collector_task: asyncio.Task):
     """Sleep for GHA_TIMEOUT seconds, then signal cancellation."""
-    GLOBAL_STATS.console_log(
-        f"Starting timeout watcher for {GHA_TIMEOUT} seconds…"
-    )
+    GLOBAL_STATS.console_log(f"Starting timeout watcher for {GHA_TIMEOUT} seconds…")
     await asyncio.sleep(GHA_TIMEOUT)
-    GLOBAL_STATS.console_log(
-        "Soft timeout reached; signaling cancellation…"
-    )
+    GLOBAL_STATS.console_log("Soft timeout reached; signaling cancellation…")
     cancel_event.set()
 
     # give the collector up to 30 min to wind down
@@ -1181,9 +1286,7 @@ async def timeout_watcher(collector_task: asyncio.Task):
 
 async def runner():
     # Kick off both main collector and the timeout watcher
-    GLOBAL_STATS.console_log(
-        "Starting data collection runner…"
-    )
+    GLOBAL_STATS.console_log("Starting data collection runner…")
     collector = asyncio.create_task(main(), name="collector")
     timer = asyncio.create_task(timeout_watcher(collector), name="timeout_watcher")
 
@@ -1194,15 +1297,11 @@ async def runner():
 
     if timer in done:
         # Timer fired -> we set cancel_event above; now wait for collector to finish cleanly
-        GLOBAL_STATS.console_log(
-            "Waiting for in-flight runs to complete…"
-        )
+        GLOBAL_STATS.console_log("Waiting for in-flight runs to complete…")
         await collector
     else:
         # main() finished before the timeout
-        GLOBAL_STATS.console_log(
-            "Data collection finished before timeout."
-        )
+        GLOBAL_STATS.console_log("Data collection finished before timeout.")
         timer.cancel()
 
 
@@ -1210,20 +1309,11 @@ if __name__ == "__main__":
     try:
         asyncio.run(runner())
     except asyncio.CancelledError:
-        # this will now catch the cancellation cleanly
-        GLOBAL_STATS.console_log(
-            "Data collection cancelled by timeout."
-        )
+        GLOBAL_STATS.console_log("Data collection cancelled by timeout.")
     except Exception as e:
-        GLOBAL_STATS.console_log(
-            f"Error during data collection: {e}"
-        )
-    GLOBAL_STATS.console_log(
-        "Committing changes to the database…"
-    )
-    GLOBAL_STATS.console_log(
-        "All tasks done."
-    )
+        GLOBAL_STATS.console_log(f"Error during data collection: {e}")
+    GLOBAL_STATS.console_log("Committing changes to the database…")
+    GLOBAL_STATS.console_log("All tasks done.")
     GLOBAL_STATS.console_log(
         f"Fetched runs: {fetched_runs}, Fetched profiles: {fetched_profiles}"
     )

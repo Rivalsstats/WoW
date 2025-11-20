@@ -1,4 +1,3 @@
-# discordHandler.py
 import os
 import json
 import asyncio
@@ -10,6 +9,7 @@ import shutil
 
 STATUS_FILE = Path("data/discord_status.json")
 
+
 def _format_duration(seconds: int) -> str:
     days, rem = divmod(seconds, 86400)
     hours, rem = divmod(rem, 3600)
@@ -17,6 +17,7 @@ def _format_duration(seconds: int) -> str:
     if days:
         return f"{days}d {hours:02}:{minutes:02}:{secs:02}"
     return f"{hours:02}:{minutes:02}:{secs:02}"
+
 
 class DiscordReporter:
     """
@@ -31,6 +32,7 @@ class DiscordReporter:
       ...
       await reporter.stop()
     """
+
     def __init__(self, a, b=None, interval_seconds: int = 300):
         """
         Accept either:
@@ -43,10 +45,10 @@ class DiscordReporter:
         stats = None
         session = None
 
-        # If called with named args, Python will have set a and b appropriately.
         if b is None:
-            raise TypeError("DiscordReporter requires two positional args: stats_collector and session (order flexible). Use named args to be explicit.")
-        # detect by duck-typing
+            raise TypeError(
+                "DiscordReporter requires two positional args: stats_collector and session (order flexible). Use named args to be explicit."
+            )
         if hasattr(a, "snapshot") and callable(getattr(a, "snapshot")):
             stats = a
             session = b
@@ -54,13 +56,13 @@ class DiscordReporter:
             stats = b
             session = a
         else:
-            # neither looks like a StatsCollector; choose sensible defaults
             stats = a
             session = b
 
-        # validate session looks like an aiohttp session
         if not hasattr(session, "request") and not hasattr(session, "get"):
-            raise TypeError("Provided session does not look like an aiohttp session. Pass the aiohttp ClientSession / RetryClient as the 'session' argument.")
+            raise TypeError(
+                "Provided session does not look like an aiohttp session. Pass the aiohttp ClientSession / RetryClient as the 'session' argument."
+            )
 
         self.stats = stats
         self.session = session
@@ -72,8 +74,10 @@ class DiscordReporter:
         self.bot_token = os.getenv("WEBHOOK_TOKEN")
         self.channel_id = os.getenv("WEBHOOK_CHANNEL")
         self._low_space_warn_sent: dict[str, bool] = {}
-        self._disk_warn_pct = float(os.getenv("DISK_WARN_PCT", "5.0"))      # percent free
-        self._disk_warn_bytes = int(os.getenv("DISK_WARN_BYTES", str(1 * 1024**3)))  # bytes
+        self._disk_warn_pct = float(os.getenv("DISK_WARN_PCT", "5.0"))  # percent free
+        self._disk_warn_bytes = int(
+            os.getenv("DISK_WARN_BYTES", str(1 * 1024**3))
+        )  # bytes
 
         # mode selection
         if self.webhook_url:
@@ -96,7 +100,7 @@ class DiscordReporter:
         # webhook object cached (only for webhook mode)
         self._webhook: Optional[discord.Webhook] = None
 
-    def _disk_usage_info(path: str | None = None):
+    def _disk_usage_info(self, path: str | None = None):
         """Return (mount, total, used, free, free_pct, total_hr, free_hr)."""
         try:
             root = Path(path or Path.cwd().anchor or "/")
@@ -105,10 +109,10 @@ class DiscordReporter:
             free_pct = (free / total) * 100 if total else 0.0
 
             def _hr(n: int) -> str:
-                suf = ("B","KB","MB","GB","TB")
+                suf = ("B", "KB", "MB", "GB", "TB")
                 f = float(n)
                 i = 0
-                while f >= 1024.0 and i < len(suf)-1:
+                while f >= 1024.0 and i < len(suf) - 1:
                     f /= 1024.0
                     i += 1
                 return f"{f:.1f}{suf[i]}"
@@ -116,7 +120,6 @@ class DiscordReporter:
             return str(root), total, used, free, free_pct, _hr(total), _hr(free)
         except Exception:
             return "/", 0, 0, 0, 0.0, "0B", "0B"
-
 
     def _iter_mounts(self) -> list[str]:
         """
@@ -133,9 +136,21 @@ class DiscordReporter:
                         continue
                     device, mnt, fstype = parts[0], parts[1], parts[2]
                     if fstype in (
-                        "proc", "sysfs", "tmpfs", "devtmpfs", "devpts", "overlay",
-                        "securityfs", "pstore", "efivarfs", "mqueue", "hugetlbfs",
-                        "tracefs", "configfs", "cgroup", "cgroup2"
+                        "proc",
+                        "sysfs",
+                        "tmpfs",
+                        "devtmpfs",
+                        "devpts",
+                        "overlay",
+                        "securityfs",
+                        "pstore",
+                        "efivarfs",
+                        "mqueue",
+                        "hugetlbfs",
+                        "tracefs",
+                        "configfs",
+                        "cgroup",
+                        "cgroup2",
                     ):
                         continue
                     if not mnt.startswith("/"):
@@ -155,102 +170,154 @@ class DiscordReporter:
 
     def _collect_disks_info(self) -> list[dict]:
         """
-        Return list of disk dicts. First entry is the filesystem containing
-        STATUS_FILE.parent (the app data dir) so the report shows the service
-        disk first. Then include other mounts discovered via /proc/mounts.
+        Return list of disk dicts. First entry is the filesystem *mountpoint*
+        containing STATUS_FILE.parent (the app data dir). Then include other mounts
+        discovered. Works on Linux and Windows. Falls back to root if nothing detected.
         """
-        out = []
+        out: list[dict] = []
 
-        # resolve app data path (where STATUS_FILE lives)
+        # preferred app path
         try:
             app_path = STATUS_FILE.parent.resolve()
         except Exception:
             app_path = Path("/").resolve()
 
-        # first, gather usage for the app path's filesystem directly
+        # helper to humanize bytes
+        def _hr(n: int) -> str:
+            suf = ("B", "KB", "MB", "GB", "TB")
+            f = float(n)
+            i = 0
+            while f >= 1024.0 and i < len(suf) - 1:
+                f /= 1024.0
+                i += 1
+            return f"{f:.1f}{suf[i]}"
+
+        # Get candidate mounts. Prefer using _iter_mounts() which parses /proc/mounts on Linux.
+        mounts = []
         try:
-            du = shutil.disk_usage(str(app_path))
-            total, used, free = du.total, du.used, du.free
-            free_pct = (free / total) * 100 if total else 0.0
-
-            def _hr(n: int) -> str:
-                suf = ("B", "KB", "MB", "GB", "TB")
-                f = float(n)
-                i = 0
-                while f >= 1024.0 and i < len(suf) - 1:
-                    f /= 1024.0
-                    i += 1
-                return f"{f:.1f}{suf[i]}"
-
-            out.append({
-                "mount": str(app_path),
-                "total": total,
-                "used": used,
-                "free": free,
-                "free_pct": free_pct,
-                "total_hr": _hr(total),
-                "free_hr": _hr(free),
-            })
+            mounts = self._iter_mounts()
         except Exception:
-            # ignore if we can't stat that path
+            mounts = ["/"]
 
-            pass
-
-        # then enumerate other mounts for context (skip pseudo filesystems)
+        # Determine which mount contains app_path by picking the longest mount that is a prefix.
+        app_mount = None
         try:
-            with open("/proc/mounts", "r", encoding="utf-8") as f:
-                seen = set()
-                for line in f:
-                    parts = line.split()
-                    if len(parts) < 3:
-                        continue
-                    mnt = parts[1]
-                    fstype = parts[2]
-                    if fstype in (
-                        "proc", "sysfs", "tmpfs", "devtmpfs", "devpts", "overlay",
-                        "securityfs", "pstore", "efivarfs", "mqueue", "hugetlbfs",
-                        "tracefs", "configfs", "cgroup", "cgroup2"
-                    ):
-                        continue
-                    if not mnt.startswith("/"):
-                        continue
-                    if str(mnt) == str(app_path):
-                        # skip duplicate of the preferred entry
-                        continue
-                    if mnt in seen:
-                        continue
-                    seen.add(mnt)
-                    try:
-                        du = shutil.disk_usage(mnt)
-                        total, used, free = du.total, du.used, du.free
-                        free_pct = (free / total) * 100 if total else 0.0
-                        def _hr2(n: int) -> str:
-                            suf = ("B", "KB", "MB", "GB", "TB")
-                            f = float(n)
-                            i = 0
-                            while f >= 1024.0 and i < len(suf) - 1:
-                                f /= 1024.0
-                                i += 1
-                            return f"{f:.1f}{suf[i]}"
-                        out.append({
-                            "mount": mnt,
+            ap = str(app_path)
+            # sort mounts by length desc so first match is the longest prefix
+            for m in sorted(mounts, key=lambda s: -len(s)):
+                if ap == m or ap.startswith(m.rstrip("/") + "/") or ap.startswith(m):
+                    app_mount = m
+                    break
+        except Exception:
+            app_mount = None
+
+        seen = set()
+
+        # If we found an app_mount, add it first (use it for disk_usage)
+        if app_mount:
+            try:
+                du = shutil.disk_usage(app_mount)
+                total, used, free = du.total, du.used, du.free
+                free_pct = (free / total) * 100 if total else 0.0
+                norm = str(Path(app_mount).resolve())
+                seen.add(norm)
+                out.append(
+                    {
+                        "mount": app_mount,
+                        "total": total,
+                        "used": used,
+                        "free": free,
+                        "free_pct": free_pct,
+                        "total_hr": _hr(total),
+                        "free_hr": _hr(free),
+                    }
+                )
+            except Exception:
+                # Fall back to using the exact app_path if mount read fails
+                try:
+                    du = shutil.disk_usage(str(app_path))
+                    total, used, free = du.total, du.used, du.free
+                    free_pct = (free / total) * 100 if total else 0.0
+                    norm = str(app_path)
+                    seen.add(norm)
+                    out.append(
+                        {
+                            "mount": str(app_path),
                             "total": total,
                             "used": used,
                             "free": free,
                             "free_pct": free_pct,
-                            "total_hr": _hr2(total),
-                            "free_hr": _hr2(free),
-                        })
+                            "total_hr": _hr(total),
+                            "free_hr": _hr(free),
+                        }
+                    )
+                except Exception:
+                    pass
+
+        # Enumerate all mounts and add remaining (skip pseudo and duplicates)
+        for m in mounts:
+            try:
+                norm = str(Path(m).resolve())
+            except Exception:
+                norm = str(m)
+            if norm in seen:
+                continue
+            # skip if this mount equals the raw app_path (already added)
+            if app_mount and norm == str(Path(app_mount).resolve()):
+                continue
+            try:
+                du = shutil.disk_usage(m)
+                total, used, free = du.total, du.used, du.free
+                free_pct = (free / total) * 100 if total else 0.0
+                out.append(
+                    {
+                        "mount": m,
+                        "total": total,
+                        "used": used,
+                        "free": free,
+                        "free_pct": free_pct,
+                        "total_hr": _hr(total),
+                        "free_hr": _hr(free),
+                    }
+                )
+                seen.add(norm)
+            except Exception:
+                # skip unreadable mounts (permissions, fuse mounts, etc.)
+                continue
+
+        # Windows fallback if nothing found and running on Windows
+        if not out and os.name == "nt":
+            for letter in (chr(x) + ":/" for x in range(ord("A"), ord("Z") + 1)):
+                if os.path.isdir(letter):
+                    try:
+                        du = shutil.disk_usage(letter)
+                        total, used, free = du.total, du.used, du.free
+                        free_pct = (free / total) * 100 if total else 0.0
+                        norm = str(Path(letter).resolve())
+                        if norm in seen:
+                            continue
+                        out.append(
+                            {
+                                "mount": letter,
+                                "total": total,
+                                "used": used,
+                                "free": free,
+                                "free_pct": free_pct,
+                                "total_hr": _hr(total),
+                                "free_hr": _hr(free),
+                            }
+                        )
+                        seen.add(norm)
                     except Exception:
                         continue
-        except Exception:
-            # best-effort only
-            pass
 
-            # fallback: if still empty, include root
-            if not out:
-                root, total, used, free, free_pct, total_hr, free_hr = self._disk_usage_info()
-                out.append({
+        # Final fallback: if nothing at all, use disk usage for root/current
+        if not out:
+            root, total, used, free, free_pct, total_hr, free_hr = (
+                self._disk_usage_info()
+            )
+            out.append(
+                {
                     "mount": root,
                     "total": total,
                     "used": used,
@@ -258,8 +325,10 @@ class DiscordReporter:
                     "free_pct": free_pct,
                     "total_hr": total_hr,
                     "free_hr": free_hr,
-                })
-            return out
+                }
+            )
+
+        return out
 
     # -------------------------
     # Public lifecycle
@@ -313,7 +382,9 @@ class DiscordReporter:
     def _persist(self):
         try:
             self.status_file.parent.mkdir(parents=True, exist_ok=True)
-            self.status_file.write_text(json.dumps({"mode": self.mode, "message_id": self.message_id}))
+            self.status_file.write_text(
+                json.dumps({"mode": self.mode, "message_id": self.message_id})
+            )
         except Exception:
             pass
 
@@ -324,11 +395,15 @@ class DiscordReporter:
         # create webhook object using discord.py
         # discord.Webhook.from_url accepts an aiohttp session object for async operations
         try:
-            self._webhook = discord.Webhook.from_url(self.webhook_url, session=self.session)
+            self._webhook = discord.Webhook.from_url(
+                self.webhook_url, session=self.session
+            )
         except Exception as e:
             # fallback: try basic construction (older versions)
             try:
-                self._webhook = discord.Webhook.from_url(self.webhook_url, session=self.session)
+                self._webhook = discord.Webhook.from_url(
+                    self.webhook_url, session=self.session
+                )
             except Exception as e:
                 print(f"Failed to create webhook object: {e}")
                 self._webhook = None
@@ -336,7 +411,9 @@ class DiscordReporter:
         if self._webhook and self.message_id:
             try:
                 embed = self._build_embed(probe=True)
-                await self._webhook.edit_message(message_id=self.message_id, embed=embed)
+                await self._webhook.edit_message(
+                    message_id=self.message_id, embed=embed
+                )
                 return
             except Exception:
                 self.message_id = None
@@ -426,7 +503,9 @@ class DiscordReporter:
         # Keep for compatibility if needed.
         title = "Collector status"
         desc = "Rolling stats"
-        embed = discord.Embed(title=title, description=desc, timestamp=datetime.now(timezone.utc))
+        embed = discord.Embed(
+            title=title, description=desc, timestamp=datetime.now(timezone.utc)
+        )
         return embed
 
     # -------------------------
@@ -439,71 +518,182 @@ class DiscordReporter:
         timestamp = now.isoformat()
         epoch = int(datetime.now(timezone.utc).timestamp())
 
-        start_epoch = int(self.startTime.timestamp()) 
+        start_epoch = int(self.startTime.timestamp())
         uptime_seconds = int((now - self.startTime).total_seconds())
         uptime_str = _format_duration(uptime_seconds)
         # build discord.Embed using discord.py classes
         embedlist = []
         embed = discord.Embed(
             title="Collector status",
-            description=f"Rolling 5 minute stats. Next update in: <t:{epoch + 300}:R>" if not final else "Final stats snapshot",
+            description=f"Rolling 5 minute stats. Next update in: <t:{epoch + 300}:R>"
+            if not final
+            else "Final stats snapshot",
             timestamp=datetime.fromisoformat(timestamp),
             url="https://mythistone.com",
-            color=discord.Color.gold()
+            color=discord.Color.gold(),
         )
-        embed.set_thumbnail(url="https://mythistone.com/assets/img/favicon/favicon-96x96.png")
-        embed.set_footer(text="Mythistone Collector", icon_url="https://mythistone.com/assets/img/favicon/favicon-96x96.png")
+        embed.set_thumbnail(
+            url="https://mythistone.com/assets/img/favicon/favicon-96x96.png"
+        )
+        embed.set_footer(
+            text="Mythistone Collector",
+            icon_url="https://mythistone.com/assets/img/favicon/favicon-96x96.png",
+        )
         embedlist.append(embed)
 
         # fields
-        embed.add_field(name="Checked Realms", value=str(window_counts.get("checked_realm", 0)), inline=True)
-        embed.add_field(name="Checked Runs", value=str(window_counts.get("checked_runs", 0)), inline=True)
-        embed.add_field(name="Enqueued Runs", value=str(window_counts.get("enqueued_runs", 0)), inline=True)
-        embed.add_field(name="Fetched Profiles", value=str(window_counts.get("fetched_profile", 0)), inline=True)
-        embed.add_field(name="Runs", value=str(window_counts.get("db_insert_run", 0)), inline=True)
-        embed.add_field(name="Members", value=str(window_counts.get("db_insert_member", 0)), inline=True)
-        embed.add_field(name="No Active Spec", value=str(window_counts.get("no_active_spec", 0)), inline=True)
-        embed.add_field(name="Class Talents", value=str(window_counts.get("class_talents", 0)), inline=True)
-        embed.add_field(name="Spec Talents", value=str(window_counts.get("spec_talents", 0)), inline=True)
-        embed.add_field(name="Hero Talents", value=str(window_counts.get("hero_talents", 0)), inline=True)
-        embed.add_field(name="Enchantments", value=str(window_counts.get("enchantments", 0)), inline=True)
-        embed.add_field(name="Sockets", value=str(window_counts.get("sockets", 0)), inline=True)
-        embed.add_field(name="Bonuses", value=str(window_counts.get("bonuses", 0)), inline=True)
-        embed.add_field(name="Stats", value=str(window_counts.get("stats", 0)),  inline=True)
-        embed.add_field(name="Hunter Pets", value=str(window_counts.get("hunter_pets", 0)), inline=True)
-        embed.add_field(name="Simple Queue", value=str(queue_sizes.get("simple_queue", 0)), inline=True)
-        embed.add_field(name="Advanced Queue", value=str(queue_sizes.get("advanced_queue", 0)), inline=True)
-        embed.add_field(name="Database Queue", value=str(queue_sizes.get("database_queue", 0)), inline=True)
+        embed.add_field(
+            name="Checked Realms",
+            value=str(window_counts.get("checked_realm", 0)),
+            inline=True,
+        )
+        embed.add_field(
+            name="Checked Runs",
+            value=str(window_counts.get("checked_runs", 0)),
+            inline=True,
+        )
+        embed.add_field(
+            name="Enqueued Runs",
+            value=str(window_counts.get("enqueued_runs", 0)),
+            inline=True,
+        )
+        embed.add_field(
+            name="Fetched Profiles",
+            value=str(window_counts.get("fetched_profile", 0)),
+            inline=True,
+        )
+        embed.add_field(
+            name="Runs", value=str(window_counts.get("db_insert_run", 0)), inline=True
+        )
+        embed.add_field(
+            name="Members",
+            value=str(window_counts.get("db_insert_member", 0)),
+            inline=True,
+        )
+        embed.add_field(
+            name="No Active Spec",
+            value=str(window_counts.get("no_active_spec", 0)),
+            inline=True,
+        )
+        embed.add_field(
+            name="Class Talents",
+            value=str(window_counts.get("class_talents", 0)),
+            inline=True,
+        )
+        embed.add_field(
+            name="Spec Talents",
+            value=str(window_counts.get("spec_talents", 0)),
+            inline=True,
+        )
+        embed.add_field(
+            name="Hero Talents",
+            value=str(window_counts.get("hero_talents", 0)),
+            inline=True,
+        )
+        embed.add_field(
+            name="Enchantments",
+            value=str(window_counts.get("enchantments", 0)),
+            inline=True,
+        )
+        embed.add_field(
+            name="Sockets", value=str(window_counts.get("sockets", 0)), inline=True
+        )
+        embed.add_field(
+            name="Bonuses", value=str(window_counts.get("bonuses", 0)), inline=True
+        )
+        embed.add_field(
+            name="Stats", value=str(window_counts.get("stats", 0)), inline=True
+        )
+        embed.add_field(
+            name="Hunter Pets",
+            value=str(window_counts.get("hunter_pets", 0)),
+            inline=True,
+        )
+        embed.add_field(
+            name="Simple Queue",
+            value=str(queue_sizes.get("simple_queue", 0)),
+            inline=True,
+        )
+        embed.add_field(
+            name="Advanced Queue",
+            value=str(queue_sizes.get("advanced_queue", 0)),
+            inline=True,
+        )
+        embed.add_field(
+            name="Database Queue",
+            value=str(queue_sizes.get("database_queue", 0)),
+            inline=True,
+        )
         embed.add_field(name="Timestamp", value=f"<t:{epoch}:R>", inline=False)
 
         # totals
 
         totals_embed = discord.Embed(
             title="Total Values (added since the start)",
-            description=f"Started <t:{start_epoch}:R>. Uptime (when last updated): ({uptime_str})." if not final else f"Was up for ({uptime_str}).",
+            description=f"Started <t:{start_epoch}:R>. Uptime (when last updated): ({uptime_str})."
+            if not final
+            else f"Was up for ({uptime_str}).",
             timestamp=datetime.fromisoformat(timestamp),
-            color=discord.Color.dark_gold()
+            color=discord.Color.dark_gold(),
         )
-        totals_embed.set_thumbnail(url="https://mythistone.com/assets/img/favicon/favicon-96x96.png")
-        totals_embed.set_footer(text="Mythistone Collector", icon_url="https://mythistone.com/assets/img/favicon/favicon-96x96.png")
-        
-        embedlist.append(totals_embed)
-        totals_embed.add_field(name="Checked Realms", value=str(totals.get("checked_realm", 0)), inline=True)
-        totals_embed.add_field(name="Checked Runs", value=str(totals.get("checked_runs", 0)), inline=True)
-        totals_embed.add_field(name="Enqueued Runs", value=str(totals.get("enqueued_runs", 0)), inline=True)
-        totals_embed.add_field(name="Profiles", value=str(totals.get("fetched_profile", 0)), inline=True)
-        totals_embed.add_field(name="Runs", value=str(totals.get("db_insert_run", 0)), inline=True)
-        totals_embed.add_field(name="Members", value=str(totals.get("db_insert_member", 0)), inline=True)
-        totals_embed.add_field(name="No Active Spec", value=str(totals.get("no_active_spec", 0)), inline=True)
-        totals_embed.add_field(name="Class Talents", value=str(totals.get("class_talents", 0)), inline=True)
-        totals_embed.add_field(name="Spec Talents", value=str(totals.get("spec_talents", 0)), inline=True)
-        totals_embed.add_field(name="Hero Talents", value=str(totals.get("hero_talents", 0)), inline=True)
-        totals_embed.add_field(name="Enchantments", value=str(totals.get("enchantments", 0)), inline=True)
-        totals_embed.add_field(name="Sockets", value=str(totals.get("sockets", 0)), inline=True)
-        totals_embed.add_field(name="Bonuses", value=str(totals.get("bonuses", 0)), inline=True)
-        totals_embed.add_field(name="Stats", value=str(totals.get("stats", 0)),  inline=True)
-        totals_embed.add_field(name="Hunter Pets", value=str(totals.get("hunter_pets", 0)), inline=True)
+        totals_embed.set_thumbnail(
+            url="https://mythistone.com/assets/img/favicon/favicon-96x96.png"
+        )
+        totals_embed.set_footer(
+            text="Mythistone Collector",
+            icon_url="https://mythistone.com/assets/img/favicon/favicon-96x96.png",
+        )
 
+        embedlist.append(totals_embed)
+        totals_embed.add_field(
+            name="Checked Realms",
+            value=str(totals.get("checked_realm", 0)),
+            inline=True,
+        )
+        totals_embed.add_field(
+            name="Checked Runs", value=str(totals.get("checked_runs", 0)), inline=True
+        )
+        totals_embed.add_field(
+            name="Enqueued Runs", value=str(totals.get("enqueued_runs", 0)), inline=True
+        )
+        totals_embed.add_field(
+            name="Profiles", value=str(totals.get("fetched_profile", 0)), inline=True
+        )
+        totals_embed.add_field(
+            name="Runs", value=str(totals.get("db_insert_run", 0)), inline=True
+        )
+        totals_embed.add_field(
+            name="Members", value=str(totals.get("db_insert_member", 0)), inline=True
+        )
+        totals_embed.add_field(
+            name="No Active Spec",
+            value=str(totals.get("no_active_spec", 0)),
+            inline=True,
+        )
+        totals_embed.add_field(
+            name="Class Talents", value=str(totals.get("class_talents", 0)), inline=True
+        )
+        totals_embed.add_field(
+            name="Spec Talents", value=str(totals.get("spec_talents", 0)), inline=True
+        )
+        totals_embed.add_field(
+            name="Hero Talents", value=str(totals.get("hero_talents", 0)), inline=True
+        )
+        totals_embed.add_field(
+            name="Enchantments", value=str(totals.get("enchantments", 0)), inline=True
+        )
+        totals_embed.add_field(
+            name="Sockets", value=str(totals.get("sockets", 0)), inline=True
+        )
+        totals_embed.add_field(
+            name="Bonuses", value=str(totals.get("bonuses", 0)), inline=True
+        )
+        totals_embed.add_field(
+            name="Stats", value=str(totals.get("stats", 0)), inline=True
+        )
+        totals_embed.add_field(
+            name="Hunter Pets", value=str(totals.get("hunter_pets", 0)), inline=True
+        )
 
         # -------------------------
         # Recent console lines (from stats.get_last_lines)
@@ -514,10 +704,14 @@ class DiscordReporter:
                 joined = "\n".join(last_lines)
                 if len(joined) > 900:
                     joined = "…(truncated)\n" + joined[-900:]
-                embed.add_field(name="Recent console", value=f"```{joined}```", inline=False)
+                embed.add_field(
+                    name="Recent console", value=f"```{joined}```", inline=False
+                )
         except Exception as e:
             try:
-                self.stats.console_log("discordHandler: failed to read recent console lines:", e)
+                self.stats.console_log(
+                    "discordHandler: failed to read recent console lines:", e
+                )
             except Exception:
                 pass
 
@@ -529,16 +723,25 @@ class DiscordReporter:
             disks = self._collect_disks_info()
             disk_lines = []
             for d in disks:
-                disk_lines.append(f"{d['mount']}: {d['free_hr']} free ({d['free_pct']:.1f}%)")
-                if d["total"] and (d["free_pct"] <= self._disk_warn_pct or d["free"] <= self._disk_warn_bytes):
+                disk_lines.append(
+                    f"{d['mount']}: {d['free_hr']} free ({d['free_pct']:.1f}%)"
+                )
+                if d["total"] and (
+                    d["free_pct"] <= self._disk_warn_pct
+                    or d["free"] <= self._disk_warn_bytes
+                ):
                     low_mounts.append(d)
             disk_text = "\n".join(disk_lines)
             if len(disk_text) > 900:
                 disk_text = disk_text[:900] + "\n…"
-            embed.add_field(name="Disk usage", value=f"```\n{disk_text}\n```", inline=False)
+            embed.add_field(
+                name="Disk usage", value=f"```\n{disk_text}\n```", inline=False
+            )
         except Exception as e:
             try:
-                self.stats.console_log("discordHandler: failed to collect disk info:", e)
+                self.stats.console_log(
+                    "discordHandler: failed to collect disk info:", e
+                )
             except Exception:
                 pass
 
@@ -547,13 +750,16 @@ class DiscordReporter:
         # -------------------------
         if low_mounts:
             # compose warning description
-            lines = [f"{m['mount']} — {m['free_hr']} free ({m['free_pct']:.1f}%)" for m in low_mounts]
+            lines = [
+                f"{m['mount']} — {m['free_hr']} free ({m['free_pct']:.1f}%)"
+                for m in low_mounts
+            ]
             warn_desc = "\n".join(lines)
             warning_embed = discord.Embed(
                 title="⚠️ Low disk space",
                 description=warn_desc,
                 color=discord.Color.red(),
-                timestamp=datetime.now(timezone.utc)
+                timestamp=datetime.now(timezone.utc),
             )
             # append the warning embed to the embed list so it appears in the status update
             try:
@@ -563,19 +769,24 @@ class DiscordReporter:
 
             # send one-time message per mount (webhook or bot)
             for m in low_mounts:
-                mount = m["mount"]
-                already_sent = bool(self._low_space_warn_sent.get(mount))
+                mount_key = str(Path(m["mount"]).resolve())
+                already_sent = bool(self._low_space_warn_sent.get(mount_key))
                 if already_sent:
                     continue
 
                 # send as a separate message so it is visible in channel history
                 try:
-                    if self.mode == "webhook" and getattr(self, "_webhook", None) is not None:
+                    if (
+                        self.mode == "webhook"
+                        and getattr(self, "_webhook", None) is not None
+                    ):
                         try:
                             await self._webhook.send(embed=warning_embed, wait=True)
                         except Exception:
                             try:
-                                await self._webhook.send(embeds=[warning_embed], wait=True)
+                                await self._webhook.send(
+                                    embeds=[warning_embed], wait=True
+                                )
                             except Exception:
                                 pass
                     elif self.mode == "bot":
@@ -585,7 +796,9 @@ class DiscordReporter:
                             try:
                                 channel = self._client.get_channel(int(self.channel_id))
                                 if channel is None:
-                                    channel = await self._client.fetch_channel(int(self.channel_id))
+                                    channel = await self._client.fetch_channel(
+                                        int(self.channel_id)
+                                    )
                             except Exception:
                                 channel = None
                             if channel:
@@ -596,7 +809,7 @@ class DiscordReporter:
                     pass
 
                 # mark this mount as warned
-                self._low_space_warn_sent[mount] = True
+                self._low_space_warn_sent[mount_key] = True
         else:
             # reset any previously-sent flags for mounts that are no longer low
             if self._low_space_warn_sent:
@@ -605,13 +818,14 @@ class DiscordReporter:
                     # assume it recovered unless still present in current low_mounts
                     self._low_space_warn_sent.pop(mount, None)
 
-
         # send/edit depending on mode
         if self.mode == "webhook":
             if not self._webhook:
                 # attempt to create webhook object if missing
                 try:
-                    self._webhook = discord.Webhook.from_url(self.webhook_url, session=self.session)
+                    self._webhook = discord.Webhook.from_url(
+                        self.webhook_url, session=self.session
+                    )
                 except Exception:
                     self._webhook = None
             if not self._webhook:
@@ -619,7 +833,9 @@ class DiscordReporter:
             # try edit first if we have message id
             if self.message_id:
                 try:
-                    await self._webhook.edit_message(message_id=self.message_id, embeds=embedlist)
+                    await self._webhook.edit_message(
+                        message_id=self.message_id, embeds=embedlist
+                    )
                     return
                 except Exception:
                     # fallback to creating a new webhook message

@@ -1,107 +1,183 @@
- /* === Theme variables === */
+/* === Theme variables === */
 
-  :root,
-  [data-bs-theme="light"] {
-    /*–– Primary stats ––*/
-    --stat-stragiint: #FFD100; 
-    --stat-stragi:    #8B008B; 
-    --stat-int:       #D26CD1; 
-    --stat-str:       #F33232;
-    --stat-agi:       #FFD955; 
-    --stat-sta:       #ff8b2d;
-    --stat-health:    #27cc4e;
+:root,
+[data-bs-theme="light"] {
+  /*–– Primary stats ––*/
+  --stat-stragiint: #ffd100;
+  --stat-stragi: #8b008b;
+  --stat-int: #d26cd1;
+  --stat-str: #f33232;
+  --stat-agi: #ffd955;
+  --stat-sta: #ff8b2d;
+  --stat-health: #27cc4e;
 
+  /*–– Secondary stats ––*/
+  --stat-mastery: #9256ff;
+  --stat-haste: #0ed59b;
+  --stat-crit: #e01c1c;
+  --stat-vers: #bfbfbf;
 
-    /*–– Secondary stats ––*/
-    --stat-mastery:   #9256FF; 
-    --stat-haste:     #0ED59B; 
-    --stat-crit:      #E01C1C; 
-    --stat-vers:      #BFBFBF; 
+  /*–– Tertiary stats ––*/
+  --stat-runspeed: #00c2ff;
+  --stat-avoidance: #1e90ff;
+  --stat-leech: #ff5a6c;
 
-    /*–– Tertiary stats ––*/
-    --stat-runspeed:  #00C2FF; 
-    --stat-avoidance: #1E90FF; 
-    --stat-leech:     #FF5A6C;
+  /*–– Rarities ––*/
+  --quality-0: #9d9d9d; /* poor */
+  --quality-1: #312e2e; /* common */
+  --quality-2: #1eff00; /* uncommon */
+  --quality-3: #0070dd; /* rare */
+  --quality-4: #a335ee; /* epic */
+  --quality-5: #ff8000; /* legendary */
+  --quality-6: #e6cc80; /* artifact */
+  --quality-7: #00ccff; /* heirloom*/
+  --quality-8: #00ccff; /* token */
+}
+[data-bs-theme="dark"] {
+  /*–– Primary stats ––*/
+  --stat-stragiint: #ffd100;
+  --stat-stragi: #8b008b;
+  --stat-int: #d26cd1;
+  --stat-str: #f33232;
+  --stat-agi: #ffd955;
+  --stat-sta: #ff8b2d;
+  --stat-health: #27cc4e;
 
-    /*–– Rarities ––*/
-    --quality-0: #9D9D9D; /* poor */
-    --quality-1: #312e2e; /* common */
-    --quality-2: #1EFF00; /* uncommon */
-    --quality-3: #0070DD; /* rare */
-    --quality-4: #A335EE; /* epic */
-    --quality-5: #FF8000; /* legendary */
-    --quality-6: #E6CC80; /* artifact */
-    --quality-7: #00ccff; /* heirloom*/
-    --quality-8: #00ccff; /* token */
+  /*–– Secondary stats ––*/
+  --stat-mastery: #9256ff;
+  --stat-haste: #0ed59b;
+  --stat-crit: #e01c1c;
+  --stat-vers: #bfbfbf;
 
-  }
-  [data-bs-theme="dark"] {
-    /*–– Primary stats ––*/
-    --stat-stragiint: #FFD100; 
-    --stat-stragi:    #8B008B; 
-    --stat-int:       #D26CD1; 
-    --stat-str:       #F33232;
-    --stat-agi:       #FFD955; 
-    --stat-sta:       #ff8b2d;
-    --stat-health:    #27cc4e;
+  /*–– Tertiary stats ––*/
+  --stat-runspeed: #00c2ff;
+  --stat-avoidance: #1e90ff;
+  --stat-leech: #ff5a6c;
 
-
-    /*–– Secondary stats ––*/
-    --stat-mastery:   #9256FF; 
-    --stat-haste:     #0ED59B; 
-    --stat-crit:      #E01C1C; 
-    --stat-vers:      #BFBFBF; 
-
-    /*–– Tertiary stats ––*/
-    --stat-runspeed:  #00C2FF; 
-    --stat-avoidance: #1E90FF; 
-    --stat-leech:     #FF5A6C;
-
-    /*–– Rarities ––*/
-    --quality-0: #9D9D9D; /* poor */
-    --quality-1: #FFFFFF; /* common */
-    --quality-2: #1EFF00; /* uncommon */
-    --quality-3: #0070DD; /* rare */
-    --quality-4: #A335EE; /* epic */
-    --quality-5: #FF8000; /* legendary */
-    --quality-6: #E6CC80; /* artifact */
-    --quality-7: #00ccff; /* heirloom*/
-    --quality-8: #00ccff; /* token */
-  }
-
+  /*–– Rarities ––*/
+  --quality-0: #9d9d9d; /* poor */
+  --quality-1: #ffffff; /* common */
+  --quality-2: #1eff00; /* uncommon */
+  --quality-3: #0070dd; /* rare */
+  --quality-4: #a335ee; /* epic */
+  --quality-5: #ff8000; /* legendary */
+  --quality-6: #e6cc80; /* artifact */
+  --quality-7: #00ccff; /* heirloom*/
+  --quality-8: #00ccff; /* token */
+}
 
 /* === Stat classes === */
-.stat-stragiint { background-color: var(--stat-stragiint); color: var(--bs-gray-dark);} 
-.stat-stragi    { background-color: var(--stat-stragi);    color: var(--bs-gray-dark); }
-.stat-int       { background-color: var(--stat-int);       color: var(--bs-gray-dark);  }
-.stat-intellect  { background-color: var(--stat-int);       color: var(--bs-gray-100); }
-.stat-str       { background-color: var(--stat-str);       color: var(--bs-gray-100); }
-.stat-strength  { background-color: var(--stat-str);       color: var(--bs-gray-100); }
-.stat-agi       { background-color: var(--stat-agi);       color: var(--bs-gray-dark); }
-.stat-agility       { background-color: var(--stat-agi);       color: var(--bs-gray-dark); }
-.stat-sta       { background-color: var(--stat-sta);       color: var(--bs-gray-dark); }
-.stat-stamina       { background-color: var(--stat-sta);       color: var(--bs-gray-dark); }
-.stat-health       { background-color: var(--stat-health);       color: var(--bs-gray-dark); }
+.stat-stragiint {
+  background-color: var(--stat-stragiint);
+  color: var(--bs-gray-dark);
+}
+.stat-stragi {
+  background-color: var(--stat-stragi);
+  color: var(--bs-gray-dark);
+}
+.stat-int {
+  background-color: var(--stat-int);
+  color: var(--bs-gray-dark);
+}
+.stat-intellect {
+  background-color: var(--stat-int);
+  color: var(--bs-gray-100);
+}
+.stat-str {
+  background-color: var(--stat-str);
+  color: var(--bs-gray-100);
+}
+.stat-strength {
+  background-color: var(--stat-str);
+  color: var(--bs-gray-100);
+}
+.stat-agi {
+  background-color: var(--stat-agi);
+  color: var(--bs-gray-dark);
+}
+.stat-agility {
+  background-color: var(--stat-agi);
+  color: var(--bs-gray-dark);
+}
+.stat-sta {
+  background-color: var(--stat-sta);
+  color: var(--bs-gray-dark);
+}
+.stat-stamina {
+  background-color: var(--stat-sta);
+  color: var(--bs-gray-dark);
+}
+.stat-health {
+  background-color: var(--stat-health);
+  color: var(--bs-gray-dark);
+}
 
-.stat-mastery   { background-color: var(--stat-mastery);   color: var(--bs-gray-100); }
-.stat-haste     { background-color: var(--stat-haste);     color: var(--bs-gray-dark); }
-.stat-crit      { background-color: var(--stat-crit);      color:  var(--bs-gray-100); }
-.stat-vers      { background-color: var(--stat-vers);      color: var(--bs-gray-dark); }
-.stat-versatility { background-color: var(--stat-vers);      color: var(--bs-gray-dark); }
-.stat-leech     { background-color: var(--stat-leech);     color:  var(--bs-gray-100); }
-.stat-lifesteal     { background-color: var(--stat-leech);     color:  var(--bs-gray-100); }
-.stat-speed  { background-color: var(--stat-runspeed);  color:  var(--bs-gray-dark);}
-.stat-runspeed  { background-color: var(--stat-runspeed);  color:  var(--bs-gray-dark);}
-.stat-avoidance { background-color: var(--stat-avoidance); color: var(--bs-gray-100); }
-
+.stat-mastery {
+  background-color: var(--stat-mastery);
+  color: var(--bs-gray-100);
+}
+.stat-haste {
+  background-color: var(--stat-haste);
+  color: var(--bs-gray-dark);
+}
+.stat-crit {
+  background-color: var(--stat-crit);
+  color: var(--bs-gray-100);
+}
+.stat-vers {
+  background-color: var(--stat-vers);
+  color: var(--bs-gray-dark);
+}
+.stat-versatility {
+  background-color: var(--stat-vers);
+  color: var(--bs-gray-dark);
+}
+.stat-leech {
+  background-color: var(--stat-leech);
+  color: var(--bs-gray-100);
+}
+.stat-lifesteal {
+  background-color: var(--stat-leech);
+  color: var(--bs-gray-100);
+}
+.stat-speed {
+  background-color: var(--stat-runspeed);
+  color: var(--bs-gray-dark);
+}
+.stat-runspeed {
+  background-color: var(--stat-runspeed);
+  color: var(--bs-gray-dark);
+}
+.stat-avoidance {
+  background-color: var(--stat-avoidance);
+  color: var(--bs-gray-100);
+}
 
 /* === Rarity border classes === */
-.border-quality-0 { border-color: var(--quality-0) !important; } /* poor */
-.border-quality-1 { border-color: var(--quality-1) !important; } /* common */
-.border-quality-2 { border-color: var(--quality-2) !important; } /* uncommon */
-.border-quality-3 { border-color: var(--quality-3) !important; } /* rare */
-.border-quality-4 { border-color: var(--quality-4) !important; } /* epic */
-.border-quality-5 { border-color: var(--quality-5) !important; } /* legendary */
-.border-quality-6 { border-color: var(--quality-6) !important; } /* artifact */
-.border-quality-7 { border-color: var(--quality-7) !important; } /* heirloom */
-.border-quality-8 { border-color: var(--quality-8) !important; } /* token */
+.border-quality-0 {
+  border-color: var(--quality-0) !important;
+} /* poor */
+.border-quality-1 {
+  border-color: var(--quality-1) !important;
+} /* common */
+.border-quality-2 {
+  border-color: var(--quality-2) !important;
+} /* uncommon */
+.border-quality-3 {
+  border-color: var(--quality-3) !important;
+} /* rare */
+.border-quality-4 {
+  border-color: var(--quality-4) !important;
+} /* epic */
+.border-quality-5 {
+  border-color: var(--quality-5) !important;
+} /* legendary */
+.border-quality-6 {
+  border-color: var(--quality-6) !important;
+} /* artifact */
+.border-quality-7 {
+  border-color: var(--quality-7) !important;
+} /* heirloom */
+.border-quality-8 {
+  border-color: var(--quality-8) !important;
+} /* token */

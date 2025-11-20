@@ -48,7 +48,6 @@ def compute_shades(rgb, count):
 
 
 def createKeysPerWeek(periods):
-
     # build labels: “1”, “2”, ….
     period_labels = [f"Week:{p['week']} " for p in periods]
 
@@ -192,16 +191,19 @@ def create_spec_scatter(spec_upgrades, spec_lookup, class_lookup, highest_key):
         bg = f"rgba({rcol},{gcol},{bcol},0.4)"
         icon_url = f"/data/icons/{sdata.get('SpellIconFileId')}.jpg"
 
-        points.append({
-            "label": sdata.get("name", f"Spec {spec_id}"),
-            "x": round(perf, 4),
-            "y": runs,
-            "iconUrl": icon_url,
-            "borderColor": border,
-            "backgroundColor": bg,
-        })
+        points.append(
+            {
+                "label": sdata.get("name", f"Spec {spec_id}"),
+                "x": round(perf, 4),
+                "y": runs,
+                "iconUrl": icon_url,
+                "borderColor": border,
+                "backgroundColor": bg,
+            }
+        )
 
     return points
+
 
 def create_dungeon_ease(dungeon_data, dungeon_lookup, top_n=None):
     """
@@ -252,17 +254,16 @@ def create_dungeon_ease(dungeon_data, dungeon_lookup, top_n=None):
         for lvl in key_levels:
             cnt = counts_by_dungeon[dungeon_id].get(lvl, 0)
             raw_counts.append(cnt)
-            denom = total_by_level.get(lvl, 0) or 1  # avoid div0; if denom==0 results will be 0
+            denom = (
+                total_by_level.get(lvl, 0) or 1
+            )  # avoid div0; if denom==0 results will be 0
             pct = round((cnt / denom) * 100.0, 1) if denom else 0.0
             pct_data.append(pct)
 
-        datasets.append({
-            "label": name,
-            "data": pct_data,
-            "rawCounts": raw_counts
-        })
+        datasets.append({"label": name, "data": pct_data, "rawCounts": raw_counts})
 
     return {"keyLevels": key_levels, "datasets": datasets}
+
 
 def compute_shades(rgb, count):
     """Generate brightness-shaded variants for a base RGB tuple."""
@@ -275,8 +276,8 @@ def compute_shades(rgb, count):
         shades.append({"r": clamp(r), "g": clamp(g), "b": clamp(b)})
     return shades
 
-def createDungeonPopularity(dungeons, dungeon_lookup):
 
+def createDungeonPopularity(dungeons, dungeon_lookup):
     # Extract arrays
     short_names = []
     full_names = []
@@ -296,10 +297,10 @@ def createDungeonPopularity(dungeons, dungeon_lookup):
 
         total_counts.append(d["total_runs"])
         # find each tier (default 0)
-        depleted_counts.append(d['depleted'])
-        plus1_counts.append(d['upgrade_1'])
-        plus2_counts.append(d['upgrade_2'])
-        plus3_counts.append(d['upgrade_3'])
+        depleted_counts.append(d["depleted"])
+        plus1_counts.append(d["upgrade_1"])
+        plus2_counts.append(d["upgrade_2"])
+        plus3_counts.append(d["upgrade_3"])
 
     # Build the Chart.js datasets
     datasets = [
@@ -341,7 +342,10 @@ def createDungeonPopularity(dungeons, dungeon_lookup):
         "datasets": datasets,
     }
 
-def assemble_spec_level_datasets(rows, spec_lookup, class_lookup, top_n, include_other=True):
+
+def assemble_spec_level_datasets(
+    rows, spec_lookup, class_lookup, top_n, include_other=True
+):
     """
     rows: list of dicts: {"spec_id": int, "keystone_level": int, "count": int}
     spec_lookup: dict keyed by string spec_id -> spec info (has 'name' and 'classID')
@@ -379,13 +383,16 @@ def assemble_spec_level_datasets(rows, spec_lookup, class_lookup, top_n, include
     # build ordered list of specs to produce datasets for
     specs_order = sorted(
         top_specs,
-        key=lambda s: (spec_lookup.get(str(s), {}).get("classID"), -total_by_spec.get(s, 0))
+        key=lambda s: (
+            spec_lookup.get(str(s), {}).get("classID"),
+            -total_by_spec.get(s, 0),
+        ),
     )
     if include_other and other_specs:
-        specs_order.append("OTHER") 
+        specs_order.append("OTHER")
 
     # precompute totals per level for denominator
-    total_at_level = { lvl: sum(counts_by_level[lvl].values()) for lvl in key_levels }
+    total_at_level = {lvl: sum(counts_by_level[lvl].values()) for lvl in key_levels}
 
     class_groups = defaultdict(list)
     for spec in specs_order:
@@ -397,9 +404,7 @@ def assemble_spec_level_datasets(rows, spec_lookup, class_lookup, top_n, include
     for cid, group in class_groups.items():
         base = class_lookup[cid]["color"]
         count = len(group)
-        shades = compute_shades(
-            (int(base["r"]), int(base["g"]), int(base["b"])), count
-        )
+        shades = compute_shades((int(base["r"]), int(base["g"]), int(base["b"])), count)
         for i, spec in enumerate(group):
             spec_to_shade[str(spec)] = shades[i]
     datasets = []
@@ -429,7 +434,9 @@ def assemble_spec_level_datasets(rows, spec_lookup, class_lookup, top_n, include
                 backgroundColor = "rgba(150,150,150,0.7)"
             else:
                 cls = class_lookup.get(str(class_id)) or {}
-                color = spec_to_shade.get(spec_str, cls.get("color", {"r": 150, "g": 150, "b": 150}))
+                color = spec_to_shade.get(
+                    spec_str, cls.get("color", {"r": 150, "g": 150, "b": 150})
+                )
                 # guard numeric conversion
                 r = int(color.get("r", 150))
                 g = int(color.get("g", 150))
@@ -449,8 +456,8 @@ def assemble_spec_level_datasets(rows, spec_lookup, class_lookup, top_n, include
 
         dataset = {
             "label": label,
-            "data": data_pcts,            # percentages (for Chart.js)
-            "rawCounts": raw_counts,      # parallel raw counts for tooltip
+            "data": data_pcts,  # percentages (for Chart.js)
+            "rawCounts": raw_counts,  # parallel raw counts for tooltip
             "backgroundColor": backgroundColor,
             "borderWidth": 0,
         }
@@ -474,43 +481,62 @@ def main(template_path, output_dir):
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
     notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
     season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
-    spec_nav = generateSpecNav(spec_lookup, class_lookup) 
+    spec_nav = generateSpecNav(spec_lookup, class_lookup)
 
-
-
-    
     template = env.get_template(os.path.basename(template_path))
     print("Fetching data from database...")
-    access_token = aggregateData.get_access_token(os.environ['CLIENT_ID'], os.environ['CLIENT_SECRET'])
+    access_token = aggregateData.get_access_token(
+        os.environ["CLIENT_ID"], os.environ["CLIENT_SECRET"]
+    )
     current_season_id = aggregateData.get_current_season_id(access_token)
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()
         print("fetching runs...")
-        shortest_run = databaseConnector.fetch_shortest_run(conn, cursor, current_season_id)
-        longest_run = databaseConnector.fetch_longest_run(conn, cursor, current_season_id)
-        highest_run = databaseConnector.fetch_max_key_run(conn, cursor, current_season_id)
+        shortest_run = databaseConnector.fetch_shortest_run(
+            conn, cursor, current_season_id
+        )
+        longest_run = databaseConnector.fetch_longest_run(
+            conn, cursor, current_season_id
+        )
+        highest_run = databaseConnector.fetch_max_key_run(
+            conn, cursor, current_season_id
+        )
         print("fetching spec run counts...")
-        spec_run_counts = databaseConnector.fetch_spec_run_counts(conn,cursor,current_season_id)
+        spec_run_counts = databaseConnector.fetch_spec_run_counts(
+            conn, cursor, current_season_id
+        )
         print("fetching spec run counts per level...")
-        counts_per_level = databaseConnector.fetch_spec_run_counts_per_level(conn, cursor, current_season_id)
+        counts_per_level = databaseConnector.fetch_spec_run_counts_per_level(
+            conn, cursor, current_season_id
+        )
         print("fetching runs per period...")
-        runs_per_period = databaseConnector.fetch_runs_per_period(conn, cursor, current_season_id)
+        runs_per_period = databaseConnector.fetch_runs_per_period(
+            conn, cursor, current_season_id
+        )
         print("fetching dungeon run data...")
-        dungeon_data = databaseConnector.fetch_runs_per_dungeon(conn, cursor, current_season_id)
+        dungeon_data = databaseConnector.fetch_runs_per_dungeon(
+            conn, cursor, current_season_id
+        )
         print("fetching dungeon runs per level...")
-        dungeon_runs_per_level = databaseConnector.fetch_runs_per_dungeon_per_level(conn, cursor, current_season_id)
+        dungeon_runs_per_level = databaseConnector.fetch_runs_per_dungeon_per_level(
+            conn, cursor, current_season_id
+        )
         print("fetching spec upgrades...")
-        spec_upgrades = databaseConnector.fetch_spec_upgrades(conn, cursor, current_season_id)
+        spec_upgrades = databaseConnector.fetch_spec_upgrades(
+            conn, cursor, current_season_id
+        )
     print("Assembling Spec Run Counts per Level...")
     key_levels, datasets_json = assemble_spec_level_datasets(
         counts_per_level,
         spec_lookup=spec_lookup,
         class_lookup=class_lookup,
-        top_n=None, #list all
-        include_other=True
+        top_n=None,  # list all
+        include_other=True,
     )
     print("Creating Spec Scatter...")
-    scatter_data = create_spec_scatter(spec_upgrades, spec_lookup, class_lookup, highest_run)
+    scatter_data = create_spec_scatter(
+        spec_upgrades, spec_lookup, class_lookup, highest_run
+    )
     print("Creating Keys Per Week...")
     period_datasets, period_labels = createKeysPerWeek(runs_per_period)
     print("Creating Dungeon Popularity...")
@@ -519,11 +545,11 @@ def main(template_path, output_dir):
     ease_data = create_dungeon_ease(dungeon_runs_per_level, dungeon_lookup)
     runs = [
         {"name": "Shortest", "data": shortest_run, "icon": "sprint"},
-        {"name": "Longest",  "data": longest_run, "icon": "hourglass_bottom"},
-        {"name": "Highest",  "data": highest_run, "icon": "leaderboard"},
+        {"name": "Longest", "data": longest_run, "icon": "hourglass_bottom"},
+        {"name": "Highest", "data": highest_run, "icon": "leaderboard"},
     ]
     print("Rendering template...")
-    
+
     output_html = template.render(
         generated_at=datetime.now(timezone.utc).timestamp(),
         spec_nav=spec_nav,
@@ -547,7 +573,7 @@ def main(template_path, output_dir):
         dungeon_ease_datasets=ease_data["datasets"],
         breadcrumbs=[
             {"title": "Pages", "href": "/Pages"},
-            {"title": "Dashboard", "href": "/Dashboard"}
+            {"title": "Dashboard", "href": "/Dashboard"},
         ],
         active_page="dashboard",
         notifications=notifications,

@@ -10,17 +10,29 @@ _CONSOLE_MAX_LINES = 500
 _console_buf = deque(maxlen=_CONSOLE_MAX_LINES)
 _console_lock = threading.Lock()
 
+
 class StatsCollector:
     """
     Collect timestamped events. Provide counts over a sliding window (seconds).
     Async-safe.
     """
-    def __init__(self, window_seconds: int = 300, simple_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=1), advanced_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=1), database_queue: asyncio.Queue[dict] = asyncio.Queue(maxsize=1)):
+
+    def __init__(
+        self,
+        window_seconds: int = 300,
+        simple_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=1),
+        advanced_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=1),
+        database_queue: asyncio.Queue[dict] = asyncio.Queue(maxsize=1),
+    ):
         self.window = window_seconds
         self.events = deque()  # (timestamp, name)
         self.totals = Counter()  # cumulative totals since process start
         self.lock = asyncio.Lock()
-        self.queues = {'simple_queue': simple_queue, 'advanced_queue': advanced_queue, 'database_queue': database_queue}
+        self.queues = {
+            "simple_queue": simple_queue,
+            "advanced_queue": advanced_queue,
+            "database_queue": database_queue,
+        }
 
     async def increment(self, name: str, amount: int = 1):
         ts = time.time()
@@ -38,10 +50,15 @@ class StatsCollector:
             while self.events and self.events[0][0] < cutoff:
                 self.events.popleft()
             window_counts = Counter(e[1] for e in self.events)
-            return window_counts, dict(self.totals), {k: q.qsize() for k, q in self.queues.items()}
+            return (
+                window_counts,
+                dict(self.totals),
+                {k: q.qsize() for k, q in self.queues.items()},
+            )
 
-
-    def console_log(self, *args, sep: str = " ", end: str = "\n", file=None, flush: bool = False) -> None:
+    def console_log(
+        self, *args, sep: str = " ", end: str = "\n", file=None, flush: bool = False
+    ) -> None:
         try:
             text = sep.join(str(a) for a in args)
             timestamped = f"[{datetime.now(timezone.utc).isoformat()}] {text}"

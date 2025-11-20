@@ -48,26 +48,17 @@ STAT_NAMES = {
     "stragi": "Str/Agi",
 }
 
-SECONDARY_STATS = [
-    "haste",
-    "versatility",
-    "mastery",
-    "crit"
-]
+SECONDARY_STATS = ["haste", "versatility", "mastery", "crit"]
 TERTIARY_STATS = [
     "avoidance",
     "lifesteal",
     "speed",
 ]
-HEALTH_STATS = [
-    "health",
-    "stamina"
-]
-
+HEALTH_STATS = ["health", "stamina"]
 
 
 def load_json(path):
-    with open(path, "r",  encoding="utf-8") as f:
+    with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -224,15 +215,16 @@ def format_duration(ms):
 
 # helpers
 
+
 def escape_raidbot_code(code):
-    """
-    """
+    """ """
     loadout = {}
     if not code:
         return
-    loadout['original'] = code
-    loadout['code'] = quote_plus(code, safe="")
+    loadout["original"] = code
+    loadout["code"] = quote_plus(code, safe="")
     return loadout
+
 
 def normalize_slot_collections(list_of_lists, slot_names):
     """
@@ -287,29 +279,49 @@ def normalize_slot_collections(list_of_lists, slot_names):
             total_count += e.get("count", 0)
             entries.append(entry)
 
-        normalized.append({"slot": slot_name, "slug": slot_slug, "entries": entries, "slot_count": total_count})
+        normalized.append(
+            {
+                "slot": slot_name,
+                "slug": slot_slug,
+                "entries": entries,
+                "slot_count": total_count,
+            }
+        )
     return normalized
+
 
 def checkItemLimits(sockets, socket_lookup, socket_limits):
     for socket in sockets:
-        if not socket_lookup.get(int(socket['id'])):
+        if not socket_lookup.get(int(socket["id"])):
             continue
-        limit = socket_lookup[int(socket['id'])].get("itemLimitCategory")
+        limit = socket_lookup[int(socket["id"])].get("itemLimitCategory")
         if limit:
-            if socket_limits.get(limit['id']):
-                if limit['quantity']>= socket_limits.get(limit['id']):
+            if socket_limits.get(limit["id"]):
+                if limit["quantity"] >= socket_limits.get(limit["id"]):
                     continue
                 else:
-                    socket_limits[limit['id']] += 1
+                    socket_limits[limit["id"]] += 1
                     return socket
             else:
-                socket_limits[limit['id']] = limit['quantity']
+                socket_limits[limit["id"]] = limit["quantity"]
                 return socket
         else:
             return socket
-    return 
+    return
 
-def handleSocketsForItem(conn, cursor, spec_id, current_season_id, item_id, amount, sockets, socket_limits, socket_lookup, socket_map=None):
+
+def handleSocketsForItem(
+    conn,
+    cursor,
+    spec_id,
+    current_season_id,
+    item_id,
+    amount,
+    sockets,
+    socket_limits,
+    socket_lookup,
+    socket_map=None,
+):
     sockets_data = []
     if amount > 0:
         # prefer socket_map if provided (no db roundtrip)
@@ -317,7 +329,9 @@ def handleSocketsForItem(conn, cursor, spec_id, current_season_id, item_id, amou
             current_socket_items = socket_map.get(str(item_id), [])
             used_sockets = [pair[0] for pair in current_socket_items]
         else:
-            current_socket_items = databaseConnector.fetch_top_sockets_for_item(conn, cursor, spec_id, current_season_id, item_id)
+            current_socket_items = databaseConnector.fetch_top_sockets_for_item(
+                conn, cursor, spec_id, current_season_id, item_id
+            )
             used_sockets = [pair[0] for pair in current_socket_items if len(pair) > 0]
 
         for _ in range(0, amount):
@@ -326,15 +340,17 @@ def handleSocketsForItem(conn, cursor, spec_id, current_season_id, item_id, amou
                 active_socket = checkItemLimits(sockets, socket_lookup, socket_limits)
             elif used_sockets and len(used_sockets) > 0:
                 used_sockets_converted = [{"id": socket} for socket in used_sockets]
-                active_socket = checkItemLimits(used_sockets_converted, socket_lookup, socket_limits)
+                active_socket = checkItemLimits(
+                    used_sockets_converted, socket_lookup, socket_limits
+                )
             if active_socket:
                 sockets_data.append(active_socket)
     return sockets_data
 
 
-def fetch_slot_info(conn, cursor, spec_id, current_season_id,slot):
+def fetch_slot_info(conn, cursor, spec_id, current_season_id, slot):
     if MULTI_SLOT_GROUPS.get(slot):
-        num = re.search(r'\d+', slot)
+        num = re.search(r"\d+", slot)
         data = databaseConnector.fetch_top_items_for_slot_group_with_bonus(
             conn, cursor, spec_id, current_season_id, MULTI_SLOT_GROUPS.get(slot)
         )
@@ -344,15 +360,14 @@ def fetch_slot_info(conn, cursor, spec_id, current_season_id,slot):
         return data
     else:
         return databaseConnector.fetch_top_items_for_slot_with_bonus(
-                    conn, cursor, spec_id, current_season_id, slot
-                )
-    
+            conn, cursor, spec_id, current_season_id, slot
+        )
+
+
 def fetch_hero_tree_info(conn, cursor, spec_id, current_season_id):
     popular_hero_tree = 0
     popular_hero_tree_count = 0
-    hero_trees = aggregateData.get_hero_trees(
-        conn, cursor, spec_id, current_season_id
-    )
+    hero_trees = aggregateData.get_hero_trees(conn, cursor, spec_id, current_season_id)
     hero_tree_count = 0
     for tree in hero_trees:
         if tree.get("count"):
@@ -362,6 +377,7 @@ def fetch_hero_tree_info(conn, cursor, spec_id, current_season_id):
                 popular_hero_tree_count = count
                 popular_hero_tree = tree.get("id")
     return hero_trees, popular_hero_tree, popular_hero_tree_count, hero_tree_count
+
 
 def fetch_enchant_info(conn, cursor, spec_id, current_season_id, enchant_lookup):
     enchant_slots_raw = {
@@ -379,27 +395,46 @@ def fetch_enchant_info(conn, cursor, spec_id, current_season_id, enchant_lookup)
                 enchant_id = enchant.get("id")
                 if enchant_id and enchant_lookup.get(enchant_id):
                     valid_enchants.append(enchant)
-                    total_enchant_counts[slot_group] += enchant.get('count')
+                    total_enchant_counts[slot_group] += enchant.get("count")
             enchant_slots[slot_group] = valid_enchants
     return enchant_slots, total_enchant_counts
 
 
-def convert_slots(conn, cursor, spec_id, current_season_id, slots, item_lookup, bonus_lookup, missive_lookup, embellishment_lookup, bonus_quality_lookup, sockets, socket_lookup, enchant_slots, set_members, spec_talents_difs=None, missives=None, embellishments=None):
-    primary_ids = {
-        int(items[0]['item']) for items in slots if len(items) > 0
-    }
+def convert_slots(
+    conn,
+    cursor,
+    spec_id,
+    current_season_id,
+    slots,
+    item_lookup,
+    bonus_lookup,
+    missive_lookup,
+    embellishment_lookup,
+    bonus_quality_lookup,
+    sockets,
+    socket_lookup,
+    enchant_slots,
+    set_members,
+    spec_talents_difs=None,
+    missives=None,
+    embellishments=None,
+):
+    primary_ids = {int(items[0]["item"]) for items in slots if len(items) > 0}
 
     all_item_ids = set()
-    for items in (slots):
+    for items in slots:
         for it in items:
-            all_item_ids.add(int(it.get('item')))
-    socket_map = databaseConnector.fetch_top_sockets_for_items(conn, cursor, spec_id, current_season_id, list(all_item_ids))
-
+            all_item_ids.add(int(it.get("item")))
+    socket_map = databaseConnector.fetch_top_sockets_for_items(
+        conn, cursor, spec_id, current_season_id, list(all_item_ids)
+    )
 
     socket_limits = {}
-    for items, slot in zip(slots, LEFT_ORDER+RIGHT_ORDER+WEAPON_SLOTS+TRINKET_SLOTS):
+    for items, slot in zip(
+        slots, LEFT_ORDER + RIGHT_ORDER + WEAPON_SLOTS + TRINKET_SLOTS
+    ):
         for item in items:
-            sid = item_lookup[int(item['item'])].get("itemSetId")
+            sid = item_lookup[int(item["item"])].get("itemSetId")
             if sid:
                 raw_peers = [pid for pid in set_members[sid]]
                 peers = [pid for pid in raw_peers if pid in primary_ids]
@@ -409,11 +444,13 @@ def convert_slots(conn, cursor, spec_id, current_season_id, slots, item_lookup, 
             amount = 0
             if not item.get("bonus"):
                 continue
-            bonus = item.get('bonus', {}).get('ids','')
-            bonus_ids = bonus.split(',')
+            bonus = item.get("bonus", {}).get("ids", "")
+            bonus_ids = bonus.split(",")
             for bonus in bonus_ids:
-                if bonus_lookup.get(str(bonus)) and bonus_lookup[str(bonus)].get('socket'):
-                    amount += bonus_lookup[str(bonus)].get('socket')
+                if bonus_lookup.get(str(bonus)) and bonus_lookup[str(bonus)].get(
+                    "socket"
+                ):
+                    amount += bonus_lookup[str(bonus)].get("socket")
                 if missive_lookup.get(str(bonus)):
                     if missives and len(missives) > 0:
                         item["missive"] = missives[0][0]
@@ -422,20 +459,46 @@ def convert_slots(conn, cursor, spec_id, current_season_id, slots, item_lookup, 
                         item["embellishment"] = embellishments[0][0]
                 if bonus_quality_lookup.get(str(bonus)):
                     item["quality_override"] = bonus_quality_lookup[str(bonus)]
-            if amount < len(item_lookup.get(int(item['item']), {}).get('socketInfo', {}).get('sockets', [])):
-                print(f"Adjusting amount for item {item['item']}: {amount} {len(item_lookup.get(int(item['item']), {}).get('socketInfo', {}).get('sockets', []))}")
-                amount = len(item_lookup.get(int(item['item']), {}).get('socketInfo', {}).get('sockets', []))
+            if amount < len(
+                item_lookup.get(int(item["item"]), {})
+                .get("socketInfo", {})
+                .get("sockets", [])
+            ):
+                print(
+                    f"Adjusting amount for item {item['item']}: {amount} {len(item_lookup.get(int(item['item']), {}).get('socketInfo', {}).get('sockets', []))}"
+                )
+                amount = len(
+                    item_lookup.get(int(item["item"]), {})
+                    .get("socketInfo", {})
+                    .get("sockets", [])
+                )
 
-            sockets_data = handleSocketsForItem(conn, cursor, spec_id, current_season_id, item['item'], amount, sockets, socket_limits, socket_lookup, socket_map)
+            sockets_data = handleSocketsForItem(
+                conn,
+                cursor,
+                spec_id,
+                current_season_id,
+                item["item"],
+                amount,
+                sockets,
+                socket_limits,
+                socket_lookup,
+                socket_map,
+            )
             if sockets_data:
                 item["socket"] = sockets_data
 
             enchantment_data = {}
             if enchant_slots.get(slot) and len(enchant_slots[slot]) > 0:
                 enchantment_data = enchant_slots[slot][0]
-            elif MULTI_SLOT_GROUPS.get(slot) and enchant_slots.get(MULTI_SLOT_GROUPS[slot]) and len(enchant_slots[MULTI_SLOT_GROUPS[slot]]) > 0:
+            elif (
+                MULTI_SLOT_GROUPS.get(slot)
+                and enchant_slots.get(MULTI_SLOT_GROUPS[slot])
+                and len(enchant_slots[MULTI_SLOT_GROUPS[slot]]) > 0
+            ):
                 enchantment_data = enchant_slots.get(MULTI_SLOT_GROUPS[slot], [])[0]
             item["enchantment"] = enchantment_data
+
 
 def fetch_stat_info(conn, cursor, spec_id, current_season_id, spec_lookup):
     stats = databaseConnector.fetch_stats(conn, cursor, spec_id, current_season_id)
@@ -443,28 +506,35 @@ def fetch_stat_info(conn, cursor, spec_id, current_season_id, spec_lookup):
     tertiary_priority = []
     health_priority = []
     for stat, value in stats.items():
-        if stat == 'mainstat':
-            value['name'] = spec_lookup[spec_id].get('primary_stat')
+        if stat == "mainstat":
+            value["name"] = spec_lookup[spec_id].get("primary_stat")
             stat_priority.append(value)
         elif stat in SECONDARY_STATS:
-            value['name'] = stat
+            value["name"] = stat
             stat_priority.append(value)
         elif stat in TERTIARY_STATS:
-            value['name'] = stat
+            value["name"] = stat
             tertiary_priority.append(value)
         elif stat in HEALTH_STATS:
-            value['name'] = stat
+            value["name"] = stat
             health_priority.append(value)
     return stat_priority, tertiary_priority, health_priority
 
-def fetch_hunter_pets(conn, cursor, spec_id, spec_data, spec_runs, creature_lookup, non_tameable_creatures):
+
+def fetch_hunter_pets(
+    conn, cursor, spec_id, spec_data, spec_runs, creature_lookup, non_tameable_creatures
+):
     hunter_pets = []
 
     # check for hunter
     if str(spec_data.get("classID")) == "3":
-        print(f"[{datetime.now(timezone.utc).isoformat()}] fetching hunter pets for spec {spec_id}...")
+        print(
+            f"[{datetime.now(timezone.utc).isoformat()}] fetching hunter pets for spec {spec_id}..."
+        )
         try:
-            pet_rows = databaseConnector.fetch_top_hunter_pets_by_spec(conn, cursor, spec_id)
+            pet_rows = databaseConnector.fetch_top_hunter_pets_by_spec(
+                conn, cursor, spec_id
+            )
         except Exception as e:
             print(f"Error fetching hunter pets: {e}")
             pet_rows = []
@@ -513,7 +583,8 @@ def fetch_hunter_pets(conn, cursor, spec_id, spec_data, spec_runs, creature_look
     hunter_pets = hunter_pets[:10]
     return hunter_pets
 
-def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec=None):
+
+def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=None):
     # Prepare Jinja2 environment
     env = Environment(
         loader=FileSystemLoader(os.path.dirname(template_path)),
@@ -558,7 +629,9 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
     season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
     creature_lookup = load_json(os.path.join(LOOKUP_DIR, "creatures.json"))
-    non_tameable_creatures = load_json(os.path.join(LOOKUP_DIR, "notTamablePetFamilies.json"))
+    non_tameable_creatures = load_json(
+        os.path.join(LOOKUP_DIR, "notTamablePetFamilies.json")
+    )
     os.makedirs(output_dir, exist_ok=True)
 
     set_members = defaultdict(list)
@@ -567,7 +640,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
         if sid:
             set_members[sid].append(iid)
 
-    spec_nav = generateSpecNav(spec_lookup, class_lookup) 
+    spec_nav = generateSpecNav(spec_lookup, class_lookup)
 
     access_token = aggregateData.get_access_token(CLIENT_ID, CLIENT_SECRET)
     current_season_id = aggregateData.get_current_season_id(access_token)
@@ -585,7 +658,9 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
 
     # Iterate over each spec folder
     for spec_id in spec_keys:
-        print(f"[{datetime.now(timezone.utc).isoformat()}] Processing spec {spec_id}...")
+        print(
+            f"[{datetime.now(timezone.utc).isoformat()}] Processing spec {spec_id}..."
+        )
         if not os.path.exists(os.path.join(LOOKUP_DIR, "talents", f"{spec_id}.json")):
             print(f"No talent data for spec {spec_id}, skipping")
             return
@@ -601,10 +676,24 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
                 )
                 valid_talents = {int(tid) for tid in talent_lookup.get("talents", {})}
                 print(f"[{datetime.now(timezone.utc).isoformat()}] Fetching talents...")
-                hero_talents_difs = aggregateData.biggest_deviations_per_dungeon(aggregateData.get_hero_talent_differences(conn, cursor, spec_id, current_season_id, valid_talents))
-                spec_talents_difs = aggregateData.biggest_deviations_per_dungeon(aggregateData.get_spec_talent_differences(conn, cursor, spec_id, current_season_id, valid_talents))
-                class_talents_difs = aggregateData.biggest_deviations_per_dungeon(aggregateData.get_class_talent_differences(conn, cursor, spec_id, current_season_id, valid_talents))
-                hero_tree_difs = aggregateData.get_hero_tree_differences(conn, cursor, spec_id, current_season_id)
+                hero_talents_difs = aggregateData.biggest_deviations_per_dungeon(
+                    aggregateData.get_hero_talent_differences(
+                        conn, cursor, spec_id, current_season_id, valid_talents
+                    )
+                )
+                spec_talents_difs = aggregateData.biggest_deviations_per_dungeon(
+                    aggregateData.get_spec_talent_differences(
+                        conn, cursor, spec_id, current_season_id, valid_talents
+                    )
+                )
+                class_talents_difs = aggregateData.biggest_deviations_per_dungeon(
+                    aggregateData.get_class_talent_differences(
+                        conn, cursor, spec_id, current_season_id, valid_talents
+                    )
+                )
+                hero_tree_difs = aggregateData.get_hero_tree_differences(
+                    conn, cursor, spec_id, current_season_id
+                )
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching slots...")
                 # Split slots into left/right/weapon/trinket
                 left_slots = [
@@ -624,74 +713,148 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
                     for s in TRINKET_SLOTS
                 ]
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching routes...")
-                top_routes = databaseConnector.fetch_top_routes_for_spec(conn, cursor, spec_id)
-                
+                top_routes = databaseConnector.fetch_top_routes_for_spec(
+                    conn, cursor, spec_id
+                )
+
                 for route in top_routes:
                     print(dungeon_lookup[route])
-                
-                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching hero tree info...")
-                hero_trees, popular_hero_tree, popular_hero_tree_count, hero_tree_count = fetch_hero_tree_info(conn, cursor, spec_id, current_season_id)
-                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching enchants...")
+
+                print(
+                    f"[{datetime.now(timezone.utc).isoformat()}] fetching hero tree info..."
+                )
+                (
+                    hero_trees,
+                    popular_hero_tree,
+                    popular_hero_tree_count,
+                    hero_tree_count,
+                ) = fetch_hero_tree_info(conn, cursor, spec_id, current_season_id)
+                print(
+                    f"[{datetime.now(timezone.utc).isoformat()}] fetching enchants..."
+                )
                 enchant_slots, total_enchant_counts = fetch_enchant_info(
                     conn, cursor, spec_id, current_season_id, enchant_lookup
                 )
-                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching missives...")
+                print(
+                    f"[{datetime.now(timezone.utc).isoformat()}] fetching missives..."
+                )
                 missives = databaseConnector.fetch_missive_count(
                     conn, cursor, spec_id, current_season_id
                 )
                 total_missive_count = sum(e[1] for e in missives)
-                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching embellishments...")
+                print(
+                    f"[{datetime.now(timezone.utc).isoformat()}] fetching embellishments..."
+                )
                 embellishments = databaseConnector.fetch_embellishment_count(
                     conn, cursor, spec_id, current_season_id
                 )
                 total_embellishment_count = sum(e[1] for e in embellishments)
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching sockets...")
-                sockets = aggregateData.get_sockets(conn, cursor, spec_id, current_season_id)
+                sockets = aggregateData.get_sockets(
+                    conn, cursor, spec_id, current_season_id
+                )
                 total_socket_count = sum(s.get("count", 0) for s in sockets)
-                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching spec data count...")
+                print(
+                    f"[{datetime.now(timezone.utc).isoformat()}] fetching spec data count..."
+                )
                 data_count = databaseConnector.fetch_spec_data_count(
                     conn, cursor, spec_id, current_season_id
                 )
-                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching total runs...")
+                print(
+                    f"[{datetime.now(timezone.utc).isoformat()}] fetching total runs..."
+                )
                 total_runs = databaseConnector.fetch_total_season_runs(
                     conn, cursor, current_season_id
                 )
-                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching spec runs...")
-                spec_runs = databaseConnector.fetch_runs_per_spec(conn, cursor, current_season_id, spec_id)
+                print(
+                    f"[{datetime.now(timezone.utc).isoformat()}] fetching spec runs..."
+                )
+                spec_runs = databaseConnector.fetch_runs_per_spec(
+                    conn, cursor, current_season_id, spec_id
+                )
 
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching loadout...")
-                loadouts = aggregateData.get_loadout(conn, cursor, spec_id, current_season_id)
-                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching highest run...")
-                highest_run = databaseConnector.fetch_max_key_run_per_spec(conn, cursor, spec_id, current_season_id)
+                loadouts = aggregateData.get_loadout(
+                    conn, cursor, spec_id, current_season_id
+                )
+                print(
+                    f"[{datetime.now(timezone.utc).isoformat()}] fetching highest run..."
+                )
+                highest_run = databaseConnector.fetch_max_key_run_per_spec(
+                    conn, cursor, spec_id, current_season_id
+                )
 
                 print(f"[{datetime.now(timezone.utc).isoformat()}] converting slots...")
-                convert_slots(conn, cursor, spec_id, current_season_id, left_slots + right_slots + weapon_slots + trinket_slots, item_lookup, bonus_lookup, missive_lookup, embellishment_lookup, bonus_quality_lookup, sockets, socket_lookup, enchant_slots, set_members, spec_talents_difs, missives, embellishments)
-                print(f"[{datetime.now(timezone.utc).isoformat()}] normalizing slots...")
+                convert_slots(
+                    conn,
+                    cursor,
+                    spec_id,
+                    current_season_id,
+                    left_slots + right_slots + weapon_slots + trinket_slots,
+                    item_lookup,
+                    bonus_lookup,
+                    missive_lookup,
+                    embellishment_lookup,
+                    bonus_quality_lookup,
+                    sockets,
+                    socket_lookup,
+                    enchant_slots,
+                    set_members,
+                    spec_talents_difs,
+                    missives,
+                    embellishments,
+                )
+                print(
+                    f"[{datetime.now(timezone.utc).isoformat()}] normalizing slots..."
+                )
                 left_slots = normalize_slot_collections(left_slots, LEFT_ORDER)
                 right_slots = normalize_slot_collections(right_slots, RIGHT_ORDER)
                 weapon_slots = normalize_slot_collections(weapon_slots, WEAPON_SLOTS)
                 trinket_slots = normalize_slot_collections(trinket_slots, TRINKET_SLOTS)
-                print(f"[{datetime.now(timezone.utc).isoformat()}] adjusting weapon slots...")
+                print(
+                    f"[{datetime.now(timezone.utc).isoformat()}] adjusting weapon slots..."
+                )
                 # remove offhand if 2 hander is equipped
                 mh = next((g for g in weapon_slots if g["slot"] == "MAIN_HAND"), None)
                 oh = next((g for g in weapon_slots if g["slot"] == "OFF_HAND"), None)
                 if mh and mh["entries"] and len(mh["entries"]) > 0:
                     mh_item_id = mh["entries"][0]["id"]
                     # look up its inventoryType; two‑handers are 17 and ranged weapons are 26
-                    if item_lookup.get(mh_item_id, {}).get("inventoryType") == 17 or item_lookup.get(mh_item_id, {}).get("itemSubClass") == 3:
+                    if (
+                        item_lookup.get(mh_item_id, {}).get("inventoryType") == 17
+                        or item_lookup.get(mh_item_id, {}).get("itemSubClass") == 3
+                    ):
                         # always build combined list (falls back to just mh entries if oh is None)
                         combined = mh["entries"] + (oh.get("entries", []) if oh else [])
                         # re‑sort + trim to top 10
                         mh["entries"] = combined
                         # if there was an Off Hand slot, drop it entirely
                         if oh:
-                            weapon_slots = [g for g in weapon_slots if g["slot"] != "OFF_HAND"]
-                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching upgrade counts...")
-                upgrade_counts = databaseConnector.fetch_spec_upgrade(conn, cursor, spec_id, current_season_id)
+                            weapon_slots = [
+                                g for g in weapon_slots if g["slot"] != "OFF_HAND"
+                            ]
+                print(
+                    f"[{datetime.now(timezone.utc).isoformat()}] fetching upgrade counts..."
+                )
+                upgrade_counts = databaseConnector.fetch_spec_upgrade(
+                    conn, cursor, spec_id, current_season_id
+                )
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching stats...")
-                stat_priority, tertiary_priority, health_priority = fetch_stat_info(conn, cursor, spec_id, current_season_id, spec_lookup)
-                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching hunter pets...")
-                hunter_pets = fetch_hunter_pets(conn, cursor, spec_id, spec_data, spec_runs, creature_lookup, non_tameable_creatures)
+                stat_priority, tertiary_priority, health_priority = fetch_stat_info(
+                    conn, cursor, spec_id, current_season_id, spec_lookup
+                )
+                print(
+                    f"[{datetime.now(timezone.utc).isoformat()}] fetching hunter pets..."
+                )
+                hunter_pets = fetch_hunter_pets(
+                    conn,
+                    cursor,
+                    spec_id,
+                    spec_data,
+                    spec_runs,
+                    creature_lookup,
+                    non_tameable_creatures,
+                )
 
                 print(f"[{datetime.now(timezone.utc).isoformat()}] generating page...")
                 output_html = template.render(
@@ -701,14 +864,11 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
                     class_info=class_data,
                     data_count=data_count,
                     active_page="spec",
-                    summary_data={
-                        "count" : spec_runs,
-                        "upgrade_counts": upgrade_counts
-                    },
-                    total_enchant_counts = total_enchant_counts,
+                    summary_data={"count": spec_runs, "upgrade_counts": upgrade_counts},
+                    total_enchant_counts=total_enchant_counts,
                     total_socket_count=total_socket_count,
                     total_embellishment_count=total_embellishment_count,
-                    total_missive_count = total_missive_count,
+                    total_missive_count=total_missive_count,
                     total_season_runs=total_runs,
                     left_slots=left_slots,
                     right_slots=right_slots,
@@ -716,7 +876,9 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
                     trinket_slots=trinket_slots,
                     enchant_slots=enchant_slots,
                     hero_trees=hero_trees,
-                    loadout_code=escape_raidbot_code(loadouts.get(popular_hero_tree, {}).get("loadout")),
+                    loadout_code=escape_raidbot_code(
+                        loadouts.get(popular_hero_tree, {}).get("loadout")
+                    ),
                     enchant_lookup=enchant_lookup,
                     embellishment_lookup=embellishment_lookup,
                     missive_lookup=missive_lookup,
@@ -736,15 +898,15 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
                     missives=missives,
                     formatted_price=formatted_price,
                     stat_names=STAT_NAMES,
-                    trending=spec_runs/total_runs if total_runs > 0 else 0,
-                    highest_run=highest_run,                
-                    talent_difs = {
-                        'Class': class_talents_difs,
-                        'Hero': hero_talents_difs,
-                        'Spec': spec_talents_difs,
+                    trending=spec_runs / total_runs if total_runs > 0 else 0,
+                    highest_run=highest_run,
+                    talent_difs={
+                        "Class": class_talents_difs,
+                        "Hero": hero_talents_difs,
+                        "Spec": spec_talents_difs,
                     },
-                    hero_tree_difs = hero_tree_difs,
-                    hero_tree_count = hero_tree_count,
+                    hero_tree_difs=hero_tree_difs,
+                    hero_tree_count=hero_tree_count,
                     top_routes=top_routes,
                     season_info=season_info,
                     stats=stat_priority,
@@ -752,13 +914,18 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
                     health_priority=health_priority,
                     hunter_pets=hunter_pets,
                     creature_lookup=creature_lookup,
-                    spec_runs = spec_runs,
+                    spec_runs=spec_runs,
                     breadcrumbs=[
                         {"title": "Classes"},
-                        {"title": ROLE_FOLDERS[spec_data.get('role', 2)], "href": f"/pages/search?q={ROLE_FOLDERS[spec_data.get('role', 2)]}"},
-                        {"title": f"{spec_data.get('name')} {class_data.get('name')}", "href": f"/Classes/{ROLE_FOLDERS[spec_data.get('role', 2)]}/{spec_data.get('name')}_{class_data.get('name')}"}
-                    ]
-
+                        {
+                            "title": ROLE_FOLDERS[spec_data.get("role", 2)],
+                            "href": f"/pages/search?q={ROLE_FOLDERS[spec_data.get('role', 2)]}",
+                        },
+                        {
+                            "title": f"{spec_data.get('name')} {class_data.get('name')}",
+                            "href": f"/Classes/{ROLE_FOLDERS[spec_data.get('role', 2)]}/{spec_data.get('name')}_{class_data.get('name')}",
+                        },
+                    ],
                 )
                 print(f"[{datetime.now(timezone.utc).isoformat()}] saving page...")
                 # Write output
@@ -771,10 +938,11 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False , spec
                 with open(out_path, "w", encoding="utf-8") as f:
                     f.write(output_html)
                 print(f"Generated {out_path}")
-                if debug: 
+                if debug:
                     raise ValueError("Debug mode: stopping after first spec")
         except Exception as e:
             print(f"Error processing spec {spec_id}: {e}")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate WoW M+ spec pages")
@@ -797,4 +965,11 @@ if __name__ == "__main__":
         os.environ.get("DATABASE_PORT"),
         1,
     )
-    main(args.template, args.output_dir, args.CLIENT_ID, args.CLIENT_SECRET, args.debug, args.spec)
+    main(
+        args.template,
+        args.output_dir,
+        args.CLIENT_ID,
+        args.CLIENT_SECRET,
+        args.debug,
+        args.spec,
+    )

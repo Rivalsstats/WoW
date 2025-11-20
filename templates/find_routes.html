@@ -157,7 +157,7 @@
                   <option value="{{ sid }}">{{ sval.name['en_US'] if sval.name is defined else sval }}</option>
                   {% endfor %}
                 </select>
-                </div>
+              </div>
 
               <div class="col-12 col-md-4">
                 <label class="form-label">NPCs include (must include all)</label>
@@ -174,7 +174,7 @@
                   </optgroup>
                   {% endfor %}
                 </select>
-                </div>
+              </div>
 
               <div class="col-12 col-md-4">
                 <label class="form-label">NPCs exclude (must NOT include either)</label>
@@ -191,7 +191,7 @@
                   </optgroup>
                   {% endfor %}
                 </select>
-                </div>
+              </div>
             </div>
 
             <!-- actions -->
@@ -204,8 +204,8 @@
         </div>
       </div>
 
-    <div class="ms-3 align-self-center small text-muted pagination-summary" style="display:none">
-    </div>
+      <div class="ms-3 align-self-center small text-muted pagination-summary" style="display:none">
+      </div>
       <div class="row">
         <div class="col">
           <div class="accordion" id="routeDungeonAccordion">
@@ -305,19 +305,20 @@
         </div>
       </div>
       <div class="d-flex justify-content-center my-3">
-  <nav id="route-pagination" class="d-flex align-items-center" aria-label="Route pagination">
-    <ul class="pagination mb-0" aria-label="Route pagination-list" role="navigation">
-      <!-- JS will populate <li class="page-item"> items here -->
-    </ul>
-    <!-- Jump input (progressive enhancement): JS will move or fill this slot if needed -->
-    <div class="ms-3 align-self-center pagination-jump" style="display:none">
-      <div class="input-group input-group-sm" style="width:120px;">
-        <input id="route-page-jump-input" type="number" min="1" class="form-control form-control-sm" aria-label="Page number" />
-        <button id="route-page-jump-go" class="btn btn-sm btn-outline-secondary" type="button">Go</button>
+        <nav id="route-pagination" class="d-flex align-items-center" aria-label="Route pagination">
+          <ul class="pagination mb-0" aria-label="Route pagination-list" role="navigation">
+            <!-- JS will populate <li class="page-item"> items here -->
+          </ul>
+          <!-- Jump input (progressive enhancement): JS will move or fill this slot if needed -->
+          <div class="ms-3 align-self-center pagination-jump" style="display:none">
+            <div class="input-group input-group-sm" style="width:120px;">
+              <input id="route-page-jump-input" type="number" min="1" class="form-control form-control-sm"
+                aria-label="Page number" />
+              <button id="route-page-jump-go" class="btn btn-sm btn-outline-secondary" type="button">Go</button>
+            </div>
+          </div>
+        </nav>
       </div>
-    </div>
-  </nav>
-</div>
 
 
 
@@ -487,13 +488,13 @@
     })();
   </script>
 
-<div id="route-search-overlay" role="status" aria-hidden="true" aria-live="polite">
-  <div class="overlay-backdrop" aria-hidden="true"></div>
-  <div class="overlay-content text-center">
-    <div class="spinner-border" role="status" aria-hidden="true"></div>
-    <div class="small text-muted">Searching routes…</div>
+  <div id="route-search-overlay" role="status" aria-hidden="true" aria-live="polite">
+    <div class="overlay-backdrop" aria-hidden="true"></div>
+    <div class="overlay-content text-center">
+      <div class="spinner-border" role="status" aria-hidden="true"></div>
+      <div class="small text-muted">Searching routes…</div>
+    </div>
   </div>
-</div>
 
 
 </body>

@@ -4,26 +4,38 @@ from mysql.connector import errorcode
 from mysql.connector import pooling
 import random
 
+# configuration
 MAX_LOCK_WAIT_RETRIES = 5
-LOCK_WAIT_BACKOFF_MIN = 0.2 
-LOCK_WAIT_BACKOFF_MAX = 1 
+LOCK_WAIT_BACKOFF_MIN = 0.2
+LOCK_WAIT_BACKOFF_MAX = 1
+
 
 def get_connection():
     """
     Return connection from the shared pool.
     """
     if CONNECTION_POOL is None:
-        raise RuntimeError("Connection pool not initialized; call init_connection_pool() first.")
+        raise RuntimeError(
+            "Connection pool not initialized; call init_connection_pool() first."
+        )
     conn = CONNECTION_POOL.get_connection()
     return conn
 
+
 def init_connection_pool(host, user, password, database, port, pool_size=30):
-    global CONNECTION_POOL 
+    global CONNECTION_POOL
     CONNECTION_POOL = pooling.MySQLConnectionPool(
         pool_name="region_pool",
         pool_size=pool_size,
-        host=host, user=user, password=password, database=database, port=port, autocommit=False, use_pure=True
+        host=host,
+        user=user,
+        password=password,
+        database=database,
+        port=port,
+        autocommit=False,
+        use_pure=True,
     )
+
 
 def commit_with_retry(connection):
     """
@@ -35,16 +47,28 @@ def commit_with_retry(connection):
             connection.commit()
             return
         except mysql.connector.DatabaseError as err:
-            if err.errno == errorcode.ER_LOCK_WAIT_TIMEOUT and attempt < MAX_LOCK_WAIT_RETRIES:
-                wait = random.uniform(LOCK_WAIT_BACKOFF_MIN,LOCK_WAIT_BACKOFF_MAX) * (2 ** attempt)
-                print(f"Commit lock wait timeout, retrying in {wait:.2f}s (attempt {attempt+1}/{MAX_LOCK_WAIT_RETRIES})")
+            if (
+                err.errno == errorcode.ER_LOCK_WAIT_TIMEOUT
+                and attempt < MAX_LOCK_WAIT_RETRIES
+            ):
+                wait = random.uniform(LOCK_WAIT_BACKOFF_MIN, LOCK_WAIT_BACKOFF_MAX) * (
+                    2**attempt
+                )
+                print(
+                    f"Commit lock wait timeout, retrying in {wait:.2f}s (attempt {attempt + 1}/{MAX_LOCK_WAIT_RETRIES})"
+                )
                 connection.rollback()
                 time.sleep(wait)
                 attempt += 1
                 continue
 
-            if err.errno in (errorcode.CR_SERVER_GONE_ERROR, errorcode.CR_SERVER_LOST) and attempt < MAX_LOCK_WAIT_RETRIES:
-                wait = random.uniform(LOCK_WAIT_BACKOFF_MIN,LOCK_WAIT_BACKOFF_MAX) * (2 ** attempt)
+            if (
+                err.errno in (errorcode.CR_SERVER_GONE_ERROR, errorcode.CR_SERVER_LOST)
+                and attempt < MAX_LOCK_WAIT_RETRIES
+            ):
+                wait = random.uniform(LOCK_WAIT_BACKOFF_MIN, LOCK_WAIT_BACKOFF_MAX) * (
+                    2**attempt
+                )
                 print(f"Lost connection, reconnecting in {wait:.2f}s")
                 time.sleep(wait)
                 # re‑acquire a fresh connection & cursor
@@ -52,6 +76,7 @@ def commit_with_retry(connection):
                 attempt += 1
                 continue
             raise
+
 
 def fetch_with_retry(connection, cursor, sql, params=None):
     """
@@ -65,15 +90,27 @@ def fetch_with_retry(connection, cursor, sql, params=None):
             return cursor.fetchall()
         except mysql.connector.DatabaseError as err:
             # err.errno is the integer error code
-            if err.errno == errorcode.ER_LOCK_WAIT_TIMEOUT and attempt < MAX_LOCK_WAIT_RETRIES:
-                wait = random.uniform(LOCK_WAIT_BACKOFF_MIN,LOCK_WAIT_BACKOFF_MAX) * (2 ** attempt)
-                print(f"Lock wait timeout, rolling back and retrying in {wait:.2f}s (attempt {attempt+1}/{MAX_LOCK_WAIT_RETRIES})")
-                connection.rollback()   # undo any partial work
+            if (
+                err.errno == errorcode.ER_LOCK_WAIT_TIMEOUT
+                and attempt < MAX_LOCK_WAIT_RETRIES
+            ):
+                wait = random.uniform(LOCK_WAIT_BACKOFF_MIN, LOCK_WAIT_BACKOFF_MAX) * (
+                    2**attempt
+                )
+                print(
+                    f"Lock wait timeout, rolling back and retrying in {wait:.2f}s (attempt {attempt + 1}/{MAX_LOCK_WAIT_RETRIES})"
+                )
+                connection.rollback()  # undo any partial work
                 time.sleep(wait)
                 attempt += 1
                 continue
-            if err.errno in (errorcode.CR_SERVER_GONE_ERROR, errorcode.CR_SERVER_LOST) and attempt < MAX_LOCK_WAIT_RETRIES:
-                wait = random.uniform(LOCK_WAIT_BACKOFF_MIN,LOCK_WAIT_BACKOFF_MAX) * (2 ** attempt)
+            if (
+                err.errno in (errorcode.CR_SERVER_GONE_ERROR, errorcode.CR_SERVER_LOST)
+                and attempt < MAX_LOCK_WAIT_RETRIES
+            ):
+                wait = random.uniform(LOCK_WAIT_BACKOFF_MIN, LOCK_WAIT_BACKOFF_MAX) * (
+                    2**attempt
+                )
                 print(f"Lost connection, reconnecting in {wait:.2f}s")
                 time.sleep(wait)
                 # re‑acquire a fresh connection & cursor
@@ -93,19 +130,31 @@ def execute_with_retry(connection, cursor, sql, params=None):
     while True:
         try:
             cursor.execute(sql, params or ())
-            
+
             return
         except mysql.connector.DatabaseError as err:
             # err.errno is the integer error code
-            if err.errno == errorcode.ER_LOCK_WAIT_TIMEOUT and attempt < MAX_LOCK_WAIT_RETRIES:
-                wait = random.uniform(LOCK_WAIT_BACKOFF_MIN,LOCK_WAIT_BACKOFF_MAX) * (2 ** attempt)
-                print(f"Lock wait timeout, rolling back and retrying in {wait:.2f}s (attempt {attempt+1}/{MAX_LOCK_WAIT_RETRIES})")
-                connection.rollback()   # undo any partial work
+            if (
+                err.errno == errorcode.ER_LOCK_WAIT_TIMEOUT
+                and attempt < MAX_LOCK_WAIT_RETRIES
+            ):
+                wait = random.uniform(LOCK_WAIT_BACKOFF_MIN, LOCK_WAIT_BACKOFF_MAX) * (
+                    2**attempt
+                )
+                print(
+                    f"Lock wait timeout, rolling back and retrying in {wait:.2f}s (attempt {attempt + 1}/{MAX_LOCK_WAIT_RETRIES})"
+                )
+                connection.rollback()  # undo any partial work
                 time.sleep(wait)
                 attempt += 1
                 continue
-            if err.errno in (errorcode.CR_SERVER_GONE_ERROR, errorcode.CR_SERVER_LOST) and attempt < MAX_LOCK_WAIT_RETRIES:
-                wait = random.uniform(LOCK_WAIT_BACKOFF_MIN,LOCK_WAIT_BACKOFF_MAX) * (2 ** attempt)
+            if (
+                err.errno in (errorcode.CR_SERVER_GONE_ERROR, errorcode.CR_SERVER_LOST)
+                and attempt < MAX_LOCK_WAIT_RETRIES
+            ):
+                wait = random.uniform(LOCK_WAIT_BACKOFF_MIN, LOCK_WAIT_BACKOFF_MAX) * (
+                    2**attempt
+                )
                 print(f"Lost connection, reconnecting in {wait:.2f}s")
                 time.sleep(wait)
                 # re‑acquire a fresh connection & cursor
@@ -115,6 +164,7 @@ def execute_with_retry(connection, cursor, sql, params=None):
                 continue
             # if we hit max retried or a different error, re‑raise
             raise
+
 
 def executemany_with_retry(connection, cursor, sql, param_list):
     """
@@ -126,8 +176,13 @@ def executemany_with_retry(connection, cursor, sql, param_list):
             cursor.executemany(sql, param_list)
             return
         except mysql.connector.DatabaseError as err:
-            if err.errno in (errorcode.CR_SERVER_GONE_ERROR, errorcode.CR_SERVER_LOST) and attempt < MAX_LOCK_WAIT_RETRIES:
-                wait = random.uniform(LOCK_WAIT_BACKOFF_MIN, LOCK_WAIT_BACKOFF_MAX) * (2 ** attempt)
+            if (
+                err.errno in (errorcode.CR_SERVER_GONE_ERROR, errorcode.CR_SERVER_LOST)
+                and attempt < MAX_LOCK_WAIT_RETRIES
+            ):
+                wait = random.uniform(LOCK_WAIT_BACKOFF_MIN, LOCK_WAIT_BACKOFF_MAX) * (
+                    2**attempt
+                )
                 print(f"Lost connection, reconnecting in {wait:.2f}s")
                 time.sleep(wait)
                 connection.reconnect(attempts=5, delay=5)
@@ -136,40 +191,66 @@ def executemany_with_retry(connection, cursor, sql, param_list):
                 continue
             raise
 
+
 INSERT_RUN_SQL = "INSERT IGNORE INTO runs (`season`, `region`, `dungeon_id`, `keystone_level`, `duration`, `timestamp`, `faction`) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-def insert_run(connection, cursor, season: int, region:str, dungeon_id: str, keystone_level: int, duration: int, timestamp: int, faction: str):
+
+
+def insert_run(
+    connection,
+    cursor,
+    season: int,
+    region: str,
+    dungeon_id: str,
+    keystone_level: int,
+    duration: int,
+    timestamp: int,
+    faction: str,
+):
     """Insert a run into the runs table."""
     val = (season, region, dungeon_id, keystone_level, duration, timestamp, faction)
-    execute_with_retry(connection, cursor,INSERT_RUN_SQL, val)
+    execute_with_retry(connection, cursor, INSERT_RUN_SQL, val)
     return cursor.lastrowid
 
+
 INSERT_RUNS_SQL = "INSERT IGNORE INTO runs (`season`, `region`, `dungeon_id`, `keystone_level`, `duration`, `timestamp`, `faction`) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+
 
 def insert_runs_batch(connection, cursor, run_vals):
     """Bulk-insert runs, returns first inserted run_id."""
     executemany_with_retry(connection, cursor, INSERT_RUNS_SQL, run_vals)
     return cursor.lastrowid
 
+
 INSERT_HUNTER_PETS_SQL = "INSERT IGNORE INTO Mythistone.hunter_pets (`member`, `creature_id`) VALUES (%s, %s)"
+
 
 def insert_hunter_pets_batch(connection, cursor, run_vals):
     """Bulk-insert hunter pets, returns first inserted run_id."""
     executemany_with_retry(connection, cursor, INSERT_HUNTER_PETS_SQL, run_vals)
     return cursor.lastrowid
 
-def insert_hunter_pets(connection,cursor, member: int, creature_id:int):
+
+def insert_hunter_pets(connection, cursor, member: int, creature_id: int):
     """Insert a member into the members table."""
     val = (member, creature_id)
     return execute_with_retry(connection, cursor, INSERT_HUNTER_PETS_SQL, val)
 
+
 SELECT_RUNS_SQL = "SELECT id, `dungeon_id`, `keystone_level`, `duration`, `timestamp`, `faction`, `run_id`, `region`, season FROM runs WHERE (`season`, `region`, `dungeon_id`) IN (%s, %s, %s)"
+
+
 def select_runs(connection, cursor, season, region, dungeon_id):
     param = (season, region, dungeon_id)
     execute_with_retry(connection, cursor, SELECT_RUNS_SQL, param)
     return cursor.fetchall()
 
-INSERT_RUN_MEMBER_SQL= "INSERT IGNORE INTO run_members (`run_id`, `member`) VALUES (%s, %s)"
-def insert_run_member(connection,cursor, run_id: int, member:int):
+
+INSERT_RUN_MEMBER_SQL = (
+    "INSERT IGNORE INTO run_members (`run_id`, `member`) VALUES (%s, %s)"
+)
+
+
+def insert_run_member(connection, cursor, run_id: int, member: int):
     """Insert a member into the members table."""
     val = (run_id, member)
     return execute_with_retry(connection, cursor, INSERT_RUN_MEMBER_SQL, val)
@@ -179,12 +260,16 @@ def insert_run_members_batch(connection, cursor, rm_vals):
     """Bulk-insert run_members."""
     executemany_with_retry(connection, cursor, INSERT_RUN_MEMBER_SQL, rm_vals)
 
-INSERT_MEMBER_SQL= "INSERT IGNORE INTO members (`spec_id`, `loadout`, `hero_talent_id`) VALUES (%s, %s, %s)"
-def insert_member(connection, cursor, spec_id: int, loadout: str, hero_talent_id:int):
+
+INSERT_MEMBER_SQL = "INSERT IGNORE INTO members (`spec_id`, `loadout`, `hero_talent_id`) VALUES (%s, %s, %s)"
+
+
+def insert_member(connection, cursor, spec_id: int, loadout: str, hero_talent_id: int):
     """Insert a member into the members table."""
     val = (spec_id, loadout, hero_talent_id)
     execute_with_retry(connection, cursor, INSERT_MEMBER_SQL, val)
     return cursor.lastrowid
+
 
 def insert_members_batch(connection, cursor, member_vals):
     """Bulk-insert members, returns first inserted member_id."""
@@ -192,39 +277,66 @@ def insert_members_batch(connection, cursor, member_vals):
     return cursor.lastrowid
 
 
-INSERT_CLASS_TALENT_SQL= "INSERT IGNORE INTO class_talents (`member`, `talent_id`, `rank`) VALUES (%s, %s, %s)"
-def insert_class_talents(connection, cursor, class_talents: list[tuple[int,int,int]]):
-    """ Bulk-insert class talents, each tuple being (member, talent_id, rank)."""
-    return executemany_with_retry(connection, cursor,INSERT_CLASS_TALENT_SQL, class_talents)
+INSERT_CLASS_TALENT_SQL = "INSERT IGNORE INTO class_talents (`member`, `talent_id`, `rank`) VALUES (%s, %s, %s)"
 
-INSERT_SPEC_TALENT_SQL= "INSERT IGNORE INTO spec_talents (`member`, `talent_id`, `rank`) VALUES (%s, %s, %s)"
-def insert_spec_talents(connection, cursor, spec_talents: list[tuple[int,int,int]]):
+
+def insert_class_talents(connection, cursor, class_talents: list[tuple[int, int, int]]):
+    """Bulk-insert class talents, each tuple being (member, talent_id, rank)."""
+    return executemany_with_retry(
+        connection, cursor, INSERT_CLASS_TALENT_SQL, class_talents
+    )
+
+
+INSERT_SPEC_TALENT_SQL = "INSERT IGNORE INTO spec_talents (`member`, `talent_id`, `rank`) VALUES (%s, %s, %s)"
+
+
+def insert_spec_talents(connection, cursor, spec_talents: list[tuple[int, int, int]]):
     """Bulk-insert spec talents, each tuple being (member, talent_id, rank)."""
-    return executemany_with_retry(connection, cursor,INSERT_SPEC_TALENT_SQL, spec_talents)
+    return executemany_with_retry(
+        connection, cursor, INSERT_SPEC_TALENT_SQL, spec_talents
+    )
 
-INSERT_HERO_TALENT_SQL= "INSERT IGNORE INTO hero_talents (`member`, `talent_id`, `rank`) VALUES (%s, %s, %s)"
-def insert_hero_talents(connection, cursor, hero_talents: list[tuple[int,int,int]]):
+
+INSERT_HERO_TALENT_SQL = "INSERT IGNORE INTO hero_talents (`member`, `talent_id`, `rank`) VALUES (%s, %s, %s)"
+
+
+def insert_hero_talents(connection, cursor, hero_talents: list[tuple[int, int, int]]):
     """Bulk-insert hero talents, each tuple being (member, talent_id, rank)."""
-    return executemany_with_retry(connection, cursor,INSERT_HERO_TALENT_SQL, hero_talents)
+    return executemany_with_retry(
+        connection, cursor, INSERT_HERO_TALENT_SQL, hero_talents
+    )
 
-INSERT_EQUIPMENT_SQL= "INSERT IGNORE INTO equipment (`member`, `slot`, `item_id`, `item_level`) VALUES (%s, %s, %s, %s)"
-def insert_equipment(connection, cursor, member: int, slot:str, item_id: int, item_level: int):
+
+INSERT_EQUIPMENT_SQL = "INSERT IGNORE INTO equipment (`member`, `slot`, `item_id`, `item_level`) VALUES (%s, %s, %s, %s)"
+
+
+def insert_equipment(
+    connection, cursor, member: int, slot: str, item_id: int, item_level: int
+):
     """Insert a equipment item into the equipment table."""
     val = (member, slot, item_id, item_level)
-    execute_with_retry(connection, cursor,INSERT_EQUIPMENT_SQL, val)
+    execute_with_retry(connection, cursor, INSERT_EQUIPMENT_SQL, val)
     return cursor.lastrowid
+
 
 def insert_equipment_batch(connection, cursor, eq_vals):
     return executemany_with_retry(connection, cursor, INSERT_EQUIPMENT_SQL, eq_vals)
 
-INSERT_ENCHANTMENT_SQL= "INSERT IGNORE INTO enchantments (`equipment_id`, `enchantment_id`) VALUES (%s, %s)"
+
+INSERT_ENCHANTMENT_SQL = (
+    "INSERT IGNORE INTO enchantments (`equipment_id`, `enchantment_id`) VALUES (%s, %s)"
+)
+
+
 def insert_enchantments(connection, cursor, enchantments):
     """Insert a enchantment into the enchantments table."""
     executemany_with_retry(connection, cursor, INSERT_ENCHANTMENT_SQL, enchantments)
     return cursor.lastrowid
 
 
-INSERT_SOCKET_SQL= "INSERT IGNORE INTO sockets (`equipment_id`, `socket_type`, `socket_item_id`) VALUES (%s, %s, %s)"
+INSERT_SOCKET_SQL = "INSERT IGNORE INTO sockets (`equipment_id`, `socket_type`, `socket_item_id`) VALUES (%s, %s, %s)"
+
+
 def insert_sockets(connection, cursor, sockets):
     """Insert a socket into the sockets table."""
     try:
@@ -243,22 +355,33 @@ def insert_sockets(connection, cursor, sockets):
         # anything else, re-raise
         raise
 
-INSERT_BONUS_SQL= "INSERT IGNORE INTO bonus_ids (`equipment_id`, `bonus_id`) VALUES (%s, %s)"
+
+INSERT_BONUS_SQL = (
+    "INSERT IGNORE INTO bonus_ids (`equipment_id`, `bonus_id`) VALUES (%s, %s)"
+)
+
+
 def insert_bonuses(connection, cursor, bonuses):
     """Insert a bonus_id into the bonus table."""
     executemany_with_retry(connection, cursor, INSERT_BONUS_SQL, bonuses)
     return cursor.lastrowid
-    
 
-INSERT_STATS_SQL= "INSERT INTO Mythistone.character_stats (`member`, stat, raw, percent) VALUES(%s, %s, %s, %s);"
-def insert_stats(connection, cursor, member: int, stat: str, raw: float, percent: float):
+
+INSERT_STATS_SQL = "INSERT INTO Mythistone.character_stats (`member`, stat, raw, percent) VALUES(%s, %s, %s, %s);"
+
+
+def insert_stats(
+    connection, cursor, member: int, stat: str, raw: float, percent: float
+):
     """Insert a stat into the character_stats table."""
     val = (member, stat, raw, percent)
     execute_with_retry(connection, cursor, INSERT_STATS_SQL, val)
     return cursor.lastrowid
 
+
 def insert_stats_batch(connection, cursor, eq_vals):
     return executemany_with_retry(connection, cursor, INSERT_STATS_SQL, eq_vals)
+
 
 INSERT_DUNGEON_SQL = (
     "INSERT INTO dungeon_data "
@@ -271,11 +394,20 @@ INSERT_DUNGEON_SQL = (
     "upgrade_3_duration = VALUES(upgrade_3_duration)"
 )
 
-def insert_dungeon_data(connection, cursor,
-                         dungeon_id: str, slug: str, name_en_us: str,
-                         up1: int, up2: int, up3: int):
+
+def insert_dungeon_data(
+    connection,
+    cursor,
+    dungeon_id: str,
+    slug: str,
+    name_en_us: str,
+    up1: int,
+    up2: int,
+    up3: int,
+):
     params = (dungeon_id, slug, name_en_us, up1, up2, up3)
     execute_with_retry(connection, cursor, INSERT_DUNGEON_SQL, params)
+
 
 def commit_changes(connection):
     """Commit changes to the database."""
@@ -284,13 +416,16 @@ def commit_changes(connection):
     except mysql.connector.Error as err:
         print(f"Error committing changes: {err}")
 
+
 # fetching data
 
 FETCH_SLOTS_SQL = "SELECT slot, slot_group FROM Mythistone.slot_group_map;"
 
+
 def fetch_slots(connection, cursor):
     """Fetch slot information from the database."""
     return fetch_with_retry(connection, cursor, FETCH_SLOTS_SQL)
+
 
 FETCH_TOP_ITEM_BY_SLOT_SQL = """
 SELECT
@@ -304,10 +439,13 @@ GROUP BY item_id
 ORDER BY equip_count DESC
 LIMIT 10;
 """
+
+
 def fetch_top_items_for_slot(connection, cursor, spec_id, season, slot):
     """Fetch the top items from the database."""
     params = (spec_id, season, slot)
     return fetch_with_retry(connection, cursor, FETCH_TOP_ITEM_BY_SLOT_SQL, params)
+
 
 FETCH_TOP_ITEM_BY_SLOT_GROUP_SQL = """
 SELECT
@@ -322,10 +460,15 @@ GROUP BY item_id
 ORDER BY equip_count DESC
 LIMIT 10;
 """
+
+
 def fetch_top_items_for_slot_group(connection, cursor, spec_id, season, slot_group):
     """Fetch the top items from the database."""
     params = (spec_id, season, slot_group)
-    return fetch_with_retry(connection, cursor, FETCH_TOP_ITEM_BY_SLOT_GROUP_SQL, params)
+    return fetch_with_retry(
+        connection, cursor, FETCH_TOP_ITEM_BY_SLOT_GROUP_SQL, params
+    )
+
 
 FETCH_TOP_ITEMS_BY_SLOT_WITH_BONUS_SQL = """
 -- SQL: top items with top bonus per item (MySQL 8+)
@@ -370,27 +513,32 @@ LEFT JOIN ranked r ON ti.item_id = r.item_id AND r.rn = 1
 ORDER BY ti.equip_count DESC;
 """
 
+
 def fetch_top_items_for_slot_with_bonus(connection, cursor, spec_id, season, slot):
     """Fetch the top items with bonus for a specific slot from the database."""
     params = (spec_id, season, slot, spec_id, season)
-    rows = fetch_with_retry(connection, cursor, FETCH_TOP_ITEMS_BY_SLOT_WITH_BONUS_SQL, params)
+    rows = fetch_with_retry(
+        connection, cursor, FETCH_TOP_ITEMS_BY_SLOT_WITH_BONUS_SQL, params
+    )
 
     data = []
     for row in rows:
         # row = (item_id, equip_count, bonus_list, list_count)
         item_id = row[0]
         equip_count = row[1]
-        bonus_list = row[2]   # may be None
-        list_count = row[3]   # may be None
-        data.append({
-            "item": item_id,
-            "count": int(equip_count),
-            "bonus": {
-                "ids": bonus_list,
-                "count": int(list_count)
-            } if bonus_list is not None else None
-        })
+        bonus_list = row[2]  # may be None
+        list_count = row[3]  # may be None
+        data.append(
+            {
+                "item": item_id,
+                "count": int(equip_count),
+                "bonus": {"ids": bonus_list, "count": int(list_count)}
+                if bonus_list is not None
+                else None,
+            }
+        )
     return data
+
 
 FETCH_TOP_ITEMS_BY_SLOT_GROUP_WITH_BONUS_SQL = """
 -- SQL: top items (slot_group) with top bonus per item (MySQL 8+)
@@ -436,29 +584,34 @@ LEFT JOIN ranked r ON ti.item_id = r.item_id AND r.rn = 1
 ORDER BY ti.equip_count DESC;
 """
 
-def fetch_top_items_for_slot_group_with_bonus(connection, cursor, spec_id, season, slot_group):
+
+def fetch_top_items_for_slot_group_with_bonus(
+    connection, cursor, spec_id, season, slot_group
+):
     """Fetch top items for a slot_group along with each item's top bonus_list (MySQL 8+)."""
     # param order must match the SQL: spec, season, slot_group, spec, season
     params = (spec_id, season, slot_group, spec_id, season)
-    rows = fetch_with_retry(connection, cursor, FETCH_TOP_ITEMS_BY_SLOT_GROUP_WITH_BONUS_SQL, params)
+    rows = fetch_with_retry(
+        connection, cursor, FETCH_TOP_ITEMS_BY_SLOT_GROUP_WITH_BONUS_SQL, params
+    )
 
     data = []
     for row in rows:
         # row = (item_id, equip_count, bonus_list, list_count)
         item_id = row[0]
         equip_count = row[1]
-        bonus_list = row[2]   # may be None
-        list_count = row[3]   # may be None
-        data.append({
-            "item": item_id,
-            "count": int(equip_count),
-            "bonus": {
-                "ids": bonus_list,
-                "count": int(list_count)
-            } if bonus_list is not None else None
-        })
+        bonus_list = row[2]  # may be None
+        list_count = row[3]  # may be None
+        data.append(
+            {
+                "item": item_id,
+                "count": int(equip_count),
+                "bonus": {"ids": bonus_list, "count": int(list_count)}
+                if bonus_list is not None
+                else None,
+            }
+        )
     return data
-
 
 
 FETCH_TOP_ENCHANT_FOR_SLOT_SQL = """
@@ -473,6 +626,7 @@ SELECT
   ORDER BY equip_count DESC 
   LIMIT %s
 """
+
 
 def fetch_top_enchant_for_slot(connection, cursor, spec_id, season, slot_group, amount):
     """Fetch the top enchant for a specific slot from the database."""
@@ -492,6 +646,7 @@ LIMIT 10;
 
 """
 
+
 def fetch_top_sockets_for_item(connection, cursor, spec_id, season, item_id):
     """Fetch the top sockets for a specific item from the database."""
     params = (spec_id, season, item_id)
@@ -507,6 +662,7 @@ WHERE ais.spec_id = %s
 GROUP BY ais.item_id, ais.socket_item_id
 ORDER BY ais.item_id, equip_count DESC;
 """
+
 
 def fetch_top_sockets_for_items(connection, cursor, spec_id, season, item_ids):
     """
@@ -542,10 +698,13 @@ LIMIT 1;
 
 """
 
+
 def fetch_top_bonus_ids_for_item(connection, cursor, spec_id, season, item_id):
     """Fetch the top bonus IDs for a specific item from the database."""
     params = (spec_id, season, item_id)
-    return fetch_with_retry(connection, cursor, FETCH_TOP_BONUS_IDS_FOR_ITEM_SQL, params)
+    return fetch_with_retry(
+        connection, cursor, FETCH_TOP_BONUS_IDS_FOR_ITEM_SQL, params
+    )
 
 
 FETCH_TOP_SOCKETS_SQL = """
@@ -558,10 +717,12 @@ ORDER BY equip_count DESC
 LIMIT 10;
 """
 
+
 def fetch_top_sockets(connection, cursor, spec_id, season):
     """Fetch the top sockets for a specific item from the database."""
     params = (spec_id, season)
     return fetch_with_retry(connection, cursor, FETCH_TOP_SOCKETS_SQL, params)
+
 
 FETCH_TOP_LOADOUT_SQL = """
 WITH summed AS (
@@ -593,6 +754,7 @@ ORDER BY hero_talent_id_key;
 
 """
 
+
 def fetch_top_loadout(connection, cursor, spec_id, season):
     """Fetch the top loadout for a specific spec and season from the database."""
     params = (spec_id, season)
@@ -612,10 +774,12 @@ GROUP BY hero_talent_id
 ORDER BY total_runs DESC;
 """
 
+
 def fetch_hero_tree_overview(connection, cursor, spec_id, season):
     """Fetch the top hero trees for a specific spec and season from the database."""
     params = (spec_id, season)
     return fetch_with_retry(connection, cursor, FETCH_HERO_TREE_OVERVIEW_SQL, params)
+
 
 FETCH_HERO_TREE_DIFFERENCES_SQL = """
 SELECT hero_talent_id, dungeon_id, SUM(run_count) 
@@ -624,10 +788,12 @@ WHERE aht.spec_id = %s AND aht.season = %s
 GROUP BY aht.hero_talent_id, aht.dungeon_id 
 """
 
+
 def fetch_hero_tree_differences(connection, cursor, spec_id, season):
     """Fetch the hero talents differences for a specific spec and season from the database."""
     params = (spec_id, season)
     return fetch_with_retry(connection, cursor, FETCH_HERO_TREE_DIFFERENCES_SQL, params)
+
 
 FETCH_HERO_TALENTS_DIFFERENCES_SQL = """
 SELECT hero_talent_id, dungeon_id, talent_id, SUM(run_count) 
@@ -636,10 +802,14 @@ WHERE aht.spec_id = %s AND aht.season = %s
 GROUP BY aht.talent_id, aht.hero_talent_id, aht.dungeon_id 
 """
 
+
 def fetch_hero_talents_differences(connection, cursor, spec_id, season):
     """Fetch the hero talents differences for a specific spec and season from the database."""
     params = (spec_id, season)
-    return fetch_with_retry(connection, cursor, FETCH_HERO_TALENTS_DIFFERENCES_SQL, params)
+    return fetch_with_retry(
+        connection, cursor, FETCH_HERO_TALENTS_DIFFERENCES_SQL, params
+    )
+
 
 FETCH_SPEC_TALENTS_DIFFERENCES_SQL = """
 SELECT hero_talent_id, dungeon_id, talent_id, SUM(run_count) 
@@ -648,10 +818,13 @@ WHERE aht.spec_id = %s AND aht.season = %s
 GROUP BY aht.talent_id, aht.hero_talent_id, aht.dungeon_id 
 """
 
+
 def fetch_spec_talents_differences(connection, cursor, spec_id, season):
     """Fetch the spec talents differences for a specific spec and season from the database."""
     params = (spec_id, season)
-    return fetch_with_retry(connection, cursor, FETCH_SPEC_TALENTS_DIFFERENCES_SQL, params)
+    return fetch_with_retry(
+        connection, cursor, FETCH_SPEC_TALENTS_DIFFERENCES_SQL, params
+    )
 
 
 FETCH_CLASS_TALENTS_DIFFERENCES_SQL = """
@@ -661,10 +834,13 @@ WHERE aht.spec_id = %s AND aht.season = %s
 GROUP BY aht.talent_id, aht.hero_talent_id, aht.dungeon_id 
 """
 
+
 def fetch_class_talents_differences(connection, cursor, spec_id, season):
     """Fetch the class talents differences for a specific spec and season from the database."""
     params = (spec_id, season)
-    return fetch_with_retry(connection, cursor, FETCH_CLASS_TALENTS_DIFFERENCES_SQL, params)
+    return fetch_with_retry(
+        connection, cursor, FETCH_CLASS_TALENTS_DIFFERENCES_SQL, params
+    )
 
 
 FETCH_HERO_TALENTS_TOTAL_AMOUNT_SQL = """
@@ -672,10 +848,14 @@ SELECT COUNT(DISTINCT talent_id) AS distinct_talents
 FROM Mythistone.aggregated_hero_talent
 WHERE spec_id = %s;
 """
+
+
 def fetch_hero_talent_total_amount(connection, cursor, spec_id, season):
     """Fetch the different amount of talents that we have data for"""
     params = (spec_id, season)
-    return fetch_with_retry(connection, cursor, FETCH_HERO_TALENTS_TOTAL_AMOUNT_SQL, params)
+    return fetch_with_retry(
+        connection, cursor, FETCH_HERO_TALENTS_TOTAL_AMOUNT_SQL, params
+    )
 
 
 FETCH_SPEC_DATA_COUNT_SQL = """
@@ -686,6 +866,7 @@ WHERE spec_id = %s
   AND hero_talent_id <> 0;
 
 """
+
 
 def fetch_spec_data_count(connection, cursor, spec_id, season):
     """Fetch the spec data count for a specific spec and season from the database.
@@ -704,7 +885,7 @@ def fetch_spec_data_count(connection, cursor, spec_id, season):
     first = rows[0]
 
     if isinstance(first, dict):
-        val = first.get('total_runs')
+        val = first.get("total_runs")
     elif isinstance(first, (list, tuple)):
         val = first[0] if len(first) > 0 else None
     else:
@@ -715,18 +896,22 @@ def fetch_spec_data_count(connection, cursor, spec_id, season):
 
     return int(val) if val is not None else 1
 
+
 INSERT_EMBELLISHMENT_SQL = """
 INSERT IGNORE INTO embellishments (`bonus_id`, `item_id`) VALUES (%s, %s)
 """
+
 
 def insert_embellishment(connection, cursor, bonus_id, item_id):
     """Insert a new embellishment into the database."""
     params = (bonus_id, item_id)
     return execute_with_retry(connection, cursor, INSERT_EMBELLISHMENT_SQL, params)
 
+
 INSERT_MISSIVE_SQL = """
 INSERT IGNORE INTO missives (`bonus_id`, `item_id`) VALUES (%s, %s)
 """
+
 
 def insert_missive(connection, cursor, bonus_id, item_id):
     """Insert a new missive into the database."""
@@ -743,10 +928,12 @@ GROUP BY item_id
 ORDER BY total_runs DESC
 """
 
+
 def fetch_missive_count(connection, cursor, spec_id, season):
     """Fetch the missive count for a specific spec and season from the database."""
     params = (spec_id, season)
     return fetch_with_retry(connection, cursor, FETCH_MISSIVE_COUNT_SQL, params)
+
 
 FETCH_EMBELLISHMENT_COUNT_SQL = """
 SELECT item_id, SUM(run_count) AS total_runs
@@ -757,16 +944,19 @@ GROUP BY item_id
 ORDER BY total_runs DESC
 """
 
+
 def fetch_embellishment_count(connection, cursor, spec_id, season):
     """Fetch the embellishment count for a specific spec and season from the database."""
     params = (spec_id, season)
     return fetch_with_retry(connection, cursor, FETCH_EMBELLISHMENT_COUNT_SQL, params)
+
 
 FETCH_TOTAL_SEASON_RUNS_SQL = """
 SELECT COUNT(run_id) AS total_runs
 FROM runs
 WHERE season = %s
 """
+
 
 def fetch_total_season_runs(connection, cursor, season):
     """Fetch the total season runs for a specific season from the database."""
@@ -779,7 +969,7 @@ def fetch_total_season_runs(connection, cursor, season):
         total_runs = amount_row.get("total_runs") or 0
     else:
         total_runs = amount_row[0] or 0
-    return total_runs 
+    return total_runs
 
 
 FETCH_SEASON_RUNS_FOR_SPEC_SQL = """
@@ -788,6 +978,7 @@ FROM aggregated_spec
 WHERE season = %s
 AND spec_id = %s
 """
+
 
 def fetch_runs_per_spec(connection, cursor, season, spec_id):
     """Fetch the total season runs for a specific season+spec and return an int."""
@@ -801,7 +992,6 @@ def fetch_runs_per_spec(connection, cursor, season, spec_id):
     else:
         total_runs = row[0] or 0
     return int(total_runs)
-
 
 
 FETCH_MAX_KEY_SPEC_SQL = """
@@ -834,6 +1024,7 @@ JOIN members mb     ON mb.member = rm.member
 ORDER BY mb.member;
 """
 
+
 def fetch_max_key_run_per_spec(connection, cursor, spec_id, season):
     """Fetch the max key run for a specific spec and season from the database."""
     params = (spec_id, season, spec_id)
@@ -842,8 +1033,8 @@ def fetch_max_key_run_per_spec(connection, cursor, spec_id, season):
     if not raw:
         print(f"No runs found for spec {spec_id} in season {season}")
         return None
-    
-    rows = list(raw)  
+
+    rows = list(raw)
 
     if not rows:
         print("No rows found")
@@ -862,22 +1053,27 @@ def fetch_max_key_run_per_spec(connection, cursor, spec_id, season):
         if mid in seen:
             continue
         seen.add(mid)
-        members.append({
-            "member_id": int(mid),
-            "spec_id": int(mspec) if mspec is not None else None
-        })
+        members.append(
+            {
+                "member_id": int(mid),
+                "spec_id": int(mspec) if mspec is not None else None,
+            }
+        )
     top_run = {
         "run_id": int(first[5]) if len(first) > 5 and first[5] is not None else None,
-        "dungeon_id": int(first[0]) if len(first) > 0 and first[0] is not None else None,
-        "keystone_level": int(first[1]) if len(first) > 1 and first[1] is not None else None,
+        "dungeon_id": int(first[0])
+        if len(first) > 0 and first[0] is not None
+        else None,
+        "keystone_level": int(first[1])
+        if len(first) > 1 and first[1] is not None
+        else None,
         "duration": int(first[2]) if len(first) > 2 and first[2] is not None else None,
         "timestamp": int(first[3]) if len(first) > 3 and first[3] is not None else None,
         "faction": first[4] if len(first) > 4 else None,
         "region": first[6] if len(first) > 5 else None,
         "season": int(first[7]) if len(first) > 6 and first[7] is not None else None,
-        "members": members
+        "members": members,
     }
-    
 
     return top_run
 
@@ -910,6 +1106,7 @@ JOIN members mb     ON mb.member = rm.member
 ORDER BY mb.member;
 """
 
+
 def fetch_max_key_run(connection, cursor, season):
     """Fetch the max key run for a specific spec and season from the database."""
     params = (season,)
@@ -918,8 +1115,8 @@ def fetch_max_key_run(connection, cursor, season):
     if not raw:
         print(f"No runs found in season {season}")
         return None
-    
-    rows = list(raw)  
+
+    rows = list(raw)
 
     if not rows:
         print("No rows found")
@@ -938,22 +1135,27 @@ def fetch_max_key_run(connection, cursor, season):
         if mid in seen:
             continue
         seen.add(mid)
-        members.append({
-            "member_id": int(mid),
-            "spec_id": int(mspec) if mspec is not None else None
-        })
+        members.append(
+            {
+                "member_id": int(mid),
+                "spec_id": int(mspec) if mspec is not None else None,
+            }
+        )
     top_run = {
         "run_id": int(first[5]) if len(first) > 5 and first[5] is not None else None,
-        "dungeon_id": int(first[0]) if len(first) > 0 and first[0] is not None else None,
-        "keystone_level": int(first[1]) if len(first) > 1 and first[1] is not None else None,
+        "dungeon_id": int(first[0])
+        if len(first) > 0 and first[0] is not None
+        else None,
+        "keystone_level": int(first[1])
+        if len(first) > 1 and first[1] is not None
+        else None,
         "duration": int(first[2]) if len(first) > 2 and first[2] is not None else None,
         "timestamp": int(first[3]) if len(first) > 3 and first[3] is not None else None,
         "faction": first[4] if len(first) > 4 else None,
         "region": first[6] if len(first) > 5 else None,
         "season": int(first[7]) if len(first) > 6 and first[7] is not None else None,
-        "members": members
+        "members": members,
     }
-    
 
     return top_run
 
@@ -981,6 +1183,7 @@ WHERE r.run_id = (
 )
 ORDER BY rm.member;
 """
+
 
 def fetch_longest_run(connection, cursor, season):
     """
@@ -1012,24 +1215,29 @@ def fetch_longest_run(connection, cursor, season):
         if mid in seen:
             continue
         seen.add(mid)
-        members.append({
-            "member_id": int(mid),
-            "spec_id": int(mspec) if mspec is not None else None
-        })
+        members.append(
+            {
+                "member_id": int(mid),
+                "spec_id": int(mspec) if mspec is not None else None,
+            }
+        )
 
     top_run = {
         "run_id": int(first[5]) if len(first) > 5 and first[5] is not None else None,
         "dungeon_id": first[0] if len(first) > 0 else None,
-        "keystone_level": int(first[1]) if len(first) > 1 and first[1] is not None else None,
+        "keystone_level": int(first[1])
+        if len(first) > 1 and first[1] is not None
+        else None,
         "duration": int(first[2]) if len(first) > 2 and first[2] is not None else None,
         "timestamp": int(first[3]) if len(first) > 3 and first[3] is not None else None,
         "faction": first[4] if len(first) > 4 else None,
         "region": first[6] if len(first) > 6 else None,
         "season": int(first[7]) if len(first) > 7 and first[7] is not None else None,
-        "members": members
+        "members": members,
     }
 
     return top_run
+
 
 FETCH_SHORTEST_KEY_RUN_SQL = """
 SELECT r.dungeon_id,
@@ -1055,6 +1263,7 @@ WHERE r.run_id = (
 AND duration > 0
 ORDER BY rm.member;
 """
+
 
 def fetch_shortest_run(connection, cursor, season):
     """
@@ -1086,25 +1295,28 @@ def fetch_shortest_run(connection, cursor, season):
         if mid in seen:
             continue
         seen.add(mid)
-        members.append({
-            "member_id": int(mid),
-            "spec_id": int(mspec) if mspec is not None else None
-        })
+        members.append(
+            {
+                "member_id": int(mid),
+                "spec_id": int(mspec) if mspec is not None else None,
+            }
+        )
 
     top_run = {
         "run_id": int(first[5]) if len(first) > 5 and first[5] is not None else None,
         "dungeon_id": first[0] if len(first) > 0 else None,
-        "keystone_level": int(first[1]) if len(first) > 1 and first[1] is not None else None,
+        "keystone_level": int(first[1])
+        if len(first) > 1 and first[1] is not None
+        else None,
         "duration": int(first[2]) if len(first) > 2 and first[2] is not None else None,
         "timestamp": int(first[3]) if len(first) > 3 and first[3] is not None else None,
         "faction": first[4] if len(first) > 4 else None,
         "region": first[6] if len(first) > 6 else None,
         "season": int(first[7]) if len(first) > 7 and first[7] is not None else None,
-        "members": members
+        "members": members,
     }
 
     return top_run
-
 
 
 FETCH_SPEC_UPGRADE_SQL = """
@@ -1116,14 +1328,19 @@ GROUP BY upgrade_tier
 
 """
 
+
 def fetch_spec_upgrade(connection, cursor, spec_id, season):
     params = (spec_id, season)
     rows = fetch_with_retry(connection, cursor, FETCH_SPEC_UPGRADE_SQL, params)
     if not rows:
         return []
     upgrades = [{"upgrade_tier": row[0], "run_count": row[1]} for row in rows]
-    upgrades.sort(key=lambda x: (x["upgrade_tier"] != "depleted",
-                             int(x["upgrade_tier"]) if x["upgrade_tier"] != "depleted" else -1))
+    upgrades.sort(
+        key=lambda x: (
+            x["upgrade_tier"] != "depleted",
+            int(x["upgrade_tier"]) if x["upgrade_tier"] != "depleted" else -1,
+        )
+    )
     return upgrades
 
 
@@ -1131,11 +1348,15 @@ INSERT_PERIODS_SQL = """
 INSERT IGNORE INTO Mythistone.season_periods (region, period_id, start_timestamp, end_timestamp, season) VALUES(%s, %s, %s, %s, %s);
 """
 
-def insert_season_periods(connection, cursor, region, period_id, start_timestamp, end_timestamp, season):
+
+def insert_season_periods(
+    connection, cursor, region, period_id, start_timestamp, end_timestamp, season
+):
     """Insert the initial season periods into the database."""
     val = (region, period_id, start_timestamp, end_timestamp, season)
     execute_with_retry(connection, cursor, INSERT_PERIODS_SQL, val)
     return cursor.lastrowid
+
 
 FETCH_SPEC_RUN_COUNTS = """
 SELECT spec_id, SUM(run_count) AS count
@@ -1145,12 +1366,14 @@ GROUP BY spec_id
 ORDER BY count DESC
 """
 
-def fetch_spec_run_counts(connection,cursor,season):
+
+def fetch_spec_run_counts(connection, cursor, season):
     params = (season,)
     rows = fetch_with_retry(connection, cursor, FETCH_SPEC_RUN_COUNTS, params)
     if not rows:
         return []
     return [{"id": int(row[0]), "count": int(row[1])} for row in rows]
+
 
 FETCH_SPEC_RUN_COUNTS_PER_LEVEL = """
 SELECT spec_id, keystone_level, SUM(run_count) AS count
@@ -1160,12 +1383,16 @@ GROUP BY spec_id, keystone_level
 ORDER BY spec_id, keystone_level;
 """
 
+
 def fetch_spec_run_counts_per_level(connection, cursor, season):
     params = (season,)
     rows = fetch_with_retry(connection, cursor, FETCH_SPEC_RUN_COUNTS_PER_LEVEL, params)
     if not rows:
         return []
-    return [{"spec_id": row[0], "keystone_level": row[1], "count": row[2]} for row in rows]
+    return [
+        {"spec_id": row[0], "keystone_level": row[1], "count": row[2]} for row in rows
+    ]
+
 
 FETCH_RUNS_PER_PERIOD = """
 -- params: (season, season)
@@ -1219,12 +1446,24 @@ GROUP BY t.week
 ORDER BY t.week;
 """
 
+
 def fetch_runs_per_period(connection, cursor, season):
     params = (season, season)
     rows = fetch_with_retry(connection, cursor, FETCH_RUNS_PER_PERIOD, params)
     if not rows:
         return []
-    return [{"week": int(row[0]), "upgrade_3": int(row[1]), "upgrade_2": int(row[2]), "upgrade_1": int(row[3]), "depleted": int(row[4]), "total_runs": int(row[5])} for row in rows]
+    return [
+        {
+            "week": int(row[0]),
+            "upgrade_3": int(row[1]),
+            "upgrade_2": int(row[2]),
+            "upgrade_1": int(row[3]),
+            "depleted": int(row[4]),
+            "total_runs": int(row[5]),
+        }
+        for row in rows
+    ]
+
 
 DUNGEON_UPGRADES_SQL = """
 SELECT
@@ -1251,12 +1490,23 @@ GROUP BY r.dungeon_id
 ORDER BY total_runs DESC;
 """
 
+
 def fetch_runs_per_dungeon(connection, cursor, season):
-    params = (season, )
+    params = (season,)
     rows = fetch_with_retry(connection, cursor, DUNGEON_UPGRADES_SQL, params)
     if not rows:
         return []
-    return [{"dungeon_id": int(row[0]), "upgrade_3": int(row[1]), "upgrade_2": int(row[2]), "upgrade_1": int(row[3]), "depleted": int(row[4]), "total_runs": int(row[5])} for row in rows]
+    return [
+        {
+            "dungeon_id": int(row[0]),
+            "upgrade_3": int(row[1]),
+            "upgrade_2": int(row[2]),
+            "upgrade_1": int(row[3]),
+            "depleted": int(row[4]),
+            "total_runs": int(row[5]),
+        }
+        for row in rows
+    ]
 
 
 FETCH_SPEC_UPGRADES_SQL = """
@@ -1275,12 +1525,25 @@ ORDER BY total_runs DESC;
 
 """
 
+
 def fetch_spec_upgrades(connection, cursor, season):
     params = (season,)
     rows = fetch_with_retry(connection, cursor, FETCH_SPEC_UPGRADES_SQL, params)
     if not rows:
         return []
-    return [{"spec_id": int(row[0]), "keystone_level": int(row[1]), "upgrade_3": int(row[2]), "upgrade_2": int(row[3]), "upgrade_1": int(row[4]), "depleted": int(row[5]), "total_runs": int(row[6])} for row in rows]
+    return [
+        {
+            "spec_id": int(row[0]),
+            "keystone_level": int(row[1]),
+            "upgrade_3": int(row[2]),
+            "upgrade_2": int(row[3]),
+            "upgrade_1": int(row[4]),
+            "depleted": int(row[5]),
+            "total_runs": int(row[6]),
+        }
+        for row in rows
+    ]
+
 
 FETCH_SPEC_UPGRADES_ABOVE_LEVEL_SQL = """
 SELECT
@@ -1298,14 +1561,26 @@ ORDER BY total_runs DESC;
 
 """
 
+
 def fetch_spec_upgrades_above_level(connection, cursor, season, min_keylevel=15):
     params = (season, min_keylevel)
-    rows = fetch_with_retry(connection, cursor, FETCH_SPEC_UPGRADES_ABOVE_LEVEL_SQL, params)
+    rows = fetch_with_retry(
+        connection, cursor, FETCH_SPEC_UPGRADES_ABOVE_LEVEL_SQL, params
+    )
     if not rows:
         return []
-    return [{"spec_id": int(row[0]), "keystone_level": int(row[1]), "upgrade_3": int(row[2]), "upgrade_2": int(row[3]), "upgrade_1": int(row[4]), "depleted": int(row[5]), "total_runs": int(row[6])} for row in rows]
-
-
+    return [
+        {
+            "spec_id": int(row[0]),
+            "keystone_level": int(row[1]),
+            "upgrade_3": int(row[2]),
+            "upgrade_2": int(row[3]),
+            "upgrade_1": int(row[4]),
+            "depleted": int(row[5]),
+            "total_runs": int(row[6]),
+        }
+        for row in rows
+    ]
 
 
 FETCH_UPGRADES_FOR_SPECS_SQL = """
@@ -1323,6 +1598,7 @@ ORDER BY total_runs DESC;
 
 """
 
+
 def fetch_upgrade_for_specs(connection, cursor, season, specs, min_keylevel=15):
     spec_placeholder = ",".join(["%s"] * len(specs))
     specs_clean = [str(i) for i in specs]
@@ -1331,8 +1607,17 @@ def fetch_upgrade_for_specs(connection, cursor, season, specs, min_keylevel=15):
     rows = fetch_with_retry(connection, cursor, sql, params)
     if not rows:
         return []
-    return [{"keystone_level": int(row[0]), "upgrade_3": int(row[1]), "upgrade_2": int(row[2]), "upgrade_1": int(row[3]), "depleted": int(row[4]), "total_runs": int(row[5])} for row in rows]
-
+    return [
+        {
+            "keystone_level": int(row[0]),
+            "upgrade_3": int(row[1]),
+            "upgrade_2": int(row[2]),
+            "upgrade_1": int(row[3]),
+            "depleted": int(row[4]),
+            "total_runs": int(row[5]),
+        }
+        for row in rows
+    ]
 
 
 DUNGEON_UPGRADES_PER_KEYLEVEL_SQL = """
@@ -1360,12 +1645,26 @@ WHERE r.season = %s
 GROUP BY r.dungeon_id, r.keystone_level 
 """
 
+
 def fetch_runs_per_dungeon_per_level(connection, cursor, season):
-    params = (season, )
-    rows = fetch_with_retry(connection, cursor, DUNGEON_UPGRADES_PER_KEYLEVEL_SQL, params)
+    params = (season,)
+    rows = fetch_with_retry(
+        connection, cursor, DUNGEON_UPGRADES_PER_KEYLEVEL_SQL, params
+    )
     if not rows:
         return []
-    return [{"dungeon_id": int(row[0]), "keystone_level": int(row[1]), "upgrade_3": int(row[2]), "upgrade_2": int(row[3]), "upgrade_1": int(row[4]), "depleted": int(row[5]), "total_runs": int(row[6])} for row in rows]
+    return [
+        {
+            "dungeon_id": int(row[0]),
+            "keystone_level": int(row[1]),
+            "upgrade_3": int(row[2]),
+            "upgrade_2": int(row[3]),
+            "upgrade_1": int(row[4]),
+            "depleted": int(row[5]),
+            "total_runs": int(row[6]),
+        }
+        for row in rows
+    ]
 
 
 DUNGEON_UPGRADES_PER_KEYLEVEL_ABOVE_LEVEL_SQL = """
@@ -1393,15 +1692,31 @@ WHERE r.season = %s AND r.keystone_level > %s
 GROUP BY r.dungeon_id, r.keystone_level 
 """
 
-def fetch_runs_per_dungeon_per_level_above_level(connection, cursor, season, min_keylevel=15):
+
+def fetch_runs_per_dungeon_per_level_above_level(
+    connection, cursor, season, min_keylevel=15
+):
     params = (season, min_keylevel)
-    rows = fetch_with_retry(connection, cursor, DUNGEON_UPGRADES_PER_KEYLEVEL_ABOVE_LEVEL_SQL, params)
+    rows = fetch_with_retry(
+        connection, cursor, DUNGEON_UPGRADES_PER_KEYLEVEL_ABOVE_LEVEL_SQL, params
+    )
     if not rows:
         return []
-    return [{"dungeon_id": int(row[0]), "keystone_level": int(row[1]), "upgrade_3": int(row[2]), "upgrade_2": int(row[3]), "upgrade_1": int(row[4]), "depleted": int(row[5]), "total_runs": int(row[6])} for row in rows]
+    return [
+        {
+            "dungeon_id": int(row[0]),
+            "keystone_level": int(row[1]),
+            "upgrade_3": int(row[2]),
+            "upgrade_2": int(row[3]),
+            "upgrade_1": int(row[4]),
+            "depleted": int(row[5]),
+            "total_runs": int(row[6]),
+        }
+        for row in rows
+    ]
 
 
-FETCH_SPEC_TALENT_OVERVIEW_SQL ="""
+FETCH_SPEC_TALENT_OVERVIEW_SQL = """
 SELECT talent_id, SUM(run_count) as count
 FROM Mythistone.aggregated_spec_talent aht 
 WHERE aht.spec_id = %s AND aht.season = %s
@@ -1409,12 +1724,14 @@ GROUP BY aht.talent_id
 ORDER BY count DESC
 """
 
+
 def fetch_spec_talent_overview(connection, cursor, spec_id, season):
     params = (spec_id, season)
     rows = fetch_with_retry(connection, cursor, FETCH_SPEC_TALENT_OVERVIEW_SQL, params)
     if not rows:
         return []
     return [{"talent_id": int(row[0]), "count": int(row[1])} for row in rows]
+
 
 FETCH_GROUPBUFFS_SQL_TEMPLATE = """
 SELECT
@@ -1434,6 +1751,7 @@ FROM (
 ) sub;
 """
 
+
 def build_simple_groupbuffs_query(groupbuffs):
     """
     groupbuffs: list of dicts like {"name": "Arcane Intellect", "spec_ids": [62,63,64]}
@@ -1444,7 +1762,7 @@ def build_simple_groupbuffs_query(groupbuffs):
     for i, buff in enumerate(groupbuffs):
         has_alias = f"has_{i}"
         runs_alias = f"runs_{i}"
-        pct_alias  = f"pct_{i}"
+        pct_alias = f"pct_{i}"
 
         spec_ids = buff.get("specIDs", [])
         if not spec_ids:
@@ -1457,13 +1775,17 @@ def build_simple_groupbuffs_query(groupbuffs):
 
         has_cols.append(f"{has_expr} AS {has_alias}")
         select_cols.append(f"SUM({has_alias}) AS {runs_alias}")
-        select_cols.append(f"ROUND(100.0 * SUM({has_alias}) / NULLIF(COUNT(*), 0), 4) AS {pct_alias}")
+        select_cols.append(
+            f"ROUND(100.0 * SUM({has_alias}) / NULLIF(COUNT(*), 0), 4) AS {pct_alias}"
+        )
     return FETCH_GROUPBUFFS_SQL_TEMPLATE.format(
-        has_cols=",\n    ".join(has_cols),
-        select_cols=",\n  ".join(select_cols)
+        has_cols=",\n    ".join(has_cols), select_cols=",\n  ".join(select_cols)
     ), len(groupbuffs)
 
-def fetch_groupbuffs_stats(connection, cursor, groupbuffs, season, keystone_threshold=11, days_back=14):
+
+def fetch_groupbuffs_stats(
+    connection, cursor, groupbuffs, season, keystone_threshold=11, days_back=14
+):
     """
     Executes the dynamically built SQL and returns:
       {"total_runs": int, "buffs": [ { "name":..., "spec_ids":..., "runs":int, "pct":float }, ... ] }
@@ -1483,24 +1805,21 @@ def fetch_groupbuffs_stats(connection, cursor, groupbuffs, season, keystone_thre
     off = 1
     for i, buff in enumerate(groupbuffs):
         runs = int(row[off] or 0)
-        pct  = float(row[off + 1] or 0.0)
-        buffs_out.append({
-            "id": buff.get("id"),
-            "runs": runs,
-            "pct": pct
-        })
+        pct = float(row[off + 1] or 0.0)
+        buffs_out.append({"id": buff.get("id"), "runs": runs, "pct": pct})
         off += 2
 
     return {"total_runs": total_runs, "buffs": buffs_out}
 
 
-FETCH_CLASS_TALENT_OVERVIEW_SQL ="""
+FETCH_CLASS_TALENT_OVERVIEW_SQL = """
 SELECT talent_id, SUM(run_count) as count
 FROM Mythistone.aggregated_class_talent aht 
 WHERE aht.spec_id = %s AND aht.season = %s
 GROUP BY aht.talent_id
 ORDER BY count DESC
 """
+
 
 def fetch_class_talent_overview(connection, cursor, spec_id, season):
     params = (spec_id, season)
@@ -1509,12 +1828,14 @@ def fetch_class_talent_overview(connection, cursor, spec_id, season):
         return []
     return [{"talent_id": int(row[0]), "count": int(row[1])} for row in rows]
 
+
 FETCH_STATS_SQL = """
 SELECT run_count, stat, avg_percent, avg_raw, min_raw, max_raw 
 FROM Mythistone.aggregated_character_stats
 WHERE spec_id = %s and season = %s
 ORDER BY avg_raw DESC
 """
+
 
 def fetch_stats(connection, cursor, spec_id, season):
     params = (spec_id, season)
@@ -1524,15 +1845,16 @@ def fetch_stats(connection, cursor, spec_id, season):
     data = {}
     for row in rows:
         data[row[1]] = {
-         "run_count": int(row[0]),
-         "avg_percent": float(row[2]) if row[2] else None, 
-         "avg_raw": float(row[3]), 
-         "min_raw": float(row[4]), 
-         "max_raw": float(row[5])
-         }
+            "run_count": int(row[0]),
+            "avg_percent": float(row[2]) if row[2] else None,
+            "avg_raw": float(row[3]),
+            "min_raw": float(row[4]),
+            "max_raw": float(row[5]),
+        }
     return data
 
-FETCH_TOP_HUNTER_PETS_BY_SPEC_SQL ="""
+
+FETCH_TOP_HUNTER_PETS_BY_SPEC_SQL = """
 SELECT COUNT(hp.`member` ) as run_count, hp.creature_id  
 from Mythistone.hunter_pets hp 
 JOIN Mythistone.members m on hp.`member` = m.`member` 
@@ -1540,18 +1862,22 @@ WHERE m.spec_id = %s
 GROUP BY hp.creature_id  ORDER BY run_count DESC LIMIT 100
 """
 
+
 def fetch_top_hunter_pets_by_spec(connection, cursor, spec_id):
     params = (spec_id,)
-    rows = fetch_with_retry(connection, cursor, FETCH_TOP_HUNTER_PETS_BY_SPEC_SQL, params)
+    rows = fetch_with_retry(
+        connection, cursor, FETCH_TOP_HUNTER_PETS_BY_SPEC_SQL, params
+    )
     if not rows:
         return []
     return [{"creature_id": int(row[1]), "run_count": int(row[0])} for row in rows]
 
 
-FETCH_TOP_HUNTER_PETS_SQL ="""
+FETCH_TOP_HUNTER_PETS_SQL = """
 SELECT COUNT(hp.`member` ) as run_count, hp.creature_id  
 from Mythistone.hunter_pets hp GROUP BY hp.creature_id  ORDER BY run_count DESC LIMIT 500
 """
+
 
 def fetch_top_hunter_pets(connection, cursor):
     rows = fetch_with_retry(connection, cursor, FETCH_TOP_HUNTER_PETS_SQL)
@@ -1559,9 +1885,11 @@ def fetch_top_hunter_pets(connection, cursor):
         return []
     return [{"creature_id": int(row[1]), "run_count": int(row[0])} for row in rows]
 
+
 INSERT_PULL_ENEMIES_SQL = """
 INSERT INTO Mythistone.pull_enemies (`route_key`, `pull_id`, `npc_id`, `count`) VALUES(%s, %s, %s, %s);
 """
+
 
 def insert_pull_enemies(connection, cursor, route_key, pull_id, npc_id, count):
     """Insert a new enemy to a pull."""
@@ -1569,9 +1897,11 @@ def insert_pull_enemies(connection, cursor, route_key, pull_id, npc_id, count):
     execute_with_retry(connection, cursor, INSERT_PULL_ENEMIES_SQL, val)
     return cursor.rowcount
 
+
 INSERT_PULL_SPELLS_SQL = """
 INSERT INTO Mythistone.pull_spells (`route_key`, `pull_id`, `spell_id`) VALUES(%s, %s, %s);
 """
+
 
 def insert_pull_spells(connection, cursor, route_key, pull_id, spell_id):
     """Insert a new spell to a pull."""
@@ -1579,19 +1909,43 @@ def insert_pull_spells(connection, cursor, route_key, pull_id, spell_id):
     execute_with_retry(connection, cursor, INSERT_PULL_SPELLS_SQL, val)
     return cursor.rowcount
 
+
 INSERT_ROUTE_DATA_SQL = """
 INSERT IGNORE INTO Mythistone.route_data (`rio_run_id`, `mapping_version`, `enemy_forces`, `timestamp`, `keystone_level`, `duration`, `dungeon_id`, `route_key`) VALUES(%s, %s, %s, %s, %s, %s, %s, %s);
 """
 
-def insert_route_data(connection, cursor, rio_run_id, mapping_version, enemy_forces, timestamp, keystone_level, duration, dungeon_id, route_key):
+
+def insert_route_data(
+    connection,
+    cursor,
+    rio_run_id,
+    mapping_version,
+    enemy_forces,
+    timestamp,
+    keystone_level,
+    duration,
+    dungeon_id,
+    route_key,
+):
     """Insert a new route into the database."""
-    val = (rio_run_id, mapping_version, enemy_forces, timestamp, keystone_level, duration, dungeon_id, route_key)
+    val = (
+        rio_run_id,
+        mapping_version,
+        enemy_forces,
+        timestamp,
+        keystone_level,
+        duration,
+        dungeon_id,
+        route_key,
+    )
     execute_with_retry(connection, cursor, INSERT_ROUTE_DATA_SQL, val)
     return cursor.rowcount
 
-INSERT_ROUTE_PULL_SQL ="""
+
+INSERT_ROUTE_PULL_SQL = """
 INSERT INTO Mythistone.route_pulls (`route_key`) VALUES(%s);
 """
+
 
 def insert_route_pull(connection, cursor, route_key):
     """Add a new pull to a route"""
@@ -1599,9 +1953,11 @@ def insert_route_pull(connection, cursor, route_key):
     execute_with_retry(connection, cursor, INSERT_ROUTE_PULL_SQL, val)
     return cursor.lastrowid
 
+
 INSERT_ROUTE_SPEC_SQL = """
 INSERT INTO Mythistone.route_specs (`route_key`, `spec_id`) VALUES(%s, %s);
 """
+
 
 def insert_route_spec(connection, cursor, route_key, spec_id):
     """Insert a new spec to a route."""
@@ -1625,6 +1981,7 @@ def fetch_route_specs_map(connection, cursor):
         out[rk] = sorted(list(set(out[rk])))
     return out
 
+
 def fetch_route_npcs_map(connection, cursor):
     """
     Return dict: { route_key: [npc_id, ...], ... }
@@ -1642,7 +1999,8 @@ def fetch_route_npcs_map(connection, cursor):
         npc = int(r[1])
         out.setdefault(rk, []).append(npc)
     # unique + sorted
-    return { rk: sorted(list(set(v))) for rk, v in out.items() }
+    return {rk: sorted(list(set(v))) for rk, v in out.items()}
+
 
 def fetch_route_spells_map(connection, cursor):
     """
@@ -1655,9 +2013,12 @@ def fetch_route_spells_map(connection, cursor):
         rk = r[0]
         sid = int(r[1])
         out.setdefault(rk, []).append(sid)
-    return { rk: sorted(list(set(v))) for rk, v in out.items() }
+    return {rk: sorted(list(set(v))) for rk, v in out.items()}
 
-def fetch_comp_routes(connection, cursor, recent_only_days=None, min_level=0, limit=None):
+
+def fetch_comp_routes(
+    connection, cursor, recent_only_days=None, min_level=0, limit=None
+):
     """
     Build compRoutes-style dict directly from DB.
     Returns: { "specA,specB": { route_key, run_id, dungeon, level, duration, timestamp, specs, npcs, spells, enemy_forces }, ... }
@@ -1676,7 +2037,9 @@ def fetch_comp_routes(connection, cursor, recent_only_days=None, min_level=0, li
     if recent_only_days:
         # We conservatively assume 'timestamp' is unix seconds OR milliseconds; we'll filter by seconds threshold,
         # and callers can interpret timestamps accordingly. Use UNIX_TIMESTAMP() to compute seconds.
-        clauses.append("timestamp >= CAST(UNIX_TIMESTAMP(NOW() - INTERVAL %s DAY) AS UNSIGNED)")
+        clauses.append(
+            "timestamp >= CAST(UNIX_TIMESTAMP(NOW() - INTERVAL %s DAY) AS UNSIGNED)"
+        )
         params.append(int(recent_only_days))
 
     if clauses:
@@ -1717,13 +2080,15 @@ def fetch_comp_routes(connection, cursor, recent_only_days=None, min_level=0, li
             "specs": specs,
             "npcs": route_npcs_map.get(route_key, []),
             "spells": route_spells_map.get(route_key, []),
-            "enemy_forces": enemy_forces
+            "enemy_forces": enemy_forces,
         }
     return out
+
 
 FETCH_DISTINCT_SPELL_IDS_SQL = """
 SELECT DISTINCT ps.spell_id from Mythistone.pull_spells ps
 """
+
 
 def fetch_distinct_spell_ids(connection, cursor):
     """
@@ -1739,6 +2104,7 @@ def fetch_distinct_spell_ids(connection, cursor):
 FETCH_DISTINCT_NPC_IDS_SQL = """
 SELECT DISTINCT pe.npc_id from Mythistone.pull_enemies pe
 """
+
 
 def fetch_distinct_npc_ids(connection, cursor):
     """
@@ -1758,12 +2124,15 @@ join Mythistone.route_data rd on rd.route_key = rp.route_key
 WHERE rd.dungeon_id = %s
 """
 
+
 def fetch_distinct_npc_ids_for_dungeon(connection, cursor, dungeon_id):
     """
     Fetch all distinct NPC IDs recorded in pull_enemies for a specific dungeon.
     Returns list of int NPC IDs (may be empty).
     """
-    rows = fetch_with_retry(connection, cursor, FETCH_DISTINCT_NPC_IDS_FOR_DUNGEON_SQL, (dungeon_id,))
+    rows = fetch_with_retry(
+        connection, cursor, FETCH_DISTINCT_NPC_IDS_FOR_DUNGEON_SQL, (dungeon_id,)
+    )
     if not rows:
         return []
     return [int(r[0]) for r in rows if r and r[0] is not None]
@@ -1805,8 +2174,11 @@ GROUP BY r.dungeon_id;
 
 """
 
+
 def fetch_top_routes_for_spec(connection, cursor, spec_id):
-    rows = fetch_with_retry(connection, cursor, FETCH_TOP_ROUTES_FOR_SPEC_SQL, (spec_id,))
+    rows = fetch_with_retry(
+        connection, cursor, FETCH_TOP_ROUTES_FOR_SPEC_SQL, (spec_id,)
+    )
     routes = {}
     for row in rows:
         routes[row[0]] = {
@@ -1817,7 +2189,7 @@ def fetch_top_routes_for_spec(connection, cursor, spec_id):
             "highest_key": row[5],
             "duration": row[6],
             "timestamp": row[7],
-            "specs": row[8].split(',')
+            "specs": row[8].split(","),
         }
 
     return routes

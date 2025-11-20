@@ -184,34 +184,46 @@ def get_talent_differences(talent_diffs, points_available, valid_talents):
     return overall_talent_diffs
 
 
-def get_hero_talent_differences(conn, cursor, spec_id, current_season_id, valid_talents):
+def get_hero_talent_differences(
+    conn, cursor, spec_id, current_season_id, valid_talents
+):
     spendable_talents = load_existing_json(TALENT_POINTS_PATH)
     top_hero_talent_diffs = databaseConnector.fetch_hero_talents_differences(
         conn, cursor, spec_id, current_season_id
     )
     hero_talent_points_available = spendable_talents.get("hero", 0)
 
-    return get_talent_differences(top_hero_talent_diffs, hero_talent_points_available, valid_talents)
+    return get_talent_differences(
+        top_hero_talent_diffs, hero_talent_points_available, valid_talents
+    )
 
 
-def get_spec_talent_differences(conn, cursor, spec_id, current_season_id, valid_talents):
+def get_spec_talent_differences(
+    conn, cursor, spec_id, current_season_id, valid_talents
+):
     spendable_talents = load_existing_json(TALENT_POINTS_PATH)
     top_spec_talent_diffs = databaseConnector.fetch_spec_talents_differences(
         conn, cursor, spec_id, current_season_id
     )
     spec_talent_points_available = spendable_talents.get("spec", 0)
 
-    return get_talent_differences(top_spec_talent_diffs, spec_talent_points_available, valid_talents)
+    return get_talent_differences(
+        top_spec_talent_diffs, spec_talent_points_available, valid_talents
+    )
 
 
-def get_class_talent_differences(conn, cursor, spec_id, current_season_id, valid_talents):
+def get_class_talent_differences(
+    conn, cursor, spec_id, current_season_id, valid_talents
+):
     spendable_talents = load_existing_json(TALENT_POINTS_PATH)
     top_class_talent_diffs = databaseConnector.fetch_class_talents_differences(
         conn, cursor, spec_id, current_season_id
     )
     class_talent_points_available = spendable_talents.get("class", 0)
 
-    return get_talent_differences(top_class_talent_diffs, class_talent_points_available, valid_talents)
+    return get_talent_differences(
+        top_class_talent_diffs, class_talent_points_available, valid_talents
+    )
 
 
 def biggest_deviations_per_dungeon(data, top_n=3):
@@ -243,7 +255,7 @@ def biggest_deviations_per_dungeon(data, top_n=3):
                 continue
             pct_point_diff = (
                 dungeon_pct - overall_pct
-            ) # signed difference in percentage points
+            )  # signed difference in percentage points
             rel_change = None
             if overall_pct != 0:
                 rel_change = (pct_point_diff / overall_pct) * 100.0
@@ -293,7 +305,7 @@ def get_hero_tree_differences(conn, cursor, spec_id, current_season_id):
         count = enriched_data["overall"].get(hero_tree, 0) + overall_counts[hero_tree]
         enriched_data["overall"][hero_tree] = {
             "count": count,
-            "pct": (count / total_count if total_count > 0 else 1 )* 100,
+            "pct": (count / total_count if total_count > 0 else 1) * 100,
         }
     for dungeon, hero_trees in data.items():
         for hero_tree in hero_trees:
@@ -307,10 +319,10 @@ def get_hero_tree_differences(conn, cursor, spec_id, current_season_id):
             )
             enriched_data["dungeons"][dungeon][hero_tree] = {
                 "count": count,
-                "pct": (count / dungeon_counts[dungeon] )* 100
+                "pct": (count / dungeon_counts[dungeon]) * 100
                 if dungeon_counts[dungeon] > 0
                 else 1,
-                "diff": (count / dungeon_counts[dungeon] )* 100
+                "diff": (count / dungeon_counts[dungeon]) * 100
                 - enriched_data["overall"][hero_tree]["pct"],
             }
 

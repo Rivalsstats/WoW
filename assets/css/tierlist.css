@@ -1,9 +1,6 @@
-/* Scoped to round-tierlist so it can be applied to Spec and Buff sections alike */
 .round-tierlist {
   --spec-size: 84px;
-  /* change this to 72px/96px to tune icon size */
   --spec-gap: 12px;
-  /* change this to adjust spacing between icons */
 }
 
 .round-tierlist .spec-row {
@@ -11,7 +8,6 @@
   flex-wrap: wrap;
   gap: var(--spec-gap);
   justify-content: flex-start;
-  /* left aligned */
   align-items: flex-start;
   padding: 6px 0;
 }
@@ -83,255 +79,252 @@
   }
 }
 
-/* shared tier styles */
-          .tier-row {
-            align-items: flex-start;
-          }
+.tier-row {
+  align-items: flex-start;
+}
 
-          .tier-left {
-            width: 140px;
-            min-width: 120px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            padding-right: 12px;
-          }
+.tier-left {
+  width: 140px;
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-right: 12px;
+}
 
-          .tier-badge-large {
-            width: 96px;
-            height: 96px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 34px;
-            color: #fff;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
-            text-transform: uppercase;
-          }
+.tier-badge-large {
+  width: 96px;
+  height: 96px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 34px;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  text-transform: uppercase;
+}
 
-          .tier-label-small {
-            text-align: center;
-            font-weight: 600;
-          }
+.tier-label-small {
+  text-align: center;
+  font-weight: 600;
+}
 
-          .tier-count-small {
-            font-size: 0.85rem;
-            color: var(--bs-gray-400, #9aa0a6);
-          }
+.tier-count-small {
+  font-size: 0.85rem;
+  color: var(--bs-gray-400, #9aa0a6);
+}
 
-          /* color mappings (mirrors badge classes) */
-          .tier-S {
-            background: linear-gradient(90deg, #ffd27f 0%, #ffb84d 45%, #ff8c00 100%);
-            color: #1b1200;
-          }
+.tier-S {
+  background: linear-gradient(90deg, #ffd27f 0%, #ffb84d 45%, #ff8c00 100%);
+  color: #1b1200;
+}
 
-          .tier-A {
-            background: linear-gradient(90deg, #caa3ff 0%, #a86bff 45%, #8e44ad 100%);
-            color: #fff;
-          }
+.tier-A {
+  background: linear-gradient(90deg, #caa3ff 0%, #a86bff 45%, #8e44ad 100%);
+  color: #fff;
+}
 
-          .tier-B {
-            background: linear-gradient(90deg, #8fcfff 0%, #5aa9ff 45%, #0070dd 100%);
-            color: #fff;
-          }
+.tier-B {
+  background: linear-gradient(90deg, #8fcfff 0%, #5aa9ff 45%, #0070dd 100%);
+  color: #fff;
+}
 
-          .tier-C {
-            background: linear-gradient(90deg, #9fee9a 0%, #57d06b 45%, #2ecc71 100%);
-            color: #072e10;
-          }
+.tier-C {
+  background: linear-gradient(90deg, #9fee9a 0%, #57d06b 45%, #2ecc71 100%);
+  color: #072e10;
+}
 
-          .tier-D {
-            background: linear-gradient(90deg, #e9e9e9 0%, #d1d1d1 50%, #9e9e9e 100%);
-            color: #1e1e1e;
-            border: 1px solid rgba(0, 0, 0, 0.08);
-          }
+.tier-D {
+  background: linear-gradient(90deg, #e9e9e9 0%, #d1d1d1 50%, #9e9e9e 100%);
+  color: #1e1e1e;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
 
-          .tier-F {
-            background: linear-gradient(90deg, #ff6b6b, #dc3545);
-            color: #fff;
-            border: 1px solid rgba(0, 0, 0, 0.12);
-          }
+.tier-F {
+  background: linear-gradient(90deg, #ff6b6b, #dc3545);
+  color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
 
-          /* Grid tweaks for tiles */
-          .dungeon-tiles-grid {
-            gap: 0.75rem;
-          }
+.dungeon-tiles-grid {
+  gap: 0.75rem;
+}
 
-          /* Dungeon tile (unchanged visual) */
-          .dungeon-tile {
-            height: 110px;
-            border-radius: 10px;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            color: #fff;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
-            border: 0;
-            transition: transform .12s ease, box-shadow .12s ease;
-            display: block;
-          }
+.dungeon-tile {
+  height: 110px;
+  border-radius: 10px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+  border: 0;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  display: block;
+}
 
-          .dungeon-tile::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            box-shadow: inset 0 -24px 40px rgba(0, 0, 0, 0.45);
-            border-radius: 10px;
-          }
+.dungeon-tile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 -24px 40px rgba(0, 0, 0, 0.45);
+  border-radius: 10px;
+}
 
-          .dungeon-tile:hover,
-          .dungeon-tile:focus {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
-            z-index: 2;
-            outline: none;
-          }
+.dungeon-tile:hover,
+.dungeon-tile:focus {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+  z-index: 2;
+  outline: none;
+}
 
-          /* shared icon used for both dungeon and spec (when present) */
-          .dungeon-tile-icon {
-            position: absolute;
-            left: 10px;
-            bottom: 10px;
-            width: 44px;
-            height: 44px;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 50%;
-            padding: 4px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
+.dungeon-tile-icon {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 50%;
+  padding: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-          .dungeon-tile-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-          }
+.dungeon-tile-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
 
-          .fallback-initial {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #e9ecef;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.06));
-            font-weight: 700;
-            border-radius: 50%;
-          }
+.fallback-initial {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e9ecef;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04),
+    rgba(0, 0, 0, 0.06)
+  );
+  font-weight: 700;
+  border-radius: 50%;
+}
 
-          .dungeon-tile-title .text-truncate {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-          }
+.dungeon-tile-title .text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
-          .dungeon-tile:focus-visible {
-            box-shadow: 0 0 0 3px rgba(100, 150, 255, 0.25), 0 8px 22px rgba(0, 0, 0, 0.45);
-          }
+.dungeon-tile:focus-visible {
+  box-shadow: 0 0 0 3px rgba(100, 150, 255, 0.25),
+    0 8px 22px rgba(0, 0, 0, 0.45);
+}
 
-          .visually-hidden {
-            position: absolute !important;
-            height: 1px;
-            width: 1px;
-            overflow: hidden;
-            clip: rect(1px, 1px, 1px, 1px);
-            white-space: nowrap;
-            border: 0;
-            padding: 0;
-            margin: -1px;
-          }
+.visually-hidden {
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
+  border: 0;
+  padding: 0;
+  margin: -1px;
+}
 
-          /* SPEC: compact tile with circular icon on lower-left (Archon-like) */
-          .spec-tile {
-            height: 84px;
-            border-radius: 10px;
-            padding-left: 64px;
-            /* reserve room for circular icon */
-            background-size: cover;
-            background-position: center;
-            color: #fff;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
-            border: 0;
-            transition: transform .12s ease, box-shadow .12s ease;
-            display: block;
-            position: relative;
-            overflow: hidden;
-          }
+.spec-tile {
+  height: 84px;
+  border-radius: 10px;
+  padding-left: 64px;
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+  border: 0;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
 
-          .spec-tile:hover,
-          .spec-tile:focus {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
-            z-index: 2;
-          }
+.spec-tile:hover,
+.spec-tile:focus {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+  z-index: 2;
+}
 
-          .spec-tile .dungeon-tile-icon {
-            left: 10px;
-            bottom: 12px;
-            width: 40px;
-            height: 40px;
-            padding: 3px;
-          }
+.spec-tile .dungeon-tile-icon {
+  left: 10px;
+  bottom: 12px;
+  width: 40px;
+  height: 40px;
+  padding: 3px;
+}
 
-          .spec-tile .dungeon-tile-title {
-            bottom: 8px;
-            left: 0;
-            right: 0;
-            padding-left: 8px;
-          }
+.spec-tile .dungeon-tile-title {
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  padding-left: 8px;
+}
 
-          .spec-tile .dungeon-tile-title strong {
-            font-size: 0.95rem;
-          }
+.spec-tile .dungeon-tile-title strong {
+  font-size: 0.95rem;
+}
 
-          .spec-tile .dungeon-tile-title small {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.85);
-          }
+.spec-tile .dungeon-tile-title small {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.85);
+}
 
-          /* responsive */
-          @media (max-width: 768px) {
-            .tier-left {
-              width: 100%;
-              min-width: 0;
-              flex-direction: row;
-              gap: 12px;
-              align-items: center;
-              padding-right: 0;
-            }
+@media (max-width: 768px) {
+  .tier-left {
+    width: 100%;
+    min-width: 0;
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
+    padding-right: 0;
+  }
 
-            .tier-badge-large {
-              width: 64px;
-              height: 64px;
-              font-size: 22px;
-              border-radius: 10px;
-            }
+  .tier-badge-large {
+    width: 64px;
+    height: 64px;
+    font-size: 22px;
+    border-radius: 10px;
+  }
 
-            .dungeon-tile {
-              height: 96px;
-            }
+  .dungeon-tile {
+    height: 96px;
+  }
 
-            .dungeon-tile-title {
-              padding-left: 56px;
-            }
+  .dungeon-tile-title {
+    padding-left: 56px;
+  }
 
-            .spec-tile {
-              height: 72px;
-              padding-left: 56px;
-            }
+  .spec-tile {
+    height: 72px;
+    padding-left: 56px;
+  }
 
-            .spec-tile .dungeon-tile-icon {
-              width: 36px;
-              height: 36px;
-              bottom: 10px;
-              left: 8px;
-            }
-          }
+  .spec-tile .dungeon-tile-icon {
+    width: 36px;
+    height: 36px;
+    bottom: 10px;
+    left: 8px;
+  }
+}

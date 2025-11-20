@@ -1,7 +1,13 @@
 import csv
 import json
 import os
-from aggregateData import get_access_token, fetch_json, API_BASE, NAMESPACE_DYNAMIC, LOCALE
+from aggregateData import (
+    get_access_token,
+    fetch_json,
+    API_BASE,
+    NAMESPACE_DYNAMIC,
+    LOCALE,
+)
 
 # Paths
 INPUT_CSV = "data/static/specs.csv"
@@ -23,6 +29,7 @@ CSV_FIELD_NAMES = [
 
 CLIENT_ID = os.environ["BLIZ_CLIENT_ID"]
 CLIENT_SECRET = os.environ["BLIZ_CLIENT_SECRET"]
+
 
 def get_primary_stat(token: str, specialization_id: int) -> int:
     region = "us"
@@ -59,7 +66,9 @@ def main():
                 "classID": class_id,
                 "role": row.get("Role", "").strip(),
                 "SpellIconFileId": row.get("SpellIconFileID", "").strip(),
-                "primary_stat": get_primary_stat(get_access_token(CLIENT_ID, CLIENT_SECRET), id_value)
+                "primary_stat": get_primary_stat(
+                    get_access_token(CLIENT_ID, CLIENT_SECRET), id_value
+                ),
             }
 
     # Write JSON file

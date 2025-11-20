@@ -13,46 +13,36 @@ from generateSpecPages import (
     upgrade_info,
     load_json,
 )
+
 TEMPLATE_PATH = "templates"
 LEGAL_PAGES = {
     "privacy": {
         "template": "privacy.html",
         "output": os.path.join("pages", "privacy.html"),
-        "breadcrumbs": [
-            {"title": "Pages", "href": "/Pages"},
-            {"title": "Privacy"}
-        ]
+        "breadcrumbs": [{"title": "Pages", "href": "/Pages"}, {"title": "Privacy"}],
     },
     "impressum": {
         "template": "impressum.html",
         "output": os.path.join("pages", "impressum.html"),
-        "breadcrumbs": [
-            {"title": "Pages", "href": "/Pages"},
-            {"title": "Impressum"}
-        ]
+        "breadcrumbs": [{"title": "Pages", "href": "/Pages"}, {"title": "Impressum"}],
     },
     "404": {
         "template": "404Page.html",
         "output": "404.html",
-        "breadcrumbs": [
-            {"title": "Not Found"}
-        ]
+        "breadcrumbs": [{"title": "Not Found"}],
     },
     "AboutUs": {
         "template": "AboutUs.html",
         "output": os.path.join("pages", "about.html"),
-        "breadcrumbs": [
-            {"title": "About Us"}
-        ]
+        "breadcrumbs": [{"title": "About Us"}],
     },
     "Search": {
         "template": "search.html",
         "output": os.path.join("pages", "search.html"),
-        "breadcrumbs": [
-            {"title": "Search"}
-        ]
-    }
+        "breadcrumbs": [{"title": "Search"}],
+    },
 }
+
 
 def main():
     env = Environment(

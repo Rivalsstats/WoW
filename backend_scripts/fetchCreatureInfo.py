@@ -8,11 +8,18 @@ import shutil
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 import requests
-from databaseConnector import fetch_top_hunter_pets, init_connection_pool, get_connection
+from databaseConnector import (
+    fetch_top_hunter_pets,
+    init_connection_pool,
+    get_connection,
+)
 from aggregateData import get_access_token
+
 # Constants
 CREATURE_URL_TPL = "https://us.api.blizzard.com/data/wow/creature/{creature_id}"
-MEDIA_URL_TPL = "https://us.api.blizzard.com/data/wow/media/creature-display/{display_id}"
+MEDIA_URL_TPL = (
+    "https://us.api.blizzard.com/data/wow/media/creature-display/{display_id}"
+)
 NAMESPACE = "static-us"
 LOCALE = "en_US"
 
@@ -33,12 +40,24 @@ init_connection_pool(
     1,
 )
 
-def request_with_retries(url: str, headers: Dict[str, str], params: Optional[Dict[str, str]] = None, stream: bool = False) -> requests.Response:
+
+def request_with_retries(
+    url: str,
+    headers: Dict[str, str],
+    params: Optional[Dict[str, str]] = None,
+    stream: bool = False,
+) -> requests.Response:
     params = params or {}
     backoff = 1.0
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            resp = requests.get(url, headers=headers, params=params, timeout=REQUEST_TIMEOUT, stream=stream)
+            resp = requests.get(
+                url,
+                headers=headers,
+                params=params,
+                timeout=REQUEST_TIMEOUT,
+                stream=stream,
+            )
             if resp.status_code == 200:
                 return resp
             if resp.status_code == 404:
@@ -56,7 +75,6 @@ def request_with_retries(url: str, headers: Dict[str, str], params: Optional[Dic
             time.sleep(backoff)
             backoff *= RETRY_BACKOFF_BASE
     raise ScriptError(f"Failed to GET {url}")
-
 
 
 def safe_read_json(path: Path) -> Dict[str, Any]:
@@ -106,7 +124,9 @@ def process_creatures(rows: List[Dict[str, Any]]):
         print("No rows to process.")
         return
 
-    token = get_access_token(os.environ.get("BLIZ_CLIENT_ID"), os.environ.get("BLIZ_CLIENT_SECRET"))
+    token = get_access_token(
+        os.environ.get("BLIZ_CLIENT_ID"), os.environ.get("BLIZ_CLIENT_SECRET")
+    )
     headers = {"Authorization": f"Bearer {token}"}
 
     STATIC_CREATURES_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -128,7 +148,9 @@ def process_creatures(rows: List[Dict[str, Any]]):
 
         # fetch creature details
         creature_url = CREATURE_URL_TPL.format(creature_id=creature_id)
-        params = {"namespace": NAMESPACE,}
+        params = {
+            "namespace": NAMESPACE,
+        }
         try:
             resp = request_with_retries(creature_url, headers=headers, params=params)
         except Exception as e:
@@ -162,7 +184,9 @@ def process_creatures(rows: List[Dict[str, Any]]):
             media_url = MEDIA_URL_TPL.format(display_id=display_id)
             media_params = {"namespace": NAMESPACE, "locale": LOCALE}
             try:
-                media_resp = request_with_retries(media_url, headers=headers, params=media_params)
+                media_resp = request_with_retries(
+                    media_url, headers=headers, params=media_params
+                )
                 if media_resp.status_code == 200:
                     media_json = media_resp.json()
                     assets = media_json.get("assets") or []
@@ -182,10 +206,14 @@ def process_creatures(rows: List[Dict[str, Any]]):
                         dest = CREATURE_IMG_DIR / filename
                         if not dest.exists():
                             try:
-                                print(f"  Downloading image for creature {creature_id} -> {dest}")
+                                print(
+                                    f"  Downloading image for creature {creature_id} -> {dest}"
+                                )
                                 download_image(asset_url, dest)
                             except Exception as e:
-                                print(f"  Warning: failed to download image {asset_url}: {e}")
+                                print(
+                                    f"  Warning: failed to download image {asset_url}: {e}"
+                                )
                         image_path = str(dest.as_posix())
                 elif media_resp.status_code == 404:
                     print(f"  No media for display id {display_id}")

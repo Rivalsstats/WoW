@@ -41,7 +41,7 @@
   overflow-x: hidden;
   display: none;
   padding: 0.5rem;
-  transform-origin: right top; /* helps animations if you add them */
+  transform-origin: right top;
 }
 #site-search-results .list-group-item {
   border: 0;

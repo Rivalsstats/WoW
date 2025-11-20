@@ -120,7 +120,9 @@ def main():
             lookup = build_lookup_for_slot(crafting, slot_name)
             if out_file == "embellishments.json":
                 for bonus_id, item_id in lookup.items():
-                    databaseConnector.insert_embellishment(conn, cursor, bonus_id, item_id)
+                    databaseConnector.insert_embellishment(
+                        conn, cursor, bonus_id, item_id
+                    )
             elif out_file == "missives.json":
                 for bonus_id, item_id in lookup.items():
                     databaseConnector.insert_missive(conn, cursor, bonus_id, item_id)
@@ -129,7 +131,7 @@ def main():
             with open(out_path, "w", encoding="utf-8") as f:
                 json.dump(lookup, f, indent=2, sort_keys=True)
             print(f"Wrote {len(lookup)} mappings for “{slot_name}” → {out_path}")
-        databaseConnector.commit_changes(conn)    
+        databaseConnector.commit_changes(conn)
         bonuses = load_json(BONUSES_JSON)
         quality_map = build_bonus_quality_map(bonuses)
         bonus_map_path = os.path.join(OUT_DIR, "bonus_quality_map.json")

@@ -4,16 +4,15 @@ import time
 import requests
 import databaseConnector
 from contextlib import closing
-from aggregateData import get_current_season_id, get_access_token , fetch_json
+from aggregateData import get_current_season_id, get_access_token, fetch_json
 
 # config
 CLIENT_ID = os.environ["BLIZ_CLIENT_ID"]
 CLIENT_SECRET = os.environ["BLIZ_CLIENT_SECRET"]
 RAIDERIO_API_KEY = os.environ["RAIDERIO_API_KEY"]
-NAMESPACE = "dynamic-us"  
+NAMESPACE = "dynamic-us"
 API_BASE = "https://us.api.blizzard.com"
 ICON_DIR = "data/icons"
-
 
 
 databaseConnector.init_connection_pool(
@@ -56,7 +55,7 @@ slug_map = {}
 current_season = get_current_season_id(token)
 
 for season in seasons:
-    if season.get("blizzard_season_id",0) == current_season:
+    if season.get("blizzard_season_id", 0) == current_season:
         for d in season.get("dungeons", []):
             short_name_map[d["challenge_mode_id"]] = d["short_name"]
             slug_map[d["challenge_mode_id"]] = d["slug"]
@@ -120,7 +119,8 @@ for dungeon_id in short_name_map:
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()
         databaseConnector.insert_dungeon_data(
-            conn, cursor,
+            conn,
+            cursor,
             dungeon_id=dungeon_id,
             slug=slug_map.get(dungeon_id),
             name_en_us=data["name"]["en_US"],

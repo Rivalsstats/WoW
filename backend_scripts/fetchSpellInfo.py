@@ -18,8 +18,11 @@ from aggregateData import get_access_token
 
 # Config
 SPELL_URL_TPL = "https://us.api.blizzard.com/data/wow/spell/{spell_id}"
-NAMESPACE = "static-us"  # keep the namespace but omit locale so the API returns all locales
+NAMESPACE = (
+    "static-us"  # keep the namespace but omit locale so the API returns all locales
+)
 OUT_PATH = Path("data") / "static" / "spells.json"
+
 
 # Simple retry helper
 def get_with_retries(
@@ -42,6 +45,7 @@ def get_with_retries(
             time.sleep(backoff_base * attempt)
     return None
 
+
 def process_spell_ids(spell_ids: List[int]):
     if not spell_ids:
         print("No spell IDs provided.")
@@ -50,7 +54,9 @@ def process_spell_ids(spell_ids: List[int]):
     client_id = os.environ.get("BLIZ_CLIENT_ID")
     client_secret = os.environ.get("BLIZ_CLIENT_SECRET")
     if not client_id or not client_secret:
-        raise RuntimeError("BLIZ_CLIENT_ID and BLIZ_CLIENT_SECRET must be set in environment")
+        raise RuntimeError(
+            "BLIZ_CLIENT_ID and BLIZ_CLIENT_SECRET must be set in environment"
+        )
 
     token = get_access_token(client_id, client_secret)
     headers = {"Authorization": f"Bearer {token}"}
@@ -67,7 +73,9 @@ def process_spell_ids(spell_ids: List[int]):
 
         print(f"[{idx}/{total}] Fetching spell {spell_id} ...")
         url = SPELL_URL_TPL.format(spell_id=spell_id)
-        params = {"namespace": NAMESPACE}  # intentionally omit 'locale' to get all locales in response
+        params = {
+            "namespace": NAMESPACE
+        }  # intentionally omit 'locale' to get all locales in response
         resp = get_with_retries(url, headers=headers, params=params)
         if resp is None:
             print(f"  Failed to fetch spell {spell_id} due to network errors.")
@@ -114,6 +122,7 @@ def process_spell_ids(spell_ids: List[int]):
 
     print(f"Wrote {len(out)} spells to {OUT_PATH}")
 
+
 def main():
     # initialize DB pool (matches your other scripts)
     init_connection_pool(
@@ -134,6 +143,7 @@ def main():
         return
 
     process_spell_ids(ids)
+
 
 if __name__ == "__main__":
     main()

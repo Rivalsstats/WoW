@@ -11,16 +11,22 @@ from generateSpecPages import (
 # ------------------------------- CONFIG ------------------------------------
 # Edit these constants as needed. The script will scan each directory listed
 # in SITE_DIRS that actually exists in the repo/workspace.
-SITE_DIRS = [
-    "."
-]
+SITE_DIRS = ["."]
 
 # File name written into each found site dir and into repo root
 OUTPUT_FILENAME = "search_index.json"
 
 # Patterns / names to skip
-EXCLUDE_DIRS = {".git", ".github", ".vscode", "assets", "backend_scripts", 'templates', 'data'}
-SKIP_FILES = {"404.html", "impressum.html", 'privacy.html', 'about.html'}
+EXCLUDE_DIRS = {
+    ".git",
+    ".github",
+    ".vscode",
+    "assets",
+    "backend_scripts",
+    "templates",
+    "data",
+}
+SKIP_FILES = {"404.html", "impressum.html", "privacy.html", "about.html"}
 
 # Optional path -> tag overrides (prefix match)
 PATH_TAG_OVERRIDES = {
@@ -35,11 +41,15 @@ CLASS_LOOKUP_PATH = "data/classes.json"
 spec_lookup = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
 class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
 
-spec_id_lookup = {f"{spec_lookup[s]['name']}_{class_lookup[spec_lookup[s]['classID']]['name']}": s for s in spec_lookup}
+spec_id_lookup = {
+    f"{spec_lookup[s]['name']}_{class_lookup[spec_lookup[s]['classID']]['name']}": s
+    for s in spec_lookup
+}
 
 # Cap content length (keeps index size reasonable)
 MAX_CONTENT_CHARS = 60_000
 # ---------------------------------------------------------------------------
+
 
 def textify_html(html):
     soup = BeautifulSoup(html, "html.parser")
@@ -51,6 +61,7 @@ def textify_html(html):
         return text[:MAX_CONTENT_CHARS]
     return text
 
+
 def get_meta(soup, name):
     # Checks <meta name="..."> and <meta property="...">
     tag = soup.find("meta", attrs={"name": name})
@@ -61,15 +72,17 @@ def get_meta(soup, name):
         return tag["content"].strip()
     return None
 
+
 def path_to_url(relpath):
     rel = relpath.replace(os.sep, "/")
     # always strip html -> pretty URLs
     if rel.endswith(".html"):
-        url = "/" + rel[:-len(".html")]
+        url = "/" + rel[: -len(".html")]
     else:
         url = "/" + rel
     url = re.sub(r"/+", "/", url)
     return url
+
 
 def infer_tags_from_path(relpath):
     parts = relpath.replace(os.sep, "/").split("/")
@@ -86,25 +99,28 @@ def infer_tags_from_path(relpath):
             tags.update(more)
     return sorted(tags)
 
+
 def choose_icon(relpath):
     name = os.path.splitext(os.path.basename(relpath))[0]
     spec, cls = name.split("_") if "_" in name else (None, None)
     s_id = spec_id_lookup.get(f"{spec}_{cls}") if spec and cls else None
     if not s_id:
         return None
-    if spec_lookup[str(s_id)]['SpellIconFileId']:
+    if spec_lookup[str(s_id)]["SpellIconFileId"]:
         return f"/data/icons/{spec_lookup[str(s_id)]['SpellIconFileId']}.jpg"
     return None
+
 
 def make_excerpt(content, maxlen=220):
     if not content:
         return ""
-    m = re.search(r'([^.?!]{50,}?[.?!])\s', content)
+    m = re.search(r"([^.?!]{50,}?[.?!])\s", content)
     if m:
         excerpt = m.group(1).strip()
     else:
         excerpt = content.strip()[:maxlen].rsplit(" ", 1)[0]
     return excerpt
+
 
 def collect_html_files(site_roots):
     """
@@ -127,6 +143,7 @@ def collect_html_files(site_roots):
                 relpath = os.path.relpath(abs_path, root)
                 files.append((abs_path, relpath.replace(os.sep, "/"), root))
     return files
+
 
 def build_index_for_paths(collected):
     """
@@ -162,7 +179,9 @@ def build_index_for_paths(collected):
         # file modified time
         try:
             mtime = os.path.getmtime(abs_path)
-            last_mod = datetime.fromtimestamp(mtime, datetime.timezone.utc).strftime("%Y-%m-%d")
+            last_mod = datetime.fromtimestamp(mtime, datetime.timezone.utc).strftime(
+                "%Y-%m-%d"
+            )
         except Exception:
             last_mod = None
 
@@ -192,10 +211,11 @@ def build_index_for_paths(collected):
     items = [items_by_url[k] for k in sorted(items_by_url.keys())]
     return items
 
+
 def write_output(items, targets):
     data = items
     json_text = json.dumps(data, ensure_ascii=False, indent=2)
-    outpath = os.path.join('assets', 'json', OUTPUT_FILENAME)
+    outpath = os.path.join("assets", "json", OUTPUT_FILENAME)
     try:
         # ensure parent dir exists
         parent = os.path.dirname(outpath)
@@ -207,11 +227,14 @@ def write_output(items, targets):
     except Exception as e:
         print(f"Error writing to {outpath}: {e}")
 
+
 def main():
     # determine which site dirs actually exist
     found_dirs = [d for d in SITE_DIRS if os.path.isdir(d)]
     if not found_dirs:
-        print("No site directories found among SITE_DIRS. Falling back to current directory.")
+        print(
+            "No site directories found among SITE_DIRS. Falling back to current directory."
+        )
         found_dirs = [os.getcwd()]
 
     # collect files from all found dirs
@@ -223,6 +246,7 @@ def main():
     # targets: write into every found site root, and one copy to repo root (cwd)
     write_targets = list(found_dirs) + [os.path.join(os.getcwd(), OUTPUT_FILENAME)]
     write_output(items, write_targets)
+
 
 if __name__ == "__main__":
     main()

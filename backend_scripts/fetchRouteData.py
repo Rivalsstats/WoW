@@ -13,7 +13,7 @@ import aiohttp
 from aiohttp import ClientError, BasicAuth
 from aiolimiter import AsyncLimiter
 
-import databaseConnector 
+import databaseConnector
 
 # ---------------- Config ----------------
 API_URL = "https://raider.io/api/v1/mythic-plus/runs"
@@ -429,7 +429,7 @@ async def process_run_if_needed(session: aiohttp.ClientSession, run_id: int) -> 
     raider = await fetch_run_details(session, run_id, CURRENT_SEASON)
     if not raider:
         return False
-    
+
     ts = raider.get("timestamp")
     if not ts:
         print(
@@ -498,6 +498,7 @@ async def process_runs_concurrently(
     tasks = [process_single_with_semaphore(session, semaphore, rid) for rid in run_ids]
     results = await asyncio.gather(*tasks)
     return sum(1 for r in results if r)
+
 
 async def main():
     print(

@@ -13,12 +13,10 @@
     return;
   }
 
-  // default closed
   resultsMenu.setAttribute("data-open", "false");
   resultsMenu.classList.remove("show");
   resultsMenu.style.display = "none";
 
-  // page root where we search / highlight
   const PAGE_ROOT =
     document.querySelector("main .container-fluid") ||
     document.querySelector("main") ||
@@ -36,7 +34,6 @@
   const MAX_RESULTS = 8;
   const MIN_QUERY_LENGTH = 3;
 
-  // ----------------- Load Fuse index (if present) -----------------
   async function loadIndex() {
     try {
       const res = await fetch("/assets/json/search_index.json", {
@@ -66,10 +63,9 @@
   }
   loadIndex();
 
-  // ----------------- visibility helpers -----------------
   function showResultsMenu() {
     resultsMenu.setAttribute("data-open", "true");
-    resultsMenu.classList.add("show"); // useful if any bootstrap styles rely on it
+    resultsMenu.classList.add("show");
     resultsMenu.style.display = "block";
     if (typeof window.__siteSearchPositionResults === "function")
       window.__siteSearchPositionResults();
@@ -80,21 +76,18 @@
     resultsMenu.style.display = "none";
   }
 
-  // --------------- dropdown positioning (position-only) ----------------
   (function setupResultsPositioningAnchorRight() {
     if (!resultsMenu || !input) return;
 
-    // ensure panel is appended to body so it's not clipped
     if (resultsMenu.parentElement !== document.body)
       document.body.appendChild(resultsMenu);
 
-    const DROPDOWN_MAX_W = 520; // px
-    const PAGE_MARGIN = 12; // px margin from screen edges and sidebars
+    const DROPDOWN_MAX_W = 520;
+    const PAGE_MARGIN = 12;
 
     function positionResultsMenuAnchorRight() {
       const rect = input.getBoundingClientRect();
 
-      // compute right-side limit (avoid right sidebar if present)
       const rightSidebar = document.getElementById("sidenav-right");
       let rightLimit = window.innerWidth - PAGE_MARGIN;
       if (rightSidebar) {
@@ -105,17 +98,14 @@
         );
       }
 
-      // available width to the left of input.right
       const maxAvailable = rect.right - PAGE_MARGIN;
       const availBeforeSidebar = Math.min(
         maxAvailable,
         rightLimit - PAGE_MARGIN
       );
 
-      // pick width (bounded)
       const width = Math.min(DROPDOWN_MAX_W, Math.max(160, availBeforeSidebar));
 
-      // right-align: left = input.right - width
       let left = rect.right - width;
       if (left < PAGE_MARGIN) left = PAGE_MARGIN;
       if (left + width > rightLimit)
@@ -123,7 +113,6 @@
 
       const top = rect.bottom + window.scrollY + 6;
 
-      // Only update geometry (don't change visibility here)
       Object.assign(resultsMenu.style, {
         position: "absolute",
         left: `${Math.round(left)}px`,
@@ -132,7 +121,6 @@
       });
     }
 
-    // throttle repositioning via rAF
     let scheduled = false;
     function schedule() {
       if (scheduled) return;
@@ -148,11 +136,9 @@
     window.addEventListener("orientationchange", schedule);
     window.addEventListener("scroll", schedule, { passive: true });
 
-    // initial position
     positionResultsMenuAnchorRight();
   })();
 
-  // ----------------- Helpers -----------------
   function escapeHtml(s) {
     if (!s) return "";
     return s.replace(
@@ -168,7 +154,6 @@
     );
   }
 
-  // clear any in-page highlights we created
   function clearInPageHighlights() {
     try {
       const spans = PAGE_ROOT.querySelectorAll("span.search-highlight");
@@ -176,14 +161,12 @@
         const txt = document.createTextNode(sp.textContent);
         sp.parentNode.replaceChild(txt, sp);
       });
-      // normalize to merge adjacent text nodes
       PAGE_ROOT.normalize();
     } catch (e) {
       console.warn("[site-search] clearInPageHighlights error", e);
     }
   }
 
-  // find a match across text nodes; returns a Range (or null)
   function findFirstMatchRange(root, query) {
     if (!query || query.length < MIN_QUERY_LENGTH) return null;
     const q = query.toLowerCase();
@@ -288,7 +271,6 @@
     return null;
   }
 
-  // wrap a Range in a span and scroll it into view
   function highlightRange(range) {
     if (!range) return null;
     try {
@@ -308,7 +290,6 @@
     }
   }
 
-  // ----------------- render dropdown results (no result-highlighting) -----------------
   function renderResults(results) {
     resultsInner.innerHTML = "";
     focusedIndex = -1;
@@ -352,11 +333,9 @@
       resultsInner.appendChild(idx);
     }
 
-    // show the menu in a single, controlled place
     showResultsMenu();
   }
 
-  // ----------------- main search function -----------------
   function doSearch(q) {
     q = (q || "").trim();
     if (allResultsLink)
@@ -370,14 +349,12 @@
     }
     clearBtn.classList.remove("d-none");
 
-    // 1) in-page search (find first real match)
     clearInPageHighlights();
     const pageRange = findFirstMatchRange(PAGE_ROOT, q);
     if (pageRange) {
       highlightRange(pageRange);
     }
 
-    // 2) index search fallback / augmentation
     if (indexLoaded && fuse) {
       const fuseRes = fuse.search(q, { limit: MAX_RESULTS });
       const mapped = fuseRes.map((r) => {
@@ -405,7 +382,6 @@
       const combined = mapped.slice(0, MAX_RESULTS);
       renderResults(combined);
     } else {
-      // no index: show a "page only" result if we found something
       if (pageRange) {
         renderResults([
           {
@@ -420,7 +396,6 @@
     }
   }
 
-  // ----------------- events -----------------
   input.addEventListener("input", (e) => {
     const q = e.target.value;
     clearTimeout(debounceTimer);
@@ -477,7 +452,6 @@
     }
   });
 
-  // expose for debugging
   window.__siteSearchPositionResults && window.__siteSearchPositionResults();
   window.__siteSearch_doSearch = doSearch;
 })();
