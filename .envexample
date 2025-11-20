@@ -1,0 +1,21 @@
+# create a blizzard client from https://community.developer.battle.net/access/clients
+BLIZ_CLIENT_ID_EU=
+BLIZ_CLIENT_ID_KR=
+BLIZ_CLIENT_ID_TW=
+BLIZ_CLIENT_ID_US=
+BLIZ_CLIENT_SECRET_EU=
+BLIZ_CLIENT_SECRET_KR=
+BLIZ_CLIENT_SECRET_TW=
+BLIZ_CLIENT_SECRET_US=
+# create a raider.io api key from https://raider.io/settings/apps
+RAIDERIO_API_KEY=
+# create a discord webhook for notifications
+WEBHOOK_CHANNEL=
+WEBHOOK_TOKEN=
+WEBHOOK_URL=
+# database connection settings
+DATABASE_HOST=
+DATABASE_USER=
+DATABASE_PASSWORD=
+DATABASE_NAME=
+DATABASE_PORT=

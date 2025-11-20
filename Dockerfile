@@ -5,8 +5,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     APP_DIR=/app
 
 RUN apt-get update \
- && apt-get install -y --no-install-recommends curl ca-certificates \
- && rm -rf /var/lib/apt/lists/*
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR ${APP_DIR}
 
