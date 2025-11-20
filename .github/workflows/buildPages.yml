@@ -169,6 +169,7 @@ jobs:
             404.html
             index.html
             ads.txt
+            sitemap.xml
 
       
       - name: Upload static files as artifact
