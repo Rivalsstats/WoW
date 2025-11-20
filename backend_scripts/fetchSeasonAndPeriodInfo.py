@@ -122,6 +122,10 @@ def main():
         if season.get("blizzard_season_id") == highest_season_id:
             CURRENT_SEASON = season
             break
+    if not CURRENT_SEASON:
+        raise ValueError(
+            f"Could not find RaiderIO season matching Blizzard season ID {highest_season_id}. Is the expansion correct?"
+        )
     # persist season info
     with open(SEASON_INFO_JSON, "w", encoding="utf-8") as f:
         json.dump(CURRENT_SEASON, f, indent=2)
