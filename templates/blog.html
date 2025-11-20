@@ -17,7 +17,7 @@
 
 <head>
   <title>
-    WoW Stats - MythiStone
+    WoW Stats | MythiStone
   </title>
   {% include "header_imports.html" %}
 </head>
@@ -36,12 +36,12 @@
         {% for post in posts %}
         <div class="list-group-item flex-column align-items-start">
           <a href="https://linktr.ee/mythistone" target="_blank">
-          <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">Social Media Post</h5>
-            <small class="timestamp" data-bs-toggle="tooltip" data-bs-placement="top"
-              data-timestamp={{posts[post].timestamp|int/1000}}></small>
-          </div>
-          <p class="mb-1">{{ posts[post].post }}</p>
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1">Social Media Post</h5>
+              <small class="timestamp" data-bs-toggle="tooltip" data-bs-placement="top"
+                data-timestamp={{posts[post].timestamp|int/1000}}></small>
+            </div>
+            <p class="mb-1">{{ posts[post].post }}</p>
           </a>
         </div>
         {% endfor %}
