@@ -220,28 +220,55 @@ jobs:
           link-preview-url: "https://mythistone.github.io/pages/dashboard"
           tags: "WoW,MythicPlus,WorldofWarcraft"
 
-  # discord-post:
-  #   needs: setup
-  #   runs-on: ubuntu-latest
-  #   steps:
+  discord-post:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
 
-  #     - name: Download social artifacts
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: social-image
-  #         path: uploaded
+      - name: Download social artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: social-post
+          path: uploaded
 
-  #     - name: Debug workspace contents
-  #       run: |
-  #         echo "Current working directory: $PWD"
-  #         echo "── Listing everything ──"
-  #         ls -R .
-  #         echo "── Listing ${{ env.OUTPUT_DIR }} ──"
-  #         ls -R "${{ env.OUTPUT_DIR }}" || echo "  (no such dir)"
+      - name: Read post.json
+        id: read_post
+        run: |
+          set -e
+          post_file="uploaded/post.json"
+          if [ ! -f "$post_file" ]; then
+            echo "post.json not found"
+            exit 1
+          fi
+          social_text=$(jq -r .post "$post_file")
+          image_path=$(jq -r .out_path "$post_file")
+          filename=$(basename "$image_path")
+          echo ">>> debug: social_text=<$social_text>"
+          echo ">>> debug: filename=<$filename>"
 
-  #     - name: Discord Webhook Action
-  #       uses: tsickert/discord-webhook@v7.0.0
-  #       with:
-  #         webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
-  #         content: ${{ needs.setup.outputs.social_text }}
-  #         filename: uploaded/${{ needs.setup.outputs.image_filename }}
+          # export for later steps in this job
+          echo "SOCIAL_TEXT<<EOF" >> $GITHUB_OUTPUT
+          printf '%s\n' "$social_text" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "FILENAME=${filename}" >> $GITHUB_ENV
+          echo "POST_JSON_PATH=$post_file" >> $GITHUB_ENV
+
+      - name: Debug resolved social text
+        run: |
+          echo "MSG:'${{ steps.read_post.outputs.SOCIAL_TEXT }}'"
+
+      - name: Debug workspace contents
+        run: |
+          echo "Current working directory: $PWD"
+          echo "── Listing everything ──"
+          ls -R .
+          echo "── Listing ${{ env.OUTPUT_DIR }} ──"
+          ls -R "${{ env.OUTPUT_DIR }}" || echo "  (no such dir)"
+
+      - name: Discord Webhook Action
+        uses: tsickert/discord-webhook@v7.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
+          content: ${{ steps.read_post.outputs.SOCIAL_TEXT }}
+          filename: uploaded/${{ env.FILENAME }}
