@@ -67,10 +67,7 @@ jobs:
           # ────────────────────────────────────────────────────────────────
     
           # multiline-safe export for social_text
-          echo "social_text<<EOF" >> $GITHUB_OUTPUT
-          printf '%s\n' "$social_text" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
+          echo "social_text=$social_text" >> $GITHUB_OUTPUT
       
           echo "image_path=$image_path" >> $GITHUB_OUTPUT
           echo "filename=$filename" >> $GITHUB_OUTPUT
@@ -173,28 +170,28 @@ jobs:
           link-preview-url: "https://mythistone.github.io/pages/dashboard"
           tags: "WoW,MythicPlus,WorldofWarcraft"
 
-  discord-post:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
+  # discord-post:
+  #   needs: setup
+  #   runs-on: ubuntu-latest
+  #   steps:
 
-      - name: Download social artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: social-image
-          path: uploaded
+  #     - name: Download social artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: social-image
+  #         path: uploaded
 
-      - name: Debug workspace contents
-        run: |
-          echo "Current working directory: $PWD"
-          echo "── Listing everything ──"
-          ls -R .
-          echo "── Listing ${{ env.OUTPUT_DIR }} ──"
-          ls -R "${{ env.OUTPUT_DIR }}" || echo "  (no such dir)"
+  #     - name: Debug workspace contents
+  #       run: |
+  #         echo "Current working directory: $PWD"
+  #         echo "── Listing everything ──"
+  #         ls -R .
+  #         echo "── Listing ${{ env.OUTPUT_DIR }} ──"
+  #         ls -R "${{ env.OUTPUT_DIR }}" || echo "  (no such dir)"
 
-      - name: Discord Webhook Action
-        uses: tsickert/discord-webhook@v7.0.0
-        with:
-          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
-          content: ${{ needs.setup.outputs.social_text }}
-          filename: uploaded/${{ needs.setup.outputs.image_filename }}
+  #     - name: Discord Webhook Action
+  #       uses: tsickert/discord-webhook@v7.0.0
+  #       with:
+  #         webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
+  #         content: ${{ needs.setup.outputs.social_text }}
+  #         filename: uploaded/${{ needs.setup.outputs.image_filename }}
