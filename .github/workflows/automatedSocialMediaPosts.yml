@@ -67,10 +67,9 @@ jobs:
           # ────────────────────────────────────────────────────────────────
     
           # multiline-safe export for social_text
-          DELIM="SOCIAL_TEXT_$(date +%s%N)"
-          echo "social_text<<${DELIM}" >> $GITHUB_OUTPUT
+          echo "social_text<<EOF" >> $GITHUB_OUTPUT
           printf '%s\n' "$social_text" >> $GITHUB_OUTPUT
-          echo "${DELIM}" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       
           echo "image_path=$image_path" >> $GITHUB_OUTPUT
