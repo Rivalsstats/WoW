@@ -25198,5 +25198,51 @@
     },
     "family_id": 11,
     "image": "data/creature_img/44226.jpg"
+  },
+  "47387": {
+    "name": {
+      "en_US": "Harakiss the Infestor",
+      "es_MX": "Harakiss el Infeccioso",
+      "pt_BR": "Harakiss, o Infestador",
+      "de_DE": "Harakiss der Verseucher",
+      "en_GB": "Harakiss the Infestor",
+      "es_ES": "Harakiss el Infeccioso",
+      "fr_FR": "Harakiss l'Infestateur",
+      "it_IT": "Harakiss l'Infestante",
+      "ru_RU": "Харакисс Заразитель",
+      "ko_KR": "감염자 하라키스",
+      "zh_TW": "『騷擾者』哈拉吉斯",
+      "zh_CN": "感染者哈拉其斯"
+    },
+    "type": {
+      "en_US": "Beast",
+      "es_MX": "Bestia",
+      "pt_BR": "Fera",
+      "de_DE": "Wildtier",
+      "en_GB": "Beast",
+      "es_ES": "Bestia",
+      "fr_FR": "Bête",
+      "it_IT": "Bestia",
+      "ru_RU": "Животное",
+      "ko_KR": "야수",
+      "zh_TW": "野獸",
+      "zh_CN": "野兽"
+    },
+    "family": {
+      "en_US": "Aqiri",
+      "es_MX": "Aqiri",
+      "pt_BR": "Aqir",
+      "de_DE": "Aqir",
+      "en_GB": "Aqiri",
+      "es_ES": "Aqir",
+      "fr_FR": "Aqir",
+      "it_IT": "Aqiri",
+      "ru_RU": "Акир",
+      "ko_KR": "아퀴르",
+      "zh_TW": "亞基蟲",
+      "zh_CN": "亚基"
+    },
+    "family_id": 41,
+    "image": "data/creature_img/47387.jpg"
   }
 }
