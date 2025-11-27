@@ -130,7 +130,7 @@ Produce one single social-media post (max 210 characters) that:
 - uses no em-dashes (—); use simple hyphens (-) if needed
 - is funny and engaging, includes a dad joke or pun
 - invites people to click or reply
-- includes the hashtags #WoW, #MythicPlus, #WorldofWarcraft
+- includes relevant hashtags like #WoW, #WorldofWarcraft
 - stays under 210 characters total which includes the text and any hashtags
 - the character limit is strict so double check it and skip part of the information if needed to fit
 
