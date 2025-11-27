@@ -585,7 +585,7 @@ def fetch_hunter_pets(
 
 
 def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=None):
-    from generateSocialsPost import create_spec_popularity_vs_performance_img # local import so we don't get circular dependency issues
+    from generateSocialsPost import createSpecOverviewImg # local import so we don't get circular dependency issues
     # Prepare Jinja2 environment
     env = Environment(
         loader=FileSystemLoader(os.path.dirname(template_path)),
@@ -940,7 +940,9 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 f.write(output_html)
             print(f"[{datetime.now(timezone.utc).isoformat()}] Generated {out_path}")
             print(f"[{datetime.now(timezone.utc).isoformat()}] creating overview image...")
-            createSpecOverviewImg('tmp',os.path.join('assets', 'img', 'previews', f"{spec_id}.png"), spec_id, current_season_id)
+            preview_path = os.path.join("assets", "img", "previews",  f"{spec_id}.png")
+            os.makedirs(os.path.dirname(preview_path), exist_ok=True)
+            createSpecOverviewImg('tmp',preview_path, spec_id, current_season_id)
             print(f"[{datetime.now(timezone.utc).isoformat()}] Finished {spec_id}.")
             if debug:
                 raise ValueError("Debug mode: stopping after first spec")

@@ -592,7 +592,9 @@ def main(template_path, output_dir):
         f.write(output_html)
     print(f"Generated {out_path}")
     print("Generating dungeon popularity vs ease image...")
-    create_dungeon_popularity_vs_ease_img(os.path.join("assets", "img", "previews", "dungeon_popularity_across_keylevels.png"), current_season_id)
+    preview_path = os.path.join("assets", "img", "previews", "dungeon_popularity_across_keylevels.png")
+    os.makedirs(os.path.dirname(preview_path), exist_ok=True)
+    create_dungeon_popularity_vs_ease_img(preview_path, current_season_id)
     print("Done.")
 
 

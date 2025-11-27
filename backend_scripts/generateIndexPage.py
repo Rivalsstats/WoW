@@ -779,7 +779,9 @@ def main(template_path, output_dir):
         f.write(output_html)
     print(f"Generated {out_path}")
     print("Generating spec popularity vs performance image...")
-    create_spec_popularity_vs_performance_img(os.path.join("assets", "img", "previews", "spec_popularity_vs_performance.png"), current_season)
+    preview_path = os.path.join("assets", "img", "previews", "spec_popularity_vs_performance.png")
+    os.makedirs(os.path.dirname(preview_path), exist_ok=True)
+    create_spec_popularity_vs_performance_img(preview_path, current_season)
     print("Done.")
 
 
