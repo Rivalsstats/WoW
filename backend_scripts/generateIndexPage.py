@@ -702,6 +702,7 @@ def build_spec_tiers(spec_lookup, class_lookup, spec_rows, weight_base=1.6, k=6)
 
 
 def main(template_path, output_dir):
+    from generateSocialsPost import create_spec_popularity_vs_performance_img # local import so we don't get circular dependency issues
     print("Generating index page...")
     env = Environment(
         loader=FileSystemLoader(os.path.dirname(template_path)),
@@ -777,6 +778,9 @@ def main(template_path, output_dir):
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(output_html)
     print(f"Generated {out_path}")
+    print("Generating spec popularity vs performance image...")
+    create_spec_popularity_vs_performance_img(os.path.join("assets", "img", "previews", "spec_popularity_vs_performance.png"), current_season)
+    print("Done.")
 
 
 if __name__ == "__main__":

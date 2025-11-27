@@ -585,6 +585,7 @@ def fetch_hunter_pets(
 
 
 def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=None):
+    from generateSocialsPost import create_spec_popularity_vs_performance_img # local import so we don't get circular dependency issues
     # Prepare Jinja2 environment
     env = Environment(
         loader=FileSystemLoader(os.path.dirname(template_path)),
@@ -856,90 +857,93 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     non_tameable_creatures,
                 )
 
-                print(f"[{datetime.now(timezone.utc).isoformat()}] generating page...")
-                output_html = template.render(
-                    generated_at=datetime.now(timezone.utc).timestamp(),
-                    spec_id=spec_id,
-                    spec=spec_data,
-                    class_info=class_data,
-                    data_count=data_count,
-                    active_page="spec",
-                    summary_data={"count": spec_runs, "upgrade_counts": upgrade_counts},
-                    total_enchant_counts=total_enchant_counts,
-                    total_socket_count=total_socket_count,
-                    total_embellishment_count=total_embellishment_count,
-                    total_missive_count=total_missive_count,
-                    total_season_runs=total_runs,
-                    left_slots=left_slots,
-                    right_slots=right_slots,
-                    weapon_slots=weapon_slots,
-                    trinket_slots=trinket_slots,
-                    enchant_slots=enchant_slots,
-                    hero_trees=hero_trees,
-                    loadout_code=escape_raidbot_code(
-                        loadouts.get(popular_hero_tree, {}).get("loadout")
-                    ),
-                    enchant_lookup=enchant_lookup,
-                    embellishment_lookup=embellishment_lookup,
-                    missive_lookup=missive_lookup,
-                    socket_lookup=socket_lookup,
-                    spec_lookup=spec_lookup,
-                    item_lookup=item_lookup,
-                    notifications=notifications,
-                    reagent_lookup=reagent_lookup,
-                    dungeon_lookup=dungeon_lookup,
-                    dungeon_lookup_slug=dungeon_lookup_slug,
-                    role=ROLE_FOLDERS[spec_data.get("role", 2)],
-                    talent_lookup=talent_lookup,
-                    spec_nav=spec_nav,
-                    current_spec=f"{spec_data['name']} {class_data.get('name')}",
-                    sockets=sockets,
-                    embellishments=embellishments,
-                    missives=missives,
-                    formatted_price=formatted_price,
-                    stat_names=STAT_NAMES,
-                    trending=spec_runs / total_runs if total_runs > 0 else 0,
-                    highest_run=highest_run,
-                    talent_difs={
-                        "Class": class_talents_difs,
-                        "Hero": hero_talents_difs,
-                        "Spec": spec_talents_difs,
+            print(f"[{datetime.now(timezone.utc).isoformat()}] generating page...")
+            output_html = template.render(
+                generated_at=datetime.now(timezone.utc).timestamp(),
+                spec_id=spec_id,
+                spec=spec_data,
+                class_info=class_data,
+                data_count=data_count,
+                active_page="spec",
+                summary_data={"count": spec_runs, "upgrade_counts": upgrade_counts},
+                total_enchant_counts=total_enchant_counts,
+                total_socket_count=total_socket_count,
+                total_embellishment_count=total_embellishment_count,
+                total_missive_count=total_missive_count,
+                total_season_runs=total_runs,
+                left_slots=left_slots,
+                right_slots=right_slots,
+                weapon_slots=weapon_slots,
+                trinket_slots=trinket_slots,
+                enchant_slots=enchant_slots,
+                hero_trees=hero_trees,
+                loadout_code=escape_raidbot_code(
+                    loadouts.get(popular_hero_tree, {}).get("loadout")
+                ),
+                enchant_lookup=enchant_lookup,
+                embellishment_lookup=embellishment_lookup,
+                missive_lookup=missive_lookup,
+                socket_lookup=socket_lookup,
+                spec_lookup=spec_lookup,
+                item_lookup=item_lookup,
+                notifications=notifications,
+                reagent_lookup=reagent_lookup,
+                dungeon_lookup=dungeon_lookup,
+                dungeon_lookup_slug=dungeon_lookup_slug,
+                role=ROLE_FOLDERS[spec_data.get("role", 2)],
+                talent_lookup=talent_lookup,
+                spec_nav=spec_nav,
+                current_spec=f"{spec_data['name']} {class_data.get('name')}",
+                sockets=sockets,
+                embellishments=embellishments,
+                missives=missives,
+                formatted_price=formatted_price,
+                stat_names=STAT_NAMES,
+                trending=spec_runs / total_runs if total_runs > 0 else 0,
+                highest_run=highest_run,
+                talent_difs={
+                    "Class": class_talents_difs,
+                    "Hero": hero_talents_difs,
+                    "Spec": spec_talents_difs,
+                },
+                hero_tree_difs=hero_tree_difs,
+                hero_tree_count=hero_tree_count,
+                top_routes=top_routes,
+                season_info=season_info,
+                stats=stat_priority,
+                tertiary_priority=tertiary_priority,
+                health_priority=health_priority,
+                hunter_pets=hunter_pets,
+                creature_lookup=creature_lookup,
+                spec_runs=spec_runs,
+                breadcrumbs=[
+                    {"title": "Classes"},
+                    {
+                        "title": ROLE_FOLDERS[spec_data.get("role", 2)],
+                        "href": f"/pages/search?q={ROLE_FOLDERS[spec_data.get('role', 2)]}",
                     },
-                    hero_tree_difs=hero_tree_difs,
-                    hero_tree_count=hero_tree_count,
-                    top_routes=top_routes,
-                    season_info=season_info,
-                    stats=stat_priority,
-                    tertiary_priority=tertiary_priority,
-                    health_priority=health_priority,
-                    hunter_pets=hunter_pets,
-                    creature_lookup=creature_lookup,
-                    spec_runs=spec_runs,
-                    breadcrumbs=[
-                        {"title": "Classes"},
-                        {
-                            "title": ROLE_FOLDERS[spec_data.get("role", 2)],
-                            "href": f"/pages/search?q={ROLE_FOLDERS[spec_data.get('role', 2)]}",
-                        },
-                        {
-                            "title": f"{spec_data.get('name')} {class_data.get('name')}",
-                            "href": f"/Classes/{ROLE_FOLDERS[spec_data.get('role', 2)]}/{spec_data.get('name')}_{class_data.get('name')}",
-                        },
-                    ],
-                )
-                print(f"[{datetime.now(timezone.utc).isoformat()}] saving page...")
-                # Write output
-                out_path = os.path.join(
-                    output_dir,
-                    ROLE_FOLDERS[spec_data.get("role", 2)],
-                    f"{spec_data.get('name')}_{class_data.get('name')}.html",
-                )
-                os.makedirs(os.path.dirname(out_path), exist_ok=True)
-                with open(out_path, "w", encoding="utf-8") as f:
-                    f.write(output_html)
-                print(f"Generated {out_path}")
-                if debug:
-                    raise ValueError("Debug mode: stopping after first spec")
+                    {
+                        "title": f"{spec_data.get('name')} {class_data.get('name')}",
+                        "href": f"/Classes/{ROLE_FOLDERS[spec_data.get('role', 2)]}/{spec_data.get('name')}_{class_data.get('name')}",
+                    },
+                ],
+            )
+            print(f"[{datetime.now(timezone.utc).isoformat()}] saving page...")
+            # Write output
+            out_path = os.path.join(
+                output_dir,
+                ROLE_FOLDERS[spec_data.get("role", 2)],
+                f"{spec_data.get('name')}_{class_data.get('name')}.html",
+            )
+            os.makedirs(os.path.dirname(out_path), exist_ok=True)
+            with open(out_path, "w", encoding="utf-8") as f:
+                f.write(output_html)
+            print(f"[{datetime.now(timezone.utc).isoformat()}] Generated {out_path}")
+            print(f"[{datetime.now(timezone.utc).isoformat()}] creating overview image...")
+            createSpecOverviewImg('tmp',os.path.join('assets', 'img', 'previews', f"{spec_id}.png"), spec_id, current_season_id)
+            print(f"[{datetime.now(timezone.utc).isoformat()}] Finished {spec_id}.")
+            if debug:
+                raise ValueError("Debug mode: stopping after first spec")
         except Exception as e:
             print(f"Error processing spec {spec_id}: {e}")
 

@@ -467,6 +467,8 @@ def assemble_spec_level_datasets(
 
 
 def main(template_path, output_dir):
+
+    from generateSocialsPost import create_dungeon_popularity_vs_ease_img
     print("Generating Dashboard page...")
     env = Environment(
         loader=FileSystemLoader(os.path.dirname(template_path)),
@@ -589,6 +591,9 @@ def main(template_path, output_dir):
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(output_html)
     print(f"Generated {out_path}")
+    print("Generating dungeon popularity vs ease image...")
+    create_dungeon_popularity_vs_ease_img(os.path.join("assets", "img", "previews", "dungeon_popularity_across_keylevels.png"), current_season_id)
+    print("Done.")
 
 
 if __name__ == "__main__":

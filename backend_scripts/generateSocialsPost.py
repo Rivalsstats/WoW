@@ -27,7 +27,6 @@ from generateSpecPages import (
     load_json,
     humanize_number,
     fetch_stat_info,
-    MULTI_SLOT_GROUPS,
 )
 
 from generateDashboardPage import (
@@ -810,18 +809,27 @@ def create_spec_popularity_by_level(
     post = generate_post_text(client, post_data, url)
     return {"out_path": out_path, "post": post}
 
-
 def create_dungeon_popularity_vs_ease(output_dir, donesocials, api_key, url, season):
+    week = datetime.now().strftime("%Y-%m")
+    out_path = os.path.join(output_dir, f"dungeon_popularity_across_keylevels_{week}.png")
+    if out_path in donesocials:
+        return None
+    
+    post_data = create_dungeon_popularity_vs_ease_img(
+        out_path, season)
+    if api_key is not None:
+        print(post_data)
+        client = get_openai_client(api_key)
+        post = generate_post_text(client, post_data, url)
+        return {"out_path": out_path, "post": post}
+    return {"out_path": out_path, "post": ""}
+
+
+def create_dungeon_popularity_vs_ease_img(out_path, season):
     """
     Creates and saves a stacked horizontal bar chart showing, for each Mythic+ level,
     the share of total runs completed in each dungeon (i.e. “ease”).
     """
-    week = datetime.now().strftime("%Y-%m")
-    out_path = os.path.join(
-        output_dir, f"dungeon_popularity_across_keylevels_{week}.png"
-    )
-    if out_path in donesocials:
-        return None
     # --- prepare data ---
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()
@@ -882,17 +890,15 @@ def create_dungeon_popularity_vs_ease(output_dir, donesocials, api_key, url, sea
     plt.savefig(out_path, facecolor=fig.get_facecolor())
     plt.close(fig)
 
-    # assemble OpenAI post
-    client = get_openai_client(api_key)
+    # assemble OpenAI post data
     post_data = {
         "chart_type": "Dungeon Popularity across Keylevels",
         "levels_covered": len(key_levels),
         "top_dungeon": dungeon_names[0],
         "bottom_dungeon": dungeon_names[-1],
     }
-    post = generate_post_text(client, post_data, url)
 
-    return {"out_path": out_path, "post": post}
+    return post_data
 
 
 def parse_color(s):
@@ -900,19 +906,29 @@ def parse_color(s):
     r, g, b, a = map(float, vals)
     return (r / 255, g / 255, b / 255, a)
 
+def create_spec_popularity_vs_performance(output_dir, donesocials, api_key, url, season):
+    week = datetime.now().strftime("%Y-%m")
+    out_path = os.path.join(output_dir, f"spec_popularity_vs_performance_{week}.png")
+    if out_path in donesocials:
+        return None
+    
+    post_data = create_spec_popularity_vs_performance_img(
+        out_path, season)
+    if api_key is not None:
+        print(post_data)
+        client = get_openai_client(api_key)
+        post = generate_post_text(client, post_data, url)
+        return {"out_path": out_path, "post": post}
+    return {"out_path": out_path, "post": ""}
 
-def create_spec_popularity_vs_performance(
-    output_dir, donesocials, api_key, url, season
+def create_spec_popularity_vs_performance_img(
+    out_path, season
 ):
     """
     Generate and save/show a scatter plot of spec performance vs popularity,
     using spec icons as markers, reusing create_spec_scatter.
     If output_path is provided, saves the figure to that path.
     """
-    week = datetime.now().strftime("%Y-%m")
-    out_path = os.path.join(output_dir, f"spec_popularity_vs_performance_{week}.png")
-    if out_path in donesocials:
-        return None
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()
         spec_upgrades = databaseConnector.fetch_spec_upgrades(conn, cursor, season)
@@ -1000,7 +1016,6 @@ def create_spec_popularity_vs_performance(
     plt.savefig(out_path)
 
     plt.close(fig)
-    client = get_openai_client(api_key)
 
     most_overperforming = max(raw_points, key=lambda p: p["residual"])
     most_underperforming = min(raw_points, key=lambda p: p["residual"])
@@ -1009,10 +1024,7 @@ def create_spec_popularity_vs_performance(
         "most_overperforming_spec": most_overperforming["label"],
         "most_underperforming_spec": most_underperforming["label"],
     }
-    print(post_data)
-    post = generate_post_text(client, post_data, url)
-
-    return {"out_path": out_path, "post": post}
+    return post_data
 
 
 def compute_dungeon_score_from_rows(dungeon_rows, w_depleted=-1, w_1=1, w_2=2, w_3=3):
@@ -1080,12 +1092,27 @@ def build_dungeon_scores_df(db_rows):
 def create_dungeon_tierlist(
     output_dir, donesocials, api_key, url, season, icon_size=0.4
 ):
+    week = datetime.now().strftime("%Y-%m")
+    out_path = os.path.join(output_dir, f"dungeon_tierlist_{week}.png")
+    if out_path in donesocials:
+        return None
+    post_data = create_dungeon_tierlist_img(
+        out_path, season, icon_size)
+    if api_key is not None:
+        print(post_data)
+        client = get_openai_client(api_key)
+        post = generate_post_text(client, post_data, url)
+        return {"out_path": out_path, "post": post}
+    return {"out_path": out_path, "post": ""}
+
+def create_dungeon_tierlist_img(
+    out_path, season, icon_size=0.4
+):
     """
     Generates a horizontal tier-list of dungeons, one row per tier,
     placing each dungeon's spell-icon in the tier. Background is the
     dungeon art (faded). Saves to PNG and returns {"out_path","post"}.
     """
-    # 1) prepare data
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()
         dungeon_data = databaseConnector.fetch_runs_per_dungeon_per_level(
@@ -1094,10 +1121,6 @@ def create_dungeon_tierlist(
         total_runs = databaseConnector.fetch_total_season_runs(conn, cursor, season)
 
     df = build_dungeon_scores_df(dungeon_data)
-    week = datetime.now().strftime("%Y-%m")
-    out_path = os.path.join(output_dir, f"dungeon_tierlist_{week}.png")
-    if out_path in donesocials:
-        return None
 
     fig, ax = plt.subplots(figsize=(WIDTH / DPI, HEIGHT / DPI), dpi=DPI)
     fig.patch.set_facecolor("#222222")
@@ -1108,7 +1131,7 @@ def create_dungeon_tierlist(
     x_offsets = {t: 0 for t in tiers}
     max_x = len(df) * (icon_size + 0.02)  # or simply: max(x_offsets.values())
 
-    # 3) draw backgrounds and tier labels
+    # draw backgrounds and tier labels
     for t in tiers:
         y = y_positions[t]
         sub = df[df["tier"] == t]
@@ -1141,7 +1164,6 @@ def create_dungeon_tierlist(
             color=tier_colors[t],
             zorder=1,
         )
-    # 4) plot each dungeon icon
     # determine pixel size for icons
     fig_w, fig_h = fig.get_size_inches()
     icon_w_in = icon_size * fig_w
@@ -1213,7 +1235,6 @@ def create_dungeon_tierlist(
     plt.close(fig)
 
     # generate the social‐media post text
-    client = get_openai_client(api_key)
     best = df.iloc[0]
     worst = df.iloc[-1]
     post_data = {
@@ -1222,9 +1243,7 @@ def create_dungeon_tierlist(
         "worst_dungeon": dungeon_lookup[str(worst["id"])]["name"]["en_US"],
         "total_runs": humanize_number(total_runs),
     }
-    print(post_data)
-    post = generate_post_text(client, post_data, url)
-    return {"out_path": out_path, "post": post}
+    return post_data
 
 
 def compute_panel_width(draw, blocks, font, icon_sz, text_offset, pad):
@@ -1241,15 +1260,26 @@ def compute_panel_width(draw, blocks, font, icon_sz, text_offset, pad):
             max_w = max(max_w, x1 - x0)
     return pad * 2 + icon_sz + text_offset + max_w
 
-
 def createSpecOverview(output_dir, donesocials, api_key, url, spec_id, season):
+    week = datetime.now().strftime("%Y-%m")
+    out_path = os.path.join(output_dir, f"spec_overview_{spec_id}_{week}.png")
+    
+    if out_path in donesocials:
+        return None
+    post_data = createSpecOverviewImg(
+        'tmp', out_path, spec_id, season)
+    if api_key is not None:
+        print(post_data)
+        client = get_openai_client(api_key)
+        post = generate_post_text(client, post_data, url)
+        return {"out_path": out_path, "post": post}
+    return {"out_path": out_path, "post": ""}
+
+def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
     """
     Creates and saves a spec overview image.
     """
-    week = datetime.now().strftime("%Y-%m")
-    out_path = os.path.join(output_dir, f"spec_overview_{spec_id}_{week}.png")
-    if out_path in donesocials:
-        return None
+
     talent_lookup = load_json(os.path.join(LOOKUP_DIR, "talents", f"{spec_id}.json"))
 
     # gather data
@@ -1288,7 +1318,7 @@ def createSpecOverview(output_dir, donesocials, api_key, url, spec_id, season):
         # runs
         highest = get_run_data(False, spec_id, season)
         highest_run = create_MplusImage(
-            highest, "highest_run", donesocials, False, False, False
+            highest, "highest_run", {}, False, False, False
         )
         spec_talent_overview = databaseConnector.fetch_spec_talent_overview(
             conn, cursor, spec_id, season
@@ -1393,7 +1423,7 @@ def createSpecOverview(output_dir, donesocials, api_key, url, spec_id, season):
     ax.axis("off")
     ax.set_position([0, 0, 1, 1])
     ax.set_xlim(0, 100)
-    buf = os.path.join(output_dir, "tmp_upgrade.png")
+    buf = os.path.join(tmpdir, "tmp_upgrade.png")
     os.makedirs(os.path.dirname(buf), exist_ok=True)
     plt.savefig(buf, facecolor=fig.get_facecolor())
     plt.close(fig)
@@ -2125,9 +2155,8 @@ def createSpecOverview(output_dir, donesocials, api_key, url, spec_id, season):
         (0, 0), f"Updated: {format_timestamp(upd * 1000)}", font=font_sm, fill="gray"
     )
 
-    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(tmpdir, exist_ok=True)
     canvas.save(out_path)
-    client = get_openai_client(api_key)
 
     if hero_trees:
         # find the single subtree with the highest count
@@ -2141,9 +2170,7 @@ def createSpecOverview(output_dir, donesocials, api_key, url, spec_id, season):
         "highest_run": f"+{highest_run['level']} {highest_run['dungeon_name']} Completed in ({highest_run['duration_str']})",
         "top_hero_tree": top_hero_tree,
     }
-    print(post_data)
-    post = generate_post_text(client, post_data, url)
-    return {"out_path": out_path, "post": post}
+    return {"out_path": out_path, "post_data": post_data}
 
 
 def create_socials_post(donesocials, api_key, url):
