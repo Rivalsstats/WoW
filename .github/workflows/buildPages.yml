@@ -116,7 +116,8 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git config pull.rebase true  # Rebase
-      
+          
+          git add assets/img/previews/
           git add classes/
           git add pages/
           git add assets/json/search_index.json
