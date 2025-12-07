@@ -54,7 +54,7 @@ jobs:
         run: |
           python -u backend_scripts/generateSocialsPost.py \
             --api-key "${{ secrets.OPENROUTER_API_KEY }}" \
-            --url "https://linktr.ee/Mythistone"
+            --url "https://mythistone.com/"
 
           social_text=$(jq -r .post    "${{ env.OUTPUT_DIR }}/post.json")
           image_path=$(jq -r  .out_path "${{ env.OUTPUT_DIR }}/post.json")
