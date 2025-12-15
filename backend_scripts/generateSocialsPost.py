@@ -397,7 +397,7 @@ def get_run_data(run_type, spec, season):
 def create_MplusRun(run, season, donesocials, api_key, url):
     active_run = get_run_data(run, False, season)
     if not active_run:
-        raise ValueError(f"No {run} found")
+        raise ValueError(f"No {run} found for season {season}")
 
     # --- pull core fields ---
     mplus_image = create_MplusImage(active_run, run, donesocials, True)
