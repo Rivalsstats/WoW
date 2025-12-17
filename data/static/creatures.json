@@ -25290,5 +25290,51 @@
     },
     "family_id": 41,
     "image": "data/creature_img/163025.jpg"
+  },
+  "103616": {
+    "name": {
+      "en_US": "Moonwhisper Stalker",
+      "es_MX": "Acechador susurrolunar",
+      "pt_BR": "Espreitador Sileluna",
+      "de_DE": "Mondwisperpirscher",
+      "en_GB": "Moonwhisper Stalker",
+      "es_ES": "Acechador Susurrolunar",
+      "fr_FR": "Traqueur murmelune",
+      "it_IT": "Inseguitore Soffialuna",
+      "ru_RU": "Охотник из ущелья Лунного Шепота",
+      "ko_KR": "달속삭임 추적자",
+      "zh_TW": "月語潛獵豹",
+      "zh_CN": "月语追猎者"
+    },
+    "type": {
+      "en_US": "Beast",
+      "es_MX": "Bestia",
+      "pt_BR": "Fera",
+      "de_DE": "Wildtier",
+      "en_GB": "Beast",
+      "es_ES": "Bestia",
+      "fr_FR": "Bête",
+      "it_IT": "Bestia",
+      "ru_RU": "Животное",
+      "ko_KR": "야수",
+      "zh_TW": "野獸",
+      "zh_CN": "野兽"
+    },
+    "family": {
+      "en_US": "Cat",
+      "es_MX": "Felino",
+      "pt_BR": "Gato",
+      "de_DE": "Katze",
+      "en_GB": "Cat",
+      "es_ES": "Felino",
+      "fr_FR": "Félin",
+      "it_IT": "Felino",
+      "ru_RU": "Кошка",
+      "ko_KR": "살쾡이",
+      "zh_TW": "大貓",
+      "zh_CN": "豹"
+    },
+    "family_id": 2,
+    "image": "data/creature_img/103616.jpg"
   }
 }
