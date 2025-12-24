@@ -25336,5 +25336,97 @@
     },
     "family_id": 2,
     "image": "data/creature_img/103616.jpg"
+  },
+  "161131": {
+    "name": {
+      "en_US": "Prickly Porcupine",
+      "es_MX": "Puercoespín espinoso",
+      "pt_BR": "Ouriço Espinhoso",
+      "de_DE": "Dorniges Stachelschwein",
+      "en_GB": "Prickly Porcupine",
+      "es_ES": "Puercoespín espinoso",
+      "fr_FR": "Porc-épic épineux",
+      "it_IT": "Porcospino Spinoso",
+      "ru_RU": "Колючий дикобраз",
+      "ko_KR": "가시투성이 호저",
+      "zh_TW": "多刺的豪豬",
+      "zh_CN": "刺皮箭猪"
+    },
+    "type": {
+      "en_US": "Beast",
+      "es_MX": "Bestia",
+      "pt_BR": "Fera",
+      "de_DE": "Wildtier",
+      "en_GB": "Beast",
+      "es_ES": "Bestia",
+      "fr_FR": "Bête",
+      "it_IT": "Bestia",
+      "ru_RU": "Животное",
+      "ko_KR": "야수",
+      "zh_TW": "野獸",
+      "zh_CN": "野兽"
+    },
+    "family": {
+      "en_US": "Rodent",
+      "es_MX": "Roedor",
+      "pt_BR": "Roedor",
+      "de_DE": "Nager",
+      "en_GB": "Rodent",
+      "es_ES": "Roedor",
+      "fr_FR": "Rongeur",
+      "it_IT": "Roditore",
+      "ru_RU": "Грызун",
+      "ko_KR": "설치류",
+      "zh_TW": "齧齒類",
+      "zh_CN": "啮齿动物"
+    },
+    "family_id": 127,
+    "image": "data/creature_img/161131.jpg"
+  },
+  "154367": {
+    "name": {
+      "en_US": "Aqir Impaler",
+      "es_MX": "Empalador aqir",
+      "pt_BR": "Empalador Aqir",
+      "de_DE": "Pfähler der Aqir",
+      "en_GB": "Aqir Impaler",
+      "es_ES": "Empalador aqir",
+      "fr_FR": "Empaleur aqir",
+      "it_IT": "Impalatore Aqir",
+      "ru_RU": "Акир-пронзатель",
+      "ko_KR": "아퀴르 관통자",
+      "zh_TW": "亞基穿刺者",
+      "zh_CN": "亚基穿刺者"
+    },
+    "type": {
+      "en_US": "Beast",
+      "es_MX": "Bestia",
+      "pt_BR": "Fera",
+      "de_DE": "Wildtier",
+      "en_GB": "Beast",
+      "es_ES": "Bestia",
+      "fr_FR": "Bête",
+      "it_IT": "Bestia",
+      "ru_RU": "Животное",
+      "ko_KR": "야수",
+      "zh_TW": "野獸",
+      "zh_CN": "野兽"
+    },
+    "family": {
+      "en_US": "Wasp",
+      "es_MX": "Avispa",
+      "pt_BR": "Vespa",
+      "de_DE": "Wespe",
+      "en_GB": "Wasp",
+      "es_ES": "Avispa",
+      "fr_FR": "Guêpe",
+      "it_IT": "Vespa",
+      "ru_RU": "Оса",
+      "ko_KR": "말벌",
+      "zh_TW": "黃蜂",
+      "zh_CN": "巨蜂"
+    },
+    "family_id": 44,
+    "image": "data/creature_img/154367.jpg"
   }
 }
