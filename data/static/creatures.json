@@ -25428,5 +25428,51 @@
     },
     "family_id": 44,
     "image": "data/creature_img/154367.jpg"
+  },
+  "41388": {
+    "name": {
+      "en_US": "Living Fossil",
+      "es_MX": "Fósil viviente",
+      "pt_BR": "Fóssil Vivo",
+      "de_DE": "Lebendes Fossil",
+      "en_GB": "Living Fossil",
+      "es_ES": "Fósil viviente",
+      "fr_FR": "Fossile vivant",
+      "it_IT": "Fossile Vivente",
+      "ru_RU": "Ожившее ископаемое",
+      "ko_KR": "살아있는 화석",
+      "zh_TW": "活體化石",
+      "zh_CN": "活生生的化石"
+    },
+    "type": {
+      "en_US": "Undead",
+      "es_MX": "No-muerto",
+      "pt_BR": "Morto-vivo",
+      "de_DE": "Untoter",
+      "en_GB": "Undead",
+      "es_ES": "No-muerto",
+      "fr_FR": "Mort-vivant",
+      "it_IT": "Non Morto",
+      "ru_RU": "Нежить",
+      "ko_KR": "언데드",
+      "zh_TW": "不死族",
+      "zh_CN": "亡灵"
+    },
+    "family": {
+      "en_US": "Raptor",
+      "es_MX": "Raptor",
+      "pt_BR": "Raptor",
+      "de_DE": "Raptor",
+      "en_GB": "Raptor",
+      "es_ES": "Raptor",
+      "fr_FR": "Raptor",
+      "it_IT": "Raptor",
+      "ru_RU": "Ящер",
+      "ko_KR": "랩터",
+      "zh_TW": "迅猛龍",
+      "zh_CN": "迅猛龙"
+    },
+    "family_id": 11,
+    "image": "data/creature_img/41388.jpg"
   }
 }
