@@ -123,9 +123,9 @@
       "spellId": 2908
     },
     "82232": {
-      "name": "Aessina's Renewal",
-      "icon": "spell_nature_healingtouch",
-      "spellId": 474678
+      "name": "Renewal",
+      "icon": "spell_nature_natureblessing",
+      "spellId": 108238
     },
     "100223": {
       "name": "Starlight Conduit",
@@ -198,9 +198,9 @@
       "spellId": 400142
     },
     "100175": {
-      "name": "Gift of the Wild",
-      "icon": "spell_nature_giftofthewild",
-      "spellId": 1262034
+      "name": "Innervate",
+      "icon": "spell_nature_lightning",
+      "spellId": 29166
     },
     "82237": {
       "name": "Incapacitating Roar",
@@ -245,12 +245,12 @@
     "82231": {
       "name": "Heart of the Wild",
       "icon": "spell_holy_blessingofagility",
-      "spellId": 1261867
+      "spellId": 319454
     },
     "82244": {
-      "name": "Innervate",
-      "icon": "spell_nature_lightning",
-      "spellId": 29166
+      "name": "Nature's Vigil",
+      "icon": "achievement_zone_feralas",
+      "spellId": 124974
     },
     "82124": {
       "name": "Tiger's Fury",
@@ -303,54 +303,54 @@
       "spellId": 390772
     },
     "82104": {
-      "name": "Taste for Blood",
-      "icon": "ability_druid_ferociousbite",
-      "spellId": 384665
-    },
-    "82116": {
-      "name": "Survival Instincts",
-      "icon": "ability_druid_tigersroar",
-      "spellId": 61336
-    },
-    "82118": {
-      "name": "Dreadful Bleeding",
-      "icon": "ability_ghoulfrenzy",
-      "spellId": 391045
-    },
-    "92641": {
       "name": "Sudden Ambush",
       "icon": "ability_hunter_catlikereflexes",
       "spellId": 384667
-    },
-    "82106": {
-      "name": "Moment of Clarity",
-      "icon": "spell_druid_momentofclarity",
-      "spellId": 236068
     },
     "82099": {
       "name": "Savage Fury",
       "icon": "ability_druid_kingofthejungle",
       "spellId": 449645
     },
+    "82116": {
+      "name": "Survival Instincts",
+      "icon": "ability_druid_tigersroar",
+      "spellId": 61336
+    },
+    "82103": {
+      "name": "Rampant Ferocity",
+      "icon": "ability_druid_primaltenacity",
+      "spellId": 391709
+    },
+    "82118": {
+      "name": "Infected Wounds",
+      "icon": "ability_druid_infectedwound",
+      "spellId": 48484
+    },
+    "92641": {
+      "name": "Lunar Inspiration",
+      "icon": "spell_druid_lunarinspiration",
+      "spellId": 155580
+    },
+    "82106": {
+      "name": "Predatory Swiftness",
+      "icon": "ability_hunter_pet_cat",
+      "spellId": 16974
+    },
     "82101": {
       "name": "Berserk",
       "icon": "ability_druid_berserk",
       "spellId": 343223
     },
-    "82103": {
-      "name": "Panther's Guile",
-      "icon": "ability_mount_blackpanther",
-      "spellId": 1280316
-    },
     "82117": {
-      "name": "Rampant Ferocity",
-      "icon": "ability_druid_primaltenacity",
-      "spellId": 391709
+      "name": "Dreadful Bleeding",
+      "icon": "ability_ghoulfrenzy",
+      "spellId": 391045
     },
     "82088": {
-      "name": "Infected Wounds",
-      "icon": "ability_druid_infectedwound",
-      "spellId": 48484
+      "name": "Taste for Blood",
+      "icon": "ability_druid_ferociousbite",
+      "spellId": 384665
     },
     "82107": {
       "name": "Raging Fury",
@@ -358,24 +358,24 @@
       "spellId": 391078
     },
     "82105": {
+      "name": "Berserk: Heart of the Lion",
+      "icon": "ability_druid_berserk",
+      "spellId": 391174
+    },
+    "82100": {
+      "name": "Moment of Clarity",
+      "icon": "spell_druid_momentofclarity",
+      "spellId": 236068
+    },
+    "82090": {
+      "name": "Berserk: Frenzy",
+      "icon": "ability_druid_berserk",
+      "spellId": 384668
+    },
+    "82091": {
       "name": "Wild Slashes",
       "icon": "ability_xavius_tormentingswipe",
       "spellId": 390864
-    },
-    "82100": {
-      "name": "Berserk: Heart of the Lion",
-      "icon": "ability_druid_primalprecision",
-      "spellId": 391174
-    },
-    "82090": {
-      "name": "Blood Spattered",
-      "icon": "ability_druid_ferociousbite",
-      "spellId": 1244532
-    },
-    "82091": {
-      "name": "Soul of the Forest",
-      "icon": "ability_druid_manatree",
-      "spellId": 158476
     },
     "82110": {
       "name": "Carnivorous Instinct",
@@ -393,14 +393,14 @@
       "spellId": 421432
     },
     "82109": {
-      "name": "Apex Predator's Craving",
-      "icon": "ability_druid_primaltenacity",
-      "spellId": 391881
+      "name": "Lion's Strength",
+      "icon": "ability_hunter_masterscall",
+      "spellId": 391972
     },
     "82112": {
-      "name": "Feral Frenzy",
-      "icon": "ability_druid_rake",
-      "spellId": 274837
+      "name": "Adaptive Swarm",
+      "icon": "inv_ability_druid_adaptiveswarm",
+      "spellId": 391888
     },
     "82114": {
       "name": "Incarnation: Avatar of Ashamane",
@@ -408,9 +408,9 @@
       "spellId": 102543
     },
     "82096": {
-      "name": "Lacerating Claws",
-      "icon": "spell_druid_bloodythrash",
-      "spellId": 1244632
+      "name": "Soul of the Forest",
+      "icon": "ability_druid_manatree",
+      "spellId": 158476
     },
     "82093": {
       "name": "Veinripper",
@@ -418,14 +418,14 @@
       "spellId": 391978
     },
     "82108": {
-      "name": "Lunar Inspiration",
-      "icon": "spell_druid_lunarinspiration",
-      "spellId": 155580
+      "name": "Feral Frenzy",
+      "icon": "ability_druid_rake",
+      "spellId": 274837
     },
     "82111": {
-      "name": "Focused Frenzy",
-      "icon": "ability_druid_ravage",
-      "spellId": 1244544
+      "name": "Unbridled Swarm",
+      "icon": "inv_ability_druid_adaptiveswarm",
+      "spellId": 391951
     },
     "82113": {
       "name": "Ashamane's Guidance",
@@ -433,14 +433,14 @@
       "spellId": 391548
     },
     "82095": {
-      "name": "Hunger for Battle",
-      "icon": "ability_druid_predatoryinstincts",
-      "spellId": 1244547
-    },
-    "82092": {
       "name": "Circle of Life and Death",
       "icon": "ability_druid_cyclone",
       "spellId": 400320
+    },
+    "82092": {
+      "name": "Apex Predator's Craving",
+      "icon": "ability_druid_primaltenacity",
+      "spellId": 391881
     },
     "94629": {
       "name": "Hunt Beneath the Open Skies",
@@ -457,11 +457,6 @@
       "icon": "ability_druid_skinteeth",
       "spellId": 439926
     },
-    "109717": {
-      "name": "Green Thumb",
-      "icon": "spell_lifegivingseed",
-      "spellId": 1270565
-    },
     "94624": {
       "name": "Lethal Preservation",
       "icon": "spell_nature_healingtouch",
@@ -477,30 +472,20 @@
       "icon": "inv_misc_marrigolds_01",
       "spellId": 439929
     },
-    "109716": {
-      "name": "Bursting Growth",
-      "icon": "inv_collections_armor_flowerbracelet_b_01",
-      "spellId": 440120
-    },
     "94631": {
       "name": "Resilient Flourishing",
       "icon": "inv_misc_herb_16",
       "spellId": 439880
     },
     "94630": {
-      "name": "Patient Custodian",
-      "icon": "inv_helm_misc_rose_a_01_red",
-      "spellId": 1270592
+      "name": "Bursting Growth",
+      "icon": "inv_collections_armor_flowerbracelet_b_01",
+      "spellId": 440120
     },
     "94628": {
       "name": "Twin Sprouts",
       "icon": "inv_misc_herb_evergreenmoss",
       "spellId": 440117
-    },
-    "109715": {
-      "name": "Rampancy",
-      "icon": "inv_misc_thornnecklace",
-      "spellId": 1270586
     },
     "94627": {
       "name": "Vigorous Creepers",
@@ -522,30 +507,20 @@
       "icon": "spell_nature_spiritarmor",
       "spellId": 441841
     },
-    "109722": {
-      "name": "Limb from Limb",
-      "icon": "artifactability_feraldruid_ashamanesbite",
-      "spellId": 1271540
-    },
     "94610": {
       "name": "Wildshape Mastery",
       "icon": "ability_druid_mastershapeshifter",
       "spellId": 441678
     },
     "94619": {
-      "name": "Exacerbating Wounds",
-      "icon": "inv_artifact_bloodoftheassassinated",
-      "spellId": 1271839
+      "name": "Ruthless Aggression",
+      "icon": "ability_druid_rake",
+      "spellId": 441814
     },
     "94615": {
       "name": "Pack's Endurance",
       "icon": "spell_druid_stampedingroar_cat",
       "spellId": 441844
-    },
-    "109723": {
-      "name": "Ruthless Aggression",
-      "icon": "ability_druid_rake",
-      "spellId": 441814
     },
     "94612": {
       "name": "Empowered Shapeshifting",
@@ -561,11 +536,6 @@
       "name": "Strike for the Heart",
       "icon": "ability_druid_primalagression",
       "spellId": 441845
-    },
-    "109721": {
-      "name": "Twin Claw",
-      "icon": "ability_druid_swipe",
-      "spellId": 1271635
     },
     "94613": {
       "name": "Claw Rampage",

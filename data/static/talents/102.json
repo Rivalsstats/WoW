@@ -23,9 +23,9 @@
       "spellId": 474526
     },
     "82223": {
-      "name": "Swipe",
-      "icon": "inv_misc_monsterclaw_03",
-      "spellId": 213764
+      "name": "Thrash",
+      "icon": "spell_druid_thrash",
+      "spellId": 106832
     },
     "82219": {
       "name": "Ursoc's Spirit",
@@ -123,9 +123,9 @@
       "spellId": 2908
     },
     "82232": {
-      "name": "Aessina's Renewal",
-      "icon": "spell_nature_healingtouch",
-      "spellId": 474678
+      "name": "Renewal",
+      "icon": "spell_nature_natureblessing",
+      "spellId": 108238
     },
     "100223": {
       "name": "Starlight Conduit",
@@ -198,9 +198,9 @@
       "spellId": 400142
     },
     "100175": {
-      "name": "Gift of the Wild",
-      "icon": "spell_nature_giftofthewild",
-      "spellId": 1262034
+      "name": "Innervate",
+      "icon": "spell_nature_lightning",
+      "spellId": 29166
     },
     "82237": {
       "name": "Incapacitating Roar",
@@ -245,17 +245,17 @@
     "82231": {
       "name": "Heart of the Wild",
       "icon": "spell_holy_blessingofagility",
-      "spellId": 1261867
+      "spellId": 319454
     },
     "82244": {
-      "name": "Innervate",
-      "icon": "spell_nature_lightning",
-      "spellId": 29166
+      "name": "Nature's Vigil",
+      "icon": "achievement_zone_feralas",
+      "spellId": 124974
     },
     "88223": {
       "name": "Eclipse",
       "icon": "ability_druid_eclipseorange",
-      "spellId": 1239669
+      "spellId": 79577
     },
     "88225": {
       "name": "Shooting Stars",
@@ -283,9 +283,9 @@
       "spellId": 279620
     },
     "91048": {
-      "name": "Improved Eclipse",
-      "icon": "ability_druid_eclipseorange",
-      "spellId": 1240906
+      "name": "Wild Surges",
+      "icon": "ability_skyreach_lens_flare",
+      "spellId": 406890
     },
     "88226": {
       "name": "Nature's Balance",
@@ -293,9 +293,9 @@
       "spellId": 202430
     },
     "88208": {
-      "name": "Umbral Intensity",
-      "icon": "ability_druid_eclipse",
-      "spellId": 383195
+      "name": "Nature's Grace",
+      "icon": "ability_druid_lunarguidance",
+      "spellId": 450347
     },
     "88209": {
       "name": "Aetherial Kindling",
@@ -303,9 +303,9 @@
       "spellId": 327541
     },
     "88204": {
-      "name": "Wild Surges",
-      "icon": "ability_skyreach_lens_flare",
-      "spellId": 406890
+      "name": "Astral Smolder",
+      "icon": "spell_fire_bluefire",
+      "spellId": 394058
     },
     "88215": {
       "name": "Celestial Alignment",
@@ -313,24 +313,24 @@
       "spellId": 395022
     },
     "88219": {
-      "name": "Soul of the Forest",
-      "icon": "ability_druid_manatree",
-      "spellId": 114107
+      "name": "Umbral Intensity",
+      "icon": "ability_druid_eclipse",
+      "spellId": 383195
     },
     "88202": {
       "name": "Sunseeker Mushroom",
       "icon": "druid_ability_wildmushroom_b",
       "spellId": 468936
     },
-    "110279": {
-      "name": "Nature's Grace",
-      "icon": "ability_druid_lunarguidance",
-      "spellId": 450347
-    },
-    "88212": {
+    "88229": {
       "name": "Stellar Amplification",
       "icon": "spell_arcane_arcane04",
       "spellId": 450212
+    },
+    "88212": {
+      "name": "Soul of the Forest",
+      "icon": "ability_druid_manatree",
+      "spellId": 114107
     },
     "88221": {
       "name": "Whirling Stars",
@@ -343,9 +343,9 @@
       "spellId": 450356
     },
     "88232": {
-      "name": "Meteorites",
-      "icon": "ability_druid_starfall",
-      "spellId": 1240907
+      "name": "Astronomical Impact",
+      "icon": "spell_nature_starfall",
+      "spellId": 468960
     },
     "88227": {
       "name": "Cosmic Rapidity",
@@ -353,14 +353,14 @@
       "spellId": 400059
     },
     "103847": {
-      "name": "Celestial Fire",
-      "icon": "ability_mage_firestarter",
-      "spellId": 1240185
+      "name": "Crashing Star",
+      "icon": "spell_priest_divinestar_shadow2",
+      "spellId": 468978
     },
     "88216": {
-      "name": "Astral Communion",
-      "icon": "talentspec_druid_balance",
-      "spellId": 450598
+      "name": "Umbral Embrace",
+      "icon": "ability_druid_improvedmoonkinform",
+      "spellId": 393760
     },
     "103846": {
       "name": "Hail of Stars",
@@ -373,19 +373,29 @@
       "spellId": 202345
     },
     "88220": {
-      "name": "Sculpt the Stars",
-      "icon": "ability_druid_eclipseorange",
-      "spellId": 1240188
+      "name": "Waning Twilight",
+      "icon": "spell_shadow_twilight",
+      "spellId": 393956
+    },
+    "88199": {
+      "name": "Sundered Firmament",
+      "icon": "spell_druid_equinox",
+      "spellId": 394094
     },
     "88214": {
       "name": "Balance of All Things",
       "icon": "ability_druid_earthandsky",
       "spellId": 394048
     },
+    "88217": {
+      "name": "Umbral Inspiration",
+      "icon": "ability_eyeoftheowl",
+      "spellId": 450418
+    },
     "88200": {
-      "name": "Total Eclipse",
-      "icon": "inv12_ability_druid_totaleclipse",
-      "spellId": 1240206
+      "name": "Power of Goldrinn",
+      "icon": "inv_mount_spectralwolf",
+      "spellId": 394046
     },
     "88236": {
       "name": "Starweaver",
@@ -393,14 +403,14 @@
       "spellId": 393940
     },
     "88235": {
-      "name": "Power of Goldrinn",
-      "icon": "inv_mount_spectralwolf",
-      "spellId": 394046
+      "name": "Astral Communion",
+      "icon": "talentspec_druid_balance",
+      "spellId": 450598
     },
     "88218": {
-      "name": "Sundered Firmament",
-      "icon": "spell_druid_equinox",
-      "spellId": 394094
+      "name": "Harmony of the Heavens",
+      "icon": "spell_arcane_massdispel",
+      "spellId": 450558
     },
     "88206": {
       "name": "Incarnation: Chosen of Elune",
@@ -413,24 +423,14 @@
       "spellId": 202770
     },
     "88234": {
-      "name": "Umbral Embrace",
-      "icon": "ability_druid_improvedmoonkinform",
-      "spellId": 393760
-    },
-    "108032": {
-      "name": "Harmony of the Heavens",
-      "icon": "spell_arcane_massdispel",
-      "spellId": 450558
+      "name": "Denizen of the Dream",
+      "icon": "inv_faeriedragon2_orange",
+      "spellId": 394065
     },
     "88228": {
       "name": "Elune's Guidance",
       "icon": "ability_ardenweald_druid",
       "spellId": 393991
-    },
-    "108033": {
-      "name": "Denizen of the Dream",
-      "icon": "inv_faeriedragon2_orange",
-      "spellId": 394065
     },
     "88213": {
       "name": "Radiant Moonlight",
@@ -452,15 +452,10 @@
       "icon": "ability_druid_ironfur",
       "spellId": 429533
     },
-    "109720": {
-      "name": "Star Cascade",
-      "icon": "spell_arcane_arcane03",
-      "spellId": 1271206
-    },
     "94596": {
-      "name": "Stellar Command",
-      "icon": "artifactability_balancedruid_moonandstars",
-      "spellId": 429668
+      "name": "Lunar Amplification",
+      "icon": "spell_druid_lunarinspiration",
+      "spellId": 429529
     },
     "94607": {
       "name": "Atmospheric Exposure",
@@ -472,15 +467,10 @@
       "icon": "inv_enchant_dust",
       "spellId": 429538
     },
-    "109719": {
-      "name": "Penumbral Swell",
-      "icon": "ability_druid_eclipse",
-      "spellId": 1271261
-    },
     "94590": {
-      "name": "Lunar Calling",
-      "icon": "ability_druid_cresentburn",
-      "spellId": 429523
+      "name": "Stellar Command",
+      "icon": "artifactability_balancedruid_moonandstars",
+      "spellId": 429668
     },
     "94585": {
       "name": "The Light of Elune",
@@ -491,11 +481,6 @@
       "name": "Arcane Affinity",
       "icon": "spell_arcane_arcane01",
       "spellId": 429540
-    },
-    "109718": {
-      "name": "Bask in Moonlight",
-      "icon": "spell_holy_elunesgrace",
-      "spellId": 1271305
     },
     "94587": {
       "name": "The Eternal Moon",
@@ -517,11 +502,6 @@
       "icon": "spell_nature_resistnature",
       "spellId": 433748
     },
-    "109714": {
-      "name": "Sylvan Beckoning",
-      "icon": "ui_darkshore_warfront_alliance_dryad",
-      "spellId": 1264614
-    },
     "94605": {
       "name": "Power of Nature",
       "icon": "spell_nature_naturesblessing",
@@ -537,11 +517,6 @@
       "icon": "ability_druid_protectionofthegrove",
       "spellId": 429402
     },
-    "109713": {
-      "name": "Dryad's Dance",
-      "icon": "inv_stave_2h_druid_a_01",
-      "spellId": 1264776
-    },
     "94591": {
       "name": "Bounteous Bloom",
       "icon": "inv_herbalism_70_dreamleaf",
@@ -556,11 +531,6 @@
       "name": "Blooming Infusion",
       "icon": "spell_nature_thorns",
       "spellId": 429433
-    },
-    "109712": {
-      "name": "Spirit of the Thicket",
-      "icon": "ability_druid_naturalperfection",
-      "spellId": 1264899
     },
     "94606": {
       "name": "Harmony of the Grove",

@@ -37,10 +37,10 @@
       "icon": "spell_frost_chillingblast",
       "spellId": 207167
     },
-    "76052": {
-      "name": "Gloom Ward",
-      "icon": "ability_rogue_envelopingshadows",
-      "spellId": 391571
+    "76046": {
+      "name": "Anti-Magic Barrier",
+      "icon": "spell_shadow_antimagicshell",
+      "spellId": 205727
     },
     "76074": {
       "name": "March of Darkness",
@@ -57,7 +57,7 @@
       "icon": "inv_misc_bone_skull_01",
       "spellId": 111673
     },
-    "110029": {
+    "76060": {
       "name": "Enfeeble",
       "icon": "ability_creature_poison_01",
       "spellId": 392566
@@ -92,30 +92,20 @@
       "icon": "ability_bosskilrogg_deaththroes",
       "spellId": 374504
     },
-    "76060": {
-      "name": "Blood Bond",
-      "icon": "ability_deathknight_roilingblood",
-      "spellId": 1267028
+    "102006": {
+      "name": "Death's Reach",
+      "icon": "spell_deathknight_strangulate",
+      "spellId": 276079
     },
     "76085": {
       "name": "Icy Talons",
       "icon": "spell_deathknight_icytalons",
       "spellId": 194878
     },
-    "110030": {
-      "name": "Death Notes",
-      "icon": "inv_misc_book_01",
-      "spellId": 1266819
-    },
     "76065": {
       "name": "Anti-Magic Zone",
       "icon": "spell_deathknight_antimagiczone",
       "spellId": 51052
-    },
-    "110031": {
-      "name": "Death Defiance",
-      "icon": "spell_nature_shamanrage",
-      "spellId": 1266818
     },
     "76076": {
       "name": "Unholy Bond",
@@ -127,6 +117,11 @@
       "icon": "ability_mage_deepfreeze",
       "spellId": 454786
     },
+    "76052": {
+      "name": "Gloom Ward",
+      "icon": "ability_rogue_envelopingshadows",
+      "spellId": 391571
+    },
     "76064": {
       "name": "Asphyxiate",
       "icon": "ability_deathknight_asphixiate",
@@ -137,15 +132,20 @@
       "icon": "spell_deathknight_antimagiczone",
       "spellId": 374383
     },
-    "76046": {
-      "name": "Anti-Magic Barrier",
-      "icon": "spell_shadow_antimagicshell",
-      "spellId": 205727
+    "76077": {
+      "name": "Wraith Walk",
+      "icon": "inv_helm_plate_raiddeathknight_p_01",
+      "spellId": 212552
     },
     "76057": {
       "name": "Grip of the Dead",
       "icon": "ability_creature_disease_05",
       "spellId": 273952
+    },
+    "76063": {
+      "name": "Soul Reaper",
+      "icon": "ability_deathknight_soulreaper",
+      "spellId": 343294
     },
     "76087": {
       "name": "Suppression",
@@ -258,9 +258,9 @@
       "spellId": 374717
     },
     "76146": {
-      "name": "Relish in Blood",
-      "icon": "ability_deathknight_roilingblood",
-      "spellId": 317610
+      "name": "Ossified Vitriol",
+      "icon": "ability_warlock_cremation",
+      "spellId": 458744
     },
     "76145": {
       "name": "Leeching Strike",
@@ -293,9 +293,9 @@
       "spellId": 374747
     },
     "76147": {
-      "name": "Bloodworms",
-      "icon": "spell_shadow_soulleech",
-      "spellId": 195679
+      "name": "Relish in Blood",
+      "icon": "ability_deathknight_roilingblood",
+      "spellId": 317610
     },
     "76042": {
       "name": "Gorefiend's Grasp",
@@ -313,9 +313,9 @@
       "spellId": 377637
     },
     "76166": {
-      "name": "Deadly Reach",
-      "icon": "inv12_ability_deathknight_cleavingdeathstrikes",
-      "spellId": 1264235
+      "name": "Rune Tap",
+      "icon": "spell_deathknight_runetap",
+      "spellId": 194679
     },
     "76141": {
       "name": "Rapid Decomposition",
@@ -323,14 +323,19 @@
       "spellId": 194662
     },
     "76039": {
-      "name": "Boiling Point",
-      "icon": "warlock_pvp_endlessaffliction",
-      "spellId": 1265790
+      "name": "Blood Tap",
+      "icon": "spell_deathknight_bloodtap",
+      "spellId": 221699
+    },
+    "76165": {
+      "name": "Tightening Grasp",
+      "icon": "spell_shadow_coneofsilence",
+      "spellId": 206970
     },
     "76143": {
-      "name": "Lifeblood",
-      "icon": "inv_10_elementalcombinedfoozles_blood",
-      "spellId": 1264296
+      "name": "Reinforced Bones",
+      "icon": "ability_rogue_deadenednerves",
+      "spellId": 374737
     },
     "76130": {
       "name": "Everlasting Bond",
@@ -342,25 +347,30 @@
       "icon": "ability_ironmaidens_whirlofblood",
       "spellId": 273953
     },
+    "76038": {
+      "name": "Coagulopathy",
+      "icon": "ability_skeer_bloodletting",
+      "spellId": 391477
+    },
     "76174": {
+      "name": "Bloodworms",
+      "icon": "spell_shadow_soulleech",
+      "spellId": 195679
+    },
+    "102243": {
       "name": "Blood Feast",
       "icon": "spell_deathknight_vendetta",
       "spellId": 391386
     },
-    "102243": {
-      "name": "Plague Infusion",
-      "icon": "spell_yorsahj_bloodboil_blue",
-      "spellId": 1265869
-    },
     "76139": {
-      "name": "Bloody Reflection",
-      "icon": "ability_warrior_bloodbath",
-      "spellId": 1279633
+      "name": "Mark of Blood",
+      "icon": "ability_hunter_rapidkilling",
+      "spellId": 206940
     },
-    "76172": {
-      "name": "Iron Heart",
-      "icon": "inv_ragnaros_heart",
-      "spellId": 391395
+    "102244": {
+      "name": "Blooddrinker",
+      "icon": "ability_animusdraw",
+      "spellId": 206931
     },
     "102242": {
       "name": "Bloodied Blade",
@@ -368,29 +378,29 @@
       "spellId": 458753
     },
     "76041": {
-      "name": "Coagulopathy",
-      "icon": "ability_skeer_bloodletting",
-      "spellId": 391477
-    },
-    "76128": {
-      "name": "Blood Mist",
-      "icon": "ability_revendreth_deathknight",
-      "spellId": 1263743
-    },
-    "76131": {
       "name": "Sanguine Ground",
       "icon": "inv_artifact_corruptedbloodofzakajz",
       "spellId": 391458
     },
-    "76125": {
-      "name": "Bloodshot",
-      "icon": "ability_warlock_baneofhavoc",
-      "spellId": 391398
+    "76128": {
+      "name": "Shattering Bone",
+      "icon": "ability_deathknight_shatteringbone",
+      "spellId": 377640
     },
-    "102244": {
-      "name": "Consumption",
-      "icon": "inv_axe_2h_artifactmaw_d_01",
-      "spellId": 1263824
+    "76131": {
+      "name": "Heartrend",
+      "icon": "inv_weapon_shortblade_40",
+      "spellId": 377655
+    },
+    "102245": {
+      "name": "Carnage",
+      "icon": "sha_ability_warrior_bloodnova_nightmare",
+      "spellId": 458752
+    },
+    "76172": {
+      "name": "Iron Heart",
+      "icon": "inv_ragnaros_heart",
+      "spellId": 391395
     },
     "76132": {
       "name": "Red Thirst",
@@ -398,19 +408,19 @@
       "spellId": 205723
     },
     "76127": {
-      "name": "Sanguinary Burst",
-      "icon": "spell_animarevendreth_groundstate",
-      "spellId": 1263781
+      "name": "Bonestorm",
+      "icon": "achievement_boss_lordmarrowgar",
+      "spellId": 194844
     },
     "76133": {
       "name": "Purgatory",
       "icon": "inv_misc_shadowegg",
       "spellId": 114556
     },
-    "102245": {
-      "name": "Carnage",
-      "icon": "sha_ability_warrior_bloodnova_nightmare",
-      "spellId": 458752
+    "76125": {
+      "name": "Bloodshot",
+      "icon": "ability_warlock_baneofhavoc",
+      "spellId": 391398
     },
     "76040": {
       "name": "Umbilicus Eternus",
@@ -432,11 +442,6 @@
       "icon": "ability_argus_soulbombdebuffsmall",
       "spellId": 440031
     },
-    "109735": {
-      "name": "Frigid Resolve",
-      "icon": "spell_deathknight_icetouch",
-      "spellId": 1265859
-    },
     "95064": {
       "name": "Newly Turned",
       "icon": "ability_deathknight_hemorrhagicfever",
@@ -451,11 +456,6 @@
       "name": "Vampiric Aura",
       "icon": "ability_rogue_vendetta",
       "spellId": 434100
-    },
-    "109737": {
-      "name": "Thrill of Blood",
-      "icon": "spell_nzinsanity_bloodthirst",
-      "spellId": 1265547
     },
     "95061": {
       "name": "Soul Rupture",
@@ -472,11 +472,6 @@
       "icon": "ability_revendreth_deathknight",
       "spellId": 440476
     },
-    "109734": {
-      "name": "Deathly Blows",
-      "icon": "inv_sword_1h_mawraid_d_02",
-      "spellId": 1265932
-    },
     "95033": {
       "name": "Infliction of Sorrow",
       "icon": "ability_warrior_bloodbath",
@@ -491,11 +486,6 @@
       "name": "The Blood is Life",
       "icon": "achievement_nazmir_boss_bloodofghuun",
       "spellId": 434260
-    },
-    "109738": {
-      "name": "Visceral Strength",
-      "icon": "inv_ragnaros_heart",
-      "spellId": 434157
     },
     "95032": {
       "name": "Swift and Painful",
@@ -512,15 +502,10 @@
       "icon": "ability_argus_deathfog",
       "spellId": 437122
     },
-    "109733": {
-      "name": "Echoing Fury",
-      "icon": "spell_fire_blueflamebreath",
-      "spellId": 1265855
-    },
     "95045": {
-      "name": "Inevitable",
-      "icon": "spell_warlock_demonsoul",
-      "spellId": 1280658
+      "name": "Visceral Strength",
+      "icon": "inv_ragnaros_heart",
+      "spellId": 434157
     },
     "95040": {
       "name": "Incite Terror",
@@ -531,11 +516,6 @@
       "name": "Pact of the San'layn",
       "icon": "ability_warrior_bloodnova",
       "spellId": 434261
-    },
-    "109736": {
-      "name": "Transfusion",
-      "icon": "inv_artifact_bloodoftheassassinated",
-      "spellId": 1265574
     },
     "95068": {
       "name": "Exterminate",

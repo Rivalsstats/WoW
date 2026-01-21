@@ -1,8 +1,8 @@
 {
-  "slug": "season-tww-3-cutoffs",
+  "slug": "season-tww-3",
   "name": "TWW Season 3",
   "blizzard_season_id": 15,
-  "is_main_season": false,
+  "is_main_season": true,
   "short_name": "TWW3",
   "seasonal_affix": null,
   "starts": {
@@ -13,11 +13,11 @@
     "cn": "2025-08-13T23:00:00Z"
   },
   "ends": {
-    "us": "2026-01-20T06:00:00Z",
-    "eu": "2026-01-20T21:00:00Z",
-    "tw": "2026-01-21T14:00:00Z",
-    "kr": "2026-01-21T14:00:00Z",
-    "cn": "2026-01-21T14:00:00Z"
+    "us": "2026-08-26T22:00:00Z",
+    "eu": "2026-08-26T22:00:00Z",
+    "tw": "2026-08-26T22:00:00Z",
+    "kr": "2026-08-26T22:00:00Z",
+    "cn": "2026-08-26T22:00:00Z"
   },
   "dungeons": [
     {

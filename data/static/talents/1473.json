@@ -48,9 +48,9 @@
       "spellId": 372469
     },
     "93311": {
-      "name": "Inner Radiance",
-      "icon": "spell_holy_spellwarding",
-      "spellId": 386405
+      "name": "Quell",
+      "icon": "ability_evoker_quell",
+      "spellId": 351338
     },
     "93301": {
       "name": "Recall",
@@ -97,10 +97,10 @@
       "icon": "ability_xavius_dreamsimulacrum",
       "spellId": 360806
     },
-    "110064": {
-      "name": "Protracted Talons",
-      "icon": "ability_evoker_azurestrike",
-      "spellId": 369909
+    "93353": {
+      "name": "Regenerative Magic",
+      "icon": "spell_frost_manarecharge",
+      "spellId": 387787
     },
     "93355": {
       "name": "Inherent Resistance",
@@ -121,11 +121,6 @@
       "name": "Bountiful Bloom",
       "icon": "ability_evoker_emeraldblossom",
       "spellId": 370886
-    },
-    "93353": {
-      "name": "Regenerative Magic",
-      "icon": "spell_frost_manarecharge",
-      "spellId": 387787
     },
     "93309": {
       "name": "Blast Furnace",
@@ -153,14 +148,14 @@
       "spellId": 387761
     },
     "93308": {
-      "name": "Stretch Time",
-      "icon": "ability_evoker_timedilation",
-      "spellId": 410352
-    },
-    "93307": {
       "name": "Unravel",
       "icon": "ability_evoker_unravel",
-      "spellId": 1264378
+      "spellId": 368432
+    },
+    "93307": {
+      "name": "Protracted Talons",
+      "icon": "ability_evoker_azurestrike",
+      "spellId": 369909
     },
     "93298": {
       "name": "Oppressing Roar",
@@ -187,14 +182,9 @@
       "icon": "ability_evoker_blue_01",
       "spellId": 369459
     },
-    "110065": {
-      "name": "Strike from Above",
-      "icon": "ability_racial_glide",
-      "spellId": 1267206
-    },
     "93343": {
       "name": "Leaping Flames",
-      "icon": "ability_evoker_pupilofalexstraza",
+      "icon": "spell_fire_flare",
       "spellId": 369939
     },
     "93297": {
@@ -209,7 +199,7 @@
     },
     "93287": {
       "name": "Twin Guardian",
-      "icon": "inv_misc_volatileair",
+      "icon": "ability_skyreach_shielded",
       "spellId": 370888
     },
     "93715": {
@@ -253,9 +243,9 @@
       "spellId": 396187
     },
     "93199": {
-      "name": "Quell",
+      "name": "Imposing Presence",
       "icon": "ability_evoker_quell",
-      "spellId": 351338
+      "spellId": 371016
     },
     "93208": {
       "name": "Ricocheting Pyroclast",
@@ -288,9 +278,9 @@
       "spellId": 404195
     },
     "93368": {
-      "name": "Ignition Rush",
-      "icon": "spell_fire_immolation",
-      "spellId": 408775
+      "name": "Rockfall",
+      "icon": "ability_evoker_earthensky",
+      "spellId": 1219236
     },
     "93201": {
       "name": "Power Nexus",
@@ -308,9 +298,9 @@
       "spellId": 410253
     },
     "93382": {
-      "name": "Bestow Weyrnstone",
-      "icon": "ability_evoker_bestowweyrnstone",
-      "spellId": 408233
+      "name": "Stretch Time",
+      "icon": "ability_evoker_timedilation",
+      "spellId": 410352
     },
     "93360": {
       "name": "Timelessness",
@@ -318,9 +308,9 @@
       "spellId": 412710
     },
     "93195": {
-      "name": "Improved Defy Fate",
-      "icon": "ability_evoker_masterytimewalker",
-      "spellId": 1268881
+      "name": "Bestow Weyrnstone",
+      "icon": "ability_evoker_bestowweyrnstone",
+      "spellId": 408233
     },
     "93209": {
       "name": "Blistering Scales",
@@ -388,9 +378,9 @@
       "spellId": 375796
     },
     "93230": {
-      "name": "Motes of Possibility",
-      "icon": "ability_evoker_motesofpossibility",
-      "spellId": 409267
+      "name": "Ignition Rush",
+      "icon": "spell_fire_immolation",
+      "spellId": 408775
     },
     "93223": {
       "name": "Anachronism",
@@ -418,9 +408,9 @@
       "spellId": 404977
     },
     "93227": {
-      "name": "Clairvoyant",
-      "icon": "ability_evoker_masterylifebinder_bronze",
-      "spellId": 1250914
+      "name": "Motes of Possibility",
+      "icon": "ability_evoker_motesofpossibility",
+      "spellId": 409267
     },
     "93197": {
       "name": "Inferno's Blessing",
@@ -467,11 +457,6 @@
       "icon": "spell_fire_soulburn",
       "spellId": 441245
     },
-    "109795": {
-      "name": "Command Squadron",
-      "icon": "ability_dragonriding_dynamicflight01",
-      "spellId": 1260745
-    },
     "94921": {
       "name": "Melt Armor",
       "icon": "inv_10_gearupgrade_drakesshadowflameenhancedcrest",
@@ -486,11 +471,6 @@
       "name": "Unrelenting Siege",
       "icon": "ability_siege_engineer_superheated",
       "spellId": 441246
-    },
-    "109794": {
-      "name": "Concentrated Power",
-      "icon": "inv_10_dungeonjewelry_dragon_trinket_1arcanemagical_blue",
-      "spellId": 1261448
     },
     "94933": {
       "name": "Hardened Scales",
@@ -507,11 +487,6 @@
       "icon": "ability_evoker_hover",
       "spellId": 441253
     },
-    "109793": {
-      "name": "Refined Essence",
-      "icon": "ability_evoker_essenceburststacks",
-      "spellId": 1261452
-    },
     "94941": {
       "name": "Maneuverability",
       "icon": "ability_evoker_deepbreath",
@@ -527,11 +502,6 @@
       "icon": "ability_evoker_essenceburst5",
       "spellId": 431695
     },
-    "109510": {
-      "name": "Chronoboon",
-      "icon": "ability_evoker_tipthescales",
-      "spellId": 1260484
-    },
     "94925": {
       "name": "Reverberations",
       "icon": "ability_evoker_giftoftheaspects",
@@ -543,14 +513,9 @@
       "spellId": 431873
     },
     "94947": {
-      "name": "Nozdormu Adept",
-      "icon": "ability_evoker_aspectsfavorbronze",
+      "name": "Threads of Fate",
+      "icon": "ability_evoker_sandsoftime",
       "spellId": 431715
-    },
-    "109509": {
-      "name": "Energy Cycles",
-      "icon": "ability_evoker_innatemagic4",
-      "spellId": 1260568
     },
     "94951": {
       "name": "Primacy",
@@ -563,14 +528,9 @@
       "spellId": 431874
     },
     "94930": {
-      "name": "Instability Matrix",
-      "icon": "ability_dragonriding_bronzerewind01",
-      "spellId": 431484
-    },
-    "109508": {
-      "name": "Overclock",
-      "icon": "spell_holy_borrowedtime",
-      "spellId": 1260647
+      "name": "Master of Destiny",
+      "icon": "ability_evoker_defyfate",
+      "spellId": 431840
     },
     "94942": {
       "name": "Golden Opportunity",

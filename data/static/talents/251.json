@@ -37,10 +37,10 @@
       "icon": "spell_frost_chillingblast",
       "spellId": 207167
     },
-    "76052": {
-      "name": "Gloom Ward",
-      "icon": "ability_rogue_envelopingshadows",
-      "spellId": 391571
+    "76046": {
+      "name": "Anti-Magic Barrier",
+      "icon": "spell_shadow_antimagicshell",
+      "spellId": 205727
     },
     "76074": {
       "name": "March of Darkness",
@@ -57,7 +57,7 @@
       "icon": "inv_misc_bone_skull_01",
       "spellId": 111673
     },
-    "110029": {
+    "76060": {
       "name": "Enfeeble",
       "icon": "ability_creature_poison_01",
       "spellId": 392566
@@ -92,30 +92,20 @@
       "icon": "ability_bosskilrogg_deaththroes",
       "spellId": 374504
     },
-    "76060": {
-      "name": "Blood Bond",
-      "icon": "ability_deathknight_roilingblood",
-      "spellId": 1267028
+    "102006": {
+      "name": "Death's Reach",
+      "icon": "spell_deathknight_strangulate",
+      "spellId": 276079
     },
     "76085": {
       "name": "Icy Talons",
       "icon": "spell_deathknight_icytalons",
       "spellId": 194878
     },
-    "110030": {
-      "name": "Death Notes",
-      "icon": "inv_misc_book_01",
-      "spellId": 1266819
-    },
     "76065": {
       "name": "Anti-Magic Zone",
       "icon": "spell_deathknight_antimagiczone",
       "spellId": 51052
-    },
-    "110031": {
-      "name": "Death Defiance",
-      "icon": "spell_nature_shamanrage",
-      "spellId": 1266818
     },
     "76076": {
       "name": "Unholy Bond",
@@ -127,6 +117,11 @@
       "icon": "ability_mage_deepfreeze",
       "spellId": 454786
     },
+    "76052": {
+      "name": "Gloom Ward",
+      "icon": "ability_rogue_envelopingshadows",
+      "spellId": 391571
+    },
     "76064": {
       "name": "Asphyxiate",
       "icon": "ability_deathknight_asphixiate",
@@ -137,15 +132,20 @@
       "icon": "spell_deathknight_antimagiczone",
       "spellId": 374383
     },
-    "76046": {
-      "name": "Anti-Magic Barrier",
-      "icon": "spell_shadow_antimagicshell",
-      "spellId": 205727
+    "76077": {
+      "name": "Wraith Walk",
+      "icon": "inv_helm_plate_raiddeathknight_p_01",
+      "spellId": 212552
     },
     "76057": {
       "name": "Grip of the Dead",
       "icon": "ability_creature_disease_05",
       "spellId": 273952
+    },
+    "76063": {
+      "name": "Soul Reaper",
+      "icon": "ability_deathknight_soulreaper",
+      "spellId": 343294
     },
     "76087": {
       "name": "Suppression",
@@ -244,7 +244,7 @@
     },
     "76113": {
       "name": "Frostscythe",
-      "icon": "inv12_ability_deathknight_frostscythe",
+      "icon": "inv_misc_2h_farmscythe_a_01",
       "spellId": 207230
     },
     "76118": {
@@ -257,7 +257,7 @@
       "icon": "ability_domination_rune01",
       "spellId": 316803
     },
-    "109258": {
+    "107994": {
       "name": "Frostbound Will",
       "icon": "ability_mage_frostjaw",
       "spellId": 1238680
@@ -297,7 +297,7 @@
       "icon": "spell_frost_ice_shards",
       "spellId": 194912
     },
-    "76121": {
+    "76037": {
       "name": "Murderous Efficiency",
       "icon": "spell_frost_frostarmor",
       "spellId": 207061
@@ -322,7 +322,7 @@
       "icon": "spell_shadow_focusedpower",
       "spellId": 377073
     },
-    "76037": {
+    "76121": {
       "name": "Howling Blades",
       "icon": "inv_10_specialization_blacksmithing_blades_color2",
       "spellId": 1230223
@@ -367,7 +367,7 @@
       "icon": "ability_mage_icewall",
       "spellId": 392950
     },
-    "76091": {
+    "76123": {
       "name": "Obliteration",
       "icon": "inv_axe_114",
       "spellId": 281238
@@ -387,7 +387,7 @@
       "icon": "spell_fire_bluefire",
       "spellId": 456238
     },
-    "76123": {
+    "76091": {
       "name": "Killing Streak",
       "icon": "ability_creature_cursed_05",
       "spellId": 1230153
@@ -422,11 +422,6 @@
       "icon": "ability_argus_soulbombdebuffsmall",
       "spellId": 440031
     },
-    "109735": {
-      "name": "Frigid Resolve",
-      "icon": "spell_deathknight_icetouch",
-      "spellId": 1265859
-    },
     "95061": {
       "name": "Soul Rupture",
       "icon": "warlock_siphonlife",
@@ -442,11 +437,6 @@
       "icon": "ability_revendreth_deathknight",
       "spellId": 440476
     },
-    "109734": {
-      "name": "Deathly Blows",
-      "icon": "inv_sword_1h_mawraid_d_02",
-      "spellId": 1265932
-    },
     "95032": {
       "name": "Swift and Painful",
       "icon": "ability_domination_rune02",
@@ -461,11 +451,6 @@
       "name": "Death's Messenger",
       "icon": "ability_argus_deathfog",
       "spellId": 437122
-    },
-    "109733": {
-      "name": "Echoing Fury",
-      "icon": "spell_fire_blueflamebreath",
-      "spellId": 1265855
     },
     "95068": {
       "name": "Exterminate",
@@ -487,11 +472,6 @@
       "icon": "achievement_dungeon_nexusraid_10man",
       "spellId": 444074
     },
-    "109741": {
-      "name": "Ride or Die!",
-      "icon": "achievement_boss_fourhorsemen",
-      "spellId": 1265959
-    },
     "95047": {
       "name": "Whitemane's Famine",
       "icon": "spell_deathknight_necroticplague",
@@ -507,11 +487,6 @@
       "icon": "ability_warrior_shatteringthrow",
       "spellId": 444097
     },
-    "109740": {
-      "name": "Let Terror Reign",
-      "icon": "spell_deathknight_plaguestrike",
-      "spellId": 1265949
-    },
     "95044": {
       "name": "Hungering Thirst",
       "icon": "spell_shadow_fumble",
@@ -526,11 +501,6 @@
       "name": "Mawsworn Menace",
       "icon": "inv_mawguardpet_black",
       "spellId": 444099
-    },
-    "109739": {
-      "name": "Unholy Armaments",
-      "icon": "ability_deathknight_necroticstrike",
-      "spellId": 1265971
     },
     "95041": {
       "name": "Apocalypse Now",
