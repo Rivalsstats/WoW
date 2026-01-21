@@ -2,215 +2,200 @@
   "specName": "Beast Mastery",
   "className": "Hunter",
   "talents": {
-    "102401": {
-      "name": "Natural Mending",
-      "icon": "ability_hunter_onewithnature",
-      "spellId": 270581
+    "102381": {
+      "name": "Rejuvenating Wind",
+      "icon": "ability_druid_galewinds",
+      "spellId": 385539
     },
     "102411": {
       "name": "Posthaste",
       "icon": "ability_hunter_posthaste",
       "spellId": 109215
     },
-    "102381": {
-      "name": "Rejuvenating Wind",
-      "icon": "ability_druid_galewinds",
-      "spellId": 385539
-    },
-    "102423": {
-      "name": "Hunter's Avoidance",
-      "icon": "rogue_burstofspeed",
-      "spellId": 384799
-    },
-    "102410": {
-      "name": "Deathblow",
-      "icon": "ability_hunter_runningshot",
-      "spellId": 343248
-    },
-    "102383": {
-      "name": "Wilderness Medicine",
-      "icon": "ability_hunter_mendpet",
-      "spellId": 343242
-    },
-    "102393": {
-      "name": "Tar Trap",
-      "icon": "spell_yorsahj_bloodboil_black",
-      "spellId": 187698
-    },
-    "102380": {
-      "name": "Tranquilizing Shot",
-      "icon": "spell_nature_drowsy",
-      "spellId": 19801
-    },
-    "102407": {
-      "name": "Concussive Shot",
-      "icon": "spell_frost_stun",
-      "spellId": 5116
-    },
-    "102422": {
-      "name": "Survival of the Fittest",
-      "icon": "spell_nature_spiritarmor",
-      "spellId": 264735
-    },
-    "102403": {
-      "name": "Entrapment",
-      "icon": "ability_ensnare",
-      "spellId": 393344
-    },
-    "102292": {
-      "name": "Counter Shot",
-      "icon": "inv_ammo_arrow_03",
-      "spellId": 147362
-    },
-    "102415": {
-      "name": "Kodo Tranquilizer",
-      "icon": "ability_mount_kodo_03",
-      "spellId": 459983
-    },
-    "102419": {
-      "name": "Misdirection",
-      "icon": "ability_hunter_misdirection",
-      "spellId": 34477
-    },
-    "102424": {
-      "name": "Scout's Instincts",
-      "icon": "ability_rogue_sprint",
-      "spellId": 459455
+    "102401": {
+      "name": "Natural Mending",
+      "icon": "ability_hunter_onewithnature",
+      "spellId": 270581
     },
     "102406": {
       "name": "Padded Armor",
       "icon": "ability_rogue_plunderarmor",
       "spellId": 459450
     },
-    "102391": {
-      "name": "Lone Survivor",
-      "icon": "ability_hunter_huntervswild",
-      "spellId": 388039
+    "102423": {
+      "name": "Hunter's Avoidance",
+      "icon": "rogue_burstofspeed",
+      "spellId": 384799
     },
-    "102390": {
-      "name": "Specialized Arsenal",
-      "icon": "inv_misc_quiver_03",
-      "spellId": 459542
+    "102383": {
+      "name": "Wilderness Medicine",
+      "icon": "ability_hunter_mendpet",
+      "spellId": 343242
     },
-    "102395": {
-      "name": "Disruptive Rounds",
-      "icon": "hunter_pvp_vipersting",
-      "spellId": 343244
+    "110157": {
+      "name": "Combat Experience",
+      "icon": "ability_hunter_combatexperience",
+      "spellId": 1268871
     },
-    "102412": {
-      "name": "No Hard Feelings",
-      "icon": "ability_seal",
-      "spellId": 459546
+    "109485": {
+      "name": "Improved Aspect of the Cheetah",
+      "icon": "ability_mount_jungletiger",
+      "spellId": 1258407
     },
-    "102382": {
-      "name": "Scare Beast",
-      "icon": "ability_druid_cower",
-      "spellId": 1513
+    "102407": {
+      "name": "Concussive Shot",
+      "icon": "spell_frost_stun",
+      "spellId": 5116
     },
-    "102397": {
-      "name": "Intimidation",
-      "icon": "ability_devour",
-      "spellId": 19577
+    "102380": {
+      "name": "Precision Strikes",
+      "icon": "inv12_ability_hunter_rupturingblow",
+      "spellId": 1267003
     },
-    "102420": {
-      "name": "Explosive Shot",
-      "icon": "ability_hunter_explosiveshot",
-      "spellId": 212431
-    },
-    "102386": {
-      "name": "Binding Shot",
-      "icon": "spell_shaman_bindelemental",
-      "spellId": 109248
-    },
-    "102421": {
-      "name": "Bursting Shot",
-      "icon": "ability_hunter_burstingshot",
-      "spellId": 186387
-    },
-    "102394": {
-      "name": "Territorial Instincts",
-      "icon": "spell_nature_shamanrage",
-      "spellId": 459507
-    },
-    "102396": {
-      "name": "Trigger Finger",
-      "icon": "inv_10_engineering2_pvpflaregun_color1",
-      "spellId": 459534
-    },
-    "102392": {
-      "name": "Blackrock Munitions",
-      "icon": "inv_ore_blackrock_nugget",
-      "spellId": 462036
-    },
-    "102409": {
-      "name": "Keen Eyesight",
-      "icon": "ability_hunter_silenthunter",
-      "spellId": 378004
-    },
-    "102417": {
-      "name": "Tar-Coated Bindings",
-      "icon": "inv_misc_food_legion_goooil_pool",
-      "spellId": 459460
-    },
-    "102408": {
-      "name": "Scrappy",
-      "icon": "inv_misc_gear_08",
-      "spellId": 459533
-    },
-    "102413": {
-      "name": "Quick Load",
-      "icon": "ability_hunter_wildquiver",
-      "spellId": 378771
-    },
-    "102404": {
-      "name": "Pathfinding",
-      "icon": "ability_hunter_displacement",
-      "spellId": 378002
-    },
-    "102388": {
-      "name": "Binding Shackles",
-      "icon": "inv_misc_steelweaponchain",
-      "spellId": 321468
-    },
-    "102414": {
-      "name": "Camouflage",
-      "icon": "ability_hunter_camouflage",
-      "spellId": 199483
-    },
-    "102425": {
-      "name": "Kindling Flare",
-      "icon": "achievment_raid_houroftwilight",
-      "spellId": 459506
-    },
-    "102400": {
-      "name": "Trailblazer",
-      "icon": "ability_hunter_aspectmastery",
-      "spellId": 199921
-    },
-    "102405": {
-      "name": "Roar of Sacrifice",
-      "icon": "ability_hunter_fervor",
-      "spellId": 53480
+    "102292": {
+      "name": "Counter Shot",
+      "icon": "inv_ammo_arrow_03",
+      "spellId": 147362
     },
     "102384": {
       "name": "Serrated Tips",
       "icon": "inv_spear_01",
       "spellId": 459502
     },
-    "102426": {
-      "name": "Moment of Opportunity",
-      "icon": "ability_karoz_leap",
-      "spellId": 459488
+    "109489": {
+      "name": "Tranquilizing Shot",
+      "icon": "spell_nature_drowsy",
+      "spellId": 19801
+    },
+    "102404": {
+      "name": "Pathfinding",
+      "icon": "ability_hunter_displacement",
+      "spellId": 378002
+    },
+    "102395": {
+      "name": "Disruptive Rounds",
+      "icon": "hunter_pvp_vipersting",
+      "spellId": 343244
+    },
+    "109484": {
+      "name": "Improved Feign Death",
+      "icon": "ability_rogue_feigndeath",
+      "spellId": 1258486
+    },
+    "102419": {
+      "name": "Misdirection",
+      "icon": "ability_hunter_misdirection",
+      "spellId": 34477
+    },
+    "102415": {
+      "name": "Kodo Tranquilizer",
+      "icon": "ability_mount_kodo_03",
+      "spellId": 459983
+    },
+    "102425": {
+      "name": "Kindling Flare",
+      "icon": "achievment_raid_houroftwilight",
+      "spellId": 459506
+    },
+    "102396": {
+      "name": "Trigger Finger",
+      "icon": "inv_10_engineering2_pvpflaregun_color1",
+      "spellId": 459534
+    },
+    "102393": {
+      "name": "Tar Trap",
+      "icon": "spell_yorsahj_bloodboil_black",
+      "spellId": 187698
+    },
+    "109487": {
+      "name": "Touch of Grass",
+      "icon": "inv12_ability_druid_lifetreading",
+      "spellId": 1258402
+    },
+    "110156": {
+      "name": "Camouflage",
+      "icon": "ability_hunter_camouflage",
+      "spellId": 199483
+    },
+    "102412": {
+      "name": "No Hard Feelings",
+      "icon": "ability_seal",
+      "spellId": 459546
+    },
+    "102424": {
+      "name": "Improved Aspect of the Turtle",
+      "icon": "ability_hunter_pet_turtle",
+      "spellId": 1258485
+    },
+    "102390": {
+      "name": "Specialized Arsenal",
+      "icon": "inv_misc_quiver_03",
+      "spellId": 459542
+    },
+    "109483": {
+      "name": "Scout's Instincts",
+      "icon": "ability_rogue_sprint",
+      "spellId": 459455
+    },
+    "110154": {
+      "name": "Shell Wall",
+      "icon": "inv_cape_special_turtleshell_c_01",
+      "spellId": 1267218
+    },
+    "102397": {
+      "name": "Intimidation",
+      "icon": "ability_devour",
+      "spellId": 19577
+    },
+    "102414": {
+      "name": "Improved Snaring",
+      "icon": "inv_fishing_nethooks01",
+      "spellId": 1268868
+    },
+    "102391": {
+      "name": "Lone Survivor",
+      "icon": "ability_hunter_huntervswild",
+      "spellId": 388039
+    },
+    "109486": {
+      "name": "Catlike Reflexes",
+      "icon": "ability_hunter_catlikereflexes",
+      "spellId": 1258404
+    },
+    "109488": {
+      "name": "Binding Shot",
+      "icon": "spell_shaman_bindelemental",
+      "spellId": 109248
+    },
+    "110155": {
+      "name": "Trailblazer",
+      "icon": "ability_hunter_aspectmastery",
+      "spellId": 199921
+    },
+    "110153": {
+      "name": "Cold Feet",
+      "icon": "ability_mage_icyfeet",
+      "spellId": 1268671
+    },
+    "102394": {
+      "name": "Territorial Instincts",
+      "icon": "spell_nature_shamanrage",
+      "spellId": 459507
     },
     "102416": {
       "name": "Born To Be Wild",
       "icon": "ability_hunter_aspectoftheviper",
       "spellId": 266921
     },
-    "102385": {
-      "name": "Ghillie Suit",
-      "icon": "ability_ambush",
-      "spellId": 459466
+    "102409": {
+      "name": "Keen Eyesight",
+      "icon": "ability_hunter_silenthunter",
+      "spellId": 378004
+    },
+    "110152": {
+      "name": "Tar-Coated Bindings",
+      "icon": "inv_misc_food_legion_goooil_pool",
+      "spellId": 459460
     },
     "102418": {
       "name": "Improved Traps",
@@ -222,10 +207,10 @@
       "icon": "inv_potion_29",
       "spellId": 459517
     },
-    "102739": {
-      "name": "High Explosive Trap",
-      "icon": "spell_fire_selfdestruct",
-      "spellId": 236776
+    "110164": {
+      "name": "Roar of Sacrifice",
+      "icon": "ability_hunter_fervor",
+      "spellId": 53480
     },
     "102387": {
       "name": "Unnatural Causes",
@@ -237,12 +222,7 @@
       "icon": "ability_hunter_killcommand",
       "spellId": 34026
     },
-    "102354": {
-      "name": "Cobra Shot",
-      "icon": "ability_hunter_cobrashot",
-      "spellId": 193455
-    },
-    "102361": {
+    "110158": {
       "name": "Animal Companion",
       "icon": "ability_hunter_bestialdiscipline",
       "spellId": 267116
@@ -252,145 +232,125 @@
       "icon": "ability_hunter_barbedshot",
       "spellId": 217200
     },
-    "102374": {
-      "name": "Pack Tactics",
-      "icon": "ability_hunter_invigeration",
-      "spellId": 321014
-    },
-    "102351": {
-      "name": "Aspect of the Beast",
-      "icon": "ability_deathwing_assualtaspects",
-      "spellId": 191384
-    },
-    "102343": {
-      "name": "War Orders",
-      "icon": "ability_hunter_barbedshot",
-      "spellId": 393933
-    },
-    "102345": {
-      "name": "Thrill of the Hunt",
-      "icon": "ability_hunter_thrillofthehunt",
-      "spellId": 257944
-    },
-    "102357": {
-      "name": "Go for the Throat",
-      "icon": "ability_hunter_goforthethroat",
-      "spellId": 459550
-    },
-    "102363": {
-      "name": "Multi-Shot",
-      "icon": "ability_upgrademoonglaive",
-      "spellId": 2643
-    },
-    "102369": {
-      "name": "Laceration",
-      "icon": "ability_druid_disembowel",
-      "spellId": 459552
-    },
-    "102344": {
-      "name": "Snakeskin Quiver",
-      "icon": "inv_quiver_1h_hunter_c_01_green",
-      "spellId": 468695
-    },
     "102368": {
       "name": "Alpha Predator",
       "icon": "spell_druid_savagery",
       "spellId": 269737
-    },
-    "102341": {
-      "name": "Beast Cleave",
-      "icon": "ability_hunter_sickem",
-      "spellId": 115939
-    },
-    "102338": {
-      "name": "Training Expert",
-      "icon": "spell_hunter_adaptation",
-      "spellId": 378209
-    },
-    "102360": {
-      "name": "Hunter's Prey",
-      "icon": "ability_hunter_assassinate",
-      "spellId": 378210
-    },
-    "102347": {
-      "name": "Stomp",
-      "icon": "warrior_talent_icon_thunderstruck",
-      "spellId": 199530
-    },
-    "102359": {
-      "name": "Master Handler",
-      "icon": "inv_leatherworking_70_petleash",
-      "spellId": 424558
-    },
-    "102355": {
-      "name": "Kill Cleave",
-      "icon": "spell_druid_bloodythrash",
-      "spellId": 378207
-    },
-    "102348": {
-      "name": "Wild Call",
-      "icon": "ability_hunter_masterscall",
-      "spellId": 185789
     },
     "102376": {
       "name": "Dire Beast",
       "icon": "ability_hunter_longevity",
       "spellId": 120679
     },
-    "102356": {
-      "name": "Savagery",
-      "icon": "spell_nature_protectionformnature",
-      "spellId": 424557
+    "102347": {
+      "name": "Stomp",
+      "icon": "warrior_talent_icon_thunderstruck",
+      "spellId": 199530
     },
-    "102362": {
-      "name": "Bloodshed",
-      "icon": "ability_druid_primaltenacity",
-      "spellId": 321530
+    "102343": {
+      "name": "War Orders",
+      "icon": "ability_hunter_barbedshot",
+      "spellId": 393933
     },
-    "102353": {
-      "name": "Barbed Scales",
-      "icon": "inv_misc_scales_stonygreen",
-      "spellId": 469880
+    "102363": {
+      "name": "Wild Thrash",
+      "icon": "ability_hunter_sickem",
+      "spellId": 1264359
     },
     "102340": {
       "name": "Bestial Wrath",
       "icon": "ability_druid_ferociousbite",
       "spellId": 19574
     },
-    "102358": {
-      "name": "Poisoned Barbs",
-      "icon": "inv_misc_thornnecklace",
-      "spellId": 1217535
+    "102354": {
+      "name": "Cobra Shot",
+      "icon": "ability_hunter_cobrashot",
+      "spellId": 193455
     },
-    "102365": {
-      "name": "Dire Command",
-      "icon": "ability_hunter_ferociousinspiration",
-      "spellId": 378743
+    "102341": {
+      "name": "Beast Cleave",
+      "icon": "ability_hunter_sickem",
+      "spellId": 115939
+    },
+    "102342": {
+      "name": "Scent of Blood",
+      "icon": "spell_shadow_lifedrain",
+      "spellId": 193532
+    },
+    "102370": {
+      "name": "Thundering Hooves",
+      "icon": "inv__blacksmithing_hoofplate",
+      "spellId": 459693
+    },
+    "102357": {
+      "name": "Go for the Throat",
+      "icon": "ability_hunter_goforthethroat",
+      "spellId": 459550
+    },
+    "102369": {
+      "name": "Laceration",
+      "icon": "ability_druid_disembowel",
+      "spellId": 459552
+    },
+    "102355": {
+      "name": "Kill Cleave",
+      "icon": "spell_druid_bloodythrash",
+      "spellId": 378207
+    },
+    "102338": {
+      "name": "Training Expert",
+      "icon": "spell_hunter_adaptation",
+      "spellId": 378209
+    },
+    "102373": {
+      "name": "The Beast Within",
+      "icon": "ability_druid_ferociousbite",
+      "spellId": 231548
+    },
+    "102345": {
+      "name": "Thrill of the Hunt",
+      "icon": "ability_hunter_thrillofthehunt",
+      "spellId": 1265051
+    },
+    "102374": {
+      "name": "Pack Tactics",
+      "icon": "ability_hunter_invigeration",
+      "spellId": 321014
+    },
+    "102353": {
+      "name": "Barbed Scales",
+      "icon": "inv_misc_scales_stonygreen",
+      "spellId": 469880
+    },
+    "102351": {
+      "name": "Aspect of the Beast",
+      "icon": "ability_deathwing_assualtaspects",
+      "spellId": 191384
     },
     "102337": {
       "name": "Dire Cleave",
       "icon": "ability_physical_taunt",
       "spellId": 1217524
     },
-    "102364": {
-      "name": "Killer Instinct",
-      "icon": "ability_hunter_killcommand",
-      "spellId": 273887
+    "102365": {
+      "name": "Dire Command",
+      "icon": "ability_hunter_ferociousinspiration",
+      "spellId": 378743
+    },
+    "102358": {
+      "name": "Jagged Wounds",
+      "icon": "ability_skeer_bloodletting",
+      "spellId": 1265044
     },
     "102372": {
-      "name": "Serpentine Rhythm",
+      "name": "Serpentine Strikes",
       "icon": "spell_nature_poisoncleansingtotem",
       "spellId": 468701
     },
-    "102373": {
-      "name": "Barbed Wrath",
-      "icon": "ability_druid_ferociousbite",
-      "spellId": 231548
-    },
-    "102370": {
-      "name": "Thundering Hooves",
-      "icon": "inv__blacksmithing_hoofplate",
-      "spellId": 459693
+    "102344": {
+      "name": "Snakeskin Quiver",
+      "icon": "inv_quiver_1h_hunter_c_01_green",
+      "spellId": 468695
     },
     "102367": {
       "name": "Dire Frenzy",
@@ -398,19 +358,14 @@
       "spellId": 385810
     },
     "102336": {
-      "name": "Call of the Wild",
-      "icon": "ability_hunter_callofthewild",
-      "spellId": 359844
+      "name": "Frenzy",
+      "icon": "ability_druid_kingofthejungle",
+      "spellId": 1264934
     },
-    "102375": {
-      "name": "Killer Cobra",
-      "icon": "ability_hunter_snaketrap",
-      "spellId": 199532
-    },
-    "102342": {
-      "name": "Scent of Blood",
-      "icon": "spell_shadow_lifedrain",
-      "spellId": 193532
+    "102364": {
+      "name": "Killer Instinct",
+      "icon": "ability_hunter_killcommand",
+      "spellId": 273887
     },
     "102350": {
       "name": "Brutal Companion",
@@ -422,6 +377,36 @@
       "icon": "spell_hunter_lonewolf",
       "spellId": 459730
     },
+    "102360": {
+      "name": "Heart of the Pack",
+      "icon": "ability_druid_berserk",
+      "spellId": 1265052
+    },
+    "102362": {
+      "name": "Bloodshed",
+      "icon": "ability_druid_primaltenacity",
+      "spellId": 1272099
+    },
+    "102356": {
+      "name": "Savagery",
+      "icon": "spell_nature_protectionformnature",
+      "spellId": 424557
+    },
+    "102375": {
+      "name": "Killer Cobra",
+      "icon": "ability_hunter_snaketrap",
+      "spellId": 199532
+    },
+    "102359": {
+      "name": "Master Handler",
+      "icon": "inv_leatherworking_70_petleash",
+      "spellId": 424558
+    },
+    "107285": {
+      "name": "Wildspeaker",
+      "icon": "ability_hunter_huntingparty",
+      "spellId": 1232739
+    },
     "102339": {
       "name": "Wild Instincts",
       "icon": "ability_hunter_beastwithin",
@@ -432,55 +417,55 @@
       "icon": "inv_misc_monsterfang_02",
       "spellId": 392053
     },
-    "107285": {
-      "name": "Wildspeaker",
-      "icon": "ability_hunter_huntingparty",
-      "spellId": 1232739
-    },
     "94961": {
       "name": "Bleak Arrows",
       "icon": "inv_quiver_1h_mawraid_d_01",
       "spellId": 467749
     },
     "94968": {
-      "name": "The Bell Tolls",
-      "icon": "spell_shadow_animatedead",
-      "spellId": 467644
+      "name": "Soul Drinker",
+      "icon": "ability_warlock_soulsiphon",
+      "spellId": 469638
     },
     "94974": {
       "name": "Bleak Powder",
       "icon": "inv_misc_powder_tin",
       "spellId": 467911
     },
+    "109801": {
+      "name": "Corpsecaller",
+      "icon": "ability_fiegndead",
+      "spellId": 1264289
+    },
     "94986": {
-      "name": "Phantom Pain",
-      "icon": "spell_holy_painsupression",
-      "spellId": 467941
+      "name": "Ebon Bowstring",
+      "icon": "inv_10_tailoring_craftingoptionalreagent_enhancedspellthread_color4",
+      "spellId": 467897
     },
     "94959": {
       "name": "Smoke Screen",
       "icon": "spell_warlock_demonsoul",
       "spellId": 430709
     },
-    "94960": {
-      "name": "Dark Chains",
-      "icon": "inv_belt_44c",
-      "spellId": 430712
+    "109800": {
+      "name": "Wailing Dead",
+      "icon": "ability_deathknight_summongargoyle",
+      "spellId": 1264290
     },
     "94957": {
       "name": "Banshee's Mark",
       "icon": "achievement_leader_sylvanas",
       "spellId": 467902
     },
-    "94983": {
-      "name": "Shadow Hounds",
-      "icon": "inv_darkhoundmount_draka_blue",
-      "spellId": 430707
-    },
     "94982": {
       "name": "Umbral Reach",
       "icon": "spell_deathknight_strangulate",
       "spellId": 1235397
+    },
+    "109799": {
+      "name": "Pact of the Hollow",
+      "icon": "ability_creature_cursed_03",
+      "spellId": 1264690
     },
     "94993": {
       "name": "Withering Fire",
@@ -502,6 +487,11 @@
       "icon": "ability_hunter_pathfinding2",
       "spellId": 472357
     },
+    "94979": {
+      "name": "Slicked Shoes",
+      "icon": "ability_heroicleap",
+      "spellId": 472719
+    },
     "94972": {
       "name": "Ursine Fury",
       "icon": "spell_druid_bearhug",
@@ -517,6 +507,11 @@
       "icon": "inv_misc_boarshead",
       "spellId": 472639
     },
+    "109803": {
+      "name": "Lethal Barbs",
+      "icon": "ability_hunter_criticalshot",
+      "spellId": 1264781
+    },
     "94969": {
       "name": "No Mercy",
       "icon": "ability_hunter_goforthethroat",
@@ -527,14 +522,19 @@
       "icon": "inv_babyturtle2",
       "spellId": 472707
     },
-    "94979": {
-      "name": "Slicked Shoes",
-      "icon": "ability_heroicleap",
-      "spellId": 472719
+    "109804": {
+      "name": "Hoof and Blade",
+      "icon": "ability_hunter_beastwithin",
+      "spellId": 1264797
+    },
+    "109802": {
+      "name": "Sharpened Fangs",
+      "icon": "inv_misc_monsterfang_02",
+      "spellId": 1264775
     },
     "94966": {
-      "name": "Lead From the Front",
-      "icon": "buff_epichunter",
+      "name": "Stampede!",
+      "icon": "ability_hunter_bestialdiscipline",
       "spellId": 472741
     }
   },

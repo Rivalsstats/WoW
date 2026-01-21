@@ -3,9 +3,9 @@
   "className": "Demon Hunter",
   "talents": {
     "91008": {
-      "name": "Blazing Path",
-      "icon": "ability_demonhunter_felrush",
-      "spellId": 320416
+      "name": "Felblade",
+      "icon": "ability_demonhunter_felblade",
+      "spellId": 232893
     },
     "90946": {
       "name": "Sigil of Misery",
@@ -68,9 +68,9 @@
       "spellId": 391409
     },
     "95154": {
-      "name": "Chaos Fragments",
-      "icon": "spell_fire_felfirenova",
-      "spellId": 320412
+      "name": "Focused Ire",
+      "icon": "ability_bossfellord_felspike",
+      "spellId": 1266296
     },
     "90994": {
       "name": "Master of the Glaive",
@@ -83,9 +83,9 @@
       "spellId": 183782
     },
     "95150": {
-      "name": "Felblade",
-      "icon": "ability_demonhunter_felblade",
-      "spellId": 232893
+      "name": "Blazing Path",
+      "icon": "ability_demonhunter_felrush",
+      "spellId": 320416
     },
     "91005": {
       "name": "Swallowed Anger",
@@ -104,7 +104,7 @@
     },
     "90940": {
       "name": "Pursuit",
-      "icon": "ability_warlock_demonicpower",
+      "icon": "ability_demonhunter_infernalstrike2",
       "spellId": 320654
     },
     "90936": {
@@ -112,20 +112,25 @@
       "icon": "ability_demonhunter_soulcleave2",
       "spellId": 204909
     },
+    "90939": {
+      "name": "Felfire Haste",
+      "icon": "inv_boots_cloth_35v4",
+      "spellId": 389846
+    },
     "91004": {
       "name": "Infernal Armor",
       "icon": "ability_demonhunter_immolation",
       "spellId": 320331
     },
+    "90927": {
+      "name": "Burn It Out",
+      "icon": "spell_fel_elementaldevastation",
+      "spellId": 1266316
+    },
     "90947": {
       "name": "Lost in Darkness",
       "icon": "inv_pet_inquisitoreye",
       "spellId": 389849
-    },
-    "90939": {
-      "name": "Felfire Haste",
-      "icon": "inv_boots_cloth_35v4",
-      "spellId": 389846
     },
     "90935": {
       "name": "Illidari Knowledge",
@@ -133,79 +138,74 @@
       "spellId": 389696
     },
     "91003": {
-      "name": "Demonic",
-      "icon": "spell_shadow_demonform",
-      "spellId": 213410
+      "name": "Felbound",
+      "icon": "ability_demonhunter_doublejump",
+      "spellId": 1266762
     },
     "91000": {
       "name": "Will of the Illidari",
       "icon": "ability_demonhunter_spectank",
       "spellId": 389695
     },
-    "95155": {
-      "name": "Precise Sigils",
-      "icon": "ability_bossfelorcs_necromancer_orange",
-      "spellId": 389799
-    },
     "90934": {
       "name": "Internal Struggle",
       "icon": "ability_warlock_demonicpower",
       "spellId": 393822
     },
-    "91002": {
-      "name": "Darkness",
-      "icon": "ability_demonhunter_darkness",
-      "spellId": 196718
+    "95152": {
+      "name": "Furious",
+      "icon": "ability_warlock_shadowfurytga",
+      "spellId": 1266326
     },
     "90929": {
-      "name": "Soul Sigils",
-      "icon": "ability_demonhunter_sigilofinquisition",
-      "spellId": 395446
+      "name": "Remorseless",
+      "icon": "inv_glaive_1h_npc_d_02",
+      "spellId": 1266328
     },
     "95149": {
-      "name": "Quickened Sigils",
-      "icon": "ability_demonhunter_concentratedsigils",
-      "spellId": 209281
+      "name": "First In, Last Out",
+      "icon": "ability_demonhunter_demonictrample",
+      "spellId": 1266497
     },
     "90996": {
       "name": "Erratic Felheart",
       "icon": "inv_archaeology_70_crystallineeyeofundravius",
       "spellId": 391397
     },
+    "110011": {
+      "name": "Final Breath",
+      "icon": "spell_fire_felflamebreath",
+      "spellId": 1266500
+    },
+    "91002": {
+      "name": "Darkness",
+      "icon": "ability_demonhunter_darkness",
+      "spellId": 196718
+    },
+    "90928": {
+      "name": "Demon Muzzle",
+      "icon": "spell_warlock_demonicservitude",
+      "spellId": 1266329
+    },
+    "90949": {
+      "name": "Soul Splitter",
+      "icon": "ability_warlock_soulswap",
+      "spellId": 1266330
+    },
+    "110010": {
+      "name": "Wings of Wrath",
+      "icon": "ability_demonhunter_glide",
+      "spellId": 1266493
+    },
     "91001": {
       "name": "Long Night",
       "icon": "spell_fire_twilightimmolation",
       "spellId": 389781
     },
-    "95148": {
-      "name": "Rush of Chaos",
-      "icon": "ability_demonhunter_metamorphasisdps",
-      "spellId": 320421
-    },
-    "90928": {
-      "name": "Demon Muzzle",
-      "icon": "spell_fire_fireballgreen",
-      "spellId": 388111
-    },
-    "90949": {
-      "name": "Flames of Fury",
-      "icon": "ability_demonhunter_sigilofinquisition",
-      "spellId": 389694
-    },
-    "95152": {
-      "name": "Collective Anguish",
-      "icon": "artifactability_havocdemonhunter_anguishofthedeceiver",
-      "spellId": 390152
-    },
-    "90927": {
-      "name": "The Hunt",
-      "icon": "inv_ability_demonhunter_thehunt",
-      "spellId": 370965
-    },
     "90997": {
-      "name": "Sigil of Spite",
-      "icon": "inv_ability_demonhunter_elysiandecree",
-      "spellId": 390163
+      "name": "Demonic Resilience",
+      "icon": "inv_summondemonictyrant",
+      "spellId": 1266307
     },
     "90912": {
       "name": "",
@@ -222,20 +222,15 @@
       "icon": "inv_glaive_1h_battledungeon_c_02",
       "spellId": 320413
     },
-    "91019": {
-      "name": "Insatiable Hunger",
-      "icon": "ability_rogue_hungerforblood",
-      "spellId": 258876
-    },
     "90923": {
       "name": "Burning Hatred",
       "icon": "ability_demonhunter_immolation",
       "spellId": 320374
     },
     "93014": {
-      "name": "Improved Fel Rush",
-      "icon": "ability_demonhunter_felrush",
-      "spellId": 343017
+      "name": "Dash of Chaos",
+      "icon": "inv_boots_cloth_35v3",
+      "spellId": 427794
     },
     "91030": {
       "name": "Improved Chaos Strike",
@@ -278,9 +273,9 @@
       "spellId": 428232
     },
     "90922": {
-      "name": "Chaotic Transformation",
-      "icon": "ability_demonhunter_glide",
-      "spellId": 388112
+      "name": "Demonic",
+      "icon": "spell_shadow_demonform",
+      "spellId": 213410
     },
     "93013": {
       "name": "Furious Throws",
@@ -302,10 +297,10 @@
       "icon": "ability_bosskilrogg_deadeye",
       "spellId": 203550
     },
-    "90921": {
-      "name": "Looks Can Kill",
-      "icon": "ability_bossmannoroth_empoweredmannorothsgaze",
-      "spellId": 320415
+    "91025": {
+      "name": "Furious Gaze",
+      "icon": "ability_demonhunter_eyebeam",
+      "spellId": 343311
     },
     "91015": {
       "name": "Dancing with Fate",
@@ -327,10 +322,10 @@
       "icon": "spell_shadow_shadesofdarkness",
       "spellId": 388113
     },
-    "91025": {
-      "name": "Furious Gaze",
-      "icon": "ability_demonhunter_eyebeam",
-      "spellId": 343311
+    "90921": {
+      "name": "The Hunt",
+      "icon": "inv_ability_demonhunter_thehunt",
+      "spellId": 370965
     },
     "91013": {
       "name": "Serrated Glaive",
@@ -382,15 +377,15 @@
       "icon": "inv_inscription_tarotchaos",
       "spellId": 428492
     },
-    "95143": {
-      "name": "A Fire Inside",
-      "icon": "ability_demonhunter_chaoticimprint_fire",
-      "spellId": 427775
-    },
     "91033": {
       "name": "Essence Break",
       "icon": "spell_shadow_ritualofsacrifice",
       "spellId": 258860
+    },
+    "108669": {
+      "name": "Glaive Tempest",
+      "icon": "inv_glaive_1h_artifactazgalor_d_06dual",
+      "spellId": 1244557
     },
     "91031": {
       "name": "Shattered Destiny",
@@ -402,10 +397,10 @@
       "icon": "inv_misc_magtheridonshead",
       "spellId": 1220506
     },
-    "95144": {
-      "name": "Fel Barrage",
-      "icon": "inv_felbarrage",
-      "spellId": 258925
+    "95143": {
+      "name": "A Fire Inside",
+      "icon": "ability_demonhunter_chaoticimprint_fire",
+      "spellId": 427775
     },
     "94898": {
       "name": "Fury of the Aldrachi",
@@ -422,6 +417,11 @@
       "icon": "ability_hunter_harass",
       "spellId": 442679
     },
+    "109771": {
+      "name": "Broken Spirit",
+      "icon": "ability_argus_soulbombdebufflarge",
+      "spellId": 1272143
+    },
     "94914": {
       "name": "Aldrachi Tactics",
       "icon": "ability_demonhunter_soulcleave2",
@@ -437,6 +437,11 @@
       "icon": "ability_rogue_venomouswounds",
       "spellId": 442806
     },
+    "109770": {
+      "name": "Keen Edge",
+      "icon": "inv_glaive_1h_tyrande_d_01",
+      "spellId": 1272138
+    },
     "94895": {
       "name": "Incisive Blade",
       "icon": "ability_dualwieldspecialization",
@@ -448,6 +453,11 @@
       "spellId": 442497
     },
     "94906": {
+      "name": "Bladecraft",
+      "icon": "ability_demonhunter_soulcleave3",
+      "spellId": 1272153
+    },
+    "109769": {
       "name": "Warblade's Hunger",
       "icon": "ability_warlock_soulsiphon",
       "spellId": 442502
@@ -456,6 +466,11 @@
       "name": "Thrill of the Fight",
       "icon": "spell_arcane_arcanetactics",
       "spellId": 442686
+    },
+    "109773": {
+      "name": "Blind Focus",
+      "icon": "inv_belt_leather_raiddemonhunter_r_01",
+      "spellId": 1272364
     },
     "94913": {
       "name": "Wave of Debilitation",
@@ -472,6 +487,11 @@
       "icon": "ability_demonhunter_empowerwards",
       "spellId": 452406
     },
+    "109774": {
+      "name": "Undying Embers",
+      "icon": "ability_warlock_burningembersgreen",
+      "spellId": 1272405
+    },
     "94905": {
       "name": "Burning Blades",
       "icon": "inv_glaive_1h_artifactazgalor_d_02dual",
@@ -486,6 +506,11 @@
       "name": "Enduring Torment",
       "icon": "spell_fire_felimmolation",
       "spellId": 452410
+    },
+    "109772": {
+      "name": "Volatile Instinct",
+      "icon": "inv_nature_nova",
+      "spellId": 1272453
     },
     "94904": {
       "name": "Untethered Fury",

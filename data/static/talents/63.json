@@ -2,170 +2,165 @@
   "specName": "Fire",
   "className": "Mage",
   "talents": {
-    "62122": {
-      "name": "Ice Block",
-      "icon": "spell_frost_frost",
-      "spellId": 45438
-    },
-    "62120": {
-      "name": "Overflowing Energy",
-      "icon": "spell_arcane_manatap",
-      "spellId": 390218
-    },
-    "62118": {
-      "name": "Incanter's Flow",
-      "icon": "ability_mage_incantersabsorbtion",
-      "spellId": 1463
-    },
-    "62123": {
-      "name": "Winter's Protection",
-      "icon": "spell_ice_rune",
-      "spellId": 382424
-    },
-    "62084": {
-      "name": "Spellsteal",
-      "icon": "spell_arcane_arcane02",
-      "spellId": 30449
-    },
-    "62111": {
-      "name": "Tempest Barrier",
-      "icon": "inv_shield_1h_artifactstormfist_d_04",
-      "spellId": 382289
-    },
-    "62112": {
-      "name": "Incantation of Swiftness",
-      "icon": "rogue_burstofspeed",
-      "spellId": 382293
-    },
-    "62116": {
-      "name": "Remove Curse",
-      "icon": "spell_nature_removecurse",
-      "spellId": 475
-    },
-    "62114": {
-      "name": "Arcane Warding",
-      "icon": "spell_arcane_arcaneresilience",
-      "spellId": 383092
-    },
-    "62124": {
-      "name": "Mirror Image",
-      "icon": "spell_magic_lesserinvisibilty",
-      "spellId": 55342
-    },
-    "62113": {
-      "name": "Shifting Power",
-      "icon": "inv_ability_mage_shiftingpower",
-      "spellId": 382440
-    },
     "62115": {
       "name": "Alter Time",
       "icon": "spell_mage_altertime",
       "spellId": 342245
     },
-    "62107": {
-      "name": "Cryo-Freeze",
-      "icon": "spell_frost_icefloes",
-      "spellId": 382292
+    "62122": {
+      "name": "Ice Block",
+      "icon": "spell_frost_frost",
+      "spellId": 45438
     },
-    "62125": {
-      "name": "Reduplication",
-      "icon": "ability_mage_massinvisibility",
-      "spellId": 382569
-    },
-    "62104": {
-      "name": "Quick Witted",
-      "icon": "ability_priest_surgeofdarkness",
-      "spellId": 382297
-    },
-    "62106": {
-      "name": "Mass Polymorph",
-      "icon": "spell_nature_doublepolymorph1",
-      "spellId": 383121
-    },
-    "62097": {
-      "name": "Slow",
-      "icon": "spell_nature_slow",
-      "spellId": 31589
+    "108654": {
+      "name": "Time Walk",
+      "icon": "warrior_doubletime",
+      "spellId": 1244087
     },
     "62102": {
       "name": "Master of Time",
       "icon": "inv_belt_armor_waistoftime_d_01",
       "spellId": 342249
     },
-    "62101": {
-      "name": "Diverted Energy",
-      "icon": "inv_soulbarrier",
-      "spellId": 382270
+    "62123": {
+      "name": "Winter's Protection",
+      "icon": "spell_ice_rune",
+      "spellId": 382424
     },
-    "62088": {
-      "name": "Ring of Frost",
-      "icon": "spell_frost_ring_of_frost",
-      "spellId": 113724
+    "62107": {
+      "name": "Frost Conditioning",
+      "icon": "spell_frost_icefloes",
+      "spellId": 1250315
     },
-    "62105": {
-      "name": "Shimmer",
-      "icon": "spell_arcane_massdispel",
-      "spellId": 212653
+    "62114": {
+      "name": "Arcane Warding",
+      "icon": "spell_arcane_arcaneresilience",
+      "spellId": 383092
     },
-    "62103": {
-      "name": "Blast Wave",
-      "icon": "spell_holy_excorcism_02",
-      "spellId": 157981
+    "108660": {
+      "name": "Inspired Intellect",
+      "icon": "spell_holy_arcaneintellect",
+      "spellId": 458437
     },
-    "62110": {
-      "name": "Rigid Ice",
-      "icon": "spell_hunter_blackicetrap",
-      "spellId": 382481
+    "62124": {
+      "name": "Mirror Image",
+      "icon": "spell_magic_lesserinvisibilty",
+      "spellId": 55342
     },
-    "62127": {
-      "name": "Tome of Rhonin",
-      "icon": "inv_misc_book_04",
-      "spellId": 382493
+    "62084": {
+      "name": "Spellsteal",
+      "icon": "spell_arcane_arcane02",
+      "spellId": 30449
+    },
+    "62104": {
+      "name": "Quick Witted",
+      "icon": "ability_priest_surgeofdarkness",
+      "spellId": 382297
     },
     "101883": {
       "name": "Dragon's Breath",
       "icon": "inv_misc_head_dragon_01",
       "spellId": 31661
     },
+    "62116": {
+      "name": "Remove Curse",
+      "icon": "spell_nature_removecurse",
+      "spellId": 475
+    },
+    "108662": {
+      "name": "Improved Conjuration",
+      "icon": "spell_arcane_focusedpower",
+      "spellId": 1244025
+    },
+    "110082": {
+      "name": "Improved Spellsteal",
+      "icon": "spell_arcane_arcane02",
+      "spellId": 1270827
+    },
+    "62105": {
+      "name": "Shimmer",
+      "icon": "spell_arcane_massdispel",
+      "spellId": 212653
+    },
+    "110079": {
+      "name": "Improved Counterspell",
+      "icon": "inv_1115_mage_counterspell",
+      "spellId": 1270865
+    },
+    "108661": {
+      "name": "Overflowing Energy",
+      "icon": "spell_arcane_manatap",
+      "spellId": 390218
+    },
+    "110078": {
+      "name": "Improved Remove Curse",
+      "icon": "spell_nature_removecurse",
+      "spellId": 1270847
+    },
+    "93524": {
+      "name": "Greater Invisibility",
+      "icon": "ability_mage_greaterinvisibility",
+      "spellId": 110959
+    },
+    "62110": {
+      "name": "Improved Frost Nova",
+      "icon": "spell_frost_frostnova",
+      "spellId": 343183
+    },
+    "62125": {
+      "name": "Captured Thoughts",
+      "icon": "spell_nature_elementalabsorption",
+      "spellId": 1270872
+    },
+    "62127": {
+      "name": "Tome of Rhonin",
+      "icon": "inv_misc_book_04",
+      "spellId": 382493
+    },
     "62098": {
       "name": "Tome of Antonidas",
       "icon": "inv_misc_book_18",
       "spellId": 382490
     },
-    "62089": {
-      "name": "Volatile Detonation",
-      "icon": "spell_fire_burnout",
-      "spellId": 389627
+    "62112": {
+      "name": "Incantation of Swiftness",
+      "icon": "rogue_burstofspeed",
+      "spellId": 382293
     },
-    "62100": {
-      "name": "Energized Barriers",
-      "icon": "spell_mage_temporalshield",
-      "spellId": 386828
+    "108659": {
+      "name": "Master of Escape",
+      "icon": "ability_mage_invisibility",
+      "spellId": 210476
     },
-    "62108": {
-      "name": "Improved Frost Nova",
-      "icon": "spell_frost_frostnova",
-      "spellId": 343183
+    "108658": {
+      "name": "Charm of Aegwynn",
+      "icon": "inv_nerubian_necklace_02_color5",
+      "spellId": 1244105
     },
-    "62128": {
-      "name": "Frigid Winds",
-      "icon": "ability_mage_deepfreeze",
-      "spellId": 235224
+    "110081": {
+      "name": "Brainstorm",
+      "icon": "ability_kaztik_dominatemind",
+      "spellId": 461261
     },
     "62096": {
       "name": "Flow of Time",
       "icon": "spell_arcane_blink",
       "spellId": 382268
     },
-    "62099": {
-      "name": "Temporal Velocity",
-      "icon": "ability_socererking_arcaneacceleration",
-      "spellId": 382826
+    "110080": {
+      "name": "Mana Confluence",
+      "icon": "spell_shaman_blessingoftheeternals",
+      "spellId": 1270845
+    },
+    "108657": {
+      "name": "Charm of Medivh",
+      "icon": "inv_nerubian_necklace_02_color1",
+      "spellId": 1244107
     },
     "62086": {
-      "name": "Ice Ward",
-      "icon": "spell_frost_frostward",
-      "spellId": 205036
+      "name": "Permafrost Bauble",
+      "icon": "inv_10_dungeonjewelry_primalist_necklace_2_frost",
+      "spellId": 1265517
     },
     "62087": {
       "name": "Freezing Cold",
@@ -177,20 +172,20 @@
       "icon": "spell_nature_timestop",
       "spellId": 387807
     },
-    "62095": {
-      "name": "Displacement",
-      "icon": "ability_hunter_displacement",
-      "spellId": 389713
+    "62088": {
+      "name": "Ring of Frost",
+      "icon": "spell_frost_ring_of_frost",
+      "spellId": 113724
     },
-    "62093": {
-      "name": "Accumulative Shielding",
-      "icon": "ability_mage_shattershield",
-      "spellId": 382800
+    "62100": {
+      "name": "Energized Barriers",
+      "icon": "spell_mage_temporalshield",
+      "spellId": 386828
     },
-    "93524": {
-      "name": "Greater Invisibility",
-      "icon": "ability_mage_greaterinvisibility",
-      "spellId": 110959
+    "62092": {
+      "name": "Mass Invisibility",
+      "icon": "ability_mage_massinvisibility",
+      "spellId": 414664
     },
     "62091": {
       "name": "Barrier Diffusion",
@@ -203,14 +198,14 @@
       "spellId": 414659
     },
     "62094": {
-      "name": "Inspired Intellect",
-      "icon": "spell_holy_arcaneintellect",
-      "spellId": 458437
+      "name": "Spatial Manipulation",
+      "icon": "spell_mage_overpowered",
+      "spellId": 1244031
     },
-    "62092": {
-      "name": "Mass Invisibility",
-      "icon": "ability_mage_massinvisibility",
-      "spellId": 414664
+    "108656": {
+      "name": "Improved Blazing Barrier",
+      "icon": "ability_mage_moltenarmor",
+      "spellId": 321708
     },
     "100998": {
       "name": "Pyroblast",
@@ -222,220 +217,185 @@
       "icon": "spell_fire_fireball",
       "spellId": 108853
     },
-    "102014": {
+    "110321": {
       "name": "Firestarter",
       "icon": "spell_fire_fire",
       "spellId": 205026
     },
-    "101012": {
-      "name": "Phoenix Flames",
-      "icon": "artifactability_firemage_phoenixbolt",
-      "spellId": 257541
-    },
-    "100997": {
-      "name": "Pyrotechnics",
-      "icon": "spell_fire_flamebolt",
-      "spellId": 157642
-    },
-    "101027": {
-      "name": "Fervent Flickering",
-      "icon": "ability_warlock_burningembers",
-      "spellId": 387044
-    },
-    "100991": {
-      "name": "Call of the Sun King",
-      "icon": "artifactability_firemage_phoenixbolt",
-      "spellId": 343222
-    },
-    "101008": {
-      "name": "Majesty of the Phoenix",
-      "icon": "ability_mount_pandarenphoenix_yellow",
-      "spellId": 451440
-    },
-    "100987": {
-      "name": "Scorch",
-      "icon": "spell_fire_soulburn",
-      "spellId": 2948
-    },
-    "101023": {
-      "name": "Surging Blaze",
+    "109409": {
+      "name": "Flamestrike",
       "icon": "spell_fire_selfdestruct",
-      "spellId": 343230
+      "spellId": 2120
     },
-    "100994": {
-      "name": "Lit Fuse",
-      "icon": "ability_mage_livingbomb",
-      "spellId": 450716
-    },
-    "101011": {
-      "name": "Improved Scorch",
-      "icon": "ability_mage_fierypayback",
-      "spellId": 383604
-    },
-    "102010": {
-      "name": "Heat Shimmer",
-      "icon": "ability_rhyolith_magmaflow_wave",
-      "spellId": 457735
-    },
-    "101009": {
-      "name": "Flame On",
-      "icon": "inv_helm_circlet_firelands_d_01",
-      "spellId": 205029
-    },
-    "102012": {
-      "name": "Flame Accelerant",
-      "icon": "inv_ember",
-      "spellId": 453282
-    },
-    "101029": {
-      "name": "Critical Mass",
-      "icon": "spell_fire_volcano",
-      "spellId": 117216
-    },
-    "102011": {
-      "name": "Sparking Cinders",
+    "109407": {
+      "name": "Ignition",
       "icon": "item_sparkofragnoros",
-      "spellId": 457728
-    },
-    "101013": {
-      "name": "Explosive Ingenuity",
-      "icon": "achievement_dungeon_ignitionmagevalyri",
-      "spellId": 451760
-    },
-    "102013": {
-      "name": "Inflame",
-      "icon": "spell_fire_ragnaros_lavabolt",
-      "spellId": 417467
-    },
-    "101945": {
-      "name": "Ashen Feather",
-      "icon": "inv_icon_feather06a",
-      "spellId": 450813
-    },
-    "101017": {
-      "name": "Intensifying Flame",
-      "icon": "spell_fire_incinerate",
-      "spellId": 416714
+      "spellId": 1254756
     },
     "100995": {
       "name": "Combustion",
       "icon": "spell_fire_sealoffire",
       "spellId": 190319
     },
-    "101002": {
+    "109406": {
+      "name": "Fuel the Fire",
+      "icon": "ability_warlock_inferno",
+      "spellId": 416094
+    },
+    "101027": {
+      "name": "Fervent Flickering",
+      "icon": "ability_warlock_burningembers",
+      "spellId": 387044
+    },
+    "109403": {
+      "name": "Cauterize",
+      "icon": "spell_fire_rune",
+      "spellId": 86949
+    },
+    "101021": {
+      "name": "Meteor",
+      "icon": "spell_mage_meteor",
+      "spellId": 153561
+    },
+    "110322": {
+      "name": "Scorch",
+      "icon": "spell_fire_soulburn",
+      "spellId": 2948
+    },
+    "101009": {
+      "name": "Flame On",
+      "icon": "inv_helm_circlet_firelands_d_01",
+      "spellId": 205029
+    },
+    "101024": {
+      "name": "Kindling",
+      "icon": "spell_mage_kindling",
+      "spellId": 1254194
+    },
+    "101029": {
+      "name": "Critical Mass",
+      "icon": "spell_fire_volcano",
+      "spellId": 117216
+    },
+    "101016": {
+      "name": "Deep Impact",
+      "icon": "spell_fire_moltenblood",
+      "spellId": 1254857
+    },
+    "109411": {
+      "name": "Heat Shimmer",
+      "icon": "ability_rhyolith_magmaflow_wave",
+      "spellId": 457735
+    },
+    "109408": {
+      "name": "Scald",
+      "icon": "ability_racial_foregedinflames",
+      "spellId": 450746
+    },
+    "109401": {
       "name": "Controlled Destruction",
       "icon": "spell_fire_playingwithfire",
       "spellId": 383669
     },
-    "101021": {
-      "name": "Flame Patch",
-      "icon": "spell_mage_flameorb",
-      "spellId": 205037
+    "109399": {
+      "name": "Mote of Flame",
+      "icon": "inv_10_elementalcombinedfoozles_fire",
+      "spellId": 343230
     },
-    "100992": {
-      "name": "Convection",
-      "icon": "spell_fire_lavaspawn",
-      "spellId": 416715
+    "109400": {
+      "name": "Blast Zone",
+      "icon": "spell_fire_elementaldevastation",
+      "spellId": 416719
     },
-    "101006": {
-      "name": "Master of Flame",
-      "icon": "inv_trinket_firelands_02",
-      "spellId": 384174
+    "110087": {
+      "name": "Conflagration",
+      "icon": "spell_shaman_firenova",
+      "spellId": 1271171
     },
-    "101001": {
+    "109402": {
+      "name": "Intensifying Flame",
+      "icon": "spell_fire_incinerate",
+      "spellId": 416714
+    },
+    "109412": {
+      "name": "Spontaneous Combustion",
+      "icon": "ability_mage_worldinflames",
+      "spellId": 451875
+    },
+    "109398": {
+      "name": "Molten Fury",
+      "icon": "warrior_talent_icon_furyintheblood",
+      "spellId": 457803
+    },
+    "110086": {
+      "name": "Inflame",
+      "icon": "spell_fire_ragnaros_lavabolt",
+      "spellId": 417467
+    },
+    "109404": {
       "name": "Wildfire",
       "icon": "ability_warlock_inferno",
-      "spellId": 383489
-    },
-    "101007": {
-      "name": "Improved Combustion",
-      "icon": "spell_fire_sealoffire",
-      "spellId": 383967
-    },
-    "101014": {
-      "name": "Feel the Burn",
-      "icon": "spell_fire_fireball",
-      "spellId": 383391
-    },
-    "100988": {
-      "name": "Mark of the Firelord",
-      "icon": "achievement_firelands_raid_ragnaros",
-      "spellId": 450325
+      "spellId": 1254828
     },
     "101019": {
       "name": "Fevered Incantation",
       "icon": "inv_misc_enchantedpearld",
       "spellId": 383810
     },
-    "101024": {
-      "name": "Kindling",
-      "icon": "spell_mage_kindling",
-      "spellId": 155148
-    },
     "101004": {
       "name": "Fire's Ire",
       "icon": "achievement_boss_lordanthricyst",
       "spellId": 450831
     },
-    "101020": {
-      "name": "Pyromaniac",
-      "icon": "inv_misc_volatilefire",
-      "spellId": 451466
+    "109395": {
+      "name": "Master of Flame",
+      "icon": "inv_trinket_firelands_02",
+      "spellId": 384174
     },
-    "101015": {
-      "name": "Molten Fury",
-      "icon": "warrior_talent_icon_furyintheblood",
-      "spellId": 457803
-    },
-    "100999": {
+    "109393": {
       "name": "From the Ashes",
       "icon": "inv_misc_phoenixegg",
       "spellId": 342344
     },
-    "101003": {
+    "109396": {
       "name": "Fiery Rush",
       "icon": "inv_summerfest_firespirit",
       "spellId": 383634
     },
-    "101016": {
-      "name": "Meteor",
-      "icon": "spell_mage_meteor",
-      "spellId": 153561
+    "109394": {
+      "name": "Flame Accelerant",
+      "icon": "inv_ember",
+      "spellId": 453282
     },
-    "100996": {
-      "name": "Firefall",
-      "icon": "ability_ironmaidens_rapidfire",
-      "spellId": 384033
+    "110089": {
+      "name": "Pyromaniac",
+      "icon": "inv_misc_volatilefire",
+      "spellId": 451466
     },
-    "100993": {
-      "name": "Cratermaker",
-      "icon": "spell_sandexplosion",
-      "spellId": 451757
+    "110088": {
+      "name": "Burnout",
+      "icon": "ability_mage_burnout",
+      "spellId": 1271177
     },
-    "101942": {
-      "name": "Hyperthermia",
-      "icon": "spell_fire_burnout",
-      "spellId": 383860
+    "100999": {
+      "name": "Feel the Burn",
+      "icon": "spell_fire_fireball",
+      "spellId": 383391
     },
-    "101943": {
-      "name": "Phoenix Reborn",
-      "icon": "inv_sword_1h_artifactfelomelorn_d_01",
-      "spellId": 453123
+    "101007": {
+      "name": "Slow Burn",
+      "icon": "spell_fire_sealoffire",
+      "spellId": 383967
     },
-    "101025": {
-      "name": "Sun King's Blessing",
-      "icon": "ability_mage_firestarter",
-      "spellId": 383886
+    "101015": {
+      "name": "Pyroclasm",
+      "icon": "spell_shaman_lavasurge",
+      "spellId": 269650
     },
-    "101000": {
-      "name": "Deep Impact",
-      "icon": "spell_fire_moltenblood",
-      "spellId": 416719
-    },
-    "101022": {
-      "name": "Blast Zone",
-      "icon": "spell_fire_elementaldevastation",
-      "spellId": 451755
+    "109397": {
+      "name": "Cinderstorm",
+      "icon": "spell_fire_flare",
+      "spellId": 1254865
     },
     "94642": {
       "name": "Imbued Warding",
@@ -443,49 +403,64 @@
       "spellId": 431066
     },
     "94641": {
-      "name": "Frostfire Bolt",
-      "icon": "inv_ability_frostfiremage_frostfirebolt",
-      "spellId": 431044
+      "name": "Frostfire Empowerment",
+      "icon": "spell_frostfire_orb",
+      "spellId": 431176
     },
     "94633": {
       "name": "Elemental Affinity",
       "icon": "inv_10_dungeonjewelry_dragon_trinket_5_red",
       "spellId": 431067
     },
+    "109672": {
+      "name": "Duality",
+      "icon": "ability_mage_frostfirebolt",
+      "spellId": 1262843
+    },
     "94638": {
-      "name": "Isothermic Core",
-      "icon": "inv_10_jewelcrafting_gem2standard_fire_cut_blue",
-      "spellId": 431095
+      "name": "Heat Sink",
+      "icon": "spell_fire_masterofelements",
+      "spellId": 1248002
     },
     "94640": {
-      "name": "Severe Temperatures",
-      "icon": "inv_magemount_fire",
-      "spellId": 431189
+      "name": "Thermal Conditioning",
+      "icon": "spell_fireresistancetotem_01",
+      "spellId": 431117
     },
     "94634": {
+      "name": "Dualcasting Adept",
+      "icon": "ability_dualwieldspecialization",
+      "spellId": 1248014
+    },
+    "109671": {
+      "name": "Molten Chill",
+      "icon": "spell_fire_incinerate",
+      "spellId": 1262844
+    },
+    "94639": {
       "name": "Frostfire Infusion",
       "icon": "inv_10_blacksmithing_craftedbar_frostfirealloy",
       "spellId": 431166
     },
-    "94639": {
-      "name": "Excess Frost",
-      "icon": "spell_deathknight_iceboundfortitude",
-      "spellId": 438600
-    },
     "94632": {
-      "name": "Frostfire Empowerment",
-      "icon": "spell_frostfire_orb",
-      "spellId": 431176
-    },
-    "94637": {
-      "name": "Excess Fire",
-      "icon": "ability_mage_fierypayback",
-      "spellId": 438595
-    },
-    "94635": {
       "name": "Flash Freezeburn",
       "icon": "spell_fire_elementaldevastation",
       "spellId": 431178
+    },
+    "94637": {
+      "name": "Blast Radius",
+      "icon": "spell_frostresistancetotem_01",
+      "spellId": 1248016
+    },
+    "109670": {
+      "name": "Elemental Conduit",
+      "icon": "inv_ability_shaman_primordialwave",
+      "spellId": 1262845
+    },
+    "94635": {
+      "name": "Isothermic Core",
+      "icon": "inv12_ability_mage_isothermiccore",
+      "spellId": 431095
     },
     "94653": {
       "name": "Mana Cascade",
@@ -502,20 +477,30 @@
       "icon": "inv_ragnaros_heart",
       "spellId": 451035
     },
+    "109675": {
+      "name": "Glorious Incandescence",
+      "icon": "spell_burningsoul",
+      "spellId": 449394
+    },
     "94649": {
       "name": "Merely a Setback",
       "icon": "inv_helm_robe_raidmage_i_01",
       "spellId": 449330
+    },
+    "94645": {
+      "name": "Codex of the Sunstriders",
+      "icon": "inv_10_inscription2_book3_color1",
+      "spellId": 449382
     },
     "94651": {
       "name": "Lessons in Debilitation",
       "icon": "ability_paladin_handoflight",
       "spellId": 449627
     },
-    "94645": {
-      "name": "Glorious Incandescence",
-      "icon": "spell_burningsoul",
-      "spellId": 449394
+    "109674": {
+      "name": "Pyrocosm",
+      "icon": "spell_fire_meteorstorm",
+      "spellId": 1260673
     },
     "94650": {
       "name": "Savor the Moment",
@@ -523,14 +508,19 @@
       "spellId": 449412
     },
     "94643": {
-      "name": "Codex of the Sunstriders",
-      "icon": "inv_10_inscription2_book3_color1",
-      "spellId": 449382
+      "name": "Ashes of Inspiration",
+      "icon": "inv_misc_powder_copper",
+      "spellId": 1260272
     },
     "94648": {
       "name": "Rondurmancy",
       "icon": "spell_arcane_focusedpower",
       "spellId": 449596
+    },
+    "109673": {
+      "name": "Spellfire Salvo",
+      "icon": "shaman_talent_elementalblast",
+      "spellId": 1260616
     },
     "94646": {
       "name": "Memory of Al'ar",

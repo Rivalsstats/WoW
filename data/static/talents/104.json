@@ -123,9 +123,9 @@
       "spellId": 2908
     },
     "82232": {
-      "name": "Renewal",
-      "icon": "spell_nature_natureblessing",
-      "spellId": 108238
+      "name": "Aessina's Renewal",
+      "icon": "spell_nature_healingtouch",
+      "spellId": 474678
     },
     "100223": {
       "name": "Starlight Conduit",
@@ -198,9 +198,9 @@
       "spellId": 400142
     },
     "100175": {
-      "name": "Innervate",
-      "icon": "spell_nature_lightning",
-      "spellId": 29166
+      "name": "Gift of the Wild",
+      "icon": "spell_nature_giftofthewild",
+      "spellId": 1262034
     },
     "82237": {
       "name": "Incapacitating Roar",
@@ -245,12 +245,12 @@
     "82231": {
       "name": "Heart of the Wild",
       "icon": "spell_holy_blessingofagility",
-      "spellId": 319454
+      "spellId": 1261867
     },
     "82244": {
-      "name": "Nature's Vigil",
-      "icon": "achievement_zone_feralas",
-      "spellId": 124974
+      "name": "Innervate",
+      "icon": "spell_nature_lightning",
+      "spellId": 29166
     },
     "82127": {
       "name": "Maul",
@@ -267,120 +267,100 @@
       "icon": "ability_druid_tigersroar",
       "spellId": 61336
     },
+    "109275": {
+      "name": "Front of the Pack",
+      "icon": "spell_druid_stampedingroar_cat",
+      "spellId": 377835
+    },
     "92227": {
+      "name": "Persistence",
+      "icon": "inv_1115_druid_bearstanding",
+      "spellId": 1251406
+    },
+    "92585": {
       "name": "Dream of Cenarius",
       "icon": "ability_druid_dreamstate",
       "spellId": 372119
     },
-    "82161": {
-      "name": "Brambles",
-      "icon": "inv_misc_thornnecklace",
-      "spellId": 203953
-    },
-    "82131": {
-      "name": "Mangle",
-      "icon": "ability_druid_mangle2",
-      "spellId": 231064
-    },
-    "82128": {
-      "name": "Improved Survival Instincts",
-      "icon": "ability_druid_tigersroar",
-      "spellId": 328767
+    "109376": {
+      "name": "Infected Wounds",
+      "icon": "ability_druid_infectedwound",
+      "spellId": 345208
     },
     "82160": {
       "name": "Innate Resolve",
       "icon": "spell_nature_healingway",
       "spellId": 377811
     },
-    "82162": {
-      "name": "Infected Wounds",
-      "icon": "ability_druid_infectedwound",
-      "spellId": 345208
-    },
     "82149": {
-      "name": "Berserk: Ravage",
+      "name": "Berserk",
       "icon": "ability_druid_berserk",
-      "spellId": 343240
+      "spellId": 50334
     },
-    "82130": {
-      "name": "Ursoc's Endurance",
-      "icon": "ability_hunter_pet_bear",
-      "spellId": 393611
-    },
-    "82132": {
-      "name": "Gory Fur",
-      "icon": "artifactability_guardiandruid_goryfur",
-      "spellId": 200854
-    },
-    "82157": {
-      "name": "Reinvigoration",
-      "icon": "ability_druid_overgrowth",
-      "spellId": 372945
-    },
-    "82159": {
+    "82131": {
       "name": "Vulnerable Flesh",
       "icon": "ability_druid_primalagression",
       "spellId": 372618
-    },
-    "82148": {
-      "name": "Ursol's Warding",
-      "icon": "spell_nature_natureresistancetotem",
-      "spellId": 471492
     },
     "82143": {
       "name": "Survival of the Fittest",
       "icon": "ability_druid_enrage",
       "spellId": 203965
     },
-    "82156": {
-      "name": "Earthwarden",
-      "icon": "spell_shaman_blessingofeternals",
-      "spellId": 203974
+    "82157": {
+      "name": "Reinvigoration",
+      "icon": "ability_druid_overgrowth",
+      "spellId": 372945
     },
-    "82158": {
-      "name": "Vicious Cycle",
-      "icon": "ability_druid_rake",
-      "spellId": 371999
+    "82140": {
+      "name": "After the Wildfire",
+      "icon": "inv12_ability_druid_afterthewildfire",
+      "spellId": 371905
     },
-    "82133": {
-      "name": "Tooth and Claw",
-      "icon": "inv_misc_monsterfang_01",
-      "spellId": 135288
+    "82144": {
+      "name": "Memory of Ysera",
+      "icon": "spell_nature_regeneration_02",
+      "spellId": 1250906
+    },
+    "82146": {
+      "name": "Scintillating Moonlight",
+      "icon": "spell_fire_twilightfireward",
+      "spellId": 238049
+    },
+    "109378": {
+      "name": "Ward of the Forest",
+      "icon": "achievement_zone_grizzlyhills_01",
+      "spellId": 1250923
     },
     "92226": {
       "name": "Soul of the Forest",
       "icon": "ability_druid_manatree",
       "spellId": 158477
     },
-    "82139": {
+    "82156": {
+      "name": "Natural Resilience",
+      "icon": "spell_lfieblood",
+      "spellId": 1278789
+    },
+    "82161": {
       "name": "Reinforced Fur",
       "icon": "spell_nature_spiritarmor",
       "spellId": 393618
     },
-    "92585": {
-      "name": "Thorns of Iron",
-      "icon": "spell_nature_thorns_iron",
-      "spellId": 400222
+    "109377": {
+      "name": "Gift of an Ancient Guardian",
+      "icon": "inv_relics_idolofhealth",
+      "spellId": 1251876
     },
-    "82140": {
-      "name": "After the Wildfire",
-      "icon": "spell_nature_naturetouchgrow",
-      "spellId": 371905
+    "109375": {
+      "name": "Ursoc's Endurance",
+      "icon": "ability_hunter_pet_bear",
+      "spellId": 393611
     },
-    "82155": {
-      "name": "Berserk: Unchecked Aggression",
-      "icon": "ability_druid_berserk",
-      "spellId": 377623
-    },
-    "82138": {
-      "name": "Fury of Nature",
-      "icon": "ability_druid_cresentburn",
-      "spellId": 370695
-    },
-    "82144": {
-      "name": "Berserk: Persistence",
-      "icon": "ability_druid_berserk",
-      "spellId": 377779
+    "82148": {
+      "name": "Ursol's Warding",
+      "icon": "spell_nature_natureresistancetotem",
+      "spellId": 471492
     },
     "82152": {
       "name": "Rend and Tear",
@@ -388,21 +368,16 @@
       "spellId": 204053
     },
     "82137": {
-      "name": "Circle of Life and Death",
-      "icon": "ability_druid_cyclone",
-      "spellId": 391969
+      "name": "Raze",
+      "icon": "ability_druid_lacerate",
+      "spellId": 400254
     },
-    "82134": {
-      "name": "Elune's Favored",
-      "icon": "spell_holy_elunesgrace",
-      "spellId": 370586
+    "92587": {
+      "name": "Lunar Beam",
+      "icon": "spell_nature_moonglow",
+      "spellId": 204066
     },
-    "82145": {
-      "name": "Galactic Guardian",
-      "icon": "spell_frost_iceclaw",
-      "spellId": 203964
-    },
-    "82151": {
+    "82159": {
       "name": "Ursoc's Fury",
       "icon": "achievement_emeraldnightmare_ursoc",
       "spellId": 377210
@@ -417,50 +392,60 @@
       "icon": "ability_druid_primaltenacity",
       "spellId": 203962
     },
-    "82136": {
-      "name": "Incarnation: Guardian of Ursoc",
-      "icon": "spell_druid_incarnation",
-      "spellId": 394786
-    },
     "92586": {
       "name": "Moonless Night",
       "icon": "artifactability_balancedruid_newmoon",
       "spellId": 400278
     },
-    "82146": {
-      "name": "Scintillating Moonlight",
-      "icon": "spell_fire_twilightfireward",
-      "spellId": 238049
+    "82138": {
+      "name": "Fury of Nature",
+      "icon": "ability_druid_cresentburn",
+      "spellId": 370695
     },
     "82147": {
       "name": "Twin Moonfire",
       "icon": "spell_nature_starfall",
       "spellId": 372567
     },
+    "109379": {
+      "name": "Harnessed Rage",
+      "icon": "inv_misc_bearclaw_nightmare",
+      "spellId": 1253035
+    },
+    "82136": {
+      "name": "Incarnation: Guardian of Ursoc",
+      "icon": "spell_druid_incarnation",
+      "spellId": 102558
+    },
+    "82134": {
+      "name": "Elune's Favored",
+      "icon": "spell_holy_elunesgrace",
+      "spellId": 370586
+    },
     "82153": {
-      "name": "Pulverize",
-      "icon": "spell_druid_malfurionstenacity",
-      "spellId": 80313
+      "name": "Killing Blow",
+      "icon": "artifactability_feraldruid_ashamanesbite",
+      "spellId": 1252994
     },
     "92588": {
-      "name": "Raze",
-      "icon": "ability_druid_lacerate",
-      "spellId": 400254
+      "name": "Sundering Roar",
+      "icon": "artifactability_feraldruid_openwounds",
+      "spellId": 1253799
     },
     "82135": {
       "name": "Ursoc's Guidance",
       "icon": "inv_ability_druid_convokethespirits",
       "spellId": 393414
     },
-    "82141": {
-      "name": "Rage of the Sleeper",
-      "icon": "inv_hand_1h_artifactursoc_d_01",
-      "spellId": 200851
+    "109302": {
+      "name": "Waking Nightmare",
+      "icon": "sha_spell_shadow_shadesofdarkness_nightmare",
+      "spellId": 1253461
     },
-    "92587": {
-      "name": "Lunar Beam",
-      "icon": "spell_nature_moonglow",
-      "spellId": 204066
+    "82145": {
+      "name": "Galactic Guardian",
+      "icon": "spell_frost_iceclaw",
+      "spellId": 203964
     },
     "94598": {
       "name": "Moon Guardian",
@@ -477,10 +462,15 @@
       "icon": "ability_druid_ironfur",
       "spellId": 429533
     },
+    "109720": {
+      "name": "Star Cascade",
+      "icon": "spell_arcane_arcane03",
+      "spellId": 1271206
+    },
     "94596": {
-      "name": "Lunar Amplification",
-      "icon": "spell_druid_lunarinspiration",
-      "spellId": 429529
+      "name": "Stellar Command",
+      "icon": "artifactability_balancedruid_moonandstars",
+      "spellId": 429668
     },
     "94607": {
       "name": "Atmospheric Exposure",
@@ -492,10 +482,15 @@
       "icon": "inv_enchant_dust",
       "spellId": 429538
     },
+    "109719": {
+      "name": "Penumbral Swell",
+      "icon": "ability_druid_eclipse",
+      "spellId": 1271261
+    },
     "94590": {
-      "name": "Stellar Command",
-      "icon": "artifactability_balancedruid_moonandstars",
-      "spellId": 429668
+      "name": "Lunar Calling",
+      "icon": "ability_druid_cresentburn",
+      "spellId": 429523
     },
     "94585": {
       "name": "The Light of Elune",
@@ -506,6 +501,11 @@
       "name": "Arcane Affinity",
       "icon": "spell_arcane_arcane01",
       "spellId": 429540
+    },
+    "109718": {
+      "name": "Bask in Moonlight",
+      "icon": "spell_holy_elunesgrace",
+      "spellId": 1271305
     },
     "94587": {
       "name": "The Eternal Moon",
@@ -527,20 +527,30 @@
       "icon": "spell_nature_spiritarmor",
       "spellId": 441841
     },
+    "109722": {
+      "name": "Limb from Limb",
+      "icon": "artifactability_feraldruid_ashamanesbite",
+      "spellId": 1271540
+    },
     "94610": {
       "name": "Wildshape Mastery",
       "icon": "ability_druid_mastershapeshifter",
       "spellId": 441678
     },
     "94619": {
-      "name": "Ruthless Aggression",
-      "icon": "ability_druid_rake",
-      "spellId": 441814
+      "name": "Exacerbating Wounds",
+      "icon": "inv_artifact_bloodoftheassassinated",
+      "spellId": 1271839
     },
     "94615": {
       "name": "Pack's Endurance",
       "icon": "spell_druid_stampedingroar_cat",
       "spellId": 441844
+    },
+    "109723": {
+      "name": "Ruthless Aggression",
+      "icon": "ability_druid_rake",
+      "spellId": 441814
     },
     "94612": {
       "name": "Empowered Shapeshifting",
@@ -556,6 +566,11 @@
       "name": "Strike for the Heart",
       "icon": "ability_druid_primalagression",
       "spellId": 441845
+    },
+    "109721": {
+      "name": "Twin Claw",
+      "icon": "ability_druid_swipe",
+      "spellId": 1271635
     },
     "94613": {
       "name": "Claw Rampage",
