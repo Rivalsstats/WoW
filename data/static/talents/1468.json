@@ -48,9 +48,9 @@
       "spellId": 372469
     },
     "93311": {
-      "name": "Quell",
-      "icon": "ability_evoker_quell",
-      "spellId": 351338
+      "name": "Inner Radiance",
+      "icon": "spell_holy_spellwarding",
+      "spellId": 386405
     },
     "93301": {
       "name": "Recall",
@@ -97,10 +97,10 @@
       "icon": "ability_xavius_dreamsimulacrum",
       "spellId": 360806
     },
-    "93353": {
-      "name": "Regenerative Magic",
-      "icon": "spell_frost_manarecharge",
-      "spellId": 387787
+    "110064": {
+      "name": "Protracted Talons",
+      "icon": "ability_evoker_azurestrike",
+      "spellId": 369909
     },
     "93355": {
       "name": "Inherent Resistance",
@@ -121,6 +121,11 @@
       "name": "Bountiful Bloom",
       "icon": "ability_evoker_emeraldblossom",
       "spellId": 370886
+    },
+    "93353": {
+      "name": "Regenerative Magic",
+      "icon": "spell_frost_manarecharge",
+      "spellId": 387787
     },
     "93309": {
       "name": "Blast Furnace",
@@ -148,14 +153,14 @@
       "spellId": 387761
     },
     "93308": {
-      "name": "Unravel",
-      "icon": "ability_evoker_unravel",
-      "spellId": 368432
+      "name": "Stretch Time",
+      "icon": "ability_evoker_timedilation",
+      "spellId": 410352
     },
     "93307": {
-      "name": "Protracted Talons",
-      "icon": "ability_evoker_azurestrike",
-      "spellId": 369909
+      "name": "Unravel",
+      "icon": "ability_evoker_unravel",
+      "spellId": 1264378
     },
     "93298": {
       "name": "Oppressing Roar",
@@ -182,9 +187,14 @@
       "icon": "ability_evoker_blue_01",
       "spellId": 369459
     },
+    "110065": {
+      "name": "Strike from Above",
+      "icon": "ability_racial_glide",
+      "spellId": 1267206
+    },
     "93343": {
       "name": "Leaping Flames",
-      "icon": "spell_fire_flare",
+      "icon": "ability_evoker_pupilofalexstraza",
       "spellId": 369939
     },
     "93297": {
@@ -199,7 +209,7 @@
     },
     "93287": {
       "name": "Twin Guardian",
-      "icon": "ability_skyreach_shielded",
+      "icon": "inv_misc_volatileair",
       "spellId": 370888
     },
     "93715": {
@@ -257,10 +267,10 @@
       "icon": "ability_evoker_rewind",
       "spellId": 363534
     },
-    "93243": {
-      "name": "Spiritbloom",
-      "icon": "ability_evoker_spiritbloom2",
-      "spellId": 367226
+    "93253": {
+      "name": "Lifebind",
+      "icon": "ability_evoker_hoverred",
+      "spellId": 373270
     },
     "93238": {
       "name": "Essence Attunement",
@@ -273,14 +283,9 @@
       "spellId": 357170
     },
     "93245": {
-      "name": "Emerald Communion",
-      "icon": "ability_evoker_green_01",
-      "spellId": 370960
-    },
-    "93242": {
-      "name": "Empath",
-      "icon": "ability_evoker_powernexus2",
-      "spellId": 376138
+      "name": "Unshakable",
+      "icon": "ability_evoker_masterygiantkiller",
+      "spellId": 1239581
     },
     "93247": {
       "name": "Fluttering Seedlings",
@@ -307,10 +312,10 @@
       "icon": "ability_evoker_temporalanomaly",
       "spellId": 373861
     },
-    "93244": {
-      "name": "Dreamwalker",
-      "icon": "ability_hunter_onewithnature",
-      "spellId": 377082
+    "93242": {
+      "name": "Empath",
+      "icon": "ability_evoker_powernexus2",
+      "spellId": 376138
     },
     "93246": {
       "name": "Exhilarating Burst",
@@ -347,15 +352,15 @@
       "icon": "inv_drakemountemerald",
       "spellId": 373834
     },
-    "93253": {
-      "name": "Lifebind",
-      "icon": "ability_evoker_hoverred",
-      "spellId": 373270
+    "93267": {
+      "name": "Dream Flight",
+      "icon": "ability_evoker_dreamflight",
+      "spellId": 359816
     },
     "93260": {
-      "name": "Unshakable",
-      "icon": "ability_evoker_masterygiantkiller",
-      "spellId": 1239581
+      "name": "Grace Period",
+      "icon": "ability_evoker_reversion_green",
+      "spellId": 376239
     },
     "93269": {
       "name": "Spark of Insight",
@@ -364,7 +369,7 @@
     },
     "93251": {
       "name": "Ouroboros",
-      "icon": "ability_evoker_innatemagic",
+      "icon": "ability_evoker_ouroboros",
       "spellId": 381921
     },
     "93237": {
@@ -372,10 +377,10 @@
       "icon": "item_sparkofragnoros",
       "spellId": 371426
     },
-    "99803": {
-      "name": "Titan's Gift",
-      "icon": "spell_fireresistancetotem_01",
-      "spellId": 443264
+    "93266": {
+      "name": "Inner Flame",
+      "icon": "ability_evoker_infernosblessing",
+      "spellId": 1242745
     },
     "93264": {
       "name": "Temporal Artificer",
@@ -407,15 +412,15 @@
       "icon": "inv_artifact_xp05",
       "spellId": 376240
     },
-    "93267": {
-      "name": "Dream Flight",
-      "icon": "ability_evoker_dreamflight",
-      "spellId": 359816
+    "93243": {
+      "name": "Dream Simulacrum",
+      "icon": "ability_evoker_dragonrage2_green",
+      "spellId": 1241669
     },
-    "93266": {
-      "name": "Cycle of Life",
-      "icon": "spell_lifegivingseed",
-      "spellId": 371832
+    "99803": {
+      "name": "Titan's Gift",
+      "icon": "spell_fireresistancetotem_01",
+      "spellId": 443264
     },
     "99804": {
       "name": "Lifespark",
@@ -423,9 +428,9 @@
       "spellId": 443177
     },
     "93265": {
-      "name": "Grace Period",
-      "icon": "ability_evoker_reversion_green",
-      "spellId": 376239
+      "name": "Twin Echoes",
+      "icon": "inv_ability_evoker_greaterecho",
+      "spellId": 1242031
     },
     "93262": {
       "name": "Tempo Charged",
@@ -438,14 +443,19 @@
       "spellId": 444849
     },
     "99857": {
-      "name": "Flame Siphon",
-      "icon": "ability_evoker_infernosblessing",
-      "spellId": 444140
+      "name": "Ashes in Motion",
+      "icon": "inv_ability_flameshaperevoker_engulf",
+      "spellId": 1264365
     },
     "94956": {
       "name": "Enkindle",
       "icon": "inv_10_elementalcombinedfoozles_purifiedshadowflame",
       "spellId": 444016
+    },
+    "109797": {
+      "name": "Essence Well",
+      "icon": "ability_evoker_essenceburst4",
+      "spellId": 1265993
     },
     "94949": {
       "name": "Conduit of Flame",
@@ -462,20 +472,30 @@
       "icon": "ability_evoker_oppressingroar2",
       "spellId": 1218447
     },
+    "109798": {
+      "name": "Twin Flame",
+      "icon": "ability_evoker_infernosblessing",
+      "spellId": 1265979
+    },
     "94920": {
       "name": "Titanic Precision",
       "icon": "inv_10_misc_titansspark_shadowflame",
       "spellId": 445625
     },
     "94945": {
-      "name": "Red Hot",
-      "icon": "ability_ironmaidens_grapeshotblast",
-      "spellId": 444081
+      "name": "Deep Exhalation",
+      "icon": "ability_evoker_firebreath",
+      "spellId": 1264321
     },
     "94931": {
       "name": "Lifecinders",
       "icon": "inv_misc_herb_cinderbloom_petal",
       "spellId": 444322
+    },
+    "109796": {
+      "name": "Fire Torrent",
+      "icon": "spell_shaman_stormearthfire",
+      "spellId": 1265992
     },
     "94922": {
       "name": "Consume Flame",
@@ -492,6 +512,11 @@
       "icon": "ability_evoker_essenceburst5",
       "spellId": 431695
     },
+    "109510": {
+      "name": "Chronoboon",
+      "icon": "ability_evoker_tipthescales",
+      "spellId": 1260484
+    },
     "94925": {
       "name": "Reverberations",
       "icon": "ability_evoker_giftoftheaspects",
@@ -503,9 +528,14 @@
       "spellId": 431873
     },
     "94947": {
-      "name": "Threads of Fate",
-      "icon": "ability_evoker_sandsoftime",
+      "name": "Nozdormu Adept",
+      "icon": "ability_evoker_aspectsfavorbronze",
       "spellId": 431715
+    },
+    "109509": {
+      "name": "Energy Cycles",
+      "icon": "ability_evoker_innatemagic4",
+      "spellId": 1260568
     },
     "94951": {
       "name": "Primacy",
@@ -518,9 +548,14 @@
       "spellId": 431874
     },
     "94930": {
-      "name": "Master of Destiny",
-      "icon": "ability_evoker_defyfate",
-      "spellId": 431840
+      "name": "Instability Matrix",
+      "icon": "ability_dragonriding_bronzerewind01",
+      "spellId": 431484
+    },
+    "109508": {
+      "name": "Overclock",
+      "icon": "spell_holy_borrowedtime",
+      "spellId": 1260647
     },
     "94942": {
       "name": "Golden Opportunity",

@@ -12,15 +12,15 @@
       "icon": "ability_hunter_rapidkilling",
       "spellId": 262231
     },
+    "90343": {
+      "name": "Thunder Clap",
+      "icon": "spell_nature_thunderclap",
+      "spellId": 6343
+    },
     "90371": {
       "name": "Leeching Strikes",
       "icon": "inv_artifact_bloodoftheassassinated",
       "spellId": 382258
-    },
-    "90329": {
-      "name": "Intervene",
-      "icon": "ability_warrior_victoryrush",
-      "spellId": 3411
     },
     "90326": {
       "name": "Impending Victory",
@@ -32,15 +32,20 @@
       "icon": "ability_heroicleap",
       "spellId": 6544
     },
+    "95959": {
+      "name": "Crackling Thunder",
+      "icon": "ability_thunderking_overcharge",
+      "spellId": 203201
+    },
     "90337": {
       "name": "Storm Bolt",
       "icon": "warrior_talent_icon_stormbolt",
       "spellId": 107570
     },
-    "90384": {
-      "name": "Intimidating Shout",
-      "icon": "ability_golemthunderclap",
-      "spellId": 5246
+    "109391": {
+      "name": "Rend",
+      "icon": "ability_gouge",
+      "spellId": 772
     },
     "90332": {
       "name": "Second Wind",
@@ -62,150 +67,130 @@
       "icon": "spell_holy_painsupression",
       "spellId": 382549
     },
-    "90343": {
-      "name": "Thunder Clap",
-      "icon": "spell_nature_thunderclap",
-      "spellId": 6343
-    },
-    "90383": {
-      "name": "Cacophonous Roar",
-      "icon": "ability_fomor_boss_shout",
-      "spellId": 382954
-    },
-    "90385": {
-      "name": "Spell Reflection",
-      "icon": "ability_warrior_shieldreflection",
-      "spellId": 23920
-    },
-    "90331": {
-      "name": "Rallying Cry",
-      "icon": "ability_warrior_rallyingcry",
-      "spellId": 97462
+    "108674": {
+      "name": "Intervene",
+      "icon": "ability_warrior_victoryrush",
+      "spellId": 3411
     },
     "90375": {
       "name": "Shockwave",
       "icon": "ability_warrior_shockwave",
       "spellId": 46968
     },
-    "95959": {
-      "name": "Crackling Thunder",
-      "icon": "ability_thunderking_overcharge",
-      "spellId": 203201
-    },
-    "95956": {
-      "name": "Honed Reflexes",
-      "icon": "spell_holy_borrowedtime",
-      "spellId": 391271
-    },
-    "90347": {
-      "name": "Crushing Force",
-      "icon": "spell_shadow_unholystrength",
-      "spellId": 382764
-    },
-    "90356": {
-      "name": "Bitter Immunity",
-      "icon": "spell_nature_shamanrage",
-      "spellId": 383762
-    },
     "90378": {
       "name": "Overwhelming Rage",
       "icon": "racial_orc_berserkerstrength",
       "spellId": 382767
     },
-    "90374": {
-      "name": "Rumbling Earth",
-      "icon": "spell_shaman_earthquake",
-      "spellId": 275339
+    "90331": {
+      "name": "Rallying Cry",
+      "icon": "ability_warrior_rallyingcry",
+      "spellId": 97462
     },
-    "90368": {
-      "name": "Reinforced Plates",
-      "icon": "inv_chest_plate04",
-      "spellId": 382939
+    "110119": {
+      "name": "Field Dressing",
+      "icon": "inv_misc_bandage_08",
+      "spellId": 1271926
+    },
+    "90385": {
+      "name": "Spell Reflection",
+      "icon": "ability_warrior_shieldreflection",
+      "spellId": 23920
     },
     "90351": {
       "name": "Wrecking Throw",
       "icon": "warrior_talent_icon_mastercleaver",
       "spellId": 384110
     },
-    "90340": {
-      "name": "Barbaric Training",
-      "icon": "ability_garrosh_whirling_corruption",
-      "spellId": 383082
-    },
-    "90382": {
-      "name": "Double Time",
-      "icon": "inv_misc_horn_04",
-      "spellId": 103827
-    },
-    "90354": {
-      "name": "Seismic Reverberation",
-      "icon": "ability_warrior_bloodnova",
-      "spellId": 382956
+    "90374": {
+      "name": "Rumbling Earth",
+      "icon": "spell_shaman_earthquake",
+      "spellId": 275339
     },
     "90348": {
       "name": "Berserker Shout",
       "icon": "spell_nature_ancestralguardian",
       "spellId": 384100
     },
-    "90373": {
-      "name": "Dual Wield Specialization",
-      "icon": "ability_dualwield",
-      "spellId": 382900
+    "108705": {
+      "name": "Intimidating Shout",
+      "icon": "ability_golemthunderclap",
+      "spellId": 5246
     },
-    "90381": {
-      "name": "Cruel Strikes",
-      "icon": "ability_criticalstrike",
-      "spellId": 392777
-    },
-    "90360": {
-      "name": "Wild Strikes",
-      "icon": "ability_rogue_sprint",
-      "spellId": 382946
+    "95956": {
+      "name": "Honed Reflexes",
+      "icon": "spell_holy_borrowedtime",
+      "spellId": 391271
     },
     "90366": {
       "name": "Armored to the Teeth",
       "icon": "inv_shoulder_22",
       "spellId": 384124
     },
-    "90359": {
-      "name": "Thunderous Roar",
-      "icon": "ability_warrior_dragonroar",
-      "spellId": 384318
+    "90382": {
+      "name": "Double Time",
+      "icon": "inv_misc_horn_04",
+      "spellId": 103827
     },
-    "90365": {
-      "name": "Avatar",
-      "icon": "warrior_talent_icon_avatar",
-      "spellId": 107574
+    "90368": {
+      "name": "Reinforced Plates",
+      "icon": "inv_chest_plate04",
+      "spellId": 382939
+    },
+    "90347": {
+      "name": "Barbaric Training",
+      "icon": "ability_garrosh_whirling_corruption",
+      "spellId": 383082
+    },
+    "110118": {
+      "name": "Javelineer",
+      "icon": "inv_spear_01",
+      "spellId": 1271948
+    },
+    "108685": {
+      "name": "Resonant Voice",
+      "icon": "warrior_disruptingshout",
+      "spellId": 1243660
+    },
+    "108686": {
+      "name": "Crushing Force",
+      "icon": "spell_shadow_unholystrength",
+      "spellId": 382764
+    },
+    "90381": {
+      "name": "Cruel Strikes",
+      "icon": "ability_criticalstrike",
+      "spellId": 392777
+    },
+    "90373": {
+      "name": "Dual Wield Specialization",
+      "icon": "ability_dualwield",
+      "spellId": 382900
+    },
+    "90360": {
+      "name": "Wild Strikes",
+      "icon": "ability_rogue_sprint",
+      "spellId": 382946
+    },
+    "108543": {
+      "name": "Anger Management",
+      "icon": "warrior_talent_icon_angermanagement",
+      "spellId": 152278
     },
     "90380": {
       "name": "Champion's Spear",
       "icon": "inv_ability_warrior_championsspear",
       "spellId": 376079
     },
-    "90357": {
-      "name": "Uproar",
-      "icon": "inv_misc_head_dragon_01",
-      "spellId": 391572
+    "108542": {
+      "name": "Stance Mastery",
+      "icon": "crest_warrior",
+      "spellId": 1280961
     },
-    "90358": {
-      "name": "Thunderous Words",
-      "icon": "spell_nature_earthquake",
-      "spellId": 384969
-    },
-    "90362": {
-      "name": "Berserker's Torment",
-      "icon": "ability_warrior_innerrage",
-      "spellId": 390123
-    },
-    "90379": {
-      "name": "Piercing Challenge",
-      "icon": "ability_revendreth_warrior",
-      "spellId": 382948
-    },
-    "90323": {
-      "name": "Champion's Might",
-      "icon": "ability_bastion_warrior",
-      "spellId": 386284
+    "108544": {
+      "name": "Battlefield Commander",
+      "icon": "ability_warrior_commandingshout",
+      "spellId": 424742
     },
     "90392": {
       "name": "Bloodthirst",
@@ -217,55 +202,55 @@
       "icon": "warrior_wild_strike",
       "spellId": 85288
     },
+    "90430": {
+      "name": "Sudden Death",
+      "icon": "ability_warrior_improveddisciplines",
+      "spellId": 29725
+    },
     "90398": {
       "name": "Frenzied Enrage",
       "icon": "spell_shadow_unholyfrenzy",
       "spellId": 383848
+    },
+    "90429": {
+      "name": "Improved Execute",
+      "icon": "inv_sword_48",
+      "spellId": 316402
+    },
+    "90403": {
+      "name": "Focus in Chaos",
+      "icon": "ability_hunter_mastermarksman",
+      "spellId": 383486
     },
     "90395": {
       "name": "Enraged Regeneration",
       "icon": "ability_warrior_focusedrage",
       "spellId": 184364
     },
-    "90430": {
-      "name": "Improved Execute",
-      "icon": "inv_sword_48",
-      "spellId": 316402
+    "90394": {
+      "name": "Warpaint",
+      "icon": "ability_rogue_preparation",
+      "spellId": 208154
     },
-    "90397": {
-      "name": "Improved Bloodthirst",
-      "icon": "spell_nature_bloodlust",
-      "spellId": 383852
+    "90427": {
+      "name": "Improved Whirlwind",
+      "icon": "ability_whirlwind",
+      "spellId": 12950
+    },
+    "90410": {
+      "name": "Massacre",
+      "icon": "inv_axe_2h_orcwarrior_c_01",
+      "spellId": 206315
     },
     "90399": {
       "name": "Fresh Meat",
       "icon": "ability_deathwing_bloodcorruption_death",
       "spellId": 215568
     },
-    "90394": {
-      "name": "Warpaint",
-      "icon": "ability_rogue_preparation",
-      "spellId": 208154
-    },
-    "90393": {
+    "110329": {
       "name": "Invigorating Fury",
       "icon": "spell_misc_emotionangry",
       "spellId": 383468
-    },
-    "90429": {
-      "name": "Sudden Death",
-      "icon": "ability_warrior_improveddisciplines",
-      "spellId": 280721
-    },
-    "90428": {
-      "name": "Cruelty",
-      "icon": "spell_nature_focusedmind",
-      "spellId": 392931
-    },
-    "90403": {
-      "name": "Focus in Chaos",
-      "icon": "ability_hunter_mastermarksman",
-      "spellId": 383486
     },
     "90408": {
       "name": "Rampage",
@@ -277,135 +262,120 @@
       "icon": "warrior_wild_strike",
       "spellId": 383854
     },
-    "90400": {
-      "name": "Single-Minded Fury",
-      "icon": "warrior_talent_icon_singlemindedfury",
-      "spellId": 81099
+    "90391": {
+      "name": "Rampaging Ruin",
+      "icon": "ability_warrior_trauma",
+      "spellId": 1265357
     },
-    "90402": {
-      "name": "Cold Steel, Hot Blood",
-      "icon": "ability_rogue_hungerforblood",
-      "spellId": 383959
+    "109966": {
+      "name": "Deep Wounds",
+      "icon": "ability_backstab",
+      "spellId": 1261060
     },
-    "90404": {
-      "name": "Vicious Contempt",
-      "icon": "ability_ironmaidens_sorkasprey",
-      "spellId": 383885
+    "90397": {
+      "name": "Spite",
+      "icon": "warrior_talent_icon_furyintheblood",
+      "spellId": 383852
     },
-    "90406": {
-      "name": "Frenzy",
-      "icon": "ability_rogue_bloodyeye",
-      "spellId": 335077
+    "109969": {
+      "name": "Scent of Blood",
+      "icon": "ability_hunter_harass",
+      "spellId": 1265355
+    },
+    "109965": {
+      "name": "Kill or Be Killed",
+      "icon": "inv12_ability_warrior_fury",
+      "spellId": 1265361
     },
     "90407": {
       "name": "Hack and Slash",
       "icon": "ability_rogue_rollthebones02",
       "spellId": 383877
     },
-    "90411": {
-      "name": "Slaughtering Strikes",
-      "icon": "inv_axe_2h_orcwarrior_c_01",
-      "spellId": 388004
+    "90428": {
+      "name": "Cruelty",
+      "icon": "spell_nature_focusedmind",
+      "spellId": 392931
     },
-    "90409": {
-      "name": "Ashen Juggernaut",
-      "icon": "warrior_talent_icon_skirmisher",
-      "spellId": 392536
+    "109967": {
+      "name": "Meat Cleaver",
+      "icon": "warrior_talent_icon_mastercleaver",
+      "spellId": 280392
     },
-    "90427": {
-      "name": "Improved Whirlwind",
-      "icon": "ability_whirlwind",
-      "spellId": 12950
+    "90402": {
+      "name": "Cold Steel, Hot Blood",
+      "icon": "ability_rogue_hungerforblood",
+      "spellId": 383959
     },
-    "90401": {
-      "name": "Bloodborne",
-      "icon": "inv_artifact_bloodoftheassassinated",
-      "spellId": 385703
-    },
-    "90405": {
-      "name": "Bloodcraze",
-      "icon": "ability_creature_cursed_02",
-      "spellId": 393950
+    "109962": {
+      "name": "Ragedrinker",
+      "icon": "spell_nzinsanity_bloodthirst",
+      "spellId": 1265356
     },
     "90412": {
       "name": "Recklessness",
       "icon": "warrior_talent_icon_innerrage",
       "spellId": 1719
     },
-    "90410": {
-      "name": "Massacre",
-      "icon": "inv_sword_48",
-      "spellId": 206315
+    "90405": {
+      "name": "Bloodcraze",
+      "icon": "ability_creature_cursed_02",
+      "spellId": 393950
     },
     "90387": {
       "name": "Wrath and Fury",
       "icon": "inv_sword_2h_artifactarathor_d_03",
       "spellId": 392936
     },
-    "90391": {
-      "name": "Meat Cleaver",
-      "icon": "ability_whirlwind",
-      "spellId": 280392
-    },
     "90421": {
       "name": "Deft Experience",
       "icon": "inv_misc_book_07",
       "spellId": 383295
     },
-    "90416": {
-      "name": "Swift Strikes",
-      "icon": "ability_rogue_sprint",
-      "spellId": 383459
+    "90406": {
+      "name": "Frenzy",
+      "icon": "ability_rogue_bloodyeye",
+      "spellId": 335077
     },
     "90425": {
       "name": "Critical Thinking",
       "icon": "ability_criticalstrike",
       "spellId": 383297
     },
-    "90424": {
-      "name": "Onslaught",
-      "icon": "ability_warrior_trauma",
-      "spellId": 315720
+    "109963": {
+      "name": "Vicious Contempt",
+      "icon": "ability_ironmaidens_sorkasprey",
+      "spellId": 383885
     },
-    "90388": {
-      "name": "Ravager",
-      "icon": "warrior_talent_icon_ravager",
-      "spellId": 228920
-    },
-    "90415": {
-      "name": "Anger Management",
-      "icon": "warrior_talent_icon_angermanagement",
-      "spellId": 152278
-    },
-    "90418": {
+    "110203": {
       "name": "Odyn's Fury",
       "icon": "inv_sword_1h_artifactvigfus_d_01",
       "spellId": 385059
     },
-    "90423": {
-      "name": "Tenderize",
-      "icon": "inv_mace_1h_blacksmithing_b_01_black",
-      "spellId": 388933
+    "90401": {
+      "name": "Bloodborne",
+      "icon": "inv_artifact_bloodoftheassassinated",
+      "spellId": 385703
     },
-    "90389": {
-      "name": "Storm of Steel",
-      "icon": "ability_creature_cursed_04",
-      "spellId": 382953
+    "109964": {
+      "name": "Surge of Adrenaline",
+      "icon": "inv_1115_warrior_fasterreflexes",
+      "spellId": 1265359
     },
-    "90414": {
-      "name": "Unbridled Ferocity",
-      "icon": "ability_warrior_endlessrage",
-      "spellId": 389603
+    "109968": {
+      "name": "Executioner's Wrath",
+      "icon": "inv_12_nonmasculinecharacter_human",
+      "spellId": 1265570
     },
-    "90413": {
-      "name": "Depths of Insanity",
-      "icon": "racial_troll_berserk",
-      "spellId": 383922
+    "90388": {
+      "name": "Reckless Abandon",
+      "icon": "spell_fire_incinerate",
+      "spellId": 396749
     },
-    "90417": {
-      "name": "Dancing Blades",
-      "icon": "inv_sword_1h_artifactvigfus_d_01dual",
-      "spellId": 391683
+    "90415": {
+      "name": "Avatar",
+      "icon": "warrior_talent_icon_avatar",
+      "spellId": 107574
     },
     "94816": {
       "name": "Crashing Thunder",
@@ -422,6 +392,11 @@
       "icon": "ability_warrior_titansgrip",
       "spellId": 437068
     },
+    "109811": {
+      "name": "Storm Surge",
+      "icon": "ability_racial_avatar",
+      "spellId": 275336
+    },
     "94785": {
       "name": "Thunder Blast",
       "icon": "warrior_talent_icon_bloodandthunder",
@@ -436,6 +411,11 @@
       "name": "Keep Your Feet on the Ground",
       "icon": "ability_thunderking_overcharge",
       "spellId": 438590
+    },
+    "109810": {
+      "name": "Conductivity",
+      "icon": "spell_shaman_thunderstorm",
+      "spellId": 1270723
     },
     "94788": {
       "name": "Imminent Demise",
@@ -452,6 +432,16 @@
       "icon": "ability_rogue_sprint",
       "spellId": 444776
     },
+    "109817": {
+      "name": "Violent Euphoria",
+      "icon": "ability_butcher_exsanguination",
+      "spellId": 1270717
+    },
+    "94797": {
+      "name": "Flashing Skies",
+      "icon": "spell_lightning_lightningbolt01",
+      "spellId": 437079
+    },
     "94792": {
       "name": "Gathering Clouds",
       "icon": "spell_nature_stormreach",
@@ -462,10 +452,10 @@
       "icon": "shaman_pvp_thundercharge",
       "spellId": 437118
     },
-    "94797": {
-      "name": "Flashing Skies",
-      "icon": "spell_lightning_lightningbolt01",
-      "spellId": 437079
+    "109809": {
+      "name": "Capacitance",
+      "icon": "spell_nature_purge",
+      "spellId": 1270724
     },
     "94813": {
       "name": "Death Drive",
@@ -481,6 +471,11 @@
       "name": "Fierce Followthrough",
       "icon": "spell_deathknight_butcher2",
       "spellId": 444773
+    },
+    "109816": {
+      "name": "Deadly Focus",
+      "icon": "spell_hunter_focusingshot",
+      "spellId": 1270718
     },
     "94805": {
       "name": "Avatar of the Storm",
@@ -501,6 +496,11 @@
       "name": "Slayer's Malice",
       "icon": "ability_warrior_revenge",
       "spellId": 444779
+    },
+    "109815": {
+      "name": "Unhinged",
+      "icon": "spell_shadow_spectralsight",
+      "spellId": 386628
     },
     "94820": {
       "name": "Unrelenting Onslaught",

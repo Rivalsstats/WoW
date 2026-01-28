@@ -48,9 +48,9 @@
       "spellId": 372469
     },
     "93311": {
-      "name": "Quell",
-      "icon": "ability_evoker_quell",
-      "spellId": 351338
+      "name": "Inner Radiance",
+      "icon": "spell_holy_spellwarding",
+      "spellId": 386405
     },
     "93301": {
       "name": "Recall",
@@ -97,10 +97,10 @@
       "icon": "ability_xavius_dreamsimulacrum",
       "spellId": 360806
     },
-    "93353": {
-      "name": "Regenerative Magic",
-      "icon": "spell_frost_manarecharge",
-      "spellId": 387787
+    "110064": {
+      "name": "Protracted Talons",
+      "icon": "ability_evoker_azurestrike",
+      "spellId": 369909
     },
     "93355": {
       "name": "Inherent Resistance",
@@ -121,6 +121,11 @@
       "name": "Bountiful Bloom",
       "icon": "ability_evoker_emeraldblossom",
       "spellId": 370886
+    },
+    "93353": {
+      "name": "Regenerative Magic",
+      "icon": "spell_frost_manarecharge",
+      "spellId": 387787
     },
     "93309": {
       "name": "Blast Furnace",
@@ -148,14 +153,14 @@
       "spellId": 387761
     },
     "93308": {
-      "name": "Unravel",
-      "icon": "ability_evoker_unravel",
-      "spellId": 368432
+      "name": "Stretch Time",
+      "icon": "ability_evoker_timedilation",
+      "spellId": 410352
     },
     "93307": {
-      "name": "Protracted Talons",
-      "icon": "ability_evoker_azurestrike",
-      "spellId": 369909
+      "name": "Unravel",
+      "icon": "ability_evoker_unravel",
+      "spellId": 1264378
     },
     "93298": {
       "name": "Oppressing Roar",
@@ -182,9 +187,14 @@
       "icon": "ability_evoker_blue_01",
       "spellId": 369459
     },
+    "110065": {
+      "name": "Strike from Above",
+      "icon": "ability_racial_glide",
+      "spellId": 1267206
+    },
     "93343": {
       "name": "Leaping Flames",
-      "icon": "spell_fire_flare",
+      "icon": "ability_evoker_pupilofalexstraza",
       "spellId": 369939
     },
     "93297": {
@@ -199,7 +209,7 @@
     },
     "93287": {
       "name": "Twin Guardian",
-      "icon": "ability_skyreach_shielded",
+      "icon": "inv_misc_volatileair",
       "spellId": 370888
     },
     "93715": {
@@ -243,14 +253,14 @@
       "spellId": 375721
     },
     "93284": {
-      "name": "Dense Energy",
-      "icon": "ability_evoker_pyre",
-      "spellId": 370962
+      "name": "Lay Waste",
+      "icon": "ability_evoker_deepbreath",
+      "spellId": 371034
     },
     "93332": {
-      "name": "Imposing Presence",
+      "name": "Quell",
       "icon": "ability_evoker_quell",
-      "spellId": 371016
+      "spellId": 351338
     },
     "93275": {
       "name": "Eternity Surge",
@@ -273,9 +283,9 @@
       "spellId": 375087
     },
     "93273": {
-      "name": "Lay Waste",
-      "icon": "ability_evoker_deepbreath",
-      "spellId": 371034
+      "name": "Azure Sweep",
+      "icon": "inv_10_skinning_dragonscales_blue",
+      "spellId": 1265867
     },
     "93274": {
       "name": "Arcane Intensity",
@@ -298,9 +308,9 @@
       "spellId": 375722
     },
     "93278": {
-      "name": "Firestorm",
-      "icon": "ability_evoker_firestorm",
-      "spellId": 368847
+      "name": "Engulfing Blaze",
+      "icon": "inv_inscription_pigment_ruby",
+      "spellId": 370837
     },
     "93281": {
       "name": "Heat Wave",
@@ -338,14 +348,14 @@
       "spellId": 370455
     },
     "93316": {
-      "name": "Shattering Star",
+      "name": "Shattering Stars",
       "icon": "ability_evoker_chargedblast",
-      "spellId": 370452
+      "spellId": 1265802
     },
     "93277": {
-      "name": "Snapfire",
-      "icon": "spell_shaman_improvedfirenova",
-      "spellId": 370783
+      "name": "Feed the Flames",
+      "icon": "mace_1h_blacksmithing_d_04_icon",
+      "spellId": 369846
     },
     "93314": {
       "name": "Burnout",
@@ -363,9 +373,9 @@
       "spellId": 370845
     },
     "93315": {
-      "name": "Focusing Iris",
-      "icon": "spell_mage_temporalshield",
-      "spellId": 386336
+      "name": "Star Salvo",
+      "icon": "inv12_ability_mage_arcanesalvo",
+      "spellId": 1265826
     },
     "93326": {
       "name": "Imminent Destruction",
@@ -393,9 +403,9 @@
       "spellId": 370839
     },
     "93313": {
-      "name": "Feed the Flames",
-      "icon": "mace_1h_blacksmithing_d_04_icon",
-      "spellId": 369846
+      "name": "Strafing Run",
+      "icon": "ability_evoker_blackattunementalt",
+      "spellId": 1266151
     },
     "93365": {
       "name": "Scorching Embers",
@@ -432,20 +442,30 @@
       "icon": "spell_fire_soulburn",
       "spellId": 441245
     },
+    "109795": {
+      "name": "Command Squadron",
+      "icon": "ability_dragonriding_dynamicflight01",
+      "spellId": 1260745
+    },
     "94937": {
       "name": "Trailblazer",
       "icon": "ability_deathwing_fierygrip",
       "spellId": 444849
     },
     "99857": {
-      "name": "Flame Siphon",
-      "icon": "ability_evoker_infernosblessing",
-      "spellId": 444140
+      "name": "Ashes in Motion",
+      "icon": "inv_ability_flameshaperevoker_engulf",
+      "spellId": 1264365
     },
     "94956": {
       "name": "Enkindle",
       "icon": "inv_10_elementalcombinedfoozles_purifiedshadowflame",
       "spellId": 444016
+    },
+    "109797": {
+      "name": "Essence Well",
+      "icon": "ability_evoker_essenceburst4",
+      "spellId": 1265993
     },
     "94921": {
       "name": "Melt Armor",
@@ -462,6 +482,11 @@
       "icon": "ability_siege_engineer_superheated",
       "spellId": 441246
     },
+    "109794": {
+      "name": "Concentrated Power",
+      "icon": "inv_10_dungeonjewelry_dragon_trinket_1arcanemagical_blue",
+      "spellId": 1261448
+    },
     "94949": {
       "name": "Conduit of Flame",
       "icon": "ability_evoker_innatemagic5",
@@ -476,6 +501,11 @@
       "name": "Fulminous Roar",
       "icon": "ability_evoker_oppressingroar2",
       "spellId": 1218447
+    },
+    "109798": {
+      "name": "Twin Flame",
+      "icon": "ability_evoker_infernosblessing",
+      "spellId": 1265979
     },
     "94933": {
       "name": "Hardened Scales",
@@ -492,20 +522,30 @@
       "icon": "ability_evoker_hover",
       "spellId": 441253
     },
+    "109793": {
+      "name": "Refined Essence",
+      "icon": "ability_evoker_essenceburststacks",
+      "spellId": 1261452
+    },
     "94920": {
       "name": "Titanic Precision",
       "icon": "inv_10_misc_titansspark_shadowflame",
       "spellId": 445625
     },
     "94945": {
-      "name": "Red Hot",
-      "icon": "ability_ironmaidens_grapeshotblast",
-      "spellId": 444081
+      "name": "Deep Exhalation",
+      "icon": "ability_evoker_firebreath",
+      "spellId": 1264321
     },
     "94931": {
       "name": "Lifecinders",
       "icon": "inv_misc_herb_cinderbloom_petal",
       "spellId": 444322
+    },
+    "109796": {
+      "name": "Fire Torrent",
+      "icon": "spell_shaman_stormearthfire",
+      "spellId": 1265992
     },
     "94941": {
       "name": "Maneuverability",
