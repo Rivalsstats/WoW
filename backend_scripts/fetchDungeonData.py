@@ -131,5 +131,8 @@ for dungeon_id in short_name_map:
         databaseConnector.commit_changes(conn)
 
 os.makedirs("data/static", exist_ok=True)
-with open("data/static/dungeons.json", "w") as f:
-    json.dump(out, f, indent=2)
+print(f"Output is {len(out)} long")
+if len(out) != 0:
+    with open("data/static/dungeons.json", "w") as f:
+        json.dump(out, f, indent=2)
+    print("Json file written")
