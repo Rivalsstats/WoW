@@ -1,15 +1,10 @@
 [
   {
-    "message": "The Routes page has been updated and now allows for filtering of npcs and spells. Check it out!",
+    "message": "Mythistone is now available in the Game! Check out the Addon on CurseForge.",
     "type": "info",
     "dismissible": true,
-    "auto_hide": 0
-  },
-  {
-    "message": "Since patch 11.2, the Blizzard Armory is returning some incorrect data. As a result, some stat priorities may be shown incorrectly.",
-    "type": "warning",
-    "page": "spec",
-    "dismissible": true,
+    "link": "https://www.curseforge.com/wow/addons/mythistone",
+    "link_text": "View Addon",
     "auto_hide": 0
   }
 ]

@@ -7,6 +7,12 @@
         <span class="material-symbols-rounded me-2" aria-hidden="true">announcement</span>
         <div class="flex-fill">{{ notification.message | safe }}</div>
 
+        {% if notification.link and notification.link_text %}
+        <a href="{{ notification.link }}" class="btn btn-sm btn-light ms-3" target="_blank" rel="noopener noreferrer">
+            {{ notification.link_text }}
+        </a>
+        {% endif %}
+
         {% if notification.dismissible %}
         <button type="button" class="btn-close ms-3" data-bs-dismiss="alert" aria-label="Close"><span
                 class="material-symbols-rounded me-2" aria-hidden="true">close</span></button>
