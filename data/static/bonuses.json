@@ -29628,7 +29628,7 @@
   },
   "6825": {
     "id": 6825,
-    "ilevel": "5 @plvl 0 - 61 @plvl 72",
+    "ilevel": "1 @plvl 0 - 63 @plvl 74",
     "curveId": 16520
   },
   "6826": {
@@ -38172,15 +38172,27 @@
   },
   "7753": {
     "id": 7753,
-    "serverside": true
+    "itemLevel": {
+      "amount": 71,
+      "priority": 0,
+      "squishEra": 0
+    }
   },
   "7754": {
     "id": 7754,
-    "serverside": true
+    "itemLevel": {
+      "amount": 72,
+      "priority": 0,
+      "squishEra": 0
+    }
   },
   "7755": {
     "id": 7755,
-    "serverside": true
+    "itemLevel": {
+      "amount": 73,
+      "priority": 0,
+      "squishEra": 0
+    }
   },
   "7756": {
     "id": 7756,
@@ -49367,32 +49379,32 @@
   },
   "9119": {
     "id": 9119,
-    "quality": 4,
     "itemLevel": {
       "amount": 71,
       "priority": 0,
       "squishEra": 0
-    }
+    },
+    "quality": 4
   },
   "9120": {
     "id": 9120,
-    "quality": 4,
     "tag": "Heroic",
     "itemLevel": {
       "amount": 72,
       "priority": 0,
       "squishEra": 0
-    }
+    },
+    "quality": 4
   },
   "9121": {
     "id": 9121,
-    "quality": 4,
     "tag": "Mythic",
     "itemLevel": {
       "amount": 73,
       "priority": 0,
       "squishEra": 0
-    }
+    },
+    "quality": 4
   },
   "9122": {
     "id": 9122,

@@ -12313,7 +12313,7 @@
   },
   {
     "id": 7532,
-    "displayName": "6 Int & 5 Sta",
+    "displayName": "6 Int & 6 Sta",
     "spellId": 457621,
     "spellIcon": "inv_10_tailoring_craftingoptionalreagent_enhancedspellthread_color2",
     "itemId": 222891,
@@ -12330,7 +12330,7 @@
       },
       {
         "type": "sta",
-        "amount": 5
+        "amount": 6
       }
     ],
     "equipRequirements": {
@@ -12445,7 +12445,7 @@
   },
   {
     "id": 7537,
-    "displayName": "5 Int",
+    "displayName": "6 Int",
     "spellId": 457626,
     "spellIcon": "inv_10_tailoring_craftingoptionalreagent_enhancedspellthread_color3",
     "itemId": 222890,
@@ -12458,7 +12458,7 @@
     "stats": [
       {
         "type": "int",
-        "amount": 5
+        "amount": 6
       }
     ],
     "equipRequirements": {
@@ -12717,7 +12717,7 @@
   },
   {
     "id": 7593,
-    "displayName": "43 Agi/Str & 46 Armor",
+    "displayName": "6 Agi/Str & 8 Armor",
     "spellId": 451826,
     "spellIcon": "inv_10_skinning_consumable_armorkit_color2",
     "itemId": 219906,
@@ -12730,7 +12730,7 @@
     "stats": [
       {
         "type": "stragi",
-        "amount": 43
+        "amount": 6
       }
     ],
     "equipRequirements": {
@@ -12741,7 +12741,7 @@
   },
   {
     "id": 7594,
-    "displayName": "52 Agi/Str & 55 Armor",
+    "displayName": "7 Agi/Str & 9 Armor",
     "spellId": 451827,
     "spellIcon": "inv_10_skinning_consumable_armorkit_color2",
     "itemId": 219907,
@@ -12754,7 +12754,7 @@
     "stats": [
       {
         "type": "stragi",
-        "amount": 52
+        "amount": 7
       }
     ],
     "equipRequirements": {
@@ -12765,7 +12765,7 @@
   },
   {
     "id": 7595,
-    "displayName": "61 Agi/Str & 65 Armor",
+    "displayName": "8 Agi/Str & 10 Armor",
     "spellId": 451828,
     "spellIcon": "inv_10_skinning_consumable_armorkit_color2",
     "itemId": 219908,
@@ -12778,7 +12778,7 @@
     "stats": [
       {
         "type": "stragi",
-        "amount": 61
+        "amount": 8
       }
     ],
     "equipRequirements": {
@@ -12789,7 +12789,7 @@
   },
   {
     "id": 7596,
-    "displayName": "28 Agi/Str",
+    "displayName": "4 Agi/Str",
     "spellId": 451829,
     "spellIcon": "inv_10_skinning_consumable_armorkit_color2",
     "itemId": 219912,
@@ -12802,7 +12802,7 @@
     "stats": [
       {
         "type": "stragi",
-        "amount": 28
+        "amount": 4
       }
     ],
     "equipRequirements": {
@@ -12813,7 +12813,7 @@
   },
   {
     "id": 7597,
-    "displayName": "35 Agi/Str",
+    "displayName": "5 Agi/Str",
     "spellId": 451830,
     "spellIcon": "inv_10_skinning_consumable_armorkit_color2",
     "itemId": 219913,
@@ -12826,7 +12826,7 @@
     "stats": [
       {
         "type": "stragi",
-        "amount": 35
+        "amount": 5
       }
     ],
     "equipRequirements": {
@@ -12837,7 +12837,7 @@
   },
   {
     "id": 7598,
-    "displayName": "41 Agi/Str",
+    "displayName": "6 Agi/Str",
     "spellId": 451831,
     "spellIcon": "inv_10_skinning_consumable_armorkit_color2",
     "itemId": 219914,
@@ -12850,7 +12850,7 @@
     "stats": [
       {
         "type": "stragi",
-        "amount": 41
+        "amount": 6
       }
     ],
     "equipRequirements": {
@@ -12861,7 +12861,7 @@
   },
   {
     "id": 7599,
-    "displayName": "43 Agi/Str & 41 Sta",
+    "displayName": "6 Agi/Str & 6 Sta",
     "spellId": 451821,
     "spellIcon": "inv_10_skinning_consumable_armorkit_color2",
     "itemId": 219909,
@@ -12874,11 +12874,11 @@
     "stats": [
       {
         "type": "sta",
-        "amount": 41
+        "amount": 6
       },
       {
         "type": "stragi",
-        "amount": 43
+        "amount": 6
       }
     ],
     "equipRequirements": {
@@ -12889,7 +12889,7 @@
   },
   {
     "id": 7600,
-    "displayName": "52 Agi/Str & 50 Sta",
+    "displayName": "7 Agi/Str & 7 Sta",
     "spellId": 451824,
     "spellIcon": "inv_10_skinning_consumable_armorkit_color2",
     "itemId": 219910,
@@ -12902,11 +12902,11 @@
     "stats": [
       {
         "type": "sta",
-        "amount": 50
+        "amount": 7
       },
       {
         "type": "stragi",
-        "amount": 52
+        "amount": 7
       }
     ],
     "equipRequirements": {
@@ -12917,7 +12917,7 @@
   },
   {
     "id": 7601,
-    "displayName": "61 Agi/Str & 59 Sta",
+    "displayName": "8 Agi/Str & 8 Sta",
     "spellId": 451825,
     "spellIcon": "inv_10_skinning_consumable_armorkit_color2",
     "itemId": 219911,
@@ -12930,11 +12930,11 @@
     "stats": [
       {
         "type": "sta",
-        "amount": 59
+        "amount": 8
       },
       {
         "type": "stragi",
-        "amount": 61
+        "amount": 8
       }
     ],
     "equipRequirements": {
@@ -12945,7 +12945,7 @@
   },
   {
     "id": 7652,
-    "displayName": "39 Agi/Str/Int & 37 Sta",
+    "displayName": "5 Agi/Str/Int & 6 Sta",
     "spellId": 1216517,
     "spellIcon": "inv_misc_armorkit_22",
     "itemId": 235335,
@@ -12958,11 +12958,11 @@
     "stats": [
       {
         "type": "sta",
-        "amount": 37
+        "amount": 6
       },
       {
         "type": "stragiint",
-        "amount": 39
+        "amount": 5
       }
     ],
     "equipRequirements": {
@@ -12973,7 +12973,7 @@
   },
   {
     "id": 7653,
-    "displayName": "47 Agi/Str/Int & 45 Sta",
+    "displayName": "6 Agi/Str/Int & 7 Sta",
     "spellId": 1216518,
     "spellIcon": "inv_misc_armorkit_22",
     "itemId": 235337,
@@ -12986,11 +12986,11 @@
     "stats": [
       {
         "type": "sta",
-        "amount": 45
+        "amount": 7
       },
       {
         "type": "stragiint",
-        "amount": 47
+        "amount": 6
       }
     ],
     "equipRequirements": {
@@ -13001,7 +13001,7 @@
   },
   {
     "id": 7654,
-    "displayName": "55 Agi/Str/Int & 53 Sta",
+    "displayName": "7 Agi/Str/Int & 8 Sta",
     "spellId": 1216519,
     "spellIcon": "inv_misc_armorkit_22",
     "itemId": 235336,
@@ -13014,11 +13014,11 @@
     "stats": [
       {
         "type": "sta",
-        "amount": 53
+        "amount": 8
       },
       {
         "type": "stragiint",
-        "amount": 55
+        "amount": 7
       }
     ],
     "equipRequirements": {
