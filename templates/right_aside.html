@@ -55,8 +55,19 @@
         aria-label="Right sidebar carousel">
         <div class="carousel-inner">
 
-          <!-- Slide 1: CustomNames -->
+          <!-- Slide 1: Mythistone Addon -->
           <div class="carousel-item active">
+            {{ ad_card(
+            'Mythistone',
+            'Mythistone',
+            'The Website in the Game. Perfect for staying up to date. <small>CurseForge</small>',
+            'https://www.curseforge.com/wow/addons/mythistone',
+            'Mythistone addon'
+            )|safe }}
+          </div>
+
+          <!-- Slide 2: CustomNames -->
+          <div class="carousel-item">
             {{ ad_card(
             'CustomNames',
             'CustomNames',
@@ -66,7 +77,7 @@
             )|safe }}
           </div>
 
-          <!-- Slide 2: BetterTimeline -->
+          <!-- Slide 3: BetterTimeline -->
           <div class="carousel-item">
             {{ ad_card(
             'BetterTimeline',
@@ -77,7 +88,7 @@
             )|safe }}
           </div>
 
-          <!-- Slide 3: GroupFinderRio -->
+          <!-- Slide 4: GroupFinderRio -->
           <div class="carousel-item">
             {{ ad_card(
             'GroupFinderRio',
@@ -88,7 +99,7 @@
             )|safe }}
           </div>
 
-          <!-- Slide 8: Want This Space -->
+          <!-- Slide 5: Want This Space -->
           <div class="carousel-item">
             {{ ad_card(
             'WantThisSpace',
