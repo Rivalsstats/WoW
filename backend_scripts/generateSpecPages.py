@@ -36,7 +36,6 @@ SLOT_GROUPS = [
     "LEGS",
     "WEAPON",
     "NECK",
-    "WEAPON",
     "SHOULDER",
     "TRINKET",
     "WAIST",
@@ -489,7 +488,10 @@ def convert_slots(
                 item["socket"] = sockets_data
 
             enchantment_data = {}
-            if enchant_slots.get(slot) and len(enchant_slots[slot]) > 0:
+            if slot in WEAPON_SLOTS:
+                if item_lookup[int(item["item"])].get("itemClass") == 2 and enchant_slots.get("WEAPON") and len(enchant_slots["WEAPON"]) > 0:
+                    enchantment_data = enchant_slots["WEAPON"][0]
+            elif enchant_slots.get(slot) and len(enchant_slots[slot]) > 0:
                 enchantment_data = enchant_slots[slot][0]
             elif (
                 MULTI_SLOT_GROUPS.get(slot)
