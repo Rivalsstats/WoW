@@ -45,8 +45,7 @@ if not (KEYSTONE_USER and KEYSTONE_PW):
         "KEYSTONE_GURU_USER and KEYSTONE_GURU_PW env vars are required"
     )
 
-# rate limit configuration (overridable by env)
-RAIDER_RATE_MAX = int(os.getenv("RAIDER_RATE_MAX", "900"))
+RAIDER_RATE_MAX = int(os.getenv("RAIDER_RATE_MAX", "500"))
 RAIDER_RATE_PERIOD = int(os.getenv("RAIDER_RATE_PERIOD", "60"))
 KEYSTONE_RATE_MAX = int(os.getenv("KEYSTONE_RATE_MAX", "100"))
 KEYSTONE_RATE_PERIOD = int(os.getenv("KEYSTONE_RATE_PERIOD", "60"))
@@ -57,6 +56,12 @@ RAIDER_RATE_LIMIT = AsyncLimiter(
 KEYSTONE_RATE_LIMIT = AsyncLimiter(
     max_rate=KEYSTONE_RATE_MAX, time_period=KEYSTONE_RATE_PERIOD
 )
+
+# Global backoff state for Raider.io API
+GLOBAL_RAIDER_BACKOFF = {
+    "until": 0,
+    "lock": asyncio.Lock(),
+}
 
 # initialize DB pool (use small pool; the worker will take a single connection)
 databaseConnector.init_connection_pool(
@@ -116,12 +121,23 @@ async def fetch_run_details(
     params = {"id": run_id, "season": season}
     attempt = 0
     while attempt < 5:
+        # Global backoff: wait if a previous worker triggered a cooldown
+        async with GLOBAL_RAIDER_BACKOFF["lock"]:
+            now = datetime.now(timezone.utc).timestamp()
+            if GLOBAL_RAIDER_BACKOFF["until"] > now:
+                wait = GLOBAL_RAIDER_BACKOFF["until"] - now
+                print(f"[{datetime.now(timezone.utc).isoformat()}] GLOBAL backoff active, waiting {wait:.2f}s")
+                await asyncio.sleep(wait)
         await RAIDER_RATE_LIMIT.acquire()
         try:
             async with session.get(RAIDER_RUN_DETAILS_URL, params=params) as resp:
                 if resp.status == 429:
                     retry_after = resp.headers.get("Retry-After")
                     wait = float(retry_after) if retry_after else (2**attempt)
+                    # Set global backoff for all workers
+                    async with GLOBAL_RAIDER_BACKOFF["lock"]:
+                        GLOBAL_RAIDER_BACKOFF["until"] = datetime.now(timezone.utc).timestamp() + wait
+                    print(f"[{datetime.now(timezone.utc).isoformat()}] fetch_run_details {run_id} hit rate limit, GLOBAL backoff {wait}s (attempt {attempt+1})")
                     await asyncio.sleep(wait)
                     attempt += 1
                     continue
@@ -143,7 +159,8 @@ async def fetch_run_details(
                                 completed_at.replace("Z", "+00:00")
                             ).timestamp()
                         )
-                    except Exception:
+                    except Exception as ex:
+                        print(f"[{datetime.now(timezone.utc).isoformat()}] fetch_run_details {run_id} failed to parse completed_at '{completed_at}': {ex}")
                         ts = None
 
                 reduced = {
@@ -161,14 +178,15 @@ async def fetch_run_details(
                 run_details_cache[run_id] = reduced
                 return reduced
         except ClientError as e:
-            print(
-                f"[{datetime.now(timezone.utc).isoformat()}] ERROR fetch_run_details {run_id}: {e}"
-            )
-            return {}
-    print(
-        f"[{datetime.now(timezone.utc).isoformat()}] FAILED fetching run details {run_id} after {attempt} retries"
-    )
-    return {}
+            print(f"[{datetime.now(timezone.utc).isoformat()}] ERROR fetch_run_details {run_id}: {e}")
+            attempt += 1
+            continue
+        except Exception as ex:
+            print(f"[{datetime.now(timezone.utc).isoformat()}] UNEXPECTED fetch_run_details {run_id}: {ex}")
+            attempt += 1
+            continue
+    print(f"[{datetime.now(timezone.utc).isoformat()}] FAILED fetching run details {run_id} after {attempt} retries")
+    return {"error": f"Failed fetching run details after {attempt} retries"}
 
 
 async def collect_for_dungeon(
@@ -279,7 +297,7 @@ def db_worker_thread(job_queue: threading_queue.Queue):
                     "route_key"
                 )
                 try:
-                    # Insert route_data using keystone info (mapping_version, enemyForces) + raider reduced fields
+                    # Validate parameters before DB insert
                     rio_run_id = int(raider_reduced.get("keystone_run_id") or 0)
                     mapping_version = int(keystone_route.get("mappingVersion") or 0)
                     enemy_forces = int(keystone_route.get("enemyForces") or 0)
@@ -287,6 +305,8 @@ def db_worker_thread(job_queue: threading_queue.Queue):
                     keystone_level = int(raider_reduced.get("mythic_level") or 0)
                     duration = int(raider_reduced.get("duration") or 0)
                     dungeon_id = raider_reduced.get("dungeon_id")
+                    if not route_key or not rio_run_id or not mapping_version:
+                        raise ValueError(f"Invalid parameters for insert_route: route_key={route_key}, rio_run_id={rio_run_id}, mapping_version={mapping_version}")
 
                     databaseConnector.insert_route_data(
                         conn,
@@ -305,18 +325,15 @@ def db_worker_thread(job_queue: threading_queue.Queue):
                     for s in raider_reduced.get("roster_specs", []):
                         try:
                             specs.add(int(s))
-                        except Exception:
-                            pass
+                        except Exception as ex:
+                            print(f"[{datetime.now(timezone.utc).isoformat()}] insert_route_spec param error: {ex}")
                     for spec_id in specs:
                         try:
                             databaseConnector.insert_route_spec(
                                 conn, cursor, route_key, spec_id
                             )
                         except Exception as e:
-                            # ignore duplicate/minor errors
-                            print(
-                                f"[{datetime.now(timezone.utc).isoformat()}] insert_route_spec ignored: {e}"
-                            )
+                            print(f"[{datetime.now(timezone.utc).isoformat()}] insert_route_spec ignored: {e}")
 
                     # Insert pulls and aggregated enemies/spells
                     pulls = keystone_route.get("pulls", []) or []
@@ -328,12 +345,10 @@ def db_worker_thread(job_queue: threading_queue.Queue):
                         except Exception as e:
                             try:
                                 conn.rollback()
-                            except Exception:
-                                pass
+                            except Exception as ex:
+                                print(f"[{datetime.now(timezone.utc).isoformat()}] insert_route_pull rollback failed: {ex}")
                             fut.set_result(False)
-                            print(
-                                f"[{datetime.now(timezone.utc).isoformat()}] insert_route_pull failed for {route_key}: {e}"
-                            )
+                            print(f"[{datetime.now(timezone.utc).isoformat()}] insert_route_pull failed for {route_key}: {e}")
                             break
 
                         counts = aggregate_enemies_occurrence(pull)
@@ -348,10 +363,7 @@ def db_worker_thread(job_queue: threading_queue.Queue):
                                     int(cnt),
                                 )
                             except Exception as e:
-                                # ignore duplicate/integrity errors
-                                print(
-                                    f"[{datetime.now(timezone.utc).isoformat()}] insert_pull_enemies ignored: {e}"
-                                )
+                                print(f"[{datetime.now(timezone.utc).isoformat()}] insert_pull_enemies ignored: {e}")
 
                         spells = set(pull.get("spells") or [])
                         for spell in spells:
@@ -360,29 +372,22 @@ def db_worker_thread(job_queue: threading_queue.Queue):
                                     conn, cursor, route_key, new_pull_id, int(spell)
                                 )
                             except Exception as e:
-                                print(
-                                    f"[{datetime.now(timezone.utc).isoformat()}] insert_pull_spells ignored: {e}"
-                                )
+                                print(f"[{datetime.now(timezone.utc).isoformat()}] insert_pull_spells ignored: {e}")
                     else:
-                        # commit when all inserts succeeded
                         try:
                             conn.commit()
-                        except Exception:
-                            pass
+                        except Exception as ex:
+                            print(f"[{datetime.now(timezone.utc).isoformat()}] commit failed for route {route_key}: {ex}")
                         fut.set_result(True)
-                        print(
-                            f"[{datetime.now(timezone.utc).isoformat()}] Inserted route {route_key} (rio_run_id={rio_run_id})."
-                        )
+                        print(f"[{datetime.now(timezone.utc).isoformat()}] Inserted route {route_key} (rio_run_id={rio_run_id}).")
 
                 except Exception as e:
                     try:
                         conn.rollback()
-                    except Exception:
-                        pass
+                    except Exception as ex:
+                        print(f"[{datetime.now(timezone.utc).isoformat()}] DB insert_route rollback failed for {route_key}: {ex}")
                     fut.set_result(False)
-                    print(
-                        f"[{datetime.now(timezone.utc).isoformat()}] DB insert_route failed for {route_key}: {e}"
-                    )
+                    print(f"[{datetime.now(timezone.utc).isoformat()}] DB insert_route failed for {route_key}: {e}\nParams: rio_run_id={rio_run_id}, mapping_version={mapping_version}, enemy_forces={enemy_forces}, timestamp={timestamp}, keystone_level={keystone_level}, duration={duration}, dungeon_id={dungeon_id}, route_key={route_key}")
 
             else:
                 # unknown job
