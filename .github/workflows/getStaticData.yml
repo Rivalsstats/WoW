@@ -108,21 +108,6 @@ jobs:
         run: |
           python backend_scripts/fetchNpcInfo.py
 
-      - name: Fetch route data
-        env:
-          BLIZ_CLIENT_ID:     ${{ secrets.BLIZ_CLIENT_ID }}
-          BLIZ_CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
-          DATABASE_HOST: ${{secrets.DATABASE_HOST}}  
-          DATABASE_USER: ${{secrets.DATABASE_USER}} 
-          DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORT}} 
-          DATABASE_NAME: ${{secrets.DATABASE_NAME}} 
-          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
-          RAIDERIO_API_KEY: ${{ secrets.RAIDERIO_API_KEY }}
-          KEYSTONE_GURU_USER: ${{ secrets.KEYSTONE_GURU_USER }}
-          KEYSTONE_GURU_PW: ${{ secrets.KEYSTONE_GURU_SECRET }}
-        run: |
-          python backend_scripts/fetchRouteData.py
-
       - name: Fetch spell data
         env:
           BLIZ_CLIENT_ID:     ${{ secrets.BLIZ_CLIENT_ID }}
@@ -173,6 +158,74 @@ jobs:
           rm data/static/specs.csv
           rm data/static/classes.csv
           rm data/static/interfacedata.csv
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git config pull.rebase true   # rebase
+          git add data/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Updated Static Data"
+            # Pull latest changes, fail only on actual errors
+            if ! git fetch --depth=1 origin main; then
+              echo "Error during shallow fetch" >&2
+              exit 1
+            fi
+
+            if ! git rebase origin/main; then
+              echo "Error during rebase" >&2
+              exit 1
+            fi
+
+            if ! git push; then
+              echo "Error during git push" >&2
+              exit 1
+            fi
+          fi
+
+  gather-route-data:
+    runs-on: ubuntu-latest
+    env:
+      BLIZZARD_CLIENT_ID: ${{ secrets.BLIZZARD_CLIENT_ID }}
+      BLIZZARD_CLIENT_SECRET: ${{ secrets.BLIZZARD_CLIENT_SECRET }}
+      RAIDERIO_API_KEY: ${{ secrets.RAIDERIO_API_KEY }}
+      BLIZ_CLIENT_ID:     ${{ secrets.BLIZ_CLIENT_ID }}
+      BLIZ_CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
+      DATABASE_HOST: ${{secrets.DATABASE_HOST}}  
+      DATABASE_USER: ${{secrets.DATABASE_USER}} 
+      DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORT}} 
+      DATABASE_NAME: ${{secrets.DATABASE_NAME}} 
+      DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install pandas
+        run: pip install pandas requests aiohttp aiofiles aiolimiter mysql-connector-python
+        
+      - name: Fetch route data
+        env:
+          BLIZ_CLIENT_ID:     ${{ secrets.BLIZ_CLIENT_ID }}
+          BLIZ_CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
+          DATABASE_HOST: ${{secrets.DATABASE_HOST}}  
+          DATABASE_USER: ${{secrets.DATABASE_USER}} 
+          DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORT}} 
+          DATABASE_NAME: ${{secrets.DATABASE_NAME}} 
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+          RAIDERIO_API_KEY: ${{ secrets.RAIDERIO_API_KEY }}
+          KEYSTONE_GURU_USER: ${{ secrets.KEYSTONE_GURU_USER }}
+          KEYSTONE_GURU_PW: ${{ secrets.KEYSTONE_GURU_SECRET }}
+        run: |
+          python backend_scripts/fetchRouteData.py
 
       - name: Commit and push changes
         run: |
