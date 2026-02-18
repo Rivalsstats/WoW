@@ -188,6 +188,7 @@ jobs:
 
   gather-route-data:
     runs-on: ubuntu-latest
+    needs: gather-data
     env:
       BLIZZARD_CLIENT_ID: ${{ secrets.BLIZZARD_CLIENT_ID }}
       BLIZZARD_CLIENT_SECRET: ${{ secrets.BLIZZARD_CLIENT_SECRET }}
@@ -211,6 +212,13 @@ jobs:
 
       - name: Install pandas
         run: pip install pandas requests aiohttp aiofiles aiolimiter mysql-connector-python
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git config pull.rebase true   # rebase
+          git pull
         
       - name: Fetch route data
         env:
@@ -229,9 +237,6 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git config pull.rebase true   # rebase
           git add data/
           if git diff --cached --quiet; then
             echo "No changes to commit"
