@@ -348,9 +348,9 @@
       "spellId": 1271104
     },
     "81044": {
-      "name": "Echo of the Elements",
-      "icon": "ability_shaman_echooftheelements",
-      "spellId": 333919
+      "name": "Tidal Waves",
+      "icon": "spell_shaman_tidalwaves",
+      "spellId": 51564
     },
     "81050": {
       "name": "Improved Earthliving Weapon",
@@ -368,9 +368,9 @@
       "spellId": 462486
     },
     "81055": {
-      "name": "Primal Tide Core",
-      "icon": "ability_shaman_repulsiontotem",
-      "spellId": 382045
+      "name": "Echo of the Elements",
+      "icon": "ability_shaman_echooftheelements",
+      "spellId": 333919
     },
     "81041": {
       "name": "Spirit Link Totem",
@@ -414,13 +414,13 @@
     },
     "104124": {
       "name": "Double Dip",
-      "icon": "spell_shaman_tidalwaves",
+      "icon": "ability_mage_waterjet",
       "spellId": 1252882
     },
     "80976": {
-      "name": "Whispering Waves",
-      "icon": "shaman_pvp_ripplingwaters",
-      "spellId": 1217598
+      "name": "Primal Tide Core",
+      "icon": "ability_shaman_repulsiontotem",
+      "spellId": 382045
     },
     "81042": {
       "name": "Coalescing Water",
@@ -431,6 +431,11 @@
       "name": "Deeply Rooted Elements",
       "icon": "inv_misc_herb_liferoot_stem",
       "spellId": 378270
+    },
+    "110403": {
+      "name": "Stormstream Totem",
+      "icon": "inv12_apextalent_shaman_stormstreamtotem",
+      "spellId": 1267016
     },
     "94862": {
       "name": "Latent Wisdom",

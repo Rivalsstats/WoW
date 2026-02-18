@@ -417,6 +417,11 @@
       "icon": "inv_misc_monsterfang_02",
       "spellId": 392053
     },
+    "110428": {
+      "name": "Nature's Ally",
+      "icon": "inv12_apextalent_hunter_killfrenzy",
+      "spellId": 1273043
+    },
     "94961": {
       "name": "Bleak Arrows",
       "icon": "inv_quiver_1h_mawraid_d_01",
@@ -447,10 +452,20 @@
       "icon": "spell_warlock_demonsoul",
       "spellId": 430709
     },
+    "94960": {
+      "name": "Dark Chains",
+      "icon": "inv_belt_44c",
+      "spellId": 430712
+    },
     "109800": {
       "name": "Wailing Dead",
       "icon": "ability_deathknight_summongargoyle",
       "spellId": 1264290
+    },
+    "94983": {
+      "name": "Blighted Quiver",
+      "icon": "inv_quiver_1h_sylvanas_d_01",
+      "spellId": 1264291
     },
     "94957": {
       "name": "Banshee's Mark",

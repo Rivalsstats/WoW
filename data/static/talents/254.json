@@ -287,7 +287,7 @@
       "icon": "ability_theblackarrow",
       "spellId": 471350
     },
-    "103955": {
+    "103978": {
       "name": "Small Game Hunter",
       "icon": "inv_rabbit2_darkmoon",
       "spellId": 459802
@@ -299,7 +299,7 @@
     },
     "104126": {
       "name": "Lethality",
-      "icon": "ability_hunter_blindingshot",
+      "icon": "ability_hunter_quickshot",
       "spellId": 1259922
     },
     "109490": {
@@ -317,7 +317,7 @@
       "icon": "ability_impalingbolt",
       "spellId": 1277572
     },
-    "103978": {
+    "103955": {
       "name": "No Scope",
       "icon": "inv_eng_crowsnestscope",
       "spellId": 473385
@@ -411,6 +411,11 @@
       "name": "Unload",
       "icon": "ability_hunter_efficiency_brown",
       "spellId": 1277548
+    },
+    "110430": {
+      "name": "Take Aim",
+      "icon": "inv12_apextalent_hunter_deadlyinsight",
+      "spellId": 1273132
     },
     "94961": {
       "name": "Bleak Arrows",

@@ -123,7 +123,7 @@
       "spellId": 1250806
     },
     "82693": {
-      "name": "Shackle Undead",
+      "name": "Shackle Horror",
       "icon": "spell_nature_slow",
       "spellId": 9484
     },
@@ -343,9 +343,9 @@
       "spellId": 1250293
     },
     "82600": {
-      "name": "Borrowed Time",
-      "icon": "spell_holy_borrowedtime",
-      "spellId": 390691
+      "name": "Harsh Discipline",
+      "icon": "ability_paladin_handoflight",
+      "spellId": 373180
     },
     "82577": {
       "name": "Evangelism",
@@ -393,9 +393,9 @@
       "spellId": 47515
     },
     "82572": {
-      "name": "Harsh Discipline",
-      "icon": "ability_paladin_handoflight",
-      "spellId": 373180
+      "name": "Borrowed Time",
+      "icon": "spell_holy_borrowedtime",
+      "spellId": 390691
     },
     "82568": {
       "name": "Blaze of Light",
@@ -431,6 +431,11 @@
       "name": "Expiation",
       "icon": "spell_shadow_shadowpower",
       "spellId": 390832
+    },
+    "110410": {
+      "name": "Master the Darkness",
+      "icon": "inv12_apextalent_priest_voidshield",
+      "spellId": 1253590
     },
     "94698": {
       "name": "Preventive Measures",

@@ -123,7 +123,7 @@
       "spellId": 1250806
     },
     "82693": {
-      "name": "Shackle Undead",
+      "name": "Shackle Horror",
       "icon": "spell_nature_slow",
       "spellId": 9484
     },
@@ -318,7 +318,7 @@
       "spellId": 193155
     },
     "82641": {
-      "name": "Benediction",
+      "name": "Light's Resurgence",
       "icon": "spell_monk_diffusemagic",
       "spellId": 193157
     },
@@ -441,6 +441,11 @@
       "name": "Epiphany",
       "icon": "ability_mage_studentofthemind",
       "spellId": 414553
+    },
+    "110409": {
+      "name": "Benediction",
+      "icon": "inv12_apextalent_priest_benediction",
+      "spellId": 1262755
     },
     "94698": {
       "name": "Preventive Measures",
