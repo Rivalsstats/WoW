@@ -2204,18 +2204,6 @@
         245792
       ]
     },
-    "394": {
-      "reagentSlotId": 394,
-      "name": "Customize Gathering Stat",
-      "itemIds": [
-        245826,
-        245827,
-        245822,
-        245823,
-        245824,
-        245825
-      ]
-    },
     "398": {
       "reagentSlotId": 398,
       "name": "Soul Sprocket",
@@ -2590,8 +2578,6 @@
         257741,
         248135,
         248592,
-        248132,
-        248133,
         248130,
         248136,
         255843,
@@ -2627,6 +2613,22 @@
         245878,
         245873,
         245874
+      ]
+    },
+    "502": {
+      "reagentSlotId": 502,
+      "name": "Add Embellishment",
+      "itemIds": [
+        248135,
+        248592,
+        257735,
+        257741,
+        255843,
+        255844,
+        248132,
+        248133,
+        248136,
+        248130
       ]
     }
   },
@@ -14310,7 +14312,8 @@
       "itemSubClass": 11,
       "itemLevel": 70,
       "craftingBonusIds": [
-        13563
+        13563,
+        13451
       ],
       "craftingCategoryId": 878,
       "expansion": 11,
@@ -14326,7 +14329,8 @@
       "itemSubClass": 11,
       "itemLevel": 70,
       "craftingBonusIds": [
-        13570
+        13570,
+        13447
       ],
       "craftingCategoryId": 879,
       "expansion": 11,
@@ -14342,7 +14346,8 @@
       "itemSubClass": 11,
       "itemLevel": 70,
       "craftingBonusIds": [
-        13571
+        13571,
+        13448
       ],
       "craftingCategoryId": 880,
       "expansion": 11,
@@ -14437,108 +14442,6 @@
       "craftingCategoryId": 775,
       "expansion": 11,
       "itemId": 243603,
-      "reagentType": "item"
-    },
-    {
-      "id": 245826,
-      "name": "Thalassian Missive of Deftness",
-      "icon": "inv_10_inscription2_repcontracts_80_warscroll_fortitude_uprez_color5",
-      "quality": 2,
-      "itemClass": 7,
-      "itemSubClass": 18,
-      "itemLevel": 72,
-      "craftingQuality": 1,
-      "craftingBonusIds": [
-        8957
-      ],
-      "craftingCategoryId": 815,
-      "expansion": 11,
-      "itemId": 245826,
-      "reagentType": "item"
-    },
-    {
-      "id": 245827,
-      "name": "Thalassian Missive of Deftness",
-      "icon": "inv_10_inscription2_repcontracts_80_warscroll_fortitude_uprez_color5",
-      "quality": 2,
-      "itemClass": 7,
-      "itemSubClass": 18,
-      "itemLevel": 72,
-      "craftingQuality": 2,
-      "craftingBonusIds": [
-        8957
-      ],
-      "craftingCategoryId": 815,
-      "expansion": 11,
-      "itemId": 245827,
-      "reagentType": "item"
-    },
-    {
-      "id": 245822,
-      "name": "Thalassian Missive of Finesse",
-      "icon": "inv_10_inscription2_repcontracts_80_warscroll_fortitude_uprez_color2",
-      "quality": 2,
-      "itemClass": 7,
-      "itemSubClass": 18,
-      "itemLevel": 72,
-      "craftingQuality": 1,
-      "craftingBonusIds": [
-        8955
-      ],
-      "craftingCategoryId": 817,
-      "expansion": 11,
-      "itemId": 245822,
-      "reagentType": "item"
-    },
-    {
-      "id": 245823,
-      "name": "Thalassian Missive of Finesse",
-      "icon": "inv_10_inscription2_repcontracts_80_warscroll_fortitude_uprez_color2",
-      "quality": 2,
-      "itemClass": 7,
-      "itemSubClass": 18,
-      "itemLevel": 72,
-      "craftingQuality": 2,
-      "craftingBonusIds": [
-        8955
-      ],
-      "craftingCategoryId": 817,
-      "expansion": 11,
-      "itemId": 245823,
-      "reagentType": "item"
-    },
-    {
-      "id": 245824,
-      "name": "Thalassian Missive of Perception",
-      "icon": "inv_10_inscription2_repcontracts_80_warscroll_fortitude_uprez_color3",
-      "quality": 2,
-      "itemClass": 7,
-      "itemSubClass": 18,
-      "itemLevel": 72,
-      "craftingQuality": 1,
-      "craftingBonusIds": [
-        8956
-      ],
-      "craftingCategoryId": 816,
-      "expansion": 11,
-      "itemId": 245824,
-      "reagentType": "item"
-    },
-    {
-      "id": 245825,
-      "name": "Thalassian Missive of Perception",
-      "icon": "inv_10_inscription2_repcontracts_80_warscroll_fortitude_uprez_color3",
-      "quality": 2,
-      "itemClass": 7,
-      "itemSubClass": 18,
-      "itemLevel": 72,
-      "craftingQuality": 2,
-      "craftingBonusIds": [
-        8956
-      ],
-      "craftingCategoryId": 816,
-      "expansion": 11,
-      "itemId": 245825,
       "reagentType": "item"
     },
     {
@@ -15406,50 +15309,6 @@
       "reagentType": "item"
     },
     {
-      "id": 248132,
-      "name": "Kinetic Ankle Primers",
-      "icon": "inv_10_engineering_manufacturedparts_electricalparts_color1",
-      "quality": 3,
-      "itemClass": 7,
-      "itemSubClass": 18,
-      "itemLevel": 72,
-      "itemLimit": {
-        "category": 697,
-        "quantity": 1
-      },
-      "craftingQuality": 1,
-      "craftingBonusIds": [
-        12717,
-        13555
-      ],
-      "craftingCategoryId": 855,
-      "expansion": 11,
-      "itemId": 248132,
-      "reagentType": "item"
-    },
-    {
-      "id": 248133,
-      "name": "Kinetic Ankle Primers",
-      "icon": "inv_10_engineering_manufacturedparts_electricalparts_color1",
-      "quality": 3,
-      "itemClass": 7,
-      "itemSubClass": 18,
-      "itemLevel": 72,
-      "itemLimit": {
-        "category": 697,
-        "quantity": 1
-      },
-      "craftingQuality": 2,
-      "craftingBonusIds": [
-        12717,
-        13555
-      ],
-      "craftingCategoryId": 855,
-      "expansion": 11,
-      "itemId": 248133,
-      "reagentType": "item"
-    },
-    {
       "id": 248136,
       "name": "M3DDY, Travel-Sized",
       "icon": "inv_pet_futurebotpet_orange",
@@ -15684,6 +15543,50 @@
       "craftingCategoryId": 773,
       "expansion": 11,
       "itemId": 243579,
+      "reagentType": "item"
+    },
+    {
+      "id": 248132,
+      "name": "Kinetic Ankle Primers",
+      "icon": "inv_10_engineering_manufacturedparts_electricalparts_color1",
+      "quality": 3,
+      "itemClass": 7,
+      "itemSubClass": 18,
+      "itemLevel": 72,
+      "itemLimit": {
+        "category": 697,
+        "quantity": 1
+      },
+      "craftingQuality": 1,
+      "craftingBonusIds": [
+        12717,
+        13555
+      ],
+      "craftingCategoryId": 855,
+      "expansion": 11,
+      "itemId": 248132,
+      "reagentType": "item"
+    },
+    {
+      "id": 248133,
+      "name": "Kinetic Ankle Primers",
+      "icon": "inv_10_engineering_manufacturedparts_electricalparts_color1",
+      "quality": 3,
+      "itemClass": 7,
+      "itemSubClass": 18,
+      "itemLevel": 72,
+      "itemLimit": {
+        "category": 697,
+        "quantity": 1
+      },
+      "craftingQuality": 2,
+      "craftingBonusIds": [
+        12717,
+        13555
+      ],
+      "craftingCategoryId": 855,
+      "expansion": 11,
+      "itemId": 248133,
       "reagentType": "item"
     },
     {

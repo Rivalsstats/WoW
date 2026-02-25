@@ -7499,11 +7499,11 @@
   },
   "210046": {
     "name": {
-      "en_US": "Keen-eyed Cian",
+      "en_US": "Keen-Eyed Cian",
       "es_MX": "Cian ojoagudo",
       "pt_BR": "Cian Olhovivo",
       "de_DE": "Scharfsichtiger Cian",
-      "en_GB": "Keen-eyed Cian",
+      "en_GB": "Keen-Eyed Cian",
       "es_ES": "Cian ojoagudo",
       "fr_FR": "Cian Oeil-de-Lynx",
       "it_IT": "Cian Occhioacuto",
@@ -12495,20 +12495,20 @@
       "zh_CN": "野兽"
     },
     "family": {
-      "en_US": "Clefthoof",
-      "es_MX": "Uñagrieta",
-      "pt_BR": "Fenoceronte",
-      "de_DE": "Grollhuf",
-      "en_GB": "Clefthoof",
-      "es_ES": "Uñagrieta",
-      "fr_FR": "Sabot-fourchu",
-      "it_IT": "Mammuceronte",
-      "ru_RU": "Копытень",
-      "ko_KR": "갈래발굽",
-      "zh_TW": "裂蹄",
-      "zh_CN": "裂蹄牛"
+      "en_US": "Scalehide",
+      "es_MX": "Pielescama",
+      "pt_BR": "Courescama",
+      "de_DE": "Schuppenbalg",
+      "en_GB": "Scalehide",
+      "es_ES": "Pielescama",
+      "fr_FR": "Peau écailleuse",
+      "it_IT": "Scagliamanto",
+      "ru_RU": "Чешуешкурые",
+      "ko_KR": "비늘가죽",
+      "zh_TW": "鱗皮",
+      "zh_CN": "鳞甲类"
     },
-    "family_id": 43,
+    "family_id": 156,
     "image": "data/creature_img/183612.jpg"
   },
   "3619": {
@@ -25474,5 +25474,51 @@
     },
     "family_id": 11,
     "image": "data/creature_img/41388.jpg"
+  },
+  "201579": {
+    "name": {
+      "en_US": "Magmorax",
+      "es_MX": "Magmorax",
+      "pt_BR": "Magmorax",
+      "de_DE": "Magmorax",
+      "en_GB": "Magmorax",
+      "es_ES": "Magmorax",
+      "fr_FR": "Magmorax",
+      "it_IT": "Magmorax",
+      "ru_RU": "Магморакс",
+      "ko_KR": "마그모락스",
+      "zh_TW": "馬格莫拉克斯",
+      "zh_CN": "玛格莫莱克斯"
+    },
+    "type": {
+      "en_US": "Beast",
+      "es_MX": "Bestia",
+      "pt_BR": "Fera",
+      "de_DE": "Wildtier",
+      "en_GB": "Beast",
+      "es_ES": "Bestia",
+      "fr_FR": "Bête",
+      "it_IT": "Bestia",
+      "ru_RU": "Животное",
+      "ko_KR": "야수",
+      "zh_TW": "野獸",
+      "zh_CN": "野兽"
+    },
+    "family": {
+      "en_US": "Hydra",
+      "es_MX": "Hidra",
+      "pt_BR": "Hidra",
+      "de_DE": "Hydra",
+      "en_GB": "Hydra",
+      "es_ES": "Hidra",
+      "fr_FR": "Hydre",
+      "it_IT": "Idra",
+      "ru_RU": "Гидра",
+      "ko_KR": "히드라",
+      "zh_TW": "多頭蛇",
+      "zh_CN": "九头蛇"
+    },
+    "family_id": 68,
+    "image": "data/creature_img/201579.jpg"
   }
 }
