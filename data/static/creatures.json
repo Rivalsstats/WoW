@@ -25520,5 +25520,51 @@
     },
     "family_id": 68,
     "image": "data/creature_img/201579.jpg"
+  },
+  "59534": {
+    "name": {
+      "en_US": "Summit Prowler",
+      "es_MX": "Merodeador de la cima",
+      "pt_BR": "Predador do Cume",
+      "de_DE": "Gipfelpirscher",
+      "en_GB": "Summit Prowler",
+      "es_ES": "Merodeador de la cima",
+      "fr_FR": "Rôdeur du sommet",
+      "it_IT": "Predatore del Massiccio",
+      "ru_RU": "Горный хищник",
+      "ko_KR": "굶주린 봉우리 호랑이",
+      "zh_TW": "高峰徘徊者",
+      "zh_CN": "山峰徘徊者"
+    },
+    "type": {
+      "en_US": "Beast",
+      "es_MX": "Bestia",
+      "pt_BR": "Fera",
+      "de_DE": "Wildtier",
+      "en_GB": "Beast",
+      "es_ES": "Bestia",
+      "fr_FR": "Bête",
+      "it_IT": "Bestia",
+      "ru_RU": "Животное",
+      "ko_KR": "야수",
+      "zh_TW": "野獸",
+      "zh_CN": "野兽"
+    },
+    "family": {
+      "en_US": "Cat",
+      "es_MX": "Felino",
+      "pt_BR": "Gato",
+      "de_DE": "Katze",
+      "en_GB": "Cat",
+      "es_ES": "Felino",
+      "fr_FR": "Félin",
+      "it_IT": "Felino",
+      "ru_RU": "Кошка",
+      "ko_KR": "살쾡이",
+      "zh_TW": "大貓",
+      "zh_CN": "豹"
+    },
+    "family_id": 2,
+    "image": "data/creature_img/59534.jpg"
   }
 }

@@ -3,7 +3,7 @@
     "81": {
       "reagentSlotId": 81,
       "name": "Draconium Ore (DNT)",
-      "itemIds": [
+      "reagentIds": [
         189143,
         188658,
         190311
@@ -12,7 +12,7 @@
     "82": {
       "reagentSlotId": 82,
       "name": "Primal Molten Alloy (DNT)",
-      "itemIds": [
+      "reagentIds": [
         189541,
         189542,
         189543
@@ -21,7 +21,7 @@
     "83": {
       "reagentSlotId": 83,
       "name": "Frostfire Alloy (DNT)",
-      "itemIds": [
+      "reagentIds": [
         190530,
         190531,
         190532
@@ -30,7 +30,7 @@
     "84": {
       "reagentSlotId": 84,
       "name": "Obsidian Seared Alloy (DNT)",
-      "itemIds": [
+      "reagentIds": [
         190533,
         190534,
         190535
@@ -39,7 +39,7 @@
     "85": {
       "reagentSlotId": 85,
       "name": "Infurious Alloy (DNT)",
-      "itemIds": [
+      "reagentIds": [
         190536,
         190537,
         190538
@@ -48,7 +48,7 @@
     "91": {
       "reagentSlotId": 91,
       "name": "Alchemical Catalyst",
-      "itemIds": [
+      "reagentIds": [
         191520,
         191521,
         191522,
@@ -60,21 +60,21 @@
     "92": {
       "reagentSlotId": 92,
       "name": "Lesser Illustrious Insight",
-      "itemIds": [
+      "reagentIds": [
         191526
       ]
     },
     "93": {
       "reagentSlotId": 93,
       "name": "Illustrious Insight",
-      "itemIds": [
+      "reagentIds": [
         191529
       ]
     },
     "94": {
       "reagentSlotId": 94,
       "name": "Alchemical Catalyst",
-      "itemIds": [
+      "reagentIds": [
         191523,
         191524,
         191525,
@@ -86,7 +86,7 @@
     "99": {
       "reagentSlotId": 99,
       "name": "Writhebark (DNT)",
-      "itemIds": [
+      "reagentIds": [
         191470,
         191471,
         191472
@@ -95,7 +95,7 @@
     "102": {
       "reagentSlotId": 102,
       "name": "Primal Convergent (DNT)",
-      "itemIds": [
+      "reagentIds": [
         191493,
         191494,
         191495
@@ -104,7 +104,7 @@
     "103": {
       "reagentSlotId": 103,
       "name": "Omnium Draconis (DNT)",
-      "itemIds": [
+      "reagentIds": [
         191496,
         191497,
         191498
@@ -113,7 +113,7 @@
     "105": {
       "reagentSlotId": 105,
       "name": "Elemental Potion of Power (DNT)",
-      "itemIds": [
+      "reagentIds": [
         191387,
         191388,
         191389
@@ -122,7 +122,7 @@
     "106": {
       "reagentSlotId": 106,
       "name": "Phial of Tepid Versatility (DNT)",
-      "itemIds": [
+      "reagentIds": [
         191339,
         191340,
         191341
@@ -131,7 +131,7 @@
     "107": {
       "reagentSlotId": 107,
       "name": "Phial of Elemental Chaos (DNT)",
-      "itemIds": [
+      "reagentIds": [
         191357,
         191358,
         191359
@@ -140,7 +140,7 @@
     "108": {
       "reagentSlotId": 108,
       "name": "Potion of Frozen Focus (DNT)",
-      "itemIds": [
+      "reagentIds": [
         191363,
         191364,
         191365
@@ -149,7 +149,7 @@
     "111": {
       "reagentSlotId": 111,
       "name": "Infuse with Power",
-      "itemIds": [
+      "reagentIds": [
         197921,
         198046,
         204682,
@@ -163,7 +163,7 @@
     "112": {
       "reagentSlotId": 112,
       "name": "Add Embellishment",
-      "itemIds": [
+      "reagentIds": [
         191250,
         191872,
         191873,
@@ -203,7 +203,7 @@
     "114": {
       "reagentSlotId": 114,
       "name": "Serevite Ore (DNT)",
-      "itemIds": [
+      "reagentIds": [
         190395,
         190396,
         190394
@@ -212,7 +212,7 @@
     "116": {
       "reagentSlotId": 116,
       "name": "Empower with Training Matrix",
-      "itemIds": [
+      "reagentIds": [
         198048,
         198056,
         198058,
@@ -232,7 +232,7 @@
     "123": {
       "reagentSlotId": 123,
       "name": "Add Embellishment",
-      "itemIds": [
+      "reagentIds": [
         193941,
         193942,
         193943,
@@ -258,7 +258,7 @@
     "124": {
       "reagentSlotId": 124,
       "name": "Quenching Fluid",
-      "itemIds": [
+      "reagentIds": [
         191511,
         191512,
         191513,
@@ -270,7 +270,7 @@
     "125": {
       "reagentSlotId": 125,
       "name": "Customize Secondary Stats",
-      "itemIds": [
+      "reagentIds": [
         192553,
         192554,
         192552,
@@ -294,7 +294,7 @@
     "126": {
       "reagentSlotId": 126,
       "name": "Infuse with Power",
-      "itemIds": [
+      "reagentIds": [
         197921,
         198046,
         204682,
@@ -308,7 +308,7 @@
     "129": {
       "reagentSlotId": 129,
       "name": "Mystic Sapphire (DNT)",
-      "itemIds": [
+      "reagentIds": [
         192840,
         192841,
         192842
@@ -317,7 +317,7 @@
     "131": {
       "reagentSlotId": 131,
       "name": "Sundered Onyx (DNT)",
-      "itemIds": [
+      "reagentIds": [
         192846,
         192847,
         192848
@@ -326,7 +326,7 @@
     "132": {
       "reagentSlotId": 132,
       "name": "Eternity Amber (DNT)",
-      "itemIds": [
+      "reagentIds": [
         192849,
         192850,
         192851
@@ -335,7 +335,7 @@
     "133": {
       "reagentSlotId": 133,
       "name": "Alexstraszite (DNT)",
-      "itemIds": [
+      "reagentIds": [
         192852,
         192853,
         192855
@@ -344,7 +344,7 @@
     "134": {
       "reagentSlotId": 134,
       "name": "Malygite (DNT)",
-      "itemIds": [
+      "reagentIds": [
         192856,
         192857,
         192858
@@ -353,7 +353,7 @@
     "135": {
       "reagentSlotId": 135,
       "name": "Ysemerald (DNT)",
-      "itemIds": [
+      "reagentIds": [
         192859,
         192860,
         192861
@@ -362,7 +362,7 @@
     "136": {
       "reagentSlotId": 136,
       "name": "Neltharite (DNT)",
-      "itemIds": [
+      "reagentIds": [
         192862,
         192863,
         192865
@@ -371,7 +371,7 @@
     "138": {
       "reagentSlotId": 138,
       "name": "Illimited Diamond (DNT)",
-      "itemIds": [
+      "reagentIds": [
         192869,
         192870,
         192871
@@ -380,7 +380,7 @@
     "140": {
       "reagentSlotId": 140,
       "name": "Frameless Lens (DNT)",
-      "itemIds": [
+      "reagentIds": [
         192876,
         192877,
         192878
@@ -389,7 +389,7 @@
     "142": {
       "reagentSlotId": 142,
       "name": "Glossy Stone (DNT)",
-      "itemIds": [
+      "reagentIds": [
         192883,
         192884,
         192885
@@ -398,7 +398,7 @@
     "143": {
       "reagentSlotId": 143,
       "name": "Shimmering Clasp (DNT)",
-      "itemIds": [
+      "reagentIds": [
         192834,
         192835,
         192836
@@ -407,7 +407,7 @@
     "146": {
       "reagentSlotId": 146,
       "name": "Resilient Leather (DNT)",
-      "itemIds": [
+      "reagentIds": [
         193208,
         193210,
         193211
@@ -416,7 +416,7 @@
     "147": {
       "reagentSlotId": 147,
       "name": "Adamant Scales (DNT)",
-      "itemIds": [
+      "reagentIds": [
         193213,
         193214,
         193215
@@ -425,7 +425,7 @@
     "148": {
       "reagentSlotId": 148,
       "name": "Dense Hide (DNT)",
-      "itemIds": [
+      "reagentIds": [
         193216,
         193217,
         193218
@@ -434,7 +434,7 @@
     "149": {
       "reagentSlotId": 149,
       "name": "Lustrous Scaled Hide (DNT)",
-      "itemIds": [
+      "reagentIds": [
         193222,
         193223,
         193224
@@ -443,7 +443,7 @@
     "150": {
       "reagentSlotId": 150,
       "name": "Stonecrust Hide (DNT)",
-      "itemIds": [
+      "reagentIds": [
         193226,
         193227,
         193228
@@ -452,7 +452,7 @@
     "151": {
       "reagentSlotId": 151,
       "name": "Mireslush Hide (DNT)",
-      "itemIds": [
+      "reagentIds": [
         193229,
         193230,
         193231
@@ -461,7 +461,7 @@
     "153": {
       "reagentSlotId": 153,
       "name": "Infurious Hide (DNT)",
-      "itemIds": [
+      "reagentIds": [
         193236,
         193237,
         193238
@@ -470,7 +470,7 @@
     "155": {
       "reagentSlotId": 155,
       "name": "Earthshine Scales (DNT)",
-      "itemIds": [
+      "reagentIds": [
         193242,
         193243,
         193244
@@ -479,7 +479,7 @@
     "156": {
       "reagentSlotId": 156,
       "name": "Frostbite Scales (DNT)",
-      "itemIds": [
+      "reagentIds": [
         193245,
         193246,
         193247
@@ -488,7 +488,7 @@
     "157": {
       "reagentSlotId": 157,
       "name": "Infurious Scales (DNT)",
-      "itemIds": [
+      "reagentIds": [
         193248,
         193249,
         193250
@@ -497,7 +497,7 @@
     "158": {
       "reagentSlotId": 158,
       "name": "Silken Gemdust (DNT)",
-      "itemIds": [
+      "reagentIds": [
         193368,
         193369,
         193370
@@ -506,7 +506,7 @@
     "159": {
       "reagentSlotId": 159,
       "name": "Elemental Harmony (DNT)",
-      "itemIds": [
+      "reagentIds": [
         192887,
         193378,
         193379
@@ -515,7 +515,7 @@
     "169": {
       "reagentSlotId": 169,
       "name": "Vibrant Spellthread (DNT)",
-      "itemIds": [
+      "reagentIds": [
         194008,
         194009,
         194010
@@ -524,7 +524,7 @@
     "170": {
       "reagentSlotId": 170,
       "name": "Frozen Spellthread (DNT)",
-      "itemIds": [
+      "reagentIds": [
         194011,
         194012,
         194013
@@ -533,7 +533,7 @@
     "171": {
       "reagentSlotId": 171,
       "name": "Temporal Spellthread (DNT)",
-      "itemIds": [
+      "reagentIds": [
         194014,
         194015,
         194016
@@ -542,7 +542,7 @@
     "173": {
       "reagentSlotId": 173,
       "name": "Azureweave Bolt (DNT)",
-      "itemIds": [
+      "reagentIds": [
         193938,
         193939,
         193940
@@ -551,7 +551,7 @@
     "174": {
       "reagentSlotId": 174,
       "name": "Chronocloth Bolt (DNT)",
-      "itemIds": [
+      "reagentIds": [
         193935,
         193936,
         193937
@@ -560,7 +560,7 @@
     "175": {
       "reagentSlotId": 175,
       "name": "Vibrant Wildercloth Bolt (DNT)",
-      "itemIds": [
+      "reagentIds": [
         193929,
         193930,
         193931
@@ -569,7 +569,7 @@
     "176": {
       "reagentSlotId": 176,
       "name": "Infurious Wildercloth Bolt (DNT)",
-      "itemIds": [
+      "reagentIds": [
         193932,
         193933,
         193934
@@ -578,7 +578,7 @@
     "177": {
       "reagentSlotId": 177,
       "name": "Spool of Wilderthread (DNT)",
-      "itemIds": [
+      "reagentIds": [
         192095,
         192096,
         192097
@@ -587,7 +587,7 @@
     "178": {
       "reagentSlotId": 178,
       "name": "Add Embellishment",
-      "itemIds": [
+      "reagentIds": [
         193944,
         193945,
         193946,
@@ -627,7 +627,7 @@
     "179": {
       "reagentSlotId": 179,
       "name": "Add Embellishment",
-      "itemIds": [
+      "reagentIds": [
         191532,
         191533,
         191534,
@@ -670,7 +670,7 @@
     "180": {
       "reagentSlotId": 180,
       "name": "Add Embellishment",
-      "itemIds": [
+      "reagentIds": [
         193944,
         193945,
         193946,
@@ -713,7 +713,7 @@
     "181": {
       "reagentSlotId": 181,
       "name": "Embroidery Thread",
-      "itemIds": [
+      "reagentIds": [
         193956,
         193957,
         193958,
@@ -728,7 +728,7 @@
     "182": {
       "reagentSlotId": 182,
       "name": "Polishing Cloth",
-      "itemIds": [
+      "reagentIds": [
         193950,
         193951,
         193952,
@@ -740,7 +740,7 @@
     "184": {
       "reagentSlotId": 184,
       "name": "Chain Oil",
-      "itemIds": [
+      "reagentIds": [
         191511,
         191512,
         191513,
@@ -752,7 +752,7 @@
     "185": {
       "reagentSlotId": 185,
       "name": "Curing Agent",
-      "itemIds": [
+      "reagentIds": [
         191514,
         191515,
         191516,
@@ -764,7 +764,7 @@
     "189": {
       "reagentSlotId": 189,
       "name": "Empower with Training Matrix",
-      "itemIds": [
+      "reagentIds": [
         198056,
         198058,
         198059,
@@ -777,7 +777,7 @@
     "194": {
       "reagentSlotId": 194,
       "name": "Handful of Serevite Bolts (DNT)",
-      "itemIds": [
+      "reagentIds": [
         198183,
         198184,
         198185
@@ -786,7 +786,7 @@
     "195": {
       "reagentSlotId": 195,
       "name": "Shock-Spring Coil (DNT)",
-      "itemIds": [
+      "reagentIds": [
         198186,
         198187,
         198188
@@ -795,7 +795,7 @@
     "196": {
       "reagentSlotId": 196,
       "name": "Everburning Blasting Powder (DNT)",
-      "itemIds": [
+      "reagentIds": [
         198189,
         198190,
         198191
@@ -804,7 +804,7 @@
     "197": {
       "reagentSlotId": 197,
       "name": "Greased-Up Gears (DNT)",
-      "itemIds": [
+      "reagentIds": [
         198192,
         198193,
         198194
@@ -813,7 +813,7 @@
     "198": {
       "reagentSlotId": 198,
       "name": "Arclight Capacitor (DNT)",
-      "itemIds": [
+      "reagentIds": [
         198195,
         198196,
         198197
@@ -822,7 +822,7 @@
     "199": {
       "reagentSlotId": 199,
       "name": "Reinforced Machine Chassis (DNT)",
-      "itemIds": [
+      "reagentIds": [
         198198,
         198199,
         198200
@@ -831,7 +831,7 @@
     "202": {
       "reagentSlotId": 202,
       "name": "Darkmoon Sigil",
-      "itemIds": [
+      "reagentIds": [
         194871,
         199051,
         199052,
@@ -852,7 +852,7 @@
     "209": {
       "reagentSlotId": 209,
       "name": "Blazing Ink (DNT)",
-      "itemIds": [
+      "reagentIds": [
         194751,
         194752,
         194846
@@ -861,7 +861,7 @@
     "210": {
       "reagentSlotId": 210,
       "name": "Cosmic Ink (DNT)",
-      "itemIds": [
+      "reagentIds": [
         194754,
         194755,
         194756
@@ -870,7 +870,7 @@
     "211": {
       "reagentSlotId": 211,
       "name": "Flourishing Ink (DNT)",
-      "itemIds": [
+      "reagentIds": [
         194850,
         194758,
         194852
@@ -879,7 +879,7 @@
     "213": {
       "reagentSlotId": 213,
       "name": "Serene Ink (DNT)",
-      "itemIds": [
+      "reagentIds": [
         194856,
         194857,
         194858
@@ -888,7 +888,7 @@
     "218": {
       "reagentSlotId": 218,
       "name": "Chilled Rune (DNT)",
-      "itemIds": [
+      "reagentIds": [
         194859,
         194767,
         194768
@@ -897,7 +897,7 @@
     "219": {
       "reagentSlotId": 219,
       "name": "Runed Writhebark (DNT)",
-      "itemIds": [
+      "reagentIds": [
         194862,
         194863,
         194864
@@ -906,7 +906,7 @@
     "221": {
       "reagentSlotId": 221,
       "name": "Blotting Sand",
-      "itemIds": [
+      "reagentIds": [
         192897,
         192898,
         192899,
@@ -918,7 +918,7 @@
     "223": {
       "reagentSlotId": 223,
       "name": "Safety Components",
-      "itemIds": [
+      "reagentIds": [
         198253,
         198254,
         198255,
@@ -933,7 +933,7 @@
     "224": {
       "reagentSlotId": 224,
       "name": "Amplify Secondary Stat",
-      "itemIds": [
+      "reagentIds": [
         198174,
         198175,
         198176,
@@ -951,7 +951,7 @@
     "225": {
       "reagentSlotId": 225,
       "name": "Amplify Secondary Stat",
-      "itemIds": [
+      "reagentIds": [
         198174,
         198175,
         198176,
@@ -969,7 +969,7 @@
     "226": {
       "reagentSlotId": 226,
       "name": "Add Embellishment",
-      "itemIds": [
+      "reagentIds": [
         193941,
         193942,
         193943,
@@ -992,7 +992,7 @@
     "227": {
       "reagentSlotId": 227,
       "name": "Customize Secondary Stats",
-      "itemIds": [
+      "reagentIds": [
         192553,
         192554,
         192552,
@@ -1016,7 +1016,7 @@
     "230": {
       "reagentSlotId": 230,
       "name": "Spare Parts",
-      "itemIds": [
+      "reagentIds": [
         198216,
         198217,
         198218,
@@ -1028,7 +1028,7 @@
     "233": {
       "reagentSlotId": 233,
       "name": "Add Embellishment",
-      "itemIds": [
+      "reagentIds": [
         193944,
         193945,
         193946,
@@ -1054,7 +1054,7 @@
     "243": {
       "reagentSlotId": 243,
       "name": "Customize Secondary Stat",
-      "itemIds": [
+      "reagentIds": [
         194573,
         194574,
         194572,
@@ -1069,7 +1069,7 @@
     "244": {
       "reagentSlotId": 244,
       "name": "Grant PvP Item Level",
-      "itemIds": [
+      "reagentIds": [
         204186,
         204189,
         212541,
@@ -1081,7 +1081,7 @@
     "245": {
       "reagentSlotId": 245,
       "name": "Grant PvP Item Level",
-      "itemIds": [
+      "reagentIds": [
         204187,
         204190,
         212540,
@@ -1093,7 +1093,7 @@
     "246": {
       "reagentSlotId": 246,
       "name": "Grant PvP Item Level",
-      "itemIds": [
+      "reagentIds": [
         204188,
         204191,
         212539,
@@ -1105,7 +1105,7 @@
     "247": {
       "reagentSlotId": 247,
       "name": "Spark",
-      "itemIds": [
+      "reagentIds": [
         190453,
         204440,
         206959,
@@ -1115,7 +1115,7 @@
     "248": {
       "reagentSlotId": 248,
       "name": "Shadowed Alloy (DNT)",
-      "itemIds": [
+      "reagentIds": [
         204995,
         204996,
         204994
@@ -1124,7 +1124,7 @@
     "249": {
       "reagentSlotId": 249,
       "name": "Blotting Sand",
-      "itemIds": [
+      "reagentIds": [
         192897,
         192898,
         192899,
@@ -1136,7 +1136,7 @@
     "251": {
       "reagentSlotId": 251,
       "name": "Socket",
-      "itemIds": [
+      "reagentIds": [
         206023,
         206024,
         206041,
@@ -1150,7 +1150,7 @@
     "252": {
       "reagentSlotId": 252,
       "name": "Socket",
-      "itemIds": [
+      "reagentIds": [
         206041,
         206042,
         210447,
@@ -1162,7 +1162,7 @@
     "255": {
       "reagentSlotId": 255,
       "name": "Competitor's Heraldry",
-      "itemIds": [
+      "reagentIds": [
         210232,
         210221,
         210233,
@@ -1177,7 +1177,7 @@
     "256": {
       "reagentSlotId": 256,
       "name": "Spark",
-      "itemIds": [
+      "reagentIds": [
         211296,
         230906,
         231756
@@ -1186,7 +1186,7 @@
     "257": {
       "reagentSlotId": 257,
       "name": "Mycobloom",
-      "itemIds": [
+      "reagentIds": [
         210796,
         210797,
         210798
@@ -1195,7 +1195,7 @@
     "261": {
       "reagentSlotId": 261,
       "name": "Arathor's Spear",
-      "itemIds": [
+      "reagentIds": [
         210808,
         210809,
         210810
@@ -1204,7 +1204,7 @@
     "262": {
       "reagentSlotId": 262,
       "name": "Bismuth",
-      "itemIds": [
+      "reagentIds": [
         210930,
         210931,
         210932
@@ -1213,7 +1213,7 @@
     "264": {
       "reagentSlotId": 264,
       "name": "Ironclaw Ore",
-      "itemIds": [
+      "reagentIds": [
         210936,
         210937,
         210938
@@ -1222,7 +1222,7 @@
     "268": {
       "reagentSlotId": 268,
       "name": "Harmonious Horticulture",
-      "itemIds": [
+      "reagentIds": [
         212563,
         212564,
         212565
@@ -1231,7 +1231,7 @@
     "269": {
       "reagentSlotId": 269,
       "name": "Stormcharged Leather",
-      "itemIds": [
+      "reagentIds": [
         212664,
         212665,
         212666
@@ -1240,7 +1240,7 @@
     "270": {
       "reagentSlotId": 270,
       "name": "Gloom Chitin",
-      "itemIds": [
+      "reagentIds": [
         212667,
         212668,
         212669
@@ -1249,7 +1249,7 @@
     "271": {
       "reagentSlotId": 271,
       "name": "Thunderous Hide",
-      "itemIds": [
+      "reagentIds": [
         212670,
         212672,
         212673
@@ -1258,7 +1258,7 @@
     "272": {
       "reagentSlotId": 272,
       "name": "Sunless Carapace",
-      "itemIds": [
+      "reagentIds": [
         212674,
         212675,
         212676
@@ -1267,7 +1267,7 @@
     "275": {
       "reagentSlotId": 275,
       "name": "Crushed Gemstones",
-      "itemIds": [
+      "reagentIds": [
         213219,
         213220,
         213221
@@ -1276,7 +1276,7 @@
     "277": {
       "reagentSlotId": 277,
       "name": "Decorative Lens",
-      "itemIds": [
+      "reagentIds": [
         213753,
         213754,
         213755
@@ -1285,7 +1285,7 @@
     "278": {
       "reagentSlotId": 278,
       "name": "Marbled Stone",
-      "itemIds": [
+      "reagentIds": [
         213756,
         213757,
         213758
@@ -1294,7 +1294,7 @@
     "279": {
       "reagentSlotId": 279,
       "name": "Inverted Prism",
-      "itemIds": [
+      "reagentIds": [
         213759,
         213760,
         213761
@@ -1303,7 +1303,7 @@
     "281": {
       "reagentSlotId": 281,
       "name": "Add Embellishment",
-      "itemIds": [
+      "reagentIds": [
         213771,
         213772,
         213773,
@@ -1337,7 +1337,7 @@
     "282": {
       "reagentSlotId": 282,
       "name": "Amplify Secondary Stat",
-      "itemIds": [
+      "reagentIds": [
         221911,
         221912,
         221913,
@@ -1355,7 +1355,7 @@
     "283": {
       "reagentSlotId": 283,
       "name": "Customize Secondary Stats",
-      "itemIds": [
+      "reagentIds": [
         222579,
         222580,
         222581,
@@ -1379,7 +1379,7 @@
     "284": {
       "reagentSlotId": 284,
       "name": "Infuse with Power",
-      "itemIds": [
+      "reagentIds": [
         224072,
         224073,
         230936,
@@ -1391,7 +1391,7 @@
     "286": {
       "reagentSlotId": 286,
       "name": "Leather Armor",
-      "itemIds": [
+      "reagentIds": [
         225987,
         225988,
         225989,
@@ -1409,7 +1409,7 @@
     "287": {
       "reagentSlotId": 287,
       "name": "Mail Armor",
-      "itemIds": [
+      "reagentIds": [
         225987,
         225988,
         225989,
@@ -1427,7 +1427,7 @@
     "293": {
       "reagentSlotId": 293,
       "name": "Carapace-Backed Hide",
-      "itemIds": [
+      "reagentIds": [
         219880,
         219881,
         219882
@@ -1436,7 +1436,7 @@
     "294": {
       "reagentSlotId": 294,
       "name": "Crystalfused Hide",
-      "itemIds": [
+      "reagentIds": [
         219883,
         219884,
         219885
@@ -1445,7 +1445,7 @@
     "295": {
       "reagentSlotId": 295,
       "name": "Writhing Hide",
-      "itemIds": [
+      "reagentIds": [
         219886,
         219887,
         219888
@@ -1454,7 +1454,7 @@
     "296": {
       "reagentSlotId": 296,
       "name": "Sporecoated Hide",
-      "itemIds": [
+      "reagentIds": [
         219889,
         219890,
         219891
@@ -1463,7 +1463,7 @@
     "297": {
       "reagentSlotId": 297,
       "name": "Leyfused Hide",
-      "itemIds": [
+      "reagentIds": [
         219892,
         219893,
         219894
@@ -1472,7 +1472,7 @@
     "299": {
       "reagentSlotId": 299,
       "name": "Storm-Touched Weapon Wrap",
-      "itemIds": [
+      "reagentIds": [
         219901,
         219902,
         219903
@@ -1481,7 +1481,7 @@
     "300": {
       "reagentSlotId": 300,
       "name": "Chitin Armor Banding",
-      "itemIds": [
+      "reagentIds": [
         219898,
         219899,
         219900
@@ -1490,7 +1490,7 @@
     "301": {
       "reagentSlotId": 301,
       "name": "Storm Dust",
-      "itemIds": [
+      "reagentIds": [
         219946,
         219947,
         219948
@@ -1499,7 +1499,7 @@
     "302": {
       "reagentSlotId": 302,
       "name": "Gleaming Shard",
-      "itemIds": [
+      "reagentIds": [
         219949,
         219950,
         219951
@@ -1508,7 +1508,7 @@
     "303": {
       "reagentSlotId": 303,
       "name": "Refulgent Crystal",
-      "itemIds": [
+      "reagentIds": [
         219952,
         219954,
         219955
@@ -1517,7 +1517,7 @@
     "304": {
       "reagentSlotId": 304,
       "name": "Handful of Bismuth Bolts",
-      "itemIds": [
+      "reagentIds": [
         221853,
         221854,
         221855
@@ -1526,7 +1526,7 @@
     "305": {
       "reagentSlotId": 305,
       "name": "Whimsical Wiring",
-      "itemIds": [
+      "reagentIds": [
         221856,
         221857,
         221858
@@ -1535,7 +1535,7 @@
     "306": {
       "reagentSlotId": 306,
       "name": "Gyrating Gear",
-      "itemIds": [
+      "reagentIds": [
         221859,
         221860,
         221861
@@ -1544,7 +1544,7 @@
     "307": {
       "reagentSlotId": 307,
       "name": "Safety Switch",
-      "itemIds": [
+      "reagentIds": [
         221862,
         221863,
         221864
@@ -1553,7 +1553,7 @@
     "308": {
       "reagentSlotId": 308,
       "name": "Chaos Circuit",
-      "itemIds": [
+      "reagentIds": [
         221865,
         221866,
         221867
@@ -1562,7 +1562,7 @@
     "309": {
       "reagentSlotId": 309,
       "name": "Entropy Enhancer",
-      "itemIds": [
+      "reagentIds": [
         221868,
         221869,
         221870
@@ -1571,7 +1571,7 @@
     "311": {
       "reagentSlotId": 311,
       "name": "Select Safety Component",
-      "itemIds": [
+      "reagentIds": [
         221923,
         221925,
         221924,
@@ -1586,7 +1586,7 @@
     "312": {
       "reagentSlotId": 312,
       "name": "Add Embellishment",
-      "itemIds": [
+      "reagentIds": [
         213771,
         213772,
         213773,
@@ -1620,7 +1620,7 @@
     "313": {
       "reagentSlotId": 313,
       "name": "Core Alloy",
-      "itemIds": [
+      "reagentIds": [
         222417,
         222418,
         222419
@@ -1629,7 +1629,7 @@
     "314": {
       "reagentSlotId": 314,
       "name": "Charged Alloy",
-      "itemIds": [
+      "reagentIds": [
         222420,
         222421,
         222422
@@ -1638,7 +1638,7 @@
     "315": {
       "reagentSlotId": 315,
       "name": "Sanctified Alloy",
-      "itemIds": [
+      "reagentIds": [
         222423,
         222424,
         222425
@@ -1647,7 +1647,7 @@
     "316": {
       "reagentSlotId": 316,
       "name": "Ironclaw Alloy",
-      "itemIds": [
+      "reagentIds": [
         222426,
         222427,
         222428
@@ -1656,7 +1656,7 @@
     "317": {
       "reagentSlotId": 317,
       "name": "Forge Accessories",
-      "itemIds": [
+      "reagentIds": [
         222499,
         222500,
         222501,
@@ -1674,7 +1674,7 @@
     "319": {
       "reagentSlotId": 319,
       "name": "Codified Greenwood",
-      "itemIds": [
+      "reagentIds": [
         222555,
         222556,
         222557
@@ -1683,7 +1683,7 @@
     "320": {
       "reagentSlotId": 320,
       "name": "Boundless Cipher",
-      "itemIds": [
+      "reagentIds": [
         222558,
         222559,
         222560
@@ -1692,7 +1692,7 @@
     "321": {
       "reagentSlotId": 321,
       "name": "Sable Ink",
-      "itemIds": [
+      "reagentIds": [
         222609,
         222610,
         222611
@@ -1701,7 +1701,7 @@
     "323": {
       "reagentSlotId": 323,
       "name": "Apricate Ink",
-      "itemIds": [
+      "reagentIds": [
         222615,
         222616,
         222617
@@ -1710,7 +1710,7 @@
     "327": {
       "reagentSlotId": 327,
       "name": "Spool of Duskthread",
-      "itemIds": [
+      "reagentIds": [
         222789,
         222790,
         222791
@@ -1719,7 +1719,7 @@
     "328": {
       "reagentSlotId": 328,
       "name": "Spool of Dawnthread",
-      "itemIds": [
+      "reagentIds": [
         222792,
         222793,
         222794
@@ -1728,7 +1728,7 @@
     "329": {
       "reagentSlotId": 329,
       "name": "Spool of Weaverthread",
-      "itemIds": [
+      "reagentIds": [
         222795,
         222797,
         222796
@@ -1737,7 +1737,7 @@
     "330": {
       "reagentSlotId": 330,
       "name": "Duskcloth Bolt",
-      "itemIds": [
+      "reagentIds": [
         222798,
         222799,
         222800
@@ -1746,7 +1746,7 @@
     "331": {
       "reagentSlotId": 331,
       "name": "Dawncloth Bolt",
-      "itemIds": [
+      "reagentIds": [
         222801,
         222802,
         222803
@@ -1755,7 +1755,7 @@
     "332": {
       "reagentSlotId": 332,
       "name": "Weavercloth Bolt",
-      "itemIds": [
+      "reagentIds": [
         222804,
         222805,
         222806
@@ -1764,7 +1764,7 @@
     "334": {
       "reagentSlotId": 334,
       "name": "Add Embellishment",
-      "itemIds": [
+      "reagentIds": [
         213768,
         213769,
         213770,
@@ -1786,7 +1786,7 @@
     "340": {
       "reagentSlotId": 340,
       "name": "Add Embellishment",
-      "itemIds": [
+      "reagentIds": [
         213768,
         213769,
         213770,
@@ -1823,7 +1823,7 @@
     "341": {
       "reagentSlotId": 341,
       "name": "Add Embellishment",
-      "itemIds": [
+      "reagentIds": [
         213768,
         213769,
         213770,
@@ -1860,7 +1860,7 @@
     "342": {
       "reagentSlotId": 342,
       "name": "Empower",
-      "itemIds": [
+      "reagentIds": [
         224069,
         230937,
         231767,
@@ -1870,7 +1870,7 @@
     "346": {
       "reagentSlotId": 346,
       "name": "Artisan's Authenticity",
-      "itemIds": [
+      "reagentIds": [
         225670,
         225671,
         225672,
@@ -1880,7 +1880,7 @@
     "354": {
       "reagentSlotId": 354,
       "name": "Artisan's Authenticity",
-      "itemIds": [
+      "reagentIds": [
         225670,
         225671,
         225672,
@@ -1890,7 +1890,7 @@
     "357": {
       "reagentSlotId": 357,
       "name": "Exquisite Weavercloth Bolt",
-      "itemIds": [
+      "reagentIds": [
         224832,
         224833,
         224834
@@ -1899,7 +1899,7 @@
     "359": {
       "reagentSlotId": 359,
       "name": "Drafting Supplies",
-      "itemIds": [
+      "reagentIds": [
         213762,
         213763,
         213764,
@@ -1914,7 +1914,7 @@
     "362": {
       "reagentSlotId": 362,
       "name": "Mysterious Concoction",
-      "itemIds": [
+      "reagentIds": [
         225987,
         225988,
         225989,
@@ -1935,7 +1935,7 @@
     "363": {
       "reagentSlotId": 363,
       "name": "Socket",
-      "itemIds": [
+      "reagentIds": [
         226676,
         226677,
         232387,
@@ -1947,7 +1947,7 @@
     "364": {
       "reagentSlotId": 364,
       "name": "Socket",
-      "itemIds": [
+      "reagentIds": [
         226676,
         226677,
         232387,
@@ -1959,7 +1959,7 @@
     "365": {
       "reagentSlotId": 365,
       "name": "Customize Secondary Stats",
-      "itemIds": [
+      "reagentIds": [
         222579,
         222580,
         222581,
@@ -1983,7 +1983,7 @@
     "366": {
       "reagentSlotId": 366,
       "name": "Infuse with Power",
-      "itemIds": [
+      "reagentIds": [
         224072,
         224073,
         230936,
@@ -1995,7 +1995,7 @@
     "367": {
       "reagentSlotId": 367,
       "name": "Radiant Reagents",
-      "itemIds": [
+      "reagentIds": [
         213765,
         213766,
         213767,
@@ -2013,7 +2013,7 @@
     "368": {
       "reagentSlotId": 368,
       "name": "Empower",
-      "itemIds": [
+      "reagentIds": [
         228338,
         228339,
         224069,
@@ -2024,7 +2024,7 @@
     "374": {
       "reagentSlotId": 374,
       "name": "Radiant Reagents",
-      "itemIds": [
+      "reagentIds": [
         213765,
         213766,
         213767,
@@ -2042,7 +2042,7 @@
     "375": {
       "reagentSlotId": 375,
       "name": "Embroidery Thread",
-      "itemIds": [
+      "reagentIds": [
         222882,
         222883,
         222884,
@@ -2060,7 +2060,7 @@
     "376": {
       "reagentSlotId": 376,
       "name": "Spare Parts",
-      "itemIds": [
+      "reagentIds": [
         213765,
         213766,
         213767,
@@ -2078,7 +2078,7 @@
     "378": {
       "reagentSlotId": 378,
       "name": "Enchants and Equipment",
-      "itemIds": [
+      "reagentIds": [
         225987,
         225988,
         225989,
@@ -2096,7 +2096,7 @@
     "384": {
       "reagentSlotId": 384,
       "name": "Augment Beyond",
-      "itemIds": [
+      "reagentIds": [
         251994,
         251993,
         239203,
@@ -2106,7 +2106,7 @@
     "386": {
       "reagentSlotId": 386,
       "name": "Refulgent Copper Ingot",
-      "itemIds": [
+      "reagentIds": [
         238197,
         238198
       ]
@@ -2114,7 +2114,7 @@
     "388": {
       "reagentSlotId": 388,
       "name": "Artisan's Authenticity",
-      "itemIds": [
+      "reagentIds": [
         246447,
         246448,
         246449,
@@ -2128,7 +2128,7 @@
     "389": {
       "reagentSlotId": 389,
       "name": "Add Embellishment",
-      "itemIds": [
+      "reagentIds": [
         251487,
         251488,
         244603,
@@ -2141,7 +2141,7 @@
     "390": {
       "reagentSlotId": 390,
       "name": "Add Embellishment",
-      "itemIds": [
+      "reagentIds": [
         244603,
         244604,
         244607,
@@ -2162,7 +2162,7 @@
     "391": {
       "reagentSlotId": 391,
       "name": "Add Embellishment",
-      "itemIds": [
+      "reagentIds": [
         244603,
         244604,
         244607,
@@ -2181,7 +2181,7 @@
     "392": {
       "reagentSlotId": 392,
       "name": "Infuse with Power",
-      "itemIds": [
+      "reagentIds": [
         3345,
         3347
       ]
@@ -2189,7 +2189,7 @@
     "393": {
       "reagentSlotId": 393,
       "name": "Customize Secondary Stats",
-      "itemIds": [
+      "reagentIds": [
         245781,
         245782,
         245783,
@@ -2207,7 +2207,7 @@
     "398": {
       "reagentSlotId": 398,
       "name": "Soul Sprocket",
-      "itemIds": [
+      "reagentIds": [
         243576,
         243577
       ]
@@ -2215,7 +2215,7 @@
     "399": {
       "reagentSlotId": 399,
       "name": "Aetherlume",
-      "itemIds": [
+      "reagentIds": [
         243578,
         243579
       ]
@@ -2223,7 +2223,7 @@
     "400": {
       "reagentSlotId": 400,
       "name": "Lumiflux",
-      "itemIds": [
+      "reagentIds": [
         243581,
         243582
       ]
@@ -2231,14 +2231,14 @@
     "401": {
       "reagentSlotId": 401,
       "name": "Spark",
-      "itemIds": [
+      "reagentIds": [
         232875
       ]
     },
     "402": {
       "reagentSlotId": 402,
       "name": "Dawn Crystal",
-      "itemIds": [
+      "reagentIds": [
         243605,
         243606
       ]
@@ -2246,7 +2246,7 @@
     "403": {
       "reagentSlotId": 403,
       "name": "Radiant Shard",
-      "itemIds": [
+      "reagentIds": [
         243602,
         243603
       ]
@@ -2254,7 +2254,7 @@
     "404": {
       "reagentSlotId": 404,
       "name": "Eversinging Dust",
-      "itemIds": [
+      "reagentIds": [
         243599,
         243600
       ]
@@ -2262,7 +2262,7 @@
     "407": {
       "reagentSlotId": 407,
       "name": "Flawless Amani Lapis",
-      "itemIds": [
+      "reagentIds": [
         242612,
         242727
       ]
@@ -2270,7 +2270,7 @@
     "411": {
       "reagentSlotId": 411,
       "name": "Flawless Harandar Peridot",
-      "itemIds": [
+      "reagentIds": [
         242610,
         242726
       ]
@@ -2278,7 +2278,7 @@
     "412": {
       "reagentSlotId": 412,
       "name": "Flawless Sanguine Garnet",
-      "itemIds": [
+      "reagentIds": [
         242613,
         242724
       ]
@@ -2286,7 +2286,7 @@
     "414": {
       "reagentSlotId": 414,
       "name": "Glimmering Gemdust",
-      "itemIds": [
+      "reagentIds": [
         242620,
         242621
       ]
@@ -2294,7 +2294,7 @@
     "416": {
       "reagentSlotId": 416,
       "name": "Sin'dorei Lens",
-      "itemIds": [
+      "reagentIds": [
         240972,
         240973
       ]
@@ -2302,7 +2302,7 @@
     "417": {
       "reagentSlotId": 417,
       "name": "Duskshrouded Stone",
-      "itemIds": [
+      "reagentIds": [
         242788,
         242789
       ]
@@ -2310,7 +2310,7 @@
     "418": {
       "reagentSlotId": 418,
       "name": "Kaleidoscopic Prism",
-      "itemIds": [
+      "reagentIds": [
         240974,
         240975
       ]
@@ -2318,7 +2318,7 @@
     "419": {
       "reagentSlotId": 419,
       "name": "Void-Tempered Hide",
-      "itemIds": [
+      "reagentIds": [
         238518,
         238519
       ]
@@ -2326,7 +2326,7 @@
     "420": {
       "reagentSlotId": 420,
       "name": "Void-Tempered Plating",
-      "itemIds": [
+      "reagentIds": [
         238520,
         238521
       ]
@@ -2334,7 +2334,7 @@
     "421": {
       "reagentSlotId": 421,
       "name": "Void-Tempered Leather",
-      "itemIds": [
+      "reagentIds": [
         238511,
         238512
       ]
@@ -2342,7 +2342,7 @@
     "422": {
       "reagentSlotId": 422,
       "name": "Void-Tempered Scales",
-      "itemIds": [
+      "reagentIds": [
         238513,
         238514
       ]
@@ -2350,7 +2350,7 @@
     "424": {
       "reagentSlotId": 424,
       "name": "Infused Scalewoven Hide",
-      "itemIds": [
+      "reagentIds": [
         244633,
         244634
       ]
@@ -2358,7 +2358,7 @@
     "425": {
       "reagentSlotId": 425,
       "name": "Silvermoon Weapon Wrap",
-      "itemIds": [
+      "reagentIds": [
         244637,
         244638
       ]
@@ -2366,7 +2366,7 @@
     "426": {
       "reagentSlotId": 426,
       "name": "Sin'dorei Armor Banding",
-      "itemIds": [
+      "reagentIds": [
         244635,
         244636
       ]
@@ -2374,7 +2374,7 @@
     "427": {
       "reagentSlotId": 427,
       "name": "Socket",
-      "itemIds": [
+      "reagentIds": [
         246211,
         246212
       ]
@@ -2382,7 +2382,7 @@
     "428": {
       "reagentSlotId": 428,
       "name": "Socket",
-      "itemIds": [
+      "reagentIds": [
         246211,
         246212
       ]
@@ -2390,7 +2390,7 @@
     "430": {
       "reagentSlotId": 430,
       "name": "Azeroot",
-      "itemIds": [
+      "reagentIds": [
         236774,
         236775
       ]
@@ -2398,7 +2398,7 @@
     "435": {
       "reagentSlotId": 435,
       "name": "Refulgent Copper Ore",
-      "itemIds": [
+      "reagentIds": [
         237359,
         237361
       ]
@@ -2406,7 +2406,7 @@
     "436": {
       "reagentSlotId": 436,
       "name": "Umbral Tin Ore",
-      "itemIds": [
+      "reagentIds": [
         237362,
         237363
       ]
@@ -2414,7 +2414,7 @@
     "447": {
       "reagentSlotId": 447,
       "name": "Refreshing Serum",
-      "itemIds": [
+      "reagentIds": [
         241307,
         241306
       ]
@@ -2422,7 +2422,7 @@
     "453": {
       "reagentSlotId": 453,
       "name": "Arcanoweave",
-      "itemIds": [
+      "reagentIds": [
         237018,
         237017
       ]
@@ -2430,7 +2430,7 @@
     "454": {
       "reagentSlotId": 454,
       "name": "Arcanoweave Bolt",
-      "itemIds": [
+      "reagentIds": [
         239198,
         239200
       ]
@@ -2438,7 +2438,7 @@
     "455": {
       "reagentSlotId": 455,
       "name": "Bright Linen Bolt",
-      "itemIds": [
+      "reagentIds": [
         239700,
         239701
       ]
@@ -2446,7 +2446,7 @@
     "456": {
       "reagentSlotId": 456,
       "name": "Imbued Bright Linen Bolt",
-      "itemIds": [
+      "reagentIds": [
         239702,
         239703
       ]
@@ -2454,7 +2454,7 @@
     "457": {
       "reagentSlotId": 457,
       "name": "Sunfire Silk",
-      "itemIds": [
+      "reagentIds": [
         237015,
         237016
       ]
@@ -2462,7 +2462,7 @@
     "458": {
       "reagentSlotId": 458,
       "name": "Sunfire Silk Bolt",
-      "itemIds": [
+      "reagentIds": [
         239201,
         239202
       ]
@@ -2470,7 +2470,7 @@
     "459": {
       "reagentSlotId": 459,
       "name": "Amplify Secondary Stat",
-      "itemIds": [
+      "reagentIds": [
         244697,
         244698,
         244699,
@@ -2484,7 +2484,7 @@
     "462": {
       "reagentSlotId": 462,
       "name": "Codified Azeroot",
-      "itemIds": [
+      "reagentIds": [
         245764,
         245765
       ]
@@ -2492,7 +2492,7 @@
     "463": {
       "reagentSlotId": 463,
       "name": "Munsell Ink",
-      "itemIds": [
+      "reagentIds": [
         245801,
         245802
       ]
@@ -2500,7 +2500,7 @@
     "464": {
       "reagentSlotId": 464,
       "name": "Sienna Ink",
-      "itemIds": [
+      "reagentIds": [
         245805,
         245806
       ]
@@ -2508,7 +2508,7 @@
     "465": {
       "reagentSlotId": 465,
       "name": "Soul Cipher",
-      "itemIds": [
+      "reagentIds": [
         245766,
         245767
       ]
@@ -2516,7 +2516,7 @@
     "466": {
       "reagentSlotId": 466,
       "name": "Gloaming Alloy",
-      "itemIds": [
+      "reagentIds": [
         238202,
         238203
       ]
@@ -2524,7 +2524,7 @@
     "467": {
       "reagentSlotId": 467,
       "name": "Sterling Alloy",
-      "itemIds": [
+      "reagentIds": [
         238204,
         238205
       ]
@@ -2532,7 +2532,7 @@
     "468": {
       "reagentSlotId": 468,
       "name": "Smuggler's Enchanted Edge",
-      "itemIds": [
+      "reagentIds": [
         243737,
         243738
       ]
@@ -2540,7 +2540,7 @@
     "469": {
       "reagentSlotId": 469,
       "name": "Empower",
-      "itemIds": [
+      "reagentIds": [
         3383,
         3341
       ]
@@ -2548,7 +2548,7 @@
     "470": {
       "reagentSlotId": 470,
       "name": "Empower",
-      "itemIds": [
+      "reagentIds": [
         3383,
         3341
       ]
@@ -2556,7 +2556,7 @@
     "471": {
       "reagentSlotId": 471,
       "name": "Competitor's Heraldry",
-      "itemIds": [
+      "reagentIds": [
         256559,
         256607,
         256608
@@ -2565,7 +2565,7 @@
     "476": {
       "reagentSlotId": 476,
       "name": "Wondrous Synergist",
-      "itemIds": [
+      "reagentIds": [
         241283,
         241282
       ]
@@ -2573,7 +2573,7 @@
     "499": {
       "reagentSlotId": 499,
       "name": "Add Embellishment",
-      "itemIds": [
+      "reagentIds": [
         257735,
         257741,
         248135,
@@ -2587,14 +2587,14 @@
     "500": {
       "reagentSlotId": 500,
       "name": "Spark",
-      "itemIds": [
+      "reagentIds": [
         232875
       ]
     },
     "501": {
       "reagentSlotId": 501,
       "name": "Add Embellishment",
-      "itemIds": [
+      "reagentIds": [
         248135,
         248592,
         257735,
@@ -2618,7 +2618,7 @@
     "502": {
       "reagentSlotId": 502,
       "name": "Add Embellishment",
-      "itemIds": [
+      "reagentIds": [
         248135,
         248592,
         257735,
@@ -10160,12 +10160,6 @@
       "itemClass": 7,
       "itemSubClass": 11,
       "itemLevel": 70,
-      "sources": [
-        {
-          "instanceId": -62,
-          "encounterId": -62
-        }
-      ],
       "craftingBonusIds": [
         10841
       ],
@@ -10198,12 +10192,6 @@
       "itemClass": 7,
       "itemSubClass": 11,
       "itemLevel": 70,
-      "sources": [
-        {
-          "instanceId": -63,
-          "encounterId": -63
-        }
-      ],
       "craftingBonusIds": [
         10842
       ],
@@ -10237,12 +10225,6 @@
       "itemClass": 7,
       "itemSubClass": 11,
       "itemLevel": 70,
-      "sources": [
-        {
-          "instanceId": -72,
-          "encounterId": -72
-        }
-      ],
       "craftingBonusIds": [
         12016,
         12029
@@ -10260,12 +10242,6 @@
       "itemClass": 7,
       "itemSubClass": 11,
       "itemLevel": 70,
-      "sources": [
-        {
-          "instanceId": -73,
-          "encounterId": -73
-        }
-      ],
       "craftingBonusIds": [
         12017,
         12030
@@ -10300,12 +10276,6 @@
       "itemClass": 7,
       "itemSubClass": 11,
       "itemLevel": 70,
-      "sources": [
-        {
-          "instanceId": -79,
-          "encounterId": -79
-        }
-      ],
       "craftingBonusIds": [
         12038,
         12035
@@ -10323,12 +10293,6 @@
       "itemClass": 7,
       "itemSubClass": 11,
       "itemLevel": 70,
-      "sources": [
-        {
-          "instanceId": -80,
-          "encounterId": -80
-        }
-      ],
       "craftingBonusIds": [
         12039,
         12033
@@ -13520,6 +13484,7 @@
       ],
       "craftingCategoryId": 831,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 244603,
       "reagentType": "item"
     },
@@ -13542,6 +13507,7 @@
       ],
       "craftingCategoryId": 831,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 244604,
       "reagentType": "item"
     },
@@ -13564,6 +13530,7 @@
       ],
       "craftingCategoryId": 832,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 244607,
       "reagentType": "item"
     },
@@ -13586,6 +13553,7 @@
       ],
       "craftingCategoryId": 832,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 244608,
       "reagentType": "item"
     },
@@ -13608,6 +13576,7 @@
       ],
       "craftingCategoryId": 830,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 244674,
       "reagentType": "item"
     },
@@ -13630,6 +13599,7 @@
       ],
       "craftingCategoryId": 830,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 244675,
       "reagentType": "item"
     },
@@ -13652,6 +13622,7 @@
       ],
       "craftingCategoryId": 861,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 251489,
       "reagentType": "item"
     },
@@ -13674,6 +13645,7 @@
       ],
       "craftingCategoryId": 861,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 251490,
       "reagentType": "item"
     },
@@ -13696,6 +13668,7 @@
       ],
       "craftingCategoryId": 769,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 240166,
       "reagentType": "item"
     },
@@ -13718,6 +13691,7 @@
       ],
       "craftingCategoryId": 769,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 240167,
       "reagentType": "item"
     },
@@ -13740,6 +13714,7 @@
       ],
       "craftingCategoryId": 770,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 240164,
       "reagentType": "item"
     },
@@ -13762,6 +13737,7 @@
       ],
       "craftingCategoryId": 770,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 240165,
       "reagentType": "item"
     },
@@ -13778,6 +13754,7 @@
       ],
       "craftingCategoryId": 854,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 248130,
       "reagentType": "item"
     },
@@ -13795,6 +13772,7 @@
       ],
       "craftingCategoryId": 814,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 245781,
       "reagentType": "item"
     },
@@ -13812,6 +13790,7 @@
       ],
       "craftingCategoryId": 814,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 245782,
       "reagentType": "item"
     },
@@ -13829,6 +13808,7 @@
       ],
       "craftingCategoryId": 813,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 245783,
       "reagentType": "item"
     },
@@ -13846,6 +13826,7 @@
       ],
       "craftingCategoryId": 813,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 245784,
       "reagentType": "item"
     },
@@ -13863,6 +13844,7 @@
       ],
       "craftingCategoryId": 812,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 245785,
       "reagentType": "item"
     },
@@ -13880,6 +13862,7 @@
       ],
       "craftingCategoryId": 812,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 245786,
       "reagentType": "item"
     },
@@ -13897,6 +13880,7 @@
       ],
       "craftingCategoryId": 811,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 245787,
       "reagentType": "item"
     },
@@ -13914,6 +13898,7 @@
       ],
       "craftingCategoryId": 811,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 245788,
       "reagentType": "item"
     },
@@ -13931,6 +13916,7 @@
       ],
       "craftingCategoryId": 810,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 245789,
       "reagentType": "item"
     },
@@ -13948,6 +13934,7 @@
       ],
       "craftingCategoryId": 810,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 245790,
       "reagentType": "item"
     },
@@ -13965,6 +13952,7 @@
       ],
       "craftingCategoryId": 809,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 245791,
       "reagentType": "item"
     },
@@ -13982,6 +13970,7 @@
       ],
       "craftingCategoryId": 809,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 245792,
       "reagentType": "item"
     },
@@ -14146,6 +14135,7 @@
       ],
       "craftingCategoryId": 805,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 245871,
       "reagentType": "item"
     },
@@ -14168,6 +14158,7 @@
       ],
       "craftingCategoryId": 805,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 245872,
       "reagentType": "item"
     },
@@ -14190,6 +14181,7 @@
       ],
       "craftingCategoryId": 806,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 245875,
       "reagentType": "item"
     },
@@ -14212,6 +14204,7 @@
       ],
       "craftingCategoryId": 806,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 245876,
       "reagentType": "item"
     },
@@ -14234,6 +14227,7 @@
       ],
       "craftingCategoryId": 807,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 245877,
       "reagentType": "item"
     },
@@ -14256,6 +14250,7 @@
       ],
       "craftingCategoryId": 807,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 245878,
       "reagentType": "item"
     },
@@ -14278,6 +14273,7 @@
       ],
       "craftingCategoryId": 808,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 245873,
       "reagentType": "item"
     },
@@ -14300,6 +14296,7 @@
       ],
       "craftingCategoryId": 808,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 245874,
       "reagentType": "item"
     },
@@ -14328,6 +14325,12 @@
       "itemClass": 7,
       "itemSubClass": 11,
       "itemLevel": 70,
+      "sources": [
+        {
+          "instanceId": -84,
+          "encounterId": -84
+        }
+      ],
       "craftingBonusIds": [
         13570,
         13447
@@ -14345,6 +14348,12 @@
       "itemClass": 7,
       "itemSubClass": 11,
       "itemLevel": 70,
+      "sources": [
+        {
+          "instanceId": -85,
+          "encounterId": -85
+        }
+      ],
       "craftingBonusIds": [
         13571,
         13448
@@ -14703,6 +14712,7 @@
       ],
       "craftingCategoryId": 860,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 251487,
       "reagentType": "item"
     },
@@ -14725,6 +14735,7 @@
       ],
       "craftingCategoryId": 860,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 251488,
       "reagentType": "item"
     },
@@ -14890,6 +14901,7 @@
       "craftingBonusIds": [],
       "craftingCategoryId": 848,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 241307,
       "reagentType": "item"
     },
@@ -14905,6 +14917,7 @@
       "craftingBonusIds": [],
       "craftingCategoryId": 848,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 241306,
       "reagentType": "item"
     },
@@ -15130,6 +15143,7 @@
       "craftingBonusIds": [],
       "craftingCategoryId": 867,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 243737,
       "reagentType": "item"
     },
@@ -15145,6 +15159,7 @@
       "craftingBonusIds": [],
       "craftingCategoryId": 867,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 243738,
       "reagentType": "item"
     },
@@ -15227,6 +15242,7 @@
       ],
       "craftingCategoryId": 884,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 257735,
       "reagentType": "item"
     },
@@ -15249,6 +15265,7 @@
       ],
       "craftingCategoryId": 884,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 257741,
       "reagentType": "item"
     },
@@ -15277,6 +15294,7 @@
       ],
       "craftingCategoryId": 856,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 248135,
       "reagentType": "item"
     },
@@ -15305,6 +15323,7 @@
       ],
       "craftingCategoryId": 856,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 248592,
       "reagentType": "item"
     },
@@ -15332,6 +15351,7 @@
       ],
       "craftingCategoryId": 857,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 248136,
       "reagentType": "item"
     },
@@ -15354,6 +15374,7 @@
       ],
       "craftingCategoryId": 873,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 255843,
       "reagentType": "item"
     },
@@ -15376,6 +15397,7 @@
       ],
       "craftingCategoryId": 873,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 255844,
       "reagentType": "item"
     },
@@ -15393,6 +15415,7 @@
       ],
       "craftingCategoryId": 869,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 244697,
       "reagentType": "item"
     },
@@ -15410,6 +15433,7 @@
       ],
       "craftingCategoryId": 869,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 244698,
       "reagentType": "item"
     },
@@ -15427,6 +15451,7 @@
       ],
       "craftingCategoryId": 871,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 244699,
       "reagentType": "item"
     },
@@ -15444,6 +15469,7 @@
       ],
       "craftingCategoryId": 871,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 244700,
       "reagentType": "item"
     },
@@ -15461,6 +15487,7 @@
       ],
       "craftingCategoryId": 870,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 244701,
       "reagentType": "item"
     },
@@ -15478,6 +15505,7 @@
       ],
       "craftingCategoryId": 870,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 244702,
       "reagentType": "item"
     },
@@ -15495,6 +15523,7 @@
       ],
       "craftingCategoryId": 872,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 244703,
       "reagentType": "item"
     },
@@ -15512,6 +15541,7 @@
       ],
       "craftingCategoryId": 872,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 244704,
       "reagentType": "item"
     },
@@ -15564,6 +15594,7 @@
       ],
       "craftingCategoryId": 855,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 248132,
       "reagentType": "item"
     },
@@ -15586,6 +15617,7 @@
       ],
       "craftingCategoryId": 855,
       "expansion": 11,
+      "squishEra": 2,
       "itemId": 248133,
       "reagentType": "item"
     },
@@ -15810,6 +15842,12 @@
         13667
       ],
       "craftingCategoryId": 901,
+      "craftingPrereqs": [
+        {
+          "itemId": 232875,
+          "bonusId": 12066
+        }
+      ],
       "currencyId": 3345,
       "reagentType": "currency"
     },
@@ -15824,6 +15862,12 @@
         13667
       ],
       "craftingCategoryId": 901,
+      "craftingPrereqs": [
+        {
+          "itemId": 232875,
+          "bonusId": 12066
+        }
+      ],
       "currencyId": 3347,
       "reagentType": "currency"
     },
@@ -15837,6 +15881,7 @@
         13623
       ],
       "craftingCategoryId": 902,
+      "craftingPrereqs": null,
       "currencyId": 3383,
       "reagentType": "currency"
     },
@@ -15850,6 +15895,7 @@
         13620
       ],
       "craftingCategoryId": 902,
+      "craftingPrereqs": null,
       "currencyId": 3341,
       "reagentType": "currency"
     }
