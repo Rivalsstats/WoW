@@ -1886,19 +1886,19 @@
     "id": 7220,
     "displayName": "12 Primary / +5% Damage Reduction when affected by Crowd Control",
     "spellIcon": "",
-    "itemId": 241144,
-    "itemName": "Enduring Heliotrope",
+    "itemId": 213747,
+    "itemName": "Enduring Bloodstone",
     "itemIcon": "inv_misc_cutgemsuperior6",
     "itemLimitCategory": {
-      "id": 698,
-      "name": "Thalassian Diamond",
+      "id": 614,
+      "name": "Algari Diamond",
       "quantity": 1,
       "flags": 1
     },
-    "unique": 698,
+    "unique": 614,
     "quality": 4,
-    "expansion": 11,
-    "tokenizedName": "enduring_heliotrope",
+    "expansion": 10,
+    "tokenizedName": "enduring_bloodstone",
     "slot": "socket",
     "socketType": "PRISMATIC",
     "stats": [
@@ -1915,19 +1915,19 @@
     "id": 7221,
     "displayName": "12 Primary / opponent's failed interrupt attempts grant Precognition",
     "spellIcon": "",
-    "itemId": 241143,
-    "itemName": "Cognitive Heliotrope",
+    "itemId": 213748,
+    "itemName": "Cognitive Bloodstone",
     "itemIcon": "inv_misc_epicgem_01",
     "itemLimitCategory": {
-      "id": 698,
-      "name": "Thalassian Diamond",
+      "id": 614,
+      "name": "Algari Diamond",
       "quantity": 1,
       "flags": 1
     },
-    "unique": 698,
+    "unique": 614,
     "quality": 4,
-    "expansion": 11,
-    "tokenizedName": "cognitive_heliotrope",
+    "expansion": 10,
+    "tokenizedName": "cognitive_bloodstone",
     "slot": "socket",
     "socketType": "PRISMATIC",
     "stats": [
@@ -1944,19 +1944,19 @@
     "id": 7222,
     "displayName": "12 Primary / getting snared increases damage of your next attack by  per stack",
     "spellIcon": "",
-    "itemId": 241142,
-    "itemName": "Determined Heliotrope",
+    "itemId": 213749,
+    "itemName": "Determined Bloodstone",
     "itemIcon": "inv_misc_epicgem_uncut_01",
     "itemLimitCategory": {
-      "id": 698,
-      "name": "Thalassian Diamond",
+      "id": 614,
+      "name": "Algari Diamond",
       "quantity": 1,
       "flags": 1
     },
-    "unique": 698,
+    "unique": 614,
     "quality": 4,
-    "expansion": 11,
-    "tokenizedName": "determined_heliotrope",
+    "expansion": 10,
+    "tokenizedName": "determined_bloodstone",
     "slot": "socket",
     "socketType": "PRISMATIC",
     "stats": [
@@ -6999,7 +6999,7 @@
     "stats": [
       {
         "type": "mastery",
-        "amount": 9
+        "amount": 22
       }
     ],
     "equipRequirements": {
@@ -7026,7 +7026,7 @@
     "stats": [
       {
         "type": "mastery",
-        "amount": 13
+        "amount": 24
       }
     ],
     "equipRequirements": {
@@ -7101,7 +7101,7 @@
     "stats": [
       {
         "type": "mastery",
-        "amount": 17
+        "amount": 27
       }
     ],
     "equipRequirements": {
@@ -7128,7 +7128,7 @@
     "stats": [
       {
         "type": "mastery",
-        "amount": 22
+        "amount": 29
       }
     ],
     "equipRequirements": {
@@ -7789,7 +7789,7 @@
     "stats": [
       {
         "type": "crit",
-        "amount": 9
+        "amount": 22
       }
     ],
     "equipRequirements": {
@@ -7816,7 +7816,7 @@
     "stats": [
       {
         "type": "crit",
-        "amount": 13
+        "amount": 24
       }
     ],
     "equipRequirements": {
@@ -7843,7 +7843,7 @@
     "stats": [
       {
         "type": "crit",
-        "amount": 17
+        "amount": 27
       }
     ],
     "equipRequirements": {
@@ -7870,7 +7870,7 @@
     "stats": [
       {
         "type": "crit",
-        "amount": 22
+        "amount": 29
       }
     ],
     "equipRequirements": {
@@ -8475,7 +8475,7 @@
     "stats": [
       {
         "type": "haste",
-        "amount": 9
+        "amount": 22
       }
     ],
     "equipRequirements": {
@@ -8502,7 +8502,7 @@
     "stats": [
       {
         "type": "haste",
-        "amount": 13
+        "amount": 24
       }
     ],
     "equipRequirements": {
@@ -8529,7 +8529,7 @@
     "stats": [
       {
         "type": "vers",
-        "amount": 9
+        "amount": 22
       }
     ],
     "equipRequirements": {
@@ -8556,7 +8556,7 @@
     "stats": [
       {
         "type": "vers",
-        "amount": 13
+        "amount": 24
       }
     ],
     "equipRequirements": {
@@ -8583,7 +8583,7 @@
     "stats": [
       {
         "type": "haste",
-        "amount": 17
+        "amount": 27
       }
     ],
     "equipRequirements": {
@@ -8610,7 +8610,7 @@
     "stats": [
       {
         "type": "haste",
-        "amount": 22
+        "amount": 29
       }
     ],
     "equipRequirements": {
@@ -8637,7 +8637,7 @@
     "stats": [
       {
         "type": "vers",
-        "amount": 17
+        "amount": 27
       }
     ],
     "equipRequirements": {
@@ -8664,7 +8664,7 @@
     "stats": [
       {
         "type": "vers",
-        "amount": 22
+        "amount": 29
       }
     ],
     "equipRequirements": {
@@ -9016,132 +9016,6 @@
     },
     "categoryId": 2271,
     "categoryName": "Weapon Enchants"
-  },
-  {
-    "id": 8042,
-    "baseDisplayName": "Illusory Adornment - Blooming Light",
-    "displayName": "Illusory Adornment - Blooming Light 1",
-    "spellId": 1236098,
-    "spellIcon": "ui_profession_enchanting",
-    "itemId": 244032,
-    "itemName": "Blooming Light",
-    "itemIcon": "inv_12_profession_enchanting_enchantedvellum_green",
-    "quality": 3,
-    "expansion": 11,
-    "craftingQuality": 1,
-    "tokenizedName": "blooming_light_1",
-    "equipRequirements": {
-      "itemClass": 4,
-      "itemSubClassMask": 31,
-      "invTypeMask": 8
-    },
-    "categoryId": 2284,
-    "categoryName": "Illusions"
-  },
-  {
-    "id": 8043,
-    "baseDisplayName": "Illusory Adornment - Blooming Light",
-    "displayName": "Illusory Adornment - Blooming Light 2",
-    "spellId": 1236098,
-    "spellIcon": "ui_profession_enchanting",
-    "itemId": 244033,
-    "itemName": "Blooming Light",
-    "itemIcon": "inv_12_profession_enchanting_enchantedvellum_green",
-    "quality": 3,
-    "expansion": 11,
-    "craftingQuality": 2,
-    "tokenizedName": "blooming_light_2",
-    "equipRequirements": {
-      "itemClass": 4,
-      "itemSubClassMask": 31,
-      "invTypeMask": 8
-    },
-    "categoryId": 2284,
-    "categoryName": "Illusions"
-  },
-  {
-    "id": 8044,
-    "baseDisplayName": "Illusory Adornment - Nature's Embrace",
-    "displayName": "Illusory Adornment - Nature's Embrace 1",
-    "spellId": 1236099,
-    "spellIcon": "ui_profession_enchanting",
-    "itemId": 244034,
-    "itemName": "Nature's Embrace",
-    "itemIcon": "inv_12_profession_enchanting_enchantedvellum_green",
-    "quality": 3,
-    "expansion": 11,
-    "craftingQuality": 1,
-    "tokenizedName": "natures_embrace_1",
-    "equipRequirements": {
-      "itemClass": 4,
-      "itemSubClassMask": 31,
-      "invTypeMask": 8
-    },
-    "categoryId": 2284,
-    "categoryName": "Illusions"
-  },
-  {
-    "id": 8045,
-    "baseDisplayName": "Illusory Adornment - Nature's Embrace",
-    "displayName": "Illusory Adornment - Nature's Embrace 2",
-    "spellId": 1236099,
-    "spellIcon": "ui_profession_enchanting",
-    "itemId": 244035,
-    "itemName": "Nature's Embrace",
-    "itemIcon": "inv_12_profession_enchanting_enchantedvellum_green",
-    "quality": 3,
-    "expansion": 11,
-    "craftingQuality": 2,
-    "tokenizedName": "natures_embrace_2",
-    "equipRequirements": {
-      "itemClass": 4,
-      "itemSubClassMask": 31,
-      "invTypeMask": 8
-    },
-    "categoryId": 2284,
-    "categoryName": "Illusions"
-  },
-  {
-    "id": 8046,
-    "baseDisplayName": "Illusory Adornment - Voidtouched",
-    "displayName": "Illusory Adornment - Voidtouched 1",
-    "spellId": 1236100,
-    "spellIcon": "ui_profession_enchanting",
-    "itemId": 244036,
-    "itemName": "Voidtouched",
-    "itemIcon": "inv_12_profession_enchanting_enchantedvellum_green",
-    "quality": 3,
-    "expansion": 11,
-    "craftingQuality": 1,
-    "tokenizedName": "voidtouched_1",
-    "equipRequirements": {
-      "itemClass": 4,
-      "itemSubClassMask": 31,
-      "invTypeMask": 8
-    },
-    "categoryId": 2284,
-    "categoryName": "Illusions"
-  },
-  {
-    "id": 8047,
-    "baseDisplayName": "Illusory Adornment - Voidtouched",
-    "displayName": "Illusory Adornment - Voidtouched 2",
-    "spellId": 1236100,
-    "spellIcon": "ui_profession_enchanting",
-    "itemId": 244037,
-    "itemName": "Voidtouched",
-    "itemIcon": "inv_12_profession_enchanting_enchantedvellum_green",
-    "quality": 3,
-    "expansion": 11,
-    "craftingQuality": 2,
-    "tokenizedName": "voidtouched_2",
-    "equipRequirements": {
-      "itemClass": 4,
-      "itemSubClassMask": 31,
-      "invTypeMask": 8
-    },
-    "categoryId": 2284,
-    "categoryName": "Illusions"
   },
   {
     "id": 8094,
@@ -11142,5 +11016,92 @@
       "itemSubClassMask": 262156,
       "invTypeMask": 0
     }
+  },
+  {
+    "id": 8684,
+    "displayName": "23 Primary / opponent's failed interrupt attempts grant Precognition",
+    "spellIcon": "",
+    "itemId": 241143,
+    "itemName": "Cognitive Heliotrope",
+    "itemIcon": "inv_misc_epicgem_01",
+    "itemLimitCategory": {
+      "id": 698,
+      "name": "Thalassian Diamond",
+      "quantity": 1,
+      "flags": 1
+    },
+    "unique": 698,
+    "quality": 4,
+    "expansion": 11,
+    "tokenizedName": "cognitive_heliotrope",
+    "slot": "socket",
+    "socketType": "PRISMATIC",
+    "stats": [
+      {
+        "type": "stragiint",
+        "amount": 23
+      }
+    ],
+    "spellEffects": [
+      377360
+    ]
+  },
+  {
+    "id": 8685,
+    "displayName": "23 Primary / +5% Damage Reduction when affected by Crowd Control",
+    "spellIcon": "",
+    "itemId": 241144,
+    "itemName": "Enduring Heliotrope",
+    "itemIcon": "inv_misc_cutgemsuperior6",
+    "itemLimitCategory": {
+      "id": 698,
+      "name": "Thalassian Diamond",
+      "quantity": 1,
+      "flags": 1
+    },
+    "unique": 698,
+    "quality": 4,
+    "expansion": 11,
+    "tokenizedName": "enduring_heliotrope",
+    "slot": "socket",
+    "socketType": "PRISMATIC",
+    "stats": [
+      {
+        "type": "stragiint",
+        "amount": 23
+      }
+    ],
+    "spellEffects": [
+      435550
+    ]
+  },
+  {
+    "id": 8686,
+    "displayName": "23 Primary / getting snared increases damage of your next attack by  per stack",
+    "spellIcon": "",
+    "itemId": 241142,
+    "itemName": "Determined Heliotrope",
+    "itemIcon": "inv_misc_epicgem_uncut_01",
+    "itemLimitCategory": {
+      "id": 698,
+      "name": "Thalassian Diamond",
+      "quantity": 1,
+      "flags": 1
+    },
+    "unique": 698,
+    "quality": 4,
+    "expansion": 11,
+    "tokenizedName": "determined_heliotrope",
+    "slot": "socket",
+    "socketType": "PRISMATIC",
+    "stats": [
+      {
+        "type": "stragiint",
+        "amount": 23
+      }
+    ],
+    "spellEffects": [
+      411126
+    ]
   }
 ]
