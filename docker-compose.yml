@@ -17,7 +17,7 @@ services:
         max-file: "3"
 
   watchtower:
-    image: nicholas-fedor/watchtower:latest
+    image: nickfedor/watchtower:latest
     container_name: watchtower
     restart: always
     env_file: .env   
