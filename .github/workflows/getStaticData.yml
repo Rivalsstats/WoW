@@ -2,7 +2,7 @@ name: Gather Static WoW data
 
 on:
   schedule:
-    - cron: '0 6 * * WED'
+    - cron: '0 8 * * WED'
   workflow_dispatch:
 
 jobs:
