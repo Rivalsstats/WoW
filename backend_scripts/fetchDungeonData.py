@@ -53,14 +53,26 @@ short_name_map = {}
 
 slug_map = {}
 current_season = get_current_season_id(token)
+print(f"Current season ID: {current_season}")
+max_season_id = max(s.get("blizzard_season_id", 0) for s in seasons)
+print(f"Max season ID in Raider.IO data: {max_season_id}")
+if max_season_id >= current_season:
+    for season in seasons:
+        if season.get("blizzard_season_id", 0) == current_season:
+            for d in season.get("dungeons", []):
+                short_name_map[d["challenge_mode_id"]] = d["short_name"]
+                slug_map[d["challenge_mode_id"]] = d["slug"]
+else:
+    print(
+        f"Warning: No season in Raider.IO data matches the current Blizzard season {current_season}. Using {max_season_id} as a fallback."
+    )
+    for season in seasons:
+        if season.get("blizzard_season_id", 0) == max_season_id:
+            for d in season.get("dungeons", []):
+                short_name_map[d["challenge_mode_id"]] = d["short_name"]
+                slug_map[d["challenge_mode_id"]] = d["slug"]
 
-for season in seasons:
-    if season.get("blizzard_season_id", 0) == current_season:
-        for d in season.get("dungeons", []):
-            short_name_map[d["challenge_mode_id"]] = d["short_name"]
-            slug_map[d["challenge_mode_id"]] = d["slug"]
-
-
+print("Full Map of Raider.IO short names:")
 print(short_name_map)
 
 out = {}
