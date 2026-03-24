@@ -117,11 +117,23 @@ def main():
 
     season_info = fetch_rio_season()
     print(season_info)
-    for season in season_info:
-        print(season)
-        if season.get("blizzard_season_id") == highest_season_id:
-            CURRENT_SEASON = season
-            break
+    CURRENT_SEASON = None
+    max_season_id = max(s.get("blizzard_season_id", 0) for s in season_info)
+    if max_season_id >= highest_season_id:
+        for season in season_info:
+            print(season)
+            if season.get("blizzard_season_id") == highest_season_id:
+                CURRENT_SEASON = season
+                break
+    else:
+        print(
+            f"Warning: No season in Raider.IO data matches the current Blizzard season {highest_season_id}. Using {max_season_id} as a fallback."
+        )
+        for season in season_info:
+            print(season)
+            if season.get("blizzard_season_id") == max_season_id:
+                CURRENT_SEASON = season
+                break
     if not CURRENT_SEASON:
         raise ValueError(
             f"Could not find RaiderIO season matching Blizzard season ID {highest_season_id}. Is the expansion correct?"
