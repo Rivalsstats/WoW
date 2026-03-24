@@ -30,7 +30,7 @@ period_details_url = (
 CLIENT_ID = os.getenv("BLIZ_CLIENT_ID")
 CLIENT_SECRET = os.getenv("BLIZ_CLIENT_SECRET")
 RAIDERIO_API_KEY = os.getenv("RAIDERIO_API_KEY")
-CURRENT_EXPANSION_ID = 10  # TWW
+CURRENT_EXPANSION_ID = 11  # MIDNIGHT
 
 SEASON_INFO_JSON = os.path.join("data", "static", "seasonInfo.json")
 
