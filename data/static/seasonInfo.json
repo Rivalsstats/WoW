@@ -1,104 +1,104 @@
 {
-  "slug": "season-tww-3-cutoffs",
-  "name": "TWW Season 3",
-  "blizzard_season_id": 15,
-  "is_main_season": false,
-  "short_name": "TWW3",
+  "slug": "season-mn-1",
+  "name": "MN Season 1",
+  "blizzard_season_id": 16,
+  "is_main_season": true,
+  "short_name": "MN1",
   "seasonal_affix": null,
   "starts": {
-    "us": "2025-08-12T15:00:00Z",
-    "eu": "2025-08-13T04:00:00Z",
-    "tw": "2025-08-13T23:00:00Z",
-    "kr": "2025-08-13T23:00:00Z",
-    "cn": "2025-08-13T23:00:00Z"
+    "us": "2026-03-24T15:00:00Z",
+    "eu": "2026-03-25T04:00:00Z",
+    "tw": "2026-03-25T23:00:00Z",
+    "kr": "2026-03-25T23:00:00Z",
+    "cn": "2026-03-25T23:00:00Z"
   },
   "ends": {
-    "us": "2026-01-20T06:00:00Z",
-    "eu": "2026-01-20T21:00:00Z",
-    "tw": "2026-01-21T14:00:00Z",
-    "kr": "2026-01-21T14:00:00Z",
-    "cn": "2026-01-21T14:00:00Z"
+    "us": "2030-01-01T00:00:00Z",
+    "eu": "2030-01-01T00:00:00Z",
+    "tw": "2030-01-01T00:00:00Z",
+    "kr": "2030-01-01T00:00:00Z",
+    "cn": "2030-01-01T00:00:00Z"
   },
   "dungeons": [
     {
-      "id": 15093,
-      "challenge_mode_id": 503,
-      "slug": "arakara-city-of-echoes",
-      "name": "Ara-Kara, City of Echoes",
-      "short_name": "ARAK",
-      "keystone_timer_seconds": 1800,
-      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/inv_achievement_dungeon_arak-ara.jpg",
-      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion10/base/arakara-city-of-echoes.jpg"
+      "id": 14032,
+      "challenge_mode_id": 402,
+      "slug": "algethar-academy",
+      "name": "Algeth'ar Academy",
+      "short_name": "AA",
+      "keystone_timer_seconds": 1740,
+      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/achievement_dungeon_dragonacademy.jpg",
+      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion9/base/algethar-academy.jpg"
     },
     {
-      "id": 16104,
-      "challenge_mode_id": 542,
-      "slug": "ecodome-aldani",
-      "name": "Eco-Dome Al'dani",
-      "short_name": "EDA",
-      "keystone_timer_seconds": 1860,
-      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/inv_112_achievement_dungeon_ecodome.jpg",
-      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion10/base/ecodome-aldani.jpg"
+      "id": 15829,
+      "challenge_mode_id": 558,
+      "slug": "magisters-terrace",
+      "name": "Magisters' Terrace",
+      "short_name": "MT",
+      "keystone_timer_seconds": 2040,
+      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/inv_achievement_dungeon_magistersterrace.jpg",
+      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion11/base/magisters-terrace.jpg"
     },
     {
-      "id": 12831,
-      "challenge_mode_id": 378,
-      "slug": "halls-of-atonement",
-      "name": "Halls of Atonement",
-      "short_name": "HOA",
-      "keystone_timer_seconds": 1920,
-      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/achievement_dungeon_hallsofattonement.jpg",
-      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion8/base/halls-of-atonement.jpg"
-    },
-    {
-      "id": 15452,
-      "challenge_mode_id": 525,
-      "slug": "operation-floodgate",
-      "name": "Operation: Floodgate",
-      "short_name": "FLOOD",
+      "id": 16395,
+      "challenge_mode_id": 560,
+      "slug": "maisara-caverns",
+      "name": "Maisara Caverns",
+      "short_name": "MC",
       "keystone_timer_seconds": 1980,
-      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/inv_achievement_dungeon_waterworks.jpg",
-      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion10/base/operation-floodgate.jpg"
+      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/inv_achievement_dungeon_maisarahills.jpg",
+      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion11/base/maisara-caverns.jpg"
     },
     {
-      "id": 14954,
-      "challenge_mode_id": 499,
-      "slug": "priory-of-the-sacred-flame",
-      "name": "Priory of the Sacred Flame",
-      "short_name": "PSF",
-      "keystone_timer_seconds": 1950,
-      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/inv_achievement_dungeon_prioryofthesacredflame.jpg",
-      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion10/base/priory-of-the-sacred-flame.jpg"
-    },
-    {
-      "id": 1000001,
-      "challenge_mode_id": 392,
-      "slug": "tazavesh-soleahs-gambit",
-      "name": "Tazavesh: So'leah's Gambit",
-      "short_name": "GMBT",
+      "id": 16573,
+      "challenge_mode_id": 559,
+      "slug": "nexuspoint-xenas",
+      "name": "Nexus-Point Xenas",
+      "short_name": "NPX",
       "keystone_timer_seconds": 1800,
-      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/achievement_dungeon_theotherside_dealergexa.jpg",
-      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion8/base/tazavesh-soleahs-gambit.jpg"
+      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/inv_achievement_dungeon_voidscararena.jpg",
+      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion11/base/nexuspoint-xenas.jpg"
     },
     {
-      "id": 1000000,
-      "challenge_mode_id": 391,
-      "slug": "tazavesh-streets-of-wonder",
-      "name": "Tazavesh: Streets of Wonder",
-      "short_name": "STRT",
+      "id": 4813,
+      "challenge_mode_id": 556,
+      "slug": "pit-of-saron",
+      "name": "Pit of Saron",
+      "short_name": "POS",
+      "keystone_timer_seconds": 1800,
+      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/achievement_dungeon_icecrown_pitofsaron.jpg",
+      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion2/base/pit-of-saron.jpg"
+    },
+    {
+      "id": 8910,
+      "challenge_mode_id": 239,
+      "slug": "seat-of-the-triumvirate",
+      "name": "Seat of the Triumvirate",
+      "short_name": "SEAT",
       "keystone_timer_seconds": 2100,
-      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/achievement_dungeon_brokerdungeon.jpg",
-      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion8/base/tazavesh-streets-of-wonder.jpg"
+      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/achievement_boss_triumvirate_darknaaru.jpg",
+      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion6/base/seat-of-the-triumvirate.jpg"
     },
     {
-      "id": 14971,
-      "challenge_mode_id": 505,
-      "slug": "the-dawnbreaker",
-      "name": "The Dawnbreaker",
-      "short_name": "DAWN",
-      "keystone_timer_seconds": 1860,
-      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/inv_achievement_dungeon_dawnbreaker.jpg",
-      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion10/base/the-dawnbreaker.jpg"
+      "id": 6988,
+      "challenge_mode_id": 161,
+      "slug": "skyreach",
+      "name": "Skyreach",
+      "short_name": "SR",
+      "keystone_timer_seconds": 1680,
+      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/achievement_dungeon_arakkoaspires.jpg",
+      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion5/base/skyreach.jpg"
+    },
+    {
+      "id": 15808,
+      "challenge_mode_id": 557,
+      "slug": "windrunner-spire",
+      "name": "Windrunner Spire",
+      "short_name": "WS",
+      "keystone_timer_seconds": 1980,
+      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/inv_achievement_dungeon_windrunnerspire.jpg",
+      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion11/base/windrunner-spire.jpg"
     }
   ]
 }
