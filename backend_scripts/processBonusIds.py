@@ -32,7 +32,12 @@ def load_json(path):
 def gather_item_ids(crafting, slot_name):
     slots = crafting.get("slots", {}).values()
     matching = [s for s in slots if s.get("name") == slot_name]
-    return set(chain.from_iterable(s.get("itemIds", []) for s in matching))
+    # Blizzard payloads use reagentIds for slot members; keep itemIds fallback.
+    return set(
+        chain.from_iterable(
+            (s.get("reagentIds") or s.get("itemIds") or []) for s in matching
+        )
+    )
 
 
 def index_reagents_by_id(crafting, item_ids):
