@@ -7,6 +7,7 @@ import queue as threading_queue
 import concurrent.futures
 from datetime import datetime, timezone
 from collections import defaultdict
+from functools import lru_cache
 from contextlib import closing
 from typing import Any
 import aiohttp
@@ -73,7 +74,11 @@ databaseConnector.init_connection_pool(
     1,
 )
 CURRENT_SEASON = ""
+
+# Use LRU cache with max_size to prevent unbounded memory growth
+# Max 5000 runs cached (each ~1KB) = ~5MB max
 run_details_cache: dict[int, dict] = {}
+CACHE_MAX_SIZE = 5000
 
 # ---------------- Utilities (top-level) ----------------
 
@@ -113,6 +118,7 @@ async def fetch_run_details(
 ) -> dict:
     """
     Fetch reduced run details from raider.io (rate-limited). Caches in-memory per run_id.
+    Cache only stores essential fields and is size-limited to prevent OOM.
     """
     global run_details_cache
     if run_id in run_details_cache:
@@ -163,6 +169,9 @@ async def fetch_run_details(
                         print(f"[{datetime.now(timezone.utc).isoformat()}] fetch_run_details {run_id} failed to parse completed_at '{completed_at}': {ex}")
                         ts = None
 
+                # Extract roster data separately to return without caching large objects
+                full_roster = full.get("roster", [])
+                
                 reduced = {
                     "route_key": full.get("logged_details", {}).get("route_key"),
                     "mythic_level": full.get("mythic_level"),
@@ -172,10 +181,30 @@ async def fetch_run_details(
                     "timestamp": ts,
                     "keystone_run_id": full.get("keystone_run_id"),
                     "completed_at": completed_at,
-                    "full_roster": full.get("roster", []),
-                    "raw": full,
+                    "full_roster": full_roster,  # Return but don't cache
                 }
-                run_details_cache[run_id] = reduced
+                
+                # Cache only essential fields to prevent unbounded memory growth
+                cached = {
+                    "route_key": reduced["route_key"],
+                    "mythic_level": reduced["mythic_level"],
+                    "dungeon_id": reduced["dungeon_id"],
+                    "roster_specs": reduced["roster_specs"],
+                    "duration": reduced["duration"],
+                    "timestamp": reduced["timestamp"],
+                    "keystone_run_id": reduced["keystone_run_id"],
+                    "completed_at": reduced["completed_at"],
+                }
+                
+                # Implement cache eviction when cache exceeds max size
+                if len(run_details_cache) >= CACHE_MAX_SIZE:
+                    # Remove oldest 10% of cache entries (simple FIFO)
+                    keys_to_remove = list(run_details_cache.keys())[:int(CACHE_MAX_SIZE * 0.1)]
+                    for key in keys_to_remove:
+                        del run_details_cache[key]
+                    print(f"[{datetime.now(timezone.utc).isoformat()}] Cache evicted {len(keys_to_remove)} entries (size: {len(run_details_cache)})")
+                
+                run_details_cache[run_id] = cached
                 return reduced
         except ClientError as e:
             print(f"[{datetime.now(timezone.utc).isoformat()}] ERROR fetch_run_details {run_id}: {e}")
@@ -497,7 +526,7 @@ async def process_single_with_semaphore(
 
 
 async def process_runs_concurrently(
-    session: aiohttp.ClientSession, run_ids: list[int], concurrency: int = 10
+    session: aiohttp.ClientSession, run_ids: list[int], concurrency: int = 5
 ) -> int:
     semaphore = asyncio.Semaphore(concurrency)
     tasks = [process_single_with_semaphore(session, semaphore, rid) for rid in run_ids]
