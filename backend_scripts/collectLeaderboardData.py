@@ -347,16 +347,19 @@ async def route_db_worker(name: str):
 
 async def route_poller_task(session: ClientSession):
     global CURRENT_SEASON
+    print("Starting route poller task...")
     dungeons = json.loads(DUNGEON_STATIC.read_text())
     specs = json.loads((DATA_DIR / "static" / "specs.json").read_text())
     dungeon_slugs = [info["slug"] for info in dungeons.values()]
     spec_ids = [int(k) for k in specs.keys()]
+    print(f"Loaded {len(dungeon_slugs)} dungeons and {len(spec_ids)} specs for polling.")
 
     while not cancel_event.is_set():
         for slug in dungeon_slugs:
             if cancel_event.is_set(): break
             found_runs = {spec: set() for spec in spec_ids}
             page = 1
+            print(f"Polling Raider.IO for dungeon '{slug}'")
             while page < 500 and not cancel_event.is_set():
                 data = await fetch_raider_page(session, slug, page)
                 rankings = data.get("rankings", [])
@@ -364,6 +367,7 @@ async def route_poller_task(session: ClientSession):
                 
                 if not CURRENT_SEASON:
                     CURRENT_SEASON = data.get("params", {}).get("season", "")
+                    print(f"Detected current season: {CURRENT_SEASON}")
 
                 for entry in rankings:
                     run = entry.get("run")
@@ -375,6 +379,7 @@ async def route_poller_task(session: ClientSession):
                             found_runs[char_spec].add(keystone_id)
                 
                 page += 1
+                print(f"Fetched page {page} for dungeon '{slug}', found runs so far: {sum(len(s) for s in found_runs.values())}")
                 await asyncio.sleep(2) # slow running
 
             run_ids_set = set()
@@ -395,7 +400,7 @@ async def route_poller_task(session: ClientSession):
 
                 keystone = await fetch_keystone_route(session, route_key)
                 if not keystone: continue
-                
+                print(f"Fetched route details for run {run_id} (route {route_key}), checking enemy forces...")
                 ef_actual = keystone.get("enemyForces")
                 ef_required = keystone.get("enemyForcesRequired")
                 if ef_actual is None or ef_required is None or int(ef_actual) < int(ef_required):
@@ -403,7 +408,7 @@ async def route_poller_task(session: ClientSession):
                 
                 await route_db_queue.put((raider, keystone))
                 
-                await asyncio.sleep(2) # slow running
+                await asyncio.sleep(10) # slow running
 
         await asyncio.sleep(3600) # wait an hour before fetching again
 
