@@ -34,6 +34,10 @@ class StatsCollector:
             "advanced_queue": advanced_queue,
             "database_queue": database_queue,
             "route_db_queue": route_db_queue,
+                }
+
+    async def increment(self, name: str, amount: int = 1):
+        ts = time.time()
         async with self.lock:
             for _ in range(amount):
                 self.events.append((ts, name))
