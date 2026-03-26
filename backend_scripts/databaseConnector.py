@@ -430,12 +430,11 @@ def fetch_slots(connection, cursor):
 FETCH_TOP_ITEM_BY_SLOT_SQL = """
 SELECT
   item_id,
-  SUM(run_count) AS equip_count
-FROM Mythistone.aggregated_equipment
+  run_count AS equip_count
+FROM Mythistone.global_aggregated_equipment
 WHERE spec_id = %s
   AND season  = %s
   AND slot    = %s
-GROUP BY item_id
 ORDER BY equip_count DESC
 LIMIT 10;
 """
@@ -451,8 +450,8 @@ FETCH_TOP_ITEM_BY_SLOT_GROUP_SQL = """
 SELECT
   item_id,
   SUM(run_count) AS equip_count
-FROM Mythistone.aggregated_equipment
-JOIN Mythistone.slot_group_map sgm ON sgm.slot = Mythistone.aggregated_equipment.slot
+FROM Mythistone.global_aggregated_equipment
+JOIN Mythistone.slot_group_map sgm ON sgm.slot = Mythistone.global_aggregated_equipment.slot
 WHERE spec_id = %s
   AND season  = %s
   AND slot_group = %s
@@ -475,12 +474,11 @@ FETCH_TOP_ITEMS_BY_SLOT_WITH_BONUS_SQL = """
 WITH top_items AS (
   SELECT
     item_id,
-    SUM(run_count) AS equip_count
-  FROM Mythistone.aggregated_equipment
+    run_count AS equip_count
+  FROM Mythistone.global_aggregated_equipment
   WHERE spec_id = %s
     AND season  = %s
     AND slot    = %s
-  GROUP BY item_id
   ORDER BY equip_count DESC
   LIMIT 10
 ),
@@ -489,7 +487,7 @@ bonus_sums AS (
     item_id,
     bonus_list,
     SUM(run_count) AS list_count
-  FROM Mythistone.aggregated_bonus_lists
+  FROM Mythistone.global_aggregated_bonus_lists
   WHERE spec_id = %s
     AND season  = %s
     AND item_id IN (SELECT item_id FROM top_items)
@@ -546,7 +544,7 @@ WITH top_items AS (
   SELECT
     ae.item_id,
     SUM(ae.run_count) AS equip_count
-  FROM Mythistone.aggregated_equipment ae
+  FROM Mythistone.global_aggregated_equipment ae
   JOIN Mythistone.slot_group_map sgm ON sgm.slot = ae.slot
   WHERE ae.spec_id = %s
     AND ae.season  = %s
@@ -560,7 +558,7 @@ bonus_sums AS (
     item_id,
     bonus_list,
     SUM(run_count) AS list_count
-  FROM Mythistone.aggregated_bonus_lists
+  FROM Mythistone.global_aggregated_bonus_lists
   WHERE spec_id = %s
     AND season  = %s
     AND item_id IN (SELECT item_id FROM top_items)
@@ -617,12 +615,11 @@ def fetch_top_items_for_slot_group_with_bonus(
 FETCH_TOP_ENCHANT_FOR_SLOT_SQL = """
 SELECT
     enchantment_id,
-    SUM(run_count) AS equip_count
-  FROM Mythistone.aggregated_enchantments_slot_group
+    run_count AS equip_count
+  FROM Mythistone.global_aggregated_enchantments_slot_group
   WHERE spec_id = %s
     AND season  = %s
     AND slot_group = %s
-  GROUP BY enchantment_id
   ORDER BY equip_count DESC 
   LIMIT %s
 """
@@ -635,12 +632,11 @@ def fetch_top_enchant_for_slot(connection, cursor, spec_id, season, slot_group, 
 
 
 FETCH_TOP_SOCKET_FOR_ITEM_SQL = """
-SELECT ais.socket_item_id, SUM(ais.run_count) AS equip_count
-FROM Mythistone.aggregated_item_sockets AS ais
-WHERE ais.spec_id LIKE %s
-  AND ais.season  LIKE %s
-  AND ais.item_id LIKE %s
-GROUP BY ais.socket_item_id
+SELECT ais.socket_item_id, ais.run_count AS equip_count
+FROM Mythistone.global_aggregated_item_sockets AS ais
+WHERE ais.spec_id = %s
+  AND ais.season  = %s
+  AND ais.item_id = %s
 ORDER BY equip_count DESC
 LIMIT 10;
 
@@ -654,12 +650,11 @@ def fetch_top_sockets_for_item(connection, cursor, spec_id, season, item_id):
 
 
 FETCH_TOP_SOCKETS_FOR_ITEMS_SQL = """
-SELECT ais.item_id, ais.socket_item_id, SUM(ais.run_count) AS equip_count
-FROM Mythistone.aggregated_item_sockets AS ais
+SELECT ais.item_id, ais.socket_item_id, ais.run_count AS equip_count
+FROM Mythistone.global_aggregated_item_sockets AS ais
 WHERE ais.spec_id = %s
   AND ais.season  = %s
   AND ais.item_id IN ({placeholders})
-GROUP BY ais.item_id, ais.socket_item_id
 ORDER BY ais.item_id, equip_count DESC;
 """
 
@@ -687,12 +682,11 @@ def fetch_top_sockets_for_items(connection, cursor, spec_id, season, item_ids):
 FETCH_TOP_BONUS_IDS_FOR_ITEM_SQL = """
 SELECT
   bonus_list,
-  SUM(run_count) AS list_count
-FROM Mythistone.aggregated_bonus_lists
+  run_count AS list_count
+FROM Mythistone.global_aggregated_bonus_lists
 WHERE spec_id = %s
   AND season  = %s
   AND item_id = %s
-GROUP BY bonus_list
 ORDER BY list_count DESC, bonus_list
 LIMIT 1;
 
@@ -709,9 +703,9 @@ def fetch_top_bonus_ids_for_item(connection, cursor, spec_id, season, item_id):
 
 FETCH_TOP_SOCKETS_SQL = """
 SELECT ais.socket_item_id, SUM(ais.run_count) AS equip_count
-FROM Mythistone.aggregated_item_sockets AS ais
-WHERE ais.spec_id LIKE %s
-  AND ais.season  LIKE %s
+FROM Mythistone.global_aggregated_item_sockets AS ais
+WHERE ais.spec_id = %s
+  AND ais.season  = %s
 GROUP BY ais.socket_item_id
 ORDER BY equip_count DESC
 LIMIT 10;
@@ -730,26 +724,22 @@ WITH summed AS (
     spec_id,
     season,
     hero_talent_id,
-    hero_talent_id_key,
-    loadout_key,
-    MAX(loadout) AS loadout,         -- recover actual loadout text (if any)
-    SUM(run_count) AS total_runs
-  FROM aggregated_loadout_data
+    loadout,
+    run_count AS total_runs
+  FROM Mythistone.global_aggregated_loadout_data
   WHERE spec_id = %s   
     AND season  = %s   
-    AND loadout  IS NOT NULL
-  GROUP BY spec_id, season, hero_talent_id, hero_talent_id_key, loadout_key
 )
 , ranked AS (
   SELECT
     *,
-    ROW_NUMBER() OVER (PARTITION BY hero_talent_id_key ORDER BY total_runs DESC, loadout_key) AS rn
+    ROW_NUMBER() OVER (PARTITION BY hero_talent_id ORDER BY total_runs DESC, loadout) AS rn
   FROM summed
 )
 SELECT hero_talent_id, loadout, total_runs
 FROM ranked
 WHERE rn = 1
-ORDER BY hero_talent_id_key;
+ORDER BY hero_talent_id;
 
 
 """
@@ -764,16 +754,14 @@ def fetch_top_loadout(connection, cursor, spec_id, season):
 FETCH_HERO_TREE_OVERVIEW_SQL = """
 SELECT
   hero_talent_id,
-  SUM(run_count) AS total_runs
-FROM aggregated_loadout_data
+  run_count AS total_runs
+FROM Mythistone.global_aggregated_hero_talent_overview
 WHERE spec_id = %s
   AND season  = %s
-  AND hero_talent_id IS NOT NULL 
+  AND hero_talent_id IS NOT NULL
   AND hero_talent_id <> 0
-GROUP BY hero_talent_id
-ORDER BY total_runs DESC;
+ORDER BY run_count DESC;
 """
-
 
 def fetch_hero_tree_overview(connection, cursor, spec_id, season):
     """Fetch the top hero trees for a specific spec and season from the database."""
@@ -920,11 +908,10 @@ def insert_missive(connection, cursor, bonus_id, item_id):
 
 
 FETCH_MISSIVE_COUNT_SQL = """
-SELECT item_id, SUM(run_count) AS total_runs
-FROM aggregated_missives
+SELECT item_id, run_count AS total_runs
+FROM Mythistone.global_aggregated_missives
 WHERE spec_id = %s
   AND season = %s
-GROUP BY item_id
 ORDER BY total_runs DESC
 """
 
@@ -936,11 +923,10 @@ def fetch_missive_count(connection, cursor, spec_id, season):
 
 
 FETCH_EMBELLISHMENT_COUNT_SQL = """
-SELECT item_id, SUM(run_count) AS total_runs
-FROM aggregated_embellishments
+SELECT item_id, run_count AS total_runs
+FROM Mythistone.global_aggregated_embellishments
 WHERE spec_id = %s
   AND season = %s
-GROUP BY item_id
 ORDER BY total_runs DESC
 """
 
