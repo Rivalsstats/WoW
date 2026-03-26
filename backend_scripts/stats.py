@@ -23,6 +23,7 @@ class StatsCollector:
         simple_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=1),
         advanced_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=1),
         database_queue: asyncio.Queue[dict] = asyncio.Queue(maxsize=1),
+        route_db_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=1),
     ):
         self.window = window_seconds
         self.events = deque()  # (timestamp, name)
@@ -32,10 +33,7 @@ class StatsCollector:
             "simple_queue": simple_queue,
             "advanced_queue": advanced_queue,
             "database_queue": database_queue,
-        }
-
-    async def increment(self, name: str, amount: int = 1):
-        ts = time.time()
+            "route_db_queue": route_db_queue,
         async with self.lock:
             for _ in range(amount):
                 self.events.append((ts, name))

@@ -610,6 +610,11 @@ class DiscordReporter:
             inline=True,
         )
         embed.add_field(
+            name="Routes Inserted",
+            value=str(window_counts.get("db_insert_route", 0)),
+            inline=True,
+        )
+        embed.add_field(
             name="Simple Queue",
             value=str(queue_sizes.get("simple_queue", 0)),
             inline=True,
@@ -622,6 +627,11 @@ class DiscordReporter:
         embed.add_field(
             name="Database Queue",
             value=str(queue_sizes.get("database_queue", 0)),
+            inline=True,
+        )
+        embed.add_field(
+            name="Route Queue",
+            value=str(queue_sizes.get("route_db_queue", 0)),
             inline=True,
         )
         embed.add_field(name="Timestamp", value=f"<t:{epoch}:R>", inline=False)
@@ -693,6 +703,9 @@ class DiscordReporter:
         )
         totals_embed.add_field(
             name="Hunter Pets", value=str(totals.get("hunter_pets", 0)), inline=True
+        )
+        totals_embed.add_field(
+            name="Routes Inserted", value=str(totals.get("db_insert_route", 0)), inline=True
         )
 
         # -------------------------

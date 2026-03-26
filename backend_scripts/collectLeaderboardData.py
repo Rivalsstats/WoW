@@ -16,7 +16,7 @@ from aiohttp import (
 from aiohttp_retry import RetryClient, ExponentialRetry
 import aiohttp
 from aiolimiter import AsyncLimiter
-from collections import Counter
+from collections import Counter, defaultdict
 import argparse
 import databaseConnector
 import traceback
@@ -51,11 +51,13 @@ POLL_INTERVAL_SECONDS = int(getenv_clean("POLL_INTERVAL_SECONDS", "300"))
 simple_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
 advanced_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
 database_queue: asyncio.Queue[dict] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
+route_db_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
 GLOBAL_STATS = stats.StatsCollector(
     window_seconds=300,
     simple_queue=simple_queue,
     advanced_queue=advanced_queue,
     database_queue=database_queue,
+    route_db_queue=route_db_queue,
 )
 
 try:
@@ -139,6 +141,16 @@ BATCH_SIZE = int(getenv_clean("DB_BATCH_SIZE", "50"))
 REGION_CREDENTIALS: dict[str, dict[str, str]] = {}
 
 RAIDERIO_API_KEY = getenv_clean("RAIDERIO_API_KEY")
+KEYSTONE_USER = getenv_clean("KEYSTONE_GURU_USER")
+KEYSTONE_PW = getenv_clean("KEYSTONE_GURU_PW")
+
+RAIDER_RATE_LIMIT = AsyncLimiter(int(getenv_clean("RAIDER_RATE_MAX", "500")), int(getenv_clean("RAIDER_RATE_PERIOD", "60")))
+KEYSTONE_RATE_LIMIT = AsyncLimiter(int(getenv_clean("KEYSTONE_RATE_MAX", "100")), int(getenv_clean("KEYSTONE_RATE_PERIOD", "60")))
+
+GLOBAL_RAIDER_BACKOFF = {"until": 0, "lock": asyncio.Lock()}
+run_details_cache: dict[int, dict] = {}
+CACHE_MAX_SIZE = 5000
+
 for region in REGIONS:
     id_var = f"BLIZ_CLIENT_ID_{region.upper()}"
     sec_var = f"BLIZ_CLIENT_SECRET_{region.upper()}"
@@ -156,6 +168,244 @@ _token_cache = {}
 processed_runs: set[str] = set()
 enqueued_profiles: dict[str, dict[str, Path]] = {}
 
+
+CURRENT_SEASON = ""
+
+# Utilities and route fetch logic
+def aggregate_enemies_occurrence(pull: dict) -> dict:
+    counts = defaultdict(int)
+    for e in pull.get("enemies", []):
+        npc = e.get("npcId")
+        if npc is None:
+            continue
+        counts[int(npc)] += 1
+    return counts
+
+async def fetch_raider_page(session: ClientSession, dungeon_slug: str, page: int) -> dict:
+    url = "https://raider.io/api/v1/mythic-plus/runs"
+    params = {
+        "region": "world",
+        "dungeon": dungeon_slug,
+        "page": page,
+        "access_key": RAIDERIO_API_KEY,
+    }
+    await RAIDER_RATE_LIMIT.acquire()
+    try:
+        async with session.get(url, params=params) as resp:
+            resp.raise_for_status()
+            return await resp.json()
+    except Exception as e:
+        GLOBAL_STATS.console_log(f"ERROR fetching page {page} for dungeon '{dungeon_slug}': {e}")
+        return {"rankings": [], "params": {}}
+
+async def fetch_run_details(session: ClientSession, run_id: int, season: str) -> dict:
+    global run_details_cache
+    if run_id in run_details_cache:
+        return run_details_cache[run_id]
+
+    url = "https://raider.io/api/v1/mythic-plus/run-details"
+    params = {"id": run_id, "season": season}
+    attempt = 0
+    while attempt < 5:
+        async with GLOBAL_RAIDER_BACKOFF["lock"]:
+            now = time.time()
+            if GLOBAL_RAIDER_BACKOFF["until"] > now:
+                await asyncio.sleep(GLOBAL_RAIDER_BACKOFF["until"] - now)
+        await RAIDER_RATE_LIMIT.acquire()
+        try:
+            async with session.get(url, params=params) as resp:
+                if resp.status == 429:
+                    ra = resp.headers.get("Retry-After")
+                    wait = float(ra) if ra else (2**attempt)
+                    async with GLOBAL_RAIDER_BACKOFF["lock"]:
+                        GLOBAL_RAIDER_BACKOFF["until"] = time.time() + wait
+                    await asyncio.sleep(wait)
+                    attempt += 1
+                    continue
+                resp.raise_for_status()
+                full = await resp.json()
+
+                roster_specs = sorted(
+                    member.get("character", {}).get("spec", {}).get("id")
+                    for member in full.get("roster", [])
+                    if member.get("character", {}).get("spec", {}).get("id") is not None
+                )
+
+                completed_at = full.get("completed_at")
+                ts = None
+                if completed_at:
+                    try:
+                        ts = int(datetime.fromisoformat(completed_at.replace("Z", "+00:00")).timestamp())
+                    except:
+                        pass
+
+                reduced = {
+                    "route_key": full.get("logged_details", {}).get("route_key"),
+                    "mythic_level": full.get("mythic_level"),
+                    "dungeon_id": full.get("dungeon", {}).get("map_challenge_mode_id"),
+                    "roster_specs": roster_specs,
+                    "duration": full.get("clear_time_ms"),
+                    "timestamp": ts,
+                    "keystone_run_id": full.get("keystone_run_id"),
+                    "completed_at": completed_at,
+                }
+
+                if len(run_details_cache) >= CACHE_MAX_SIZE:
+                    keys = list(run_details_cache.keys())[:int(CACHE_MAX_SIZE * 0.1)]
+                    for k in keys:
+                        del run_details_cache[k]
+
+                run_details_cache[run_id] = reduced
+                return reduced
+        except Exception as e:
+            attempt += 1
+            await asyncio.sleep(2**attempt)
+    return {}
+
+async def fetch_keystone_route(session: ClientSession, route_key: str) -> dict:
+    url = f"https://keystone.guru/api/v1/route/{route_key}"
+    await KEYSTONE_RATE_LIMIT.acquire()
+    auth = BasicAuth(login=KEYSTONE_USER, password=KEYSTONE_PW)
+    try:
+        async with session.get(url, auth=auth) as resp:
+            resp.raise_for_status()
+            j = await resp.json()
+            return j.get("data", {}) or {}
+    except Exception as e:
+        GLOBAL_STATS.console_log(f"ERROR fetching keystone.guru route {route_key}: {e}")
+        return {}
+
+async def route_db_worker(name: str):
+    """
+    Pull route payloads from route_db_queue and write them using databaseConnector.
+    """
+    with closing(databaseConnector.get_connection()) as conn:
+        cursor = conn.cursor()
+        while not cancel_event.is_set():
+            try:
+                job = await asyncio.wait_for(route_db_queue.get(), timeout=5.0)
+            except asyncio.TimeoutError:
+                if cancel_event.is_set() and route_db_queue.empty():
+                    break
+                continue
+
+            if job is None:
+                route_db_queue.task_done()
+                break
+
+            raider_reduced, keystone_route = job
+            route_key = keystone_route.get("publicKey") or raider_reduced.get("route_key")
+            try:
+                rio_run_id = int(raider_reduced.get("keystone_run_id") or 0)
+                mapping_version = int(keystone_route.get("mappingVersion") or 0)
+                enemy_forces = int(keystone_route.get("enemyForces") or 0)
+                timestamp = int(raider_reduced.get("timestamp") or 0)
+                keystone_level = int(raider_reduced.get("mythic_level") or 0)
+                duration = int(raider_reduced.get("duration") or 0)
+                dungeon_id = raider_reduced.get("dungeon_id")
+
+                if not route_key or not rio_run_id or not mapping_version:
+                    raise ValueError("Invalid parameters")
+
+                databaseConnector.insert_route_data(
+                    conn, cursor, rio_run_id, mapping_version, enemy_forces, timestamp, keystone_level, duration, dungeon_id, route_key
+                )
+                print(f"[{name}] Inserted route {route_key} into database.")
+                
+                for s in raider_reduced.get("roster_specs", []):
+                    try:
+                        databaseConnector.insert_route_spec(conn, cursor, route_key, int(s))
+                    except:
+                        pass
+                
+                for pull in keystone_route.get("pulls", []) or []:
+                    try:
+                        new_pull_id = databaseConnector.insert_route_pull(conn, cursor, route_key)
+                    except Exception as e:
+                        conn.rollback()
+                        raise
+                        
+                    counts = aggregate_enemies_occurrence(pull)
+                    for npc_id, cnt in counts.items():
+                        try:
+                            databaseConnector.insert_pull_enemies(conn, cursor, route_key, new_pull_id, int(npc_id), int(cnt))
+                        except:
+                            pass
+                    for spell in set(pull.get("spells") or []):
+                        try:
+                            databaseConnector.insert_pull_spells(conn, cursor, route_key, new_pull_id, int(spell))
+                        except:
+                            pass
+                            
+                conn.commit()
+                await GLOBAL_STATS.increment("db_insert_route")
+            except Exception as e:
+                conn.rollback()
+                GLOBAL_STATS.console_log(f"[{name}] DB insert route error: {e}")
+            finally:
+                route_db_queue.task_done()
+
+async def route_poller_task(session: ClientSession):
+    global CURRENT_SEASON
+    dungeons = json.loads(DUNGEON_STATIC.read_text())
+    specs = json.loads((DATA_DIR / "static" / "specs.json").read_text())
+    dungeon_slugs = [info["slug"] for info in dungeons.values()]
+    spec_ids = [int(k) for k in specs.keys()]
+
+    while not cancel_event.is_set():
+        for slug in dungeon_slugs:
+            if cancel_event.is_set(): break
+            found_runs = {spec: set() for spec in spec_ids}
+            page = 1
+            while page < 500 and not cancel_event.is_set():
+                data = await fetch_raider_page(session, slug, page)
+                rankings = data.get("rankings", [])
+                if not rankings: break
+                
+                if not CURRENT_SEASON:
+                    CURRENT_SEASON = data.get("params", {}).get("season", "")
+
+                for entry in rankings:
+                    run = entry.get("run")
+                    if not run or run.get("logged_run_id") is None: continue
+                    keystone_id = run.get("keystone_run_id")
+                    for member in run.get("roster", []):
+                        char_spec = member.get("character", {}).get("spec", {}).get("id")
+                        if char_spec in found_runs and len(found_runs[char_spec]) < 50:
+                            found_runs[char_spec].add(keystone_id)
+                
+                page += 1
+                await asyncio.sleep(2) # slow running
+
+            run_ids_set = set()
+            for runs in found_runs.values():
+                run_ids_set.update(runs)
+
+            for run_id in sorted(run_ids_set):
+                if cancel_event.is_set(): break
+                raider = await fetch_run_details(session, run_id, CURRENT_SEASON)
+                if not raider: continue
+
+                ts = raider.get("timestamp")
+                if not ts or int(ts) < int(time.time()) - (28 * 24 * 60 * 60):
+                    continue
+
+                route_key = raider.get("route_key")
+                if not route_key: continue
+
+                keystone = await fetch_keystone_route(session, route_key)
+                if not keystone: continue
+                
+                ef_actual = keystone.get("enemyForces")
+                ef_required = keystone.get("enemyForcesRequired")
+                if ef_actual is None or ef_required is None or int(ef_actual) < int(ef_required):
+                    continue
+                
+                await route_db_queue.put((raider, keystone))
+                
+                await asyncio.sleep(2) # slow running
+
+        await asyncio.sleep(3600) # wait an hour before fetching again
 
 # Utils
 async def get_max_keys_by_dungeon(session: ClientSession) -> dict[int, int]:
@@ -1226,6 +1476,9 @@ async def main():
             # For each realm, create its single worker
             tasks.append(asyncio.create_task(realm_poller(region, session, max_keys)))
 
+        tasks.append(asyncio.create_task(route_poller_task(session)))
+
+
         GLOBAL_STATS.console_log(
             f"Started {len(tasks)} tasks for processing realms across all regions."
         )
@@ -1241,6 +1494,8 @@ async def main():
             asyncio.create_task(database_worker(f"db-{i}"))
             for i in range(DATABASE_WORKERS)
         ]
+        
+        database_workers.append(asyncio.create_task(route_db_worker("route-db-0")))
 
         await asyncio.gather(*tasks, return_exceptions=True)
         # Wait for all queues to be processed
@@ -1264,6 +1519,7 @@ async def main():
             "Finished processing advanced queue, waiting for database workers to finish…"
         )
         await database_queue.join()
+        await route_db_queue.join()
         for w in database_workers:
             w.cancel()
         await reporter.stop()
