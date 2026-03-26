@@ -379,12 +379,11 @@ async def route_poller_task(session: ClientSession):
                             found_runs[char_spec].add(keystone_id)
                 
                 page += 1
-                print(f"Fetched page {page} for dungeon '{slug}', found runs so far: {sum(len(s) for s in found_runs.values())}")
-                await asyncio.sleep(2) # slow running
 
             run_ids_set = set()
             for runs in found_runs.values():
                 run_ids_set.update(runs)
+            print(f"Found {len(run_ids_set)} runs for dungeon '{slug}' across specs.")
 
             for run_id in sorted(run_ids_set):
                 if cancel_event.is_set(): break
@@ -400,7 +399,6 @@ async def route_poller_task(session: ClientSession):
 
                 keystone = await fetch_keystone_route(session, route_key)
                 if not keystone: continue
-                print(f"Fetched route details for run {run_id} (route {route_key}), checking enemy forces...")
                 ef_actual = keystone.get("enemyForces")
                 ef_required = keystone.get("enemyForcesRequired")
                 if ef_actual is None or ef_required is None or int(ef_actual) < int(ef_required):
