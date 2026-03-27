@@ -591,18 +591,9 @@ class DiscordReporter:
             inline=True,
         )
         embed.add_field(
-            name="Enchantments",
-            value=str(window_counts.get("enchantments", 0)),
+            name="Gear Extras",
+            value=f"Ench: {window_counts.get('enchantments', 0)} | Sock: {window_counts.get('sockets', 0)}\nBonus: {window_counts.get('bonuses', 0)} | Stats: {window_counts.get('stats', 0)}",
             inline=True,
-        )
-        embed.add_field(
-            name="Sockets", value=str(window_counts.get("sockets", 0)), inline=True
-        )
-        embed.add_field(
-            name="Bonuses", value=str(window_counts.get("bonuses", 0)), inline=True
-        )
-        embed.add_field(
-            name="Stats", value=str(window_counts.get("stats", 0)), inline=True
         )
         embed.add_field(
             name="Hunter Pets",
@@ -610,28 +601,18 @@ class DiscordReporter:
             inline=True,
         )
         embed.add_field(
-            name="Routes Inserted",
-            value=str(window_counts.get("db_insert_route", 0)),
+            name="Routes Saved",
+            value=f"Inserted: {window_counts.get('db_insert_route', 0)}\nDuplicate: {window_counts.get('duplicate_routes', 0)}",
             inline=True,
         )
         embed.add_field(
-            name="Simple Queue",
-            value=str(queue_sizes.get("simple_queue", 0)),
+            name="Route APIs",
+            value=f"RIO Pages: {window_counts.get('rio_pages_checked', 0)}\nRIO Routes: {window_counts.get('rio_routes_checked', 0)}\nKG Routes: {window_counts.get('kg_routes_fetched', 0)}",
             inline=True,
         )
         embed.add_field(
-            name="Advanced Queue",
-            value=str(queue_sizes.get("advanced_queue", 0)),
-            inline=True,
-        )
-        embed.add_field(
-            name="Database Queue",
-            value=str(queue_sizes.get("database_queue", 0)),
-            inline=True,
-        )
-        embed.add_field(
-            name="Route Queue",
-            value=str(queue_sizes.get("route_db_queue", 0)),
+            name="Queues",
+            value=f"Simple: {queue_sizes.get('simple_queue', 0)} | Adv: {queue_sizes.get('advanced_queue', 0)}\nDB: {queue_sizes.get('database_queue', 0)} | Route: {queue_sizes.get('route_db_queue', 0)}",
             inline=True,
         )
         embed.add_field(name="Timestamp", value=f"<t:{epoch}:R>", inline=False)
@@ -690,22 +671,22 @@ class DiscordReporter:
             name="Hero Talents", value=str(totals.get("hero_talents", 0)), inline=True
         )
         totals_embed.add_field(
-            name="Enchantments", value=str(totals.get("enchantments", 0)), inline=True
-        )
-        totals_embed.add_field(
-            name="Sockets", value=str(totals.get("sockets", 0)), inline=True
-        )
-        totals_embed.add_field(
-            name="Bonuses", value=str(totals.get("bonuses", 0)), inline=True
-        )
-        totals_embed.add_field(
-            name="Stats", value=str(totals.get("stats", 0)), inline=True
+            name="Gear Extras",
+            value=f"Ench: {totals.get('enchantments', 0)} | Sock: {totals.get('sockets', 0)}\nBonus: {totals.get('bonuses', 0)} | Stats: {totals.get('stats', 0)}",
+            inline=True
         )
         totals_embed.add_field(
             name="Hunter Pets", value=str(totals.get("hunter_pets", 0)), inline=True
         )
         totals_embed.add_field(
-            name="Routes Inserted", value=str(totals.get("db_insert_route", 0)), inline=True
+            name="Routes Saved", 
+            value=f"Inserted: {totals.get('db_insert_route', 0)}\nDuplicate: {totals.get('duplicate_routes', 0)}", 
+            inline=True
+        )
+        totals_embed.add_field(
+            name="Route APIs", 
+            value=f"RIO Pages: {totals.get('rio_pages_checked', 0)}\nRIO Routes: {totals.get('rio_routes_checked', 0)}\nKG Routes: {totals.get('kg_routes_fetched', 0)}", 
+            inline=True
         )
 
         # -------------------------

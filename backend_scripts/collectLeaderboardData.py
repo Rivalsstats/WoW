@@ -307,9 +307,15 @@ async def route_db_worker(name: str):
                 if not route_key or not rio_run_id or not mapping_version:
                     raise ValueError("Invalid parameters")
 
-                databaseConnector.insert_route_data(
+                rowcount = databaseConnector.insert_route_data(
                     conn, cursor, rio_run_id, mapping_version, enemy_forces, timestamp, keystone_level, duration, dungeon_id, route_key
                 )
+                if rowcount == 0:
+                    # Duplicate route, skip inserting specs and pulls
+                    conn.rollback() # Or commit(), doesn't matter, just skip
+                    print(f"[{name}] Route {route_key} already exists. Skipping duplicates.")
+                    await GLOBAL_STATS.increment("duplicate_routes")
+                    continue
                 print(f"[{name}] Inserted route {route_key} into database.")
                 
                 for s in raider_reduced.get("roster_specs", []):
@@ -362,6 +368,7 @@ async def route_poller_task(session: ClientSession):
             print(f"Polling Raider.IO for dungeon '{slug}'")
             while page < 500 and not cancel_event.is_set():
                 data = await fetch_raider_page(session, slug, page)
+                await GLOBAL_STATS.increment("rio_pages_checked")
                 rankings = data.get("rankings", [])
                 if not rankings: break
                 
@@ -388,6 +395,7 @@ async def route_poller_task(session: ClientSession):
             for run_id in sorted(run_ids_set):
                 if cancel_event.is_set(): break
                 raider = await fetch_run_details(session, run_id, CURRENT_SEASON)
+                await GLOBAL_STATS.increment("rio_routes_checked")
                 if not raider: continue
 
                 ts = raider.get("timestamp")
@@ -398,6 +406,7 @@ async def route_poller_task(session: ClientSession):
                 if not route_key: continue
 
                 keystone = await fetch_keystone_route(session, route_key)
+                await GLOBAL_STATS.increment("kg_routes_fetched")
                 if not keystone: continue
                 ef_actual = keystone.get("enemyForces")
                 ef_required = keystone.get("enemyForcesRequired")
