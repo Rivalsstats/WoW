@@ -86,7 +86,7 @@ databaseConnector.init_connection_pool(
     getenv_clean("DATABASE_PASSWORD"),
     getenv_clean("DATABASE_NAME"),
     getenv_clean("DATABASE_PORT"),
-    DATABASE_WORKERS,
+    DATABASE_WORKERS + 1,  # +1 for route_db_worker
 )
 
 if args.region:
@@ -279,93 +279,91 @@ async def route_db_worker(name: str):
     """
     Pull route payloads from route_db_queue and write them using databaseConnector.
     """
-    with closing(databaseConnector.get_connection()) as conn:
-        cursor = conn.cursor()
-        while not cancel_event.is_set():
-            try:
-                job = await asyncio.wait_for(route_db_queue.get(), timeout=5.0)
-            except asyncio.TimeoutError:
-                if cancel_event.is_set() and route_db_queue.empty():
-                    break
-                continue
-
-            if job is None:
-                route_db_queue.task_done()
-                break
-
-            raider_reduced, keystone_route = job
-            route_key = keystone_route.get("publicKey") or raider_reduced.get("route_key")
-            try:
-                rio_run_id = int(raider_reduced.get("keystone_run_id") or 0)
-                mapping_version = int(keystone_route.get("mappingVersion") or 0)
-                enemy_forces = int(keystone_route.get("enemyForces") or 0)
-                timestamp = int(raider_reduced.get("timestamp") or 0)
-                keystone_level = int(raider_reduced.get("mythic_level") or 0)
-                duration = int(raider_reduced.get("duration") or 0)
-                dungeon_id = raider_reduced.get("dungeon_id")
-
-                if not route_key or not rio_run_id or not mapping_version:
-                    raise ValueError("Invalid parameters")
-
-                rowcount = databaseConnector.insert_route_data(
-                    conn, cursor, rio_run_id, mapping_version, enemy_forces, timestamp, keystone_level, duration, dungeon_id, route_key
-                )
-                if rowcount == 0:
-                    # Duplicate route, skip inserting specs and pulls
-                    conn.rollback() # Or commit(), doesn't matter, just skip
-                    print(f"[{name}] Route {route_key} already exists. Skipping duplicates.")
-                    await GLOBAL_STATS.increment("duplicate_routes")
+    try:
+        with closing(databaseConnector.get_connection()) as conn:
+            cursor = conn.cursor()
+            while not cancel_event.is_set():
+                try:
+                    job = await asyncio.wait_for(route_db_queue.get(), timeout=5.0)
+                except asyncio.TimeoutError:
+                    if cancel_event.is_set() and route_db_queue.empty():
+                        break
                     continue
-                print(f"[{name}] Inserted route {route_key} into database.")
-                
-                for s in raider_reduced.get("roster_specs", []):
-                    try:
-                        databaseConnector.insert_route_spec(conn, cursor, route_key, int(s))
-                    except:
-                        pass
-                
-                for pull in keystone_route.get("pulls", []) or []:
-                    try:
-                        new_pull_id = databaseConnector.insert_route_pull(conn, cursor, route_key)
-                    except Exception as e:
-                        conn.rollback()
-                        raise
-                        
-                    counts = aggregate_enemies_occurrence(pull)
-                    for npc_id, cnt in counts.items():
+
+                if job is None:
+                    route_db_queue.task_done()
+                    break
+
+                raider_reduced, keystone_route = job
+                route_key = keystone_route.get("publicKey") or raider_reduced.get("route_key")
+                try:
+                    rio_run_id = int(raider_reduced.get("keystone_run_id") or 0)
+                    mapping_version = int(keystone_route.get("mappingVersion") or 0)
+                    enemy_forces = int(keystone_route.get("enemyForces") or 0)
+                    timestamp = int(raider_reduced.get("timestamp") or 0)
+                    keystone_level = int(raider_reduced.get("mythic_level") or 0)
+                    duration = int(raider_reduced.get("duration") or 0)
+                    dungeon_id = raider_reduced.get("dungeon_id")
+
+                    if not route_key or not rio_run_id or not mapping_version:
+                        raise ValueError("Invalid parameters")
+
+                    rowcount = databaseConnector.insert_route_data(
+                        conn, cursor, rio_run_id, mapping_version, enemy_forces, timestamp, keystone_level, duration, dungeon_id, route_key
+                    )
+                    if rowcount == 0:
+                        # Duplicate route, skip inserting specs and pulls
+                        conn.rollback() # Or commit(), doesn't matter, just skip
+                        await GLOBAL_STATS.increment("duplicate_routes")
+                        continue
+                    
+                    for s in raider_reduced.get("roster_specs", []):
                         try:
-                            databaseConnector.insert_pull_enemies(conn, cursor, route_key, new_pull_id, int(npc_id), int(cnt))
+                            databaseConnector.insert_route_spec(conn, cursor, route_key, int(s))
                         except:
                             pass
-                    for spell in set(pull.get("spells") or []):
+                    
+                    for pull in keystone_route.get("pulls", []) or []:
                         try:
-                            databaseConnector.insert_pull_spells(conn, cursor, route_key, new_pull_id, int(spell))
-                        except:
-                            pass
+                            new_pull_id = databaseConnector.insert_route_pull(conn, cursor, route_key)
+                        except Exception as e:
+                            conn.rollback()
+                            raise
                             
-                conn.commit()
-                await GLOBAL_STATS.increment("db_insert_route")
-            except Exception as e:
-                conn.rollback()
-                GLOBAL_STATS.console_log(f"[{name}] DB insert route error: {e}")
-            finally:
-                route_db_queue.task_done()
+                        counts = aggregate_enemies_occurrence(pull)
+                        for npc_id, cnt in counts.items():
+                            try:
+                                databaseConnector.insert_pull_enemies(conn, cursor, route_key, new_pull_id, int(npc_id), int(cnt))
+                            except:
+                                pass
+                        for spell in set(pull.get("spells") or []):
+                            try:
+                                databaseConnector.insert_pull_spells(conn, cursor, route_key, new_pull_id, int(spell))
+                            except:
+                                pass
+                                
+                    conn.commit()
+                    await GLOBAL_STATS.increment("db_insert_route")
+                except Exception as e:
+                    conn.rollback()
+                    GLOBAL_STATS.console_log(f"[{name}] DB insert route error: {e}")
+                finally:
+                    route_db_queue.task_done()
+    except Exception as e:
+        GLOBAL_STATS.console_log(f"[{name}] CRITICAL ERROR starting route worker (connection pool?): {e}")
 
 async def route_poller_task(session: ClientSession):
     global CURRENT_SEASON
-    print("Starting route poller task...")
     dungeons = json.loads(DUNGEON_STATIC.read_text())
     specs = json.loads((DATA_DIR / "static" / "specs.json").read_text())
     dungeon_slugs = [info["slug"] for info in dungeons.values()]
     spec_ids = [int(k) for k in specs.keys()]
-    print(f"Loaded {len(dungeon_slugs)} dungeons and {len(spec_ids)} specs for polling.")
 
     while not cancel_event.is_set():
         for slug in dungeon_slugs:
             if cancel_event.is_set(): break
             found_runs = {spec: set() for spec in spec_ids}
             page = 1
-            print(f"Polling Raider.IO for dungeon '{slug}'")
             while page < 500 and not cancel_event.is_set():
                 data = await fetch_raider_page(session, slug, page)
                 await GLOBAL_STATS.increment("rio_pages_checked")
@@ -374,7 +372,6 @@ async def route_poller_task(session: ClientSession):
                 
                 if not CURRENT_SEASON:
                     CURRENT_SEASON = data.get("params", {}).get("season", "")
-                    print(f"Detected current season: {CURRENT_SEASON}")
 
                 for entry in rankings:
                     run = entry.get("run")
@@ -390,24 +387,26 @@ async def route_poller_task(session: ClientSession):
             run_ids_set = set()
             for runs in found_runs.values():
                 run_ids_set.update(runs)
-            print(f"Found {len(run_ids_set)} runs for dungeon '{slug}' across specs.")
 
             for run_id in sorted(run_ids_set):
                 if cancel_event.is_set(): break
                 raider = await fetch_run_details(session, run_id, CURRENT_SEASON)
                 await GLOBAL_STATS.increment("rio_routes_checked")
-                if not raider: continue
+                if not raider: 
+                    continue
 
                 ts = raider.get("timestamp")
                 if not ts or int(ts) < int(time.time()) - (28 * 24 * 60 * 60):
                     continue
 
                 route_key = raider.get("route_key")
-                if not route_key: continue
+                if not route_key: 
+                    continue
 
                 keystone = await fetch_keystone_route(session, route_key)
                 await GLOBAL_STATS.increment("kg_routes_fetched")
-                if not keystone: continue
+                if not keystone: 
+                    continue
                 ef_actual = keystone.get("enemyForces")
                 ef_required = keystone.get("enemyForcesRequired")
                 if ef_actual is None or ef_required is None or int(ef_actual) < int(ef_required):
