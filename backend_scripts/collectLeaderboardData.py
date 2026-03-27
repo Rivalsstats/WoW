@@ -273,6 +273,8 @@ async def fetch_keystone_route(session: ClientSession, route_key: str) -> dict:
             return j.get("data", {}) or {}
     except Exception as e:
         GLOBAL_STATS.console_log(f"ERROR fetching keystone.guru route {route_key}: {e}")
+        if e.response is not None and e.response.status == 401:
+            raise RuntimeError("Unauthorized access to keystone.guru API - check credentials and rate limits.")
         return {}
 
 async def route_db_worker(name: str):
@@ -297,6 +299,7 @@ async def route_db_worker(name: str):
                 raider_reduced, keystone_route = job
                 route_key = keystone_route.get("publicKey") or raider_reduced.get("route_key")
                 try:
+                    print(f"[{name}] Processing route {route_key} for run {raider_reduced.get('keystone_run_id')}")
                     rio_run_id = int(raider_reduced.get("keystone_run_id") or 0)
                     mapping_version = int(keystone_route.get("mappingVersion") or 0)
                     enemy_forces = int(keystone_route.get("enemyForces") or 0)
@@ -315,13 +318,14 @@ async def route_db_worker(name: str):
                         # Duplicate route, skip inserting specs and pulls
                         conn.rollback() # Or commit(), doesn't matter, just skip
                         await GLOBAL_STATS.increment("duplicate_routes")
+                        print(f"[{name}] Route {route_key} already exists in DB, skipping.")
                         continue
                     
                     for s in raider_reduced.get("roster_specs", []):
                         try:
                             databaseConnector.insert_route_spec(conn, cursor, route_key, int(s))
-                        except:
-                            pass
+                        except Exception as e:
+                            print(f"[{name}] Error inserting route spec for route {route_key}: {e}")
                     
                     for pull in keystone_route.get("pulls", []) or []:
                         try:
@@ -334,14 +338,14 @@ async def route_db_worker(name: str):
                         for npc_id, cnt in counts.items():
                             try:
                                 databaseConnector.insert_pull_enemies(conn, cursor, route_key, new_pull_id, int(npc_id), int(cnt))
-                            except:
-                                pass
+                            except Exception as e:
+                                print(f"[{name}] Error inserting pull enemies for route {route_key}: {e}")
                         for spell in set(pull.get("spells") or []):
                             try:
                                 databaseConnector.insert_pull_spells(conn, cursor, route_key, new_pull_id, int(spell))
-                            except:
-                                pass
-                                
+                            except Exception as e:
+                                print(f"[{name}] Error inserting pull spell for route {route_key}: {e}")
+                    print(f"[{name}] Successfully inserted route {route_key} with {len(raider_reduced.get('roster_specs', []))} specs and {len(keystone_route.get('pulls', []))} pulls.")       
                     conn.commit()
                     await GLOBAL_STATS.increment("db_insert_route")
                 except Exception as e:
