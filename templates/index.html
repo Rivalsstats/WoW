@@ -229,21 +229,13 @@
                 <div class="row dungeon-tiles-grid row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 gap-0">
                   {% for d in tier_items %}
                   <div class="col mb-0">
-                    <button type="button"
+                    <a href="/dungeons/{{ d.slug }}"
                       class="dungeon-tile btn w-100 text-start p-0 position-relative overflow-hidden"
-                      data-bs-toggle="modal" data-bs-target="#dungeonModal"
-                      aria-label="Open details for {{ d.name['en_US'] }}" data-dungeon-id="{{ d.dungeon_id }}"
-                      data-name="{{ d.name['en_US']|e }}" data-icon="{{ d.icon if d.icon else '' }}"
-                      data-tier="{{ tier }}" data-score="{{ '%.3f'|format(d.score) if d.score is not none else '' }}"
-                      data-total-runs="{{ d.total_runs if d.total_runs is defined else 0 }}"
-                      data-u3="{{ d.upgrade_3 if d.upgrade_3 is defined else 0 }}"
-                      data-u2="{{ d.upgrade_2 if d.upgrade_2 is defined else 0 }}"
-                      data-u1="{{ d.upgrade_1 if d.upgrade_1 is defined else 0 }}"
-                      data-depleted="{{ d.depleted if d.depleted is defined else 0 }}"
-                      data-mean="{{ d.mean if d.mean is defined else '' }}" {% if d.icon %}
-                      style="background-image: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.25)), url('{{ '/data/icons/' + d.icon }}');"
+                      aria-label="Open details for {{ d.name['en_US'] }}"
+                      {% if d.icon %}
+                      style="background-image: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.25)), url('{{ '/data/icons/' + d.icon }}'); display: block;"
                       {% else %}
-                      style="background-image: linear-gradient(90deg, rgba(30,30,30,0.9), rgba(50,50,50,0.85));" {%
+                      style="background-image: linear-gradient(90deg, rgba(30,30,30,0.9), rgba(50,50,50,0.85)); display: block;" {%
                       endif %}>
                       <div class="dungeon-tile-title position-absolute w-100 px-2 pb-2">
                         <div class="text-center">
@@ -251,7 +243,7 @@
                         </div>
                       </div>
                       <span class="visually-hidden">{{ d.name['en_US'] }} — open details</span>
-                    </button>
+                    </a>
                   </div>
                   {% else %}
                   <div class="col">

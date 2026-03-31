@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 import argparse
 import math
 from contextlib import closing
-from pageGeneration import generateSpecNav, ROLE_FOLDERS
+from pageGeneration import generateSpecNav, ROLE_FOLDERS, generateDungeonNav
 from aggregateData import get_current_season_id, get_access_token
 from generateSpecPages import (
     LOOKUP_DIR,
@@ -405,6 +405,7 @@ def build_ckmeans_tiers(dungeon_lookup, runs_rows, weight_base=1.6, k=6):
             {
                 "dungeon_id": did,
                 "name": meta.get("name", f"Dungeon {did}"),
+                "slug": meta.get("slug", ""),
                 "short": meta.get("short", ""),
                 "icon": meta.get("icon", None),
                 "lb_ci": s["lb_ci"],
@@ -721,6 +722,7 @@ def main(template_path, output_dir):
     buff_lookup = {b.get("id"): b for b in group_buffs}
 
     spec_nav = generateSpecNav(spec_lookup, class_lookup)
+    dungeon_nav = generateDungeonNav(dungeon_lookup)
     template = env.get_template(os.path.basename(template_path))
 
     token = get_access_token(CLIENT_ID, CLIENT_SECRET)
@@ -749,6 +751,7 @@ def main(template_path, output_dir):
     output_html = template.render(
         generated_at=datetime.now(timezone.utc).timestamp(),
         spec_nav=spec_nav,
+        dungeon_nav=dungeon_nav,
         dungeon_lookup=dungeon_lookup,
         specs=spec_lookup,
         class_lookup=class_lookup,

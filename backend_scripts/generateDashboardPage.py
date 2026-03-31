@@ -8,7 +8,7 @@ import aggregateData
 import argparse
 import databaseConnector
 from collections import defaultdict, Counter
-from pageGeneration import generateSpecNav
+from pageGeneration import generateSpecNav, generateDungeonNav
 from generateSpecPages import (
     LOOKUP_DIR,
     humanize_number,
@@ -484,6 +484,7 @@ def main(template_path, output_dir):
     notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
     season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
     spec_nav = generateSpecNav(spec_lookup, class_lookup)
+    dungeon_nav = generateDungeonNav(dungeon_lookup)
 
     template = env.get_template(os.path.basename(template_path))
     print("Fetching data from database...")
@@ -555,6 +556,7 @@ def main(template_path, output_dir):
     output_html = template.render(
         generated_at=datetime.now(timezone.utc).timestamp(),
         spec_nav=spec_nav,
+        dungeon_nav=dungeon_nav,
         dungeon_lookup=dungeon_lookup,
         spec_lookup=spec_lookup,
         class_lookup=class_lookup,

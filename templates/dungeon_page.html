@@ -1,0 +1,454 @@
+<!--
+=========================================================
+* Material Dashboard 3 - v3.2.0
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/material-dashboard
+* Copyright 2024 Creative Tim (https://www.creative-tim.com)
+* Licensed under MIT (https://www.creative-tim.com/license)
+* Coded by Creative Tim
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% include "header_imports.html" %}
+    <!-- Primary SEO -->
+    <title>{{ dungeon.name.en_US }} in {{ season_info.name }} | MythiStone</title>
+    <meta name="description"
+        content="Discover the most important Mythic+ information for {{ dungeon.name.en_US }} in {{ season_info.name }}, with top specs & routes. Updated {{ generated_at|format_ts }}.">
+    <link rel="canonical" href="https://mythistone.com/dungeons/{{ dungeon.slug }}">
+    <meta name="keywords"
+        content="MythiStone, Mythic+, dungeon, guide, routes, stats, WoW meta, {{dungeon.name.en_US}}, {{ season_info.name }}">
+
+    <!-- Robots -->
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MythiStone">
+    <meta property="og:url" content="https://mythistone.com/dungeons/{{ dungeon.slug }}">
+    <meta property="og:title"
+        content="{{ dungeon.name.en_US }} in {{ season_info.name }} Mythic+ Guide">
+    <meta property="og:description"
+        content="See the top specs, routes, and information for {{ dungeon.name.en_US }} in {{ season_info.name }}">
+    <meta property="og:image" content="https://mythistone.com/assets/img/previews/{{dungeon.slug}}.png">
+    <meta property="og:image:alt" content="{{ dungeon.name.en_US }} icon">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@MythiStone">
+    <meta name="twitter:creator" content="@MythiStone">
+    <meta name="twitter:title"
+        content="{{ dungeon.name.en_US }} in {{ season_info.name }} Mythic+ Guide ">
+    <meta name="twitter:description"
+        content="See the top specs, routes, and information for {{ dungeon.name.en_US }} in {{ season_info.name }}">
+    <meta name="twitter:image" content="https://mythistone.com/assets/img/previews/{{dungeon.slug}}.png">
+
+    <!-- Mobile / Theme -->
+    <meta name="theme-color" content="#1a202c">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="MythiStone" />
+
+</head>
+
+<body class="g-sidenav-show g-sidenav-show-right" data-bs-theme="dark">
+    {% include "sidenav.html" %}
+    <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+        <!-- Navbar -->
+        {% include "navbar.html" %}
+        <!-- End Navbar -->
+        <!-- Notifications -->
+        {% include "notifications.html" %}
+        <!-- End Notifications -->
+        <div class="container-fluid py-2">
+            <div class="row mb-5 mt-2">
+                <div class="col-sm-12 d-flex align-items-center justify-content-between px-3 px-md-4">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar avatar-xl position-relative me-3">
+                            <img src="/data/icons/{{ dungeon.icon }}" alt="{{ dungeon.name.en_US }}"
+                                class="w-100 rounded border-radius-lg shadow-sm border border-secondary shadow-lg">
+                        </div>
+                        <div>
+                            <h3 class="mb-0 font-weight-bolder">
+                                {{ dungeon.name.en_US }}
+                            </h3>
+                            <p class="mb-0 text-md">
+                                Mythic+ Dungeon Details
+                            </p>
+                        </div>
+                    </div>
+                    <div class="d-none d-md-flex align-items-center">
+                        {% if dungeon.keystone_upgrades %}
+                        <div class="d-flex bg-dark bg-opacity-50 border border-secondary rounded shadow-sm">
+                            <div class="text-center p-3 border-end border-secondary">
+                                <span class="d-block text-xs text-uppercase text-secondary font-weight-bolder">+1
+                                    Timer</span>
+                                <span class="font-weight-bold text-success">{{
+                                    (dungeon.keystone_upgrades['1'].qualifying_duration / 60000)|int }}m {{
+                                    ((dungeon.keystone_upgrades['1'].qualifying_duration % 60000)/1000)|int }}s</span>
+                            </div>
+                            <div class="text-center p-3 border-end border-secondary">
+                                <span class="d-block text-xs text-uppercase text-secondary font-weight-bolder">+2
+                                    Timer</span>
+                                <span class="font-weight-bold text-success">{{
+                                    (dungeon.keystone_upgrades['2'].qualifying_duration / 60000)|int }}m {{
+                                    ((dungeon.keystone_upgrades['2'].qualifying_duration % 60000)/1000)|int }}s</span>
+                            </div>
+                            <div class="text-center p-3">
+                                <span class="d-block text-xs text-uppercase text-secondary font-weight-bolder">+3
+                                    Timer</span>
+                                <span class="font-weight-bold text-success">{{
+                                    (dungeon.keystone_upgrades['3'].qualifying_duration / 60000)|int }}m {{
+                                    ((dungeon.keystone_upgrades['3'].qualifying_duration % 60000)/1000)|int }}s</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-6">
+                {% for run_entry in runs %}
+                {% if run_entry['data'] %}
+                {% set run_data = run_entry['data'] %}
+                <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
+                  <div class="card h-100" style="
+                      background-image: url('/data/icons/{{ dungeon.icon }}');
+                      background-size: cover;
+                      background-position: center;
+                      background-repeat: no-repeat;
+                      background-blend-mode: overlay;
+                    ">
+                    <div class="card-header p-2 ps-3">
+                      <div class="d-flex justify-content-between">
+                        <div>
+                          <p class="text-sm mb-0 text-capitalize">{{ run_entry.name }} Run</p>
+                          {% set info = run_data.duration|upgrade_info(dungeon.keystone_upgrades, run_data.keystone_level) %}
+                          <div>
+                            <span class="font-weight-bolder h4 {{ info.css }}">{{ info.text }}</span>
+                            <span class="font-weight-bolder h4">{{dungeon.name.en_US}}</span>
+                            <span class="font-weight-bolder h4">{{run_data.region|upper}}</span>
+                          </div>
+                        </div>
+                        <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                          <i class="material-symbols-rounded opacity-10">{{run_entry.icon}}</i>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-body ">
+                      <h4 class="mb-0" id="{{ run_entry.name }}-run-value">Cleared in {{run_data.duration| duration}}
+                      </h4>
+                      <div class="d-flex align-items-center mt-2">
+                        {% set role_order = ['0','1','2'] %}
+                        {% for role in role_order %}
+                        {% for member in run_data.members %}
+                        {% set spec = specs[ member.spec_id|string ] %}
+                        {% if spec and spec.role|string == role %}
+                        <img src="/data/icons/{{ spec.SpellIconFileId }}.jpg"
+                          alt="{{ spec.name }}" title="{{ spec.name }}" class="me-1 avatar avatar-sm rounded-circle" />
+                        {% endif %}
+                        {% endfor %}
+                        {% endfor %}
+                      </div>
+                    </div>
+                    <hr class="dark horizontal my-0">
+                    <div class="card-footer p-2 ps-3">
+                      <p class="mb-0 text-sm">
+                        <span class="timestamp" data-bs-toggle="tooltip" data-bs-placement="top"
+                          data-timestamp={{run_data.timestamp|int/1000}}>Run happened:</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+
+            <div class="row">
+                <div class="col-lg-6 col-md-12 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                            <div class="bg-gradient-info shadow-info border-radius-lg pt-4 pb-3">
+                                <h6 class="text-white text-capitalize ps-3">Most Popular Specs (+12 and higher)</h6>
+                            </div>
+                        </div>
+                        <div class="card-body px-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th
+                                                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                                Spec</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                                Runs Logged</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for s in top_specs %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex px-2 py-1">
+                                                    <div>
+                                                        <a href="/classes/{{ role_lookup.get(s.role|string, 'Other') }}/{{ s.spec_name }}_{{ s.class_name }}" class="text-decoration-none">
+                                                            <img src="/data/icons/{{ s.icon }}.jpg"
+                                                                class="avatar avatar-sm me-3 border border-dark border-1" alt="{{ s.spec_name }}">
+                                                        </a>
+                                                    </div>
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <a href="/classes/{{ role_lookup.get(s.role|string, 'Other') }}/{{ s.spec_name }}_{{ s.class_name }}" class="text-decoration-none">
+                                                            <h6 class="mb-0 text-sm class-{{ s.class_name|replace(' ', '') }}-text">{{ s.spec_name }} {{ s.class_name }}</h6>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="text-secondary text-xs font-weight-bold">{{
+                                                    "{:,}".format(s.runs) }}</span>
+                                            </td>
+                                        </tr>
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="2" class="text-center text-sm">No specs logged yet.</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-12 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                            <div class="bg-gradient-primary shadow-primary border-radius-lg pt-3 pb-3 d-flex justify-content-between align-items-center">
+                                <h6 class="text-white text-capitalize ps-3 mb-0">Top Routes</h6>
+                                <a href="/pages/routes?dungeons={{ dungeon_id }}" class="btn btn-sm btn-white me-3 mb-0 opacity-8" title="Find more routes">More Routes</a>
+                            </div>
+                        </div>
+                        <div class="card-body px-0 pb-2">
+                            <div class="accordion px-3" id="routeDungeonAccordion">
+                                {% for route in top_routes %}
+                                {% set runKey = dungeon.slug ~ '-' ~ route.route_key ~ '-' ~ route.run_id %}
+                                <div class="accordion-item mb-2 border">
+                                    <h2 class="accordion-header" id="heading-{{ runKey }}">
+                                        <button class="accordion-button collapsed p-0" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#collapse-{{ runKey }}"
+                                            aria-expanded="false" aria-controls="collapse-{{ runKey }}" style="
+                                background-image: url('/data/icons/{{ dungeon.icon }}');
+                                background-size: cover;
+                                background-position: center;
+                                background-repeat: no-repeat;
+                                background-blend-mode: overlay;
+                                ">
+                                            <div class="w-100 row w-100 gx-2 align-items-center py-3 px-4">
+                                                <div class="col-12 col-sm-4 text-start">
+                                                    <span
+                                                        class="badge bg-dark bg-opacity-50 text-white rounded px-2 mx-1">
+                                                        {{ dungeon['name']['en_US'] }}
+                                                    </span>
+                                                    <span
+                                                        class="badge bg-dark bg-opacity-50 text-success rounded px-2 mx-1">
+                                                        +{{ route.keystone_level }}
+                                                    </span>
+                                                </div>
+
+                                                <div class="col-12 col-sm-4 text-center">
+                                                    <span
+                                                        class="badge bg-dark bg-opacity-50 text-white rounded px-2 mx-2">
+                                                        {{ route.duration|duration }}
+                                                    </span>
+                                                    <span
+                                                        class="timestamp badge bg-dark bg-opacity-50 text-white rounded px-2 mx-2"
+                                                        data-bs-toggle="tooltip" data-bs-placement="top"
+                                                        data-timestamp={{ route.timestamp|int }}></span>
+                                                </div>
+
+                                                <div class="col-12 col-sm-4 text-end">
+                                                    <div class="d-inline-flex align-items-center">
+                                                        {% for role in ['0','1','2'] %}
+                                                        {% for sid in route.specs %}
+                                                        {% set spec = specs[sid|string] %}
+                                                        {% if spec and spec.role|string == role %}
+                                                        <img src="/data/icons/{{ spec.SpellIconFileId }}.jpg"
+                                                            alt="{{ spec.name }}" title="{{ spec.name }}"
+                                                            class="me-1 img-fluid"
+                                                            style="width:24px;height:24px;object-fit:cover;">
+                                                        {% endif %}
+                                                        {% endfor %}
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse-{{ runKey }}" class="accordion-collapse collapse"
+                                        aria-labelledby="heading-{{ runKey }}" data-bs-parent="#routeDungeonAccordion">
+                                        <div class="accordion-body p-0 border-top">
+                                            <div class="iframe-container position-relative">
+                                                <div
+                                                    class="iframe-spinner position-absolute top-50 start-50 translate-middle">
+                                                    <div class="spinner-border text-primary" role="status">
+                                                        <span class="visually-hidden">Loading...</span>
+                                                    </div>
+                                                </div>
+                                                <iframe src="" loading="lazy" data-name="keystoneGuru"
+                                                    data-src="https://keystone.guru/route/{{ dungeon.slug }}/{{ route.route_key }}/{{ dungeon.slug }}/embed"
+                                                    style="border: none; width: 100%; height: 60vh; display: block;"></iframe>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="text-center p-3 text-sm">No routes logged yet.</div>
+                                {% endfor %}
+                            </div>
+                            <div class="text-center mt-3 mb-3">
+                                <a href="/pages/routes?dungeons={{ dungeon_id }}" class="text-primary text-sm font-weight-bold">
+                                    Looking for more? Find all routes here 
+                                    <i class="material-symbols-rounded align-middle text-sm ms-1">arrow_forward</i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-lg-6 col-md-12 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                            <div class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3">
+                                <h6 class="text-white text-capitalize ps-3">Popular Team Comps</h6>
+                            </div>
+                        </div>
+                        <div class="card-body px-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th
+                                                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                                Composition</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                                Runs Logged</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for comp in top_comps %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex px-3 py-1 align-items-center">
+                                                    {% for role in ['0','1','2'] %}
+                                                    {% for sid in comp.specs %}
+                                                    {% set spec = specs[sid|string] %}
+                                                    {% if spec and spec.role|string == role %}
+                                                    <img src="/data/icons/{{ spec.SpellIconFileId }}.jpg"
+                                                        alt="{{ spec.name }}" title="{{ spec.name }}"
+                                                        class="me-1 rounded-circle border border-dark"
+                                                        style="width:28px;height:28px;object-fit:cover;"
+                                                        data-bs-toggle="tooltip">
+                                                    {% endif %}
+                                                    {% endfor %}
+                                                    {% endfor %}
+                                                </div>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="text-secondary text-xs font-weight-bold">{{
+                                                    "{:,}".format(comp.count) }}</span>
+                                            </td>
+                                        </tr>
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="2" class="text-center text-sm p-3">No comps logged yet.</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 col-md-12 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                            <div class="bg-gradient-info shadow-info border-radius-lg pt-4 pb-3">
+                                <h6 class="text-white text-capitalize ps-3" data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Specs with highest % difference compared to their global average.">Uniquely
+                                    Popular Here</h6>
+                            </div>
+                        </div>
+                        <div class="card-body px-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th
+                                                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                                Spec</th>
+                                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                                                data-bs-toggle="tooltip" title="Absolute difference in play rate">Vs Avg
+                                                (Total)</th>
+                                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                                                data-bs-toggle="tooltip" title="Relative difference in play rate">Vs Avg
+                                                (Relative)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for s in top_over_represented %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex px-2 py-1">
+                                                    <div>
+                                                        <a href="/classes/{{ role_lookup.get(s.role|string, 'Other') }}/{{ s.spec_name }}_{{ s.class_name }}" class="text-decoration-none">
+                                                            <img src="/data/icons/{{ s.icon }}.jpg"
+                                                                class="avatar avatar-sm me-3 border border-dark border-1" alt="{{ s.spec_name }}">
+                                                        </a>
+                                                    </div>
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <a href="/classes/{{ role_lookup.get(s.role|string, 'Other') }}/{{ s.spec_name }}_{{ s.class_name }}" class="text-decoration-none">
+                                                            <h6 class="mb-0 text-sm class-{{ s.class_name|replace(' ', '') }}-text">{{ s.spec_name }} {{ s.class_name }}</h6>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="badge badge-sm bg-gradient-success">+{{
+                                                    "%.2f"|format(s.diff_pct|float) }}%</span>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="badge badge-sm bg-gradient-success">+{{
+                                                    "%.0f"|format(s.relative_diff_pct|float) }}%</span>
+                                            </td>
+                                        </tr>
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="3" class="text-center text-sm p-3">Not enough data.</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% include "footer.html" %}
+        </div>
+    </main>
+    {% include "right_aside.html" %}
+    {% include "fixed_plugin.html" %}
+    {% include "javascript_imports.html" %}
+</body>
+
+</html>

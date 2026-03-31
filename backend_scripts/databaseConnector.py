@@ -2179,3 +2179,169 @@ def fetch_top_routes_for_spec(connection, cursor, spec_id):
         }
 
     return routes
+
+FETCH_DUNGEON_TOP_SPECS_SQL = """
+SELECT spec_id, run_count as total_runs
+FROM Mythistone.aggregated_dungeon_specs
+WHERE dungeon_id = %s AND season = %s
+ORDER BY run_count DESC
+LIMIT 5;
+"""
+
+def fetch_dungeon_top_specs(connection, cursor, dungeon_id: str, season: int):
+    return fetch_with_retry(
+        connection,
+        cursor,
+        FETCH_DUNGEON_TOP_SPECS_SQL,
+        (dungeon_id, season)
+    )
+
+FETCH_DUNGEON_SPECS_RATIO_SQL = """
+SELECT 
+    ds.spec_id,
+    ds.run_count as local_runs,
+    gs.run_count as global_runs
+FROM Mythistone.aggregated_dungeon_specs ds
+JOIN Mythistone.aggregated_dungeon_global_specs gs 
+  ON ds.spec_id = gs.spec_id AND ds.season = gs.season
+WHERE ds.dungeon_id = %s AND ds.season = %s
+"""
+
+def fetch_dungeon_specs_ratio(connection, cursor, dungeon_id: str, season: int):
+    return fetch_with_retry(
+        connection,
+        cursor,
+        FETCH_DUNGEON_SPECS_RATIO_SQL,
+        (dungeon_id, season)
+    )
+
+FETCH_DUNGEON_TOTALS_SQL = """
+SELECT SUM(run_count) as total
+FROM Mythistone.aggregated_dungeon_specs
+WHERE dungeon_id = %s AND season = %s
+"""
+
+def fetch_dungeon_totals(connection, cursor, dungeon_id: str, season: int):
+    return fetch_with_retry(
+        connection,
+        cursor,
+        FETCH_DUNGEON_TOTALS_SQL,
+        (dungeon_id, season)
+    )
+
+FETCH_GLOBAL_TOTALS_SQL = """
+SELECT SUM(run_count) as total
+FROM Mythistone.aggregated_dungeon_global_specs
+WHERE season = %s
+"""
+
+def fetch_global_totals(connection, cursor, season: int):
+    return fetch_with_retry(
+        connection,
+        cursor,
+        FETCH_GLOBAL_TOTALS_SQL,
+        (season,)
+    )
+
+FETCH_DUNGEON_TOP_COMPS_SQL = """
+SELECT comp, run_count as comp_count
+FROM Mythistone.aggregated_dungeon_comps
+WHERE dungeon_id = %s AND season = %s
+ORDER BY run_count DESC
+LIMIT 5;
+"""
+
+def fetch_dungeon_top_comps(connection, cursor, dungeon_id: str, season: int):
+    return fetch_with_retry(
+        connection,
+        cursor,
+        FETCH_DUNGEON_TOP_COMPS_SQL,
+        (dungeon_id, season)
+    )
+
+FETCH_DUNGEON_TOP_ROUTES_SQL = """
+SELECT route_key, enemy_forces, keystone_level, duration, timestamp, rio_run_id as run_id
+FROM Mythistone.route_data
+WHERE dungeon_id = %s
+ORDER BY keystone_level DESC
+LIMIT 5;
+"""
+
+FETCH_ROUTE_SPECS_SQL = """
+SELECT spec_id FROM Mythistone.route_specs WHERE route_key = %s;
+"""
+
+def fetch_dungeon_top_routes(connection, cursor, dungeon_id: str):
+    routes_rows = fetch_with_retry(
+        connection,
+        cursor,
+        FETCH_DUNGEON_TOP_ROUTES_SQL,
+        (dungeon_id,)
+    )
+    if not routes_rows:
+        return []
+
+    top_routes = []
+    for r in routes_rows:
+        specs_rows = fetch_with_retry(
+            connection,
+            cursor,
+            FETCH_ROUTE_SPECS_SQL,
+            (r['route_key'],)
+        )
+        r_dict = dict(r)
+        if specs_rows:
+            if isinstance(specs_rows[0], dict):
+                r_dict['specs'] = [s['spec_id'] for s in specs_rows]
+            else:
+                r_dict['specs'] = [s[0] for s in specs_rows]
+        else:
+            r_dict['specs'] = []
+            
+        top_routes.append(r_dict)
+    
+    return top_routes
+
+FETCH_DUNGEON_SHORTEST_KEY_RUN_SQL = """
+SELECT r.dungeon_id, r.keystone_level, r.duration, r.timestamp, r.faction, r.run_id, r.region, r.season, rm.member, m.spec_id
+FROM runs r
+LEFT JOIN run_members rm ON rm.run_id = r.run_id
+LEFT JOIN members m       ON m.member = rm.member
+WHERE r.run_id = (
+    SELECT run_id FROM runs WHERE dungeon_id = %s AND season = %s AND duration > 0 ORDER BY duration ASC, run_id ASC LIMIT 1
+)
+ORDER BY rm.member;
+"""
+
+def fetch_dungeon_shortest_run(connection, cursor, dungeon_id: str, season: int):
+    return fetch_with_retry(connection, cursor, FETCH_DUNGEON_SHORTEST_KEY_RUN_SQL, (dungeon_id, season))
+
+FETCH_DUNGEON_LONGEST_KEY_RUN_SQL = """
+SELECT r.dungeon_id, r.keystone_level, r.duration, r.timestamp, r.faction, r.run_id, r.region, r.season, rm.member, m.spec_id
+FROM runs r
+LEFT JOIN run_members rm ON rm.run_id = r.run_id
+LEFT JOIN members m       ON m.member = rm.member
+WHERE r.run_id = (
+    SELECT run_id FROM runs WHERE dungeon_id = %s AND season = %s ORDER BY duration DESC, run_id ASC LIMIT 1
+)
+ORDER BY rm.member;
+"""
+
+def fetch_dungeon_longest_run(connection, cursor, dungeon_id: str, season: int):
+    return fetch_with_retry(connection, cursor, FETCH_DUNGEON_LONGEST_KEY_RUN_SQL, (dungeon_id, season))
+
+FETCH_DUNGEON_MAX_KEY_RUN_SQL = """
+SELECT r.dungeon_id, r.keystone_level, r.duration, r.timestamp, r.faction, r.run_id, r.region, r.season, rm.member, m.spec_id
+FROM runs r
+LEFT JOIN run_members rm ON rm.run_id = r.run_id
+LEFT JOIN members m       ON m.member = rm.member
+WHERE r.run_id = (
+    SELECT run_id FROM runs WHERE dungeon_id = %s AND season = %s ORDER BY keystone_level DESC, duration ASC, run_id ASC LIMIT 1
+)
+ORDER BY rm.member;
+"""
+
+def fetch_dungeon_max_key_run(connection, cursor, dungeon_id: str, season: int):
+    return fetch_with_retry(connection, cursor, FETCH_DUNGEON_MAX_KEY_RUN_SQL, (dungeon_id, season))
+
+

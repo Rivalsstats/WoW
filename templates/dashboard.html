@@ -156,7 +156,9 @@
                   run_data.keystone_level) %}
                   <div>
                     <span class="font-weight-bolder h4 {{ info.css }}">{{ info.text }}</span>
-                    <span class="font-weight-bolder h4">{{dungeon_lookup[run_data.dungeon_id|string].name.en_US}}</span>
+                    <a href="/dungeons/{{ dungeon_info.slug }}" class="font-weight-bolder h4 text-white text-decoration-none">
+                      {{ dungeon_info.name.en_US }}
+                    </a>
                     <span class="font-weight-bolder h4">{{run_data.region|upper}}</span>
                   </div>
                 </div>

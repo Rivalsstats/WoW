@@ -4,6 +4,16 @@ ROLE_FOLDERS = {
     "2": "Dps",
 }
 
+def generateDungeonNav(dungeons):
+    dungeon_nav = []
+    for d_id, d_data in dungeons.items():
+        dungeon_nav.append({
+            "name": d_data["name"]["en_US"],
+            "url": f"/dungeons/{d_data['slug']}",
+            "icon": d_data.get("icon", None),
+        })
+    dungeon_nav.sort(key=lambda x: x["name"])
+    return dungeon_nav
 
 def generateSpecNav(spec_lookup, class_lookup):
     # Build a dict mapping role names to lists of specs

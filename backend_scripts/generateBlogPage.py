@@ -4,7 +4,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from collections import OrderedDict, defaultdict
 from datetime import datetime, timezone
 import argparse
-from pageGeneration import generateSpecNav
+from pageGeneration import generateSpecNav, generateDungeonNav
 from generateSpecPages import (
     LOOKUP_DIR,
     humanize_number,
@@ -31,15 +31,18 @@ def main():
     notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
     posts = load_json(os.path.join("data", "socials.json"))
 
+    dungeon_lookup = load_json(os.path.join(LOOKUP_DIR, "dungeons.json"))
     posts = OrderedDict(
         sorted(posts.items(), key=lambda t: t[1]["timestamp"], reverse=True)
     )
 
     spec_nav = generateSpecNav(spec_lookup, class_lookup)
+    dungeon_nav = generateDungeonNav(dungeon_lookup)
     template = env.get_template(os.path.basename("blog.html"))
     output_html = template.render(
         generated_at=datetime.now(timezone.utc).timestamp(),
         spec_nav=spec_nav,
+        dungeon_nav=dungeon_nav,
         breadcrumbs=[{"title": "Blog"}],
         active_page="blog",
         notifications=notifications,

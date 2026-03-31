@@ -19,6 +19,8 @@ import numpy as np
 import databaseConnector
 import aggregateData
 from collections import defaultdict
+import requests
+import io
 
 from generateSpecPages import (
     LOOKUP_DIR,
@@ -2177,6 +2179,223 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
     }
     return {"out_path": out_path, "post_data": post_data}
 
+
+def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cursor=None):
+    dungeon_meta = None
+    if isinstance(dungeon_lookup, dict):
+        if str(dungeon_id) in dungeon_lookup:
+            dungeon_meta = dungeon_lookup[str(dungeon_id)]
+        else:
+            for k, v in dungeon_lookup.items():
+                if str(v.get("id")) == str(dungeon_id):
+                    dungeon_meta = v
+                    break
+    elif isinstance(dungeon_lookup, list):
+        for d in dungeon_lookup:
+            if str(d.get("id")) == str(dungeon_id):
+                dungeon_meta = d
+                break
+            
+    if not dungeon_meta:
+        print(f"Could not find dungeon meta for {dungeon_id}")
+        return None
+        
+    name_text = dungeon_meta["name"]["en_US"]
+    
+    close_conn = False
+    if conn is None or cursor is None:
+        conn = databaseConnector.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        close_conn = True
+        
+    try:
+        # Fetch stats
+        # Total Runs
+        tot = databaseConnector.fetch_dungeon_totals(conn, cursor, dungeon_id, season)
+        play_count = 0
+        if tot:
+            val = list(tot[0].values())[0] if isinstance(tot[0], dict) else tot[0][0]
+            play_count = int(val) if val else 0
+            
+        # Top comps
+        top_comps_data = databaseConnector.fetch_dungeon_top_comps(conn, cursor, dungeon_id, season)
+        
+        # Top routes
+        top_routes_data = databaseConnector.fetch_dungeon_top_routes(conn, cursor, dungeon_id)
+    finally:
+        if close_conn:
+            cursor.close()
+            conn.close()
+        
+    # canvas
+    dungeon_icon_path = None
+    if dungeon_meta and "icon" in dungeon_meta:
+        dungeon_icon_path = os.path.join("data", "icons", dungeon_meta["icon"])
+    
+    if dungeon_icon_path and os.path.exists(dungeon_icon_path):
+        bg_img = Image.open(dungeon_icon_path).convert("RGB")
+        bg_w, bg_h = bg_img.size
+        # scale to cover the target box
+        scale = max(WIDTH / bg_w, HEIGHT / bg_h)
+        new_w, new_h = int(bg_w * scale), int(bg_h * scale)
+        bg_resized = bg_img.resize((new_w, new_h), Image.LANCZOS)
+        # center-crop
+        left = (new_w - WIDTH) // 2
+        top = (new_h - HEIGHT) // 2
+        canvas = bg_resized.crop((left, top, left + WIDTH, top + HEIGHT))
+    else:
+        bg_dir = os.path.join("data", "bg_imgs")
+        bg_files = [
+            os.path.join(bg_dir, f)
+            for f in os.listdir(bg_dir)
+            if f.lower().endswith((".jpg", ".jpeg", ".png"))
+        ] if os.path.exists(bg_dir) else []
+        if not bg_files:
+            canvas = Image.new("RGB", (WIDTH, HEIGHT), "#222222")
+        else:
+            bg_path = random.choice(bg_files)
+            canvas = Image.open(bg_path).convert("RGB")
+            if canvas.size != (WIDTH, HEIGHT):
+                canvas = canvas.resize((WIDTH, HEIGHT), Image.LANCZOS)
+            
+    draw = ImageDraw.Draw(canvas)
+    font_big = ImageFont.truetype(FONT_FILE, TITLE_SIZE)
+    font_sm = ImageFont.truetype(FONT_FILE, SMALL_SIZE)
+    
+    # Draw Title
+    draw.text(
+        (50, 30),
+        name_text,
+        font=font_big,
+        fill=(255, 255, 255),
+        stroke_width=2,
+        stroke_fill=(0, 0, 0),
+    )
+    
+    # Draw Total Runs
+    draw.text(
+        (50, 130),
+        f"{humanize_number(play_count)} total runs tracked",
+        font=font_sm,
+        fill=(200, 200, 200),
+        stroke_width=2,
+        stroke_fill=(0, 0, 0),
+    )
+    
+    # Top Comps
+    draw.text(
+        (50, 200),
+        "Top Comps:",
+        font=font_sm,
+        fill=(255, 255, 255),
+        stroke_width=2,
+        stroke_fill=(0, 0, 0),
+    )
+    y_offset = 250
+    for r in top_comps_data[:5]:
+        comp_str = r['comp'] if isinstance(r, dict) else r[0]
+        comp_cnt = r['comp_count'] if isinstance(r, dict) else r[1]
+        if not comp_str:
+            continue
+        spec_ids = comp_str.split(',')
+        x_offset = 50
+        for sid in spec_ids:
+            if sid in spec_lookup:
+                icon_file = os.path.join(ICON_DIR, f"{spec_lookup[sid]['SpellIconFileId']}.jpg")
+                if os.path.exists(icon_file):
+                    from PIL import Image as PilImage
+                    img = PilImage.open(icon_file).convert("RGBA").resize((40, 40), Image.LANCZOS)
+                    canvas.paste(img, (x_offset, y_offset), img)
+            x_offset += 45
+        # draw text
+        draw.text(
+            (x_offset + 10, y_offset + 5),
+            f"Runs: {humanize_number(int(comp_cnt))}",
+            font=font_sm,
+            fill=(255, 255, 255),
+            stroke_width=1,
+            stroke_fill=(0, 0, 0)
+        )
+        y_offset += 60
+        
+    # Top Route Image Integration
+    if top_routes_data:
+        top_route_key = top_routes_data[0]['route_key'] if isinstance(top_routes_data[0], dict) else top_routes_data[0][0]
+        if not top_route_key:
+            print("Top route key is missing or empty, cannot fetch thumbnail.")
+        if top_route_key:
+            print(f"Fetching thumbnail for top route: {top_route_key}")
+            url = f'https://keystone.guru/api/v1/route/{top_route_key}/thumbnail'
+            payload = {
+              "viewportWidth": 900,
+              "viewportHeight": 600,
+              "imageWidth": 900,
+              "imageHeight": 600,
+              "zoomLevel": 2.2,
+              "quality": 90
+            }
+            try:
+                auth = requests.auth.HTTPBasicAuth(os.environ.get("KEYSTONE_GURU_USER", ""), os.environ.get("KEYSTONE_GURU_PW", ""))
+                r = requests.post(url, json=payload, timeout=20, auth=auth)
+                if r.status_code == 200:
+                    resp_data = r.json()
+                    if "data" in resp_data and len(resp_data["data"]) > 0:
+                        job = resp_data["data"][0]
+                        status = job.get("status")
+
+                        if status in ["queued", "processing", "error"]:
+                            status_url = job["links"]["status"]
+                            for _ in range(15): # wait up to 30 seconds
+                                time.sleep(2)
+                                poll_r = requests.get(status_url, auth=auth, timeout=10)
+                                if poll_r.status_code == 200:
+                                    poll_data = poll_r.json()
+                                    status = poll_data["data"].get("status")
+                                    if status == "completed":
+                                        job = poll_data["data"]
+                                        break
+
+                        if status == "completed" and job.get("links", {}).get("result"):
+                            img_url = job["links"]["result"]
+                            img_r = requests.get(img_url, timeout=20)
+                            if img_r.status_code == 200:
+                                route_img = Image.open(io.BytesIO(img_r.content)).convert("RGBA")
+                                # Resize map to fix right side smoothly
+                                target_w = 600
+                                target_h = int(target_w * (route_img.height / route_img.width))
+                                route_img = route_img.resize((target_w, target_h), Image.LANCZOS)
+                                
+                                # Position on the right side
+                                img_x = WIDTH - target_w - 50
+                                img_y = 220
+                                
+                                # Add simple rounded mask using Pillow
+                                mask = Image.new("L", route_img.size, 0)
+                                md = ImageDraw.Draw(mask)
+                                md.rounded_rectangle([(0, 0), route_img.size], radius=15, fill=255)
+                                route_img.putalpha(mask)
+                                
+                                # Paste map
+                                canvas.paste(route_img, (img_x, img_y), route_img)
+                                
+                                # Add label and route key
+                                draw.text(
+                                    (img_x, img_y - 40),
+                                    f"Top Route (keystone.guru/{top_route_key})",
+                                    font=font_sm,
+                                    fill=(255, 255, 255),
+                                    stroke_width=2,
+                                    stroke_fill=(0, 0, 0),
+                                )
+                        else:
+                            print(f"Thumbnail job for {top_route_key} failed or missing result. Status: {status}")
+                else:
+                    print(f"Failed to fetch thumbnail for route {top_route_key}, status code: {r.status_code}")
+            except Exception as e:
+                print(f"Error fetching thumbnail for route {top_route_key}: {str(e)}")
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    canvas.save(out_path)
+    return {"out_path": out_path}
 
 def create_socials_post(donesocials, api_key, url):
     """

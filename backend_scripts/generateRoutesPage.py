@@ -7,7 +7,7 @@ from collections import defaultdict
 from datetime import datetime, timezone
 
 # project imports (adjust paths if necessary)
-from pageGeneration import generateSpecNav
+from pageGeneration import generateSpecNav, generateDungeonNav
 from generateSpecPages import (
     humanize_number,
     format_duration,
@@ -128,6 +128,7 @@ def main(template_path, output_dir, limit):
         spec_nav=generateSpecNav(
             spec_lookup, class_lookup
         ),  # minimal nav; replace by real spec table if available
+        dungeon_nav=generateDungeonNav(dungeon_lookup),
         comp_routes=comp_routes_json,
         comp_routes_by_dungeon=comp_routes_by_dungeon,
         slug_lookup=slug_lookup,

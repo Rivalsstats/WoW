@@ -33,6 +33,7 @@ PATH_TAG_OVERRIDES = {
     "classes/dps": ["class", "dps"],
     "classes/tank": ["class", "tank"],
     "classes/healer": ["class", "healer"],
+    "dungeons": ["dungeon"],
 }
 
 SPEC_LOOKUP_PATH = "data/specs.json"

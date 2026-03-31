@@ -4,7 +4,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from collections import OrderedDict, defaultdict
 from datetime import datetime, timezone
 import argparse
-from pageGeneration import generateSpecNav
+from pageGeneration import generateSpecNav, generateDungeonNav
 from generateSpecPages import (
     LOOKUP_DIR,
     humanize_number,
@@ -55,9 +55,11 @@ def main():
     env.filters["upgrade_info"] = upgrade_info
     spec_lookup = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
+    dungeon_lookup = load_json(os.path.join(LOOKUP_DIR, "dungeons.json"))
     notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
 
     spec_nav = generateSpecNav(spec_lookup, class_lookup)
+    dungeon_nav = generateDungeonNav(dungeon_lookup)
 
     for page, value in LEGAL_PAGES.items():
         template_name = value["template"]
@@ -65,6 +67,7 @@ def main():
         output_html = template.render(
             generated_at=datetime.now(timezone.utc).timestamp(),
             spec_nav=spec_nav,
+            dungeon_nav=dungeon_nav,
             breadcrumbs=value.get("breadcrumbs", []),
             active_page=page.lower(),
             notifications=notifications,

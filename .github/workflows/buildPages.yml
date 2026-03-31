@@ -40,8 +40,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install jinja2 pyyaml requests mysql-connector-python bs4 openrouter openai Pillow matplotlib pandas 
+          pip install jinja2 pyyaml requests mysql-connector-python bs4 openrouter openai Pillow matplotlib pandas     
 
+      - name: Clean up old dynamic assets
+        run: |
+            rm -rf assets/img/previews/*
+            mkdir -p assets/img/previews
+            
       - name: Generate Dashboard HTML page
         env:
           DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
@@ -105,6 +110,20 @@ jobs:
             --template templates/spec_page.html \
             --output_dir classes
 
+      - name: Generate Dungeon HTML pages
+        env:
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORT }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+        run: |
+          rm -rf dungeons
+          mkdir -p dungeons
+          python backend_scripts/generateDungeonPages.py \
+            --template templates/dungeon_page.html \
+            --output_dir dungeons
+
       - name: Generate Search index
         run: |
           python backend_scripts/generateSearchIndex.py
@@ -119,6 +138,7 @@ jobs:
           
           git add assets/img/previews/
           git add classes/
+          git add dungeons/
           git add pages/
           git add assets/json/search_index.json
           git add index.html
@@ -163,6 +183,7 @@ jobs:
           ref: main 
           sparse-checkout: |
             pages
+            dungeons
             assets
             classes
             data/icons

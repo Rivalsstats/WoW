@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from contextlib import closing
 import re
 from urllib.parse import quote_plus
-from pageGeneration import ROLE_FOLDERS, generateSpecNav
+from pageGeneration import ROLE_FOLDERS, generateSpecNav, generateDungeonNav
 
 LOOKUP_DIR = "data/static"  # Default lookup directory, can be overridden by command line argument
 LEFT_ORDER = ["HEAD", "NECK", "SHOULDER", "BACK", "CHEST", "WRIST"]
@@ -644,6 +644,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
             set_members[sid].append(iid)
 
     spec_nav = generateSpecNav(spec_lookup, class_lookup)
+    dungeon_nav = generateDungeonNav(dungeon_lookup)
 
     access_token = aggregateData.get_access_token(CLIENT_ID, CLIENT_SECRET)
     current_season_id = aggregateData.get_current_season_id(access_token)
@@ -867,6 +868,8 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 class_info=class_data,
                 data_count=data_count,
                 active_page="spec",
+                spec_nav=spec_nav,
+                dungeon_nav=dungeon_nav,
                 summary_data={"count": spec_runs, "upgrade_counts": upgrade_counts},
                 total_enchant_counts=total_enchant_counts,
                 total_socket_count=total_socket_count,
@@ -894,7 +897,6 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 dungeon_lookup_slug=dungeon_lookup_slug,
                 role=ROLE_FOLDERS[spec_data.get("role", 2)],
                 talent_lookup=talent_lookup,
-                spec_nav=spec_nav,
                 current_spec=f"{spec_data['name']} {class_data.get('name')}",
                 sockets=sockets,
                 embellishments=embellishments,
@@ -942,7 +944,8 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 f.write(output_html)
             print(f"[{datetime.now(timezone.utc).isoformat()}] Generated {out_path}")
             print(f"[{datetime.now(timezone.utc).isoformat()}] creating overview image...")
-            preview_path = os.path.join("assets", "img", "previews",  f"{spec_id}.png")
+            spec_slug = f"{spec_data.get('name')}_{class_data.get('name')}"
+            preview_path = os.path.join("assets", "img", "previews",  f"{spec_slug}.png")
             os.makedirs(os.path.dirname(preview_path), exist_ok=True)
             createSpecOverviewImg('tmp',preview_path, spec_id, current_season_id)
             print(f"[{datetime.now(timezone.utc).isoformat()}] Finished {spec_id}.")

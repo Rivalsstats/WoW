@@ -82,6 +82,33 @@
         {% endfor %}
       </div>
 
+      {% if dungeon_nav %}
+      <li class="nav-item mt-3">
+        <h6 class="ps-4 ms-2 text-uppercase text-xs text-body-emphasis font-weight-bolder opacity-5">Dungeons</h6>
+      </li>
+
+      {% for nav in dungeon_nav %}
+      <li class="nav-item">
+        <a href="{{ nav.url }}" class="nav-link d-flex align-items-center
+              {% if nav.name == current_dungeon %}active bg-gradient-dark text-white{% endif %}">
+          {% if nav.icon %}
+          <img src="{{ '/data/icons/' + nav.icon }}"
+            class="rounded shadow-sm" style="width: 24px; height: 24px; object-fit: cover; object-position: center;" alt="{{ nav.name }} Icon">
+          {% else %}
+          <span
+            class="d-flex align-items-center justify-content-center bg-secondary text-white fw-bold rounded shadow-sm"
+            style="width: 24px; height: 24px; font-size: 12px;">
+            {{ nav.name[:1] }}
+          </span>
+          {% endif %}
+          <span class="nav-link-text text-body-emphasis ms-2">
+            {{ nav.name }}
+          </span>
+        </a>
+      </li>
+      {% endfor %}
+              
+      {% endif %}
       <li class="nav-item mt-3">
         <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-5">Other Pages</h6>
       </li>
@@ -91,6 +118,7 @@
           <span class="nav-link-text text-body-emphasis ms-1">Coming Soon</span>
         </a>
       </li>
+
     </ul>
   </div>
 
