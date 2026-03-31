@@ -65,6 +65,7 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
     spec_lookup = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
     season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
+    notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
         
     spec_nav = generateSpecNav(spec_lookup, class_lookup)
     dungeon_nav = generateDungeonNav(dungeon_lookup)
@@ -194,6 +195,7 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                     dungeon_id=dungeon_id,
                     page_title=dungeon_data['name']['en_US'],
                     season_info=season_info,
+                    notifications=notifications,
                     breadcrumbs=[
                         {"title": "Pages", "href": "/pages"},
                         {"title": "Dungeons", "href": "/dungeons"},
