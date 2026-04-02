@@ -258,6 +258,11 @@
                                                         class="badge bg-dark bg-opacity-50 text-success rounded px-2 mx-1">
                                                         +{{ route.keystone_level }}
                                                     </span>
+                                                    {% if route.usage_count and route.usage_count > 1 %}
+                                                    <span class="badge bg-dark bg-opacity-50 text-white rounded px-2 mx-1" data-bs-toggle="tooltip" title="Route usage count">
+                                                        {{ route.usage_count }} Uses
+                                                    </span>
+                                                    {% endif %}
                                                 </div>
 
                                                 <div class="col-12 col-sm-4 text-center">

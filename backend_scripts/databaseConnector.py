@@ -2010,32 +2010,99 @@ def fetch_comp_routes(
     Returns: { "specA,specB": { route_key, run_id, dungeon, level, duration, timestamp, specs, npcs, spells, enemy_forces }, ... }
     This function raises on DB errors (caller should catch).
     """
-    # base SELECT
-    sql = "SELECT route_key, rio_run_id, enemy_forces, timestamp, keystone_level, duration, dungeon_id FROM Mythistone.route_data"
-    clauses = []
+    # We need a large group_concat_max_len for the signature
+    try:
+        cursor.execute("SET SESSION group_concat_max_len = 1000000;")
+    except Exception:
+        pass
+
+    # base SELECT with new duplicate aggregation logic
+    sql = """
+    WITH PullEnemies AS (
+        SELECT 
+            route_key, 
+            pull_id, 
+            GROUP_CONCAT(CONCAT(npc_id, ':', count) ORDER BY npc_id ASC SEPARATOR ',') AS enemies
+        FROM Mythistone.pull_enemies
+        GROUP BY route_key, pull_id
+    ),
+    PullSpells AS (
+        SELECT 
+            route_key, 
+            pull_id, 
+            GROUP_CONCAT(spell_id ORDER BY spell_id ASC SEPARATOR ',') AS spells
+        FROM Mythistone.pull_spells
+        GROUP BY route_key, pull_id
+    ),
+    RouteSignatures AS (
+        SELECT 
+            rp.route_key,
+            GROUP_CONCAT(
+                CONCAT('{E:', COALESCE(pe.enemies, ''), '}{S:', COALESCE(ps.spells, ''), '}') 
+                ORDER BY rp.pull_id ASC 
+                SEPARATOR ' | '
+            ) AS route_signature
+        FROM Mythistone.route_pulls rp
+        LEFT JOIN PullEnemies pe ON rp.route_key = pe.route_key AND rp.pull_id = pe.pull_id
+        LEFT JOIN PullSpells ps ON rp.route_key = ps.route_key AND rp.pull_id = ps.pull_id
+        GROUP BY rp.route_key
+    )
+    """
+    
+    # We will inject the standard WHERE clauses into the CTE below to pre-filter
+    where_clauses = []
     params = []
 
     if min_level and int(min_level) > 0:
-        clauses.append("keystone_level >= %s")
+        where_clauses.append("rd_base.keystone_level >= %s")
         params.append(int(min_level))
 
-    # handle recent_only_days: convert to unix timestamp seconds
     if recent_only_days:
-        # We conservatively assume 'timestamp' is unix seconds OR milliseconds; we'll filter by seconds threshold,
-        # and callers can interpret timestamps accordingly. Use UNIX_TIMESTAMP() to compute seconds.
-        clauses.append(
-            "timestamp >= CAST(UNIX_TIMESTAMP(NOW() - INTERVAL %s DAY) AS UNSIGNED)"
+        where_clauses.append(
+            "rd_base.timestamp >= CAST(UNIX_TIMESTAMP(NOW() - INTERVAL %s DAY) AS UNSIGNED)"
         )
         params.append(int(recent_only_days))
-
-    if clauses:
-        sql += " WHERE " + " AND ".join(clauses)
-
+        
+    where_sql = ""
+    if where_clauses:
+        where_sql = " WHERE " + " AND ".join(where_clauses)
+        
+    sql += f"""
+    , RankedRoutes AS (
+        SELECT 
+            rs.route_signature,
+            rs.route_key,
+            rd_base.rio_run_id as run_id,
+            rd_base.enemy_forces,
+            rd_base.timestamp,
+            rd_base.keystone_level,
+            rd_base.duration,
+            rd_base.dungeon_id,
+            COUNT(rs.route_key) OVER (PARTITION BY rs.route_signature) as usage_count,
+            ROW_NUMBER() OVER (PARTITION BY rs.route_signature ORDER BY rd_base.keystone_level DESC, rd_base.duration ASC) as rn
+        FROM RouteSignatures rs
+        JOIN Mythistone.route_data rd_base ON rs.route_key = rd_base.route_key
+        {where_sql}
+    )
+    SELECT 
+        route_key, 
+        run_id, 
+        enemy_forces, 
+        timestamp, 
+        keystone_level, 
+        duration, 
+        dungeon_id,
+        usage_count
+    FROM RankedRoutes
+    WHERE rn = 1
+    ORDER BY usage_count DESC
+    """
+    
     if limit:
         sql += f" LIMIT {int(limit)}"
-
+        
     sql += ";"
-
+    
     rows = fetch_with_retry(connection, cursor, sql, tuple(params) if params else None)
 
     route_specs_map = fetch_route_specs_map(connection, cursor)
@@ -2052,11 +2119,14 @@ def fetch_comp_routes(
         keystone_level = int(row[4]) if row[4] is not None else None
         duration = int(row[5]) if row[5] is not None else None
         dungeon_id = str(row[6]) if row[6] is not None else None
+        usage_count = int(row[7]) if len(row) > 7 and row[7] is not None else 1
 
         specs = route_specs_map.get(route_key, [])
         spec_key = ",".join(str(s) for s in sorted(specs)) if specs else "unknown"
 
-        out[spec_key] = {
+        # Instead of just spec_key, we want each route to stand on its own in the list.
+        # But out is a dict. Let's use route_key as the unique dictionary key
+        out[route_key] = {
             "route_key": route_key,
             "run_id": int(rio_run_id) if rio_run_id is not None else None,
             "dungeon": dungeon_id,
@@ -2067,6 +2137,7 @@ def fetch_comp_routes(
             "npcs": route_npcs_map.get(route_key, []),
             "spells": route_spells_map.get(route_key, []),
             "enemy_forces": enemy_forces,
+            "usage_count": usage_count,
         }
     return out
 
@@ -2260,10 +2331,62 @@ def fetch_dungeon_top_comps(connection, cursor, dungeon_id: str, season: int):
     )
 
 FETCH_DUNGEON_TOP_ROUTES_SQL = """
-SELECT route_key, enemy_forces, keystone_level, duration, timestamp, rio_run_id as run_id
-FROM Mythistone.route_data
-WHERE dungeon_id = %s
-ORDER BY keystone_level DESC
+WITH PullEnemies AS (
+    SELECT 
+        route_key, 
+        pull_id, 
+        GROUP_CONCAT(CONCAT(npc_id, ':', count) ORDER BY npc_id ASC SEPARATOR ',') AS enemies
+    FROM Mythistone.pull_enemies
+    GROUP BY route_key, pull_id
+),
+PullSpells AS (
+    SELECT 
+        route_key, 
+        pull_id, 
+        GROUP_CONCAT(spell_id ORDER BY spell_id ASC SEPARATOR ',') AS spells
+    FROM Mythistone.pull_spells
+    GROUP BY route_key, pull_id
+),
+RouteSignatures AS (
+    SELECT 
+        rp.route_key,
+        GROUP_CONCAT(
+            CONCAT('{E:', COALESCE(pe.enemies, ''), '}{S:', COALESCE(ps.spells, ''), '}') 
+            ORDER BY rp.pull_id ASC 
+            SEPARATOR ' | '
+        ) AS route_signature
+    FROM Mythistone.route_pulls rp
+    LEFT JOIN PullEnemies pe ON rp.route_key = pe.route_key AND rp.pull_id = pe.pull_id
+    LEFT JOIN PullSpells ps ON rp.route_key = ps.route_key AND rp.pull_id = ps.pull_id
+    GROUP BY rp.route_key
+),
+RankedRoutes AS (
+    SELECT 
+        rs.route_signature,
+        rs.route_key,
+        rd.rio_run_id as run_id,
+        rd.enemy_forces,
+        rd.timestamp,
+        rd.keystone_level,
+        rd.duration,
+        rd.dungeon_id,
+        COUNT(rs.route_key) OVER (PARTITION BY rs.route_signature) as usage_count,
+        ROW_NUMBER() OVER (PARTITION BY rs.route_signature ORDER BY rd.keystone_level DESC, rd.duration ASC) as rn
+    FROM RouteSignatures rs
+    JOIN Mythistone.route_data rd ON rs.route_key = rd.route_key
+    WHERE rd.dungeon_id = %s
+)
+SELECT 
+    route_key, 
+    enemy_forces, 
+    keystone_level, 
+    duration, 
+    timestamp, 
+    run_id,
+    usage_count
+FROM RankedRoutes
+WHERE rn = 1
+ORDER BY usage_count DESC
 LIMIT 5;
 """
 
