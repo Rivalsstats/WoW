@@ -9,7 +9,7 @@ if [ -f /app/.env ]; then
 fi
 
 # required envs
-REQUIRED=("WEBHOOK_URL" "DATABASE_HOST" "DATABASE_USER" "DATABASE_PASSWORD" "DATABASE_NAME" "DATABASE_PORT" "RAIDERIO_API_KEY")
+REQUIRED=("WEBHOOK_URL" "DATABASE_HOST" "DATABASE_USER" "DATABASE_PASSWORD" "DATABASE_NAME" "DATABASE_PORT" "RAIDERIO_API_KEY" "KEYSTONE_GURU_USER" "KEYSTONE_GURU_PW")
 missing=()
 for v in "${REQUIRED[@]}"; do
   if [ -z "${!v:-}" ]; then
@@ -31,7 +31,31 @@ done
 
 if [ "${#missing[@]}" -ne 0 ]; then
   echo "ERROR: missing required env vars: ${missing[*]}" >&2
+  if [ -n "${WEBHOOK_URL:-}" ]; then
+    payload="{\"status\":\"crash\",\"message\":\"Missing env vars: ${missing[*]}\",\"container\":\"${HOSTNAME:-unknown}\"}"
+    curl --max-time 5 -s -X POST -H "Content-Type: application/json" -d "$payload" "$WEBHOOK_URL" || true
+  fi
   exit 2
+fi
+
+# required static files
+REQUIRED_FILES=("/app/data/static/dungeons.json" "/app/data/static/specs.json")
+missing_files=()
+for f in "${REQUIRED_FILES[@]}"; do
+  if [ ! -f "$f" ]; then
+    missing_files+=("$f")
+  fi
+done
+
+if [ "${#missing_files[@]}" -ne 0 ]; then
+  echo "CRITICAL STARTUP ERROR: missing required static application files: ${missing_files[*]}" >&2
+  
+  if [ -n "${WEBHOOK_URL:-}" ]; then
+    payload="{\"status\":\"crash\",\"message\":\"Missing required static files: ${missing_files[*]}\",\"container\":\"${HOSTNAME:-unknown}\"}"
+    curl --max-time 5 -s -X POST -H "Content-Type: application/json" -d "$payload" "$WEBHOOK_URL" || true
+  fi
+  
+  exit 3
 fi
 
 send_webhook(){

@@ -17,6 +17,7 @@ COPY backend_scripts/discordHandler.py ${APP_DIR}/discordHandler.py
 COPY backend_scripts/databaseConnector.py ${APP_DIR}/databaseConnector.py
 RUN mkdir -p ${APP_DIR}/data/static
 COPY data/static/dungeons.json ${APP_DIR}/data/static/dungeons.json
+COPY data/static/specs.json ${APP_DIR}/data/static/specs.json
 
 # entrypoint and executable
 COPY entrypoint.sh /entrypoint.sh
