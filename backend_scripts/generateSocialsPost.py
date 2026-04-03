@@ -242,9 +242,89 @@ def fit_font_to_width(
     # if we never found a fitting Bebas font, fall back once here
     return ImageFont.load_default()
 
+def apply_watermark_to_canvas(canvas, position="top_right", padding_x=30, padding_y=20):
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+        import os
+        
+        canvas = canvas.convert("RGBA")
+        draw = ImageDraw.Draw(canvas)
+        logo_path = os.path.join("assets", "img", "favicon", "favicon-96x96.png")
+        if os.path.exists(logo_path):
+            try:
+                resample_filter = Image.Resampling.LANCZOS
+            except AttributeError:
+                resample_filter = Image.LANCZOS
+            logo = Image.open(logo_path).convert("RGBA").resize((40, 40), resample_filter)
+            logo_width, logo_height = logo.size
+        else:
+            logo = None
+            logo_width, logo_height = 0, 0
+
+        font_path = os.path.join("assets", "fonts", "BebasNeue-Regular.ttf")
+        font = ImageFont.truetype(font_path, 36)
+
+        text = "Mythistone.com"
+        box = draw.textbbox((0, 0), text, font=font)
+        text_width = box[2] - box[0]
+        text_height = box[3] - box[1]
+
+        gap = 10 if logo else 0
+        total_width = logo_width + gap + text_width
+        
+        view_w, view_h = canvas.size
+        
+        if position == "top_right":
+            start_x = view_w - total_width - padding_x
+            start_y = padding_y
+        elif position == "top_center":
+            start_x = (view_w - total_width) // 2
+            start_y = padding_y
+        elif position == "top_left":
+            start_x = padding_x
+            start_y = padding_y
+        elif position == "bottom_right":
+            start_x = view_w - total_width - padding_x
+            start_y = view_h - max(text_height, logo_height) - padding_y
+        elif position == "bottom_left":
+            start_x = padding_x
+            start_y = view_h - max(text_height, logo_height) - padding_y
+        else:
+            start_x = view_w - total_width - padding_x
+            start_y = padding_y
+
+        start_x = int(start_x)
+        start_y = int(start_y)
+
+        if logo_height > text_height:
+            text_y = int(start_y + (logo_height - text_height) // 2 - box[1])
+            logo_y = start_y
+        else:
+            text_y = int(start_y - box[1])
+            logo_y = int(start_y + (text_height - logo_height) // 2)
+
+        # Draw stroke/highlight
+        stroke_color = "black"
+        stroke_width = 2
+        for dx in range(-stroke_width, stroke_width + 1):
+            for dy in range(-stroke_width, stroke_width + 1):
+                draw.text((start_x + logo_width + gap + dx, text_y + dy), text, font=font, fill=stroke_color)
+
+        # Draw real text
+        draw.text((start_x + logo_width + gap, text_y), text, font=font, fill="white")
+
+        if logo:
+            canvas.paste(logo, (start_x, logo_y), logo)
+
+        return canvas
+    except Exception as e:
+        import traceback
+        print(f"Error applying watermark: {e}")
+        traceback.print_exc()
+        return canvas
 
 def create_MplusImage(
-    active_run, run, donesocials, check_socials=True, add_region=True, add_season=True
+    active_run, run, donesocials, check_socials=True, add_region=True, add_season=True, add_watermark=True
 ):
     dungeon_id = str(active_run["dungeon_id"])
     dungeon_meta = dungeon_lookup[dungeon_id]
@@ -374,6 +454,11 @@ def create_MplusImage(
 
     # --- save output ---
     os.makedirs(OUTPUT_DIR, exist_ok=True)
+    if add_watermark:
+        canvas = apply_watermark_to_canvas(canvas, position="top_right", padding_x=30, padding_y=30)
+
+    if out_path.lower().endswith((".jpg", ".jpeg")):
+        canvas = canvas.convert("RGB")
     canvas.save(out_path, format="PNG")
     return {
         "region": region,
@@ -630,10 +715,16 @@ def create_overall_spec_popularity(
         fontsize=SUBTITLE_SIZE,
         pad=20,
     )
-    plt.tight_layout()
-
+    plt.tight_layout(rect=[0, 0.08, 1, 1])
     plt.savefig(out_path, facecolor=fig.get_facecolor())
     plt.close(fig)
+    
+    with Image.open(out_path) as tmp_img:
+        img = tmp_img.convert("RGBA")
+    img = apply_watermark_to_canvas(img, position="bottom_right", padding_x=30, padding_y=10)
+    if out_path.lower().endswith((".jpg", ".jpeg")):
+        img = img.convert("RGB")
+    img.save(out_path)
 
     # prepare social post data using aggregated spec totals
     max_row = df.loc[df["total_keys"].idxmax()]
@@ -773,10 +864,17 @@ def create_spec_popularity_by_level(
         ax.add_artist(ab)
 
     ax.tick_params(axis="y", colors="white")
-    plt.tight_layout()
+    plt.tight_layout(rect=[0, 0.08, 1, 1])
 
     plt.savefig(out_path, facecolor=fig.get_facecolor())
     plt.close()
+
+    with Image.open(out_path) as tmp_img:
+        img = tmp_img.convert("RGBA")
+    img = apply_watermark_to_canvas(img, position="bottom_right", padding_x=30, padding_y=10)
+    if out_path.lower().endswith((".jpg", ".jpeg")):
+        img = img.convert("RGB")
+    img.save(out_path)
 
     # prepare social post data: find highest keylevel and top specs at that level
     if spec_upgrades:
@@ -892,10 +990,17 @@ def create_dungeon_popularity_vs_ease_img(out_path, season):
         fontsize=VERY_SMALL_SIZE,
     )
 
-    plt.tight_layout()
+    plt.tight_layout(rect=[0, 0.08, 1, 1])
 
     plt.savefig(out_path, facecolor=fig.get_facecolor())
     plt.close(fig)
+
+    with Image.open(out_path) as tmp_img:
+        img = tmp_img.convert("RGBA")
+    img = apply_watermark_to_canvas(img, position="bottom_right", padding_x=30, padding_y=10)
+    if out_path.lower().endswith((".jpg", ".jpeg")):
+        img = img.convert("RGB")
+    img.save(out_path)
 
     # assemble OpenAI post data
     post_data = {
@@ -1018,11 +1123,18 @@ def create_spec_popularity_vs_performance_img(
         expected = m * p["y"] + b
         p["residual"] = p["x"] - expected
 
-    plt.tight_layout()
+    plt.tight_layout(rect=[0, 0.08, 1, 1])
 
     plt.savefig(out_path)
 
     plt.close(fig)
+    
+    with Image.open(out_path) as tmp_img:
+        img = tmp_img.convert("RGBA")
+    img = apply_watermark_to_canvas(img, position="bottom_right", padding_x=30, padding_y=10)
+    if out_path.lower().endswith((".jpg", ".jpeg")):
+        img = img.convert("RGB")
+    img.save(out_path)
 
     most_overperforming = max(raw_points, key=lambda p: p["residual"])
     most_underperforming = min(raw_points, key=lambda p: p["residual"])
@@ -1237,9 +1349,16 @@ def create_dungeon_tierlist_img(
     ax.set_ylim(-0.5, len(tiers) - 0.5)
     ax.axis("off")
     plt.title("Dungeon Tier List", color="white", fontsize=SUBTITLE_SIZE, pad=20)
-    plt.tight_layout()
+    plt.tight_layout(rect=[0, 0.08, 1, 1])
     plt.savefig(out_path, facecolor=fig.get_facecolor())
     plt.close(fig)
+    
+    with Image.open(out_path) as tmp_img:
+        img = tmp_img.convert("RGBA")
+    img = apply_watermark_to_canvas(img, position="bottom_right", padding_x=30, padding_y=10)
+    if out_path.lower().endswith((".jpg", ".jpeg")):
+        img = img.convert("RGB")
+    img.save(out_path)
 
     # generate the social‐media post text
     best = df.iloc[0]
@@ -1325,7 +1444,7 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
         # runs
         highest = get_run_data(False, spec_id, season)
         highest_run = create_MplusImage(
-            highest, "highest_run", {}, False, False, False
+            highest, "highest_run", {}, False, False, False, False
         )
         spec_talent_overview = databaseConnector.fetch_spec_talent_overview(
             conn, cursor, spec_id, season
@@ -2163,6 +2282,10 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
     )
 
     os.makedirs(tmpdir, exist_ok=True)
+    canvas = apply_watermark_to_canvas(canvas, position="top_center", padding_x=30, padding_y=30)
+
+    if out_path.lower().endswith((".jpg", ".jpeg")):
+        canvas = canvas.convert("RGB")
     canvas.save(out_path)
 
     if hero_trees:
@@ -2178,6 +2301,23 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
         "top_hero_tree": top_hero_tree,
     }
     return {"out_path": out_path, "post_data": post_data}
+
+
+def createDungeonOverview(output_dir, donesocials, api_key, url, dungeon_id, season):
+    week = datetime.now().strftime("%Y-%m")
+    out_path = os.path.join(output_dir, f"dungeon_overview_{dungeon_id}_{week}.png")
+
+    if out_path in donesocials:
+        return None
+    
+    post_data = createDungeonOverviewImg('tmp', out_path, dungeon_id, season)
+    
+    if api_key is not None and post_data and post_data.get("post_data"):
+        print(post_data)
+        client = get_openai_client(api_key)
+        post = generate_post_text(client, post_data.get("post_data"), url)
+        return {"out_path": out_path, "post": post}
+    return {"out_path": out_path, "post": ""}
 
 
 def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cursor=None):
@@ -2447,8 +2587,96 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
             except Exception as e:
                 print(f"Error fetching thumbnail for route {top_route_key}: {str(e)}")
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    canvas = apply_watermark_to_canvas(canvas, position="top_right", padding_x=30, padding_y=30)
+    
+    if out_path.lower().endswith((".jpg", ".jpeg")):
+        canvas = canvas.convert("RGB")
     canvas.save(out_path)
-    return {"out_path": out_path}
+
+    post_data = {
+        "dungeon": name_text,
+        "amount_data_source_runs": humanize_number(play_count),
+        "top_route": f"keystone.guru/{top_routes_data[0]['route_key'] if isinstance(top_routes_data[0], dict) else top_routes_data[0][0]}" if top_routes_data else "Unknown"
+    }
+
+    return {"out_path": out_path, "post_data": post_data}
+
+def apply_watermark(image_path):
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+        import os
+        
+        # Load image and close file handle so we can overwrite it on Windows
+        with Image.open(image_path) as img:
+            canvas = img.convert("RGBA")
+            
+        draw = ImageDraw.Draw(canvas)
+        logo_path = os.path.join("assets", "img", "favicon", "favicon-96x96.png")
+        if os.path.exists(logo_path):
+            try:
+                resample_filter = Image.Resampling.LANCZOS
+            except AttributeError:
+                resample_filter = Image.LANCZOS
+            logo = Image.open(logo_path).convert("RGBA").resize((40, 40), resample_filter)
+            logo_width, logo_height = logo.size
+        else:
+            logo = None
+            logo_width, logo_height = 0, 0
+
+        font_path = os.path.join("assets", "fonts", "BebasNeue-Regular.ttf")
+        font = ImageFont.truetype(font_path, 36)
+
+        text = "Mythistone.com"
+        box = draw.textbbox((0, 0), text, font=font)
+        text_width = box[2] - box[0]
+        text_height = box[3] - box[1]
+
+        padding_x = 30
+        
+        # Adjust Y padding if this is a spec overview that has an icon in the top right
+        filename = os.path.basename(image_path).lower()
+        if "spec_overview" in filename:
+            padding_y = 120
+        else:
+            padding_y = 20
+
+        gap = 10 if logo else 0
+
+        total_width = logo_width + gap + text_width
+        start_x = int(canvas.width - total_width - padding_x)
+        start_y = padding_y
+
+        # Text y positioning
+        if logo_height > text_height:
+            text_y = int(start_y + (logo_height - text_height) // 2 - box[1])
+            logo_y = start_y
+        else:
+            text_y = int(start_y - box[1])
+            logo_y = int(start_y + (text_height - logo_height) // 2)
+
+        # Draw stroke/highlight
+        stroke_color = "black"
+        stroke_width = 2
+        for dx in range(-stroke_width, stroke_width + 1):
+            for dy in range(-stroke_width, stroke_width + 1):
+                draw.text((int(start_x + logo_width + gap + dx), int(text_y + dy)), text, font=font, fill=stroke_color)
+
+        # Draw real text
+        draw.text((int(start_x + logo_width + gap), int(text_y)), text, font=font, fill="white")
+
+        if logo:
+            canvas.paste(logo, (int(start_x), int(logo_y)), logo)
+
+        if image_path.lower().endswith((".jpg", ".jpeg")):
+            final_img = canvas.convert("RGB")
+        else:
+            final_img = canvas
+
+        final_img.save(image_path)
+    except Exception as e:
+        import traceback
+        print(f"Error applying watermark to {image_path}: {e}")
+        traceback.print_exc()
 
 def create_socials_post(donesocials, api_key, url):
     """
@@ -2459,6 +2687,13 @@ def create_socials_post(donesocials, api_key, url):
 
     # Prepare spec IDs for spec overview
     specs = [f for f in spec_lookup.keys()]
+    
+    # Prepare dungeon IDs for dungeon overview
+    dungeons = []
+    if isinstance(dungeon_lookup, dict):
+        dungeons = [d.get("id", k) for k, d in dungeon_lookup.items()]
+    elif isinstance(dungeon_lookup, list):
+        dungeons = [d.get("id") for d in dungeon_lookup]
 
     access_token = aggregateData.get_access_token(
         os.environ["CLIENT_ID"], os.environ["CLIENT_SECRET"]
@@ -2475,6 +2710,16 @@ def create_socials_post(donesocials, api_key, url):
             )
 
         spec_generators.append(make_spec_gen(spec_id))
+
+    # Create dungeon-specific generators
+    dungeon_generators = []
+    for dungeon_id in dungeons:
+        def make_dungeon_gen(did):
+            return lambda: createDungeonOverview(
+                OUTPUT_DIR, donesocials, api_key, url, did, current_season_id
+            )
+        
+        dungeon_generators.append(make_dungeon_gen(dungeon_id))
 
     # Other generators
     def gen_dungeon_tier():
@@ -2518,7 +2763,7 @@ def create_socials_post(donesocials, api_key, url):
     ] + [make_run_gen(rt) for rt in run_types]
 
     # Combine all generators
-    generators = spec_generators + other_generators
+    generators = spec_generators + other_generators + dungeon_generators
 
     # Assign weight: each spec generator weight=1 (total spec weight = len(specs)), others weight=1
     weights = [1] * len(generators)
@@ -2535,6 +2780,10 @@ def create_socials_post(donesocials, api_key, url):
         if post:
             out_path = post.get("out_path")
             if out_path not in donesocials:
+                if out_path:
+                    # Add Logo/Watermark
+                    apply_watermark(out_path)
+                
                 donesocials[out_path] = {
                     "post": post["post"],
                     "timestamp": int(time.time() * 1000),
