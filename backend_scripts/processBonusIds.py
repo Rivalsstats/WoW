@@ -136,14 +136,33 @@ def main():
             with open(out_path, "w", encoding="utf-8") as f:
                 json.dump(lookup, f, indent=2, sort_keys=True)
             print(f"Wrote {len(lookup)} mappings for “{slot_name}” → {out_path}")
-        databaseConnector.commit_changes(conn)
+        
+# Build and write bonus quality map
         bonuses = load_json(BONUSES_JSON)
         quality_map = build_bonus_quality_map(bonuses)
+
+        # We've stopped inserting crafting_quality_bonuses as it was replaced by equippable-items.json profession lookup
+
+        databaseConnector.commit_changes(conn)
+
         bonus_map_path = os.path.join(OUT_DIR, "bonus_quality_map.json")
         write_json(quality_map, bonus_map_path)
         print(
             f"Wrote bonus-quality map with {len(quality_map)} entries to {bonus_map_path}"
         )
+
+        
+        # Populate crafted_item_ids table by parsing equippable-items.json
+        equippable_items = load_json(os.path.join(OUT_DIR, "equippable-items.json"))
+        crafted_count = 0
+        for item in equippable_items:
+            if "profession" in item:
+                # This item can be crafted
+                databaseConnector.insert_crafted_item_id(conn, cursor, item["id"])
+                crafted_count += 1
+                
+        databaseConnector.commit_changes(conn)
+        print(f"Inserted {crafted_count} crafted items into crafted_item_ids table.")
 
 
 if __name__ == "__main__":

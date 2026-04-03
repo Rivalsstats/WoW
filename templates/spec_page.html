@@ -216,7 +216,7 @@
     content="{{ spec.name }} {{ class_info.name }} in {{ season_info.name }} Mythic+ Build & Gear Guide">
   <meta property="og:description"
     content="See the top talents, gear, enchants and socket setup for {{ spec.name }} {{ class_info.name }} Mythic+ players in {{ season_info.name }}, sourced from {{ total_season_runs | humanize }} runs.">
-    <meta property="og:image" content="https://mythistone.com/assets/img/previews/{{spec.name}}_{{class_info.name}}.png">
+  <meta property="og:image" content="https://mythistone.com/assets/img/previews/{{spec.name}}_{{class_info.name}}.png">
   <meta property="og:image:alt" content="{{ spec.name }} icon">
   <meta property="og:locale" content="en_US">
 
@@ -228,7 +228,7 @@
     content="{{ spec.name }} {{ class_info.name }} in {{ season_info.name }} Mythic+ Build & Gear Guide ">
   <meta name="twitter:description"
     content="Break down the best Mythic+ build for {{ spec.name }} {{ class_info.name }}—talents, gear, enchants, gems—based on real data from {{ total_season_runs | humanize }} runs.">
-    <meta name="twitter:image" content="https://mythistone.com/assets/img/previews/{{spec.name}}_{{class_info.name}}.png">
+  <meta name="twitter:image" content="https://mythistone.com/assets/img/previews/{{spec.name}}_{{class_info.name}}.png">
 
   <!-- Mobile / Theme -->
   <meta name="theme-color" content="#1a202c">
@@ -1109,6 +1109,65 @@
                 </div>
               </div>
             </div>
+
+            {% if crafted_items and crafted_items|length > 0 %}
+            <div class="d-flex flex-column flex-md-row gap-3 mt-4">
+              <!-- Crafted Items Overview-->
+              <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
+                <div class="accordion mx-2" id="craftedAccordion">
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingCrafted">
+                      <button class="accordion-button collapsed fw-semibold text-center w-100" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#collapseCrafted" aria-expanded="false"
+                        aria-controls="collapseCrafted">
+                        Top Crafted Items
+                      </button>
+                    </h2>
+                    <div id="collapseCrafted" class="accordion-collapse collapse w-100" aria-labelledby="headingCrafted"
+                      data-bs-parent="#craftedAccordion">
+                      <div class="accordion-body">
+                        <div class="row">
+                          <div class="col-12">
+                            <!-- Crafted Items list -->
+                            {% for pair in crafted_items %}
+                            {% set item = pair[0] %}
+                            {% set total = pair[1] %}
+                            {% if item_lookup[item|int] %}
+                            <div class="row align-items-center mb-2">
+                              <!-- Item icon & link -->
+                              <div class="col-auto">
+                                <a target="_blank" href="https://www.wowhead.com/item={{ item }}&spec={{ spec_id }}"
+                                  class="icon-link position-relative" style="width:24px; height:24px;">
+                                  <img src="/data/icons/{{ item_lookup[item|int].icon }}.png" alt=""
+                                    class="base-icon border {% if item_lookup[item|int].quality %}border-quality-{{item_lookup[item|int].quality}}{% else %}border-grey-100{% endif %}">
+                                </a>
+                              </div>
+                              <!-- Name -->
+                              <div class="col">
+                                <a target="_blank" href="https://www.wowhead.com/item={{ item }}&spec={{ spec_id }}">
+                                  <p class="mb-1">{{ item_lookup[item|int].name }}</p>
+                                </a>
+                              </div>
+                              <!-- Popularity % -->
+                              <div class="col-auto ms-auto text-end d-flex align-items-center">
+                                <p data-bs-toggle="tooltip" data-bs-placement="top"
+                                  title="{{ total }} seen in {{total_crafted_items}} runs" class="mb-0">
+                                  {%if total_crafted_items > 0%}
+                                  {%if (total / total_crafted_items * 100) < 100%} {{ '%.0f' % (total /
+                                    total_crafted_items * 100) }} {%else%} 100 {%endif%}% {%else%} 0% {%endif%} </p>
+                              </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
             {% if hunter_pets and hunter_pets|length > 0 %}
             <div class="d-flex flex-column flex-md-row gap-3 mt-4">
               {# Hunter Pets Overview #}
@@ -1428,8 +1487,8 @@
                 aria-labelledby="routeDungeonHeading-{{ ds }}" data-bs-parent="#routeDungeonAccordion">
                 <div class="accordion-body">
                   Route Taken from + {{top_routes[ds].highest_key}}. Checkout full run
-                  details: <a
-                    href="https://raider.io/mythic-plus-runs/{{season_info.slug}}/{{top_routes[ds].run_id}}"> On Raider.io
+                  details: <a href="https://raider.io/mythic-plus-runs/{{season_info.slug}}/{{top_routes[ds].run_id}}">
+                    On Raider.io
                     <img src="/assets/img/logos/RaiderIOLogo.png" alt="RaiderIo run link" title="RaiderIo run link"
                       class="me-1" height="24em" width="24em" /></a>
                   <div class="iframe-container position-relative">

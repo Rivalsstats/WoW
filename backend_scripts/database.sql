@@ -27,6 +27,38 @@ CREATE TABLE `aggregated_character_stats` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
+-- Mythistone.aggregated_dungeon_comps definition
+
+CREATE TABLE `aggregated_dungeon_comps` (
+  `dungeon_id` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `season` int NOT NULL,
+  `comp` varchar(255) NOT NULL,
+  `run_count` bigint unsigned NOT NULL,
+  PRIMARY KEY (`dungeon_id`,`season`,`comp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- Mythistone.aggregated_dungeon_global_specs definition
+
+CREATE TABLE `aggregated_dungeon_global_specs` (
+  `season` int NOT NULL,
+  `spec_id` int NOT NULL,
+  `run_count` bigint unsigned NOT NULL,
+  PRIMARY KEY (`season`,`spec_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- Mythistone.aggregated_dungeon_specs definition
+
+CREATE TABLE `aggregated_dungeon_specs` (
+  `dungeon_id` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `season` int NOT NULL,
+  `spec_id` int NOT NULL,
+  `run_count` bigint unsigned NOT NULL,
+  PRIMARY KEY (`dungeon_id`,`season`,`spec_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
 -- Mythistone.aggregated_spec definition
 
 CREATE TABLE `aggregated_spec` (
@@ -37,6 +69,14 @@ CREATE TABLE `aggregated_spec` (
   `hero_talent_id` int unsigned NOT NULL DEFAULT '0',
   `season` int unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`keystone_level`,`spec_id`,`upgrade_tier`,`hero_talent_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- Mythistone.crafted_item_ids definition
+
+CREATE TABLE `crafted_item_ids` (
+  `item_id` int NOT NULL,
+  PRIMARY KEY (`item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -72,6 +112,17 @@ CREATE TABLE `global_aggregated_bonus_lists` (
   `bonus_hash` char(32) GENERATED ALWAYS AS (md5(`bonus_list`)) STORED NOT NULL,
   `run_count` bigint NOT NULL DEFAULT '0',
   PRIMARY KEY (`spec_id`,`season`,`item_id`,`bonus_hash`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- Mythistone.global_aggregated_crafted_items definition
+
+CREATE TABLE `global_aggregated_crafted_items` (
+  `spec_id` int NOT NULL,
+  `season` int NOT NULL,
+  `item_id` int NOT NULL,
+  `run_count` bigint NOT NULL DEFAULT '0',
+  PRIMARY KEY (`spec_id`,`season`,`item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -173,7 +224,7 @@ CREATE TABLE `members` (
   `loadout` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `hero_talent_id` int DEFAULT NULL,
   PRIMARY KEY (`member`)
-) /*!50100 TABLESPACE `members` */ ENGINE=InnoDB AUTO_INCREMENT=86857981 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) /*!50100 TABLESPACE `members` */ ENGINE=InnoDB AUTO_INCREMENT=90474359 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.missives definition
@@ -241,6 +292,24 @@ CREATE TABLE `aggregated_class_talent` (
   PRIMARY KEY (`spec_id`,`season`,`dungeon_id`,`talent_id`,`hero_talent_id`),
   KEY `dungeon_id` (`dungeon_id`),
   CONSTRAINT `aggregated_class_talent_ibfk_1` FOREIGN KEY (`dungeon_id`) REFERENCES `dungeon_data` (`dungeon_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- Mythistone.aggregated_crafted_items definition
+
+CREATE TABLE `aggregated_crafted_items` (
+  `spec_id` int NOT NULL,
+  `season` int NOT NULL DEFAULT '0',
+  `dungeon_id` varchar(100) NOT NULL,
+  `keystone_level` int unsigned NOT NULL,
+  `upgrade_tier` enum('1','2','3','depleted') NOT NULL,
+  `hero_talent_id` int NOT NULL DEFAULT '0',
+  `item_id` int NOT NULL,
+  `run_count` bigint NOT NULL DEFAULT '0',
+  PRIMARY KEY (`spec_id`,`season`,`dungeon_id`,`keystone_level`,`upgrade_tier`,`hero_talent_id`,`item_id`),
+  KEY `idx_agg_crafted_spec_season_item` (`spec_id`,`season`,`item_id`),
+  KEY `aggregated_crafted_items_fk_dd` (`dungeon_id`),
+  CONSTRAINT `aggregated_crafted_items_fk_dd` FOREIGN KEY (`dungeon_id`) REFERENCES `dungeon_data` (`dungeon_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -422,7 +491,7 @@ CREATE TABLE `equipment` (
   PRIMARY KEY (`equipment_id`),
   KEY `equipment_run_members_FK` (`member`),
   CONSTRAINT `equipment_run_members_FK` FOREIGN KEY (`member`) REFERENCES `members` (`member`) ON DELETE CASCADE ON UPDATE CASCADE
-) /*!50100 TABLESPACE `equipments` */ ENGINE=InnoDB AUTO_INCREMENT=177210819 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) /*!50100 TABLESPACE `equipments` */ ENGINE=InnoDB AUTO_INCREMENT=209345469 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.hero_talents definition
@@ -444,7 +513,7 @@ CREATE TABLE `route_pulls` (
   PRIMARY KEY (`pull_id`,`route_key`),
   KEY `route_pulls_route_data_FK` (`route_key`),
   CONSTRAINT `route_pulls_route_data_FK` FOREIGN KEY (`route_key`) REFERENCES `route_data` (`route_key`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=194430 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=214004 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.route_specs definition
@@ -456,7 +525,7 @@ CREATE TABLE `route_specs` (
   PRIMARY KEY (`id`),
   KEY `idx_route_key` (`route_key`),
   CONSTRAINT `route_specs_route_data_FK` FOREIGN KEY (`route_key`) REFERENCES `route_data` (`route_key`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=67764 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=73435 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.runs definition
@@ -473,7 +542,7 @@ CREATE TABLE `runs` (
   PRIMARY KEY (`run_id`),
   UNIQUE KEY `runs_unique` (`dungeon_id`,`keystone_level`,`duration`,`timestamp`,`faction`,`region`,`season`),
   CONSTRAINT `runs_dungeon_data_FK` FOREIGN KEY (`dungeon_id`) REFERENCES `dungeon_data` (`dungeon_id`)
-) /*!50100 TABLESPACE `ts_runs` */ ENGINE=InnoDB AUTO_INCREMENT=44891272 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) /*!50100 TABLESPACE `ts_runs` */ ENGINE=InnoDB AUTO_INCREMENT=46449868 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.sockets definition
@@ -486,7 +555,7 @@ CREATE TABLE `sockets` (
   PRIMARY KEY (`socket_id_pk`),
   KEY `sockets_equipment_FK` (`equipment_id`),
   CONSTRAINT `sockets_equipment_FK` FOREIGN KEY (`equipment_id`) REFERENCES `equipment` (`equipment_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=974330 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6031911 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.spec_talents definition
@@ -520,7 +589,7 @@ CREATE TABLE `enchantments` (
   PRIMARY KEY (`enchantment_id_pk`),
   KEY `enchantments_equipment_FK` (`equipment_id`),
   CONSTRAINT `enchantments_equipment_FK` FOREIGN KEY (`equipment_id`) REFERENCES `equipment` (`equipment_id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=2174342 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14404633 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.pull_enemies definition
@@ -559,84 +628,3 @@ CREATE TABLE `run_members` (
   CONSTRAINT `run_members_members_FK` FOREIGN KEY (`member`) REFERENCES `members` (`member`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `run_members_runs_FK` FOREIGN KEY (`run_id`) REFERENCES `runs` (`run_id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) /*!50100 TABLESPACE `ts_run_members` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- Mythistone.aggregated_dungeon_specs definition
-
-CREATE TABLE `aggregated_dungeon_specs` (
-  `dungeon_id` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `season` int NOT NULL,
-  `spec_id` int NOT NULL,
-  `run_count` bigint unsigned NOT NULL,
-  PRIMARY KEY (`dungeon_id`,`season`,`spec_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- Mythistone.aggregated_dungeon_global_specs definition
-
-CREATE TABLE `aggregated_dungeon_global_specs` (
-  `season` int NOT NULL,
-  `spec_id` int NOT NULL,
-  `run_count` bigint unsigned NOT NULL,
-  PRIMARY KEY (`season`,`spec_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- Mythistone.aggregated_dungeon_comps definition
-
-CREATE TABLE `aggregated_dungeon_comps` (
-  `dungeon_id` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `season` int NOT NULL,
-  `comp` varchar(255) NOT NULL,
-  `run_count` bigint unsigned NOT NULL,
-  PRIMARY KEY (`dungeon_id`,`season`,`comp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-CREATE EVENT ev_update_dungeon_specs
-ON SCHEDULE EVERY 1 DAY
-STARTS '2025-09-02 03:00:00.000'
-ON COMPLETION NOT PRESERVE
-ENABLE
-DO BEGIN
-  -- reduce locking contention and favour low-priority writes
-  SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-  SET SESSION LOW_PRIORITY_UPDATES = 1;
-
-  -- Update aggregated_dungeon_specs
-  TRUNCATE TABLE aggregated_dungeon_specs;
-  INSERT LOW_PRIORITY INTO aggregated_dungeon_specs
-    (dungeon_id, season, spec_id, run_count)
-  SELECT 
-    R.dungeon_id, R.season, M.spec_id, COUNT(*) AS run_count
-  FROM runs R
-  JOIN run_members RM ON R.run_id = RM.run_id
-  JOIN members M ON RM.member = M.member
-  WHERE R.keystone_level >= 10
-  GROUP BY R.dungeon_id, R.season, M.spec_id;
-
-  -- Update aggregated_dungeon_global_specs
-  TRUNCATE TABLE aggregated_dungeon_global_specs;
-  INSERT LOW_PRIORITY INTO aggregated_dungeon_global_specs
-    (season, spec_id, run_count)
-  SELECT 
-    season, spec_id, SUM(run_count) AS run_count
-  FROM aggregated_dungeon_specs
-  GROUP BY season, spec_id;
-
-  -- Update aggregated_dungeon_comps
-  TRUNCATE TABLE aggregated_dungeon_comps;
-  INSERT LOW_PRIORITY INTO aggregated_dungeon_comps
-    (dungeon_id, season, comp, run_count)
-  SELECT
-    dungeon_id, season, comp, COUNT(*) as run_count
-  FROM (
-      SELECT 
-        R.dungeon_id, 
-        R.season, 
-        GROUP_CONCAT(M.spec_id ORDER BY M.spec_id SEPARATOR ',') as comp
-      FROM runs R
-      JOIN run_members RM ON R.run_id = RM.run_id
-      JOIN members M ON RM.member = M.member
-      WHERE R.keystone_level >= 10
-      GROUP BY R.run_id, R.dungeon_id, R.season
-  ) AS rc
-  GROUP BY dungeon_id, season, comp;
-
-END;

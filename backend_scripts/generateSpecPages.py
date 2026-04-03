@@ -753,6 +753,13 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     conn, cursor, spec_id, current_season_id
                 )
                 total_embellishment_count = sum(e[1] for e in embellishments)
+                print(
+                    f"[{datetime.now(timezone.utc).isoformat()}] fetching crafted items..."
+                )
+                crafted_items = databaseConnector.fetch_crafted_items_count(
+                    conn, cursor, spec_id, current_season_id
+                )
+                total_crafted_items_count = sum(e[1] for e in crafted_items)
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching sockets...")
                 sockets = aggregateData.get_sockets(
                     conn, cursor, spec_id, current_season_id
@@ -900,6 +907,8 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 current_spec=f"{spec_data['name']} {class_data.get('name')}",
                 sockets=sockets,
                 embellishments=embellishments,
+                crafted_items=crafted_items,
+                total_crafted_items=total_crafted_items_count,
                 missives=missives,
                 formatted_price=formatted_price,
                 stat_names=STAT_NAMES,

@@ -889,11 +889,18 @@ INSERT_EMBELLISHMENT_SQL = """
 INSERT IGNORE INTO embellishments (`bonus_id`, `item_id`) VALUES (%s, %s)
 """
 
-
 def insert_embellishment(connection, cursor, bonus_id, item_id):
     """Insert a new embellishment into the database."""
     params = (bonus_id, item_id)
     return execute_with_retry(connection, cursor, INSERT_EMBELLISHMENT_SQL, params)
+
+INSERT_CRAFTED_ITEM_ID_SQL = """
+  INSERT IGNORE INTO crafted_item_ids (`item_id`) VALUES (%s)
+"""
+
+def insert_crafted_item_id(connection, cursor, item_id):
+    params = (item_id,)
+    return execute_with_retry(connection, cursor, INSERT_CRAFTED_ITEM_ID_SQL, params)
 
 
 INSERT_MISSIVE_SQL = """
@@ -935,6 +942,22 @@ def fetch_embellishment_count(connection, cursor, spec_id, season):
     """Fetch the embellishment count for a specific spec and season from the database."""
     params = (spec_id, season)
     return fetch_with_retry(connection, cursor, FETCH_EMBELLISHMENT_COUNT_SQL, params)
+
+
+FETCH_CRAFTED_ITEMS_COUNT_SQL = """
+SELECT item_id, run_count AS total_runs
+FROM Mythistone.global_aggregated_crafted_items
+WHERE spec_id = %s
+  AND season = %s
+ORDER BY total_runs DESC
+LIMIT 10
+"""
+
+
+def fetch_crafted_items_count(connection, cursor, spec_id, season):
+    """Fetch the crafted items count for a specific spec and season from the database."""
+    params = (spec_id, season)
+    return fetch_with_retry(connection, cursor, FETCH_CRAFTED_ITEMS_COUNT_SQL, params)
 
 
 FETCH_TOTAL_SEASON_RUNS_SQL = """
