@@ -2298,6 +2298,10 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
         if not comp_str:
             continue
         spec_ids = comp_str.split(',')
+        spec_ids = sorted(
+            spec_ids,
+            key=lambda sid: (int(spec_lookup[sid]["role"]) if sid in spec_lookup else 99, int(sid)),
+        )
         x_offset = 50
         for sid in spec_ids:
             if sid in spec_lookup:
@@ -2325,6 +2329,24 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
             print("Top route key is missing or empty, cannot fetch thumbnail.")
         if top_route_key:
             print(f"Fetching thumbnail for top route: {top_route_key}")
+            
+            auth = requests.auth.HTTPBasicAuth(os.environ.get("KEYSTONE_GURU_USER", ""), os.environ.get("KEYSTONE_GURU_PW", ""))
+            
+            # Step 1: Check if this dungeon has combined view enabled
+            combined_view_enabled = False
+            try:
+                dungeon_r = requests.get('https://keystone.guru/api/v1/dungeon', timeout=20, auth=auth)
+                if dungeon_r.status_code == 200:
+                    dungeons_data = dungeon_r.json().get('data', [])
+                    for d in dungeons_data:
+                        d_name = d.get("name", "")
+                        d_key = d.get("key", d.get("slug", ""))
+                        if str(d.get("gameVersionId")) == str(dungeon_id) or str(d.get("id")) == str(dungeon_id) or d_name == name_text or d_key == dungeon_meta.get("slug"):
+                            combined_view_enabled = d.get("combinedViewEnabled", False)
+                            break
+            except Exception as e:
+                print(f"Error fetching dungeons from keystone.guru: {e}")
+
             url = f'https://keystone.guru/api/v1/route/{top_route_key}/thumbnail'
             payload = {
               "viewportWidth": 900,
@@ -2335,30 +2357,38 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
               "quality": 90
             }
             try:
-                auth = requests.auth.HTTPBasicAuth(os.environ.get("KEYSTONE_GURU_USER", ""), os.environ.get("KEYSTONE_GURU_PW", ""))
                 r = requests.post(url, json=payload, timeout=20, auth=auth)
                 if r.status_code == 200:
                     resp_data = r.json()
-                    if "data" in resp_data and len(resp_data["data"]) > 0:
-                        job = resp_data["data"][0]
+                    jobs = resp_data.get("data", [])
+                    if jobs:
+                        # Important: If combined view exists use the thumbnail of the last floor otherwise use the first floor
+                        if combined_view_enabled:
+                            job = max(jobs, key=lambda x: x.get("floorIndex", 0))
+                        else:
+                            job = min(jobs, key=lambda x: x.get("floorIndex", 0))
+
                         status = job.get("status")
 
                         if status in ["queued", "processing", "error"]:
                             status_url = job["links"]["status"]
-                            for _ in range(15): # wait up to 30 seconds
-                                time.sleep(2)
+                            for _ in range(15): # wait up to 2 minutes
+                                time.sleep(8)
                                 poll_r = requests.get(status_url, auth=auth, timeout=10)
                                 if poll_r.status_code == 200:
                                     poll_data = poll_r.json()
-                                    status = poll_data["data"].get("status")
+                                    poll_job = poll_data.get("data", {})
+                                    status = poll_job.get("status")
                                     if status == "completed":
-                                        job = poll_data["data"]
+                                        job = poll_job
                                         break
 
                         if status == "completed" and job.get("links", {}).get("result"):
                             img_url = job["links"]["result"]
+                            print(f"Thumbnail ready, fetching image from {img_url}...")
                             img_r = requests.get(img_url, timeout=20)
                             if img_r.status_code == 200:
+                                print("Thumbnail image fetched successfully, processing image...")
                                 route_img = Image.open(io.BytesIO(img_r.content)).convert("RGBA")
                                 # Resize map to fix right side smoothly
                                 target_w = 600
@@ -2387,6 +2417,29 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
                                     stroke_width=2,
                                     stroke_fill=(0, 0, 0),
                                 )
+                                
+                                # Add team comp for this route
+                                if isinstance(top_routes_data[0], dict) and top_routes_data[0].get('specs'):
+                                    route_specs = top_routes_data[0]['specs']
+                                    if route_specs:
+                                        r_spec_ids = sorted(
+                                            [str(s) for s in route_specs],
+                                            key=lambda sid: (int(spec_lookup[sid]["role"]) if sid in spec_lookup else 99, int(sid)),
+                                        )
+                                        icon_w = 40
+                                        comp_x = img_x + target_w - (len(r_spec_ids) * (icon_w + 5))
+                                        comp_y = img_y - 45
+                                        
+                                        for sid in r_spec_ids:
+                                            if sid in spec_lookup:
+                                                r_icon_file = os.path.join(ICON_DIR, f"{spec_lookup[sid]['SpellIconFileId']}.jpg")
+                                                if os.path.exists(r_icon_file):
+                                                    from PIL import Image as PilImage
+                                                    r_img = PilImage.open(r_icon_file).convert("RGBA").resize((icon_w, icon_w), Image.LANCZOS)
+                                                    canvas.paste(r_img, (int(comp_x), int(comp_y)), r_img)
+                                            comp_x += (icon_w + 5)
+                            else:
+                                print(f"Getting image for {top_route_key} failed. Status: {img_r.status_code}")
                         else:
                             print(f"Thumbnail job for {top_route_key} failed or missing result. Status: {status}")
                 else:
