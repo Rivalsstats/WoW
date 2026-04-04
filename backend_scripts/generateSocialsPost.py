@@ -2282,7 +2282,7 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
     )
 
     os.makedirs(tmpdir, exist_ok=True)
-    canvas = apply_watermark_to_canvas(canvas, position="top_center", padding_x=30, padding_y=30)
+    canvas = apply_watermark_to_canvas(canvas, position="top_center", padding_x=30, padding_y=2)
 
     if out_path.lower().endswith((".jpg", ".jpeg")):
         canvas = canvas.convert("RGB")
@@ -2780,9 +2780,6 @@ def create_socials_post(donesocials, api_key, url):
         if post:
             out_path = post.get("out_path")
             if out_path not in donesocials:
-                if out_path:
-                    # Add Logo/Watermark
-                    apply_watermark(out_path)
                 
                 donesocials[out_path] = {
                     "post": post["post"],
