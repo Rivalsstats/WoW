@@ -705,7 +705,7 @@
                           <div class="col-12">
                             <!-- Enchantment list -->
                             {% for slot_name, ench_list in enchant_slots.items() %}
-                            {% if ench_list and ench_list | length > 0 %}
+                            {% if ench_list and ench_list | length > 0 and total_enchant_counts[slot_name] >= (summary_data.count * 0.01) %}
                             {% set top = ench_list[0] %}
                             {% set total = top.count %}
                             {% set enchant = top.id %}
