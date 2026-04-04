@@ -145,9 +145,23 @@
   <!-- Popularity % -->
   <div class="col-auto text-end">
     <p data-bs-toggle="tooltip" data-bs-placement="top" title="{{ entry.count }} seen out of {{slot_count}} items"
-      class="mb-0">
+      class="mb-0 fs-5">
       {%if (entry.count / slot_count * 100) < 100%} {{ '%.0f' % (entry.count / slot_count * 100) }} {%else%} 100
-        {%endif%}% </p>
+        {%endif%}%
+    </p>
+    {% if entry.max_timed_key or entry.max_depleted_key %}
+    <div class="mt-1 mb-1">
+      <span class="badge border border-white text-white bg-transparent py-1 px-2" style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
+            data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" 
+            title="{% if entry.max_timed_key %}Highest Timed: +{{ entry.max_timed_key }}{% endif %}{% if entry.max_timed_key and entry.max_depleted_key %}<br>{% endif %}{% if entry.max_depleted_key %}Highest Depleted: +{{ entry.max_depleted_key }}{% endif %}">
+        {% if entry.max_timed_key %}
+          +{{ entry.max_timed_key }}
+        {% else %}
+          +{{ entry.max_depleted_key }} (D)
+        {% endif %}
+      </span>
+    </div>
+    {% endif %}
   </div>
 </{{ tag }}>
 {%- endmacro %}
@@ -829,13 +843,26 @@
                                         {% endif %}
                                       </div>
                                       <!-- Popularity % -->
-                                      <div class="col-auto ms-auto text-end d-flex align-items-center">
+                                      <div class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
 
                                         <p data-bs-toggle="tooltip" data-bs-placement="top"
                                           title="{{ total }} seen in {{ total_enchant_counts[slot_name] }} total enchants"
                                           class="mb-0">
                                           {{ '%.0f' % ((total / total_enchant_counts[slot_name] * 100) if total /
                                           total_enchant_counts[slot_name] * 100 < 100 else 100) }}% </p>
+                                        {% if ench.max_timed_key or ench.max_depleted_key %}
+                                        <div class="mt-1 mb-1">
+                                          <span class="badge border border-white text-white bg-transparent py-1 px-2" style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
+                                                data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" 
+                                                title="{% if ench.max_timed_key %}Highest Timed: +{{ ench.max_timed_key }}{% endif %}{% if ench.max_timed_key and ench.max_depleted_key %}<br>{% endif %}{% if ench.max_depleted_key %}Highest Depleted: +{{ ench.max_depleted_key }}{% endif %}">
+                                            {% if ench.max_timed_key %}
+                                              +{{ ench.max_timed_key }}
+                                            {% else %}
+                                              +{{ ench.max_depleted_key }} (D)
+                                            {% endif %}
+                                          </span>
+                                        </div>
+                                        {% endif %}
                                       </div>
                                     </div>
                                     {% endfor %}
@@ -923,11 +950,24 @@
                                 {% endif %}
                               </div>
                               <!-- Popularity % -->
-                              <div class="col-auto ms-auto text-end d-flex align-items-center">
+                              <div class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
                                 <p data-bs-toggle="tooltip" data-bs-placement="top"
                                   title="{{ total }} out of {{total_socket_count}} gems" class="mb-0">
                                   {%if (total / total_socket_count * 100) < 100%} {{ '%.0f' % (total /
                                     total_socket_count * 100) }} {%else%} 100 {%endif%}% </p>
+                                {% if s.max_timed_key or s.max_depleted_key %}
+                                <div class="mt-1 mb-1">
+                                  <span class="badge border border-white text-white bg-transparent py-1 px-2" style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
+                                        data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" 
+                                        title="{% if s.max_timed_key %}Highest Timed: +{{ s.max_timed_key }}{% endif %}{% if s.max_timed_key and s.max_depleted_key %}<br>{% endif %}{% if s.max_depleted_key %}Highest Depleted: +{{ s.max_depleted_key }}{% endif %}">
+                                    {% if s.max_timed_key %}
+                                      +{{ s.max_timed_key }}
+                                    {% else %}
+                                      +{{ s.max_depleted_key }} (D)
+                                    {% endif %}
+                                  </span>
+                                </div>
+                                {% endif %}
                               </div>
                             </div>
                             {% endfor %}
@@ -1008,11 +1048,24 @@
                                 {% endif %}
                               </div>
                               <!-- Popularity % -->
-                              <div class="col-auto ms-auto text-end d-flex align-items-center">
+                              <div class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
                                 <p data-bs-toggle="tooltip" data-bs-placement="top"
                                   title="{{ total }} seen in {{total_embellishment_count}} runs" class="mb-0">
                                   {%if (total / total_embellishment_count * 100) < 100%} {{ '%.0f' % (total /
                                     total_embellishment_count * 100) }} {%else%} 100 {%endif%}% </p>
+                                {% if pair[2] or pair[3] %}
+                                <div class="mt-1 mb-1">
+                                  <span class="badge border border-white text-white bg-transparent py-1 px-2" style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
+                                        data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" 
+                                        title="{% if pair[2] %}Highest Timed: +{{ pair[2] }}{% endif %}{% if pair[2] and pair[3] %}<br>{% endif %}{% if pair[3] %}Highest Depleted: +{{ pair[3] }}{% endif %}">
+                                    {% if pair[2] %}
+                                      +{{ pair[2] }}
+                                    {% else %}
+                                      +{{ pair[3] }} (D)
+                                    {% endif %}
+                                  </span>
+                                </div>
+                                {% endif %}
                               </div>
                             </div>
                             {% endfor %}
@@ -1092,11 +1145,24 @@
                                   {% endif %}
                                 </div>
                                 <!-- Popularity % -->
-                                <div class="col-auto ms-auto text-end d-flex align-items-center">
+                                <div class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
                                   <p data-bs-toggle="tooltip" data-bs-placement="top"
                                     title="{{ total }} seen in {{total_missive_count}} runs" class="mb-0">
                                     {%if (total / total_missive_count * 100) < 100%} {{ '%.0f' % (total /
                                       total_missive_count * 100) }} {%else%} 100 {%endif%}% </p>
+                                  {% if pair[2] or pair[3] %}
+                                  <div class="mt-1 mb-1">
+                                    <span class="badge border border-white text-white bg-transparent py-1 px-2" style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
+                                          data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" 
+                                          title="{% if pair[2] %}Highest Timed: +{{ pair[2] }}{% endif %}{% if pair[2] and pair[3] %}<br>{% endif %}{% if pair[3] %}Highest Depleted: +{{ pair[3] }}{% endif %}">
+                                      {% if pair[2] %}
+                                        +{{ pair[2] }}
+                                      {% else %}
+                                        +{{ pair[3] }} (D)
+                                      {% endif %}
+                                    </span>
+                                  </div>
+                                  {% endif %}
                                 </div>
                               </div>
                               {% endfor %}
@@ -1149,12 +1215,25 @@
                                 </a>
                               </div>
                               <!-- Popularity % -->
-                              <div class="col-auto ms-auto text-end d-flex align-items-center">
+                              <div class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
                                 <p data-bs-toggle="tooltip" data-bs-placement="top"
                                   title="{{ total }} seen in {{total_crafted_items}} runs" class="mb-0">
                                   {%if total_crafted_items > 0%}
                                   {%if (total / total_crafted_items * 100) < 100%} {{ '%.0f' % (total /
                                     total_crafted_items * 100) }} {%else%} 100 {%endif%}% {%else%} 0% {%endif%} </p>
+                                {% if pair[2] or pair[3] %}
+                                <div class="mt-1 mb-1">
+                                  <span class="badge border border-white text-white bg-transparent py-1 px-2" style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
+                                        data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" 
+                                        title="{% if pair[2] %}Highest Timed: +{{ pair[2] }}{% endif %}{% if pair[2] and pair[3] %}<br>{% endif %}{% if pair[3] %}Highest Depleted: +{{ pair[3] }}{% endif %}">
+                                    {% if pair[2] %}
+                                      +{{ pair[2] }}
+                                    {% else %}
+                                      +{{ pair[3] }} (D)
+                                    {% endif %}
+                                  </span>
+                                </div>
+                                {% endif %}
                               </div>
                             </div>
                             {% endif %}

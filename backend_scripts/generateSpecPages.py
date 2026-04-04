@@ -272,6 +272,8 @@ def normalize_slot_collections(list_of_lists, slot_names):
                 "pcs": e.get("pcs"),
                 "embellishment": e.get("embellishment"),
                 "missive": e.get("missive"),
+                "max_timed_key": e.get("max_timed_key", 0),
+                "max_depleted_key": e.get("max_depleted_key", 0),
                 "quality_override": e.get("quality_override"),
                 "slot_slug": slot_slug,
             }

@@ -97,8 +97,8 @@ def get_hero_trees(conn, cursor, spec_id, current_season_id):
         conn, cursor, spec_id, current_season_id
     )
     overall_hero_trees = []
-    for hero_tree_id, count in top_hero_trees:
-        overall_hero_trees.append({"id": hero_tree_id, "count": int(count)})
+    for hero_tree_id, count, max_timed_key, max_depleted_key in top_hero_trees:
+        overall_hero_trees.append({"id": hero_tree_id, "count": int(count), "max_timed_key": int(max_timed_key), "max_depleted_key": int(max_depleted_key)})
     return overall_hero_trees
 
 
@@ -107,8 +107,8 @@ def get_enchants_for_slot(conn, cursor, spec_id, current_season_id, slot_group):
         conn, cursor, spec_id, current_season_id, slot_group, 10
     )
     overall_enchants = []
-    for enchant_item, count in top_enchants:
-        overall_enchants.append({"id": enchant_item, "count": int(count)})
+    for enchant_item, count, max_timed_key, max_depleted_key in top_enchants:
+        overall_enchants.append({"id": enchant_item, "count": int(count), "max_timed_key": int(max_timed_key), "max_depleted_key": int(max_depleted_key)})
     overall_enchants.sort(key=lambda x: x["count"], reverse=True)
     return overall_enchants
 
@@ -118,8 +118,8 @@ def get_sockets(conn, cursor, spec_id, current_season_id):
         conn, cursor, spec_id, current_season_id
     )
     overall_sockets = []
-    for socket, count in top_sockets:
-        overall_sockets.append({"id": socket, "count": int(count)})
+    for socket, count, max_timed_key, max_depleted_key in top_sockets:
+        overall_sockets.append({"id": socket, "count": int(count), "max_timed_key": int(max_timed_key), "max_depleted_key": int(max_depleted_key)})
 
     return overall_sockets
 
@@ -129,8 +129,8 @@ def get_loadout(conn, cursor, spec_id, current_season_id):
         conn, cursor, spec_id, current_season_id
     )
     overall_loadouts = {}
-    for hero_talent_id, loadout, count in top_loadouts:
-        overall_loadouts[hero_talent_id] = {"loadout": loadout, "count": int(count)}
+    for hero_talent_id, loadout, count, max_timed_key, max_depleted_key in top_loadouts:
+        overall_loadouts[hero_talent_id] = {"loadout": loadout, "count": int(count), "max_timed_key": int(max_timed_key), "max_depleted_key": int(max_depleted_key)}
     return overall_loadouts
 
 

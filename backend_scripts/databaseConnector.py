@@ -474,11 +474,12 @@ FETCH_TOP_ITEMS_BY_SLOT_WITH_BONUS_SQL = """
 WITH top_items AS (
   SELECT
     item_id,
-    run_count AS equip_count
+    SUM(run_count) AS equip_count
   FROM Mythistone.global_aggregated_equipment
   WHERE spec_id = %s
     AND season  = %s
     AND slot    = %s
+  GROUP BY item_id
   ORDER BY equip_count DESC
   LIMIT 10
 ),
@@ -505,8 +506,12 @@ SELECT
   ti.item_id,
   ti.equip_count,
   r.bonus_list,
-  r.list_count
+  r.list_count,
+  gai.max_timed_key,
+  gai.max_depleted_key
 FROM top_items ti
+LEFT JOIN Mythistone.global_aggregated_items gai 
+  ON gai.item_id = ti.item_id AND gai.spec_id = %s AND gai.season = %s
 LEFT JOIN ranked r ON ti.item_id = r.item_id AND r.rn = 1
 ORDER BY ti.equip_count DESC;
 """
@@ -514,22 +519,26 @@ ORDER BY ti.equip_count DESC;
 
 def fetch_top_items_for_slot_with_bonus(connection, cursor, spec_id, season, slot):
     """Fetch the top items with bonus for a specific slot from the database."""
-    params = (spec_id, season, slot, spec_id, season)
+    params = (spec_id, season, slot, spec_id, season, spec_id, season)
     rows = fetch_with_retry(
         connection, cursor, FETCH_TOP_ITEMS_BY_SLOT_WITH_BONUS_SQL, params
     )
 
     data = []
     for row in rows:
-        # row = (item_id, equip_count, bonus_list, list_count)
+        # row = (item_id, equip_count, bonus_list, list_count, max_timed_key, max_depleted_key)
         item_id = row[0]
         equip_count = row[1]
         bonus_list = row[2]  # may be None
         list_count = row[3]  # may be None
+        max_timed_key = row[4]
+        max_depleted_key = row[5]
         data.append(
             {
                 "item": item_id,
                 "count": int(equip_count),
+                "max_timed_key": int(max_timed_key) if max_timed_key else 0,
+                "max_depleted_key": int(max_depleted_key) if max_depleted_key else 0,
                 "bonus": {"ids": bonus_list, "count": int(list_count)}
                 if bonus_list is not None
                 else None,
@@ -576,8 +585,12 @@ SELECT
   ti.item_id,
   ti.equip_count,
   r.bonus_list,
-  r.list_count
+  r.list_count,
+  gai.max_timed_key,
+  gai.max_depleted_key
 FROM top_items ti
+LEFT JOIN Mythistone.global_aggregated_items gai 
+  ON gai.item_id = ti.item_id AND gai.spec_id = %s AND gai.season = %s
 LEFT JOIN ranked r ON ti.item_id = r.item_id AND r.rn = 1
 ORDER BY ti.equip_count DESC;
 """
@@ -587,23 +600,27 @@ def fetch_top_items_for_slot_group_with_bonus(
     connection, cursor, spec_id, season, slot_group
 ):
     """Fetch top items for a slot_group along with each item's top bonus_list (MySQL 8+)."""
-    # param order must match the SQL: spec, season, slot_group, spec, season
-    params = (spec_id, season, slot_group, spec_id, season)
+    # param order must match the SQL: spec, season, slot_group, spec, season, spec, season
+    params = (spec_id, season, slot_group, spec_id, season, spec_id, season)
     rows = fetch_with_retry(
         connection, cursor, FETCH_TOP_ITEMS_BY_SLOT_GROUP_WITH_BONUS_SQL, params
     )
 
     data = []
     for row in rows:
-        # row = (item_id, equip_count, bonus_list, list_count)
+        # row = (item_id, equip_count, bonus_list, list_count, max_timed_key, max_depleted_key)
         item_id = row[0]
         equip_count = row[1]
         bonus_list = row[2]  # may be None
         list_count = row[3]  # may be None
+        max_timed_key = row[4]
+        max_depleted_key = row[5]
         data.append(
             {
                 "item": item_id,
                 "count": int(equip_count),
+                "max_timed_key": int(max_timed_key) if max_timed_key else 0,
+                "max_depleted_key": int(max_depleted_key) if max_depleted_key else 0,
                 "bonus": {"ids": bonus_list, "count": int(list_count)}
                 if bonus_list is not None
                 else None,
@@ -615,7 +632,9 @@ def fetch_top_items_for_slot_group_with_bonus(
 FETCH_TOP_ENCHANT_FOR_SLOT_SQL = """
 SELECT
     enchantment_id,
-    run_count AS equip_count
+    run_count AS equip_count,
+    max_timed_key,
+    max_depleted_key
   FROM Mythistone.global_aggregated_enchantments_slot_group
   WHERE spec_id = %s
     AND season  = %s
@@ -632,7 +651,7 @@ def fetch_top_enchant_for_slot(connection, cursor, spec_id, season, slot_group, 
 
 
 FETCH_TOP_SOCKET_FOR_ITEM_SQL = """
-SELECT ais.socket_item_id, ais.run_count AS equip_count
+SELECT ais.socket_item_id, ais.run_count AS equip_count, ais.max_timed_key, ais.max_depleted_key
 FROM Mythistone.global_aggregated_item_sockets AS ais
 WHERE ais.spec_id = %s
   AND ais.season  = %s
@@ -650,7 +669,7 @@ def fetch_top_sockets_for_item(connection, cursor, spec_id, season, item_id):
 
 
 FETCH_TOP_SOCKETS_FOR_ITEMS_SQL = """
-SELECT ais.item_id, ais.socket_item_id, ais.run_count AS equip_count
+SELECT ais.item_id, ais.socket_item_id, ais.run_count AS equip_count, ais.max_timed_key, ais.max_depleted_key
 FROM Mythistone.global_aggregated_item_sockets AS ais
 WHERE ais.spec_id = %s
   AND ais.season  = %s
@@ -673,9 +692,10 @@ def fetch_top_sockets_for_items(connection, cursor, spec_id, season, item_ids):
     params = [spec_id, season] + item_ids_clean
     rows = fetch_with_retry(connection, cursor, sql, params)
     out = {}
-    for item_id, socket_item_id, equip_count in rows:
+    for row in rows:
+        item_id, socket_item_id, equip_count, max_timed_key, max_depleted_key = row
         key = str(item_id)
-        out.setdefault(key, []).append((socket_item_id, int(equip_count)))
+        out.setdefault(key, []).append((socket_item_id, int(equip_count), max_timed_key, max_depleted_key))
     return out
 
 
@@ -702,7 +722,7 @@ def fetch_top_bonus_ids_for_item(connection, cursor, spec_id, season, item_id):
 
 
 FETCH_TOP_SOCKETS_SQL = """
-SELECT ais.socket_item_id, SUM(ais.run_count) AS equip_count
+SELECT ais.socket_item_id, SUM(ais.run_count) AS equip_count, MAX(ais.max_timed_key) AS max_timed_key, MAX(ais.max_depleted_key) AS max_depleted_key
 FROM Mythistone.global_aggregated_item_sockets AS ais
 WHERE ais.spec_id = %s
   AND ais.season  = %s
@@ -725,7 +745,9 @@ WITH summed AS (
     season,
     hero_talent_id,
     loadout,
-    run_count AS total_runs
+    run_count AS total_runs,
+    max_timed_key,
+    max_depleted_key
   FROM Mythistone.global_aggregated_loadout_data
   WHERE spec_id = %s   
     AND season  = %s   
@@ -736,7 +758,7 @@ WITH summed AS (
     ROW_NUMBER() OVER (PARTITION BY hero_talent_id ORDER BY total_runs DESC, loadout) AS rn
   FROM summed
 )
-SELECT hero_talent_id, loadout, total_runs
+SELECT hero_talent_id, loadout, total_runs, max_timed_key, max_depleted_key
 FROM ranked
 WHERE rn = 1
 ORDER BY hero_talent_id;
@@ -754,7 +776,9 @@ def fetch_top_loadout(connection, cursor, spec_id, season):
 FETCH_HERO_TREE_OVERVIEW_SQL = """
 SELECT
   hero_talent_id,
-  run_count AS total_runs
+  run_count AS total_runs,
+  max_timed_key,
+  max_depleted_key
 FROM Mythistone.global_aggregated_hero_talent_overview
 WHERE spec_id = %s
   AND season  = %s
@@ -915,7 +939,7 @@ def insert_missive(connection, cursor, bonus_id, item_id):
 
 
 FETCH_MISSIVE_COUNT_SQL = """
-SELECT item_id, run_count AS total_runs
+SELECT item_id, run_count AS total_runs, max_timed_key, max_depleted_key
 FROM Mythistone.global_aggregated_missives
 WHERE spec_id = %s
   AND season = %s
@@ -930,7 +954,7 @@ def fetch_missive_count(connection, cursor, spec_id, season):
 
 
 FETCH_EMBELLISHMENT_COUNT_SQL = """
-SELECT item_id, run_count AS total_runs
+SELECT item_id, run_count AS total_runs, max_timed_key, max_depleted_key
 FROM Mythistone.global_aggregated_embellishments
 WHERE spec_id = %s
   AND season = %s
@@ -945,7 +969,7 @@ def fetch_embellishment_count(connection, cursor, spec_id, season):
 
 
 FETCH_CRAFTED_ITEMS_COUNT_SQL = """
-SELECT item_id, run_count AS total_runs
+SELECT item_id, run_count AS total_runs, max_timed_key, max_depleted_key
 FROM Mythistone.global_aggregated_crafted_items
 WHERE spec_id = %s
   AND season = %s
