@@ -45,6 +45,18 @@ SLOT_GROUPS = [
 STAT_NAMES = {
     "stragiint": "Mainstat",
     "stragi": "Str/Agi",
+    "agiint": "Agi/Int",
+    "strint": "Str/Int",
+}
+
+BLIZZARD_STAT_MAP = {
+    32: "crit",
+    36: "haste",
+    40: "versatility",
+    49: "mastery",
+    61: "speed",
+    62: "leech",
+    63: "avoidance",
 }
 
 SECONDARY_STATS = ["haste", "versatility", "mastery", "crit"]
@@ -275,6 +287,7 @@ def normalize_slot_collections(list_of_lists, slot_names):
                 "max_timed_key": e.get("max_timed_key", 0),
                 "max_depleted_key": e.get("max_depleted_key", 0),
                 "quality_override": e.get("quality_override"),
+                "crafted_stats": e.get("crafted_stats"),
                 "slot_slug": slot_slug,
             }
             total_count += e.get("count", 0)
@@ -448,18 +461,25 @@ def convert_slots(
             bonus = item.get("bonus", {}).get("ids", "")
             bonus_ids = bonus.split(",")
             for bonus in bonus_ids:
-                if bonus_lookup.get(str(bonus)) and bonus_lookup[str(bonus)].get(
-                    "socket"
-                ):
-                    amount += bonus_lookup[str(bonus)].get("socket")
-                if missive_lookup.get(str(bonus)):
-                    if missives and len(missives) > 0:
-                        item["missive"] = missives[0][0]
-                if embellishment_lookup.get(str(bonus)):
-                    if embellishments and len(embellishments) > 0:
-                        item["embellishment"] = embellishments[0][0]
-                if bonus_quality_lookup.get(str(bonus)):
-                    item["quality_override"] = bonus_quality_lookup[str(bonus)]
+                b_data = bonus_lookup.get(str(bonus))
+                if b_data:
+                    if b_data.get("socket"):
+                        amount += b_data.get("socket")
+                    if missive_lookup.get(str(bonus)):
+                        if missives and len(missives) > 0:
+                            item["missive"] = missives[0][0]
+                    if embellishment_lookup.get(str(bonus)):
+                        if embellishments and len(embellishments) > 0:
+                            item["embellishment"] = embellishments[0][0]
+                    if bonus_quality_lookup.get(str(bonus)):
+                        item["quality_override"] = bonus_quality_lookup[str(bonus)]
+                    if "craftedStats" in b_data:
+                        if "crafted_stats" not in item:
+                            item["crafted_stats"] = []
+                        for stat_id in b_data["craftedStats"]:
+                            stat_type = BLIZZARD_STAT_MAP.get(stat_id)
+                            if stat_type:
+                                item["crafted_stats"].append({"type": stat_type, "alloc": 0})
             if amount < len(
                 item_lookup.get(int(item["item"]), {})
                 .get("socketInfo", {})
@@ -620,8 +640,18 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
     socket_lookup = {
         e["itemId"]: e for e in enchant_lookup_all if e.get("slot") == "socket"
     }
+    equippable_items = load_json(os.path.join(LOOKUP_DIR, "equippable-items.json"))
+    for item in equippable_items:
+        if "stats" in item:
+            processed_stats = []
+            for s in sorted(item["stats"], key=lambda x: x.get("alloc", 0), reverse=True):
+                stat_type = BLIZZARD_STAT_MAP.get(s["id"])
+                if stat_type:
+                    processed_stats.append({"type": stat_type, "alloc": s.get("alloc", 0)})
+            item["stats"] = processed_stats
+
     item_lookup = {
-        i["id"]: i for i in load_json(os.path.join(LOOKUP_DIR, "equippable-items.json"))
+        i["id"]: i for i in equippable_items
     }
     set_members = defaultdict(list)
     for iid, itm in item_lookup.items():

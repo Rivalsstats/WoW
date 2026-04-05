@@ -34,7 +34,7 @@
             {% else %}
               border-grey-100
             {% endif %}
-            my-2 mx-2
+            my-2 mx-2 p-2 flex-nowrap
             {{ extra }}">
   <!-- Item icon & link -->
   <div class="col-auto px-0">
@@ -42,22 +42,38 @@
       href="https://www.wowhead.com/item={{entry.id }}?bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}}{% endif %}"
       data-wowhead="bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}}{% endif %}{%- if entry.pcs %}&pcs={{ entry.pcs|join(':') }}{%- endif %}"
       {% if tag=='button' %}onclick="event.preventDefault();" {% endif %}>
-      <img src="/data/icons/{{ item_lookup[entry.id].icon }}.png" />
+      <img src="/data/icons/{{ item_lookup[entry.id].icon }}.png" style="width: 56px; height: 56px; border-radius: 4px;" />
     </a>
   </div>
   <!-- Name & secondary icons -->
-  <div class="col">
+  <div class="col" style="min-height: 80px; display: flex; flex-direction: column; justify-content: center; min-width: 0;">
     <a target="_blank"
       href="https://www.wowhead.com/item={{ entry.id }}?bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}} {% endif %}"
       data-wowhead="bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}}{% endif %}{%- if entry.pcs %}&pcs={{ entry.pcs|join(':') }}{%- endif %}"
       data-wh-rename-link="true" {% if tag=='button' %}onclick="event.preventDefault();" {% endif %}>
-      <p class="mb-1">{{ item_lookup[entry.id].name }}</p>
+      <p class="mb-0 text-truncate" style="line-height: 1.2;">{{ item_lookup[entry.id].name }}</p>
     </a>
-    <div class="d-flex align-items-center gap-1 flex-nowrap">
+    {% set reagent = reagent_lookup.get(entry.missive|string) or reagent_lookup.get(entry.missive|int) %}
+    {% set display_stats = reagent.stats if entry.missive and reagent and reagent.stats else item_lookup[entry.id].stats %}
+    {% set display_stats = entry.crafted_stats if (not display_stats or display_stats|length == 0) and entry.crafted_stats else display_stats %}
+    
+    <div style="height: 20px; display: flex; align-items: center;" class="my-1">
+      {% if display_stats %}
+      <div class="d-flex flex-wrap gap-1">
+        {% for stat in display_stats %}
+        <span class="badge stat-{{ stat.type }}" style="font-size: 0.65rem; padding: 0.35em 0.5em;">
+          {% if stat_names[stat.type] %}{{ stat_names[stat.type] }}{% else %}{{ stat.type | title }}{% endif %}
+        </span>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="d-flex align-items-center gap-1 flex-nowrap" style="height: 16px;">
       {% if entry.embellishment and reagent_lookup[entry.embellishment] %}
       <!-- embellishment icon -->
       <a target="_blank" href="https://www.wowhead.com/item={{ entry.embellishment }}&spec={{ spec_id }}" {% if
-        tag=='button' %}onclick="event.preventDefault();" {% endif %}>
+        tag=='button' %}onclick="event.preventDefault();" {% endif %} style="line-height:0; display:block;">
         <div class="position-relative" style="width:16px; height:16px; display:inline-block;">
           <!-- Base icon -->
           {% set icon = (reagent_lookup[entry.embellishment].itemIcon) or (reagent_lookup[entry.embellishment].icon) %}
@@ -76,7 +92,7 @@
       {% endif %}
       {% if entry.missive and reagent_lookup[entry.missive] %}
       <a target="_blank" href="https://www.wowhead.com/item={{ entry.missive }}&spec={{ spec_id }}" {% if tag=='button'
-        %}onclick="event.preventDefault();" {% endif %}>
+        %}onclick="event.preventDefault();" {% endif %} style="line-height:0; display:block;">
         {% set icon = (reagent_lookup[entry.missive].itemIcon) or (reagent_lookup[entry.missive].icon) %}
 
         <div class="position-relative" style="width:16px; height:16px; display:inline-block;">
@@ -97,7 +113,7 @@
       {% if entry.enchantment and enchant_lookup[entry.enchantment.id] %}
       <a target="_blank"
         href="https://www.wowhead.com/item={{ enchant_lookup[entry.enchantment.id].itemId }}&spec={{ spec_id }}" {% if
-        tag=='button' %}onclick="event.preventDefault();" {% endif %}>
+        tag=='button' %}onclick="event.preventDefault();" {% endif %} style="line-height:0; display:block;">
         <div class="position-relative" style="width:16px; height:16px; display:inline-block;">
           {% set icon = (enchant_lookup[entry.enchantment.id].itemIcon) or (enchant_lookup[entry.enchantment.id].icon)
           %}
@@ -114,10 +130,10 @@
       </a>
       {% endif %}
       {% if entry.socket and entry.socket | length > 0 %}
-      <div class="d-flex align-items-center gap-1 flex-nowrap">
+      <div class="d-flex align-items-center gap-1 flex-nowrap" style="line-height:0;">
         {% for sock in entry.socket %}
         <a target="_blank" href="https://www.wowhead.com/item={{ sock.id }}&spec={{ spec_id }}" {% if tag=='button'
-          %}onclick="event.preventDefault();" {% endif %}>
+          %}onclick="event.preventDefault();" {% endif %} style="line-height:0; display:block;">
           <div class="position-relative" style="width:16px; height:16px; display:inline-block;">
             {% set icon = (socket_lookup[sock.id | int].itemIcon) or (socket_lookup[sock.id | int].icon) %}
 
@@ -1213,6 +1229,22 @@
                                 <a target="_blank" href="https://www.wowhead.com/item={{ item }}&spec={{ spec_id }}">
                                   <p class="mb-1">{{ item_lookup[item|int].name }}</p>
                                 </a>
+                                {% set display_stats = item_lookup[item|int].stats %}
+                                {% if (not display_stats or display_stats|length == 0) and missives and missives|length > 0 %}
+                                  {% set missive_reagent = reagent_lookup.get(missives[0][0]|string) or reagent_lookup.get(missives[0][0]|int) %}
+                                  {% if missive_reagent %}
+                                    {% set display_stats = missive_reagent.stats %}
+                                  {% endif %}
+                                {% endif %}
+                                {% if display_stats %}
+                                <div class="d-flex flex-wrap gap-1 mt-1">
+                                  {% for stat in display_stats %}
+                                  <span class="badge stat-{{ stat.type }}">
+                                    {% if stat_names[stat.type] %}{{ stat_names[stat.type] }}{% else %}{{ stat.type | title }}{% endif %}
+                                  </span>
+                                  {% endfor %}
+                                </div>
+                                {% endif %}
                               </div>
                               <!-- Popularity % -->
                               <div class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
