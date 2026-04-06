@@ -128,6 +128,10 @@ jobs:
         run: |
           python backend_scripts/generateSearchIndex.py
 
+      - name: Generate Sitemap
+        run: |
+          python backend_scripts/generateSitemap.py
+
       - name: Commit and push pages
         run: |
           set -e  # Exit script on any command failure
@@ -144,6 +148,7 @@ jobs:
           git add index.html
           git add 404.html
           git add assets/json/compRoutes.json
+          git add sitemap.xml
           
           # Commit only if there are changes
           if git diff --cached --quiet; then
