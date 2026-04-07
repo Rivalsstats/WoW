@@ -32,9 +32,11 @@ CREATE TABLE `aggregated_character_stats` (
 CREATE TABLE `aggregated_dungeon_comps` (
   `dungeon_id` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `season` int NOT NULL,
+  `keystone_level` int unsigned NOT NULL,
   `comp` varchar(255) NOT NULL,
-  `run_count` bigint unsigned NOT NULL,
-  PRIMARY KEY (`dungeon_id`,`season`,`comp`)
+  `timed_runs` bigint unsigned NOT NULL DEFAULT '0',
+  `depleted_runs` bigint unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`dungeon_id`,`season`,`keystone_level`,`comp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 

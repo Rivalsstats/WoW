@@ -2362,10 +2362,11 @@ def fetch_global_totals(connection, cursor, season: int):
     )
 
 FETCH_DUNGEON_TOP_COMPS_SQL = """
-SELECT comp, run_count as comp_count
+SELECT comp, SUM(timed_runs + depleted_runs) as comp_count
 FROM Mythistone.aggregated_dungeon_comps
 WHERE dungeon_id = %s AND season = %s
-ORDER BY run_count DESC
+GROUP BY comp
+ORDER BY comp_count DESC
 LIMIT 5;
 """
 

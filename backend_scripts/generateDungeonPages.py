@@ -166,6 +166,8 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                 print(f"Fetching top comps for {dungeon_id}...")
                 comps_rows = databaseConnector.fetch_dungeon_top_comps(conn, cursor, dungeon_id, current_season)
                 
+                print(f"Fetched {len(comps_rows)} comps for dungeon {dungeon_id}")
+                print(comps_rows)
                 top_comps = []
                 for r in comps_rows:
                     if r['comp']:
