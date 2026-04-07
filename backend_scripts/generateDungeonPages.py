@@ -66,6 +66,13 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
     season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
     notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
+    npcs_lookup = load_json(os.path.join(LOOKUP_DIR, "npcs.json"))
+    
+    try:
+        with open(os.path.join('data', 'boss_npcs.json'), 'r') as f:
+            bosses_lookup = json.load(f)
+    except FileNotFoundError:
+        bosses_lookup = {}
         
     spec_nav = generateSpecNav(spec_lookup, class_lookup)
     dungeon_nav = generateDungeonNav(dungeon_lookup)
@@ -174,6 +181,26 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                 longest_run = parse_run_rows(databaseConnector.fetch_dungeon_longest_run(conn, cursor, dungeon_id, current_season))
                 highest_run = parse_run_rows(databaseConnector.fetch_dungeon_max_key_run(conn, cursor, dungeon_id, current_season))
 
+                lust_timeline = databaseConnector.fetch_dungeon_lust_timeline(conn, cursor, dungeon_id)
+                skip_rates = databaseConnector.fetch_dungeon_skip_rates(conn, cursor, dungeon_id, current_season)
+
+                # Validate lust_timeline contains at least one boss pull
+                dungeon_bosses = bosses_lookup.get(str(dungeon_id), [])
+                has_boss_lust = False
+                for pull in lust_timeline:
+                    top_npcs_str = pull.get('top_npcs', '')
+                    if top_npcs_str:
+                        for n in str(top_npcs_str).split(','):
+                            if n.strip() and int(n.strip()) in dungeon_bosses:
+                                has_boss_lust = True
+                                break
+                    if has_boss_lust:
+                        break
+                
+                # Only throw a validation error if there is actually lust data available
+                if lust_timeline and len(lust_timeline) > 0 and not has_boss_lust:
+                    raise RuntimeError(f"Dungeon {dungeon_data['name']['en_US']} ({dungeon_id}) has no lust pull marked as a boss. This indicates missing boss NPC data in data/boss_npcs.json.")
+
                 runs_cards = [
                     {"name": "Shortest", "data": shortest_run, "icon": "sprint"},
                     {"name": "Longest", "data": longest_run, "icon": "hourglass_bottom"},
@@ -182,6 +209,10 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                 
                 output_html = template.render(dungeon=dungeon_data,
                     runs=runs_cards,
+                    lust_timeline=lust_timeline,
+                    skip_rates=skip_rates,
+                    npcs=npcs_lookup,
+                    bosses=bosses_lookup.get(dungeon_id, []),
                     top_routes=top_routes,
                     top_specs=top_specs,
                     top_comps=top_comps,

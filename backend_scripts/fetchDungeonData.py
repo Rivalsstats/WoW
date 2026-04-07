@@ -75,6 +75,13 @@ else:
 print("Full Map of Raider.IO short names:")
 print(short_name_map)
 
+# Loading manually maintained mapping because Blizzard's Encounter API returns
+# 4-digit Journal IDs instead of the required 6-digit global NPC IDs.
+# The script will aggressively fail if a dungeon is queried that is missing from this list.
+with open("data/boss_npcs.json", "r") as f:
+    BOSS_NPCS = json.load(f)
+
+bosses_out = {}
 out = {}
 headers = {"Authorization": f"Bearer {token}"}
 for dungeon_id in short_name_map:
@@ -99,12 +106,24 @@ for dungeon_id in short_name_map:
     }
 
     journal_id = data["dungeon"]["id"]
+    journal_href = data["dungeon"].get("key", {}).get("href")
 
     media_url = f"{API_BASE}/data/wow/media/journal-instance/{journal_id}"
     media_params = {"namespace": "static-us"}
-    mresp = requests.get(media_url, headers=headers, params=media_params)
-    mresp.raise_for_status()
-    media = mresp.json()
+    try:
+        mresp = requests.get(media_url, headers=headers, params=media_params)
+        mresp.raise_for_status()
+        media = mresp.json()
+    except requests.exceptions.HTTPError as e:
+        print(f"Warning: Failed to fetch media for journal instance {journal_id}: {e}")
+        media = {"assets": []}
+
+    # Fetch Boss NPCs
+    str_dungeon_id = str(dungeon_id)
+    if str_dungeon_id not in BOSS_NPCS:
+        raise RuntimeError(f"Missing Boss NPC IDs for dungeon ID {dungeon_id} ('{short_name_map.get(dungeon_id)}'). Please manually add it to data/boss_npcs.json")
+    
+    bosses_out[str_dungeon_id] = list(set(BOSS_NPCS[str_dungeon_id]))
 
     tile_asset = next(
         (a for a in media.get("assets", []) if a.get("key") == "tile"), None
@@ -127,6 +146,7 @@ for dungeon_id in short_name_map:
         "keystone_upgrades": upgrades,
         "icon": icon_filename,
         "raiderio_short_name": short_name_map.get(dungeon_id),
+        "boss_npc_ids": bosses_out[str(dungeon_id)]
     }
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()

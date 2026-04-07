@@ -30,7 +30,13 @@
       }
     },
     "icon": "algethar-academy-small.jpg",
-    "raiderio_short_name": "AA"
+    "raiderio_short_name": "AA",
+    "boss_npc_ids": [
+      191736,
+      190609,
+      196482,
+      194181
+    ]
   },
   "558": {
     "name": {
@@ -63,7 +69,13 @@
       }
     },
     "icon": "magisters-terrace-small.jpg",
-    "raiderio_short_name": "MT"
+    "raiderio_short_name": "MT",
+    "boss_npc_ids": [
+      231865,
+      241397,
+      231861,
+      231863
+    ]
   },
   "560": {
     "name": {
@@ -96,7 +108,13 @@
       }
     },
     "icon": "maisara-caverns-small.jpg",
-    "raiderio_short_name": "MC"
+    "raiderio_short_name": "MC",
+    "boss_npc_ids": [
+      247570,
+      248595,
+      247572,
+      248605
+    ]
   },
   "559": {
     "name": {
@@ -129,7 +147,12 @@
       }
     },
     "icon": "nexus-point-xenas-small.jpg",
-    "raiderio_short_name": "NPX"
+    "raiderio_short_name": "NPX",
+    "boss_npc_ids": [
+      241546,
+      241539,
+      241542
+    ]
   },
   "556": {
     "name": {
@@ -162,7 +185,15 @@
       }
     },
     "icon": "pit-of-saron-small.jpg",
-    "raiderio_short_name": "POS"
+    "raiderio_short_name": "POS",
+    "boss_npc_ids": [
+      252648,
+      252621,
+      252653,
+      252625,
+      252635,
+      255037
+    ]
   },
   "239": {
     "name": {
@@ -195,7 +226,15 @@
       }
     },
     "icon": "seat-of-the-triumvirate-small.jpg",
-    "raiderio_short_name": "SEAT"
+    "raiderio_short_name": "SEAT",
+    "boss_npc_ids": [
+      122056,
+      122313,
+      122316,
+      122319,
+      124729,
+      125340
+    ]
   },
   "161": {
     "name": {
@@ -228,7 +267,13 @@
       }
     },
     "icon": "skyreach-small.jpg",
-    "raiderio_short_name": "SR"
+    "raiderio_short_name": "SR",
+    "boss_npc_ids": [
+      76266,
+      75964,
+      76141,
+      76143
+    ]
   },
   "557": {
     "name": {
@@ -261,6 +306,13 @@
       }
     },
     "icon": "windrunner-spire-small.jpg",
-    "raiderio_short_name": "WS"
+    "raiderio_short_name": "WS",
+    "boss_npc_ids": [
+      231626,
+      231629,
+      231631,
+      231636,
+      231606
+    ]
   }
 }

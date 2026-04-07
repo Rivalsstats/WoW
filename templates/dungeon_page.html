@@ -32,8 +32,7 @@
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="MythiStone">
     <meta property="og:url" content="https://mythistone.com/dungeons/{{ dungeon.slug }}">
-    <meta property="og:title"
-        content="{{ dungeon.name.en_US }} in {{ season_info.name }} Mythic+ Guide">
+    <meta property="og:title" content="{{ dungeon.name.en_US }} in {{ season_info.name }} Mythic+ Guide">
     <meta property="og:description"
         content="See the top specs, routes, and information for {{ dungeon.name.en_US }} in {{ season_info.name }}">
     <meta property="og:image" content="https://mythistone.com/assets/img/previews/{{dungeon.slug}}.png">
@@ -44,8 +43,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@MythiStone">
     <meta name="twitter:creator" content="@MythiStone">
-    <meta name="twitter:title"
-        content="{{ dungeon.name.en_US }} in {{ season_info.name }} Mythic+ Guide ">
+    <meta name="twitter:title" content="{{ dungeon.name.en_US }} in {{ season_info.name }} Mythic+ Guide ">
     <meta name="twitter:description"
         content="See the top specs, routes, and information for {{ dungeon.name.en_US }} in {{ season_info.name }}">
     <meta name="twitter:image" content="https://mythistone.com/assets/img/previews/{{dungeon.slug}}.png">
@@ -118,119 +116,72 @@
                 {% if run_entry['data'] %}
                 {% set run_data = run_entry['data'] %}
                 <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
-                  <div class="card h-100" style="
+                    <div class="card h-100" style="
                       background-image: url('/data/icons/{{ dungeon.icon }}');
                       background-size: cover;
                       background-position: center;
                       background-repeat: no-repeat;
                       background-blend-mode: overlay;
                     ">
-                    <div class="card-header p-2 ps-3">
-                      <div class="d-flex justify-content-between">
-                        <div>
-                          <p class="text-sm mb-0 text-capitalize">{{ run_entry.name }} Run</p>
-                          {% set info = run_data.duration|upgrade_info(dungeon.keystone_upgrades, run_data.keystone_level) %}
-                          <div>
-                            <span class="font-weight-bolder h4 {{ info.css }}">{{ info.text }}</span>
-                            <span class="font-weight-bolder h4">{{dungeon.name.en_US}}</span>
-                            <span class="font-weight-bolder h4">{{run_data.region|upper}}</span>
-                          </div>
+                        <div class="card-header p-2 ps-3">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="text-sm mb-0 text-capitalize">{{ run_entry.name }} Run</p>
+                                    {% set info = run_data.duration|upgrade_info(dungeon.keystone_upgrades,
+                                    run_data.keystone_level) %}
+                                    <div>
+                                        <span class="font-weight-bolder h4 {{ info.css }}">{{ info.text }}</span>
+                                        <span class="font-weight-bolder h4">{{dungeon.name.en_US}}</span>
+                                        <span class="font-weight-bolder h4">{{run_data.region|upper}}</span>
+                                    </div>
+                                </div>
+                                <div
+                                    class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                                    <i class="material-symbols-rounded opacity-10">{{run_entry.icon}}</i>
+                                </div>
+                            </div>
                         </div>
-                        <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
-                          <i class="material-symbols-rounded opacity-10">{{run_entry.icon}}</i>
+                        <div class="card-body ">
+                            <h4 class="mb-0" id="{{ run_entry.name }}-run-value">Cleared in {{run_data.duration|
+                                duration}}
+                            </h4>
+                            <div class="d-flex align-items-center mt-2">
+                                {% set role_order = ['0','1','2'] %}
+                                {% for role in role_order %}
+                                {% for member in run_data.members %}
+                                {% set spec = specs[ member.spec_id|string ] %}
+                                {% if spec and spec.role|string == role %}
+                                <img src="/data/icons/{{ spec.SpellIconFileId }}.jpg" alt="{{ spec.name }}"
+                                    title="{{ spec.name }}" class="me-1 avatar avatar-sm rounded-circle" />
+                                {% endif %}
+                                {% endfor %}
+                                {% endfor %}
+                            </div>
                         </div>
-                      </div>
+                        <hr class="dark horizontal my-0">
+                        <div class="card-footer p-2 ps-3">
+                            <p class="mb-0 text-sm">
+                                <span class="timestamp" data-bs-toggle="tooltip" data-bs-placement="top"
+                                    data-timestamp={{run_data.timestamp|int/1000}}>Run happened:</span>
+                            </p>
+                        </div>
                     </div>
-                    <div class="card-body ">
-                      <h4 class="mb-0" id="{{ run_entry.name }}-run-value">Cleared in {{run_data.duration| duration}}
-                      </h4>
-                      <div class="d-flex align-items-center mt-2">
-                        {% set role_order = ['0','1','2'] %}
-                        {% for role in role_order %}
-                        {% for member in run_data.members %}
-                        {% set spec = specs[ member.spec_id|string ] %}
-                        {% if spec and spec.role|string == role %}
-                        <img src="/data/icons/{{ spec.SpellIconFileId }}.jpg"
-                          alt="{{ spec.name }}" title="{{ spec.name }}" class="me-1 avatar avatar-sm rounded-circle" />
-                        {% endif %}
-                        {% endfor %}
-                        {% endfor %}
-                      </div>
-                    </div>
-                    <hr class="dark horizontal my-0">
-                    <div class="card-footer p-2 ps-3">
-                      <p class="mb-0 text-sm">
-                        <span class="timestamp" data-bs-toggle="tooltip" data-bs-placement="top"
-                          data-timestamp={{run_data.timestamp|int/1000}}>Run happened:</span>
-                      </p>
-                    </div>
-                  </div>
                 </div>
                 {% endif %}
                 {% endfor %}
             </div>
 
             <div class="row">
+                <!-- Top Routes -->
                 <div class="col-lg-6 col-md-12 mb-4">
                     <div class="card h-100">
                         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                            <div class="bg-gradient-info shadow-info border-radius-lg pt-4 pb-3">
-                                <h6 class="text-white text-capitalize ps-3">Most Popular Specs (+12 and higher)</h6>
-                            </div>
-                        </div>
-                        <div class="card-body px-0 pb-2">
-                            <div class="table-responsive p-0">
-                                <table class="table align-items-center mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th
-                                                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                                Spec</th>
-                                            <th
-                                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                                Runs Logged</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for s in top_specs %}
-                                        <tr>
-                                            <td>
-                                                <div class="d-flex px-2 py-1">
-                                                    <div>
-                                                        <a href="/classes/{{ role_lookup.get(s.role|string, 'Other') }}/{{ s.spec_name }}_{{ s.class_name }}" class="text-decoration-none">
-                                                            <img src="/data/icons/{{ s.icon }}.jpg"
-                                                                class="avatar avatar-sm me-3 border border-dark border-1" alt="{{ s.spec_name }}">
-                                                        </a>
-                                                    </div>
-                                                    <div class="d-flex flex-column justify-content-center">
-                                                        <a href="/classes/{{ role_lookup.get(s.role|string, 'Other') }}/{{ s.spec_name }}_{{ s.class_name }}" class="text-decoration-none">
-                                                            <h6 class="mb-0 text-sm class-{{ s.class_name|replace(' ', '') }}-text">{{ s.spec_name }} {{ s.class_name }}</h6>
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">{{
-                                                    "{:,}".format(s.runs) }}</span>
-                                            </td>
-                                        </tr>
-                                        {% else %}
-                                        <tr>
-                                            <td colspan="2" class="text-center text-sm">No specs logged yet.</td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6 col-md-12 mb-4">
-                    <div class="card h-100">
-                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                            <div class="bg-gradient-primary shadow-primary border-radius-lg pt-3 pb-3 d-flex justify-content-between align-items-center">
+                            <div
+                                class="bg-gradient-primary shadow-primary border-radius-lg pt-3 pb-3 d-flex justify-content-between align-items-center">
                                 <h6 class="text-white text-capitalize ps-3 mb-0">Top Routes</h6>
-                                <a href="/pages/routes?dungeons={{ dungeon_id }}" class="btn btn-sm btn-white me-3 mb-0 opacity-8" title="Find more routes">More Routes</a>
+                                <a href="/pages/routes?dungeons={{ dungeon_id }}"
+                                    class="btn btn-sm btn-white me-3 mb-0 opacity-8" title="Find more routes">More
+                                    Routes</a>
                             </div>
                         </div>
                         <div class="card-body px-0 pb-2">
@@ -259,7 +210,9 @@
                                                         +{{ route.keystone_level }}
                                                     </span>
                                                     {% if route.usage_count and route.usage_count > 1 %}
-                                                    <span class="badge bg-dark bg-opacity-50 text-white rounded px-2 mx-1" data-bs-toggle="tooltip" title="Route usage count">
+                                                    <span
+                                                        class="badge bg-dark bg-opacity-50 text-white rounded px-2 mx-1"
+                                                        data-bs-toggle="tooltip" title="Route usage count">
                                                         {{ route.usage_count }} Uses
                                                     </span>
                                                     {% endif %}
@@ -316,10 +269,96 @@
                                 {% endfor %}
                             </div>
                             <div class="text-center mt-3 mb-3">
-                                <a href="/pages/routes?dungeons={{ dungeon_id }}" class="text-primary text-sm font-weight-bold">
-                                    Looking for more? Find all routes here 
+                                <a href="/pages/routes?dungeons={{ dungeon_id }}"
+                                    class="text-primary text-sm font-weight-bold">
+                                    Looking for more? Find all routes here
                                     <i class="material-symbols-rounded align-middle text-sm ms-1">arrow_forward</i>
                                 </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Most Lusted Pulls -->
+                <div class="col-lg-6 col-md-12 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                            <div class="bg-gradient-warning shadow-warning border-radius-lg pt-4 pb-3">
+                                <h6 class="text-white text-capitalize ps-3" data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="The exact sets of enemies that players most frequently use Bloodlust / Heroism against.">
+                                    Most Lusted Pulls</h6>
+                            </div>
+                        </div>
+                        <div class="card-body px-0 pb-2">
+                            <div class="table-responsive p-0" style="max-height: 435px; overflow-y: auto;">
+                                <table class="table align-items-center mb-0">
+                                    <thead class="sticky-top" style="z-index: 10; background-color: #1d1d1d;">
+                                        <tr>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3"
+                                                style="position: sticky; top: 0; background-color: #1d1d1d;">Pull
+                                                Composition</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"
+                                                style="position: sticky; top: 0; background-color: #1d1d1d;">Lust Rate
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for pull in lust_timeline if pull.lust_percentage > 0 %}
+                                        <tr>
+                                            <td class="text-sm text-wrap px-3 pb-0">
+                                                {% if pull.top_npcs %}
+                                                <ul class="list-unstyled mb-0" style="line-height:1.2;">
+                                                    {% for n in pull.top_npcs.split(',') %}
+                                                    {% set name = npcs.get('en_US', {}).get(n, n) %}
+                                                    {% set is_boss = n|int in bosses %}
+                                                    <li class="mb-1">
+                                                        {% if is_boss %}
+                                                        <span
+                                                            class="material-symbols-rounded text-danger text-sm align-middle mb-1"
+                                                            style="font-size: 16px;">skull</span>
+                                                        <a href="https://www.wowhead.com/npc={{ n }}"
+                                                            class="text-warning font-weight-bolder align-middle"
+                                                            target="_blank" data-wowhead="npc={{ n }}">{{ name }}</a>
+                                                        {% else %}
+                                                        <a href="https://www.wowhead.com/npc={{ n }}"
+                                                            class="text-white align-middle" target="_blank"
+                                                            data-wowhead="npc={{ n }}">{{ name }}</a>
+                                                        {% endif %}
+                                                    </li>
+                                                    {% endfor %}
+                                                </ul>
+                                                {% else %}
+                                                <span class="text-muted">Unknown Pull</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="progress-wrapper w-100">
+                                                    <div class="progress-info">
+                                                        <div class="progress-percentage">
+                                                            <span class="text-sm font-weight-bold me-2">{{
+                                                                "%.1f"|format(pull.lust_percentage) }}%</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="progress">
+                                                        <div class="progress-bar bg-gradient-danger opacity-8"
+                                                            role="progressbar"
+                                                            aria-valuenow="{{ pull.lust_percentage }}" aria-valuemin="0"
+                                                            aria-valuemax="100"
+                                                            style="width: {{ pull.lust_percentage }}%;"></div>
+                                                    </div>
+                                                </div>
+                                                <p class="text-xs text-secondary mt-1 mb-0">{{ pull.lust_count }} / {{
+                                                    pull.total_pulls_at_index }} Pulls</p>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                        {% if lust_timeline | length == 0 %}
+                                        <tr>
+                                            <td colspan="2" class="text-center text-sm p-3">No lust data available.</td>
+                                        </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -327,6 +366,7 @@
             </div>
 
             <div class="row mb-4">
+                <!-- Popular Team Comps -->
                 <div class="col-lg-6 col-md-12 mb-4">
                     <div class="card h-100">
                         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
@@ -382,7 +422,7 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- Uniquely Popular Specs -->
                 <div class="col-lg-6 col-md-12 mb-4">
                     <div class="card h-100">
                         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
@@ -415,14 +455,19 @@
                                             <td>
                                                 <div class="d-flex px-2 py-1">
                                                     <div>
-                                                        <a href="/classes/{{ role_lookup.get(s.role|string, 'Other') }}/{{ s.spec_name }}_{{ s.class_name }}" class="text-decoration-none">
+                                                        <a href="/classes/{{ role_lookup.get(s.role|string, 'Other') }}/{{ s.spec_name }}_{{ s.class_name }}"
+                                                            class="text-decoration-none">
                                                             <img src="/data/icons/{{ s.icon }}.jpg"
-                                                                class="avatar avatar-sm me-3 border border-dark border-1" alt="{{ s.spec_name }}">
+                                                                class="avatar avatar-sm me-3 border border-dark border-1"
+                                                                alt="{{ s.spec_name }}">
                                                         </a>
                                                     </div>
                                                     <div class="d-flex flex-column justify-content-center">
-                                                        <a href="/classes/{{ role_lookup.get(s.role|string, 'Other') }}/{{ s.spec_name }}_{{ s.class_name }}" class="text-decoration-none">
-                                                            <h6 class="mb-0 text-sm class-{{ s.class_name|replace(' ', '') }}-text">{{ s.spec_name }} {{ s.class_name }}</h6>
+                                                        <a href="/classes/{{ role_lookup.get(s.role|string, 'Other') }}/{{ s.spec_name }}_{{ s.class_name }}"
+                                                            class="text-decoration-none">
+                                                            <h6
+                                                                class="mb-0 text-sm class-{{ s.class_name|replace(' ', '') }}-text">
+                                                                {{ s.spec_name }} {{ s.class_name }}</h6>
                                                         </a>
                                                     </div>
                                                 </div>
@@ -448,12 +493,146 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Analytics Row -->
+            <div class="row mb-4">
+                <!-- Skipped NPCs -->
+                <div class="col-lg-6 col-md-12 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                            <div class="bg-gradient-danger shadow-danger border-radius-lg pt-4 pb-3">
+                                <h6 class="text-white text-capitalize ps-3" data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Least encountered enemies across all logged routes for this dungeon.">Most
+                                    Skipped NPC's</h6>
+                            </div>
+                        </div>
+                        <div class="card-body px-0 pb-2">
+                            <div class="table-responsive p-0" style="max-height: 320px; overflow-y: auto;">
+                                <table class="table align-items-center mb-0">
+                                    <thead class="sticky-top" style="z-index: 10; background-color: #1d1d1d;">
+                                        <tr>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                                                style="position: sticky; top: 0; background-color: #1d1d1d;">NPC / Trash
+                                            </th>
+                                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                                                style="position: sticky; top: 0; background-color: #1d1d1d;">Pull Rate
+                                            </th>
+                                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                                                style="position: sticky; top: 0; background-color: #1d1d1d;">Skipped %
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for skip in skip_rates[:15] %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex px-2 py-1">
+                                                    <div>
+                                                        {% set npc_name = npcs.get('en_US', {}).get(skip.npc_id|string,
+                                                        'Unknown NPC') %}
+                                                        <h6 class="mb-0 text-sm"><a
+                                                                href="https://www.wowhead.com/npc={{ skip.npc_id }}"
+                                                                class="text-white" target="_blank"
+                                                                data-wowhead="npc={{ skip.npc_id }}">{{ npc_name }}</a>
+                                                        </h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="text-secondary text-sm font-weight-bold">{{
+                                                    skip.total_encounters }} / {{ skip.total_routes }}</span>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                {% set skipped_pct = 100.0 - skip.inclusion_percentage|float %}
+                                                <span class="badge badge-sm bg-gradient-danger">{{
+                                                    "%.1f"|format(skipped_pct) }}%</span>
+                                            </td>
+                                        </tr>
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="3" class="text-center text-sm p-3">No skip rate data available
+                                                yet.</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Popular Specs -->
+                <div class="col-lg-6 col-md-12 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                            <div class="bg-gradient-info shadow-info border-radius-lg pt-4 pb-3">
+                                <h6 class="text-white text-capitalize ps-3">Most Popular Specs (+12 and higher)</h6>
+                            </div>
+                        </div>
+                        <div class="card-body px-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th
+                                                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                                Spec</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                                Runs Logged</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for s in top_specs %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex px-2 py-1">
+                                                    <div>
+                                                        <a href="/classes/{{ role_lookup.get(s.role|string, 'Other') }}/{{ s.spec_name }}_{{ s.class_name }}"
+                                                            class="text-decoration-none">
+                                                            <img src="/data/icons/{{ s.icon }}.jpg"
+                                                                class="avatar avatar-sm me-3 border border-dark border-1"
+                                                                alt="{{ s.spec_name }}">
+                                                        </a>
+                                                    </div>
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <a href="/classes/{{ role_lookup.get(s.role|string, 'Other') }}/{{ s.spec_name }}_{{ s.class_name }}"
+                                                            class="text-decoration-none">
+                                                            <h6
+                                                                class="mb-0 text-sm class-{{ s.class_name|replace(' ', '') }}-text">
+                                                                {{ s.spec_name }} {{ s.class_name }}</h6>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="text-secondary text-xs font-weight-bold">{{
+                                                    "{:,}".format(s.runs) }}</span>
+                                            </td>
+                                        </tr>
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="2" class="text-center text-sm">No specs logged yet.</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             {% include "footer.html" %}
         </div>
     </main>
     {% include "right_aside.html" %}
     {% include "fixed_plugin.html" %}
     {% include "javascript_imports.html" %}
+    <script src="/assets/js/plugins/chartjs.min.js"></script>
+    <script type="text/plain" data-type="application/javascript" data-name="wowhead"
+        data-src='https://wow.zamimg.com/widgets/power.js'></script>
+</body>
+},
 </body>
 
 </html>

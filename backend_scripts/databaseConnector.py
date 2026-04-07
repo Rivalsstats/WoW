@@ -2514,4 +2514,55 @@ ORDER BY rm.member;
 def fetch_dungeon_max_key_run(connection, cursor, dungeon_id: str, season: int):
     return fetch_with_retry(connection, cursor, FETCH_DUNGEON_MAX_KEY_RUN_SQL, (dungeon_id, season))
 
+FETCH_DUNGEON_LUST_TIMELINE_SQL = """
+WITH PullSigs AS (
+    SELECT 
+        rp.route_key,
+        rp.pull_id,
+        GROUP_CONCAT(DISTINCT pe.npc_id ORDER BY pe.npc_id ASC SEPARATOR ',') as pull_sig,
+        CASE WHEN MAX(ps.spell_id) IS NOT NULL THEN 1 ELSE 0 END as lusted
+    FROM route_data rd
+    JOIN route_pulls rp ON rd.route_key = rp.route_key
+    JOIN pull_enemies pe ON rp.pull_id = pe.pull_id AND rp.route_key = pe.route_key
+    LEFT JOIN pull_spells ps ON rp.pull_id = ps.pull_id AND rp.route_key = ps.route_key 
+        AND ps.spell_id IN (SELECT spell_id FROM bloodlust_spells)
+    WHERE rd.dungeon_id = %s
+    AND EXISTS (
+        SELECT 1 FROM pull_spells ps_lust 
+        WHERE ps_lust.route_key = rd.route_key 
+        AND ps_lust.spell_id IN (SELECT spell_id FROM bloodlust_spells)
+    )
+    GROUP BY rp.route_key, rp.pull_id
+)
+SELECT 
+    pull_sig as top_npcs,
+    COUNT(*) as total_pulls_at_index,
+    SUM(lusted) as lust_count,
+    (SUM(lusted) / COUNT(*)) * 100 AS lust_percentage
+FROM PullSigs
+GROUP BY pull_sig
+HAVING SUM(lusted) > 0
+ORDER BY lust_count DESC
+LIMIT 20
+"""
+
+def fetch_dungeon_lust_timeline(connection, cursor, dungeon_id: str):
+    return fetch_with_retry(connection, cursor, FETCH_DUNGEON_LUST_TIMELINE_SQL, (dungeon_id,))
+
+FETCH_DUNGEON_SKIP_RATES_SQL = """
+SELECT 
+    npc_id,
+    total_encounters,
+    total_routes,
+    (total_encounters / total_routes) * 100 AS inclusion_percentage
+FROM aggregated_npc_skip_rates
+WHERE dungeon_id = %s AND total_routes > 0 AND total_encounters < total_routes
+ORDER BY inclusion_percentage ASC
+LIMIT 50
+"""
+
+def fetch_dungeon_skip_rates(connection, cursor, dungeon_id: str, season: int = None):
+    return fetch_with_retry(connection, cursor, FETCH_DUNGEON_SKIP_RATES_SQL, (dungeon_id,))
+
+
 
