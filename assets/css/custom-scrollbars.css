@@ -1,0 +1,73 @@
+/* Custom Scrollbar Styles for UI Elements */
+.table-responsive::-webkit-scrollbar,
+.dropdown-menu::-webkit-scrollbar,
+pre::-webkit-scrollbar,
+code::-webkit-scrollbar,
+.custom-scrollbar::-webkit-scrollbar,
+#sidenav-collapse-main::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track,
+.dropdown-menu::-webkit-scrollbar-track,
+pre::-webkit-scrollbar-track,
+code::-webkit-scrollbar-track,
+.custom-scrollbar::-webkit-scrollbar-track,
+#sidenav-collapse-main::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb,
+.dropdown-menu::-webkit-scrollbar-thumb,
+pre::-webkit-scrollbar-thumb,
+code::-webkit-scrollbar-thumb,
+.custom-scrollbar::-webkit-scrollbar-thumb,
+#sidenav-collapse-main::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover,
+.dropdown-menu::-webkit-scrollbar-thumb:hover,
+pre::-webkit-scrollbar-thumb:hover,
+code::-webkit-scrollbar-thumb:hover,
+.custom-scrollbar::-webkit-scrollbar-thumb:hover,
+#sidenav-collapse-main::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+/* Firefox compatibility */
+.table-responsive,
+.dropdown-menu,
+pre,
+code,
+.custom-scrollbar,
+#sidenav-collapse-main {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.4) rgba(255, 255, 255, 0.1);
+}
+
+/* Smooth-Scrollbar JS Plugin Overrides (Used on Sidebar) */
+.scrollbar-track {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 4px !important;
+}
+
+.scrollbar-track-y {
+  width: 8px !important;
+}
+
+.scrollbar-track-x {
+  height: 8px !important;
+}
+
+.scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.4) !important;
+  border-radius: 4px !important;
+}
+
+.scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.6) !important;
+}
