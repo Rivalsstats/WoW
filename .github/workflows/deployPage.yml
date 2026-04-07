@@ -49,6 +49,7 @@ jobs:
           ref: main 
           sparse-checkout: |
             pages
+            dungeons
             assets
             classes
             data/icons
