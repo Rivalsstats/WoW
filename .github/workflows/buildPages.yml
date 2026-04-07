@@ -107,7 +107,7 @@ jobs:
           BLIZ_CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
         run: |
           python backend_scripts/generateCompPage.py \
-            --output_dir pages  
+            --output_dir pages \
             --template templates/comps.html
 
       - name: Generate Blog HTML page
