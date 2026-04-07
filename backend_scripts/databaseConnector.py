@@ -2361,6 +2361,22 @@ def fetch_global_totals(connection, cursor, season: int):
         (season,)
     )
 
+FETCH_GLOBAL_TOP_COMPS_SQL = """
+SELECT comp, SUM(timed_runs + depleted_runs) as comp_count
+FROM Mythistone.aggregated_dungeon_comps
+WHERE season = %s
+GROUP BY comp
+ORDER BY comp_count DESC
+LIMIT 5
+"""
+
+def fetch_global_top_comps(connection, cursor, season: int):
+    cursor.execute(
+        FETCH_GLOBAL_TOP_COMPS_SQL,
+        (season,),
+    )
+    return cursor.fetchall()
+
 FETCH_DUNGEON_TOP_COMPS_SQL = """
 SELECT comp, SUM(timed_runs + depleted_runs) as comp_count
 FROM Mythistone.aggregated_dungeon_comps
@@ -2376,6 +2392,20 @@ def fetch_dungeon_top_comps(connection, cursor, dungeon_id: str, season: int):
         cursor,
         FETCH_DUNGEON_TOP_COMPS_SQL,
         (dungeon_id, season)
+    )
+
+FETCH_ALL_COMPS_SQL = """
+SELECT dungeon_id, keystone_level, comp, timed_runs, depleted_runs
+FROM Mythistone.aggregated_dungeon_comps
+WHERE season = %s
+"""
+
+def fetch_all_comps(connection, cursor, season: int):
+    return fetch_with_retry(
+        connection,
+        cursor,
+        FETCH_ALL_COMPS_SQL,
+        (season,)
     )
 
 FETCH_DUNGEON_TOP_ROUTES_SQL = """

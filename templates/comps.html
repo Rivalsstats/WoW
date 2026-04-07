@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>WoW Mythic+ Comps in {{ season_info.name }} | MythiStone</title>
+  <meta name="description" content="Find the perfect group fit, analyze synergy, and discover hidden gem comps for Mythic+.">
+  <meta name="description"
+        content="Find the perfect group fit, analyze synergy, and discover hidden gem comps for {{ season_info.name }}.">
+    <link rel="canonical" href="https://mythistone.com/pages/comps">
+    <meta name="keywords"
+        content="MythiStone, Mythic+, comps, guide, routes, stats, WoW meta, {{ season_info.name }}">
+
+    <!-- Robots -->
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MythiStone">
+    <meta property="og:url" content="https://mythistone.com/pages/comps">
+    <meta property="og:title" content="Mythic + Comps in {{ season_info.name }}">
+    <meta property="og:description"
+        content="Find the perfect group fit, analyze synergy, and discover hidden gem comps for {{ season_info.name }}.">
+    <meta property="og:image" content="https://mythistone.com/assets/img/previews/comps.png">
+    <meta property="og:image:alt" content="Mythic + Comps preview">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@MythiStone">
+    <meta name="twitter:creator" content="@MythiStone">
+    <meta name="twitter:title" content="Mythic + Comps in {{ season_info.name }}">
+    <meta name="twitter:description"
+        content="Find the perfect group fit, analyze synergy, and discover hidden gem comps for {{ season_info.name }}.">
+    <meta name="twitter:image" content="https://mythistone.com/assets/img/previews/comps.png">
+
+    <!-- Mobile / Theme -->
+    <meta name="theme-color" content="#1a202c">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="MythiStone" />
+  {% include "header_imports.html" %}
+  <link rel="stylesheet" href="/assets/css/comps.css">
+</head>
+
+<body class="g-sidenav-show g-sidenav-show-right" data-bs-theme="dark">
+  {% include "sidenav.html" %}
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+    {% include "navbar.html" %}
+    {% include "notifications.html" %}
+      
+    <div class="container-fluid py-2">
+      <div class="row">
+        <div class="ms-3 mb-4">
+          <h3 class="mb-0 h4 font-weight-bolder">Comp Analysis</h3>
+          <p class="mb-0">
+            Find the perfect group fit, analyze synergy, and discover hidden gem comps for Mythic+.
+          </p>
+        </div>
+      </div>
+      <div class="row">
+        <!-- The Perfect Fit Widget -->
+        <div class="col-12 mb-4">
+          <div class="card">
+            <div class="card-header pb-0 p-3 d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="mb-0">The Perfect Fit</h6>
+                <p class="text-sm mb-0">Select your current group to find the statistically best specs to fill the remaining slots.</p>
+              </div>
+              <div class="d-flex align-items-center">
+                <select id="dungeonFilter" class="form-select form-select-sm" style="width: auto; min-width: 250px; background-color: #1d1d1d; color: white;">
+                  <option value="all">All Dungeons</option>
+                  {% for id, details in dungeon_lookup.items() %}
+                  <option value="{{ id }}">{{ details.name.en_US }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="card-body p-3">
+              <div class="row">
+                <div class="col-lg-6 col-md-12">
+                  <h6 class="text-uppercase text-white text-xs font-weight-bolder">Tanks</h6>
+                  <div class="mb-3" style="display: grid; grid-template-columns: repeat(7, 40px); gap: 0.5rem; justify-content: start;">
+                    {% for s in specs_ui %}
+                      {% if s.role == 0 %}
+                      <img src="/data/icons/{{ s.icon }}.jpg" class="spec-icon" data-spec="{{ s.id }}" title="{{ s.name }} {{ s.className }}">
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                  <h6 class="text-uppercase text-white text-xs font-weight-bolder">Healers</h6>
+                  <div class="mb-3" style="display: grid; grid-template-columns: repeat(7, 40px); gap: 0.5rem; justify-content: start;">
+                    {% for s in specs_ui %}
+                      {% if s.role == 1 %}
+                      <img src="/data/icons/{{ s.icon }}.jpg" class="spec-icon" data-spec="{{ s.id }}" title="{{ s.name }} {{ s.className }}">
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                  <h6 class="text-uppercase text-white text-xs font-weight-bolder">DPS</h6>
+                  <div class="mb-3" style="display: grid; grid-template-columns: repeat(7, 40px); gap: 0.5rem; justify-content: start;">
+                    {% for s in specs_ui %}
+                      {% if s.role == 2 %}
+                      <img src="/data/icons/{{ s.icon }}.jpg" class="spec-icon" data-spec="{{ s.id }}" title="{{ s.name }} {{ s.className }}">
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                </div>
+                
+                <div class="col-lg-6 col-md-12">
+                  <h6 class="text-uppercase text-white text-xs font-weight-bolder">Suggested Additions</h6>
+                  <div id="suggestions-container" class="mt-3 custom-scrollbar" style="max-height: 375px; overflow-y: auto; overflow-x: hidden; margin-right: -1rem; padding-right: 1rem;">
+                      <p class="text-sm text-secondary">Select 1 to 4 specs to see suggestions.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <!-- Hidden Gems -->
+        <div class="col-lg-6 col-md-6 mb-md-0 mb-4">
+          <div class="card h-100">
+            <div class="card-header pb-0">
+              <h6>Hidden Gems</h6>
+              <p class="text-sm">Comps with low overall popularity (< 1%) but incredible high-key success rates.</p>
+            </div>
+            <div class="card-body px-0 pb-2">
+              <div class="table-responsive" style="max-height: 435px; overflow-y: auto;">
+                <table class="table align-items-center mb-0">
+                  <thead class="sticky-top" style="z-index: 10; background-color: #1d1d1d;">
+                    <tr>
+                      <th class="text-uppercase text-white text-xxs font-weight-bolder opacity-7" style="position: sticky; top: 0; background-color: #1d1d1d;">Comp</th>
+                      <th class="text-center text-uppercase text-white text-xxs font-weight-bolder opacity-7" style="position: sticky; top: 0; background-color: #1d1d1d;">Runs</th>
+                      <th class="text-center text-uppercase text-white text-xxs font-weight-bolder opacity-7" style="position: sticky; top: 0; background-color: #1d1d1d;">Max Key</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for hg in hidden_gems %}
+                    <tr>
+                      <td>
+                        <div class="d-flex px-2 py-1">
+                          {% for spec_id in hg.specs %}
+                            {% set s = spec_lookup[spec_id|string] %}
+                            <img src="/data/icons/{{ s.SpellIconFileId }}.jpg" class="avatar avatar-sm me-1" title="{{ s.name }}">
+                          {% endfor %}
+                        </div>
+                      </td>
+                      <td class="align-middle text-center text-sm">
+                        <span class="text-xs font-weight-bold">{{ hg.timed + hg.depleted }}</span>
+                      </td>
+                      <td class="align-middle text-center text-sm">
+                        <span class="text-xs font-weight-bold">{{ hg.max_key }}</span>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Glue Specs -->
+        <div class="col-lg-6 col-md-6">
+          <div class="card h-100">
+            <div class="card-header pb-0">
+              <h6>Glue Specs (Flexibility Index)</h6>
+              <p class="text-sm">Specs that appear in the highest number of <strong>distinct</strong> successful high-key combinations.</p>
+            </div>
+            <div class="card-body px-0 pt-0 pb-2">
+              <div class="table-responsive p-0" style="max-height: 435px; overflow-y: auto; overflow-x: hidden;">
+                <ul class="list-group mb-0">
+                    {% for gs in glue_specs %}
+                      {% set s = spec_lookup[gs.spec_id|string] %}
+                      {% set c = class_lookup[s.classID|string] %}
+                      {% set role_map = {'0': 'Tank', '1': 'Healer', '2': 'Dps'} %}
+                      {% set role_name = role_map.get(s.role|string, 'Dps') %}
+                      {% set clean_cname = c.name|replace(' ', '') %}
+                      <li class="list-group-item border-0 d-flex justify-content-between px-4 mb-2 border-radius-lg">
+                        <div class="d-flex align-items-center">
+                          <img src="/data/icons/{{ s.SpellIconFileId }}.jpg" class="avatar avatar-sm me-3 border-radius-sm">
+                          <div class="d-flex flex-column">
+                            <a href="/classes/{{ role_name }}/{{ s.name }}_{{ c.name }}" class="mb-1 text-sm font-weight-bolder class-{{ clean_cname }}-text">{{ s.name }} {{ c.name }}</a>
+                            <span class="text-xs text-secondary mt-1">
+                              Viable Comps: <span class="text-white pe-2">{{ gs.comps }}</span>
+                              Runs: <span class="text-white pe-2">{{ gs.runs }}</span>
+                              Max Key: <span class="text-white">{{ gs.max_key }}</span>
+                            </span>
+                        </div>
+                      </div>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {% include "footer.html" %}
+    </div>
+  </main>
+  {% include "right_aside.html" %}
+  {% include "fixed_plugin.html" %}
+  {% include "javascript_imports.html" %}
+  <script>
+    // Prefetch comps JSON
+    let compsData = [];
+    fetch('/assets/json/comps_index.json')
+      .then(response => response.json())
+      .then(data => {
+        compsData = data;
+      })
+      .catch(err => console.error("Error loading comp data", err));
+
+    const selectedSpecs = new Set();
+    const specIcons = document.querySelectorAll('.spec-icon');
+    const suggestionsContainer = document.getElementById('suggestions-container');
+
+    const roleMap = {0: 'Tank', 1: 'Healer', 2: 'Dps'};
+    const dungeonLookup = {
+      {% for id, details in dungeon_lookup.items() %}
+      {{ id }}: "{{ details.name.en_US }}",
+      {% endfor %}
+    };
+    const specLookup = {
+      {% for s in specs_ui %}
+      {{ s.id }}: { 
+        name: "{{ s.name }} {{ s.className }}", 
+        specName: "{{ s.name }}",
+        className: "{{ s.className }}",
+        cleanClass: "{{ s.className|replace(' ', '') }}",
+        roleName: roleMap[{{ s.role }}] || 'Dps',
+        icon: "{{ s.icon }}" 
+      },
+      {% endfor %}
+    };
+
+    specIcons.forEach(icon => {
+      icon.addEventListener('click', (e) => {
+        const specId = parseInt(e.target.dataset.spec);
+        if (selectedSpecs.has(specId)) {
+          selectedSpecs.delete(specId);
+          e.target.classList.remove('selected');
+        } else {
+          if (selectedSpecs.size < 5) {
+            selectedSpecs.add(specId);
+            e.target.classList.add('selected');
+          }
+        }
+        updateSuggestions();
+      });
+    });
+
+    const dungeonFilter = document.getElementById('dungeonFilter');
+    dungeonFilter.addEventListener('change', updateSuggestions);
+
+    function updateSuggestions() {
+      const headerTitle = document.querySelector('.card-header h6');
+      if (selectedSpecs.size === 0) {
+          suggestionsContainer.innerHTML = '<p class="text-sm text-secondary">Select 1 to 5 specs to see suggestions.</p>';
+          if (headerTitle) headerTitle.innerText = 'The Perfect Fit';
+          return;
+      }
+
+      const selectedDungeonId = dungeonFilter.value; // 'all' or dungeon ID as string
+
+      // Filter comps that contain all selected specs
+      // And also filter out comps that have 0 runs in the selected dungeon, if a specific dungeon is selected
+      const arr = Array.from(selectedSpecs);
+      const possibleComps = compsData.filter(comp => {
+        if (!arr.every(s => comp.c.includes(s))) return false;
+        
+        if (selectedDungeonId !== 'all') {
+            const did = parseInt(selectedDungeonId);
+            if (!comp.dungeons || !comp.dungeons[did] || (comp.dungeons[did].t + comp.dungeons[did].d) === 0) {
+                return false;
+            }
+        }
+        return true;
+      });
+
+      // We need to re-sort them based on the weight for the selected dungeon if 'all' is not selected
+      if (selectedDungeonId !== 'all') {
+          const did = parseInt(selectedDungeonId);
+          possibleComps.sort((a, b) => b.dungeons[did].w - a.dungeons[did].w);
+      } else {
+          // Fall back to total weight
+          possibleComps.sort((a, b) => b.w - a.w);
+      }
+
+      if (selectedSpecs.size === 5) {
+        if (headerTitle) headerTitle.innerText = 'Composition Analysis';
+        if (possibleComps.length === 0) {
+          suggestionsContainer.innerHTML = '<div class="alert alert-secondary text-white text-sm"><i class="material-symbols-rounded align-middle me-2">info</i>We don\'t have enough top-tier data matching this exact 5-man team.</div>';
+        } else {
+          const comp = possibleComps[0];
+          
+          let cTimed = comp.t;
+          let cDepleted = comp.d;
+          let cMaxKey = comp.mk;
+          
+          if (selectedDungeonId !== 'all') {
+              const did = parseInt(selectedDungeonId);
+              if (comp.dungeons && comp.dungeons[did]) {
+                  cTimed = comp.dungeons[did].t || 0;
+                  cDepleted = comp.dungeons[did].d || 0;
+                  cMaxKey = comp.dungeons[did].mk || 0;
+              } else {
+                  cTimed = 0;
+                  cDepleted = 0;
+                  cMaxKey = 0;
+              }
+          }
+          
+          const totalRuns = cTimed + cDepleted;
+          const winRate = totalRuns > 0 ? Math.round((cTimed / totalRuns) * 100) : 0;
+          
+          let dungeonStat = "";
+          if (selectedDungeonId === 'all') {
+            if (comp.bd && comp.bdr > 0 && dungeonLookup[comp.bd]) {
+              const usagePercent = Math.round((comp.bdr / totalRuns) * 100);
+              dungeonStat = `
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="text-sm text-secondary" title="Dungeon where this comp is played the most">Top Dungeon:</span>
+                    <span class="text-sm text-white font-weight-bold text-end">${dungeonLookup[comp.bd]} <span class="badge bg-secondary font-weight-normal ms-1 p-1" title="${usagePercent}% of this comp's total runs were played here">${usagePercent}% of runs</span></span>
+                  </div>
+              `;
+            }
+          }
+
+          suggestionsContainer.innerHTML = `
+            <div class="card bg-dark border border-secondary mb-3 mt-2">
+              <div class="card-body p-3">
+                <h6 class="text-white mb-3">Stats for Selected Comp</h6>
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-sm text-secondary">Max Key Timed:</span>
+                  <span class="text-sm text-white font-weight-bold">${cMaxKey}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-sm text-secondary">Total Runs:</span>
+                  <span class="text-sm text-white font-weight-bold">${totalRuns}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-sm text-secondary">Success Rate:</span>
+                  <span class="text-sm ${winRate >= 70 ? 'text-success' : 'text-warning'} font-weight-bold">${winRate}%</span>
+                </div>
+                ${dungeonStat}
+              </div>
+            </div>
+            <button class="btn btn-outline-primary w-100" onclick="clearSelection()">Start Over</button>
+          `;
+        }
+        return;
+      }
+
+      if (headerTitle) headerTitle.innerText = 'Suggested Additions';
+
+      if (possibleComps.length === 0) {
+        suggestionsContainer.innerHTML = '<p class="text-sm text-warning">No viable top-tier data for this combo.</p>';
+        return;
+      }
+
+      // Aggregate stats of remaining potential specs
+      const specStats = {};
+      possibleComps.forEach(comp => {
+        let compWt = comp.w;
+        let compT = comp.t;
+        let compD = comp.d;
+        let compMK = comp.mk;
+
+        if (selectedDungeonId !== 'all') {
+            const did = parseInt(selectedDungeonId);
+            if (comp.dungeons && comp.dungeons[did]) {
+                compWt = comp.dungeons[did].w || 0;
+                compT = comp.dungeons[did].t || 0;
+                compD = comp.dungeons[did].d || 0;
+                compMK = comp.dungeons[did].mk || 0;
+            } else {
+                compWt = 0; compT = 0; compD = 0; compMK = 0;
+            }
+        }
+
+        if (compWt > 0) {
+            comp.c.forEach(s => {
+              if (!selectedSpecs.has(s)) {
+                if (!specStats[s]) {
+                  specStats[s] = { t: 0, d: 0, mk: 0, w: 0 };
+                }
+                specStats[s].t += compT;
+                specStats[s].d += compD;
+                specStats[s].w += compWt;
+                if (compMK > specStats[s].mk) {
+                  specStats[s].mk = compMK;
+                }
+              }
+            });
+        }
+      });
+
+      const sortedSuggestions = Object.entries(specStats)
+        .sort((a, b) => b[1].w - a[1].w)
+        .slice(0, 10);
+
+      let html = '<div class="w-100"><ul class="list-group mb-0">';
+      sortedSuggestions.forEach(([specId, stats]) => {
+        const specInfo = specLookup[specId] || {name: "Unknown", icon: "inv_misc_questionmark", specName: "Unknown", className: "Unknown", cleanClass: "Unknown", roleName: "Dps"};
+        const total = stats.t + stats.d;
+        const winRate = total > 0 ? Math.round((stats.t / total) * 100) : 0;
+        
+        html += `
+          <li class="list-group-item border-0 d-flex justify-content-between px-3 mb-2 border-radius-lg cursor-pointer flex-column flex-md-row" onclick="addSuggestedSpec(${specId})">
+            <div class="d-flex align-items-center">
+              <img src="/data/icons/${specInfo.icon}.jpg" class="avatar avatar-sm me-3 border-radius-sm text-white">
+              <div class="d-flex flex-column">
+                <a href="/classes/${specInfo.roleName}/${specInfo.specName}_${specInfo.className}" onclick="event.stopPropagation();" class="mb-1 text-sm font-weight-bolder class-${specInfo.cleanClass}-text">${specInfo.name}</a>
+                <span class="text-xs text-secondary mt-1">
+                  Runs: <span class="text-white pe-2">${total}</span>
+                  Timed: <span class="${winRate >= 70 ? 'text-success' : 'text-warning'} pe-2">${winRate}%</span>
+                  Max Key: <span class="text-white">${stats.mk}</span>
+                </span>
+              </div>
+            </div>
+            <div class="mt-3 mt-md-0 w-100 w-md-auto d-flex">
+               <button class="btn btn-sm btn-outline-primary mb-0 d-flex align-items-center px-3 py-2 add-spec-btn" onclick="event.stopPropagation(); addSuggestedSpec(${specId})">
+                 <i class="material-symbols-rounded text-sm me-1">add</i> 
+                 <span>Add Spec</span>
+               </button>
+            </div>
+          </li>
+        `;
+      });
+      html += '</ul></div>';
+      suggestionsContainer.innerHTML = html;
+    }
+
+    function addSuggestedSpec(specId) {
+      if (selectedSpecs.has(specId)) return;
+      if (selectedSpecs.size >= 5) return;
+      
+      const icon = document.querySelector(`.spec-icon[data-spec="${specId}"]`);
+      if (icon) {
+        selectedSpecs.add(specId);
+        icon.classList.add('selected');
+        updateSuggestions();
+      }
+    }
+
+    function clearSelection() {
+      selectedSpecs.clear();
+      specIcons.forEach(icon => icon.classList.remove('selected'));
+      updateSuggestions();
+    }
+  </script>
+</body>
+</html>

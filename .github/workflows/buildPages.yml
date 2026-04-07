@@ -7,6 +7,7 @@ on:
     paths:
       - 'templates/**'
       - 'backend_scripts/generateSpecPages.py'
+      - 'backend_scripts/generateCompPage.py'
       - 'backend_scripts/generateDashboardPage.py'
       - 'backend_scripts/generateIndexPage.py'
       - 'backend_scripts/generateRoutesPage.py'
@@ -15,7 +16,7 @@ on:
       - 'backend_scripts/generateDungeonPages.py'
       - 'backend_scripts/generateSearchIndex.py'
       - 'backend_scripts/generateSitemap.py'
-      
+
   workflow_dispatch:
   workflow_run:
     workflows: ["Gather Static WoW data"]
@@ -94,6 +95,21 @@ jobs:
           python backend_scripts/generateRoutesPage.py \
             --template templates/find_routes.html  \
             --output_dir pages  
+
+      - name: Generate Comp Analysis HTML page
+        env:
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORT }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+          BLIZ_CLIENT_ID: ${{ secrets.BLIZ_CLIENT_ID }}
+          BLIZ_CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
+        run: |
+          python backend_scripts/generateCompPage.py \
+            --output_dir pages  
+            --template templates/comps.html
+
       - name: Generate Blog HTML page
         run: |   
             python backend_scripts/generateBlogPage.py
@@ -155,6 +171,7 @@ jobs:
           git add index.html
           git add 404.html
           git add assets/json/compRoutes.json
+          git add assets/json/comps_index.json
           git add sitemap.xml
           
           # Commit only if there are changes

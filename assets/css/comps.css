@@ -1,0 +1,39 @@
+.spec-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 5px;
+  cursor: pointer;
+  opacity: 0.4;
+  transition: all 0.2s ease-in-out;
+}
+.spec-icon:hover {
+  opacity: 0.8;
+}
+.spec-icon.selected {
+  opacity: 1;
+  box-shadow: 0 0 0 2px #e91e63;
+  transform: scale(1.1);
+}
+.comp-result {
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding: 10px 0;
+}
+.flex-score {
+  font-weight: bold;
+  color: #e91e63;
+}
+.synergy-box {
+  width: 25px;
+  height: 25px;
+  display: inline-block;
+  margin: 1px;
+}
+.add-spec-btn {
+  width: 100%;
+  justify-content: center;
+}
+@media (min-width: 768px) {
+  .add-spec-btn {
+    width: auto;
+  }
+}

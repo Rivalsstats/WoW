@@ -2601,6 +2601,220 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
 
     return {"out_path": out_path, "post_data": post_data}
 
+
+def createCompOverview(output_dir, donesocials, api_key, url, season):
+    week = datetime.now().strftime("%Y-%m")
+    out_path = os.path.join(output_dir, f"comp_overview_{season}_{week}.png")
+
+    if out_path in donesocials:
+        return None
+        
+    try:
+        from generateCompPage import calculate_comp_stats
+        with closing(databaseConnector.get_connection()) as conn:
+            cursor = conn.cursor(dictionary=False)
+            _, _, _, glue_specs = calculate_comp_stats(conn, cursor, season, spec_lookup)
+    except Exception as e:
+        print(f"Stats check failed: {e}")
+        glue_specs = []
+    
+    post_data = createCompOverviewImg('tmp', out_path, season, glue_specs=glue_specs)
+    
+    if api_key is not None and post_data and post_data.get("post_data"):
+        print(post_data["post_data"])
+        client = get_openai_client(api_key)
+        post = generate_post_text(client, post_data.get("post_data"), url)
+        return {"out_path": out_path, "post": post}
+    return {"out_path": out_path, "post": ""}
+
+
+def createCompOverviewImg(tmpdir, out_path, season, conn=None, cursor=None, glue_specs=None):
+    close_conn = False
+    if conn is None or cursor is None:
+        conn = databaseConnector.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        close_conn = True
+        
+    try:
+        # Fetch stats
+        tot = databaseConnector.fetch_total_season_runs(conn, cursor, season)
+        play_count = int(tot) if tot else 0
+        
+        # Top comps
+        top_comps_data = databaseConnector.fetch_global_top_comps(conn, cursor, season)
+        
+    finally:
+        if close_conn:
+            cursor.close()
+            conn.close()
+        
+    # canvas
+    bg_dir = os.path.join("data", "bg_imgs")
+    bg_files = [
+        os.path.join(bg_dir, f)
+        for f in os.listdir(bg_dir)
+        if f.lower().endswith((".jpg", ".jpeg", ".png"))
+    ] if os.path.exists(bg_dir) else []
+    
+    if not bg_files:
+        canvas = Image.new("RGB", (WIDTH, HEIGHT), "#222222")
+    else:
+        bg_path = random.choice(bg_files)
+        canvas = Image.open(bg_path).convert("RGB")
+        if canvas.size != (WIDTH, HEIGHT):
+            canvas = canvas.resize((WIDTH, HEIGHT), Image.LANCZOS)
+            
+    draw = ImageDraw.Draw(canvas)
+    font_big = ImageFont.truetype(FONT_FILE, TITLE_SIZE)
+    font_sm = ImageFont.truetype(FONT_FILE, SMALL_SIZE)
+    
+    # Draw Title
+    draw.text(
+        (50, 30),
+        "Global Top Comps",
+        font=font_big,
+        fill=(255, 255, 255),
+        stroke_width=2,
+        stroke_fill=(0, 0, 0),
+    )
+    
+    # Draw Total Runs
+    draw.text(
+        (50, 130),
+        f"{humanize_number(play_count)} total runs tracked across all dungeons",
+        font=font_sm,
+        fill=(200, 200, 200),
+        stroke_width=2,
+        stroke_fill=(0, 0, 0),
+    )
+    
+    # Top Comps
+    draw.text(
+        (50, 200),
+        "Top Comps:",
+        font=font_sm,
+        fill=(255, 255, 255),
+        stroke_width=2,
+        stroke_fill=(0, 0, 0),
+    )
+    
+    y_offset = 250
+    for r in top_comps_data[:5]:
+        comp_str = r['comp'] if isinstance(r, dict) else r[0]
+        comp_cnt = r['comp_count'] if isinstance(r, dict) else r[1]
+        if not comp_str:
+            continue
+        spec_ids = comp_str.split(',')
+        spec_ids = sorted(
+            spec_ids,
+            key=lambda sid: (int(spec_lookup[sid]["role"]) if sid in spec_lookup else 99, int(sid)),
+        )
+        x_offset = 50
+        for sid in spec_ids:
+            if sid in spec_lookup:
+                icon_file = os.path.join(ICON_DIR, f"{spec_lookup[sid]['SpellIconFileId']}.jpg")
+                if os.path.exists(icon_file):
+                    from PIL import Image as PilImage
+                    img = PilImage.open(icon_file).convert("RGBA").resize((40, 40), Image.LANCZOS)
+                    canvas.paste(img, (x_offset, y_offset), img)
+            x_offset += 45
+        # draw text
+        draw.text(
+            (x_offset + 10, y_offset + 5),
+            f"Runs: {humanize_number(int(comp_cnt))}",
+            font=font_sm,
+            fill=(255, 255, 255),
+            stroke_width=1,
+            stroke_fill=(0, 0, 0)
+        )
+        y_offset += 60
+        
+    # Draw Most Flexible Specs (Glue Specs) if provided
+    if glue_specs:
+        draw.text(
+            (WIDTH // 2 + 50, 200),
+            "Most Flexible Specs:",
+            font=font_sm,
+            fill=(255, 255, 255),
+            stroke_width=2,
+            stroke_fill=(0, 0, 0),
+        )
+        
+        g_y_offset = 250
+        for gs in glue_specs[:5]:
+            sid = str(gs['spec_id'])
+            comps_count = gs.get('comps', 0)
+            
+            if sid in spec_lookup:
+                spec_meta = spec_lookup[sid]
+                class_meta = class_lookup.get(str(spec_meta.get("classID", "")), {})
+                spec_name = f"{spec_meta.get('name', '')} {class_meta.get('name', '')}"
+                
+                # Draw Icon
+                icon_file = os.path.join(ICON_DIR, f"{spec_meta['SpellIconFileId']}.jpg")
+                if os.path.exists(icon_file):
+                    from PIL import Image as PilImage
+                    img = PilImage.open(icon_file).convert("RGBA").resize((40, 40), Image.LANCZOS)
+                    canvas.paste(img, (WIDTH // 2 + 50, g_y_offset), img)
+                
+                # Draw Text
+                class_color_hex = class_meta.get("color", {"r": 255, "g": 255, "b": 255, "a": 1})
+                class_color = (int(class_color_hex["r"]), int(class_color_hex["g"]), int(class_color_hex["b"]))
+                
+                draw.text(
+                    (WIDTH // 2 + 100, g_y_offset + 5),
+                    f"{spec_name} - {comps_count} Comps",
+                    font=font_sm,
+                    fill=class_color,
+                    stroke_width=1,
+                    stroke_fill=(0, 0, 0)
+                )
+                
+            g_y_offset += 60
+        
+    top_comp_str = ""
+    if top_comps_data:
+        first_comp = top_comps_data[0]
+        comp_str = first_comp['comp'] if isinstance(first_comp, dict) else first_comp[0]
+        if comp_str:
+            top_spec_ids = comp_str.split(',')
+            top_spec_ids = sorted(
+                top_spec_ids,
+                key=lambda sid: (int(spec_lookup[sid]["role"]) if sid in spec_lookup else 99, int(sid)),
+            )
+            spec_names = []
+            for sid in top_spec_ids:
+                if sid in spec_lookup:
+                    spec_meta = spec_lookup[sid]
+                    class_meta = class_lookup.get(str(spec_meta.get("classID", "")), {})
+                    spec_names.append(f"{spec_meta.get('name', '')} {class_meta.get('name', '')}")
+            top_comp_str = ", ".join(spec_names)
+
+    most_flexible_spec_str = ""
+    if glue_specs and len(glue_specs) > 0:
+        sid = str(glue_specs[0].get('spec_id'))
+        if sid in spec_lookup:
+            spec_meta = spec_lookup[sid]
+            class_meta = class_lookup.get(str(spec_meta.get("classID", "")), {})
+            most_flexible_spec_str = f"{spec_meta.get('name', '')} {class_meta.get('name', '')}"
+
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    canvas = apply_watermark_to_canvas(canvas, position="top_right", padding_x=30, padding_y=30)
+    
+    if out_path.lower().endswith((".jpg", ".jpeg")):
+        canvas = canvas.convert("RGB")
+    canvas.save(out_path)
+
+    post_data = {
+        "title": "Global Top Comps",
+        "amount_data_source_runs": humanize_number(play_count),
+        "top_comp": top_comp_str,
+        "most_flexible_spec": most_flexible_spec_str
+    }
+
+    return {"out_path": out_path, "post_data": post_data}
+
+
 def apply_watermark(image_path):
     try:
         from PIL import Image, ImageDraw, ImageFont
@@ -2754,12 +2968,18 @@ def create_socials_post(donesocials, api_key, url):
             run_type, current_season_id, donesocials, api_key, url
         )
 
+    def gen_comp_overview():
+        return createCompOverview(
+            OUTPUT_DIR, donesocials, api_key, url, current_season_id
+        )
+
     other_generators = [
         gen_dungeon_tier,
         gen_spec_pop_vs_perf,
         gen_dungeon_pop_vs_ease,
         gen_overall_spec_popularity,
         gen_spec_pop_by_level,
+        gen_comp_overview,
     ] + [make_run_gen(rt) for rt in run_types]
 
     # Combine all generators

@@ -11161,11 +11161,11 @@ fieldset:disabled .btn {
 }
 
 .text-secondary {
-  color: #737373 !important;
+  color: var(--bs-secondary) !important;
 }
 
 .text-success {
-  color: #4CAF50 !important;
+  color: var(--bs-success) !important;
 }
 
 .text-info {
@@ -11197,7 +11197,7 @@ fieldset:disabled .btn {
 }
 
 .text-body {
-  color: #737373 !important;
+  color: var(--bs-body-color) !important;
 }
 
 .text-body-emphasis {
