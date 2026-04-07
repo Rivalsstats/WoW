@@ -5,10 +5,17 @@ on:
     - cron: '0 8 * * MON,TUE,THU,FRI,SAT,SUN' #skip wednesday as we run full update on wednesday
   push:
     paths:
-      - 'data/aggregated/final/specs/**'
       - 'templates/**'
-      - 'scripts/generateSpecPages.py'
-      - 'scripts/generateDashboardPage.py'
+      - 'backend_scripts/generateSpecPages.py'
+      - 'backend_scripts/generateDashboardPage.py'
+      - 'backend_scripts/generateIndexPage.py'
+      - 'backend_scripts/generateRoutesPage.py'
+      - 'backend_scripts/generateBlogPage.py'
+      - 'backend_scripts/generateLegalPages.py'
+      - 'backend_scripts/generateDungeonPages.py'
+      - 'backend_scripts/generateSearchIndex.py'
+      - 'backend_scripts/generateSitemap.py'
+      
   workflow_dispatch:
   workflow_run:
     workflows: ["Gather Static WoW data"]
