@@ -2422,6 +2422,82 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
         stroke_fill=(0, 0, 0),
     )
     
+    # Measure Box Widths to wrap tightly like Spec Page panels
+    pad = 20
+    icon_sz = 40
+    text_offset = 10
+    v_spacing = 20
+    
+    top_comps_w = 0
+    # Measure Top Comps heading
+    header_1 = "Top Comps:"
+    box1 = draw.textbbox((0, 0), header_1, font=font_sm)
+    top_comps_w = max(top_comps_w, box1[2] - box1[0])
+
+    for r in top_comps_data[:5]:
+        comp_str = r['comp'] if isinstance(r, dict) else r[0]
+        if not comp_str: continue
+        comp_cnt = int(r['comp_count'] if isinstance(r, dict) else r[1])
+        # calculate row width
+        num_icons = len(comp_str.split(','))
+        runs_txt = f"Runs: {humanize_number(comp_cnt)}"
+        r_box = draw.textbbox((0, 0), runs_txt, font=font_sm)
+        # width = icons + offset + text width
+        row_w = (num_icons * 45) + text_offset + (r_box[2]-r_box[0])
+        top_comps_w = max(top_comps_w, row_w)
+
+    valid_comps_count = sum(1 for r in top_comps_data[:5] if (r['comp'] if isinstance(r, dict) else r[0]))
+
+    glue_comps_w = 0
+    valid_glue_count = 0
+
+    if glue_specs:
+        header_2 = "Most Flexible Specs:"
+        box2 = draw.textbbox((0, 0), header_2, font=font_sm)
+        glue_comps_w = max(glue_comps_w, box2[2] - box2[0])
+
+        valid_glue_count = min(5, len(glue_specs))
+        for gs in glue_specs[:5]:
+            comps_count = gs.get('comps', 0)
+            sid = str(gs['spec_id'])
+            if sid in spec_lookup:
+                s_meta = spec_lookup[sid]
+                c_meta = class_lookup.get(str(s_meta.get("classID", "")), {})
+                s_name = f"{s_meta.get('name', '')} {c_meta.get('name', '')}"
+                txt = f"{s_name} - {comps_count} Comps"
+                g_box = draw.textbbox((0, 0), txt, font=font_sm)
+                row_w = icon_sz + text_offset + (g_box[2]-g_box[0])
+                glue_comps_w = max(glue_comps_w, row_w)
+
+    panel_x1 = 30
+    panel_y1 = 180
+
+    if valid_comps_count > 0:
+        box_pw = top_comps_w + (pad * 2)
+        box_ph = pad + (icon_sz + v_spacing) + (valid_comps_count * (icon_sz + v_spacing)) - v_spacing + pad
+        # Actually in original code it spaces by 60
+        # Let's map it: 200 (heading y) -> 250 (first row) = 50 diff
+        # Each row adds 60.
+        # Height = 250 + (valid_comps_count * 60) - 180
+        box_y1 = 180
+        box_y2 = 250 + (valid_comps_count * 60)
+        draw.rounded_rectangle(
+            [(panel_x1, box_y1), (panel_x1 + box_pw, box_y2)],
+            radius=15,
+            fill=(0, 0, 0, 200)
+        )
+
+    if glue_specs and valid_glue_count > 0:
+        box_pw = glue_comps_w + (pad * 2)
+        panel_x2 = WIDTH // 2 + 30
+        box_y1 = 180
+        box_y2 = 250 + (valid_glue_count * 60)
+        draw.rounded_rectangle(
+            [(panel_x2, box_y1), (panel_x2 + box_pw, box_y2)],
+            radius=15,
+            fill=(0, 0, 0, 200)
+        )
+
     # Top Comps
     draw.text(
         (50, 200),
@@ -2664,7 +2740,7 @@ def createCompOverviewImg(tmpdir, out_path, season, conn=None, cursor=None, glue
         if canvas.size != (WIDTH, HEIGHT):
             canvas = canvas.resize((WIDTH, HEIGHT), Image.LANCZOS)
             
-    draw = ImageDraw.Draw(canvas)
+    draw = ImageDraw.Draw(canvas, "RGBA")
     font_big = ImageFont.truetype(FONT_FILE, TITLE_SIZE)
     font_sm = ImageFont.truetype(FONT_FILE, SMALL_SIZE)
     
@@ -2688,6 +2764,82 @@ def createCompOverviewImg(tmpdir, out_path, season, conn=None, cursor=None, glue
         stroke_fill=(0, 0, 0),
     )
     
+    # Measure Box Widths to wrap tightly like Spec Page panels
+    pad = 20
+    icon_sz = 40
+    text_offset = 10
+    v_spacing = 20
+    
+    top_comps_w = 0
+    # Measure Top Comps heading
+    header_1 = "Top Comps:"
+    box1 = draw.textbbox((0, 0), header_1, font=font_sm)
+    top_comps_w = max(top_comps_w, box1[2] - box1[0])
+
+    for r in top_comps_data[:5]:
+        comp_str = r['comp'] if isinstance(r, dict) else r[0]
+        if not comp_str: continue
+        comp_cnt = int(r['comp_count'] if isinstance(r, dict) else r[1])
+        # calculate row width
+        num_icons = len(comp_str.split(','))
+        runs_txt = f"Runs: {humanize_number(comp_cnt)}"
+        r_box = draw.textbbox((0, 0), runs_txt, font=font_sm)
+        # width = icons + offset + text width
+        row_w = (num_icons * 45) + text_offset + (r_box[2]-r_box[0])
+        top_comps_w = max(top_comps_w, row_w)
+
+    valid_comps_count = sum(1 for r in top_comps_data[:5] if (r['comp'] if isinstance(r, dict) else r[0]))
+
+    glue_comps_w = 0
+    valid_glue_count = 0
+
+    if glue_specs:
+        header_2 = "Most Flexible Specs:"
+        box2 = draw.textbbox((0, 0), header_2, font=font_sm)
+        glue_comps_w = max(glue_comps_w, box2[2] - box2[0])
+
+        valid_glue_count = min(5, len(glue_specs))
+        for gs in glue_specs[:5]:
+            comps_count = gs.get('comps', 0)
+            sid = str(gs['spec_id'])
+            if sid in spec_lookup:
+                s_meta = spec_lookup[sid]
+                c_meta = class_lookup.get(str(s_meta.get("classID", "")), {})
+                s_name = f"{s_meta.get('name', '')} {c_meta.get('name', '')}"
+                txt = f"{s_name} - {comps_count} Comps"
+                g_box = draw.textbbox((0, 0), txt, font=font_sm)
+                row_w = icon_sz + text_offset + (g_box[2]-g_box[0])
+                glue_comps_w = max(glue_comps_w, row_w)
+
+    panel_x1 = 30
+    panel_y1 = 180
+
+    if valid_comps_count > 0:
+        box_pw = top_comps_w + (pad * 2)
+        box_ph = pad + (icon_sz + v_spacing) + (valid_comps_count * (icon_sz + v_spacing)) - v_spacing + pad
+        # Actually in original code it spaces by 60
+        # Let's map it: 200 (heading y) -> 250 (first row) = 50 diff
+        # Each row adds 60.
+        # Height = 250 + (valid_comps_count * 60) - 180
+        box_y1 = 180
+        box_y2 = 250 + (valid_comps_count * 60)
+        draw.rounded_rectangle(
+            [(panel_x1, box_y1), (panel_x1 + box_pw, box_y2)],
+            radius=15,
+            fill=(0, 0, 0, 200)
+        )
+
+    if glue_specs and valid_glue_count > 0:
+        box_pw = glue_comps_w + (pad * 2)
+        panel_x2 = WIDTH // 2 + 30
+        box_y1 = 180
+        box_y2 = 250 + (valid_glue_count * 60)
+        draw.rounded_rectangle(
+            [(panel_x2, box_y1), (panel_x2 + box_pw, box_y2)],
+            radius=15,
+            fill=(0, 0, 0, 200)
+        )
+
     # Top Comps
     draw.text(
         (50, 200),
