@@ -249,7 +249,7 @@
         }
       }
       
-      const sParams = sp.get('specs');
+      const sParams = sp.get('specs') || sp.get('spec');
       if (sParams) {
         const sIds = sParams.split(',');
         sIds.forEach(sid => {
@@ -270,12 +270,14 @@
     function writeUrlParams() {
       const sp = new URLSearchParams(window.location.search);
       if (selectedSpecs.size > 0) {
-        sp.set('specs', Array.from(selectedSpecs).join(','));
-      } else {
-        sp.delete('specs');
-      }
-      
-      const dFilter = document.getElementById('dungeonFilter');
+          sp.set('specs', Array.from(selectedSpecs).join(','));
+          sp.delete('spec');
+        } else {
+          sp.delete('specs');
+          sp.delete('spec');
+        }
+        
+        const dFilter = document.getElementById('dungeonFilter');
       if (dFilter.value && dFilter.value !== 'all') {
         sp.set('dungeons', dFilter.value);
         sp.delete('dungeon'); // clear old param if present

@@ -899,6 +899,13 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     non_tameable_creatures,
                 )
 
+                print(
+                    f"[{datetime.now(timezone.utc).isoformat()}] fetching top comps..."
+                )
+                top_comps_data = databaseConnector.fetch_spec_top_comps(
+                    conn, cursor, spec_id, current_season_id
+                )
+
             print(f"[{datetime.now(timezone.utc).isoformat()}] generating page...")
             output_html = template.render(
                 generated_at=datetime.now(timezone.utc).timestamp(),
@@ -954,6 +961,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 hero_tree_difs=hero_tree_difs,
                 hero_tree_count=hero_tree_count,
                 top_routes=top_routes,
+                top_comps_data=top_comps_data,
                 season_info=season_info,
                 stats=stat_priority,
                 tertiary_priority=tertiary_priority,

@@ -42,11 +42,13 @@
       href="https://www.wowhead.com/item={{entry.id }}?bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}}{% endif %}"
       data-wowhead="bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}}{% endif %}{%- if entry.pcs %}&pcs={{ entry.pcs|join(':') }}{%- endif %}"
       {% if tag=='button' %}onclick="event.preventDefault();" {% endif %}>
-      <img src="/data/icons/{{ item_lookup[entry.id].icon }}.png" style="width: 56px; height: 56px; border-radius: 4px;" />
+      <img src="/data/icons/{{ item_lookup[entry.id].icon }}.png"
+        style="width: 56px; height: 56px; border-radius: 4px;" />
     </a>
   </div>
   <!-- Name & secondary icons -->
-  <div class="col" style="min-height: 80px; display: flex; flex-direction: column; justify-content: center; min-width: 0;">
+  <div class="col"
+    style="min-height: 80px; display: flex; flex-direction: column; justify-content: center; min-width: 0;">
     <a target="_blank"
       href="https://www.wowhead.com/item={{ entry.id }}?bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}} {% endif %}"
       data-wowhead="bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}}{% endif %}{%- if entry.pcs %}&pcs={{ entry.pcs|join(':') }}{%- endif %}"
@@ -54,9 +56,11 @@
       <p class="mb-0 text-truncate" style="line-height: 1.2;">{{ item_lookup[entry.id].name }}</p>
     </a>
     {% set reagent = reagent_lookup.get(entry.missive|string) or reagent_lookup.get(entry.missive|int) %}
-    {% set display_stats = reagent.stats if entry.missive and reagent and reagent.stats else item_lookup[entry.id].stats %}
-    {% set display_stats = entry.crafted_stats if (not display_stats or display_stats|length == 0) and entry.crafted_stats else display_stats %}
-    
+    {% set display_stats = reagent.stats if entry.missive and reagent and reagent.stats else item_lookup[entry.id].stats
+    %}
+    {% set display_stats = entry.crafted_stats if (not display_stats or display_stats|length == 0) and
+    entry.crafted_stats else display_stats %}
+
     <div style="height: 20px; display: flex; align-items: center;" class="my-1">
       {% if display_stats %}
       <div class="d-flex flex-wrap gap-1">
@@ -163,21 +167,21 @@
     <p data-bs-toggle="tooltip" data-bs-placement="top" title="{{ entry.count }} seen out of {{slot_count}} items"
       class="mb-0 fs-5">
       {%if (entry.count / slot_count * 100) < 100%} {{ '%.0f' % (entry.count / slot_count * 100) }} {%else%} 100
-        {%endif%}%
-    </p>
-    {% if entry.max_timed_key or entry.max_depleted_key %}
-    <div class="mt-1 mb-1">
-      <span class="badge border border-white text-white bg-transparent py-1 px-2" style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
-            data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" 
+        {%endif%}% </p>
+        {% if entry.max_timed_key or entry.max_depleted_key %}
+        <div class="mt-1 mb-1">
+          <span class="badge border border-white text-white bg-transparent py-1 px-2"
+            style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;" data-bs-toggle="tooltip"
+            data-bs-placement="bottom" data-bs-html="true"
             title="{% if entry.max_timed_key %}Highest Timed: +{{ entry.max_timed_key }}{% endif %}{% if entry.max_timed_key and entry.max_depleted_key %}<br>{% endif %}{% if entry.max_depleted_key %}Highest Depleted: +{{ entry.max_depleted_key }}{% endif %}">
-        {% if entry.max_timed_key %}
-          +{{ entry.max_timed_key }}
-        {% else %}
-          +{{ entry.max_depleted_key }} (D)
+            {% if entry.max_timed_key %}
+            +{{ entry.max_timed_key }}
+            {% else %}
+            +{{ entry.max_depleted_key }} (D)
+            {% endif %}
+          </span>
+        </div>
         {% endif %}
-      </span>
-    </div>
-    {% endif %}
   </div>
 </{{ tag }}>
 {%- endmacro %}
@@ -328,7 +332,7 @@
       <h3> <span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{
           spec.name }} {{ class_info.name }} </span> Mythic + build in {{ season_info.name }}</h6>
         <div class="row justify-content-center text-start gx-4 align-items-stretch text-body-emphasis">
-          <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
+          <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
             <div class="card h-100" style="
               background-image: url('/data/icons/{{ spec_lookup[spec_id|string].SpellIconFileId }}.jpg');
               background-size: cover;
@@ -365,11 +369,60 @@
               </div>
             </div>
           </div>
+          {% if top_comps_data and top_comps_data|length > 0 %}
+          <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+            <div class="card h-100">
+              <div class="card-header p-2 ps-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <p class="text-sm mb-0 text-capitalize">Popular Team Comps</p>
+                  </div>
+                  <div
+                    class="icon icon-md icon-shape bg-gradient-success shadow-success shadow text-center border-radius-lg">
+                    <i class="material-symbols-rounded opacity-10">groups</i>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body p-3 flex-grow-1 d-flex flex-column justify-content-around overflow-hidden">
+                {% for comp_data in top_comps_data[:3] %}
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-2">
+                  <div class="d-flex mb-1 mb-xl-0 align-items-center flex-wrap">
+                    {% set comp_members = comp_data[0].split(',') %}
+                    {% for role in ['0','1','2'] %}
+                    {% for member in comp_members %}
+                    {% set related_spec = spec_lookup[member|string] %}
+                    {% if related_spec and related_spec.role|string == role %}
+                    <img src="/data/icons/{{ related_spec.SpellIconFileId }}.jpg"
+                      class="avatar avatar-sm me-1 rounded-circle border border-dark"
+                      title="{{ related_spec.name }}">
+                    {% endif %}
+                    {% endfor %}
+                    {% endfor %}
+                  </div>
+                  <div class="text-start text-xl-end d-flex flex-column justify-content-center">
+                    <span class="text-sm font-weight-bold">{{ comp_data[1]|humanize }} Runs</span>
+                    <span class="text-xs text-secondary mt-1">
+                      <span class="{% if comp_data[3]|int >= 70 %}text-success{% else %}text-warning{% endif %} pe-1">{{ comp_data[3]|int }}% Timed</span>
+                      Key: <span class="text-body font-weight-bold">{{ comp_data[2]|int }}</span>
+                    </span>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              <hr class="dark horizontal my-0">
+              <div class="card-footer p-2 ps-3 text-center">
+                <a href="/pages/comps?specs={{ spec_id }}" class="btn btn-sm bg-gradient-success mb-0 opacity-8 w-100"
+                  title="Find more Comp info">Find More Comps</a>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
           {# find the hero_tree with the highest count #}
           {% if hero_trees and hero_trees | length > 0 %}
           {% set top_tree = hero_trees | sort(attribute='count', reverse=True) | first %}
           {% set top_sub = talent_lookup['subTrees'][ top_tree.id|string ] %}
-          <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
+          <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
             <div class="card h-100" style="
               background-image: url('/data/icons/{{ top_sub.icon }}.png');
               background-size: 120%;
@@ -414,7 +467,7 @@
           {% if highest_run and highest_run.get('dungeon_id') %}
           {% set icon_filename = dungeon_lookup[ highest_run.dungeon_id|string ].icon|default('unknown.jpg') %}
           {% set highest_img_url = '/data/icons/' ~ icon_filename %}
-          <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
+          <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
             <div class="card h-100" style="
               background-image: url('{{ highest_img_url }}');
               background-size: cover;
@@ -443,7 +496,7 @@
               </div>
               <div class="card-body ">
                 <h4 class="mb-0" id="fastest-run-value">Cleared in {{highest_run.duration| duration}}</h4>
-                <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center flex-wrap mt-1">
                   {% set role_order = ['0','1','2'] %}
                   {# sort members tank -> heal -> dps #}
                   {% for role in role_order %}
@@ -451,7 +504,7 @@
                   {% set spec = spec_lookup[ member.spec_id|string ] %}
                   {% if spec.role == role %}
                   <img src="/data/icons/{{ spec_lookup[member.spec_id|string].SpellIconFileId }}.jpg"
-                    alt="{{ spec.name }}" title="{{ spec.name }}" class="me-1" {# small margin between icons #} />
+                    alt="{{ spec.name }}" title="{{ spec.name }}" class="avatar avatar-sm me-1 rounded-circle border border-dark" />
                   {% endif %}
                   {% endfor %}
                   {% endfor %}
@@ -467,207 +520,101 @@
             </div>
           </div>
           {% endif %}
-        </div>
-    </div>
 
-    <div class="container-fluid py-2 w-95 mx-auto my-4">
-      <div class="row">
-        {% if loadout_code and loadout_code.code %}
-        <div class="ratio ratio-16x9" id="sim-iframe-wrapper">
-          <iframe id="sim-iframe" style="pointer-events:none;" data-name="raidbots"
-            data-base-src="https://www.raidbots.com/simbot/render/talents/{{loadout_code.code}}?hideHeader=true&hideExport=true"
-            scrolling="no"></iframe>
-        </div>
-        {% endif %}
-        <div class="row align-items-center justify-content-center my-2">
-          <div class="col-12 col-md-auto d-flex justify-content-center mb-2 mb-md-0">
-            <button class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal"
-              data-bs-target="#routeModal">
-              Routes for every Dungeon
-            </button>
-          </div>
           {% if loadout_code and loadout_code.code %}
-          <div class="col-12 col-md-auto d-flex justify-content-center mb-2 mb-md-0">
-            <button id="copyBtn" class="btn btn-primary d-flex align-items-center">
-              <i class="fas fa-copy me-2"></i>
-              <span id="btnText" data-loadout="{{loadout_code.original}}" data-text="Export Talent String">Export Talent
-                String</span>
-            </button>
+          <div class="ratio ratio-16x9" id="sim-iframe-wrapper">
+            <iframe id="sim-iframe" style="pointer-events:none;" data-name="raidbots"
+              data-base-src="https://www.raidbots.com/simbot/render/talents/{{loadout_code.code}}?hideHeader=true&hideExport=true"
+              scrolling="no"></iframe>
           </div>
           {% endif %}
-          <div class="col-12 col-md-auto d-flex justify-content-center mb-2 mb-md-0">
-            <button class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal"
-              data-bs-target="#talentModal">
-              Talent Differences per Dungeon
-            </button>
-          </div>
-
-          <!-- Gear Overview -->
-          <div id="stat-overview" class="mx-auto my-4">
-            <h6 class="mb-1">Stat Priority</h6>
-
-            <div class="row gy-2 gx-3 my-2">
-              {% for s in stats %}
-
-              {{ render_stat_bar(s, loop, true) }}
-              {% endfor %}
+          <div class="row align-items-center justify-content-center my-2">
+            <div class="col-12 col-md-auto d-flex justify-content-center mb-2 mb-md-0">
+              <button class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal"
+                data-bs-target="#routeModal">
+                Routes for every Dungeon
+              </button>
+            </div>
+            {% if loadout_code and loadout_code.code %}
+            <div class="col-12 col-md-auto d-flex justify-content-center mb-2 mb-md-0">
+              <button id="copyBtn" class="btn btn-primary d-flex align-items-center">
+                <i class="fas fa-copy me-2"></i>
+                <span id="btnText" data-loadout="{{loadout_code.original}}" data-text="Export Talent String">Export
+                  Talent
+                  String</span>
+              </button>
+            </div>
+            {% endif %}
+            <div class="col-12 col-md-auto d-flex justify-content-center mb-2 mb-md-0">
+              <button class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal"
+                data-bs-target="#talentModal">
+                Talent Differences per Dungeon
+              </button>
             </div>
 
-            <div class="row my-2">
+            <!-- Gear Overview -->
+            <div id="stat-overview" class="mx-auto my-4">
+              <h6 class="mb-1">Stat Priority</h6>
 
-              <div class="col-12 col-md-5">
-                <h6 class="mb-1">Health</h6>
-                <div class="row">
-                  {% for s in health_priority %}
+              <div class="row gy-2 gx-3 my-2">
+                {% for s in stats %}
 
-                  {{ render_stat_bar(s, loop, false) }}
-                  {% endfor %}
-                </div>
-              </div>
-              <div class="col-12 col-md-7">
-                <h6 class="mb-1">Tertiary Priority</h6>
-                <div class="row">
-                  {% for s in tertiary_priority %}
-
-                  {{ render_stat_bar(s, loop, true) }}
-                  {% endfor %}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div id="gear-overview" class="mx-auto my-4">
-            <h6> Gear Overview</h6>
-            <p>
-              This overview shows the most popular items used by
-              <span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{ spec.name }} {{
-                class_info.name }}</span>
-              players in Mythic +
-              dungeons. Gear and Talent data is collected from the top 5 Keystone levels at any given point meaning if
-              the rank 1 key is lvl 17 all keystones above lvl 12 will be counted. The popularity percentage is based on
-              the number of times an item was seen in comparison to the
-              total amount of items.
-              Popularity of 50% indicates that every 2. item of this type is used by <span
-                class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{ spec.name }} {{
-                class_info.name }}'s</span>.
-              You can hover over the percentage to see more details.
-            </p>
-            <div class="d-flex flex-column flex-md-row gap-3">
-              <div class="flex-fill" style="flex: 1 1 0 !important; min-width: 0;">
-                <!-- Header for this pane -->
-                <div class="d-flex justify-content-between align-items-center mb-2 px-2">
-                  <div>
-                    <h6 class="mb-0">Item</h6>
-                  </div>
-                  <div>
-                    <h6 class="mb-0 text-end">Popularity</h6>
-                  </div>
-                </div>
-                {% for slot in left_slots %}
-                {% set slug = slot.slot | replace(' ', '') %}
-                <div class="accordion mb-3" id="accordion-{{ slug }}">
-                  <div class="accordion-item">
-                    <h2 class="accordion-header" id="heading-{{ slug }}">
-                      {% set first = (slot.entries | list) | first %}
-                      {% if first is defined %}
-                      {{ render_slot(first, slot.slot_count, true) }}
-                      {% else %}
-                      <!-- fallback when there is no top entry -->
-                      <button class="accordion-button collapsed text-muted" type="button" disabled>No data</button>
-                      {% endif %}
-                    </h2>
-                    <div id="collapse-{{ slug }}" class="accordion-collapse collapse"
-                      aria-labelledby="heading-{{ slug }}" data-bs-parent="#accordion-{{ slug }}">
-                      <div class="accordion-body">
-                        {# alternatives #}
-                        {% for alt in slot.entries[1:] %}
-                        {{ render_slot(alt, slot.slot_count) }}
-                        {% endfor %}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                {{ render_stat_bar(s, loop, true) }}
                 {% endfor %}
               </div>
-              <div class="flex-fill" style="flex: 1 1 0 !important; min-width: 0;">
-                <!-- Right header: hidden on xs, shown md+ -->
-                <div class="d-none d-md-flex justify-content-between align-items-center mb-2 px-2">
-                  <div>
-                    <h6 class="mb-0">Item</h6>
-                  </div>
-                  <div>
-                    <h6 class="mb-0 text-end">Popularity</h6>
-                  </div>
-                </div>
 
-                <!-- Right slot items -->
-                {% for slot in right_slots %}
-                {% set slug = slot.slot | replace(' ', '') %}
-                <div class="accordion mb-3" id="accordion-{{ slug }}">
-                  <div class="accordion-item">
-                    <h2 class="accordion-header" id="heading-{{ slug }}">
-                      {% set first = (slot.entries | list) | first %}
-                      {% if first is defined %}
-                      {{ render_slot(first, slot.slot_count, true) }}
-                      {% else %}
-                      <!-- fallback when there is no top entry -->
-                      <button class="accordion-button collapsed text-muted" type="button" disabled>No data</button>
-                      {% endif %}
-                    </h2>
-                    <div id="collapse-{{ slug }}" class="accordion-collapse collapse"
-                      aria-labelledby="heading-{{ slug }}" data-bs-parent="#accordion-{{ slug }}">
-                      <div class="accordion-body">
-                        {# alternatives #}
-                        {% for alt in slot.entries[1:] %}
-                        {{ render_slot(alt, slot.slot_count) }}
-                        {% endfor %}
-                      </div>
-                    </div>
+              <div class="row my-2">
+
+                <div class="col-12 col-md-5">
+                  <h6 class="mb-1">Health</h6>
+                  <div class="row">
+                    {% for s in health_priority %}
+
+                    {{ render_stat_bar(s, loop, false) }}
+                    {% endfor %}
                   </div>
                 </div>
-                {% endfor %}
+                <div class="col-12 col-md-7">
+                  <h6 class="mb-1">Tertiary Priority</h6>
+                  <div class="row">
+                    {% for s in tertiary_priority %}
+
+                    {{ render_stat_bar(s, loop, true) }}
+                    {% endfor %}
+                  </div>
+                </div>
               </div>
             </div>
-
-            <div class="d-flex flex-column flex-md-row gap-3">
-              <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
-                <h6 class="px-2">Weapon</h6>
-
-                <!-- Rows: use a vertical gap between them -->
-                <div class="d-flex flex-column gap-2">
-                  {% for slot in weapon_slots %}
-                  {% set slug = slot.slot | replace(' ', '') %}
-                  <div class="accordion mb-3" id="accordion-{{ slug }}">
-                    <div class="accordion-item">
-                      <h2 class="accordion-header" id="heading-{{ slug }}">
-                        {% set first = (slot.entries | list) | first %}
-                        {% if first is defined %}
-                        {{ render_slot(first, slot.slot_count, true, slug) }}
-                        {% else %}
-                        <!-- fallback when there is no top entry -->
-                        <button class="accordion-button collapsed text-muted" type="button" disabled>No data</button>
-                        {% endif %}
-                      </h2>
-                      <div id="collapse-{{ slug }}" class="accordion-collapse collapse"
-                        aria-labelledby="heading-{{ slug }}" data-bs-parent="#accordion-{{ slug }}">
-                        <div class="accordion-body">
-                          {# alternatives #}
-                          {% for alt in slot.entries[1:] %}
-                          {{ render_slot(alt, slot.slot_count) }}
-                          {% endfor %}
-                        </div>
-                      </div>
+            <div id="gear-overview" class="mx-auto my-4">
+              <h6> Gear Overview</h6>
+              <p>
+                This overview shows the most popular items used by
+                <span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{ spec.name }}
+                  {{
+                  class_info.name }}</span>
+                players in Mythic +
+                dungeons. Gear and Talent data is collected from the top 5 Keystone levels at any given point meaning if
+                the rank 1 key is lvl 17 all keystones above lvl 12 will be counted. The popularity percentage is based
+                on
+                the number of times an item was seen in comparison to the
+                total amount of items.
+                Popularity of 50% indicates that every 2. item of this type is used by <span
+                  class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{ spec.name }} {{
+                  class_info.name }}'s</span>.
+                You can hover over the percentage to see more details.
+              </p>
+              <div class="d-flex flex-column flex-md-row gap-3">
+                <div class="flex-fill" style="flex: 1 1 0 !important; min-width: 0;">
+                  <!-- Header for this pane -->
+                  <div class="d-flex justify-content-between align-items-center mb-2 px-2">
+                    <div>
+                      <h6 class="mb-0">Item</h6>
+                    </div>
+                    <div>
+                      <h6 class="mb-0 text-end">Popularity</h6>
                     </div>
                   </div>
-                  {% endfor %}
-                </div>
-              </div>
-              <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
-                <!-- Header: hidden on xs, shown md+; if you want always visible, drop the d-none -->
-                <h6 class="text-start px-2 text-md-end py-2 py-md-0">Trinkets</h6>
-
-                <div class="d-flex flex-column gap-2">
-                  {% for slot in trinket_slots %}
-                  {% if slot.get('entries') and slot.entries | length > 0 %}
+                  {% for slot in left_slots %}
                   {% set slug = slot.slot | replace(' ', '') %}
                   <div class="accordion mb-3" id="accordion-{{ slug }}">
                     <div class="accordion-item">
@@ -691,439 +638,456 @@
                       </div>
                     </div>
                   </div>
-                  {% endif %}
+                  {% endfor %}
+                </div>
+                <div class="flex-fill" style="flex: 1 1 0 !important; min-width: 0;">
+                  <!-- Right header: hidden on xs, shown md+ -->
+                  <div class="d-none d-md-flex justify-content-between align-items-center mb-2 px-2">
+                    <div>
+                      <h6 class="mb-0">Item</h6>
+                    </div>
+                    <div>
+                      <h6 class="mb-0 text-end">Popularity</h6>
+                    </div>
+                  </div>
+
+                  <!-- Right slot items -->
+                  {% for slot in right_slots %}
+                  {% set slug = slot.slot | replace(' ', '') %}
+                  <div class="accordion mb-3" id="accordion-{{ slug }}">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="heading-{{ slug }}">
+                        {% set first = (slot.entries | list) | first %}
+                        {% if first is defined %}
+                        {{ render_slot(first, slot.slot_count, true) }}
+                        {% else %}
+                        <!-- fallback when there is no top entry -->
+                        <button class="accordion-button collapsed text-muted" type="button" disabled>No data</button>
+                        {% endif %}
+                      </h2>
+                      <div id="collapse-{{ slug }}" class="accordion-collapse collapse"
+                        aria-labelledby="heading-{{ slug }}" data-bs-parent="#accordion-{{ slug }}">
+                        <div class="accordion-body">
+                          {# alternatives #}
+                          {% for alt in slot.entries[1:] %}
+                          {{ render_slot(alt, slot.slot_count) }}
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   {% endfor %}
                 </div>
               </div>
-            </div>
 
-
-          </div>
-          <!-- Overview -->
-          <div class="mx-auto my-4">
-            <div class="d-flex flex-column flex-md-row gap-3">
-              <!-- Enchantment Overview-->
-              <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
-                <!-- Enchantment Overview-->
-                <div class="accordion mx-2" id="enchantAccordion">
-                  <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingEnchant">
-                      <button class="accordion-button collapsed fw-semibold text-center w-100" type="button"
-                        data-bs-toggle="collapse" data-bs-target="#collapseEnchant" aria-expanded="false"
-                        aria-controls="collapseEnchant">
-                        Enchantment Details
-                      </button>
-                    </h2>
-                    <div id="collapseEnchant" class="accordion-collapse collapse w-100" aria-labelledby="headingEnchant"
-                      data-bs-parent="#enchantAccordion">
-                      <div class="accordion-body">
-                        <div class="row">
-                          <div class="col-12">
-                            <!-- Enchantment list -->
-                            {% for slot_name, ench_list in enchant_slots.items() %}
-                            {% if ench_list and ench_list | length > 0 and total_enchant_counts[slot_name] >= (summary_data.count * 0.01) %}
-                            {% set top = ench_list[0] %}
-                            {% set total = top.count %}
-                            {% set enchant = top.id %}
-                            {% if enchant_lookup.get(enchant) %}
-
-                            {% if enchant_lookup[enchant].itemName %}
-                            {% set name = enchant_lookup[enchant].itemName %}
-                            {% else %}
-                            {% set name = enchant_lookup[enchant].displayName %}
-                            {% endif %}
-
-                            {% if enchant_lookup[enchant].itemId %}
-                            {% set url = "https://www.wowhead.com/item=" ~ enchant_lookup[enchant].itemId ~ "&spec=" ~
-                            spec_id %}
-                            {% else %}
-                            {% set url = "https://www.wowhead.com/spell=" ~ enchant_lookup[enchant].spellId ~ "&spec=" ~
-                            spec_id %}
-                            {% endif %}
-                            <div class="accordion mb-3" id="enchantAccordion-{{ slot_name }}">
-                              <div class="accordion-item">
-                                <h2 class="accordion-header" id="enchantHeading-{{ slot_name }}">
-                                  <button
-                                    class="accordion-button border {% if enchant_lookup[enchant].quality %}border-quality-{{ enchant_lookup[enchant].quality }}{% else %}border-grey-100{% endif %} collapsed text-start overflow-hidden"
-                                    type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#enchantCollapse-{{ slot_name }}" aria-expanded="false"
-                                    aria-controls="enchantCollapse-{{ slot_name }}" onclick="event.preventDefault();">
-                                    <div class="d-flex align-items-center flex-nowrap w-100 px-2">
-                                      <div class="flex-shrink-0 me-2">{{ slot_name }}</div>
-
-                                      <div class="col-auto d-flex align-items-center me-2">
-                                        <a target="_blank" href="{{ url }}" class="icon-link position-relative"
-                                          aria-hidden="true">
-                                          <img
-                                            src="/data/icons/{% if enchant_lookup[enchant].itemIcon %}{{ enchant_lookup[enchant].itemIcon }}.png{% else %}{{ enchant_lookup[enchant].spellIcon }}.png{% endif %}"
-                                            alt=""
-                                            class="border {% if enchant_lookup[enchant].quality %}border-quality-{{ enchant_lookup[enchant].quality }}{% else %}border-grey-100{% endif %}">
-                                          {% if enchant_lookup[enchant].craftingQuality %}
-                                          <img
-                                            src="/data/icons/crafting-quality-{{ enchant_lookup[enchant].craftingQuality }}.png"
-                                            alt="" class="icon-overlay">
-                                          {% endif %}
-                                        </a>
-                                      </div>
-
-
-
-                                      <div class="d-none d-md-block me-auto">
-                                        <a target="_blank" href="{{ url }}">
-                                          <p class="mb-1">{{ name }}</p>
-                                        </a>
-                                      </div>
-
-                                      <div class="ms-auto text-end flex-shrink-0">
-                                        <p data-bs-toggle="tooltip" data-bs-placement="top"
-                                          title="{{ total }} seen in {{ total_enchant_counts[slot_name] }} total enchants"
-                                          class="mb-0">
-                                          {{ '%.0f' % ((total / total_enchant_counts[slot_name] * 100) if total /
-                                          total_enchant_counts[slot_name] * 100 < 100 else 100) }}% </p>
-                                      </div>
-                                    </div>
-                                  </button>
-
-                                </h2>
-                                <div id="enchantCollapse-{{ slot_name }}" class="accordion-collapse collapse"
-                                  aria-labelledby="enchantHeading-{{ slot_name }}"
-                                  data-bs-parent="#enchantAccordion-{{ slot_name }}">
-                                  <div class="accordion-body p-2">
-                                    {# All enchants for this slot #}
-                                    {% for ench in ench_list %}
-                                    {% set total = ench.count %}
-                                    {% set enchant = ench.id %}
-                                    {% if enchant_lookup[enchant].itemName %}
-                                    {% set name = enchant_lookup[enchant].itemName %}
-                                    {% else %}
-                                    {% set name = enchant_lookup[enchant].displayName %}
-                                    {% endif %}
-
-                                    {% if enchant_lookup[enchant].itemId %}
-                                    {% set url = "https://www.wowhead.com/item=" ~ enchant_lookup[enchant].itemId ~
-                                    "&spec=" ~
-                                    spec_id %}
-                                    {% else %}
-                                    {% set url = "https://www.wowhead.com/spell=" ~ enchant_lookup[enchant].spellId ~
-                                    "&spec=" ~
-                                    spec_id %}
-                                    {% endif %}
-                                    <div class="row align-items-center mb-2">
-                                      <!-- Item icon & link -->
-                                      <div class="col-auto d-flex align-items-center me-2">
-                                        <a target="_blank" href="{{ url }}" class="icon-link position-relative"
-                                          aria-hidden="true">
-                                          <img
-                                            src="/data/icons/{% if enchant_lookup[enchant].itemIcon %}{{ enchant_lookup[enchant].itemIcon }}.png{% else %}{{ enchant_lookup[enchant].spellIcon }}.png{% endif %}"
-                                            alt=""
-                                            class="border {% if enchant_lookup[enchant].quality %}border-quality-{{ enchant_lookup[enchant].quality }}{% else %}border-grey-100{% endif %}">
-                                          {% if enchant_lookup[enchant].craftingQuality %}
-                                          <img
-                                            src="/data/icons/crafting-quality-{{ enchant_lookup[enchant].craftingQuality }}.png"
-                                            alt="" class="icon-overlay">
-                                          {% endif %}
-                                        </a>
-                                      </div>
-
-                                      <!-- Name -->
-                                      <div class="col">
-                                        <a target="_blank" href="{{ url }}">
-                                          <p class="mb-1">{{ name }}</p>
-                                        </a>
-                                      </div>
-
-                                      <!-- Stats -->
-                                      <div class="col-md-3 d-none d-md-block">
-
-                                        {% if enchant_lookup[enchant].stats %}
-                                        <a target="_blank"
-                                          href="https://www.wowhead.com/item={{ enchant_lookup[enchant].itemId }}&spec={{ spec_id }}">
-                                          {% for stat in enchant_lookup[enchant].stats %}
-                                          <span class="badge stat-{{ stat.type }}">
-                                            +{{ stat.amount }}
-                                            {% if stat_names[stat.type] %}{{ stat_names[stat.type] }}{% else %}{{
-                                            stat.type }}{% endif %}
-                                          </span>
-                                          {% endfor %}
-                                        </a>
-                                        {% endif %}
-                                      </div>
-                                      <!-- Price -->
-                                      <div class="col-md-2 d-none d-md-block text-start">
-                                        {% set price_key = enchant_lookup[enchant].itemId|string %}
-                                        {% if formatted_price[price_key] %}
-                                        <a target="_blank"
-                                          href="https://undermine.exchange/#eu-blackmoore/{{ enchant_lookup[enchant].itemId }}">
-                                          {{ formatted_price[price_key] | safe }}
-                                        </a>
-                                        {% endif %}
-                                      </div>
-                                      <!-- Popularity % -->
-                                      <div class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
-
-                                        <p data-bs-toggle="tooltip" data-bs-placement="top"
-                                          title="{{ total }} seen in {{ total_enchant_counts[slot_name] }} total enchants"
-                                          class="mb-0">
-                                          {{ '%.0f' % ((total / total_enchant_counts[slot_name] * 100) if total /
-                                          total_enchant_counts[slot_name] * 100 < 100 else 100) }}% </p>
-                                        {% if ench.max_timed_key or ench.max_depleted_key %}
-                                        <div class="mt-1 mb-1">
-                                          <span class="badge border border-white text-white bg-transparent py-1 px-2" style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
-                                                data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" 
-                                                title="{% if ench.max_timed_key %}Highest Timed: +{{ ench.max_timed_key }}{% endif %}{% if ench.max_timed_key and ench.max_depleted_key %}<br>{% endif %}{% if ench.max_depleted_key %}Highest Depleted: +{{ ench.max_depleted_key }}{% endif %}">
-                                            {% if ench.max_timed_key %}
-                                              +{{ ench.max_timed_key }}
-                                            {% else %}
-                                              +{{ ench.max_depleted_key }} (D)
-                                            {% endif %}
-                                          </span>
-                                        </div>
-                                        {% endif %}
-                                      </div>
-                                    </div>
-                                    {% endfor %}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            {% endif %}
-                            {% endif %}
-                            {% endfor %}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- Gems Overview-->
-              <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
-                <!-- Gems Overview-->
-                <div class="accordion mx-2" id="socketAccordion">
-                  <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingSocket">
-                      <button class="accordion-button collapsed fw-semibold text-center w-100" type="button"
-                        data-bs-toggle="collapse" data-bs-target="#collapseSocket" aria-expanded="false"
-                        aria-controls="collapseSocket">
-                        Socket (Gem) Details
-                      </button>
-                    </h2>
-                    <div id="collapseSocket" class="accordion-collapse collapse w-100" aria-labelledby="headingSocket"
-                      data-bs-parent="#socketAccordion">
-                      <div class="accordion-body">
-                        <div class="row">
-                          <div class="col-12">
-                            <!-- Socket (Gem) list -->
-                            {% for s in sockets %}
-                            {% set gem_id = (s.id if s.id is defined else s['id']) |int %}
-                            {% set total = (s.count if s.count is defined else s['count']) %}
-                            {% set gem = socket_lookup[gem_id] %}
-                            <div class="row align-items-center mb-2">
-                              <!-- Gem icon & link -->
-                              <div class="col-auto">
-                                <a target="_blank"
-                                  href="https://www.wowhead.com/item={{ gem.itemId }}&spec={{ spec_id }}"
-                                  class="icon-link position-relative" style="width:24px; height:24px;">
-                                  <img src="/data/icons/{{ gem.itemIcon }}.png" alt=""
-                                    class="base-icon border {% if gem.quality %}border-quality-{{gem.quality}}{% else %}border-grey-100{% endif %}">
-                                  {% if gem.craftingQuality %}
-                                  <img src="/data/icons/crafting-quality-{{ gem.craftingQuality }}.png" alt=""
-                                    class="icon-overlay">
-                                  {% endif %}
-                                </a>
-                              </div>
-                              <!-- Gem Name -->
-                              <div class="col">
-                                <a target="_blank"
-                                  href="https://www.wowhead.com/item={{ gem.itemId }}&spec={{ spec_id }}">
-                                  <p class="mb-1">{{ gem.itemName }}</p>
-                                </a>
-                              </div>
-                              <!-- Gem Stats -->
-                              <div class="col-md-3 d-none d-md-block">
-                                {% if gem.stats %}
-                                <a target="_blank"
-                                  href="https://www.wowhead.com/item={{ gem.itemId }}&spec={{ spec_id }}">
-                                  {% for stat in gem.stats %}
-                                  <span class="badge stat-{{ stat.type }}">
-                                    +{{ stat.amount }}
-                                    {% if stat_names[stat.type] %}
-                                    {{ stat_names[stat.type] }}
-                                    {% else %}
-                                    {{ stat.type }}
-                                    {% endif %}
-                                  </span>
-                                  {% endfor %}
-                                </a>
-                                {% endif %}
-                              </div>
-                              <!-- Gem Price -->
-                              <div class="col-md-2 d-none d-md-block text-start">
-                                {% if formatted_price[gem.itemId|string] %}
-                                <a target="_blank" href="https://undermine.exchange/#eu-blackmoore/{{ gem.itemId }}">
-                                  {{ formatted_price[gem.itemId|string] | safe }}
-                                </a>
-                                {% endif %}
-                              </div>
-                              <!-- Popularity % -->
-                              <div class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
-                                <p data-bs-toggle="tooltip" data-bs-placement="top"
-                                  title="{{ total }} out of {{total_socket_count}} gems" class="mb-0">
-                                  {%if (total / total_socket_count * 100) < 100%} {{ '%.0f' % (total /
-                                    total_socket_count * 100) }} {%else%} 100 {%endif%}% </p>
-                                {% if s.max_timed_key or s.max_depleted_key %}
-                                <div class="mt-1 mb-1">
-                                  <span class="badge border border-white text-white bg-transparent py-1 px-2" style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
-                                        data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" 
-                                        title="{% if s.max_timed_key %}Highest Timed: +{{ s.max_timed_key }}{% endif %}{% if s.max_timed_key and s.max_depleted_key %}<br>{% endif %}{% if s.max_depleted_key %}Highest Depleted: +{{ s.max_depleted_key }}{% endif %}">
-                                    {% if s.max_timed_key %}
-                                      +{{ s.max_timed_key }}
-                                    {% else %}
-                                      +{{ s.max_depleted_key }} (D)
-                                    {% endif %}
-                                  </span>
-                                </div>
-                                {% endif %}
-                              </div>
-                            </div>
-                            {% endfor %}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="d-flex flex-column flex-md-row gap-3 mt-4">
-              <!-- Embelishments Overview-->
-              <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
-                <div class="accordion mx-2" id="embellishmentAccordion">
-                  <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingEmbellishment">
-                      <button class="accordion-button collapsed fw-semibold text-center w-100" type="button"
-                        data-bs-toggle="collapse" data-bs-target="#collapseEmbellishment" aria-expanded="false"
-                        aria-controls="collapseEmbellishment">
-                        Embellishment Details
-                      </button>
-                    </h2>
-                    <div id="collapseEmbellishment" class="accordion-collapse collapse w-100"
-                      aria-labelledby="headingEmbellishment" data-bs-parent="#embellishmentAccordion">
-                      <div class="accordion-body">
-                        <div class="row">
-                          <div class="col-12">
-                            <!-- Embellishment list -->
-                            {% for pair in embellishments %}
-                            {% set embellishment = pair[0] %}
-                            {% set total = pair[1] %}
-
-                            <div class="row align-items-center mb-2">
-                              <!-- Item icon & link -->
-                              <div class="col-auto">
-                                <a target="_blank"
-                                  href="https://www.wowhead.com/item={{ embellishment}}&spec={{ spec_id }}"
-                                  class="icon-link position-relative" style="width:24px; height:24px;">
-                                  <img src="/data/icons/{{ reagent_lookup[embellishment].icon }}.png" alt=""
-                                    class="base-icon border {% if reagent_lookup[embellishment].quality %}border-quality-{{reagent_lookup[embellishment].quality}}{% else %}border-grey-100{% endif %}">
-                                  {% if reagent_lookup[embellishment].craftingQuality %}
-                                  <img
-                                    src="/data/icons/crafting-quality-{{ reagent_lookup[embellishment].craftingQuality }}.png"
-                                    alt="" class="icon-overlay">
-                                  {% endif %}
-                                </a>
-                              </div>
-                              <!-- Name -->
-                              <div class="col">
-                                <a target="_blank"
-                                  href="https://www.wowhead.com/item={{ embellishment }}&spec={{ spec_id }}">
-                                  <p class="mb-1">{{ reagent_lookup[embellishment].name }}</p>
-                                </a>
-                              </div>
-                              <!-- Stats -->
-                              <div class="col-md-3 d-none d-md-block">
-                                {% if reagent_lookup[embellishment].stats %}
-                                <a target="_blank"
-                                  href="https://www.wowhead.com/item={{ reagent_lookup[embellishment].itemId }}&spec={{ spec_id }}">
-                                  {% for stat in reagent_lookup[embellishment].stats %}
-                                  <span class="badge stat-{{ stat.type }}">
-                                    +{{ stat.amount }} {% if stat_names[stat.type] %}{{ stat_names[stat.type] }}{% else
-                                    %}{{
-                                    stat.type
-                                    }}{% endif %}
-                                  </span>
-                                  {% endfor %}
-                                </a>
-                                {% endif %}
-                              </div>
-                              <!-- Price -->
-                              <div class="col-md-2 d-none d-md-block text-start">
-                                {% if formatted_price[embellishment|string] %}
-                                <a target="_blank" href="https://undermine.exchange/#eu-blackmoore/{{ embellishment}}">
-                                  {{ formatted_price[embellishment|string] | safe }}
-                                </a>
-                                {% endif %}
-                              </div>
-                              <!-- Popularity % -->
-                              <div class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
-                                <p data-bs-toggle="tooltip" data-bs-placement="top"
-                                  title="{{ total }} seen in {{total_embellishment_count}} runs" class="mb-0">
-                                  {%if (total / total_embellishment_count * 100) < 100%} {{ '%.0f' % (total /
-                                    total_embellishment_count * 100) }} {%else%} 100 {%endif%}% </p>
-                                {% if pair[2] or pair[3] %}
-                                <div class="mt-1 mb-1">
-                                  <span class="badge border border-white text-white bg-transparent py-1 px-2" style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
-                                        data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" 
-                                        title="{% if pair[2] %}Highest Timed: +{{ pair[2] }}{% endif %}{% if pair[2] and pair[3] %}<br>{% endif %}{% if pair[3] %}Highest Depleted: +{{ pair[3] }}{% endif %}">
-                                    {% if pair[2] %}
-                                      +{{ pair[2] }}
-                                    {% else %}
-                                      +{{ pair[3] }} (D)
-                                    {% endif %}
-                                  </span>
-                                </div>
-                                {% endif %}
-                              </div>
-                            </div>
-                            {% endfor %}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- Missive Overview -->
-              <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
+              <div class="d-flex flex-column flex-md-row gap-3">
                 <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
-                  <div class="accordion mx-2" id="missiveAccordion">
+                  <h6 class="px-2">Weapon</h6>
+
+                  <!-- Rows: use a vertical gap between them -->
+                  <div class="d-flex flex-column gap-2">
+                    {% for slot in weapon_slots %}
+                    {% set slug = slot.slot | replace(' ', '') %}
+                    <div class="accordion mb-3" id="accordion-{{ slug }}">
+                      <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading-{{ slug }}">
+                          {% set first = (slot.entries | list) | first %}
+                          {% if first is defined %}
+                          {{ render_slot(first, slot.slot_count, true, slug) }}
+                          {% else %}
+                          <!-- fallback when there is no top entry -->
+                          <button class="accordion-button collapsed text-muted" type="button" disabled>No data</button>
+                          {% endif %}
+                        </h2>
+                        <div id="collapse-{{ slug }}" class="accordion-collapse collapse"
+                          aria-labelledby="heading-{{ slug }}" data-bs-parent="#accordion-{{ slug }}">
+                          <div class="accordion-body">
+                            {# alternatives #}
+                            {% for alt in slot.entries[1:] %}
+                            {{ render_slot(alt, slot.slot_count) }}
+                            {% endfor %}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+                <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
+                  <!-- Header: hidden on xs, shown md+; if you want always visible, drop the d-none -->
+                  <h6 class="text-start px-2 text-md-end py-2 py-md-0">Trinkets</h6>
+
+                  <div class="d-flex flex-column gap-2">
+                    {% for slot in trinket_slots %}
+                    {% if slot.get('entries') and slot.entries | length > 0 %}
+                    {% set slug = slot.slot | replace(' ', '') %}
+                    <div class="accordion mb-3" id="accordion-{{ slug }}">
+                      <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading-{{ slug }}">
+                          {% set first = (slot.entries | list) | first %}
+                          {% if first is defined %}
+                          {{ render_slot(first, slot.slot_count, true) }}
+                          {% else %}
+                          <!-- fallback when there is no top entry -->
+                          <button class="accordion-button collapsed text-muted" type="button" disabled>No data</button>
+                          {% endif %}
+                        </h2>
+                        <div id="collapse-{{ slug }}" class="accordion-collapse collapse"
+                          aria-labelledby="heading-{{ slug }}" data-bs-parent="#accordion-{{ slug }}">
+                          <div class="accordion-body">
+                            {# alternatives #}
+                            {% for alt in slot.entries[1:] %}
+                            {{ render_slot(alt, slot.slot_count) }}
+                            {% endfor %}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+
+
+            </div>
+            <!-- Overview -->
+            <div class="mx-auto my-4">
+              <div class="d-flex flex-column flex-md-row gap-3">
+                <!-- Enchantment Overview-->
+                <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
+                  <!-- Enchantment Overview-->
+                  <div class="accordion mx-2" id="enchantAccordion">
                     <div class="accordion-item">
-                      <h2 class="accordion-header" id="headingMissive">
+                      <h2 class="accordion-header" id="headingEnchant">
                         <button class="accordion-button collapsed fw-semibold text-center w-100" type="button"
-                          data-bs-toggle="collapse" data-bs-target="#collapseMissive" aria-expanded="false"
-                          aria-controls="collapseMissive">
-                          Missive Details
+                          data-bs-toggle="collapse" data-bs-target="#collapseEnchant" aria-expanded="false"
+                          aria-controls="collapseEnchant">
+                          Enchantment Details
                         </button>
                       </h2>
-                      <div id="collapseMissive" class="accordion-collapse collapse w-100"
-                        aria-labelledby="headingMissive" data-bs-parent="#missiveAccordion">
+                      <div id="collapseEnchant" class="accordion-collapse collapse w-100"
+                        aria-labelledby="headingEnchant" data-bs-parent="#enchantAccordion">
                         <div class="accordion-body">
                           <div class="row">
                             <div class="col-12">
-                              <!-- Missive list -->
-                              {% for pair in missives %}
-                              {% set missive = pair[0] %}
+                              <!-- Enchantment list -->
+                              {% for slot_name, ench_list in enchant_slots.items() %}
+                              {% if ench_list and ench_list | length > 0 and total_enchant_counts[slot_name] >=
+                              (summary_data.count * 0.01) %}
+                              {% set top = ench_list[0] %}
+                              {% set total = top.count %}
+                              {% set enchant = top.id %}
+                              {% if enchant_lookup.get(enchant) %}
+
+                              {% if enchant_lookup[enchant].itemName %}
+                              {% set name = enchant_lookup[enchant].itemName %}
+                              {% else %}
+                              {% set name = enchant_lookup[enchant].displayName %}
+                              {% endif %}
+
+                              {% if enchant_lookup[enchant].itemId %}
+                              {% set url = "https://www.wowhead.com/item=" ~ enchant_lookup[enchant].itemId ~ "&spec=" ~
+                              spec_id %}
+                              {% else %}
+                              {% set url = "https://www.wowhead.com/spell=" ~ enchant_lookup[enchant].spellId ~ "&spec="
+                              ~
+                              spec_id %}
+                              {% endif %}
+                              <div class="accordion mb-3" id="enchantAccordion-{{ slot_name }}">
+                                <div class="accordion-item">
+                                  <h2 class="accordion-header" id="enchantHeading-{{ slot_name }}">
+                                    <button
+                                      class="accordion-button border {% if enchant_lookup[enchant].quality %}border-quality-{{ enchant_lookup[enchant].quality }}{% else %}border-grey-100{% endif %} collapsed text-start overflow-hidden"
+                                      type="button" data-bs-toggle="collapse"
+                                      data-bs-target="#enchantCollapse-{{ slot_name }}" aria-expanded="false"
+                                      aria-controls="enchantCollapse-{{ slot_name }}" onclick="event.preventDefault();">
+                                      <div class="d-flex align-items-center flex-nowrap w-100 px-2">
+                                        <div class="flex-shrink-0 me-2">{{ slot_name }}</div>
+
+                                        <div class="col-auto d-flex align-items-center me-2">
+                                          <a target="_blank" href="{{ url }}" class="icon-link position-relative"
+                                            aria-hidden="true">
+                                            <img
+                                              src="/data/icons/{% if enchant_lookup[enchant].itemIcon %}{{ enchant_lookup[enchant].itemIcon }}.png{% else %}{{ enchant_lookup[enchant].spellIcon }}.png{% endif %}"
+                                              alt=""
+                                              class="border {% if enchant_lookup[enchant].quality %}border-quality-{{ enchant_lookup[enchant].quality }}{% else %}border-grey-100{% endif %}">
+                                            {% if enchant_lookup[enchant].craftingQuality %}
+                                            <img
+                                              src="/data/icons/crafting-quality-{{ enchant_lookup[enchant].craftingQuality }}.png"
+                                              alt="" class="icon-overlay">
+                                            {% endif %}
+                                          </a>
+                                        </div>
+
+
+
+                                        <div class="d-none d-md-block me-auto">
+                                          <a target="_blank" href="{{ url }}">
+                                            <p class="mb-1">{{ name }}</p>
+                                          </a>
+                                        </div>
+
+                                        <div class="ms-auto text-end flex-shrink-0">
+                                          <p data-bs-toggle="tooltip" data-bs-placement="top"
+                                            title="{{ total }} seen in {{ total_enchant_counts[slot_name] }} total enchants"
+                                            class="mb-0">
+                                            {{ '%.0f' % ((total / total_enchant_counts[slot_name] * 100) if total /
+                                            total_enchant_counts[slot_name] * 100 < 100 else 100) }}% </p>
+                                        </div>
+                                      </div>
+                                    </button>
+
+                                  </h2>
+                                  <div id="enchantCollapse-{{ slot_name }}" class="accordion-collapse collapse"
+                                    aria-labelledby="enchantHeading-{{ slot_name }}"
+                                    data-bs-parent="#enchantAccordion-{{ slot_name }}">
+                                    <div class="accordion-body p-2">
+                                      {# All enchants for this slot #}
+                                      {% for ench in ench_list %}
+                                      {% set total = ench.count %}
+                                      {% set enchant = ench.id %}
+                                      {% if enchant_lookup[enchant].itemName %}
+                                      {% set name = enchant_lookup[enchant].itemName %}
+                                      {% else %}
+                                      {% set name = enchant_lookup[enchant].displayName %}
+                                      {% endif %}
+
+                                      {% if enchant_lookup[enchant].itemId %}
+                                      {% set url = "https://www.wowhead.com/item=" ~ enchant_lookup[enchant].itemId ~
+                                      "&spec=" ~
+                                      spec_id %}
+                                      {% else %}
+                                      {% set url = "https://www.wowhead.com/spell=" ~ enchant_lookup[enchant].spellId ~
+                                      "&spec=" ~
+                                      spec_id %}
+                                      {% endif %}
+                                      <div class="row align-items-center mb-2">
+                                        <!-- Item icon & link -->
+                                        <div class="col-auto d-flex align-items-center me-2">
+                                          <a target="_blank" href="{{ url }}" class="icon-link position-relative"
+                                            aria-hidden="true">
+                                            <img
+                                              src="/data/icons/{% if enchant_lookup[enchant].itemIcon %}{{ enchant_lookup[enchant].itemIcon }}.png{% else %}{{ enchant_lookup[enchant].spellIcon }}.png{% endif %}"
+                                              alt=""
+                                              class="border {% if enchant_lookup[enchant].quality %}border-quality-{{ enchant_lookup[enchant].quality }}{% else %}border-grey-100{% endif %}">
+                                            {% if enchant_lookup[enchant].craftingQuality %}
+                                            <img
+                                              src="/data/icons/crafting-quality-{{ enchant_lookup[enchant].craftingQuality }}.png"
+                                              alt="" class="icon-overlay">
+                                            {% endif %}
+                                          </a>
+                                        </div>
+
+                                        <!-- Name -->
+                                        <div class="col">
+                                          <a target="_blank" href="{{ url }}">
+                                            <p class="mb-1">{{ name }}</p>
+                                          </a>
+                                        </div>
+
+                                        <!-- Stats -->
+                                        <div class="col-md-3 d-none d-md-block">
+
+                                          {% if enchant_lookup[enchant].stats %}
+                                          <a target="_blank"
+                                            href="https://www.wowhead.com/item={{ enchant_lookup[enchant].itemId }}&spec={{ spec_id }}">
+                                            {% for stat in enchant_lookup[enchant].stats %}
+                                            <span class="badge stat-{{ stat.type }}">
+                                              +{{ stat.amount }}
+                                              {% if stat_names[stat.type] %}{{ stat_names[stat.type] }}{% else %}{{
+                                              stat.type }}{% endif %}
+                                            </span>
+                                            {% endfor %}
+                                          </a>
+                                          {% endif %}
+                                        </div>
+                                        <!-- Price -->
+                                        <div class="col-md-2 d-none d-md-block text-start">
+                                          {% set price_key = enchant_lookup[enchant].itemId|string %}
+                                          {% if formatted_price[price_key] %}
+                                          <a target="_blank"
+                                            href="https://undermine.exchange/#eu-blackmoore/{{ enchant_lookup[enchant].itemId }}">
+                                            {{ formatted_price[price_key] | safe }}
+                                          </a>
+                                          {% endif %}
+                                        </div>
+                                        <!-- Popularity % -->
+                                        <div
+                                          class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
+
+                                          <p data-bs-toggle="tooltip" data-bs-placement="top"
+                                            title="{{ total }} seen in {{ total_enchant_counts[slot_name] }} total enchants"
+                                            class="mb-0">
+                                            {{ '%.0f' % ((total / total_enchant_counts[slot_name] * 100) if total /
+                                            total_enchant_counts[slot_name] * 100 < 100 else 100) }}% </p>
+                                              {% if ench.max_timed_key or ench.max_depleted_key %}
+                                              <div class="mt-1 mb-1">
+                                                <span
+                                                  class="badge border border-white text-white bg-transparent py-1 px-2"
+                                                  style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
+                                                  data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                                  data-bs-html="true"
+                                                  title="{% if ench.max_timed_key %}Highest Timed: +{{ ench.max_timed_key }}{% endif %}{% if ench.max_timed_key and ench.max_depleted_key %}<br>{% endif %}{% if ench.max_depleted_key %}Highest Depleted: +{{ ench.max_depleted_key }}{% endif %}">
+                                                  {% if ench.max_timed_key %}
+                                                  +{{ ench.max_timed_key }}
+                                                  {% else %}
+                                                  +{{ ench.max_depleted_key }} (D)
+                                                  {% endif %}
+                                                </span>
+                                              </div>
+                                              {% endif %}
+                                        </div>
+                                      </div>
+                                      {% endfor %}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              {% endif %}
+                              {% endif %}
+                              {% endfor %}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Gems Overview-->
+                <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
+                  <!-- Gems Overview-->
+                  <div class="accordion mx-2" id="socketAccordion">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="headingSocket">
+                        <button class="accordion-button collapsed fw-semibold text-center w-100" type="button"
+                          data-bs-toggle="collapse" data-bs-target="#collapseSocket" aria-expanded="false"
+                          aria-controls="collapseSocket">
+                          Socket (Gem) Details
+                        </button>
+                      </h2>
+                      <div id="collapseSocket" class="accordion-collapse collapse w-100" aria-labelledby="headingSocket"
+                        data-bs-parent="#socketAccordion">
+                        <div class="accordion-body">
+                          <div class="row">
+                            <div class="col-12">
+                              <!-- Socket (Gem) list -->
+                              {% for s in sockets %}
+                              {% set gem_id = (s.id if s.id is defined else s['id']) |int %}
+                              {% set total = (s.count if s.count is defined else s['count']) %}
+                              {% set gem = socket_lookup[gem_id] %}
+                              <div class="row align-items-center mb-2">
+                                <!-- Gem icon & link -->
+                                <div class="col-auto">
+                                  <a target="_blank"
+                                    href="https://www.wowhead.com/item={{ gem.itemId }}&spec={{ spec_id }}"
+                                    class="icon-link position-relative" style="width:24px; height:24px;">
+                                    <img src="/data/icons/{{ gem.itemIcon }}.png" alt=""
+                                      class="base-icon border {% if gem.quality %}border-quality-{{gem.quality}}{% else %}border-grey-100{% endif %}">
+                                    {% if gem.craftingQuality %}
+                                    <img src="/data/icons/crafting-quality-{{ gem.craftingQuality }}.png" alt=""
+                                      class="icon-overlay">
+                                    {% endif %}
+                                  </a>
+                                </div>
+                                <!-- Gem Name -->
+                                <div class="col">
+                                  <a target="_blank"
+                                    href="https://www.wowhead.com/item={{ gem.itemId }}&spec={{ spec_id }}">
+                                    <p class="mb-1">{{ gem.itemName }}</p>
+                                  </a>
+                                </div>
+                                <!-- Gem Stats -->
+                                <div class="col-md-3 d-none d-md-block">
+                                  {% if gem.stats %}
+                                  <a target="_blank"
+                                    href="https://www.wowhead.com/item={{ gem.itemId }}&spec={{ spec_id }}">
+                                    {% for stat in gem.stats %}
+                                    <span class="badge stat-{{ stat.type }}">
+                                      +{{ stat.amount }}
+                                      {% if stat_names[stat.type] %}
+                                      {{ stat_names[stat.type] }}
+                                      {% else %}
+                                      {{ stat.type }}
+                                      {% endif %}
+                                    </span>
+                                    {% endfor %}
+                                  </a>
+                                  {% endif %}
+                                </div>
+                                <!-- Gem Price -->
+                                <div class="col-md-2 d-none d-md-block text-start">
+                                  {% if formatted_price[gem.itemId|string] %}
+                                  <a target="_blank" href="https://undermine.exchange/#eu-blackmoore/{{ gem.itemId }}">
+                                    {{ formatted_price[gem.itemId|string] | safe }}
+                                  </a>
+                                  {% endif %}
+                                </div>
+                                <!-- Popularity % -->
+                                <div
+                                  class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
+                                  <p data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="{{ total }} out of {{total_socket_count}} gems" class="mb-0">
+                                    {%if (total / total_socket_count * 100) < 100%} {{ '%.0f' % (total /
+                                      total_socket_count * 100) }} {%else%} 100 {%endif%}% </p>
+                                      {% if s.max_timed_key or s.max_depleted_key %}
+                                      <div class="mt-1 mb-1">
+                                        <span class="badge border border-white text-white bg-transparent py-1 px-2"
+                                          style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
+                                          data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                                          title="{% if s.max_timed_key %}Highest Timed: +{{ s.max_timed_key }}{% endif %}{% if s.max_timed_key and s.max_depleted_key %}<br>{% endif %}{% if s.max_depleted_key %}Highest Depleted: +{{ s.max_depleted_key }}{% endif %}">
+                                          {% if s.max_timed_key %}
+                                          +{{ s.max_timed_key }}
+                                          {% else %}
+                                          +{{ s.max_depleted_key }} (D)
+                                          {% endif %}
+                                        </span>
+                                      </div>
+                                      {% endif %}
+                                </div>
+                              </div>
+                              {% endfor %}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="d-flex flex-column flex-md-row gap-3 mt-4">
+                <!-- Embelishments Overview-->
+                <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
+                  <div class="accordion mx-2" id="embellishmentAccordion">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="headingEmbellishment">
+                        <button class="accordion-button collapsed fw-semibold text-center w-100" type="button"
+                          data-bs-toggle="collapse" data-bs-target="#collapseEmbellishment" aria-expanded="false"
+                          aria-controls="collapseEmbellishment">
+                          Embellishment Details
+                        </button>
+                      </h2>
+                      <div id="collapseEmbellishment" class="accordion-collapse collapse w-100"
+                        aria-labelledby="headingEmbellishment" data-bs-parent="#embellishmentAccordion">
+                        <div class="accordion-body">
+                          <div class="row">
+                            <div class="col-12">
+                              <!-- Embellishment list -->
+                              {% for pair in embellishments %}
+                              {% set embellishment = pair[0] %}
                               {% set total = pair[1] %}
+
                               <div class="row align-items-center mb-2">
                                 <!-- Item icon & link -->
                                 <div class="col-auto">
                                   <a target="_blank"
-                                    href="https://www.wowhead.com/item={{ missive }}&spec={{ spec_id }}"
+                                    href="https://www.wowhead.com/item={{ embellishment}}&spec={{ spec_id }}"
                                     class="icon-link position-relative" style="width:24px; height:24px;">
-                                    <img src="/data/icons/{{ reagent_lookup[missive].icon }}.png" alt=""
-                                      class="base-icon border {% if reagent_lookup[missive].quality %}border-quality-{{reagent_lookup[missive].quality}}{% else %}border-grey-100{% endif %}">
-                                    {% if reagent_lookup[missive].craftingQuality %}
+                                    <img src="/data/icons/{{ reagent_lookup[embellishment].icon }}.png" alt=""
+                                      class="base-icon border {% if reagent_lookup[embellishment].quality %}border-quality-{{reagent_lookup[embellishment].quality}}{% else %}border-grey-100{% endif %}">
+                                    {% if reagent_lookup[embellishment].craftingQuality %}
                                     <img
-                                      src="/data/icons/crafting-quality-{{ reagent_lookup[missive].craftingQuality }}.png"
+                                      src="/data/icons/crafting-quality-{{ reagent_lookup[embellishment].craftingQuality }}.png"
                                       alt="" class="icon-overlay">
                                     {% endif %}
                                   </a>
@@ -1131,16 +1095,16 @@
                                 <!-- Name -->
                                 <div class="col">
                                   <a target="_blank"
-                                    href="https://www.wowhead.com/item={{ missive }}&spec={{ spec_id }}">
-                                    <p class="mb-1">{{ reagent_lookup[missive].name }}</p>
+                                    href="https://www.wowhead.com/item={{ embellishment }}&spec={{ spec_id }}">
+                                    <p class="mb-1">{{ reagent_lookup[embellishment].name }}</p>
                                   </a>
                                 </div>
                                 <!-- Stats -->
                                 <div class="col-md-3 d-none d-md-block">
-                                  {% if reagent_lookup[missive].stats %}
+                                  {% if reagent_lookup[embellishment].stats %}
                                   <a target="_blank"
-                                    href="https://www.wowhead.com/item={{ reagent_lookup[missive].itemId }}&spec={{ spec_id }}">
-                                    {% for stat in reagent_lookup[missive].stats %}
+                                    href="https://www.wowhead.com/item={{ reagent_lookup[embellishment].itemId }}&spec={{ spec_id }}">
+                                    {% for stat in reagent_lookup[embellishment].stats %}
                                     <span class="badge stat-{{ stat.type }}">
                                       +{{ stat.amount }} {% if stat_names[stat.type] %}{{ stat_names[stat.type] }}{%
                                       else
@@ -1154,31 +1118,285 @@
                                 </div>
                                 <!-- Price -->
                                 <div class="col-md-2 d-none d-md-block text-start">
-                                  {% if formatted_price[missive|string] %}
-                                  <a target="_blank" href="https://undermine.exchange/#eu-blackmoore/{{ missive}}">
-                                    {{ formatted_price[missive|string] | safe }}
+                                  {% if formatted_price[embellishment|string] %}
+                                  <a target="_blank"
+                                    href="https://undermine.exchange/#eu-blackmoore/{{ embellishment}}">
+                                    {{ formatted_price[embellishment|string] | safe }}
                                   </a>
                                   {% endif %}
                                 </div>
                                 <!-- Popularity % -->
-                                <div class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
+                                <div
+                                  class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
                                   <p data-bs-toggle="tooltip" data-bs-placement="top"
-                                    title="{{ total }} seen in {{total_missive_count}} runs" class="mb-0">
-                                    {%if (total / total_missive_count * 100) < 100%} {{ '%.0f' % (total /
-                                      total_missive_count * 100) }} {%else%} 100 {%endif%}% </p>
-                                  {% if pair[2] or pair[3] %}
-                                  <div class="mt-1 mb-1">
-                                    <span class="badge border border-white text-white bg-transparent py-1 px-2" style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
-                                          data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" 
+                                    title="{{ total }} seen in {{total_embellishment_count}} runs" class="mb-0">
+                                    {%if (total / total_embellishment_count * 100) < 100%} {{ '%.0f' % (total /
+                                      total_embellishment_count * 100) }} {%else%} 100 {%endif%}% </p>
+                                      {% if pair[2] or pair[3] %}
+                                      <div class="mt-1 mb-1">
+                                        <span class="badge border border-white text-white bg-transparent py-1 px-2"
+                                          style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
+                                          data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
                                           title="{% if pair[2] %}Highest Timed: +{{ pair[2] }}{% endif %}{% if pair[2] and pair[3] %}<br>{% endif %}{% if pair[3] %}Highest Depleted: +{{ pair[3] }}{% endif %}">
-                                      {% if pair[2] %}
-                                        +{{ pair[2] }}
-                                      {% else %}
-                                        +{{ pair[3] }} (D)
+                                          {% if pair[2] %}
+                                          +{{ pair[2] }}
+                                          {% else %}
+                                          +{{ pair[3] }} (D)
+                                          {% endif %}
+                                        </span>
+                                      </div>
                                       {% endif %}
+                                </div>
+                              </div>
+                              {% endfor %}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Missive Overview -->
+                <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
+                  <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
+                    <div class="accordion mx-2" id="missiveAccordion">
+                      <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingMissive">
+                          <button class="accordion-button collapsed fw-semibold text-center w-100" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#collapseMissive" aria-expanded="false"
+                            aria-controls="collapseMissive">
+                            Missive Details
+                          </button>
+                        </h2>
+                        <div id="collapseMissive" class="accordion-collapse collapse w-100"
+                          aria-labelledby="headingMissive" data-bs-parent="#missiveAccordion">
+                          <div class="accordion-body">
+                            <div class="row">
+                              <div class="col-12">
+                                <!-- Missive list -->
+                                {% for pair in missives %}
+                                {% set missive = pair[0] %}
+                                {% set total = pair[1] %}
+                                <div class="row align-items-center mb-2">
+                                  <!-- Item icon & link -->
+                                  <div class="col-auto">
+                                    <a target="_blank"
+                                      href="https://www.wowhead.com/item={{ missive }}&spec={{ spec_id }}"
+                                      class="icon-link position-relative" style="width:24px; height:24px;">
+                                      <img src="/data/icons/{{ reagent_lookup[missive].icon }}.png" alt=""
+                                        class="base-icon border {% if reagent_lookup[missive].quality %}border-quality-{{reagent_lookup[missive].quality}}{% else %}border-grey-100{% endif %}">
+                                      {% if reagent_lookup[missive].craftingQuality %}
+                                      <img
+                                        src="/data/icons/crafting-quality-{{ reagent_lookup[missive].craftingQuality }}.png"
+                                        alt="" class="icon-overlay">
+                                      {% endif %}
+                                    </a>
+                                  </div>
+                                  <!-- Name -->
+                                  <div class="col">
+                                    <a target="_blank"
+                                      href="https://www.wowhead.com/item={{ missive }}&spec={{ spec_id }}">
+                                      <p class="mb-1">{{ reagent_lookup[missive].name }}</p>
+                                    </a>
+                                  </div>
+                                  <!-- Stats -->
+                                  <div class="col-md-3 d-none d-md-block">
+                                    {% if reagent_lookup[missive].stats %}
+                                    <a target="_blank"
+                                      href="https://www.wowhead.com/item={{ reagent_lookup[missive].itemId }}&spec={{ spec_id }}">
+                                      {% for stat in reagent_lookup[missive].stats %}
+                                      <span class="badge stat-{{ stat.type }}">
+                                        +{{ stat.amount }} {% if stat_names[stat.type] %}{{ stat_names[stat.type] }}{%
+                                        else
+                                        %}{{
+                                        stat.type
+                                        }}{% endif %}
+                                      </span>
+                                      {% endfor %}
+                                    </a>
+                                    {% endif %}
+                                  </div>
+                                  <!-- Price -->
+                                  <div class="col-md-2 d-none d-md-block text-start">
+                                    {% if formatted_price[missive|string] %}
+                                    <a target="_blank" href="https://undermine.exchange/#eu-blackmoore/{{ missive}}">
+                                      {{ formatted_price[missive|string] | safe }}
+                                    </a>
+                                    {% endif %}
+                                  </div>
+                                  <!-- Popularity % -->
+                                  <div
+                                    class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
+                                    <p data-bs-toggle="tooltip" data-bs-placement="top"
+                                      title="{{ total }} seen in {{total_missive_count}} runs" class="mb-0">
+                                      {%if (total / total_missive_count * 100) < 100%} {{ '%.0f' % (total /
+                                        total_missive_count * 100) }} {%else%} 100 {%endif%}% </p>
+                                        {% if pair[2] or pair[3] %}
+                                        <div class="mt-1 mb-1">
+                                          <span class="badge border border-white text-white bg-transparent py-1 px-2"
+                                            style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
+                                            data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                                            title="{% if pair[2] %}Highest Timed: +{{ pair[2] }}{% endif %}{% if pair[2] and pair[3] %}<br>{% endif %}{% if pair[3] %}Highest Depleted: +{{ pair[3] }}{% endif %}">
+                                            {% if pair[2] %}
+                                            +{{ pair[2] }}
+                                            {% else %}
+                                            +{{ pair[3] }} (D)
+                                            {% endif %}
+                                          </span>
+                                        </div>
+                                        {% endif %}
+                                  </div>
+                                </div>
+                                {% endfor %}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {% if crafted_items and crafted_items|length > 0 %}
+              <div class="d-flex flex-column flex-md-row gap-3 mt-4">
+                <!-- Crafted Items Overview-->
+                <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
+                  <div class="accordion mx-2" id="craftedAccordion">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="headingCrafted">
+                        <button class="accordion-button collapsed fw-semibold text-center w-100" type="button"
+                          data-bs-toggle="collapse" data-bs-target="#collapseCrafted" aria-expanded="false"
+                          aria-controls="collapseCrafted">
+                          Top Crafted Items
+                        </button>
+                      </h2>
+                      <div id="collapseCrafted" class="accordion-collapse collapse w-100"
+                        aria-labelledby="headingCrafted" data-bs-parent="#craftedAccordion">
+                        <div class="accordion-body">
+                          <div class="row">
+                            <div class="col-12">
+                              <!-- Crafted Items list -->
+                              {% for pair in crafted_items %}
+                              {% set item = pair[0] %}
+                              {% set total = pair[1] %}
+                              {% if item_lookup[item|int] %}
+                              <div class="row align-items-center mb-2">
+                                <!-- Item icon & link -->
+                                <div class="col-auto">
+                                  <a target="_blank" href="https://www.wowhead.com/item={{ item }}&spec={{ spec_id }}"
+                                    class="icon-link position-relative" style="width:24px; height:24px;">
+                                    <img src="/data/icons/{{ item_lookup[item|int].icon }}.png" alt=""
+                                      class="base-icon border {% if item_lookup[item|int].quality %}border-quality-{{item_lookup[item|int].quality}}{% else %}border-grey-100{% endif %}">
+                                  </a>
+                                </div>
+                                <!-- Name -->
+                                <div class="col">
+                                  <a target="_blank" href="https://www.wowhead.com/item={{ item }}&spec={{ spec_id }}">
+                                    <p class="mb-1">{{ item_lookup[item|int].name }}</p>
+                                  </a>
+                                  {% set display_stats = item_lookup[item|int].stats %}
+                                  {% if (not display_stats or display_stats|length == 0) and missives and
+                                  missives|length > 0 %}
+                                  {% set missive_reagent = reagent_lookup.get(missives[0][0]|string) or
+                                  reagent_lookup.get(missives[0][0]|int) %}
+                                  {% if missive_reagent %}
+                                  {% set display_stats = missive_reagent.stats %}
+                                  {% endif %}
+                                  {% endif %}
+                                  {% if display_stats %}
+                                  <div class="d-flex flex-wrap gap-1 mt-1">
+                                    {% for stat in display_stats %}
+                                    <span class="badge stat-{{ stat.type }}">
+                                      {% if stat_names[stat.type] %}{{ stat_names[stat.type] }}{% else %}{{ stat.type |
+                                      title }}{% endif %}
                                     </span>
+                                    {% endfor %}
                                   </div>
                                   {% endif %}
+                                </div>
+                                <!-- Popularity % -->
+                                <div
+                                  class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
+                                  <p data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="{{ total }} seen in {{total_crafted_items}} runs" class="mb-0">
+                                    {%if total_crafted_items > 0%}
+                                    {%if (total / total_crafted_items * 100) < 100%} {{ '%.0f' % (total /
+                                      total_crafted_items * 100) }} {%else%} 100 {%endif%}% {%else%} 0% {%endif%} </p>
+                                      {% if pair[2] or pair[3] %}
+                                      <div class="mt-1 mb-1">
+                                        <span class="badge border border-white text-white bg-transparent py-1 px-2"
+                                          style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
+                                          data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                                          title="{% if pair[2] %}Highest Timed: +{{ pair[2] }}{% endif %}{% if pair[2] and pair[3] %}<br>{% endif %}{% if pair[3] %}Highest Depleted: +{{ pair[3] }}{% endif %}">
+                                          {% if pair[2] %}
+                                          +{{ pair[2] }}
+                                          {% else %}
+                                          +{{ pair[3] }} (D)
+                                          {% endif %}
+                                        </span>
+                                      </div>
+                                      {% endif %}
+                                </div>
+                              </div>
+                              {% endif %}
+                              {% endfor %}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+              {% if hunter_pets and hunter_pets|length > 0 %}
+              <div class="d-flex flex-column flex-md-row gap-3 mt-4">
+                {# Hunter Pets Overview #}
+                <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
+                  <div class="accordion mx-2" id="hunterPetAccordion">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="headingHunterPets">
+                        <button class="accordion-button collapsed fw-semibold text-center w-100" type="button"
+                          data-bs-toggle="collapse" data-bs-target="#collapseHunterPets" aria-expanded="false"
+                          aria-controls="collapseHunterPets">
+                          Hunter Pet Details
+                        </button>
+                      </h2>
+                      <div id="collapseHunterPets" class="accordion-collapse collapse w-100"
+                        aria-labelledby="headingHunterPets" data-bs-parent="#hunterPetAccordion">
+                        <div class="accordion-body">
+                          <div class="row">
+                            <div class="col-12">
+                              {% for pet in hunter_pets %}
+                              <div class="row align-items-center mb-2">
+                                <!-- Pet image -->
+                                <div class="col-auto">
+                                  <a target="_blank" href="https://www.wowhead.com/npc={{ pet.creature_id }}">
+                                    <div class="position-relative"
+                                      style="width:32px; height:32px; display:inline-block;">
+                                      <img src="/{{ pet.image | trim('/') }}" alt="{{ pet.name }}"
+                                        class="position-absolute top-0 start-0 border border-grey-100"
+                                        style="width:100%; height:100%; object-fit:cover;">
+                                    </div>
+                                  </a>
+                                </div>
+
+                                <!-- Name + family/type -->
+                                <div class="col">
+                                  <a target="_blank" href="https://www.wowhead.com/npc={{ pet.creature_id }}">
+                                    <p class="mb-1">{{ pet.name }}</p>
+                                  </a>
+                                  <small class="text-muted">{{ pet.family }}{% if pet.type %} · {{ pet.type }}{% endif
+                                    %}</small>
+                                </div>
+
+                                <!-- Popularity % -->
+                                <div class="col-md-2 text-end">
+                                  <p data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="{{ pet.run_count }} runs with this pet" class="mb-0">
+                                    {{ '%.0f' % pet.pet_pct_spec }}%
+                                  </p>
                                 </div>
                               </div>
                               {% endfor %}
@@ -1190,161 +1408,15 @@
                   </div>
                 </div>
               </div>
+              {% endif %}
             </div>
-
-            {% if crafted_items and crafted_items|length > 0 %}
-            <div class="d-flex flex-column flex-md-row gap-3 mt-4">
-              <!-- Crafted Items Overview-->
-              <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
-                <div class="accordion mx-2" id="craftedAccordion">
-                  <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingCrafted">
-                      <button class="accordion-button collapsed fw-semibold text-center w-100" type="button"
-                        data-bs-toggle="collapse" data-bs-target="#collapseCrafted" aria-expanded="false"
-                        aria-controls="collapseCrafted">
-                        Top Crafted Items
-                      </button>
-                    </h2>
-                    <div id="collapseCrafted" class="accordion-collapse collapse w-100" aria-labelledby="headingCrafted"
-                      data-bs-parent="#craftedAccordion">
-                      <div class="accordion-body">
-                        <div class="row">
-                          <div class="col-12">
-                            <!-- Crafted Items list -->
-                            {% for pair in crafted_items %}
-                            {% set item = pair[0] %}
-                            {% set total = pair[1] %}
-                            {% if item_lookup[item|int] %}
-                            <div class="row align-items-center mb-2">
-                              <!-- Item icon & link -->
-                              <div class="col-auto">
-                                <a target="_blank" href="https://www.wowhead.com/item={{ item }}&spec={{ spec_id }}"
-                                  class="icon-link position-relative" style="width:24px; height:24px;">
-                                  <img src="/data/icons/{{ item_lookup[item|int].icon }}.png" alt=""
-                                    class="base-icon border {% if item_lookup[item|int].quality %}border-quality-{{item_lookup[item|int].quality}}{% else %}border-grey-100{% endif %}">
-                                </a>
-                              </div>
-                              <!-- Name -->
-                              <div class="col">
-                                <a target="_blank" href="https://www.wowhead.com/item={{ item }}&spec={{ spec_id }}">
-                                  <p class="mb-1">{{ item_lookup[item|int].name }}</p>
-                                </a>
-                                {% set display_stats = item_lookup[item|int].stats %}
-                                {% if (not display_stats or display_stats|length == 0) and missives and missives|length > 0 %}
-                                  {% set missive_reagent = reagent_lookup.get(missives[0][0]|string) or reagent_lookup.get(missives[0][0]|int) %}
-                                  {% if missive_reagent %}
-                                    {% set display_stats = missive_reagent.stats %}
-                                  {% endif %}
-                                {% endif %}
-                                {% if display_stats %}
-                                <div class="d-flex flex-wrap gap-1 mt-1">
-                                  {% for stat in display_stats %}
-                                  <span class="badge stat-{{ stat.type }}">
-                                    {% if stat_names[stat.type] %}{{ stat_names[stat.type] }}{% else %}{{ stat.type | title }}{% endif %}
-                                  </span>
-                                  {% endfor %}
-                                </div>
-                                {% endif %}
-                              </div>
-                              <!-- Popularity % -->
-                              <div class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
-                                <p data-bs-toggle="tooltip" data-bs-placement="top"
-                                  title="{{ total }} seen in {{total_crafted_items}} runs" class="mb-0">
-                                  {%if total_crafted_items > 0%}
-                                  {%if (total / total_crafted_items * 100) < 100%} {{ '%.0f' % (total /
-                                    total_crafted_items * 100) }} {%else%} 100 {%endif%}% {%else%} 0% {%endif%} </p>
-                                {% if pair[2] or pair[3] %}
-                                <div class="mt-1 mb-1">
-                                  <span class="badge border border-white text-white bg-transparent py-1 px-2" style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
-                                        data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" 
-                                        title="{% if pair[2] %}Highest Timed: +{{ pair[2] }}{% endif %}{% if pair[2] and pair[3] %}<br>{% endif %}{% if pair[3] %}Highest Depleted: +{{ pair[3] }}{% endif %}">
-                                    {% if pair[2] %}
-                                      +{{ pair[2] }}
-                                    {% else %}
-                                      +{{ pair[3] }} (D)
-                                    {% endif %}
-                                  </span>
-                                </div>
-                                {% endif %}
-                              </div>
-                            </div>
-                            {% endif %}
-                            {% endfor %}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {% endif %}
-            {% if hunter_pets and hunter_pets|length > 0 %}
-            <div class="d-flex flex-column flex-md-row gap-3 mt-4">
-              {# Hunter Pets Overview #}
-              <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
-                <div class="accordion mx-2" id="hunterPetAccordion">
-                  <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingHunterPets">
-                      <button class="accordion-button collapsed fw-semibold text-center w-100" type="button"
-                        data-bs-toggle="collapse" data-bs-target="#collapseHunterPets" aria-expanded="false"
-                        aria-controls="collapseHunterPets">
-                        Hunter Pet Details
-                      </button>
-                    </h2>
-                    <div id="collapseHunterPets" class="accordion-collapse collapse w-100"
-                      aria-labelledby="headingHunterPets" data-bs-parent="#hunterPetAccordion">
-                      <div class="accordion-body">
-                        <div class="row">
-                          <div class="col-12">
-                            {% for pet in hunter_pets %}
-                            <div class="row align-items-center mb-2">
-                              <!-- Pet image -->
-                              <div class="col-auto">
-                                <a target="_blank" href="https://www.wowhead.com/npc={{ pet.creature_id }}">
-                                  <div class="position-relative" style="width:32px; height:32px; display:inline-block;">
-                                    <img src="/{{ pet.image | trim('/') }}" alt="{{ pet.name }}"
-                                      class="position-absolute top-0 start-0 border border-grey-100"
-                                      style="width:100%; height:100%; object-fit:cover;">
-                                  </div>
-                                </a>
-                              </div>
-
-                              <!-- Name + family/type -->
-                              <div class="col">
-                                <a target="_blank" href="https://www.wowhead.com/npc={{ pet.creature_id }}">
-                                  <p class="mb-1">{{ pet.name }}</p>
-                                </a>
-                                <small class="text-muted">{{ pet.family }}{% if pet.type %} · {{ pet.type }}{% endif
-                                  %}</small>
-                              </div>
-
-                              <!-- Popularity % -->
-                              <div class="col-md-2 text-end">
-                                <p data-bs-toggle="tooltip" data-bs-placement="top"
-                                  title="{{ pet.run_count }} runs with this pet" class="mb-0">
-                                  {{ '%.0f' % pet.pet_pct_spec }}%
-                                </p>
-                              </div>
-                            </div>
-                            {% endfor %}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {% endif %}
           </div>
+
+
+
+
         </div>
-
-
-
-
-      </div>
-      {% include "footer.html" %}
+        {% include "footer.html" %}
   </main>
   <div class="modal fade" id="talentModal" tabindex="-1" aria-labelledby="talentModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-lg modal-dialog-centered">

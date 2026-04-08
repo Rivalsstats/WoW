@@ -2377,6 +2377,27 @@ def fetch_global_top_comps(connection, cursor, season: int):
     )
     return cursor.fetchall()
 
+FETCH_SPEC_TOP_COMPS_SQL = """
+SELECT 
+    comp, 
+    SUM(timed_runs + depleted_runs) as comp_count,
+    MAX(keystone_level) as highest_key,
+    ROUND((SUM(timed_runs) / SUM(timed_runs + depleted_runs)) * 100) as win_rate
+FROM Mythistone.aggregated_dungeon_comps
+WHERE season = %s AND FIND_IN_SET(%s, comp) > 0
+GROUP BY comp
+ORDER BY comp_count DESC
+LIMIT 5
+"""
+
+def fetch_spec_top_comps(connection, cursor, spec_id: str, season: int):
+    return fetch_with_retry(
+        connection,
+        cursor,
+        FETCH_SPEC_TOP_COMPS_SQL,
+        (season, str(spec_id))
+    )
+
 FETCH_DUNGEON_TOP_COMPS_SQL = """
 SELECT comp, SUM(timed_runs + depleted_runs) as comp_count
 FROM Mythistone.aggregated_dungeon_comps
