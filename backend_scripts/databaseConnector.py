@@ -2616,5 +2616,19 @@ LIMIT 50
 def fetch_dungeon_skip_rates(connection, cursor, dungeon_id: str, season: int = None):
     return fetch_with_retry(connection, cursor, FETCH_DUNGEON_SKIP_RATES_SQL, (dungeon_id,))
 
+FETCH_EXAMPLE_SKIP_ROUTE_SQL = """
+SELECT rd.rio_run_id, rd.route_key, rd.keystone_level
+FROM route_data rd
+WHERE rd.dungeon_id = %s
+  AND rd.route_key NOT IN (
+      SELECT route_key FROM pull_enemies WHERE npc_id = %s
+  )
+ORDER BY rd.keystone_level DESC, rd.timestamp DESC
+LIMIT 1
+"""
+
+def fetch_example_skip_route(connection, cursor, dungeon_id: str, npc_id: int):
+    return fetch_with_retry(connection, cursor, FETCH_EXAMPLE_SKIP_ROUTE_SQL, (dungeon_id, npc_id))
+
 
 

@@ -185,6 +185,11 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
 
                 lust_timeline = databaseConnector.fetch_dungeon_lust_timeline(conn, cursor, dungeon_id)
                 skip_rates = databaseConnector.fetch_dungeon_skip_rates(conn, cursor, dungeon_id, current_season)
+                
+                for skip in skip_rates[:15]:
+                    example_route = databaseConnector.fetch_example_skip_route(conn, cursor, dungeon_id, skip['npc_id'])
+                    if example_route:
+                        skip['example_route'] = example_route[0]
 
                 # Validate lust_timeline contains at least one boss pull
                 dungeon_bosses = bosses_lookup.get(str(dungeon_id), [])

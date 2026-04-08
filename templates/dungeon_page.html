@@ -529,6 +529,9 @@
                                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
                                                 style="position: sticky; top: 0; background-color: #1d1d1d;">Skipped %
                                             </th>
+                                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                                                style="position: sticky; top: 0; background-color: #1d1d1d;">Example Route
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -556,10 +559,20 @@
                                                 <span class="badge badge-sm bg-gradient-danger">{{
                                                     "%.1f"|format(skipped_pct) }}%</span>
                                             </td>
+                                            <td class="align-middle text-center">
+                                                {% if skip.example_route %}
+                                                    <a href="https://keystone.guru/route/{{ dungeon.slug }}/{{ skip.example_route.route_key }}/{{ dungeon.slug }}"
+                                                    class="text-white text-sm font-weight-bold" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Level {{ skip.example_route.keystone_level }} route on Keystone.guru">
+                                                        <i class="bi bi-box-arrow-up-right me-1"></i>View Example Route
+                                                    </a>
+                                                {% else %}
+                                                    <span class="text-secondary text-sm">N/A</span>
+                                                {% endif %}
+                                            </td>
                                         </tr>
                                         {% else %}
                                         <tr>
-                                            <td colspan="3" class="text-center text-sm p-3">No skip rate data available
+                                            <td colspan="4" class="text-center py-4">
                                                 yet.</td>
                                         </tr>
                                         {% endfor %}
