@@ -205,7 +205,7 @@
   <script>
     // Prefetch comps JSON
     let compsData = [];
-    fetch('/assets/json/comps_index.json')
+    const compsLoaded = fetch('/assets/json/comps_index.json')
       .then(response => response.json())
       .then(data => {
         compsData = data;
@@ -235,6 +235,65 @@
       {% endfor %}
     };
 
+    function readUrlParams() {
+      const sp = new URLSearchParams(window.location.search);
+      let changed = false;
+      const d = sp.get('dungeons');
+      const dOld = sp.get('dungeon'); // Support old param if any
+      const usedD = d || dOld;
+      if (usedD) {
+        const dFilter = document.getElementById('dungeonFilter');
+        if (dFilter.querySelector(`option[value="${usedD}"]`)) {
+          dFilter.value = usedD;
+          changed = true;
+        }
+      }
+      
+      const sParams = sp.get('specs');
+      if (sParams) {
+        const sIds = sParams.split(',');
+        sIds.forEach(sid => {
+          const id = parseInt(sid);
+          if (!isNaN(id)) {
+            const icon = document.querySelector(`.spec-icon[data-spec="${id}"]`);
+            if (icon && !selectedSpecs.has(id)) {
+              selectedSpecs.add(id);
+              icon.classList.add('selected');
+              changed = true;
+            }
+          }
+        });
+      }
+      return changed;
+    }
+
+    function writeUrlParams() {
+      const sp = new URLSearchParams(window.location.search);
+      if (selectedSpecs.size > 0) {
+        sp.set('specs', Array.from(selectedSpecs).join(','));
+      } else {
+        sp.delete('specs');
+      }
+      
+      const dFilter = document.getElementById('dungeonFilter');
+      if (dFilter.value && dFilter.value !== 'all') {
+        sp.set('dungeons', dFilter.value);
+        sp.delete('dungeon'); // clear old param if present
+      } else {
+        sp.delete('dungeons');
+        sp.delete('dungeon');
+      }
+      
+      const newQs = sp.toString();
+      window.history.replaceState({}, '', newQs ? '?' + newQs : window.location.pathname);
+    }
+
+    compsLoaded.then(() => {
+      if (readUrlParams()) {
+        updateSuggestions();
+      }
+    });
+
     specIcons.forEach(icon => {
       icon.addEventListener('click', (e) => {
         const specId = parseInt(e.target.dataset.spec);
@@ -247,12 +306,16 @@
             e.target.classList.add('selected');
           }
         }
+        writeUrlParams();
         updateSuggestions();
       });
     });
 
     const dungeonFilter = document.getElementById('dungeonFilter');
-    dungeonFilter.addEventListener('change', updateSuggestions);
+    dungeonFilter.addEventListener('change', () => {
+      writeUrlParams();
+      updateSuggestions();
+    });
 
     function updateSuggestions() {
       const headerTitle = document.querySelector('.card-header h6');
@@ -441,6 +504,7 @@
       if (icon) {
         selectedSpecs.add(specId);
         icon.classList.add('selected');
+        writeUrlParams();
         updateSuggestions();
       }
     }
@@ -448,6 +512,7 @@
     function clearSelection() {
       selectedSpecs.clear();
       specIcons.forEach(icon => icon.classList.remove('selected'));
+      writeUrlParams();
       updateSuggestions();
     }
   </script>
