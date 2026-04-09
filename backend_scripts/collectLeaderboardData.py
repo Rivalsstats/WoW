@@ -172,6 +172,14 @@ enqueued_profiles: dict[str, dict[str, Path]] = {}
 CURRENT_SEASON = ""
 
 # Utilities and route fetch logic
+def aggregate_talents(talents_list: list) -> list:
+    counts = defaultdict(int)
+    for t in talents_list:
+        tid = t.get("id")
+        if tid is not None:
+            counts[tid] += t.get("rank", 0)
+    return list(counts.items())
+
 def aggregate_enemies_occurrence(pull: dict) -> dict:
     counts = defaultdict(int)
     for e in pull.get("enemies", []):
@@ -1080,18 +1088,9 @@ async def advanced_worker(name: str, session: ClientSession):
                             "hero_talent_id": active_loadout[
                                 "selected_hero_talent_tree"
                             ]["id"],
-                            "class_talents": [
-                                (ct["id"], ct["rank"])
-                                for ct in active_loadout["selected_class_talents"]
-                            ],
-                            "spec_talents": [
-                                (st["id"], st["rank"])
-                                for st in active_loadout["selected_spec_talents"]
-                            ],
-                            "hero_talents": [
-                                (ht["id"], ht["rank"])
-                                for ht in active_loadout["selected_hero_talents"]
-                            ],
+                            "class_talents": aggregate_talents(active_loadout.get("selected_class_talents", [])),
+                            "spec_talents": aggregate_talents(active_loadout.get("selected_spec_talents", [])),
+                            "hero_talents": aggregate_talents(active_loadout.get("selected_hero_talents", [])),
                             "equipment": [
                                 {
                                     "slot": item["slot"]["type"],
