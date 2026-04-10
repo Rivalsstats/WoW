@@ -48,6 +48,9 @@ jobs:
           DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
           CLIENT_ID: ${{ secrets.BLIZ_CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
+          KEYSTONE_GURU_USER: ${{ secrets.KEYSTONE_GURU_USER }}
+          KEYSTONE_GURU_SECRET: ${{ secrets.KEYSTONE_GURU_SECRET }}
+          KEYSTONE_GURU_PW: ${{ secrets.KEYSTONE_GURU_PW }}
         # we run your create_socials_post entrypoint, which should:
         #  - read data/socials.json
         #  - write a JSON dict {"out_path": "...png", "post": "…"} to stdout
