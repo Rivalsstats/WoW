@@ -934,9 +934,6 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     conn, cursor, spec_id
                 )
 
-                for route in top_routes:
-                    print(dungeon_lookup[route])
-
                 print(
                     f"[{datetime.now(timezone.utc).isoformat()}] fetching hero tree info..."
                 )
@@ -1091,7 +1088,6 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 raise ValueError(f"No talent tree data for spec {spec_id}")
 
             print(f"[{datetime.now(timezone.utc).isoformat()}] generating page...")
-            print(tree_by_spec.get(int(spec_id)))
             output_html = template.render(
                 generated_at=datetime.now(timezone.utc).timestamp(),
                 spec_id=spec_id,
