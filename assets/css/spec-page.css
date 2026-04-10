@@ -97,6 +97,7 @@
   border-radius: 10px;
   border: 1px solid #333;
   white-space: nowrap;
+  text-align: center;
 }
 .tt-badge.high { color: #0f0; border-color: #0f0; }
 .tt-badge.med { color: #ff0; border-color: #ff0; }
