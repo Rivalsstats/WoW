@@ -39,6 +39,15 @@ def build_lookup(talents_data):
                             "icon": entry.get("icon", node.get("icon", "")),
                             "spellId": entry.get("spellId", node.get("spellId", 0)),
                         }
+                    
+                    e_id = entry.get("definitionId")
+                    if e_id and e_id not in mapping["talents"]:
+                        mapping["talents"][e_id] = {
+                            "name": entry.get("name", ""),
+                            "icon": entry.get("icon", ""),
+                            "spellId": entry.get("spellId", 0),
+                        }
+                        
         for subtree in spec.get("subTreeNodes", []):
             for entry in subtree.get("entries", []):
                 ts_id = entry["traitSubTreeId"]

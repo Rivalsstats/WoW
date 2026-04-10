@@ -178,6 +178,13 @@ def aggregate_talents(talents_list: list) -> list:
         tid = t.get("id")
         if tid is not None:
             counts[tid] += t.get("rank", 0)
+        
+        # Choice nodes: also count the specifically chosen entry or spell
+        tooltip = t.get("tooltip", {})
+        talent_id = tooltip.get("talent", {}).get("id")
+        if talent_id is not None:
+            counts[talent_id] += t.get("rank", 0)
+            
     return list(counts.items())
 
 def aggregate_enemies_occurrence(pull: dict) -> dict:
