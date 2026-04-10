@@ -205,9 +205,6 @@ var klaroConfig = {
             wowhead: {
                 description: 'Wowhead tooltips and data integration',
             },
-            raidbots: {
-                description: 'Talent Frame integration',
-            },
             keystoneGuru: {
                 description: 'Route display',
             },
@@ -346,14 +343,6 @@ var klaroConfig = {
             default: true,
             purposes: ['analytics'],
         },
-        {
-            name: 'raidbots',
-            title: 'Raidbots',
-            purposes: ['functional'],
-            default: true,
-            contextualConsentOnly: true,
-        },
-
         {
             name: 'keystoneGuru',
             title: 'Keystone Guru',
