@@ -494,7 +494,7 @@
                         {% for c in n.choices %}
                         <a href="https://www.wowhead.com/spell={{c.spellId}}" style="color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; font-size: 13px;" target="_blank">
                           <img src="/data/icons/{{c.icon}}.png" width="24" height="24" style="border-radius: 4px;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
-                          <span>{{c.name}} : {{ '{:.0f}'.format(c.pct) }}% ({{c.count}}/{{n.count}} times)</span>
+                          <span>{{c.name}} : {{ '{:.0f}'.format(c.pct) }}%</span>
                         </a>
                         {% endfor %}
                       </div>
@@ -529,7 +529,7 @@
                     {% endif %}
                   </div>
                 {% endif %}
-                {% if n.pct_val > 0.0 and not n.isFreeNode %}<div class="tt-badge" style="position: absolute; bottom: -8px; right: -8px; background: #000; color: #fff; font-size: 10px; padding: 1px 4px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; z-index: 5;" title="{{ '{:.1f}'.format(n.pct_val) }}% ({{n.count}}/{{n.total_count}} times)">{{n.pct_val | round | int}}%</div>{% endif %}
+                {% if n.pct_val > 0.0 and not n.isFreeNode %}<div class="tt-badge" style="position: absolute; bottom: -8px; right: -8px; background: #000; color: #fff; font-size: 10px; padding: 1px 4px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; z-index: 5;" title="{{ '{:.1f}'.format(n.pct_val) }}%">{{n.pct_val | round | int}}%</div>{% endif %}
                 {% if n.maxRanks > 1 %}
                   <div class="tt-maxrank" style="position: absolute; top: -6px; right: -6px; background: #333; border: 1px solid #777; color: #fff; font-size: 10px; padding: 0px 3px; border-radius: 3px; z-index: 5; cursor: default;" title="Average points spent: {{ n.avgRank | round(2) }}/{{ n.maxRanks }}">
                     {{ n.avgRank | round | int }}
@@ -548,7 +548,7 @@
                 <h5 class="text-uppercase font-weight-bolder" style="letter-spacing: 1px; font-size: 16px;">{{ top_sub.name }}</h5>
                 <div class="position-relative d-inline-block mt-2">
                   <img src="/data/icons/{{ top_sub.icon }}.png" alt="{{ top_sub.name }}" style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid #ffb000; box-shadow: 0 0 15px rgba(255, 176, 0, 0.4);" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
-                  <div style="position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); background: #000; color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; border: 1px solid #ffb000; white-space: nowrap;" title="{{ '{:.1f}'.format((top_tree.count / hero_tree_count) * 100) }}% ({{top_tree.count}}/{{hero_tree_count}} times)">
+                  <div style="position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); background: #000; color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; border: 1px solid #ffb000; white-space: nowrap;" title="{{ '{:.1f}'.format((top_tree.count / hero_tree_count) * 100) }}%">
                     {{ ((top_tree.count / hero_tree_count) * 100) | round | int }}%
                   </div>
                 </div>
@@ -565,12 +565,12 @@
                         <img src="/data/icons/{{n.icon}}.png" alt="Icon" class="tt-octagon" style="width: 100%; height: 100%;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
                       </div>
                       <div class="arrow-right"></div>
-                      <div class="text-center mt-1" style="background: #000; color: #fff; font-size: 11px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; padding: 1px 4px; position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); white-space: nowrap;" title="{{ '{:.1f}'.format(n.pct_val) }}% ({{n.count}}/{{n.total_count}} times)">{{n.pct_val | round | int}}%</div>
+                      <div class="text-center mt-1" style="background: #000; color: #fff; font-size: 11px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; padding: 1px 4px; position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); white-space: nowrap;" title="{{ '{:.1f}'.format(n.pct_val) }}%">{{n.pct_val | round | int}}%</div>
                       <div class="tt-custom-tooltip" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px; white-space: nowrap; z-index: 1050; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 5px;">
                         {% for c in n.choices %}
                         <a href="https://www.wowhead.com/spell={{c.spellId}}" style="color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; font-size: 13px;" target="_blank">
                           <img src="/data/icons/{{c.icon}}.png" width="24" height="24" style="border-radius: 4px;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
-                          <span>{{c.name}} : {{ '{:.0f}'.format(c.pct) }}% ({{c.count}}/{{n.count}} times)</span>
+                          <span>{{c.name}} : {{ '{:.0f}'.format(c.pct) }}%</span>
                         </a>
                         {% endfor %}
                       </div>
@@ -601,7 +601,7 @@
                         {% for c in n.choices %}
                         <a href="https://www.wowhead.com/spell={{c.spellId}}" style="color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; font-size: 13px;" target="_blank">
                           <img src="/data/icons/{{c.icon}}.png" width="24" height="24" style="border-radius: 4px;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
-                          <span>{{c.name}} : {{ '{:.0f}'.format(c.pct) }}% ({{c.count}}/{{n.count}} times)</span>
+                          <span>{{c.name}} : {{ '{:.0f}'.format(c.pct) }}%</span>
                         </a>
                         {% endfor %}
                       </div>
@@ -636,7 +636,7 @@
                     {% endif %}
                   </div>
                 {% endif %}
-                {% if n.pct_val > 0.0 and not n.isFreeNode %}<div class="tt-badge" style="position: absolute; bottom: -8px; right: -8px; background: #000; color: #fff; font-size: 10px; padding: 1px 4px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; z-index: 5;" title="{{ '{:.1f}'.format(n.pct_val) }}% ({{n.count}}/{{n.total_count}} times)">{{n.pct_val | round | int}}%</div>{% endif %}
+                {% if n.pct_val > 0.0 and not n.isFreeNode %}<div class="tt-badge" style="position: absolute; bottom: -8px; right: -8px; background: #000; color: #fff; font-size: 10px; padding: 1px 4px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; z-index: 5;" title="{{ '{:.1f}'.format(n.pct_val) }}%">{{n.pct_val | round | int}}%</div>{% endif %}
                 {% if n.maxRanks > 1 %}
                   <div class="tt-maxrank" style="position: absolute; top: -6px; right: -6px; background: #333; border: 1px solid #777; color: #fff; font-size: 10px; padding: 0px 3px; border-radius: 3px; z-index: 5; cursor: default;" title="Average points spent: {{ n.avgRank | round(2) }}/{{ n.maxRanks }}">
                     {{ n.avgRank | round | int }}
