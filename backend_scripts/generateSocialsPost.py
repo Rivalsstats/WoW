@@ -2451,24 +2451,6 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
     glue_comps_w = 0
     valid_glue_count = 0
 
-    if glue_specs:
-        header_2 = "Most Flexible Specs:"
-        box2 = draw.textbbox((0, 0), header_2, font=font_sm)
-        glue_comps_w = max(glue_comps_w, box2[2] - box2[0])
-
-        valid_glue_count = min(5, len(glue_specs))
-        for gs in glue_specs[:5]:
-            comps_count = gs.get('comps', 0)
-            sid = str(gs['spec_id'])
-            if sid in spec_lookup:
-                s_meta = spec_lookup[sid]
-                c_meta = class_lookup.get(str(s_meta.get("classID", "")), {})
-                s_name = f"{s_meta.get('name', '')} {c_meta.get('name', '')}"
-                txt = f"{s_name} - {comps_count} Comps"
-                g_box = draw.textbbox((0, 0), txt, font=font_sm)
-                row_w = icon_sz + text_offset + (g_box[2]-g_box[0])
-                glue_comps_w = max(glue_comps_w, row_w)
-
     panel_x1 = 30
     panel_y1 = 180
 
@@ -2483,17 +2465,6 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
         box_y2 = 250 + (valid_comps_count * 60)
         draw.rounded_rectangle(
             [(panel_x1, box_y1), (panel_x1 + box_pw, box_y2)],
-            radius=15,
-            fill=(0, 0, 0, 200)
-        )
-
-    if glue_specs and valid_glue_count > 0:
-        box_pw = glue_comps_w + (pad * 2)
-        panel_x2 = WIDTH // 2 + 30
-        box_y1 = 180
-        box_y2 = 250 + (valid_glue_count * 60)
-        draw.rounded_rectangle(
-            [(panel_x2, box_y1), (panel_x2 + box_pw, box_y2)],
             radius=15,
             fill=(0, 0, 0, 200)
         )
