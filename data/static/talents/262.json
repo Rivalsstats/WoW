@@ -7,7 +7,17 @@
       "icon": "inv_1115_shaman_chainheal",
       "spellId": 1064
     },
+    "132670": {
+      "name": "Chain Heal",
+      "icon": "inv_1115_shaman_chainheal",
+      "spellId": 1064
+    },
     "103583": {
+      "name": "Chain Lightning",
+      "icon": "spell_nature_chainlightning",
+      "spellId": 188443
+    },
+    "132665": {
       "name": "Chain Lightning",
       "icon": "spell_nature_chainlightning",
       "spellId": 188443
@@ -17,7 +27,17 @@
       "icon": "spell_nature_skinofearth",
       "spellId": 974
     },
+    "132680": {
+      "name": "Earth Shield",
+      "icon": "spell_nature_skinofearth",
+      "spellId": 974
+    },
     "103610": {
+      "name": "Ancestral Wolf Affinity",
+      "icon": "spell_beastmaster_wolf",
+      "spellId": 382197
+    },
+    "132695": {
       "name": "Ancestral Wolf Affinity",
       "icon": "spell_beastmaster_wolf",
       "spellId": 382197
@@ -27,12 +47,32 @@
       "icon": "spell_firefrost_orb",
       "spellId": 382886
     },
+    "132689": {
+      "name": "Fire and Ice",
+      "icon": "spell_firefrost_orb",
+      "spellId": 382886
+    },
     "103581": {
       "name": "Spirit Wolf",
       "icon": "spell_hunter_lonewolf",
       "spellId": 260878
     },
+    "132663": {
+      "name": "Spirit Wolf",
+      "icon": "spell_hunter_lonewolf",
+      "spellId": 260878
+    },
+    "132662": {
+      "name": "Thunderous Paws",
+      "icon": "ability_hunter_longevity",
+      "spellId": 378075
+    },
     "109492": {
+      "name": "Frost Shock",
+      "icon": "spell_frost_frostshock",
+      "spellId": 196840
+    },
+    "140473": {
       "name": "Frost Shock",
       "icon": "spell_frost_frostshock",
       "spellId": 196840
@@ -42,12 +82,32 @@
       "icon": "ability_mage_shattershield",
       "spellId": 383010
     },
+    "132686": {
+      "name": "Elemental Orbit",
+      "icon": "ability_mage_shattershield",
+      "spellId": 383010
+    },
     "103591": {
       "name": "Spirit Walk",
       "icon": "ability_tracking",
       "spellId": 58875
     },
+    "132674": {
+      "name": "Spirit Walk",
+      "icon": "ability_tracking",
+      "spellId": 58875
+    },
+    "132673": {
+      "name": "Gust of Wind",
+      "icon": "inv_misc_volatileair",
+      "spellId": 192063
+    },
     "103616": {
+      "name": "Astral Shift",
+      "icon": "ability_shaman_astralshift",
+      "spellId": 108271
+    },
+    "132702": {
       "name": "Astral Shift",
       "icon": "ability_shaman_astralshift",
       "spellId": 108271
@@ -57,12 +117,32 @@
       "icon": "spell_nature_natureguardian",
       "spellId": 30884
     },
+    "132699": {
+      "name": "Nature's Guardian",
+      "icon": "spell_nature_natureguardian",
+      "spellId": 30884
+    },
     "109493": {
       "name": "Encasing Cold",
       "icon": "ability_mage_coldasice",
       "spellId": 462762
     },
+    "140474": {
+      "name": "Encasing Cold",
+      "icon": "ability_mage_coldasice",
+      "spellId": 462762
+    },
+    "140472": {
+      "name": "Arctic Snowstorm",
+      "icon": "spell_frost_glacier",
+      "spellId": 462764
+    },
     "103590": {
+      "name": "Healing Stream Totem",
+      "icon": "inv_spear_04",
+      "spellId": 392915
+    },
+    "132672": {
       "name": "Healing Stream Totem",
       "icon": "inv_spear_04",
       "spellId": 392915
@@ -72,12 +152,32 @@
       "icon": "ability_druid_galewinds",
       "spellId": 382215
     },
+    "132700": {
+      "name": "Winds of Al'Akir",
+      "icon": "ability_druid_galewinds",
+      "spellId": 382215
+    },
     "103611": {
       "name": "Planes Traveler",
       "icon": "spell_shaman_astralshift",
       "spellId": 381647
     },
+    "132697": {
+      "name": "Planes Traveler",
+      "icon": "spell_shaman_astralshift",
+      "spellId": 381647
+    },
+    "132696": {
+      "name": "Astral Bulwark",
+      "icon": "spell_shaman_ancestralawakening",
+      "spellId": 377933
+    },
     "103582": {
+      "name": "Brimming with Life",
+      "icon": "inv_jewelry_talisman_06",
+      "spellId": 381689
+    },
+    "132664": {
       "name": "Brimming with Life",
       "icon": "inv_jewelry_talisman_06",
       "spellId": 381689
@@ -87,7 +187,17 @@
       "icon": "spell_nature_cyclone",
       "spellId": 57994
     },
+    "132701": {
+      "name": "Wind Shear",
+      "icon": "spell_nature_cyclone",
+      "spellId": 57994
+    },
     "103601": {
+      "name": "Elemental Resistance",
+      "icon": "spell_fireresistancetotem_01",
+      "spellId": 462368
+    },
+    "132685": {
       "name": "Elemental Resistance",
       "icon": "spell_fireresistancetotem_01",
       "spellId": 462368
@@ -97,7 +207,17 @@
       "icon": "spell_nature_stranglevines",
       "spellId": 51485
     },
+    "132711": {
+      "name": "Earthgrab Totem",
+      "icon": "spell_nature_stranglevines",
+      "spellId": 51485
+    },
     "103579": {
+      "name": "Capacitor Totem",
+      "icon": "spell_nature_brilliance",
+      "spellId": 192058
+    },
+    "132660": {
       "name": "Capacitor Totem",
       "icon": "spell_nature_brilliance",
       "spellId": 192058
@@ -107,7 +227,17 @@
       "icon": "spell_shaman_blessingoftheeternals",
       "spellId": 1270375
     },
+    "141358": {
+      "name": "Spiritual Awakening",
+      "icon": "spell_shaman_blessingoftheeternals",
+      "spellId": 1270375
+    },
     "103606": {
+      "name": "Enhanced Imbues",
+      "icon": "spell_nature_rockbiter",
+      "spellId": 462796
+    },
+    "132690": {
       "name": "Enhanced Imbues",
       "icon": "spell_nature_rockbiter",
       "spellId": 462796
@@ -117,7 +247,17 @@
       "icon": "inv_elemental_primal_air",
       "spellId": 355630
     },
+    "132719": {
+      "name": "Windveil",
+      "icon": "inv_elemental_primal_air",
+      "spellId": 355630
+    },
     "103594": {
+      "name": "Refreshing Waters",
+      "icon": "ability_shaman_fortifyingwaters",
+      "spellId": 378211
+    },
+    "132678": {
       "name": "Refreshing Waters",
       "icon": "ability_shaman_fortifyingwaters",
       "spellId": 378211
@@ -127,7 +267,17 @@
       "icon": "ability_shaman_cleansespirit",
       "spellId": 51886
     },
+    "132693": {
+      "name": "Cleanse Spirit",
+      "icon": "ability_shaman_cleansespirit",
+      "spellId": 51886
+    },
     "103618": {
+      "name": "Static Charge",
+      "icon": "spell_nature_brilliance",
+      "spellId": 265046
+    },
+    "132705": {
       "name": "Static Charge",
       "icon": "spell_nature_brilliance",
       "spellId": 265046
@@ -137,7 +287,17 @@
       "icon": "ability_shaman_windwalktotem",
       "spellId": 192077
     },
+    "132718": {
+      "name": "Wind Rush Totem",
+      "icon": "ability_shaman_windwalktotem",
+      "spellId": 192077
+    },
     "103585": {
+      "name": "Earth Elemental",
+      "icon": "spell_nature_earthelemental_totem",
+      "spellId": 198103
+    },
+    "132667": {
       "name": "Earth Elemental",
       "icon": "spell_nature_earthelemental_totem",
       "spellId": 198103
@@ -147,7 +307,22 @@
       "icon": "spell_nature_purge",
       "spellId": 370
     },
+    "132714": {
+      "name": "Purge",
+      "icon": "spell_nature_purge",
+      "spellId": 370
+    },
+    "132713": {
+      "name": "Greater Purge",
+      "icon": "spell_shaman_focusedstrikes",
+      "spellId": 378773
+    },
     "103617": {
+      "name": "Nature's Fury",
+      "icon": "spell_nature_spiritarmor",
+      "spellId": 381655
+    },
+    "132703": {
       "name": "Nature's Fury",
       "icon": "spell_nature_spiritarmor",
       "spellId": 381655
@@ -157,7 +332,22 @@
       "icon": "achievement_raidprimalist_windelemental",
       "spellId": 462791
     },
+    "132692": {
+      "name": "Ascending Air",
+      "icon": "achievement_raidprimalist_windelemental",
+      "spellId": 462791
+    },
+    "132691": {
+      "name": "Jet Stream",
+      "icon": "inv_elemental_primal_air",
+      "spellId": 462817
+    },
     "103612": {
+      "name": "Primordial Bond",
+      "icon": "inv_elemental_primal_earth",
+      "spellId": 1279819
+    },
+    "132698": {
       "name": "Primordial Bond",
       "icon": "inv_elemental_primal_earth",
       "spellId": 1279819
@@ -167,7 +357,17 @@
       "icon": "spell_shaman_hex",
       "spellId": 51514
     },
+    "132712": {
+      "name": "Hex",
+      "icon": "spell_shaman_hex",
+      "spellId": 51514
+    },
     "103584": {
+      "name": "Spiritwalker's Grace",
+      "icon": "spell_shaman_spiritwalkersgrace",
+      "spellId": 79206
+    },
+    "132666": {
       "name": "Spiritwalker's Grace",
       "icon": "spell_shaman_spiritwalkersgrace",
       "spellId": 79206
@@ -177,7 +377,17 @@
       "icon": "ability_shaman_totemrelocation",
       "spellId": 108287
     },
+    "140346": {
+      "name": "Totemic Projection",
+      "icon": "ability_shaman_totemrelocation",
+      "spellId": 108287
+    },
     "103586": {
+      "name": "Elemental Warding",
+      "icon": "inv_10_elementalcombinedfoozles_primordial",
+      "spellId": 381650
+    },
+    "132668": {
       "name": "Elemental Warding",
       "icon": "inv_10_elementalcombinedfoozles_primordial",
       "spellId": 381650
@@ -187,12 +397,32 @@
       "icon": "inv_relics_totemofrebirth",
       "spellId": 382201
     },
+    "132715": {
+      "name": "Totemic Focus",
+      "icon": "inv_relics_totemofrebirth",
+      "spellId": 382201
+    },
     "103626": {
       "name": "Graceful Spirit",
       "icon": "spell_shaman_spectraltransformation",
       "spellId": 192088
     },
+    "132717": {
+      "name": "Graceful Spirit",
+      "icon": "spell_shaman_spectraltransformation",
+      "spellId": 192088
+    },
+    "132716": {
+      "name": "Spiritwalker's Aegis",
+      "icon": "ability_racial_forceshield",
+      "spellId": 378077
+    },
     "103587": {
+      "name": "Mana Spring",
+      "icon": "spell_nature_manaregentotem",
+      "spellId": 381930
+    },
+    "132669": {
       "name": "Mana Spring",
       "icon": "spell_nature_manaregentotem",
       "spellId": 381930
@@ -202,12 +432,37 @@
       "icon": "spell_nature_tremortotem",
       "spellId": 8143
     },
+    "132683": {
+      "name": "Tremor Totem",
+      "icon": "spell_nature_tremortotem",
+      "spellId": 8143
+    },
+    "141340": {
+      "name": "Poison Cleansing Totem",
+      "icon": "spell_nature_poisoncleansingtotem",
+      "spellId": 383013
+    },
     "103593": {
       "name": "Therazane's Resilience",
       "icon": "shaman_pvp_rockshield",
       "spellId": 1217622
     },
+    "132677": {
+      "name": "Therazane's Resilience",
+      "icon": "shaman_pvp_rockshield",
+      "spellId": 1217622
+    },
+    "141357": {
+      "name": "Reactive Warding",
+      "icon": "inv_10_elementalcombinedfoozles_water",
+      "spellId": 462454
+    },
     "103600": {
+      "name": "Voodoo Mastery",
+      "icon": "spell_shaman_hex",
+      "spellId": 204268
+    },
+    "132684": {
       "name": "Voodoo Mastery",
       "icon": "spell_shaman_hex",
       "spellId": 204268
@@ -217,7 +472,17 @@
       "icon": "spell_nature_ravenform",
       "spellId": 378081
     },
+    "132708": {
+      "name": "Nature's Swiftness",
+      "icon": "spell_nature_ravenform",
+      "spellId": 378081
+    },
     "109388": {
+      "name": "Totemic Surge",
+      "icon": "spell_nature_agitatingtotem",
+      "spellId": 381867
+    },
+    "140348": {
       "name": "Totemic Surge",
       "icon": "spell_nature_agitatingtotem",
       "spellId": 381867
@@ -227,17 +492,47 @@
       "icon": "ability_shaman_ascendance",
       "spellId": 1270350
     },
+    "140347": {
+      "name": "Instinctive Imbuements",
+      "icon": "ability_shaman_ascendance",
+      "spellId": 1270350
+    },
     "80984": {
       "name": "Earth Shock",
       "icon": "spell_nature_earthshock",
       "spellId": 8042
+    },
+    "106811": {
+      "name": "Earth Shock",
+      "icon": "spell_nature_earthshock",
+      "spellId": 8042
+    },
+    "132733": {
+      "name": "Elemental Blast",
+      "icon": "shaman_talent_elementalblast",
+      "spellId": 117014
     },
     "80985": {
       "name": "Earthquake",
       "icon": "spell_shaman_earthquake",
       "spellId": 462620
     },
+    "106814": {
+      "name": "Earthquake",
+      "icon": "spell_shaman_earthquake",
+      "spellId": 462620
+    },
+    "132734": {
+      "name": "Earthquake",
+      "icon": "spell_shaman_earthquake",
+      "spellId": 61882
+    },
     "80983": {
+      "name": "Elemental Fury",
+      "icon": "spell_fire_volcano",
+      "spellId": 60188
+    },
+    "106810": {
       "name": "Elemental Fury",
       "icon": "spell_fire_volcano",
       "spellId": 60188
@@ -247,7 +542,17 @@
       "icon": "ability_shaman_echooftheelements",
       "spellId": 333919
     },
+    "106837": {
+      "name": "Echo of the Elements",
+      "icon": "ability_shaman_echooftheelements",
+      "spellId": 333919
+    },
     "80990": {
+      "name": "Flash of Lightning",
+      "icon": "spell_lightning_lightningbolt01",
+      "spellId": 381936
+    },
+    "106843": {
       "name": "Flash of Lightning",
       "icon": "spell_lightning_lightningbolt01",
       "spellId": 381936
@@ -257,12 +562,37 @@
       "icon": "item_earthenmight",
       "spellId": 1258899
     },
+    "106831": {
+      "name": "Tectonic Collapse",
+      "icon": "item_earthenmight",
+      "spellId": 1258899
+    },
+    "106830": {
+      "name": "Aftershock",
+      "icon": "spell_nature_stormreach",
+      "spellId": 273221
+    },
     "80999": {
       "name": "Molten Wrath",
       "icon": "spell_shaman_lavaburst",
       "spellId": 1258843
     },
+    "106832": {
+      "name": "Molten Wrath",
+      "icon": "spell_shaman_lavaburst",
+      "spellId": 1258843
+    },
+    "141486": {
+      "name": "Master of the Elements",
+      "icon": "spell_nature_elementalabsorption",
+      "spellId": 16166
+    },
     "80997": {
+      "name": "Lightning Capacitor",
+      "icon": "spell_nature_lightningshield",
+      "spellId": 462862
+    },
+    "106817": {
       "name": "Lightning Capacitor",
       "icon": "spell_nature_lightningshield",
       "spellId": 462862
@@ -272,7 +602,17 @@
       "icon": "ability_thunderking_lightningwhip",
       "spellId": 191634
     },
+    "106819": {
+      "name": "Stormkeeper",
+      "icon": "ability_thunderking_lightningwhip",
+      "spellId": 191634
+    },
     "81004": {
+      "name": "Flametongue Weapon",
+      "icon": "spell_fire_flametounge",
+      "spellId": 318038
+    },
+    "106829": {
       "name": "Flametongue Weapon",
       "icon": "spell_fire_flametounge",
       "spellId": 318038
@@ -282,7 +622,17 @@
       "icon": "spell_nature_callstorm",
       "spellId": 462695
     },
+    "132726": {
+      "name": "Storm Frenzy",
+      "icon": "spell_nature_callstorm",
+      "spellId": 462695
+    },
     "81016": {
+      "name": "Swelling Maelstrom",
+      "icon": "spell_shaman_maelstromweapon",
+      "spellId": 381707
+    },
+    "106815": {
       "name": "Swelling Maelstrom",
       "icon": "spell_shaman_maelstromweapon",
       "spellId": 381707
@@ -292,12 +642,32 @@
       "icon": "inv_10_elementalshardfoozles_primordial",
       "spellId": 378193
     },
+    "132729": {
+      "name": "Primordial Fury",
+      "icon": "inv_10_elementalshardfoozles_primordial",
+      "spellId": 378193
+    },
     "80998": {
       "name": "Fury of the Storms",
       "icon": "inv_stormelemental",
       "spellId": 191717
     },
+    "106816": {
+      "name": "Fury of the Storms",
+      "icon": "inv_stormelemental",
+      "spellId": 191717
+    },
+    "133030": {
+      "name": "Herald of the Storms",
+      "icon": "achievement_raidprimalist_windelemental",
+      "spellId": 468571
+    },
     "103630": {
+      "name": "Flames of the Cauldron",
+      "icon": "inv_misc_cauldron_fire",
+      "spellId": 378266
+    },
+    "132721": {
       "name": "Flames of the Cauldron",
       "icon": "inv_misc_cauldron_fire",
       "spellId": 378266
@@ -307,12 +677,32 @@
       "icon": "inv_10_elementalcombinedfoozles_lightning",
       "spellId": 1269360
     },
+    "132728": {
+      "name": "Amped Up",
+      "icon": "inv_10_elementalcombinedfoozles_lightning",
+      "spellId": 1269360
+    },
     "103631": {
       "name": "Elemental Resonance",
       "icon": "inv_10_elementalcombinedfoozles_primordial",
       "spellId": 1258895
     },
+    "132722": {
+      "name": "Elemental Resonance",
+      "icon": "inv_10_elementalcombinedfoozles_primordial",
+      "spellId": 1258895
+    },
+    "140471": {
+      "name": "Thunderstrike Ward",
+      "icon": "inv_armorkit_lightning_imbued",
+      "spellId": 462757
+    },
     "110066": {
+      "name": "Path of the Seer",
+      "icon": "spell_shaman_elementaloath",
+      "spellId": 1269364
+    },
+    "141334": {
       "name": "Path of the Seer",
       "icon": "spell_shaman_elementaloath",
       "spellId": 1269364
@@ -322,7 +712,17 @@
       "icon": "inv_10_elementalspiritfoozles_air",
       "spellId": 462866
     },
+    "132724": {
+      "name": "Elemental Unity",
+      "icon": "inv_10_elementalspiritfoozles_air",
+      "spellId": 462866
+    },
     "81005": {
+      "name": "Searing Flames",
+      "icon": "inv_offhand_1h_artifactdoomhammer_d_01",
+      "spellId": 381782
+    },
+    "106847": {
       "name": "Searing Flames",
       "icon": "inv_offhand_1h_artifactdoomhammer_d_01",
       "spellId": 381782
@@ -332,7 +732,17 @@
       "icon": "spell_fire_masterofelements",
       "spellId": 191861
     },
+    "106823": {
+      "name": "Power of the Maelstrom",
+      "icon": "spell_fire_masterofelements",
+      "spellId": 191861
+    },
     "80995": {
+      "name": "Earthshatter",
+      "icon": "spell_nature_earthquake",
+      "spellId": 468626
+    },
+    "106821": {
       "name": "Earthshatter",
       "icon": "spell_nature_earthquake",
       "spellId": 468626
@@ -342,7 +752,17 @@
       "icon": "inv_misc_stormlordsfavor",
       "spellId": 1258889
     },
+    "132727": {
+      "name": "Storm Infusion",
+      "icon": "inv_misc_stormlordsfavor",
+      "spellId": 1258889
+    },
     "81015": {
+      "name": "Echo Chamber",
+      "icon": "spell_nature_lightningoverload",
+      "spellId": 382032
+    },
+    "106824": {
       "name": "Echo Chamber",
       "icon": "spell_nature_lightningoverload",
       "spellId": 382032
@@ -352,7 +772,17 @@
       "icon": "spell_nature_earthelemental_totem",
       "spellId": 462867
     },
+    "132725": {
+      "name": "Everlasting Elements",
+      "icon": "spell_nature_earthelemental_totem",
+      "spellId": 462867
+    },
     "81010": {
+      "name": "Earthen Rage",
+      "icon": "ability_earthen_pillar",
+      "spellId": 170374
+    },
+    "106854": {
       "name": "Earthen Rage",
       "icon": "ability_earthen_pillar",
       "spellId": 170374
@@ -362,7 +792,17 @@
       "icon": "spell_shaman_lavaflow",
       "spellId": 1273485
     },
+    "141485": {
+      "name": "Lava Flows",
+      "icon": "spell_shaman_lavaflow",
+      "spellId": 1273485
+    },
     "80993": {
+      "name": "Fusion of Elements",
+      "icon": "achievement_raidprimalist_council",
+      "spellId": 462840
+    },
+    "106841": {
       "name": "Fusion of Elements",
       "icon": "achievement_raidprimalist_council",
       "spellId": 462840
@@ -372,7 +812,17 @@
       "icon": "spell_shadow_soulleech_2",
       "spellId": 381708
     },
+    "106827": {
+      "name": "Eye of the Storm",
+      "icon": "spell_shadow_soulleech_2",
+      "spellId": 381708
+    },
     "80989": {
+      "name": "Ascendance",
+      "icon": "spell_fire_elementaldevastation",
+      "spellId": 114050
+    },
+    "106820": {
       "name": "Ascendance",
       "icon": "spell_fire_elementaldevastation",
       "spellId": 114050
@@ -382,7 +832,17 @@
       "icon": "spell_shaman_shockinglava",
       "spellId": 1259047
     },
+    "106852": {
+      "name": "Inferno Arc",
+      "icon": "spell_shaman_shockinglava",
+      "spellId": 1259047
+    },
     "103641": {
+      "name": "Flames of the Firelord",
+      "icon": "achievement_firelands_raid_ragnaros",
+      "spellId": 381784
+    },
+    "132731": {
       "name": "Flames of the Firelord",
       "icon": "achievement_firelands_raid_ragnaros",
       "spellId": 381784
@@ -392,7 +852,17 @@
       "icon": "inv_rod_enchantedcobalt",
       "spellId": 210689
     },
+    "106838": {
+      "name": "Lightning Rod",
+      "icon": "inv_rod_enchantedcobalt",
+      "spellId": 210689
+    },
     "81002": {
+      "name": "Mountains Will Fall",
+      "icon": "inv_elementalearth2",
+      "spellId": 381726
+    },
+    "106826": {
       "name": "Mountains Will Fall",
       "icon": "inv_elementalearth2",
       "spellId": 381726
@@ -402,7 +872,17 @@
       "icon": "spell_fire_elemental_totem",
       "spellId": 378255
     },
+    "106846": {
+      "name": "Call of Fire",
+      "icon": "spell_fire_elemental_totem",
+      "spellId": 378255
+    },
     "81007": {
+      "name": "Voltaic Blaze",
+      "icon": "inv_10_dungeonjewelry_primalist_trinket_1ragingelement_fire",
+      "spellId": 470057
+    },
+    "106850": {
       "name": "Voltaic Blaze",
       "icon": "inv_10_dungeonjewelry_primalist_trinket_1ragingelement_fire",
       "spellId": 470057
@@ -412,12 +892,32 @@
       "icon": "ability_thunderking_thunderstruck",
       "spellId": 468625
     },
+    "106844": {
+      "name": "Charged Conduit",
+      "icon": "ability_thunderking_thunderstruck",
+      "spellId": 468625
+    },
     "103640": {
       "name": "First Ascendant",
       "icon": "spell_shaman_astralshift",
       "spellId": 462440
     },
+    "132730": {
+      "name": "First Ascendant",
+      "icon": "spell_shaman_astralshift",
+      "spellId": 462440
+    },
+    "133031": {
+      "name": "Preeminence",
+      "icon": "spell_shaman_improvedreincarnation",
+      "spellId": 462443
+    },
     "80978": {
+      "name": "Primal Elementalist",
+      "icon": "shaman_talent_primalelementalist",
+      "spellId": 117013
+    },
+    "106856": {
       "name": "Primal Elementalist",
       "icon": "shaman_talent_primalelementalist",
       "spellId": 117013
@@ -427,7 +927,17 @@
       "icon": "inv_10_dungeonjewelry_primalist_trinket_1ragingelement_air",
       "spellId": 1269215
     },
+    "132723": {
+      "name": "Crackling Fury",
+      "icon": "inv_10_dungeonjewelry_primalist_trinket_1ragingelement_air",
+      "spellId": 1269215
+    },
     "103637": {
+      "name": "Purging Flames",
+      "icon": "inv12_ability_shaman_purgingflames",
+      "spellId": 1259471
+    },
+    "106851": {
       "name": "Purging Flames",
       "icon": "inv12_ability_shaman_purgingflames",
       "spellId": 1259471
@@ -437,17 +947,57 @@
       "icon": "inv12_apextalent_shaman_feedbackloop",
       "spellId": 1270061
     },
+    "141737": {
+      "name": "Feedback Loop",
+      "icon": "inv12_apextalent_shaman_feedbackloop",
+      "spellId": 1270061
+    },
+    "141736": {
+      "name": "Feedback Loop",
+      "icon": "inv12_apextalent_shaman_feedbackloop",
+      "spellId": 1270062
+    },
+    "141735": {
+      "name": "Feedback Loop",
+      "icon": "inv12_apextalent_shaman_feedbackloop",
+      "spellId": 1270064
+    },
     "94862": {
       "name": "Latent Wisdom",
       "icon": "spell_holy_spiritualguidence",
       "spellId": 443449
+    },
+    "122471": {
+      "name": "Latent Wisdom",
+      "icon": "spell_holy_spiritualguidence",
+      "spellId": 443449
+    },
+    "128470": {
+      "name": "Ancient Fellowship",
+      "icon": "spell_shaman_astralshift",
+      "spellId": 443423
     },
     "94884": {
       "name": "Heed My Call",
       "icon": "spell_unused2",
       "spellId": 443444
     },
+    "122493": {
+      "name": "Heed My Call",
+      "icon": "spell_unused2",
+      "spellId": 443444
+    },
+    "128468": {
+      "name": "Routine Communication",
+      "icon": "spell_nature_undyingstrength",
+      "spellId": 443445
+    },
     "94869": {
+      "name": "Elemental Reverb",
+      "icon": "ability_shaman_echooftheelements",
+      "spellId": 443418
+    },
+    "122478": {
       "name": "Elemental Reverb",
       "icon": "ability_shaman_echooftheelements",
       "spellId": 443418
@@ -457,7 +1007,17 @@
       "icon": "shaman_pvp_leaderclan",
       "spellId": 1270446
     },
+    "140745": {
+      "name": "Ancestral Influence",
+      "icon": "shaman_pvp_leaderclan",
+      "spellId": 1270446
+    },
     "94887": {
+      "name": "Offering from Beyond",
+      "icon": "spell_shaman_blessingoftheeternals",
+      "spellId": 443451
+    },
+    "122496": {
       "name": "Offering from Beyond",
       "icon": "spell_shaman_blessingoftheeternals",
       "spellId": 443451
@@ -467,7 +1027,17 @@
       "icon": "ability_monk_chiswirl",
       "spellId": 443448
     },
+    "122469": {
+      "name": "Primordial Capacity",
+      "icon": "ability_monk_chiswirl",
+      "spellId": 443448
+    },
     "94861": {
+      "name": "Spiritwalker's Momentum",
+      "icon": "spell_shaman_spiritwalkersgrace",
+      "spellId": 443425
+    },
+    "122470": {
       "name": "Spiritwalker's Momentum",
       "icon": "spell_shaman_spiritwalkersgrace",
       "spellId": 443425
@@ -477,12 +1047,32 @@
       "icon": "achievement_raidprimalist_windelemental",
       "spellId": 1270447
     },
+    "140744": {
+      "name": "Windspeaker",
+      "icon": "achievement_raidprimalist_windelemental",
+      "spellId": 1270447
+    },
     "94858": {
       "name": "Natural Harmony",
       "icon": "spell_nature_natureguardian",
       "spellId": 443442
     },
+    "122467": {
+      "name": "Natural Harmony",
+      "icon": "spell_nature_natureguardian",
+      "spellId": 443442
+    },
+    "128469": {
+      "name": "Earthen Communion",
+      "icon": "spell_nature_skinofearth",
+      "spellId": 443441
+    },
     "94883": {
+      "name": "Maelstrom Supremacy",
+      "icon": "spell_shadow_soulleech_2",
+      "spellId": 443447
+    },
+    "122492": {
       "name": "Maelstrom Supremacy",
       "icon": "spell_shadow_soulleech_2",
       "spellId": 443447
@@ -492,7 +1082,17 @@
       "icon": "spell_shaman_ancestralawakening",
       "spellId": 443446
     },
+    "122484": {
+      "name": "Final Calling",
+      "icon": "spell_shaman_ancestralawakening",
+      "spellId": 443446
+    },
     "109730": {
+      "name": "Mystic Knowledge",
+      "icon": "achievement_raidprimalist_council",
+      "spellId": 1270450
+    },
+    "140743": {
       "name": "Mystic Knowledge",
       "icon": "achievement_raidprimalist_council",
       "spellId": 1270450
@@ -502,7 +1102,17 @@
       "icon": "inv_ability_farseershaman_ancestralswiftness",
       "spellId": 448861
     },
+    "122503": {
+      "name": "Ancestral Swiftness",
+      "icon": "inv_ability_farseershaman_ancestralswiftness",
+      "spellId": 448861
+    },
     "94886": {
+      "name": "Unlimited Power",
+      "icon": "spell_nature_purge",
+      "spellId": 454391
+    },
+    "122495": {
       "name": "Unlimited Power",
       "icon": "spell_nature_purge",
       "spellId": 454391
@@ -512,12 +1122,32 @@
       "icon": "ability_vehicle_electrocharge",
       "spellId": 454021
     },
+    "122502": {
+      "name": "Stormcaller",
+      "icon": "ability_vehicle_electrocharge",
+      "spellId": 454021
+    },
     "94863": {
       "name": "Lightning Conduit",
       "icon": "spell_shaman_staticshock",
       "spellId": 467778
     },
+    "122472": {
+      "name": "Lightning Conduit",
+      "icon": "spell_shaman_staticshock",
+      "spellId": 467778
+    },
+    "133033": {
+      "name": "Electroshock",
+      "icon": "ability_thunderking_overcharge",
+      "spellId": 454022
+    },
     "109729": {
+      "name": "Stormwell",
+      "icon": "inv_112_raidtrinkets_etherealenergystoragesphere_purple",
+      "spellId": 1264762
+    },
+    "140742": {
       "name": "Stormwell",
       "icon": "inv_112_raidtrinkets_etherealenergystoragesphere_purple",
       "spellId": 1264762
@@ -527,7 +1157,22 @@
       "icon": "spell_nature_unrelentingstorm",
       "spellId": 455088
     },
+    "122482": {
+      "name": "Storm Swell",
+      "icon": "spell_nature_unrelentingstorm",
+      "spellId": 455088
+    },
+    "133032": {
+      "name": "Supercharge",
+      "icon": "inv_misc_stormlordsfavor",
+      "spellId": 455110
+    },
     "94885": {
+      "name": "Arc Discharge",
+      "icon": "ability_thunderking_balllightning",
+      "spellId": 455096
+    },
+    "122494": {
       "name": "Arc Discharge",
       "icon": "ability_thunderking_balllightning",
       "spellId": 455096
@@ -537,7 +1182,17 @@
       "icon": "spell_lightning_lightningbolt01",
       "spellId": 454026
     },
+    "122498": {
+      "name": "Rolling Thunder",
+      "icon": "spell_lightning_lightningbolt01",
+      "spellId": 454026
+    },
     "109728": {
+      "name": "Natural Gift",
+      "icon": "spell_shaman_maelstromweapon",
+      "spellId": 1264691
+    },
+    "140741": {
       "name": "Natural Gift",
       "icon": "spell_shaman_maelstromweapon",
       "spellId": 1264691
@@ -547,7 +1202,17 @@
       "icon": "spell_nature_callstorm",
       "spellId": 454919
     },
+    "122479": {
+      "name": "Voltaic Surge",
+      "icon": "spell_nature_callstorm",
+      "spellId": 454919
+    },
     "94868": {
+      "name": "Conductive Energy",
+      "icon": "inv_rod_enchantedcobalt",
+      "spellId": 455123
+    },
+    "122477": {
       "name": "Conductive Energy",
       "icon": "inv_rod_enchantedcobalt",
       "spellId": 455123
@@ -557,12 +1222,32 @@
       "icon": "spell_nature_lightningshield",
       "spellId": 454027
     },
+    "122489": {
+      "name": "Nature's Protection",
+      "icon": "spell_nature_lightningshield",
+      "spellId": 454027
+    },
+    "130449": {
+      "name": "Surging Currents",
+      "icon": "ability_thunderking_thunderstruck",
+      "spellId": 454372
+    },
     "109727": {
       "name": "Descending Skies",
       "icon": "spell_nature_wispheal",
       "spellId": 1264688
     },
+    "140740": {
+      "name": "Descending Skies",
+      "icon": "spell_nature_wispheal",
+      "spellId": 1264688
+    },
     "94867": {
+      "name": "Awakening Storms",
+      "icon": "spell_nature_stormreach",
+      "spellId": 455129
+    },
+    "122476": {
       "name": "Awakening Storms",
       "icon": "spell_nature_stormreach",
       "spellId": 455129

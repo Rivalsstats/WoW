@@ -12,6 +12,9 @@
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -->
+{% macro pct_color(pct) -%}
+{%- if pct < 10 -%}#9d9d9d{%- elif pct < 25 -%}#ffffff{%- elif pct < 50 -%}#1eff00{%- elif pct < 75 -%}#0070dd{%- elif pct < 95 -%}#a335ee{%- else -%}#ff8000{%- endif -%}
+{%- endmacro %}
 {% macro render_slot(entry, slot_count=0, is_button=false, slug="") -%}
 {# choose tag and base classes #}
 {% if is_button %}
@@ -43,17 +46,16 @@
       data-wowhead="bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}}{% endif %}{%- if entry.pcs %}&pcs={{ entry.pcs|join(':') }}{%- endif %}"
       {% if tag=='button' %}onclick="event.preventDefault();" {% endif %}>
       <img src="/data/icons/{{ item_lookup[entry.id].icon }}.png"
-        style="width: 56px; height: 56px; border-radius: 4px;" />
+        class="item-icon-img" />
     </a>
   </div>
   <!-- Name & secondary icons -->
-  <div class="col"
-    style="min-height: 80px; display: flex; flex-direction: column; justify-content: center; min-width: 0;">
+  <div class="col item-details-col">
     <a target="_blank"
       href="https://www.wowhead.com/item={{ entry.id }}?bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}} {% endif %}"
       data-wowhead="bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}}{% endif %}{%- if entry.pcs %}&pcs={{ entry.pcs|join(':') }}{%- endif %}"
       data-wh-rename-link="true" {% if tag=='button' %}onclick="event.preventDefault();" {% endif %}>
-      <p class="mb-0 text-truncate" style="line-height: 1.2;">{{ item_lookup[entry.id].name }}</p>
+      <p class="mb-0 text-truncate item-name-text">{{ item_lookup[entry.id].name }}</p>
     </a>
     {% set reagent = reagent_lookup.get(entry.missive|string) or reagent_lookup.get(entry.missive|int) %}
     {% set display_stats = reagent.stats if entry.missive and reagent and reagent.stats else item_lookup[entry.id].stats
@@ -61,11 +63,11 @@
     {% set display_stats = entry.crafted_stats if (not display_stats or display_stats|length == 0) and
     entry.crafted_stats else display_stats %}
 
-    <div style="height: 20px; display: flex; align-items: center;" class="my-1">
+    <div class="my-1 item-stats-container">
       {% if display_stats %}
       <div class="d-flex flex-wrap gap-1">
         {% for stat in display_stats %}
-        <span class="badge stat-{{ stat.type }}" style="font-size: 0.65rem; padding: 0.35em 0.5em;">
+        <span class="badge stat-{{ stat.type }} item-stat-badge">
           {% if stat_names[stat.type] %}{{ stat_names[stat.type] }}{% else %}{{ stat.type | title }}{% endif %}
         </span>
         {% endfor %}
@@ -73,22 +75,21 @@
       {% endif %}
     </div>
 
-    <div class="d-flex align-items-center gap-1 flex-nowrap" style="height: 16px;">
+    <div class="d-flex align-items-center gap-1 flex-nowrap item-secondary-icons">
       {% if entry.embellishment and reagent_lookup[entry.embellishment] %}
       <!-- embellishment icon -->
       <a target="_blank" href="https://www.wowhead.com/item={{ entry.embellishment }}&spec={{ spec_id }}" {% if
-        tag=='button' %}onclick="event.preventDefault();" {% endif %} style="line-height:0; display:block;">
-        <div class="position-relative" style="width:16px; height:16px; display:inline-block;">
+        tag=='button' %}onclick="event.preventDefault();" {% endif %} class="secondary-icon-link">
+        <div class="position-relative secondary-icon-wrapper">
           <!-- Base icon -->
           {% set icon = (reagent_lookup[entry.embellishment].itemIcon) or (reagent_lookup[entry.embellishment].icon) %}
           <img src="/data/icons/{{ icon }}.png" alt=""
-            class="position-absolute top-0 start-0 border {% if reagent_lookup[entry.embellishment].quality %}border-quality-{{reagent_lookup[entry.embellishment].quality}} {% else %}border-grey-100{% endif %}"
-            style="width:100%; height:100%; object-fit:contain;">
+            class="position-absolute top-0 start-0 border {% if reagent_lookup[entry.embellishment].quality %}border-quality-{{reagent_lookup[entry.embellishment].quality}} {% else %}border-grey-100{% endif %} secondary-icon-base">
 
           {% if reagent_lookup[entry.embellishment].craftingQuality %}
           <!-- Overlay icon -->
           <img src="/data/icons/crafting-quality-{{ reagent_lookup[entry.embellishment].craftingQuality }}.png" alt=""
-            class="position-absolute top-0 start-0" style="width:100%; height:100%; object-fit:contain; z-index:1;">
+            class="position-absolute top-0 start-0 secondary-icon-overlay">
           {% endif %}
         </div>
 
@@ -96,19 +97,18 @@
       {% endif %}
       {% if entry.missive and reagent_lookup[entry.missive] %}
       <a target="_blank" href="https://www.wowhead.com/item={{ entry.missive }}&spec={{ spec_id }}" {% if tag=='button'
-        %}onclick="event.preventDefault();" {% endif %} style="line-height:0; display:block;">
+        %}onclick="event.preventDefault();" {% endif %} class="secondary-icon-link">
         {% set icon = (reagent_lookup[entry.missive].itemIcon) or (reagent_lookup[entry.missive].icon) %}
 
-        <div class="position-relative" style="width:16px; height:16px; display:inline-block;">
+        <div class="position-relative secondary-icon-wrapper">
           <!-- Base icon -->
           <img src="/data/icons/{{ icon }}.png" alt=""
-            class="position-absolute top-0 start-0 border {% if reagent_lookup[entry.missive].quality %}border-quality-{{reagent_lookup[entry.missive].quality}} {% else %}border-grey-100{% endif %}"
-            style="width:100%; height:100%; object-fit:contain;">
+            class="position-absolute top-0 start-0 border {% if reagent_lookup[entry.missive].quality %}border-quality-{{reagent_lookup[entry.missive].quality}} {% else %}border-grey-100{% endif %} secondary-icon-base">
 
           {% if reagent_lookup[entry.missive].craftingQuality %}
           <!-- Overlay icon -->
           <img src="/data/icons/crafting-quality-{{ reagent_lookup[entry.missive].craftingQuality }}.png" alt=""
-            class="position-absolute top-0 start-0" style="width:100%; height:100%; object-fit:contain; z-index:1;">
+            class="position-absolute top-0 start-0 secondary-icon-overlay">
           {% endif %}
         </div>
 
@@ -117,39 +117,37 @@
       {% if entry.enchantment and enchant_lookup[entry.enchantment.id] %}
       <a target="_blank"
         href="https://www.wowhead.com/item={{ enchant_lookup[entry.enchantment.id].itemId }}&spec={{ spec_id }}" {% if
-        tag=='button' %}onclick="event.preventDefault();" {% endif %} style="line-height:0; display:block;">
-        <div class="position-relative" style="width:16px; height:16px; display:inline-block;">
+        tag=='button' %}onclick="event.preventDefault();" {% endif %} class="secondary-icon-link">
+        <div class="position-relative secondary-icon-wrapper">
           {% set icon = (enchant_lookup[entry.enchantment.id].itemIcon) or (enchant_lookup[entry.enchantment.id].icon)
           %}
           <!-- Base icon -->
           <img src="/data/icons/{{ icon }}.png" alt=""
-            class="position-absolute top-0 start-0 border {% if enchant_lookup[entry.enchantment.id].quality %}border-quality-{{enchant_lookup[entry.enchantment.id].quality}} {% else %}border-grey-100{% endif %}"
-            style="width:100%; height:100%; object-fit:contain;">
+            class="position-absolute top-0 start-0 border {% if enchant_lookup[entry.enchantment.id].quality %}border-quality-{{enchant_lookup[entry.enchantment.id].quality}} {% else %}border-grey-100{% endif %} secondary-icon-base">
           {% if enchant_lookup[entry.enchantment.id].craftingQuality %}
           <!-- Overlay icon -->
           <img src="/data/icons/crafting-quality-{{ enchant_lookup[entry.enchantment.id].craftingQuality }}.png" alt=""
-            class="position-absolute top-0 start-0" style="width:100%; height:100%; object-fit:contain; z-index:1;">
+            class="position-absolute top-0 start-0 secondary-icon-overlay">
           {% endif %}
         </div>
       </a>
       {% endif %}
       {% if entry.socket and entry.socket | length > 0 %}
-      <div class="d-flex align-items-center gap-1 flex-nowrap" style="line-height:0;">
+      <div class="d-flex align-items-center gap-1 flex-nowrap socket-icons-container">
         {% for sock in entry.socket %}
         <a target="_blank" href="https://www.wowhead.com/item={{ sock.id }}&spec={{ spec_id }}" {% if tag=='button'
-          %}onclick="event.preventDefault();" {% endif %} style="line-height:0; display:block;">
-          <div class="position-relative" style="width:16px; height:16px; display:inline-block;">
+          %}onclick="event.preventDefault();" {% endif %} class="secondary-icon-link">
+          <div class="position-relative secondary-icon-wrapper">
             {% set icon = (socket_lookup[sock.id | int].itemIcon) or (socket_lookup[sock.id | int].icon) %}
 
             <!-- Base icon -->
             <img src="/data/icons/{{ icon }}.png" alt=""
-              class="position-absolute top-0 start-0 border {% if socket_lookup[sock.id | int].quality %}border-quality-{{socket_lookup[sock.id | int].quality}} {% else %}border-grey-100{% endif %}"
-              style="width:100%; height:100%; object-fit:contain;">
+              class="position-absolute top-0 start-0 border {% if socket_lookup[sock.id | int].quality %}border-quality-{{socket_lookup[sock.id | int].quality}} {% else %}border-grey-100{% endif %} secondary-icon-base">
 
             {% if socket_lookup[sock.id | int].craftingQuality %}
             <!-- Overlay icon -->
             <img src="/data/icons/crafting-quality-{{ socket_lookup[sock.id | int].craftingQuality }}.png" alt=""
-              class="position-absolute top-0 start-0" style="width:100%; height:100%; object-fit:contain; z-index:1;">
+              class="position-absolute top-0 start-0 secondary-icon-overlay">
             {% endif %}
           </div>
 
@@ -170,8 +168,8 @@
         {%endif%}% </p>
         {% if entry.max_timed_key or entry.max_depleted_key %}
         <div class="mt-1 mb-1">
-          <span class="badge border border-white text-white bg-transparent py-1 px-2"
-            style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;" data-bs-toggle="tooltip"
+          <span class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
+            data-bs-toggle="tooltip"
             data-bs-placement="bottom" data-bs-html="true"
             title="{% if entry.max_timed_key %}Highest Timed: +{{ entry.max_timed_key }}{% endif %}{% if entry.max_timed_key and entry.max_depleted_key %}<br>{% endif %}{% if entry.max_depleted_key %}Highest Depleted: +{{ entry.max_depleted_key }}{% endif %}">
             {% if entry.max_timed_key %}
@@ -192,9 +190,8 @@
 <div class="col mb-2 mb-md-0">
   <div class="card h-100">
     <div class="card-body d-flex align-items-start gap-3 p-2">
-      <div class="flex-shrink-0" style="width:40px; height:40px;">
-        <img src="/assets/img/icons/stats/{{ stat|lower }}.svg" alt="{{ label }} icon" class="img-fluid rounded"
-          style="width:100%; height:100%; object-fit:contain;">
+      <div class="flex-shrink-0 stat-icon-wrapper">
+        <img src="/assets/img/icons/stats/{{ stat|lower }}.svg" alt="{{ label }} icon" class="img-fluid rounded stat-icon-img" />
       </div>
 
       <div class="flex-grow-1">
@@ -332,7 +329,7 @@
       <h3> <span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{
           spec.name }} {{ class_info.name }} </span> Mythic + build in {{ season_info.name }}</h6>
         <div class="row justify-content-center text-start gx-4 align-items-stretch text-body-emphasis">
-          <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+          <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
             <div class="card h-100" style="
               background-image: url('/data/icons/{{ spec_lookup[spec_id|string].SpellIconFileId }}.jpg');
               background-size: cover;
@@ -353,8 +350,8 @@
               </div>
               <div class="card-body">
                 <h4 class="mb-0 px-2" data-bs-toggle="tooltip" data-bs-placement="top"
-                  title="{{summary_data.count|humanize}} seen in {{total_season_runs|humanize}} total runs">Overall
-                  Played: {{ ((summary_data.count / total_season_runs) * 100) | round(2) }}%</h4>
+                  title="{{summary_data.count|humanize}} seen in {{total_season_runs|humanize}} total runs. Actual played: {{ '{:.2f}'.format(((summary_data.count / total_season_runs) * 100)) }}%">Overall
+                  Played: {{ ((summary_data.count / total_season_runs) * 100) | round | int }}%</h4>
                 <div class="px-2" style="height: 4rem;">
                   <span>Key Upgrades:</span>
                   <canvas id="runsBarChart"></canvas>
@@ -370,7 +367,7 @@
             </div>
           </div>
           {% if top_comps_data and top_comps_data|length > 0 %}
-          <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+          <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
             <div class="card h-100">
               <div class="card-header p-2 ps-3">
                 <div class="d-flex justify-content-between align-items-center">
@@ -418,56 +415,11 @@
           </div>
           {% endif %}
 
-          {# find the hero_tree with the highest count #}
-          {% if hero_trees and hero_trees | length > 0 %}
-          {% set top_tree = hero_trees | sort(attribute='count', reverse=True) | first %}
-          {% set top_sub = talent_lookup['subTrees'][ top_tree.id|string ] %}
-          <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-            <div class="card h-100" style="
-              background-image: url('/data/icons/{{ top_sub.icon }}.png');
-              background-size: 120%;
-              background-position: center;
-              background-repeat: no-repeat;
-              background-blend-mode: overlay;
-            ">
-              <div class="card-header p-2 ps-3">
-                <div class="d-flex justify-content-between">
-                  <div>
-                    <p class="text-sm mb-0 text-capitalize">Hero Tree Popularity</p>
-                  </div>
-                </div>
-              </div>
-              <div class="card-body">
-                <div class="row gy-3 gx-2 justify-content-around">
-                  {% for hero_tree in hero_trees %}
-                  {% set subtree = talent_lookup['subTrees'][hero_tree['id']|string] %}
-                  <div class="col-auto d-flex flex-column align-items-center text-center" data-bs-toggle="tooltip"
-                    data-bs-placement="top" title="{{ hero_tree.count }} seen out of {{ hero_tree_count }} total Trees">
-                    <h6 class="mb-1 small text-capitalize">{{ subtree.name }}</h6>
-                    <img src="/data/icons/{{ subtree.icon }}.png" alt="{{ subtree.name }} Icon" class="img-fluid mb-1"
-                      style="width:48px; height:48px;">
-                    <span class="fw-bold">
-                      {{ ((hero_tree.count / hero_tree_count) * 100) | round(2) }}%
-                    </span>
 
-                  </div>
-                  {% endfor %}
-                </div>
-              </div>
-              <hr class="dark horizontal my-0">
-              <div class="card-footer p-2 ps-3">
-                <p class="mb-0 text-sm">
-                  <span class="timestamp" data-bs-toggle="tooltip" data-bs-placement="top"
-                    data-timestamp={{generated_at}}>Last Update</span>
-                </p>
-              </div>
-            </div>
-          </div>
-          {% endif %}
           {% if highest_run and highest_run.get('dungeon_id') %}
           {% set icon_filename = dungeon_lookup[ highest_run.dungeon_id|string ].icon|default('unknown.jpg') %}
           {% set highest_img_url = '/data/icons/' ~ icon_filename %}
-          <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+          <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
             <div class="card h-100" style="
               background-image: url('{{ highest_img_url }}');
               background-size: cover;
@@ -521,11 +473,178 @@
           </div>
           {% endif %}
 
-          {% if loadout_code and loadout_code.code %}
-          <div class="ratio ratio-16x9" id="sim-iframe-wrapper">
-            <iframe id="sim-iframe" style="pointer-events:none;" data-name="raidbots"
-              data-base-src="https://www.raidbots.com/simbot/render/talents/{{loadout_code.code}}?hideHeader=true&hideExport=true"
-              scrolling="no"></iframe>
+          {% if ui_class_tree and ui_spec_tree %}
+          <div id="static-talent-tree" class="talent-tree-wrapper d-flex flex-column flex-xl-row justify-content-center align-items-center gap-5 gap-xl-4">
+            <div class="tt-column tt-class tt-tree-column" id="tt-col-class">
+              <svg class="tt-edges">
+                {% for e in ui_class_tree.edges %}
+                <line x1="{{e.x1}}%" y1="{{e.y1}}%" x2="{{e.x2}}%" y2="{{e.y2}}%" style="stroke: {% if e.active %}#ffb000{% else %}#555{% endif %}; stroke-width: 2px;"></line>
+                {% endfor %}
+              </svg>
+              {% for n in ui_class_tree.nodes %}
+              <div class="tt-node{% if n.pct_val == 0 %} inactive{% endif %}" data-spellid="{{n.spellId}}" data-ntype="{{n.type}}" style="position: absolute; left: {{n.left}}%; top: {{n.top}}%; transform: translate(-50%, -50%); z-index: 2;">
+                {% if n.type == 'choice' %}
+                    <div class="tt-choice-wrapper" style="position: relative; display: inline-flex; --border-color: {% if n.pct_val > 0 %}#ffb000{% else %}#555{% endif %}; width: 100%; height: 100%;">
+                      <div class="arrow-left"></div>
+                      <div class="tt-octagon-border" style="width: 100%; height: 100%; filter: grayscale({{ 100 - n.pct_val }}%);">
+                        <img src="/data/icons/{{n.icon}}.png" alt="Icon" class="tt-octagon" style="width: 100%; height: 100%;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+                      </div>
+                      <div class="arrow-right"></div>
+                      <div class="tt-custom-tooltip" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px; white-space: nowrap; z-index: 1050; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 5px;">
+                        {% for c in n.choices %}
+                        <a href="https://www.wowhead.com/spell={{c.spellId}}" style="color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; font-size: 13px;" target="_blank">
+                          <img src="/data/icons/{{c.icon}}.png" width="24" height="24" style="border-radius: 4px;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+                          <span>{{c.name}} : {{ '{:.0f}'.format(c.pct) }}% ({{c.count}}/{{n.count}} times)</span>
+                        </a>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  {% else %}
+                  <div class="tt-icon-container {% if n.type == 'tiered' %}tt-choice-wrapper{% endif %}" style="position: relative; display: inline-flex;">
+                    {% if n.type == 'tiered' %}<span style="cursor:default;">{% else %}<a href="https://www.wowhead.com/spell={{n.spellId}}" target="_blank">{% endif %}
+                      <img src="/data/icons/{{n.icon}}.png" alt="Icon" width="32" height="32" style="border-radius: {% if n.type == 'passive' or n.type == 'tiered' %}50%{% else %}10%{% endif %}; border: 1px solid {% if n.pct_val > 0 %}#ffb000{% else %}#555{% endif %}; filter: grayscale({{ 100 - n.pct_val }}%);" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+                    {% if n.type == 'tiered' %}</span>{% else %}</a>{% endif %}
+                    {% if n.type == 'tiered' %}
+                    <div class="tt-custom-tooltip" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px; white-space: nowrap; z-index: 1050; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 5px;">
+                      {% set rank_counter = namespace(value=0) %}
+                      {% for c in n.choices %}
+                      {% set rank_counter.value = rank_counter.value + c.maxRanks %}
+                      {% set current_avg = n.avgRank | float %}
+                        {% set start_rank = rank_counter.value - c.maxRanks | float %}
+                        {% set end_rank = rank_counter.value | float %}
+                        {% if current_avg >= end_rank %}
+                          {% set spent = c.maxRanks %}
+                        {% elif current_avg > start_rank %}
+                          {% set spent = (current_avg - start_rank) | round | int %}
+                        {% else %}
+                          {% set spent = 0 %}
+                        {% endif %}
+                        {% set is_active = spent > 0 %}
+                      <a href="https://www.wowhead.com/spell={{c.spellId}}" target="_blank" style="color: {% if is_active %}#fff{% else %}#777{% endif %}; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; font-size: 13px;">
+                        <img src="/data/icons/{{c.icon}}.png" width="24" height="24" style="border-radius: 4px; filter: {% if is_active %}none{% else %}grayscale(100%){% endif %};" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+                        <span>{{c.name}}{% if c.maxRanks > 1 %} ({{ spent }}/{{ c.maxRanks }} points){% endif %}</span>
+                      </a>
+                      {% endfor %}
+                    </div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+                {% if n.pct_val > 0.0 and not n.isFreeNode %}<div class="tt-badge" style="position: absolute; bottom: -8px; right: -8px; background: #000; color: #fff; font-size: 10px; padding: 1px 4px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; z-index: 5;" title="{{ '{:.1f}'.format(n.pct_val) }}% ({{n.count}}/{{n.total_count}} times)">{{n.pct_val | round | int}}%</div>{% endif %}
+                {% if n.maxRanks > 1 %}
+                  <div class="tt-maxrank" style="position: absolute; top: -6px; right: -6px; background: #333; border: 1px solid #777; color: #fff; font-size: 10px; padding: 0px 3px; border-radius: 3px; z-index: 5; cursor: default;" title="Average points spent: {{ n.avgRank | round(2) }}/{{ n.maxRanks }}">
+                    {{ n.avgRank | round | int }}
+                  </div>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+
+            {% if ui_hero_tree and ui_hero_tree.nodes %}
+            <div class="tt-column tt-hero d-flex flex-column justify-content-center align-items-center my-5 my-xl-0 tt-hero-column" id="tt-col-hero">
+              {% if hero_trees and hero_trees | length > 0 %}
+              {% set top_tree = hero_trees | sort(attribute='count', reverse=True) | first %}
+              {% set top_sub = talent_lookup['subTrees'][ top_tree.id|string ] %}
+              <div class="mb-4 text-center">
+                <h5 class="text-uppercase font-weight-bolder" style="letter-spacing: 1px; font-size: 16px;">{{ top_sub.name }}</h5>
+                <div class="position-relative d-inline-block mt-2">
+                  <img src="/data/icons/{{ top_sub.icon }}.png" alt="{{ top_sub.name }}" style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid #ffb000; box-shadow: 0 0 15px rgba(255, 176, 0, 0.4);" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+                  <div style="position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); background: #000; color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; border: 1px solid #ffb000; white-space: nowrap;" title="{{ '{:.1f}'.format((top_tree.count / hero_tree_count) * 100) }}% ({{top_tree.count}}/{{hero_tree_count}} times)">
+                    {{ ((top_tree.count / hero_tree_count) * 100) | round | int }}%
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+
+              <div class="d-flex flex-column align-items-center gap-3 mt-3 w-100">
+                {% for n in ui_hero_tree.nodes %}
+                <div class="d-flex flex-column align-items-center" data-spellid="{{n.spellId}}" data-ntype="{{n.type}}">
+                  {% if n.type == 'choice' %}
+                    <div class="tt-choice-wrapper" style="position: relative; display: inline-flex; --border-color: {% if n.pct_val > 0 %}#ffb000{% else %}#555{% endif %}; width: 46px; height: 46px;">
+                      <div class="arrow-left"></div>
+                      <div class="tt-octagon-border" style="width: 100%; height: 100%; filter: grayscale({{ 100 - n.pct_val }}%);">
+                        <img src="/data/icons/{{n.icon}}.png" alt="Icon" class="tt-octagon" style="width: 100%; height: 100%;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+                      </div>
+                      <div class="arrow-right"></div>
+                      <div class="text-center mt-1" style="background: #000; color: #fff; font-size: 11px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; padding: 1px 4px; position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); white-space: nowrap;" title="{{ '{:.1f}'.format(n.pct_val) }}% ({{n.count}}/{{n.total_count}} times)">{{n.pct_val | round | int}}%</div>
+                      <div class="tt-custom-tooltip" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px; white-space: nowrap; z-index: 1050; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 5px;">
+                        {% for c in n.choices %}
+                        <a href="https://www.wowhead.com/spell={{c.spellId}}" style="color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; font-size: 13px;" target="_blank">
+                          <img src="/data/icons/{{c.icon}}.png" width="24" height="24" style="border-radius: 4px;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+                          <span>{{c.name}} : {{ '{:.0f}'.format(c.pct) }}% ({{c.count}}/{{n.count}} times)</span>
+                        </a>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+
+            <div class="tt-column tt-spec tt-tree-column" id="tt-col-spec">
+              <svg class="tt-edges">
+                {% for e in ui_spec_tree.edges %}
+                <line x1="{{e.x1}}%" y1="{{e.y1}}%" x2="{{e.x2}}%" y2="{{e.y2}}%" style="stroke: {% if e.active %}#ffb000{% else %}#555{% endif %}; stroke-width: 2px;"></line>
+                {% endfor %}
+              </svg>
+              {% for n in ui_spec_tree.nodes %}
+              <div class="tt-node{% if n.pct_val == 0 %} inactive{% endif %}" data-spellid="{{n.spellId}}" data-ntype="{{n.type}}" style="position: absolute; left: {{n.left}}%; top: {{n.top}}%; transform: translate(-50%, -50%); z-index: 2;">
+                {% if n.type == 'choice' %}
+                    <div class="tt-choice-wrapper" style="position: relative; display: inline-flex; --border-color: {% if n.pct_val > 0 %}#ffb000{% else %}#555{% endif %}; width: 100%; height: 100%;">
+                      <div class="arrow-left"></div>
+                      <div class="tt-octagon-border" style="width: 100%; height: 100%; filter: grayscale({{ 100 - n.pct_val }}%);">
+                        <img src="/data/icons/{{n.icon}}.png" alt="Icon" class="tt-octagon" style="width: 100%; height: 100%;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+                      </div>
+                      <div class="arrow-right"></div>
+                      <div class="tt-custom-tooltip" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px; white-space: nowrap; z-index: 1050; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 5px;">
+                        {% for c in n.choices %}
+                        <a href="https://www.wowhead.com/spell={{c.spellId}}" style="color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; font-size: 13px;" target="_blank">
+                          <img src="/data/icons/{{c.icon}}.png" width="24" height="24" style="border-radius: 4px;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+                          <span>{{c.name}} : {{ '{:.0f}'.format(c.pct) }}% ({{c.count}}/{{n.count}} times)</span>
+                        </a>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  {% else %}
+                  <div class="tt-icon-container {% if n.type == 'tiered' %}tt-choice-wrapper{% endif %}" style="position: relative; display: inline-flex;">
+                    {% if n.type == 'tiered' %}<span style="cursor:default;">{% else %}<a href="https://www.wowhead.com/spell={{n.spellId}}" target="_blank">{% endif %}
+                      <img src="/data/icons/{{n.icon}}.png" alt="Icon" width="32" height="32" style="border-radius: {% if n.type == 'passive' or n.type == 'tiered' %}50%{% else %}10%{% endif %}; border: 1px solid {% if n.pct_val > 0 %}#ffb000{% else %}#555{% endif %}; filter: grayscale({{ 100 - n.pct_val }}%);" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+                    {% if n.type == 'tiered' %}</span>{% else %}</a>{% endif %}
+                    {% if n.type == 'tiered' %}
+                    <div class="tt-custom-tooltip" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px; white-space: nowrap; z-index: 1050; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 5px;">
+                      {% set rank_counter = namespace(value=0) %}
+                      {% for c in n.choices %}
+                      {% set rank_counter.value = rank_counter.value + c.maxRanks %}
+                      {% set current_avg = n.avgRank | float %}
+                        {% set start_rank = rank_counter.value - c.maxRanks | float %}
+                        {% set end_rank = rank_counter.value | float %}
+                        {% if current_avg >= end_rank %}
+                          {% set spent = c.maxRanks %}
+                        {% elif current_avg > start_rank %}
+                          {% set spent = (current_avg - start_rank) | round | int %}
+                        {% else %}
+                          {% set spent = 0 %}
+                        {% endif %}
+                        {% set is_active = spent > 0 %}
+                      <a href="https://www.wowhead.com/spell={{c.spellId}}" target="_blank" style="color: {% if is_active %}#fff{% else %}#777{% endif %}; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; font-size: 13px;">
+                        <img src="/data/icons/{{c.icon}}.png" width="24" height="24" style="border-radius: 4px; filter: {% if is_active %}none{% else %}grayscale(100%){% endif %};" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+                        <span>{{c.name}}{% if c.maxRanks > 1 %} ({{ spent }}/{{ c.maxRanks }} points){% endif %}</span>
+                      </a>
+                      {% endfor %}
+                    </div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+                {% if n.pct_val > 0.0 and not n.isFreeNode %}<div class="tt-badge" style="position: absolute; bottom: -8px; right: -8px; background: #000; color: #fff; font-size: 10px; padding: 1px 4px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; z-index: 5;" title="{{ '{:.1f}'.format(n.pct_val) }}% ({{n.count}}/{{n.total_count}} times)">{{n.pct_val | round | int}}%</div>{% endif %}
+                {% if n.maxRanks > 1 %}
+                  <div class="tt-maxrank" style="position: absolute; top: -6px; right: -6px; background: #333; border: 1px solid #777; color: #fff; font-size: 10px; padding: 0px 3px; border-radius: 3px; z-index: 5; cursor: default;" title="Average points spent: {{ n.avgRank | round(2) }}/{{ n.maxRanks }}">
+                    {{ n.avgRank | round | int }}
+                  </div>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
           </div>
           {% endif %}
           <div class="row align-items-center justify-content-center my-2">
@@ -1711,163 +1830,6 @@
   {% include "fixed_plugin.html" %}
   <!--   Core JS Files   -->
   {% include "javascript_imports.html" %}
-  <script>
-    (function () {
-      const wrapper = document.getElementById('sim-iframe-wrapper');
-      let iframe = document.getElementById('sim-iframe'); // original placeholder node
-      if (!wrapper || !iframe) return;
-
-      const base = iframe.dataset.baseSrc || iframe.getAttribute('data-base-src') || '';
-      let resizeTimeout;
-
-      function buildSrc() {
-        const w0 = wrapper.clientWidth;
-        const w = (window.matchMedia("(any-hover:none)").matches) ? (w0 - 40) : w0;
-        return base + '&width=' + w;
-      }
-
-      function createIframeWithSrc(src) {
-        const newIframe = document.createElement('iframe');
-        newIframe.id = 'sim-iframe';
-        newIframe.setAttribute('scrolling', 'no');
-        newIframe.style.pointerEvents = ''; // enable interaction
-        newIframe.src = src;
-        // mark this iframe as created/owned by our script so we can update it later instead of replacing
-        newIframe.dataset.ownIframe = '1';
-        if (iframe.className) newIframe.className = iframe.className;
-        return newIframe;
-      }
-
-      function refreshTalentEmbed() {
-        const src = buildSrc();
-        if (!hasRaidbotsConsent()) {
-          return;
-        }
-
-        // If we already created and own the iframe, just update its src (and avoid replacing)
-        if (iframe && iframe.dataset && iframe.dataset.ownIframe === '1') {
-          // avoid unnecessary reloads
-          if (iframe.src !== src) {
-            iframe.src = src;
-          }
-          // ensure interactions enabled
-          iframe.style.pointerEvents = '';
-          return;
-        }
-
-        if (iframe && iframe.src === src && (!iframe.dataset || !iframe.dataset.modifiedByKlaro)) {
-          return;
-        }
-
-        // Otherwise: create/insert a fresh iframe (prevents Klaro from re-stomping attributes)
-        const newIframe = createIframeWithSrc(src);
-        try {
-          wrapper.replaceChild(newIframe, iframe);
-        } catch (e) {
-          wrapper.appendChild(newIframe);
-          if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
-        }
-        iframe = newIframe;
-
-        if (window.matchMedia("(any-hover:none)").matches) {
-          wrapper.classList.remove('ratio-16x9');
-          wrapper.classList.add('ratio-4x3');
-        } else if (wrapper.classList.contains('ratio-4x3')) {
-          wrapper.classList.remove('ratio-16x9');
-          wrapper.classList.add('ratio-4x3');
-        }
-      }
-
-      // --- Klaro helpers ---
-      function safeGetManager() {
-        try {
-          if (!window.klaro || typeof klaro.getManager !== 'function') return null;
-          return klaro.getManager();
-        } catch (e) {
-          return null;
-        }
-      }
-
-      function hasRaidbotsConsent() {
-        try {
-          const mgr = safeGetManager();
-          if (window.klaro && typeof klaro.getManager === 'function') {
-            const mgr = klaro.getManager();
-            if (mgr && typeof mgr.getConsent === 'function') return !!mgr.getConsent('raidbots') || !!mgr.states.raidbots;
-          }
-          // fallback: klaro.consents may exist
-          if (window.klaro && klaro.consents && Object.prototype.hasOwnProperty.call(klaro.consents, 'raidbots')) {
-            return !!klaro.consents.raidbots || !!mgr.states.raidbots;
-          }
-        } catch (e) { }
-        return false;
-      }
-
-      // register a watcher (preferred) or fallback to a short poll
-      function watchForConsentAndLoad() {
-        const mgr = safeGetManager();
-        if (mgr && typeof mgr.watch === 'function') {
-          try {
-            mgr.watch({
-              update: function (obj /*, name, data */) {
-                if (!obj) return;
-                if (obj.states && obj.states.raidbots) {
-                  refreshTalentEmbed();
-                }
-              }
-            });
-          } catch (e) {
-            startShortPoll();
-          }
-          return;
-        }
-        startShortPoll();
-      }
-
-      let pollId = null;
-      function startShortPoll() {
-        if (pollId) return;
-        let attempts = 0;
-        pollId = setInterval(() => {
-          attempts++;
-          if (hasRaidbotsConsent()) {
-            clearInterval(pollId);
-            pollId = null;
-            refreshTalentEmbed();
-            return;
-          }
-          if (attempts > 20) { // ~10s
-            clearInterval(pollId);
-            pollId = null;
-          }
-        }, 500);
-      }
-
-      // attach resize handling (debounced)
-      function attachResizeHandler() {
-        window.addEventListener('resize', () => {
-          clearTimeout(resizeTimeout);
-          resizeTimeout = setTimeout(() => {
-            // if iframe is owned by us, refresh will only update src; otherwise, it will create-and-replace
-            if (iframe) refreshTalentEmbed();
-          }, 500);
-        });
-      }
-
-      // --- bootstrapping ---
-      document.addEventListener('DOMContentLoaded', function () {
-        // If consent already present at load time -> load right away
-        if (hasRaidbotsConsent()) {
-          refreshTalentEmbed();
-        } else {
-          // otherwise watch for consent being granted and then load
-          watchForConsentAndLoad();
-        }
-
-        attachResizeHandler();
-      });
-    })();
-  </script>
 
   <script type="text/plain" data-type="application/javascript" data-name="wowhead"
     data-src='https://wow.zamimg.com/widgets/power.js'></script>
@@ -1887,7 +1849,7 @@
 ];
     const total = {{ summary_data.count }};
     const pcts = raw.map(c => c / total * 100);
-    const baseColors = ['#FF0000', '#1eff00', '#a335ee', '#ff8000'];
+    const baseColors = ['#FF0000', '#ffb000', '#a335ee', '#ff8000'];
 
     // create one gradient per color
     const gradients = baseColors.map(hex => {
@@ -2173,3 +2135,8 @@
 </body>
 
 </html>
+
+
+
+
+

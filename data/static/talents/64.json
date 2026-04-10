@@ -7,7 +7,17 @@
       "icon": "spell_mage_altertime",
       "spellId": 342245
     },
+    "85177": {
+      "name": "Alter Time",
+      "icon": "spell_mage_altertime",
+      "spellId": 342245
+    },
     "62122": {
+      "name": "Ice Block",
+      "icon": "spell_frost_frost",
+      "spellId": 45438
+    },
+    "85184": {
       "name": "Ice Block",
       "icon": "spell_frost_frost",
       "spellId": 45438
@@ -17,7 +27,22 @@
       "icon": "warrior_doubletime",
       "spellId": 1244087
     },
+    "138963": {
+      "name": "Time Walk",
+      "icon": "warrior_doubletime",
+      "spellId": 1244087
+    },
+    "138962": {
+      "name": "Temporal Realignment",
+      "icon": "ability_evoker_timedilation",
+      "spellId": 1244090
+    },
     "62102": {
+      "name": "Master of Time",
+      "icon": "inv_belt_armor_waistoftime_d_01",
+      "spellId": 342249
+    },
+    "85162": {
       "name": "Master of Time",
       "icon": "inv_belt_armor_waistoftime_d_01",
       "spellId": 342249
@@ -27,7 +52,17 @@
       "icon": "spell_ice_rune",
       "spellId": 382424
     },
+    "85185": {
+      "name": "Winter's Protection",
+      "icon": "spell_ice_rune",
+      "spellId": 382424
+    },
     "62107": {
+      "name": "Frost Conditioning",
+      "icon": "spell_frost_icefloes",
+      "spellId": 1250315
+    },
+    "85168": {
       "name": "Frost Conditioning",
       "icon": "spell_frost_icefloes",
       "spellId": 1250315
@@ -37,7 +72,17 @@
       "icon": "spell_arcane_arcaneresilience",
       "spellId": 383092
     },
+    "85176": {
+      "name": "Arcane Warding",
+      "icon": "spell_arcane_arcaneresilience",
+      "spellId": 383092
+    },
     "108660": {
+      "name": "Inspired Intellect",
+      "icon": "spell_holy_arcaneintellect",
+      "spellId": 458437
+    },
+    "138970": {
       "name": "Inspired Intellect",
       "icon": "spell_holy_arcaneintellect",
       "spellId": 458437
@@ -47,7 +92,17 @@
       "icon": "spell_magic_lesserinvisibilty",
       "spellId": 55342
     },
+    "85186": {
+      "name": "Mirror Image",
+      "icon": "spell_magic_lesserinvisibilty",
+      "spellId": 55342
+    },
     "62084": {
+      "name": "Spellsteal",
+      "icon": "spell_arcane_arcane02",
+      "spellId": 30449
+    },
+    "85143": {
       "name": "Spellsteal",
       "icon": "spell_arcane_arcane02",
       "spellId": 30449
@@ -57,12 +112,32 @@
       "icon": "ability_priest_surgeofdarkness",
       "spellId": 382297
     },
+    "85164": {
+      "name": "Quick Witted",
+      "icon": "ability_priest_surgeofdarkness",
+      "spellId": 382297
+    },
     "101883": {
       "name": "Dragon's Breath",
       "icon": "inv_misc_head_dragon_01",
       "spellId": 31661
     },
+    "130651": {
+      "name": "Dragon's Breath",
+      "icon": "inv_misc_head_dragon_01",
+      "spellId": 31661
+    },
+    "130650": {
+      "name": "Supernova",
+      "icon": "spell_mage_supernova",
+      "spellId": 157980
+    },
     "62116": {
+      "name": "Remove Curse",
+      "icon": "spell_nature_removecurse",
+      "spellId": 475
+    },
+    "85178": {
       "name": "Remove Curse",
       "icon": "spell_nature_removecurse",
       "spellId": 475
@@ -72,7 +147,17 @@
       "icon": "spell_arcane_focusedpower",
       "spellId": 1244025
     },
+    "138972": {
+      "name": "Improved Conjuration",
+      "icon": "spell_arcane_focusedpower",
+      "spellId": 1244025
+    },
     "110082": {
+      "name": "Improved Spellsteal",
+      "icon": "spell_arcane_arcane02",
+      "spellId": 1270827
+    },
+    "141354": {
       "name": "Improved Spellsteal",
       "icon": "spell_arcane_arcane02",
       "spellId": 1270827
@@ -82,7 +167,22 @@
       "icon": "spell_arcane_massdispel",
       "spellId": 212653
     },
+    "85166": {
+      "name": "Shimmer",
+      "icon": "spell_arcane_massdispel",
+      "spellId": 212653
+    },
+    "138977": {
+      "name": "Improved Blink",
+      "icon": "spell_arcane_blink",
+      "spellId": 1244340
+    },
     "110079": {
+      "name": "Improved Counterspell",
+      "icon": "inv_1115_mage_counterspell",
+      "spellId": 1270865
+    },
+    "141350": {
       "name": "Improved Counterspell",
       "icon": "inv_1115_mage_counterspell",
       "spellId": 1270865
@@ -92,7 +192,17 @@
       "icon": "spell_arcane_manatap",
       "spellId": 390218
     },
+    "138971": {
+      "name": "Overflowing Energy",
+      "icon": "spell_arcane_manatap",
+      "spellId": 390218
+    },
     "110078": {
+      "name": "Improved Remove Curse",
+      "icon": "spell_nature_removecurse",
+      "spellId": 1270847
+    },
+    "141349": {
       "name": "Improved Remove Curse",
       "icon": "spell_nature_removecurse",
       "spellId": 1270847
@@ -102,12 +212,32 @@
       "icon": "ability_mage_greaterinvisibility",
       "spellId": 110959
     },
+    "120889": {
+      "name": "Greater Invisibility",
+      "icon": "ability_mage_greaterinvisibility",
+      "spellId": 110959
+    },
     "62110": {
       "name": "Improved Frost Nova",
       "icon": "spell_frost_frostnova",
       "spellId": 343183
     },
+    "85171": {
+      "name": "Improved Frost Nova",
+      "icon": "spell_frost_frostnova",
+      "spellId": 343183
+    },
+    "141239": {
+      "name": "Ice Ward",
+      "icon": "spell_frost_frostward",
+      "spellId": 205036
+    },
     "62125": {
+      "name": "Captured Thoughts",
+      "icon": "spell_nature_elementalabsorption",
+      "spellId": 1270872
+    },
+    "138964": {
       "name": "Captured Thoughts",
       "icon": "spell_nature_elementalabsorption",
       "spellId": 1270872
@@ -117,7 +247,17 @@
       "icon": "inv_misc_book_04",
       "spellId": 382493
     },
+    "85190": {
+      "name": "Tome of Rhonin",
+      "icon": "inv_misc_book_04",
+      "spellId": 382493
+    },
     "62098": {
+      "name": "Tome of Antonidas",
+      "icon": "inv_misc_book_18",
+      "spellId": 382490
+    },
+    "85158": {
       "name": "Tome of Antonidas",
       "icon": "inv_misc_book_18",
       "spellId": 382490
@@ -127,7 +267,17 @@
       "icon": "rogue_burstofspeed",
       "spellId": 382293
     },
+    "85173": {
+      "name": "Incantation of Swiftness",
+      "icon": "rogue_burstofspeed",
+      "spellId": 382293
+    },
     "108659": {
+      "name": "Master of Escape",
+      "icon": "ability_mage_invisibility",
+      "spellId": 210476
+    },
+    "138969": {
       "name": "Master of Escape",
       "icon": "ability_mage_invisibility",
       "spellId": 210476
@@ -137,7 +287,17 @@
       "icon": "inv_nerubian_necklace_02_color5",
       "spellId": 1244105
     },
+    "138968": {
+      "name": "Charm of Aegwynn",
+      "icon": "inv_nerubian_necklace_02_color5",
+      "spellId": 1244105
+    },
     "110081": {
+      "name": "Brainstorm",
+      "icon": "ability_kaztik_dominatemind",
+      "spellId": 461261
+    },
+    "141352": {
       "name": "Brainstorm",
       "icon": "ability_kaztik_dominatemind",
       "spellId": 461261
@@ -147,7 +307,17 @@
       "icon": "spell_arcane_blink",
       "spellId": 382268
     },
+    "85156": {
+      "name": "Flow of Time",
+      "icon": "spell_arcane_blink",
+      "spellId": 382268
+    },
     "110080": {
+      "name": "Mana Confluence",
+      "icon": "spell_shaman_blessingoftheeternals",
+      "spellId": 1270845
+    },
+    "141351": {
       "name": "Mana Confluence",
       "icon": "spell_shaman_blessingoftheeternals",
       "spellId": 1270845
@@ -157,7 +327,17 @@
       "icon": "inv_nerubian_necklace_02_color1",
       "spellId": 1244107
     },
+    "138967": {
+      "name": "Charm of Medivh",
+      "icon": "inv_nerubian_necklace_02_color1",
+      "spellId": 1244107
+    },
     "62086": {
+      "name": "Permafrost Bauble",
+      "icon": "inv_10_dungeonjewelry_primalist_necklace_2_frost",
+      "spellId": 1265517
+    },
+    "85145": {
       "name": "Permafrost Bauble",
       "icon": "inv_10_dungeonjewelry_primalist_necklace_2_frost",
       "spellId": 1265517
@@ -167,7 +347,22 @@
       "icon": "spell_frost_glacier",
       "spellId": 386763
     },
+    "85146": {
+      "name": "Freezing Cold",
+      "icon": "spell_frost_glacier",
+      "spellId": 386763
+    },
+    "138979": {
+      "name": "Ice Nova",
+      "icon": "spell_mage_icenova",
+      "spellId": 157997
+    },
     "62129": {
+      "name": "Time Manipulation",
+      "icon": "spell_nature_timestop",
+      "spellId": 387807
+    },
+    "85192": {
       "name": "Time Manipulation",
       "icon": "spell_nature_timestop",
       "spellId": 387807
@@ -177,7 +372,22 @@
       "icon": "spell_frost_ring_of_frost",
       "spellId": 113724
     },
+    "85147": {
+      "name": "Ring of Frost",
+      "icon": "spell_frost_ring_of_frost",
+      "spellId": 113724
+    },
+    "138978": {
+      "name": "Mass Polymorph",
+      "icon": "spell_nature_doublepolymorph1",
+      "spellId": 383121
+    },
     "62100": {
+      "name": "Energized Barriers",
+      "icon": "spell_mage_temporalshield",
+      "spellId": 386828
+    },
+    "85160": {
       "name": "Energized Barriers",
       "icon": "spell_mage_temporalshield",
       "spellId": 386828
@@ -187,7 +397,17 @@
       "icon": "ability_mage_massinvisibility",
       "spellId": 414664
     },
+    "120890": {
+      "name": "Mass Invisibility",
+      "icon": "ability_mage_massinvisibility",
+      "spellId": 414664
+    },
     "62091": {
+      "name": "Barrier Diffusion",
+      "icon": "spell_mage_evanesce",
+      "spellId": 455428
+    },
+    "85150": {
       "name": "Barrier Diffusion",
       "icon": "spell_mage_evanesce",
       "spellId": 455428
@@ -197,12 +417,32 @@
       "icon": "spell_fire_bluefire",
       "spellId": 414659
     },
+    "85144": {
+      "name": "Ice Cold",
+      "icon": "spell_fire_bluefire",
+      "spellId": 414659
+    },
     "62094": {
       "name": "Spatial Manipulation",
       "icon": "spell_mage_overpowered",
       "spellId": 1244031
     },
+    "130892": {
+      "name": "Spatial Manipulation",
+      "icon": "spell_mage_overpowered",
+      "spellId": 1244031
+    },
+    "141353": {
+      "name": "Reflection",
+      "icon": "ability_hunter_displacement",
+      "spellId": 1270829
+    },
     "108655": {
+      "name": "Improved Ice Barrier",
+      "icon": "spell_ice_lament",
+      "spellId": 1244069
+    },
+    "138965": {
       "name": "Improved Ice Barrier",
       "icon": "spell_ice_lament",
       "spellId": 1244069
@@ -212,12 +452,32 @@
       "icon": "spell_frost_frostblast",
       "spellId": 30455
     },
+    "85244": {
+      "name": "Ice Lance",
+      "icon": "spell_frost_frostblast",
+      "spellId": 30455
+    },
     "108864": {
       "name": "Blizzard",
       "icon": "spell_frost_icestorm",
       "spellId": 190356
     },
+    "139193": {
+      "name": "Blizzard",
+      "icon": "spell_frost_icestorm",
+      "spellId": 190356
+    },
+    "139306": {
+      "name": "Blizzard",
+      "icon": "spell_frost_icestorm",
+      "spellId": 1248829
+    },
     "62164": {
+      "name": "Fingers of Frost",
+      "icon": "ability_mage_wintersgrasp",
+      "spellId": 112965
+    },
+    "85230": {
       "name": "Fingers of Frost",
       "icon": "ability_mage_wintersgrasp",
       "spellId": 112965
@@ -227,7 +487,17 @@
       "icon": "spell_frost_frostarmor",
       "spellId": 1248825
     },
+    "85223": {
+      "name": "Frostbite",
+      "icon": "spell_frost_frostarmor",
+      "spellId": 1248825
+    },
     "109915": {
+      "name": "Icicles",
+      "icon": "ability_mage_glacialspike",
+      "spellId": 1246832
+    },
+    "140955": {
       "name": "Icicles",
       "icon": "ability_mage_glacialspike",
       "spellId": 1246832
@@ -237,12 +507,32 @@
       "icon": "ability_deathknight_chillstreak",
       "spellId": 44614
     },
+    "85246": {
+      "name": "Flurry",
+      "icon": "ability_deathknight_chillstreak",
+      "spellId": 44614
+    },
     "108653": {
       "name": "Cold Snap",
       "icon": "spell_frost_wizardmark",
       "spellId": 235219
     },
+    "138961": {
+      "name": "Cold Snap",
+      "icon": "spell_frost_wizardmark",
+      "spellId": 235219
+    },
+    "138960": {
+      "name": "Glacial Bulwark",
+      "icon": "spell_frost_chillingarmor",
+      "spellId": 1244110
+    },
     "62177": {
+      "name": "Frozen Orb",
+      "icon": "spell_frost_frozenorb",
+      "spellId": 84714
+    },
+    "85245": {
       "name": "Frozen Orb",
       "icon": "spell_frost_frozenorb",
       "spellId": 84714
@@ -252,7 +542,17 @@
       "icon": "ability_mage_brainfreeze",
       "spellId": 190447
     },
+    "85247": {
+      "name": "Brain Freeze",
+      "icon": "ability_mage_brainfreeze",
+      "spellId": 190447
+    },
     "62181": {
+      "name": "Piercing Cold",
+      "icon": "spell_frost_frostbolt",
+      "spellId": 378919
+    },
+    "85250": {
       "name": "Piercing Cold",
       "icon": "spell_frost_frostbolt",
       "spellId": 378919
@@ -262,7 +562,17 @@
       "icon": "ability_mage_rayoffrost",
       "spellId": 205021
     },
+    "85219": {
+      "name": "Ray of Frost",
+      "icon": "ability_mage_rayoffrost",
+      "spellId": 205021
+    },
     "81468": {
+      "name": "Everlasting Frost",
+      "icon": "spell_frost_chillingbolt",
+      "spellId": 385167
+    },
+    "107434": {
       "name": "Everlasting Frost",
       "icon": "spell_frost_chillingbolt",
       "spellId": 385167
@@ -272,7 +582,17 @@
       "icon": "spell_fire_bluerainoffire",
       "spellId": 460590
     },
+    "85237": {
+      "name": "Permafrost Lances",
+      "icon": "spell_fire_bluerainoffire",
+      "spellId": 460590
+    },
     "62180": {
+      "name": "Frozen Touch",
+      "icon": "ability_mage_burstofcold",
+      "spellId": 205030
+    },
+    "85248": {
       "name": "Frozen Touch",
       "icon": "ability_mage_burstofcold",
       "spellId": 205030
@@ -282,7 +602,17 @@
       "icon": "spell_frost_ice_shards",
       "spellId": 56377
     },
+    "85229": {
+      "name": "Splitting Ice",
+      "icon": "spell_frost_ice_shards",
+      "spellId": 56377
+    },
     "108851": {
+      "name": "Flash Freeze",
+      "icon": "spell_hunter_icetrap",
+      "spellId": 379993
+    },
+    "139179": {
       "name": "Flash Freeze",
       "icon": "spell_hunter_icetrap",
       "spellId": 379993
@@ -292,7 +622,22 @@
       "icon": "spell_fire_blueflamestrike",
       "spellId": 418733
     },
+    "132886": {
+      "name": "Splintering Ray",
+      "icon": "spell_fire_blueflamestrike",
+      "spellId": 418733
+    },
+    "139190": {
+      "name": "Frigid Focus",
+      "icon": "ability_deathknight_shroudofwinter",
+      "spellId": 1247055
+    },
     "62150": {
+      "name": "Winter's Blessing",
+      "icon": "spell_frost_wisp",
+      "spellId": 417489
+    },
+    "139308": {
       "name": "Winter's Blessing",
       "icon": "spell_frost_wisp",
       "spellId": 417489
@@ -302,7 +647,17 @@
       "icon": "spell_frost_frozenorb",
       "spellId": 270233
     },
+    "139188": {
+      "name": "Freezing Rain",
+      "icon": "spell_frost_frozenorb",
+      "spellId": 270233
+    },
     "62174": {
+      "name": "Cone of Frost",
+      "icon": "ability_mage_chilledtothebone",
+      "spellId": 1247090
+    },
+    "85242": {
       "name": "Cone of Frost",
       "icon": "ability_mage_chilledtothebone",
       "spellId": 1247090
@@ -312,7 +667,17 @@
       "icon": "spell_fire_frostresistancetotem",
       "spellId": 378448
     },
+    "85217": {
+      "name": "Fractured Frost",
+      "icon": "spell_fire_frostresistancetotem",
+      "spellId": 378448
+    },
     "108859": {
+      "name": "Improved Shatter",
+      "icon": "spell_frost_frostshock",
+      "spellId": 1246811
+    },
+    "139187": {
       "name": "Improved Shatter",
       "icon": "spell_frost_frostshock",
       "spellId": 1246811
@@ -322,12 +687,32 @@
       "icon": "inv_misc_frostemblem_01",
       "spellId": 1247025
     },
+    "141559": {
+      "name": "Deep Shatter",
+      "icon": "inv_misc_frostemblem_01",
+      "spellId": 1247025
+    },
     "62173": {
       "name": "Wintertide",
       "icon": "ability_deathknight_frozencenter",
       "spellId": 378406
     },
+    "85240": {
+      "name": "Wintertide",
+      "icon": "ability_deathknight_frozencenter",
+      "spellId": 378406
+    },
+    "141643": {
+      "name": "White Out",
+      "icon": "spell_frost_frostblast",
+      "spellId": 1281638
+    },
     "108858": {
+      "name": "Glacial Attunement",
+      "icon": "ability_hunter_glacialtrap",
+      "spellId": 1247759
+    },
+    "139186": {
       "name": "Glacial Attunement",
       "icon": "ability_hunter_glacialtrap",
       "spellId": 1247759
@@ -337,7 +722,17 @@
       "icon": "inv_10_dungeonjewelry_primalist_necklace_1_frost",
       "spellId": 1247799
     },
+    "140956": {
+      "name": "Heart of Ice",
+      "icon": "inv_10_dungeonjewelry_primalist_necklace_1_frost",
+      "spellId": 1247799
+    },
     "108852": {
+      "name": "Rimecaster",
+      "icon": "spell_frost_manarecharge",
+      "spellId": 1247743
+    },
+    "139180": {
       "name": "Rimecaster",
       "icon": "spell_frost_manarecharge",
       "spellId": 1247743
@@ -347,7 +742,17 @@
       "icon": "spell_fire_blueflamering",
       "spellId": 1216953
     },
+    "139181": {
+      "name": "Freezing Winds",
+      "icon": "spell_fire_blueflamering",
+      "spellId": 1216953
+    },
     "108855": {
+      "name": "Improved Flurry",
+      "icon": "ability_warlock_burningembersblue",
+      "spellId": 1247769
+    },
+    "139183": {
       "name": "Improved Flurry",
       "icon": "ability_warlock_burningembersblue",
       "spellId": 1247769
@@ -357,7 +762,17 @@
       "icon": "inv_staff_15",
       "spellId": 378947
     },
+    "139177": {
+      "name": "Glacial Assault",
+      "icon": "inv_staff_15",
+      "spellId": 378947
+    },
     "110283": {
+      "name": "Crystalline Refraction",
+      "icon": "inv_10_enchanting_crystal_color3",
+      "spellId": 1247544
+    },
+    "141600": {
       "name": "Crystalline Refraction",
       "icon": "inv_10_enchanting_crystal_color3",
       "spellId": 1247544
@@ -367,12 +782,37 @@
       "icon": "spell_frost_summonwaterelemental_2",
       "spellId": 31687
     },
+    "139178": {
+      "name": "Summon Water Elemental",
+      "icon": "spell_frost_summonwaterelemental_2",
+      "spellId": 31687
+    },
+    "141602": {
+      "name": "Lonely Winter",
+      "icon": "achievement_dungeon_frozenthrone",
+      "spellId": 205024
+    },
     "108863": {
       "name": "Glacial Chill",
       "icon": "spell_frost_iceshard",
       "spellId": 1280779
     },
+    "139192": {
+      "name": "Glacial Chill",
+      "icon": "spell_frost_iceshard",
+      "spellId": 1280779
+    },
+    "141601": {
+      "name": "Glacial Shatter",
+      "icon": "artifactability_frostmage_ebonbolt",
+      "spellId": 1280780
+    },
     "108857": {
+      "name": "Hailstones",
+      "icon": "artifactability_frostmage_blackicicles",
+      "spellId": 1247742
+    },
+    "139185": {
       "name": "Hailstones",
       "icon": "artifactability_frostmage_blackicicles",
       "spellId": 1247742
@@ -382,7 +822,17 @@
       "icon": "spell_mage_thermalvoid",
       "spellId": 1247729
     },
+    "85251": {
+      "name": "Thermal Void",
+      "icon": "spell_mage_thermalvoid",
+      "spellId": 1247729
+    },
     "62184": {
+      "name": "Glaciate",
+      "icon": "spell_frost_frozencore",
+      "spellId": 1247798
+    },
+    "85253": {
       "name": "Glaciate",
       "icon": "spell_frost_frozencore",
       "spellId": 1247798
@@ -392,17 +842,52 @@
       "icon": "spell_mage_cometstorm2",
       "spellId": 1247777
     },
+    "85254": {
+      "name": "Comet Storm",
+      "icon": "spell_mage_cometstorm2",
+      "spellId": 1247777
+    },
     "110422": {
       "name": "Hand of Frost",
       "icon": "inv12_apextalent_mage_handoffrost",
       "spellId": 1262935
+    },
+    "141797": {
+      "name": "Hand of Frost",
+      "icon": "inv12_apextalent_mage_handoffrost",
+      "spellId": 1262935
+    },
+    "141796": {
+      "name": "Hand of Frost",
+      "icon": "spell_frost_piercing_chill",
+      "spellId": 1262981
+    },
+    "141795": {
+      "name": "Hand of Frost",
+      "icon": "ability_mage_rayoffrost",
+      "spellId": 1263249
     },
     "94642": {
       "name": "Imbued Warding",
       "icon": "inv_10_jewelcrafting_gem3primal_fire_cut_blue",
       "spellId": 431066
     },
+    "122257": {
+      "name": "Imbued Warding",
+      "icon": "inv_10_jewelcrafting_gem3primal_fire_cut_blue",
+      "spellId": 431066
+    },
+    "122788": {
+      "name": "Meltdown",
+      "icon": "spell_frost_arcticwinds",
+      "spellId": 431131
+    },
     "94641": {
+      "name": "Frostfire Empowerment",
+      "icon": "spell_frostfire_orb",
+      "spellId": 431176
+    },
+    "122256": {
       "name": "Frostfire Empowerment",
       "icon": "spell_frostfire_orb",
       "spellId": 431176
@@ -412,7 +897,22 @@
       "icon": "inv_10_dungeonjewelry_dragon_trinket_5_red",
       "spellId": 431067
     },
+    "122248": {
+      "name": "Elemental Affinity",
+      "icon": "inv_10_dungeonjewelry_dragon_trinket_5_red",
+      "spellId": 431067
+    },
+    "122787": {
+      "name": "Flame and Frost",
+      "icon": "spell_firefrost_orb",
+      "spellId": 431112
+    },
     "109672": {
+      "name": "Duality",
+      "icon": "ability_mage_frostfirebolt",
+      "spellId": 1262843
+    },
+    "140678": {
       "name": "Duality",
       "icon": "ability_mage_frostfirebolt",
       "spellId": 1262843
@@ -422,7 +922,17 @@
       "icon": "spell_arcane_arcanepotency",
       "spellId": 1280165
     },
+    "122277": {
+      "name": "Augury Abounds",
+      "icon": "spell_arcane_arcanepotency",
+      "spellId": 1280165
+    },
     "94663": {
+      "name": "Force of Will",
+      "icon": "spell_mage_overpowered",
+      "spellId": 444719
+    },
+    "122278": {
       "name": "Force of Will",
       "icon": "spell_mage_overpowered",
       "spellId": 444719
@@ -432,12 +942,32 @@
       "icon": "item_azereansphere",
       "spellId": 444256
     },
+    "122276": {
+      "name": "Splintering Orbs",
+      "icon": "item_azereansphere",
+      "spellId": 444256
+    },
     "109669": {
       "name": "Attuned Familiar",
       "icon": "ability_socererking_arcanemines",
       "spellId": 1261106
     },
+    "140675": {
+      "name": "Attuned Familiar",
+      "icon": "ability_socererking_arcanemines",
+      "spellId": 1261106
+    },
+    "140701": {
+      "name": "Shifting Shards",
+      "icon": "ability_mage_freeze",
+      "spellId": 444675
+    },
     "94638": {
+      "name": "Heat Sink",
+      "icon": "spell_fire_masterofelements",
+      "spellId": 1248002
+    },
+    "122253": {
       "name": "Heat Sink",
       "icon": "spell_fire_masterofelements",
       "spellId": 1248002
@@ -447,7 +977,22 @@
       "icon": "spell_fireresistancetotem_01",
       "spellId": 431117
     },
+    "122255": {
+      "name": "Thermal Conditioning",
+      "icon": "spell_fireresistancetotem_01",
+      "spellId": 431117
+    },
+    "139212": {
+      "name": "Severe Temperatures",
+      "icon": "inv_magemount_fire",
+      "spellId": 431189
+    },
     "94634": {
+      "name": "Dualcasting Adept",
+      "icon": "ability_dualwieldspecialization",
+      "spellId": 1248014
+    },
+    "122249": {
       "name": "Dualcasting Adept",
       "icon": "ability_dualwieldspecialization",
       "spellId": 1248014
@@ -457,12 +1002,32 @@
       "icon": "spell_fire_incinerate",
       "spellId": 1262844
     },
+    "140677": {
+      "name": "Molten Chill",
+      "icon": "spell_fire_incinerate",
+      "spellId": 1262844
+    },
     "94659": {
       "name": "Slippery Slinging",
       "icon": "ability_mage_icyfeet",
       "spellId": 444752
     },
+    "122274": {
+      "name": "Slippery Slinging",
+      "icon": "ability_mage_icyfeet",
+      "spellId": 444752
+    },
+    "128256": {
+      "name": "Look Again",
+      "icon": "achievement_bg_tophealer_av",
+      "spellId": 444756
+    },
     "94656": {
+      "name": "Controlled Instincts",
+      "icon": "spell_frost_ice_shards",
+      "spellId": 444483
+    },
+    "122271": {
       "name": "Controlled Instincts",
       "icon": "spell_frost_ice_shards",
       "spellId": 444483
@@ -472,7 +1037,22 @@
       "icon": "ability_racial_forceshield",
       "spellId": 444827
     },
+    "122275": {
+      "name": "Reactive Barrier",
+      "icon": "ability_racial_forceshield",
+      "spellId": 444827
+    },
+    "128255": {
+      "name": "Phantasmal Image",
+      "icon": "spell_arcane_prismaticcloak",
+      "spellId": 444784
+    },
     "109668": {
+      "name": "Infused Splinters",
+      "icon": "spell_mage_focusingcrystal",
+      "spellId": 1261080
+    },
+    "140674": {
       "name": "Infused Splinters",
       "icon": "spell_mage_focusingcrystal",
       "spellId": 1261080
@@ -482,7 +1062,17 @@
       "icon": "inv_10_blacksmithing_craftedbar_frostfirealloy",
       "spellId": 431166
     },
+    "122254": {
+      "name": "Frostfire Infusion",
+      "icon": "inv_10_blacksmithing_craftedbar_frostfirealloy",
+      "spellId": 431166
+    },
     "94632": {
+      "name": "Flash Freezeburn",
+      "icon": "spell_fire_elementaldevastation",
+      "spellId": 431178
+    },
+    "122247": {
       "name": "Flash Freezeburn",
       "icon": "spell_fire_elementaldevastation",
       "spellId": 431178
@@ -492,7 +1082,17 @@
       "icon": "spell_frostresistancetotem_01",
       "spellId": 1248016
     },
+    "122252": {
+      "name": "Blast Radius",
+      "icon": "spell_frostresistancetotem_01",
+      "spellId": 1248016
+    },
     "109670": {
+      "name": "Elemental Conduit",
+      "icon": "inv_ability_shaman_primordialwave",
+      "spellId": 1262845
+    },
+    "140676": {
       "name": "Elemental Conduit",
       "icon": "inv_ability_shaman_primordialwave",
       "spellId": 1262845
@@ -502,7 +1102,17 @@
       "icon": "spell_arcane_arcane03",
       "spellId": 444968
     },
+    "122273": {
+      "name": "Archmage's Wrath",
+      "icon": "spell_arcane_arcane03",
+      "spellId": 444968
+    },
     "94657": {
+      "name": "Signature Spell",
+      "icon": "inv_enchanting_815_drustwand",
+      "spellId": 470021
+    },
+    "133074": {
       "name": "Signature Spell",
       "icon": "inv_enchanting_815_drustwand",
       "spellId": 470021
@@ -512,7 +1122,17 @@
       "icon": "70_inscription_vantus_rune_azure",
       "spellId": 444986
     },
+    "122270": {
+      "name": "Spellfrost Teachings",
+      "icon": "70_inscription_vantus_rune_azure",
+      "spellId": 444986
+    },
     "109667": {
+      "name": "Polished Focus",
+      "icon": "inv_misc_orb_blue",
+      "spellId": 1261082
+    },
+    "140673": {
       "name": "Polished Focus",
       "icon": "inv_misc_orb_blue",
       "spellId": 1261082
@@ -522,7 +1142,17 @@
       "icon": "inv12_ability_mage_isothermiccore",
       "spellId": 431095
     },
+    "122250": {
+      "name": "Isothermic Core",
+      "icon": "inv12_ability_mage_isothermiccore",
+      "spellId": 431095
+    },
     "94654": {
+      "name": "Splinterstorm",
+      "icon": "ability_mage_burstofcold",
+      "spellId": 443783
+    },
+    "122269": {
       "name": "Splinterstorm",
       "icon": "ability_mage_burstofcold",
       "spellId": 443783

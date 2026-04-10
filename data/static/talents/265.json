@@ -7,7 +7,17 @@
       "icon": "spell_shadow_felmending",
       "spellId": 333889
     },
+    "96441": {
+      "name": "Fel Domination",
+      "icon": "spell_shadow_felmending",
+      "spellId": 333889
+    },
     "71949": {
+      "name": "Burning Rush",
+      "icon": "ability_deathwing_sealarmorbreachtga",
+      "spellId": 111400
+    },
+    "96462": {
       "name": "Burning Rush",
       "icon": "ability_deathwing_sealarmorbreachtga",
       "spellId": 111400
@@ -17,7 +27,17 @@
       "icon": "spell_shadow_impphaseshift",
       "spellId": 386113
     },
+    "96442": {
+      "name": "Fel Pact",
+      "icon": "spell_shadow_impphaseshift",
+      "spellId": 386113
+    },
     "71952": {
+      "name": "Demon Skin",
+      "icon": "spell_shadow_ragingscream",
+      "spellId": 219272
+    },
+    "96465": {
       "name": "Demon Skin",
       "icon": "spell_shadow_ragingscream",
       "spellId": 219272
@@ -27,7 +47,17 @@
       "icon": "spell_shadow_felarmour",
       "spellId": 386124
     },
+    "96463": {
+      "name": "Fel Armor",
+      "icon": "spell_shadow_felarmour",
+      "spellId": 386124
+    },
     "71948": {
+      "name": "Fiendish Stride",
+      "icon": "inv_misc_moosehoof_fel",
+      "spellId": 386110
+    },
+    "96461": {
       "name": "Fiendish Stride",
       "icon": "inv_misc_moosehoof_fel",
       "spellId": 386110
@@ -37,12 +67,32 @@
       "icon": "spell_shadow_metamorphosis",
       "spellId": 288843
     },
+    "96440": {
+      "name": "Demonic Embrace",
+      "icon": "spell_shadow_metamorphosis",
+      "spellId": 288843
+    },
     "71916": {
       "name": "Nightmare",
       "icon": "spell_shadow_possession",
       "spellId": 386648
     },
+    "96424": {
+      "name": "Nightmare",
+      "icon": "spell_shadow_possession",
+      "spellId": 386648
+    },
+    "120471": {
+      "name": "Horrify",
+      "icon": "spell_nzinsanity_bloodthirst",
+      "spellId": 56244
+    },
     "71922": {
+      "name": "Demonic Fortitude",
+      "icon": "spell_warlock_summonimpoutland",
+      "spellId": 386617
+    },
+    "96432": {
       "name": "Demonic Fortitude",
       "icon": "spell_warlock_summonimpoutland",
       "spellId": 386617
@@ -52,7 +102,17 @@
       "icon": "spell_shadow_cripple",
       "spellId": 710
     },
+    "96456": {
+      "name": "Banish",
+      "icon": "spell_shadow_cripple",
+      "spellId": 710
+    },
     "109847": {
+      "name": "Curse of Exhaustion",
+      "icon": "spell_shadow_grimward",
+      "spellId": 334275
+    },
+    "140862": {
       "name": "Curse of Exhaustion",
       "icon": "spell_shadow_grimward",
       "spellId": 334275
@@ -62,7 +122,17 @@
       "icon": "spell_shadow_curseoftounges",
       "spellId": 1714
     },
+    "140861": {
+      "name": "Curse of Tongues",
+      "icon": "spell_shadow_curseoftounges",
+      "spellId": 1714
+    },
     "109844": {
+      "name": "Infernal Beneficiary",
+      "icon": "achievement_general_raidrepresentation",
+      "spellId": 1265810
+    },
+    "140859": {
       "name": "Infernal Beneficiary",
       "icon": "achievement_general_raidrepresentation",
       "spellId": 1265810
@@ -72,7 +142,17 @@
       "icon": "ability_warlock_mortalcoil",
       "spellId": 6789
     },
+    "96454": {
+      "name": "Mortal Coil",
+      "icon": "ability_warlock_mortalcoil",
+      "spellId": 6789
+    },
     "110071": {
+      "name": "Pact of the Annihilan",
+      "icon": "inv_misc_magtheridonshead",
+      "spellId": 1270693
+    },
+    "141341": {
       "name": "Pact of the Annihilan",
       "icon": "inv_misc_magtheridonshead",
       "spellId": 1270693
@@ -82,7 +162,17 @@
       "icon": "spell_shadow_demoniccirclesummon",
       "spellId": 268358
     },
+    "129532": {
+      "name": "Demonic Circle",
+      "icon": "spell_shadow_demoniccirclesummon",
+      "spellId": 268358
+    },
     "110072": {
+      "name": "Pact of the Satyr",
+      "icon": "spell_shadow_mindshear",
+      "spellId": 1270691
+    },
+    "141342": {
       "name": "Pact of the Satyr",
       "icon": "spell_shadow_mindshear",
       "spellId": 1270691
@@ -92,7 +182,17 @@
       "icon": "spell_warlock_harvestoflife",
       "spellId": 1265816
     },
+    "140860": {
+      "name": "Improved Mortal Coil",
+      "icon": "spell_warlock_harvestoflife",
+      "spellId": 1265816
+    },
     "71936": {
+      "name": "Dark Pact",
+      "icon": "spell_shadow_deathpact",
+      "spellId": 108416
+    },
+    "96446": {
       "name": "Dark Pact",
       "icon": "spell_shadow_deathpact",
       "spellId": 108416
@@ -102,7 +202,17 @@
       "icon": "ability_creature_cursed_02",
       "spellId": 1265813
     },
+    "140855": {
+      "name": "Foul Mouth",
+      "icon": "ability_creature_cursed_02",
+      "spellId": 1265813
+    },
     "110075": {
+      "name": "Empowered Healthstone",
+      "icon": "inv_raid_creepingcoagulum_blue",
+      "spellId": 1271699
+    },
+    "141345": {
       "name": "Empowered Healthstone",
       "icon": "inv_raid_creepingcoagulum_blue",
       "spellId": 1271699
@@ -112,7 +222,17 @@
       "icon": "achievement_explore_argus",
       "spellId": 389609
     },
+    "96467": {
+      "name": "Abyss Walker",
+      "icon": "achievement_explore_argus",
+      "spellId": 389609
+    },
     "110074": {
+      "name": "Fortified Soul",
+      "icon": "spell_warlock_demonsoul",
+      "spellId": 1271694
+    },
+    "141344": {
       "name": "Fortified Soul",
       "icon": "spell_warlock_demonsoul",
       "spellId": 1271694
@@ -122,7 +242,17 @@
       "icon": "inv_misc_codexofxerrath_nochains",
       "spellId": 385881
     },
+    "96449": {
+      "name": "Teachings of the Black Harvest",
+      "icon": "inv_misc_codexofxerrath_nochains",
+      "spellId": 385881
+    },
     "71923": {
+      "name": "Gorefiend's Avarice",
+      "icon": "inv_helmet_90",
+      "spellId": 1270701
+    },
+    "96433": {
       "name": "Gorefiend's Avarice",
       "icon": "inv_helmet_90",
       "spellId": 1270701
@@ -132,7 +262,22 @@
       "icon": "spell_yorsahj_bloodboil_greenoil",
       "spellId": 386664
     },
+    "96448": {
+      "name": "Ichor of Devils",
+      "icon": "spell_yorsahj_bloodboil_greenoil",
+      "spellId": 386664
+    },
+    "96447": {
+      "name": "Frequent Donor",
+      "icon": "ability_ironmaidens_bloodritual",
+      "spellId": 386686
+    },
     "109843": {
+      "name": "Pact of the Eredar",
+      "icon": "achievement_boss_argus_femaleeredar",
+      "spellId": 1270695
+    },
+    "140858": {
       "name": "Pact of the Eredar",
       "icon": "achievement_boss_argus_femaleeredar",
       "spellId": 1270695
@@ -142,7 +287,17 @@
       "icon": "ability_physical_taunt_purple",
       "spellId": 1270690
     },
+    "141343": {
+      "name": "Pact of the Nathrezim",
+      "icon": "ability_physical_taunt_purple",
+      "spellId": 1270690
+    },
     "71917": {
+      "name": "Demonic Resilience",
+      "icon": "ability_warlock_avoidance",
+      "spellId": 389590
+    },
+    "96426": {
       "name": "Demonic Resilience",
       "icon": "ability_warlock_avoidance",
       "spellId": 389590
@@ -152,12 +307,32 @@
       "icon": "spell_shadow_lifedrain02_purple",
       "spellId": 1271689
     },
+    "141346": {
+      "name": "Empowered Drain Life",
+      "icon": "spell_shadow_lifedrain02_purple",
+      "spellId": 1271689
+    },
     "71956": {
       "name": "Strength of Will",
       "icon": "spell_shadow_demonictactics",
       "spellId": 317138
     },
+    "96470": {
+      "name": "Strength of Will",
+      "icon": "spell_shadow_demonictactics",
+      "spellId": 317138
+    },
+    "96469": {
+      "name": "Dark Accord",
+      "icon": "ability_warlock_improveddemonictactics",
+      "spellId": 386659
+    },
     "71955": {
+      "name": "Demonic Gateway",
+      "icon": "spell_warlock_demonicportal_green",
+      "spellId": 111771
+    },
+    "96468": {
       "name": "Demonic Gateway",
       "icon": "spell_warlock_demonicportal_green",
       "spellId": 111771
@@ -167,7 +342,22 @@
       "icon": "ability_warlock_howlofterror",
       "spellId": 5484
     },
+    "96460": {
+      "name": "Howl of Terror",
+      "icon": "ability_warlock_howlofterror",
+      "spellId": 5484
+    },
+    "96459": {
+      "name": "Shadowfury",
+      "icon": "ability_warlock_shadowfurytga",
+      "spellId": 30283
+    },
     "71918": {
+      "name": "Swift Artifice",
+      "icon": "spell_shadow_destructivesoul",
+      "spellId": 452902
+    },
+    "96427": {
       "name": "Swift Artifice",
       "icon": "spell_shadow_destructivesoul",
       "spellId": 452902
@@ -177,7 +367,17 @@
       "icon": "ability_warlock_soullink",
       "spellId": 108415
     },
+    "140857": {
+      "name": "Soul Link",
+      "icon": "ability_warlock_soullink",
+      "spellId": 108415
+    },
     "109841": {
+      "name": "Frequent Traveler",
+      "icon": "achievement_dungeon_outland_dungeonmaster",
+      "spellId": 1265801
+    },
+    "140856": {
       "name": "Frequent Traveler",
       "icon": "achievement_dungeon_outland_dungeonmaster",
       "spellId": 1265801
@@ -187,7 +387,17 @@
       "icon": "inv_sword_1h_felfireraid_d_01",
       "spellId": 389367
     },
+    "96434": {
+      "name": "Fel Synergy",
+      "icon": "inv_sword_1h_felfireraid_d_01",
+      "spellId": 389367
+    },
     "71941": {
+      "name": "Oppressive Darkness",
+      "icon": "spell_shadow_shadowfury",
+      "spellId": 1270255
+    },
+    "96453": {
       "name": "Oppressive Darkness",
       "icon": "spell_shadow_shadowfury",
       "spellId": 1270255
@@ -197,7 +407,17 @@
       "icon": "warlock__bloodstone",
       "spellId": 386689
     },
+    "96436": {
+      "name": "Pact of Gluttony",
+      "icon": "warlock__bloodstone",
+      "spellId": 386689
+    },
     "71957": {
+      "name": "Soulburn",
+      "icon": "spell_warlock_soulburn",
+      "spellId": 385899
+    },
+    "96471": {
       "name": "Soulburn",
       "icon": "spell_warlock_soulburn",
       "spellId": 385899
@@ -207,7 +427,22 @@
       "icon": "warlock_curse_weakness_amplified",
       "spellId": 1265799
     },
+    "140863": {
+      "name": "Blight of Weakness",
+      "icon": "warlock_curse_weakness_amplified",
+      "spellId": 1265799
+    },
+    "141510": {
+      "name": "Blight of Tongues",
+      "icon": "spell_shadow_curseoftongues_amplified",
+      "spellId": 1271802
+    },
     "72049": {
+      "name": "Agony",
+      "icon": "spell_shadow_curseofsargeras",
+      "spellId": 980
+    },
+    "96572": {
       "name": "Agony",
       "icon": "spell_shadow_curseofsargeras",
       "spellId": 980
@@ -217,7 +452,17 @@
       "icon": "spell_shadow_unstableaffliction_3",
       "spellId": 1259790
     },
+    "140877": {
+      "name": "Unstable Affliction",
+      "icon": "spell_shadow_unstableaffliction_3",
+      "spellId": 1259790
+    },
     "72050": {
+      "name": "Seed of Corruption",
+      "icon": "spell_shadow_seedofdestruction",
+      "spellId": 27243
+    },
+    "96573": {
       "name": "Seed of Corruption",
       "icon": "spell_shadow_seedofdestruction",
       "spellId": 27243
@@ -227,7 +472,17 @@
       "icon": "spell_shadow_twilight",
       "spellId": 108558
     },
+    "96570": {
+      "name": "Nightfall",
+      "icon": "spell_shadow_twilight",
+      "spellId": 108558
+    },
     "72032": {
+      "name": "Haunt",
+      "icon": "ability_warlock_haunt",
+      "spellId": 48181
+    },
+    "96554": {
       "name": "Haunt",
       "icon": "ability_warlock_haunt",
       "spellId": 48181
@@ -237,12 +492,32 @@
       "icon": "spell_shadow_curseofsargeras",
       "spellId": 1259825
     },
+    "140876": {
+      "name": "Shared Agony",
+      "icon": "spell_shadow_curseofsargeras",
+      "spellId": 1259825
+    },
     "72045": {
       "name": "Improved Shadow Bolt",
       "icon": "spell_shadow_shadowbolt",
       "spellId": 453080
     },
+    "96568": {
+      "name": "Improved Shadow Bolt",
+      "icon": "spell_shadow_shadowbolt",
+      "spellId": 453080
+    },
+    "129530": {
+      "name": "Drain Soul",
+      "icon": "spell_shadow_haunting",
+      "spellId": 388667
+    },
     "102031": {
+      "name": "Improved Haunt",
+      "icon": "ability_warlock_haunt",
+      "spellId": 458034
+    },
+    "130896": {
       "name": "Improved Haunt",
       "icon": "ability_warlock_haunt",
       "spellId": 458034
@@ -252,7 +527,22 @@
       "icon": "ability_bossmannoroth_empoweredmannorothsgaze",
       "spellId": 196103
     },
+    "96574": {
+      "name": "Absolute Corruption",
+      "icon": "ability_bossmannoroth_empoweredmannorothsgaze",
+      "spellId": 196103
+    },
+    "129531": {
+      "name": "Siphon Life",
+      "icon": "spell_shadow_requiem",
+      "spellId": 452999
+    },
     "72054": {
+      "name": "Cunning Cruelty",
+      "icon": "inv_misc_coin_09",
+      "spellId": 453172
+    },
+    "96578": {
       "name": "Cunning Cruelty",
       "icon": "inv_misc_coin_09",
       "spellId": 453172
@@ -262,7 +552,17 @@
       "icon": "spell_shadow_shadowbolt",
       "spellId": 386976
     },
+    "96579": {
+      "name": "Withering Bolt",
+      "icon": "spell_shadow_shadowbolt",
+      "spellId": 386976
+    },
     "72058": {
+      "name": "Creeping Death",
+      "icon": "ability_creature_cursed_03",
+      "spellId": 264000
+    },
+    "96582": {
       "name": "Creeping Death",
       "icon": "ability_creature_cursed_03",
       "spellId": 264000
@@ -272,7 +572,17 @@
       "icon": "inv_ability_warlock_soulrot",
       "spellId": 1257052
     },
+    "140875": {
+      "name": "Dark Harvest",
+      "icon": "inv_ability_warlock_soulrot",
+      "spellId": 1257052
+    },
     "110269": {
+      "name": "Practiced Pestilence",
+      "icon": "spell_nature_agitatingtotem",
+      "spellId": 1259811
+    },
+    "141575": {
       "name": "Practiced Pestilence",
       "icon": "spell_nature_agitatingtotem",
       "spellId": 1259811
@@ -282,12 +592,32 @@
       "icon": "inv_beholderwarlock",
       "spellId": 205180
     },
+    "96556": {
+      "name": "Summon Darkglare",
+      "icon": "inv_beholderwarlock",
+      "spellId": 205180
+    },
     "72037": {
       "name": "Summoner's Embrace",
       "icon": "spell_shadow_unsummonbuilding",
       "spellId": 453105
     },
+    "96560": {
+      "name": "Summoner's Embrace",
+      "icon": "spell_shadow_unsummonbuilding",
+      "spellId": 453105
+    },
+    "129529": {
+      "name": "Grimoire of Sacrifice",
+      "icon": "warlock_grimoireofsacrifice",
+      "spellId": 108503
+    },
     "109859": {
+      "name": "Cull the Weak",
+      "icon": "ability_warlock_soulsiphon",
+      "spellId": 1259886
+    },
+    "140874": {
       "name": "Cull the Weak",
       "icon": "ability_warlock_soulsiphon",
       "spellId": 1259886
@@ -297,7 +627,17 @@
       "icon": "spell_shadow_curseofachimonde",
       "spellId": 453087
     },
+    "96569": {
+      "name": "Malediction",
+      "icon": "spell_shadow_curseofachimonde",
+      "spellId": 453087
+    },
     "109849": {
+      "name": "Sudden Onset",
+      "icon": "spell_shadow_curseofsargeras",
+      "spellId": 1260209
+    },
+    "140864": {
       "name": "Sudden Onset",
       "icon": "spell_shadow_curseofsargeras",
       "spellId": 1260209
@@ -307,7 +647,17 @@
       "icon": "inv_misc_scrollunrolled01c",
       "spellId": 1279521
     },
+    "141576": {
+      "name": "Eye Contract",
+      "icon": "inv_misc_scrollunrolled01c",
+      "spellId": 1279521
+    },
     "109858": {
+      "name": "Malefic Grasp",
+      "icon": "ability_warlock_everlastingaffliction",
+      "spellId": 1261149
+    },
+    "140873": {
       "name": "Malefic Grasp",
       "icon": "ability_warlock_everlastingaffliction",
       "spellId": 1261149
@@ -317,7 +667,17 @@
       "icon": "inv_antorus_orange",
       "spellId": 1280733
     },
+    "96506": {
+      "name": "Nether Plating",
+      "icon": "inv_antorus_orange",
+      "spellId": 1280733
+    },
     "109850": {
+      "name": "Sacrolash's Dark Strike",
+      "icon": "spell_nzinsanity_fearofdeath",
+      "spellId": 386986
+    },
+    "140865": {
       "name": "Sacrolash's Dark Strike",
       "icon": "spell_nzinsanity_fearofdeath",
       "spellId": 386986
@@ -327,7 +687,17 @@
       "icon": "spell_shadow_creepingplague",
       "spellId": 453096
     },
+    "96564": {
+      "name": "Contagion",
+      "icon": "spell_shadow_creepingplague",
+      "spellId": 453096
+    },
     "109857": {
+      "name": "Shard Instability",
+      "icon": "spell_warlock_focusshadow",
+      "spellId": 1260264
+    },
+    "140872": {
       "name": "Shard Instability",
       "icon": "spell_warlock_focusshadow",
       "spellId": 1260264
@@ -337,7 +707,17 @@
       "icon": "inv_lightforgedmatrixability_felheartofargus",
       "spellId": 1279510
     },
+    "140878": {
+      "name": "Niskaran Methods",
+      "icon": "inv_lightforgedmatrixability_felheartofargus",
+      "spellId": 1279510
+    },
     "109864": {
+      "name": "Potent Soul Shards",
+      "icon": "inv_misc_gem_amethyst_02",
+      "spellId": 1259815
+    },
+    "140879": {
       "name": "Potent Soul Shards",
       "icon": "inv_misc_gem_amethyst_02",
       "spellId": 1259815
@@ -347,7 +727,17 @@
       "icon": "inv_nulllotus_shadow",
       "spellId": 1260271
     },
+    "140866": {
+      "name": "Nocturnal Yield",
+      "icon": "inv_nulllotus_shadow",
+      "spellId": 1260271
+    },
     "109865": {
+      "name": "Xavius' Gambit",
+      "icon": "spell_shadow_mindshear",
+      "spellId": 416615
+    },
+    "140880": {
       "name": "Xavius' Gambit",
       "icon": "spell_shadow_mindshear",
       "spellId": 416615
@@ -357,7 +747,17 @@
       "icon": "ability_warlock_improvedsoulleech",
       "spellId": 459440
     },
+    "131129": {
+      "name": "Ravenous Afflictions",
+      "icon": "ability_warlock_improvedsoulleech",
+      "spellId": 459440
+    },
     "109866": {
+      "name": "Seeds of Destruction",
+      "icon": "sha_inv_elemental_primal_shadow_nightmare",
+      "spellId": 1259838
+    },
+    "140881": {
       "name": "Seeds of Destruction",
       "icon": "sha_inv_elemental_primal_shadow_nightmare",
       "spellId": 1259838
@@ -367,7 +767,17 @@
       "icon": "spell_shadow_unstableaffliction_3_purple",
       "spellId": 1260229
     },
+    "140867": {
+      "name": "Fatal Echoes",
+      "icon": "spell_shadow_unstableaffliction_3_purple",
+      "spellId": 1260229
+    },
     "109855": {
+      "name": "Cascading Calamity",
+      "icon": "spell_shadow_unstableafllictions",
+      "spellId": 1261124
+    },
+    "140870": {
       "name": "Cascading Calamity",
       "icon": "spell_shadow_unstableafllictions",
       "spellId": 1261124
@@ -377,7 +787,17 @@
       "icon": "spell_shadow_deathsembrace",
       "spellId": 234876
     },
+    "96555": {
+      "name": "Death's Embrace",
+      "icon": "spell_shadow_deathsembrace",
+      "spellId": 234876
+    },
     "109853": {
+      "name": "Patient Zero",
+      "icon": "ability_warlock_soulswap",
+      "spellId": 1260285
+    },
+    "140868": {
       "name": "Patient Zero",
       "icon": "ability_warlock_soulswap",
       "spellId": 1260285
@@ -387,12 +807,37 @@
       "icon": "spell_shadow_seedofdestruction",
       "spellId": 196226
     },
+    "140869": {
+      "name": "Sow the Seeds",
+      "icon": "spell_shadow_seedofdestruction",
+      "spellId": 196226
+    },
     "110405": {
       "name": "Shadow of Nathreza",
       "icon": "inv12_apextalent_warlock_shadowsofnathreza",
       "spellId": 1261984
     },
+    "141746": {
+      "name": "Shadow of Nathreza",
+      "icon": "inv12_apextalent_warlock_shadowsofnathreza",
+      "spellId": 1261984
+    },
+    "141745": {
+      "name": "Shadow of Nathreza",
+      "icon": "inv12_apextalent_warlock_shadowsofnathreza",
+      "spellId": 1261990
+    },
+    "141744": {
+      "name": "Shadow of Nathreza",
+      "icon": "inv12_apextalent_warlock_shadowsofnathreza",
+      "spellId": 1261992
+    },
     "94853": {
+      "name": "Xalan's Ferocity",
+      "icon": "spell_fire_felfire",
+      "spellId": 440044
+    },
+    "122462": {
       "name": "Xalan's Ferocity",
       "icon": "spell_fire_felfire",
       "spellId": 440044
@@ -402,7 +847,17 @@
       "icon": "spell_nzinsanity_chasedbyshadows",
       "spellId": 440043
     },
+    "122446": {
+      "name": "Blackened Soul",
+      "icon": "spell_nzinsanity_chasedbyshadows",
+      "spellId": 440043
+    },
     "94845": {
+      "name": "Xalan's Cruelty",
+      "icon": "spell_shadow_demonicempathy",
+      "spellId": 440040
+    },
+    "122454": {
       "name": "Xalan's Cruelty",
       "icon": "spell_shadow_demonicempathy",
       "spellId": 440040
@@ -412,7 +867,17 @@
       "icon": "spell_nature_thorns_nightmare",
       "spellId": 1266799
     },
+    "140850": {
+      "name": "Through the Felvine",
+      "icon": "spell_nature_thorns_nightmare",
+      "spellId": 1266799
+    },
     "94825": {
+      "name": "Necrolyte Teachings",
+      "icon": "spell_necro_deathall",
+      "spellId": 449620
+    },
+    "122434": {
       "name": "Necrolyte Teachings",
       "icon": "spell_necro_deathall",
       "spellId": 449620
@@ -422,7 +887,17 @@
       "icon": "spell_necro_inevitableend",
       "spellId": 449624
     },
+    "122456": {
+      "name": "Soul Anathema",
+      "icon": "spell_necro_inevitableend",
+      "spellId": 449624
+    },
     "94832": {
+      "name": "Demoniac's Fervor",
+      "icon": "inv_helm_mask_zulgurub_d_01",
+      "spellId": 449629
+    },
+    "122441": {
       "name": "Demoniac's Fervor",
       "icon": "inv_helm_mask_zulgurub_d_01",
       "spellId": 449629
@@ -432,22 +907,62 @@
       "icon": "ability_priest_shadowyapparition",
       "spellId": 1268884
     },
+    "140853": {
+      "name": "Manifested Avarice",
+      "icon": "ability_priest_shadowyapparition",
+      "spellId": 1268884
+    },
     "94822": {
       "name": "Curse of the Satyr",
       "icon": "inv_fabric_felrag",
       "spellId": 440057
+    },
+    "122431": {
+      "name": "Curse of the Satyr",
+      "icon": "inv_fabric_felrag",
+      "spellId": 440057
+    },
+    "128179": {
+      "name": "Aura of Enfeeblement",
+      "icon": "warlock_curse_weakness_aura",
+      "spellId": 440059
     },
     "94854": {
       "name": "Hatefury Rituals",
       "icon": "70_inscription_glyph_demonhunter_minor",
       "spellId": 440048
     },
+    "122463": {
+      "name": "Hatefury Rituals",
+      "icon": "70_inscription_glyph_demonhunter_minor",
+      "spellId": 440048
+    },
+    "128180": {
+      "name": "Bleakheart Tactics",
+      "icon": "spell_shadow_mindshear",
+      "spellId": 440051
+    },
     "94835": {
       "name": "Zevrim's Resilience",
       "icon": "ability_warrior_intensifyrage",
       "spellId": 440065
     },
+    "122444": {
+      "name": "Zevrim's Resilience",
+      "icon": "ability_warrior_intensifyrage",
+      "spellId": 440065
+    },
+    "128178": {
+      "name": "Illhoof's Design",
+      "icon": "sha_spell_fire_felfireward_nightmare",
+      "spellId": 440070
+    },
     "109835": {
+      "name": "Devil Fruit",
+      "icon": "inv_112_raidtrinkets_blobofswirlingvoid_terra",
+      "spellId": 1266805
+    },
+    "140849": {
       "name": "Devil Fruit",
       "icon": "inv_112_raidtrinkets_blobofswirlingvoid_terra",
       "spellId": 1266805
@@ -457,17 +972,52 @@
       "icon": "spell_holy_consumemagic",
       "spellId": 449701
     },
+    "122459": {
+      "name": "Gorebound Fortitude",
+      "icon": "spell_holy_consumemagic",
+      "spellId": 449701
+    },
+    "128678": {
+      "name": "Friends In Dark Places",
+      "icon": "spell_shadow_deathpact",
+      "spellId": 449703
+    },
     "94823": {
       "name": "Shared Fate",
       "icon": "ability_warlock_soullink",
       "spellId": 449704
+    },
+    "122432": {
+      "name": "Shared Fate",
+      "icon": "ability_warlock_soullink",
+      "spellId": 449704
+    },
+    "128677": {
+      "name": "Feast of Souls",
+      "icon": "ability_warlock_improvedsoulleech",
+      "spellId": 449706
     },
     "94824": {
       "name": "Eternal Servitude",
       "icon": "ability_demonhunter_infernalchains",
       "spellId": 449707
     },
+    "122433": {
+      "name": "Eternal Servitude",
+      "icon": "ability_demonhunter_infernalchains",
+      "spellId": 449707
+    },
+    "128676": {
+      "name": "Gorefiend's Resolve",
+      "icon": "ability_rogue_masterofsubtlety",
+      "spellId": 389623
+    },
     "109838": {
+      "name": "Shared Vessel",
+      "icon": "inv_ability_priest_mindgames",
+      "spellId": 1268889
+    },
+    "140852": {
       "name": "Shared Vessel",
       "icon": "inv_ability_priest_mindgames",
       "spellId": 1268889
@@ -477,7 +1027,17 @@
       "icon": "warlock_curse_shadow_aura",
       "spellId": 440046
     },
+    "122443": {
+      "name": "Mark of Xavius",
+      "icon": "warlock_curse_shadow_aura",
+      "spellId": 440046
+    },
     "94829": {
+      "name": "Seeds of Their Demise",
+      "icon": "ability_warlock_moltencoregreen",
+      "spellId": 440055
+    },
+    "122438": {
       "name": "Seeds of Their Demise",
       "icon": "ability_warlock_moltencoregreen",
       "spellId": 440055
@@ -487,7 +1047,17 @@
       "icon": "70_inscription_vantus_rune_tomb",
       "spellId": 440045
     },
+    "122453": {
+      "name": "Mark of Peroth'arn",
+      "icon": "70_inscription_vantus_rune_tomb",
+      "spellId": 440045
+    },
     "109834": {
+      "name": "Alzzin's Iniquity",
+      "icon": "spell_shadow_improvedvampiricembrace",
+      "spellId": 1266803
+    },
+    "140848": {
       "name": "Alzzin's Iniquity",
       "icon": "spell_shadow_improvedvampiricembrace",
       "spellId": 1266803
@@ -497,7 +1067,17 @@
       "icon": "inv_staff_2h_artifactdeadwind_d_05",
       "spellId": 449631
     },
+    "122430": {
+      "name": "Wicked Reaping",
+      "icon": "inv_staff_2h_artifactdeadwind_d_05",
+      "spellId": 449631
+    },
     "94846": {
+      "name": "Quietus",
+      "icon": "spell_necro_conclave",
+      "spellId": 449634
+    },
+    "122455": {
       "name": "Quietus",
       "icon": "spell_necro_conclave",
       "spellId": 449634
@@ -507,7 +1087,17 @@
       "icon": "spell_necro_deathlyecho",
       "spellId": 449637
     },
+    "122447": {
+      "name": "Sataiel's Volition",
+      "icon": "spell_necro_deathlyecho",
+      "spellId": 449637
+    },
     "109837": {
+      "name": "Eternal Hunger",
+      "icon": "ability_creature_poison_01_purple",
+      "spellId": 1268903
+    },
+    "140851": {
       "name": "Eternal Hunger",
       "icon": "ability_creature_poison_01_purple",
       "spellId": 1268903
@@ -517,7 +1107,17 @@
       "icon": "inv_ability_hellcallerwarlock_malevolence",
       "spellId": 430014
     },
+    "122451": {
+      "name": "Malevolence",
+      "icon": "inv_ability_hellcallerwarlock_malevolence",
+      "spellId": 430014
+    },
     "94857": {
+      "name": "Shadow of Death",
+      "icon": "spell_arcane_prismaticcloak",
+      "spellId": 449638
+    },
+    "122466": {
       "name": "Shadow of Death",
       "icon": "spell_arcane_prismaticcloak",
       "spellId": 449638

@@ -7,7 +7,17 @@
       "icon": "ability_priest_angelicfeather",
       "spellId": 121536
     },
+    "108858": {
+      "name": "Angelic Feather",
+      "icon": "ability_priest_angelicfeather",
+      "spellId": 121536
+    },
     "82718": {
+      "name": "Holy Nova",
+      "icon": "spell_holy_holynova",
+      "spellId": 132157
+    },
+    "108875": {
       "name": "Holy Nova",
       "icon": "spell_holy_holynova",
       "spellId": 132157
@@ -17,7 +27,17 @@
       "icon": "spell_nature_nullifydisease",
       "spellId": 528
     },
+    "108682": {
+      "name": "Dispel Magic",
+      "icon": "spell_nature_nullifydisease",
+      "spellId": 528
+    },
     "82672": {
+      "name": "Spiritual Guidance",
+      "icon": "spell_holy_spiritualguidence",
+      "spellId": 1250818
+    },
+    "108823": {
       "name": "Spiritual Guidance",
       "icon": "spell_holy_spiritualguidence",
       "spellId": 1250818
@@ -27,7 +47,17 @@
       "icon": "spell_shadow_psychicscream",
       "spellId": 8122
     },
+    "108856": {
+      "name": "Psychic Scream",
+      "icon": "spell_shadow_psychicscream",
+      "spellId": 8122
+    },
     "82719": {
+      "name": "Lightburst",
+      "icon": "inv_ability_holyfire_nova",
+      "spellId": 1246549
+    },
+    "108876": {
       "name": "Lightburst",
       "icon": "inv_ability_holyfire_nova",
       "spellId": 1246549
@@ -37,7 +67,17 @@
       "icon": "priest_spell_leapoffaith_a",
       "spellId": 73325
     },
+    "108872": {
+      "name": "Leap of Faith",
+      "icon": "priest_spell_leapoffaith_a",
+      "spellId": 73325
+    },
     "82705": {
+      "name": "Improved Purify",
+      "icon": "spell_holy_nullifydisease",
+      "spellId": 390632
+    },
+    "108860": {
       "name": "Improved Purify",
       "icon": "spell_holy_nullifydisease",
       "spellId": 390632
@@ -47,7 +87,17 @@
       "icon": "spell_holy_powerinfusion",
       "spellId": 10060
     },
+    "108839": {
+      "name": "Power Infusion",
+      "icon": "spell_holy_powerinfusion",
+      "spellId": 10060
+    },
     "109006": {
+      "name": "Painful Invocation",
+      "icon": "spell_holy_mindsooth",
+      "spellId": 1251030
+    },
+    "119742": {
       "name": "Painful Invocation",
       "icon": "spell_holy_mindsooth",
       "spellId": 1251030
@@ -57,7 +107,22 @@
       "icon": "spell_nzinsanity_fearofdeath",
       "spellId": 390919
     },
+    "108850": {
+      "name": "Sheer Terror",
+      "icon": "spell_nzinsanity_fearofdeath",
+      "spellId": 390919
+    },
+    "119593": {
+      "name": "Petrifying Scream",
+      "icon": "spell_shadow_psychichorrors",
+      "spellId": 55676
+    },
     "82716": {
+      "name": "Surge of Light",
+      "icon": "spell_holy_surgeoflight",
+      "spellId": 109186
+    },
+    "108873": {
       "name": "Surge of Light",
       "icon": "spell_holy_surgeoflight",
       "spellId": 109186
@@ -67,7 +132,17 @@
       "icon": "spell_holy_symbolofhope",
       "spellId": 64129
     },
+    "140958": {
+      "name": "Body and Soul",
+      "icon": "spell_holy_symbolofhope",
+      "spellId": 64129
+    },
     "109890": {
+      "name": "Mass Dispel",
+      "icon": "spell_arcane_massdispel",
+      "spellId": 32375
+    },
+    "140912": {
       "name": "Mass Dispel",
       "icon": "spell_arcane_massdispel",
       "spellId": 32375
@@ -77,7 +152,17 @@
       "icon": "spell_fire_felflamering_red",
       "spellId": 373466
     },
+    "139057": {
+      "name": "Twins of the Sun Priestess",
+      "icon": "spell_fire_felflamering_red",
+      "spellId": 373466
+    },
     "82687": {
+      "name": "Strength of Soul",
+      "icon": "spell_holy_ashestoashes",
+      "spellId": 1250820
+    },
+    "108842": {
       "name": "Strength of Soul",
       "icon": "spell_holy_ashestoashes",
       "spellId": 1250820
@@ -87,12 +172,37 @@
       "icon": "spell_shadow_shadowworddominate",
       "spellId": 605
     },
+    "108867": {
+      "name": "Mind Control",
+      "icon": "spell_shadow_shadowworddominate",
+      "spellId": 605
+    },
+    "108683": {
+      "name": "Dominate Mind",
+      "icon": "spell_priest_void_flay",
+      "spellId": 205364
+    },
     "82708": {
       "name": "Psychic Voice",
       "icon": "ability_warrior_commandingshout",
       "spellId": 196704
     },
+    "108865": {
+      "name": "Psychic Voice",
+      "icon": "ability_warrior_commandingshout",
+      "spellId": 196704
+    },
+    "108864": {
+      "name": "Void Tendrils",
+      "icon": "spell_priest_voidtendrils",
+      "spellId": 1250691
+    },
     "82702": {
+      "name": "Everlasting Light",
+      "icon": "spell_holy_greaterheal",
+      "spellId": 1249233
+    },
+    "108857": {
       "name": "Everlasting Light",
       "icon": "spell_holy_greaterheal",
       "spellId": 1249233
@@ -102,7 +212,17 @@
       "icon": "ability_priest_savinggrace",
       "spellId": 390620
     },
+    "108854": {
+      "name": "Move with Grace",
+      "icon": "ability_priest_savinggrace",
+      "spellId": 390620
+    },
     "109019": {
+      "name": "Mental Agility",
+      "icon": "spell_holy_dispelmagic",
+      "spellId": 341167
+    },
+    "139620": {
       "name": "Mental Agility",
       "icon": "spell_holy_dispelmagic",
       "spellId": 341167
@@ -112,7 +232,17 @@
       "icon": "ability_priest_innerlightandshadow",
       "spellId": 1251077
     },
+    "108845": {
+      "name": "Twin Disciplines",
+      "icon": "ability_priest_innerlightandshadow",
+      "spellId": 1251077
+    },
     "109020": {
+      "name": "Dark Enlightenment",
+      "icon": "ability_priest_darkness",
+      "spellId": 1250835
+    },
+    "139627": {
       "name": "Dark Enlightenment",
       "icon": "ability_priest_darkness",
       "spellId": 1250835
@@ -122,7 +252,17 @@
       "icon": "spell_arcane_mindmastery",
       "spellId": 1250806
     },
+    "139609": {
+      "name": "False Autonomy",
+      "icon": "spell_arcane_mindmastery",
+      "spellId": 1250806
+    },
     "82693": {
+      "name": "Shackle Horror",
+      "icon": "spell_nature_slow",
+      "spellId": 9484
+    },
+    "108848": {
       "name": "Shackle Horror",
       "icon": "spell_nature_slow",
       "spellId": 9484
@@ -132,7 +272,17 @@
       "icon": "spell_holy_layonhands",
       "spellId": 390676
     },
+    "108851": {
+      "name": "Inspiration",
+      "icon": "spell_holy_layonhands",
+      "spellId": 390676
+    },
     "82678": {
+      "name": "Binding Heals",
+      "icon": "spell_holy_blindingheal",
+      "spellId": 368275
+    },
+    "108830": {
       "name": "Binding Heals",
       "icon": "spell_holy_blindingheal",
       "spellId": 368275
@@ -142,7 +292,17 @@
       "icon": "spell_shadow_demonicfortitude",
       "spellId": 32379
     },
+    "108869": {
+      "name": "Shadow Word: Death",
+      "icon": "spell_shadow_demonicfortitude",
+      "spellId": 32379
+    },
     "109021": {
+      "name": "Sanguine Teachings",
+      "icon": "inv_archaeology_80_zandalari_sanguinetotem",
+      "spellId": 373218
+    },
+    "139628": {
       "name": "Sanguine Teachings",
       "icon": "inv_archaeology_80_zandalari_sanguinetotem",
       "spellId": 373218
@@ -152,7 +312,17 @@
       "icon": "spell_holy_testoffaith",
       "spellId": 19236
     },
+    "139614": {
+      "name": "Desperate Prayer",
+      "icon": "spell_holy_testoffaith",
+      "spellId": 19236
+    },
     "82684": {
+      "name": "Twist of Fate",
+      "icon": "spell_shadow_mindtwisting",
+      "spellId": 390972
+    },
+    "108838": {
       "name": "Twist of Fate",
       "icon": "spell_shadow_mindtwisting",
       "spellId": 390972
@@ -162,7 +332,17 @@
       "icon": "spell_nzinsanity_bloodthirst",
       "spellId": 373223
     },
+    "108868": {
+      "name": "Tithe Evasion",
+      "icon": "spell_nzinsanity_bloodthirst",
+      "spellId": 373223
+    },
     "109015": {
+      "name": "Fade",
+      "icon": "spell_magic_lesserinvisibilty",
+      "spellId": 586
+    },
+    "139617": {
       "name": "Fade",
       "icon": "spell_magic_lesserinvisibilty",
       "spellId": 586
@@ -172,7 +352,17 @@
       "icon": "spell_holy_testoffaith",
       "spellId": 238100
     },
+    "108836": {
+      "name": "Angel's Mercy",
+      "icon": "spell_holy_testoffaith",
+      "spellId": 238100
+    },
     "82677": {
+      "name": "Protective Light",
+      "icon": "spell_holy_holyprotection",
+      "spellId": 193063
+    },
+    "108828": {
       "name": "Protective Light",
       "icon": "spell_holy_holyprotection",
       "spellId": 193063
@@ -182,7 +372,17 @@
       "icon": "spell_shadow_mindshear",
       "spellId": 1251029
     },
+    "139613": {
+      "name": "Mindpierce",
+      "icon": "spell_shadow_mindshear",
+      "spellId": 1251029
+    },
     "109014": {
+      "name": "Spectral Illusion",
+      "icon": "spell_priest_spectralguise",
+      "spellId": 1250378
+    },
+    "139616": {
       "name": "Spectral Illusion",
       "icon": "spell_priest_spectralguise",
       "spellId": 1250378
@@ -192,7 +392,17 @@
       "icon": "spell_magic_lesserinvisibilty",
       "spellId": 390670
     },
+    "108841": {
+      "name": "Improved Fade",
+      "icon": "spell_magic_lesserinvisibilty",
+      "spellId": 390670
+    },
     "82679": {
+      "name": "Light's Inspiration",
+      "icon": "spell_holy_restoration",
+      "spellId": 373450
+    },
+    "108831": {
       "name": "Light's Inspiration",
       "icon": "spell_holy_restoration",
       "spellId": 373450
@@ -202,7 +412,17 @@
       "icon": "ability_warrior_unrelentingassault",
       "spellId": 373456
     },
+    "108852": {
+      "name": "Unwavering Will",
+      "icon": "ability_warrior_unrelentingassault",
+      "spellId": 373456
+    },
     "109010": {
+      "name": "Spell Warding",
+      "icon": "spell_holy_spellwarding",
+      "spellId": 390667
+    },
+    "139612": {
       "name": "Spell Warding",
       "icon": "spell_holy_spellwarding",
       "spellId": 390667
@@ -212,7 +432,17 @@
       "icon": "ability_priest_phantasm",
       "spellId": 108942
     },
+    "120895": {
+      "name": "Phantasm",
+      "icon": "ability_priest_phantasm",
+      "spellId": 108942
+    },
     "82675": {
+      "name": "Angelic Bulwark",
+      "icon": "ability_priest_angelicbulwark",
+      "spellId": 108945
+    },
+    "108826": {
       "name": "Angelic Bulwark",
       "icon": "ability_priest_angelicbulwark",
       "spellId": 108945
@@ -222,7 +452,22 @@
       "icon": "ability_priest_spiritoftheredeemer",
       "spellId": 415416
     },
+    "120896": {
+      "name": "Benevolence",
+      "icon": "ability_priest_spiritoftheredeemer",
+      "spellId": 415416
+    },
+    "139859": {
+      "name": "Focused Power",
+      "icon": "ability_priest_focusedwill",
+      "spellId": 1249230
+    },
     "82673": {
+      "name": "Phantom Reach",
+      "icon": "spell_shadow_chilltouch",
+      "spellId": 459559
+    },
+    "108824": {
       "name": "Phantom Reach",
       "icon": "spell_shadow_chilltouch",
       "spellId": 459559
@@ -232,7 +477,17 @@
       "icon": "spell_shadow_twistedfaith",
       "spellId": 373446
     },
+    "108840": {
+      "name": "Translucent Image",
+      "icon": "spell_shadow_twistedfaith",
+      "spellId": 373446
+    },
     "82594": {
+      "name": "Atonement",
+      "icon": "ability_priest_atonement",
+      "spellId": 81749
+    },
+    "108728": {
       "name": "Atonement",
       "icon": "ability_priest_atonement",
       "spellId": 81749
@@ -242,7 +497,17 @@
       "icon": "spell_priest_power_word",
       "spellId": 194509
     },
+    "108727": {
+      "name": "Power Word: Radiance",
+      "icon": "spell_priest_power_word",
+      "spellId": 194509
+    },
     "82587": {
+      "name": "Pain Suppression",
+      "icon": "spell_holy_painsupression",
+      "spellId": 33206
+    },
+    "108718": {
       "name": "Pain Suppression",
       "icon": "spell_holy_painsupression",
       "spellId": 33206
@@ -252,7 +517,17 @@
       "icon": "inv_artifact_powerofthedarkside",
       "spellId": 198068
     },
+    "108729": {
+      "name": "Power of the Dark Side",
+      "icon": "inv_artifact_powerofthedarkside",
+      "spellId": 198068
+    },
     "82592": {
+      "name": "Light's Promise",
+      "icon": "spell_priest_power_word",
+      "spellId": 322115
+    },
+    "108726": {
       "name": "Light's Promise",
       "icon": "spell_priest_power_word",
       "spellId": 322115
@@ -262,12 +537,32 @@
       "icon": "spell_holy_holysmite",
       "spellId": 231682
     },
+    "113230": {
+      "name": "Sanctuary",
+      "icon": "spell_holy_holysmite",
+      "spellId": 231682
+    },
     "82588": {
       "name": "Pain Transformation",
       "icon": "spell_holy_blessedrecovery",
       "spellId": 372991
     },
+    "108720": {
+      "name": "Pain Transformation",
+      "icon": "spell_holy_blessedrecovery",
+      "spellId": 372991
+    },
+    "108719": {
+      "name": "Protector of the Frail",
+      "icon": "ability_racial_forceshield",
+      "spellId": 373035
+    },
     "82596": {
+      "name": "Dark Indulgence",
+      "icon": "spell_shadow_unholyfrenzy",
+      "spellId": 372972
+    },
+    "108730": {
       "name": "Dark Indulgence",
       "icon": "spell_shadow_unholyfrenzy",
       "spellId": 372972
@@ -277,12 +572,32 @@
       "icon": "spell_shadow_painspike",
       "spellId": 472568
     },
+    "108709": {
+      "name": "Encroaching Shadows",
+      "icon": "spell_shadow_painspike",
+      "spellId": 472568
+    },
     "82591": {
       "name": "Bright Pupil",
       "icon": "spell_holy_surgeoflight",
       "spellId": 390684
     },
+    "108725": {
+      "name": "Bright Pupil",
+      "icon": "spell_holy_surgeoflight",
+      "spellId": 390684
+    },
+    "108724": {
+      "name": "Enduring Luminescence",
+      "icon": "ability_priest_holybolts01",
+      "spellId": 390685
+    },
     "82589": {
+      "name": "Shield Discipline",
+      "icon": "spell_holy_divineprotection",
+      "spellId": 197045
+    },
+    "108722": {
       "name": "Shield Discipline",
       "icon": "spell_holy_divineprotection",
       "spellId": 197045
@@ -291,6 +606,16 @@
       "name": "Ultimate Penitence",
       "icon": "ability_priest_ascendance",
       "spellId": 421453
+    },
+    "121194": {
+      "name": "Ultimate Penitence",
+      "icon": "ability_priest_ascendance",
+      "spellId": 421453
+    },
+    "108692": {
+      "name": "Power Word: Barrier",
+      "icon": "spell_holy_powerwordbarrier",
+      "spellId": 62618
     },
     "82597": {
       "name": "Painful Punishment",
@@ -302,7 +627,17 @@
       "icon": "ability_rogue_envelopingshadows",
       "spellId": 373003
     },
+    "108710": {
+      "name": "Revel in Darkness",
+      "icon": "ability_rogue_envelopingshadows",
+      "spellId": 373003
+    },
     "82590": {
+      "name": "Holy Ray",
+      "icon": "ability_paladin_infusionoflight",
+      "spellId": 372969
+    },
+    "108723": {
       "name": "Holy Ray",
       "icon": "ability_paladin_infusionoflight",
       "spellId": 372969
@@ -312,7 +647,17 @@
       "icon": "ability_priest_atonement",
       "spellId": 238063
     },
+    "108732": {
+      "name": "Lenience",
+      "icon": "ability_priest_atonement",
+      "spellId": 238063
+    },
     "82581": {
+      "name": "Shadow Tap",
+      "icon": "ability_creature_disease_05",
+      "spellId": 1235211
+    },
+    "108711": {
       "name": "Shadow Tap",
       "icon": "ability_creature_disease_05",
       "spellId": 1235211
@@ -322,7 +667,17 @@
       "icon": "ability_mage_firestarter",
       "spellId": 1250218
     },
+    "108695": {
+      "name": "Purge the Wicked",
+      "icon": "ability_mage_firestarter",
+      "spellId": 1250218
+    },
     "82575": {
+      "name": "Castigation",
+      "icon": "spell_holy_searinglightpriest",
+      "spellId": 193134
+    },
+    "108705": {
       "name": "Castigation",
       "icon": "spell_holy_searinglightpriest",
       "spellId": 193134
@@ -332,7 +687,17 @@
       "icon": "ability_priest_clarityofwill",
       "spellId": 373049
     },
+    "113231": {
+      "name": "Indemnity",
+      "icon": "ability_priest_clarityofwill",
+      "spellId": 373049
+    },
     "82578": {
+      "name": "Pain and Suffering",
+      "icon": "spell_shadow_shadowwordpain",
+      "spellId": 390689
+    },
+    "108708": {
       "name": "Pain and Suffering",
       "icon": "spell_shadow_shadowwordpain",
       "spellId": 390689
@@ -342,7 +707,17 @@
       "icon": "ability_priest_touchofdecay",
       "spellId": 1250293
     },
+    "108713": {
+      "name": "Occultist",
+      "icon": "ability_priest_touchofdecay",
+      "spellId": 1250293
+    },
     "82600": {
+      "name": "Harsh Discipline",
+      "icon": "ability_paladin_handoflight",
+      "spellId": 373180
+    },
+    "108734": {
       "name": "Harsh Discipline",
       "icon": "ability_paladin_handoflight",
       "spellId": 373180
@@ -352,7 +727,17 @@
       "icon": "spell_holy_divineillumination",
       "spellId": 472433
     },
+    "108707": {
+      "name": "Evangelism",
+      "icon": "spell_holy_divineillumination",
+      "spellId": 472433
+    },
     "82583": {
+      "name": "Abyssal Reverie",
+      "icon": "ability_priest_surgeofdarkness",
+      "spellId": 373054
+    },
+    "108714": {
       "name": "Abyssal Reverie",
       "icon": "ability_priest_surgeofdarkness",
       "spellId": 373054
@@ -362,7 +747,17 @@
       "icon": "ability_priest_evangelism",
       "spellId": 472361
     },
+    "108733": {
+      "name": "Divine Procession",
+      "icon": "ability_priest_evangelism",
+      "spellId": 472361
+    },
     "82601": {
+      "name": "Inner Focus",
+      "icon": "spell_frost_windwalkon",
+      "spellId": 390693
+    },
+    "108736": {
       "name": "Inner Focus",
       "icon": "spell_frost_windwalkon",
       "spellId": 390693
@@ -372,7 +767,22 @@
       "icon": "ability_priest_archangel",
       "spellId": 197862
     },
+    "108701": {
+      "name": "Archangel",
+      "icon": "ability_priest_archangel",
+      "spellId": 197862
+    },
+    "141592": {
+      "name": "Mindbender",
+      "icon": "spell_shadow_soulleech_3",
+      "spellId": 1280137
+    },
     "82567": {
+      "name": "Shadow Mend",
+      "icon": "spell_shadow_shadowmend",
+      "spellId": 1252215
+    },
+    "108697": {
       "name": "Shadow Mend",
       "icon": "spell_shadow_shadowmend",
       "spellId": 1252215
@@ -382,7 +792,17 @@
       "icon": "spell_shadow_shadowfiend",
       "spellId": 34433
     },
+    "108700": {
+      "name": "Shadowfiend",
+      "icon": "spell_shadow_shadowfiend",
+      "spellId": 34433
+    },
     "82569": {
+      "name": "Greater Smite",
+      "icon": "spell_paladin_inquisition",
+      "spellId": 1253724
+    },
+    "108699": {
       "name": "Greater Smite",
       "icon": "spell_paladin_inquisition",
       "spellId": 1253724
@@ -392,7 +812,17 @@
       "icon": "spell_holy_devineaegis",
       "spellId": 47515
     },
+    "108737": {
+      "name": "Divine Aegis",
+      "icon": "spell_holy_devineaegis",
+      "spellId": 47515
+    },
     "82572": {
+      "name": "Borrowed Time",
+      "icon": "spell_holy_borrowedtime",
+      "spellId": 390691
+    },
+    "108702": {
       "name": "Borrowed Time",
       "icon": "spell_holy_borrowedtime",
       "spellId": 390691
@@ -402,7 +832,17 @@
       "icon": "spell_holy_searinglight",
       "spellId": 215768
     },
+    "108698": {
+      "name": "Blaze of Light",
+      "icon": "spell_holy_searinglight",
+      "spellId": 215768
+    },
     "110277": {
+      "name": "Death's Torment",
+      "icon": "spell_shadow_deathsembrace",
+      "spellId": 1240364
+    },
+    "141591": {
       "name": "Death's Torment",
       "icon": "spell_shadow_deathsembrace",
       "spellId": 1240364
@@ -412,7 +852,17 @@
       "icon": "spell_shadow_chilltouch",
       "spellId": 373427
     },
+    "141593": {
+      "name": "Inescapable Torment",
+      "icon": "spell_shadow_chilltouch",
+      "spellId": 373427
+    },
     "86730": {
+      "name": "Eternal Barrier",
+      "icon": "spell_holy_powerwordshield",
+      "spellId": 238135
+    },
+    "108693": {
       "name": "Eternal Barrier",
       "icon": "spell_holy_powerwordshield",
       "spellId": 238135
@@ -422,7 +872,17 @@
       "icon": "spell_priest_burningwill",
       "spellId": 390786
     },
+    "108703": {
+      "name": "Weal and Woe",
+      "icon": "spell_priest_burningwill",
+      "spellId": 390786
+    },
     "82586": {
+      "name": "Searing Light",
+      "icon": "spell_holy_penance",
+      "spellId": 1280131
+    },
+    "108717": {
       "name": "Searing Light",
       "icon": "spell_holy_penance",
       "spellId": 1280131
@@ -432,12 +892,37 @@
       "icon": "spell_shadow_shadowpower",
       "spellId": 390832
     },
+    "108716": {
+      "name": "Expiation",
+      "icon": "spell_shadow_shadowpower",
+      "spellId": 390832
+    },
     "110410": {
       "name": "Master the Darkness",
       "icon": "inv12_apextalent_priest_voidshield",
       "spellId": 1253590
     },
+    "141761": {
+      "name": "Master the Darkness",
+      "icon": "inv12_apextalent_priest_voidshield",
+      "spellId": 1253590
+    },
+    "141760": {
+      "name": "Master the Darkness",
+      "icon": "inv12_apextalent_priest_voidshield",
+      "spellId": 1253845
+    },
+    "141759": {
+      "name": "Master the Darkness",
+      "icon": "inv12_apextalent_priest_voidshield",
+      "spellId": 1253827
+    },
     "94698": {
+      "name": "Preventive Measures",
+      "icon": "spell_holy_powerwordshield",
+      "spellId": 440662
+    },
+    "122313": {
       "name": "Preventive Measures",
       "icon": "spell_holy_powerwordshield",
       "spellId": 440662
@@ -447,7 +932,17 @@
       "icon": "spell_holy_renew",
       "spellId": 440671
     },
+    "122289": {
+      "name": "Preemptive Care",
+      "icon": "spell_holy_renew",
+      "spellId": 440671
+    },
     "94679": {
+      "name": "Waste No Time",
+      "icon": "spell_nature_timestop",
+      "spellId": 440681
+    },
+    "122294": {
       "name": "Waste No Time",
       "icon": "spell_nature_timestop",
       "spellId": 440681
@@ -457,7 +952,17 @@
       "icon": "spell_priest_power_word",
       "spellId": 1272352
     },
+    "140795": {
+      "name": "Words of the Wise",
+      "icon": "spell_priest_power_word",
+      "spellId": 1272352
+    },
     "94691": {
+      "name": "Assured Safety",
+      "icon": "spell_holy_prayerofmendingtga",
+      "spellId": 440766
+    },
+    "122306": {
       "name": "Assured Safety",
       "icon": "spell_holy_prayerofmendingtga",
       "spellId": 440766
@@ -467,7 +972,22 @@
       "icon": "ability_priest_angelicfeather",
       "spellId": 440670
     },
+    "122290": {
+      "name": "Divine Feathers",
+      "icon": "ability_priest_angelicfeather",
+      "spellId": 440670
+    },
+    "124231": {
+      "name": "Save the Day",
+      "icon": "priest_spell_leapoffaith_a",
+      "spellId": 440669
+    },
     "94689": {
+      "name": "Foreseen Circumstances",
+      "icon": "spell_holy_painsupression",
+      "spellId": 440738
+    },
+    "122304": {
       "name": "Foreseen Circumstances",
       "icon": "spell_holy_painsupression",
       "spellId": 440738
@@ -477,12 +997,32 @@
       "icon": "spell_priest_pontifex",
       "spellId": 1272359
     },
+    "140796": {
+      "name": "Prophet's Insight",
+      "icon": "spell_priest_pontifex",
+      "spellId": 1272359
+    },
     "94690": {
       "name": "Prophet's Will",
       "icon": "ability_priest_clarityofpurpose",
       "spellId": 433905
     },
+    "122305": {
+      "name": "Prophet's Will",
+      "icon": "ability_priest_clarityofpurpose",
+      "spellId": 433905
+    },
+    "130900": {
+      "name": "Desperate Measures",
+      "icon": "spell_holy_testoffaith",
+      "spellId": 458718
+    },
     "94673": {
+      "name": "Prompt Prognosis",
+      "icon": "spell_holy_blessedlife",
+      "spellId": 1246799
+    },
+    "122288": {
       "name": "Prompt Prognosis",
       "icon": "spell_holy_blessedlife",
       "spellId": 1246799
@@ -492,7 +1032,17 @@
       "icon": "inv_ability_oraclepriest_premonitionpiety",
       "spellId": 1246802
     },
+    "122315": {
+      "name": "Piety",
+      "icon": "inv_ability_oraclepriest_premonitionpiety",
+      "spellId": 1246802
+    },
     "109781": {
+      "name": "Unfolding Vision",
+      "icon": "spell_holy_mindvision",
+      "spellId": 1272363
+    },
+    "140794": {
       "name": "Unfolding Vision",
       "icon": "spell_holy_mindvision",
       "spellId": 1272363
@@ -502,12 +1052,32 @@
       "icon": "inv_ability_oraclepriest_clairvoyance",
       "spellId": 440742
     },
+    "122302": {
+      "name": "Twinsight",
+      "icon": "inv_ability_oraclepriest_clairvoyance",
+      "spellId": 440742
+    },
     "94693": {
       "name": "No Escape",
       "icon": "spell_fire_twilighthellfire",
       "spellId": 451204
     },
+    "122308": {
+      "name": "No Escape",
+      "icon": "spell_fire_twilighthellfire",
+      "spellId": 451204
+    },
+    "128683": {
+      "name": "Dark Energy",
+      "icon": "achievement_boss_triumvirate_darknaaru",
+      "spellId": 451018
+    },
     "94703": {
+      "name": "Void Blast",
+      "icon": "inv_cosmicvoid_missile",
+      "spellId": 450405
+    },
+    "122318": {
       "name": "Void Blast",
       "icon": "inv_cosmicvoid_missile",
       "spellId": 450405
@@ -517,7 +1087,17 @@
       "icon": "inv_cosmicvoid_buff",
       "spellId": 448278
     },
+    "122285": {
+      "name": "Inner Quietus",
+      "icon": "inv_cosmicvoid_buff",
+      "spellId": 448278
+    },
     "109780": {
+      "name": "Voidheart",
+      "icon": "inv_cosmicvoid_orb",
+      "spellId": 449880
+    },
+    "140793": {
       "name": "Voidheart",
       "icon": "inv_cosmicvoid_orb",
       "spellId": 449880
@@ -527,12 +1107,32 @@
       "icon": "spell_holy_consumemagic",
       "spellId": 451840
     },
+    "122283": {
+      "name": "Devour Matter",
+      "icon": "spell_holy_consumemagic",
+      "spellId": 451840
+    },
     "94695": {
       "name": "Void Empowerment",
       "icon": "inv_cosmicvoid_nova",
       "spellId": 450138
     },
+    "128681": {
+      "name": "Void Empowerment",
+      "icon": "inv_cosmicvoid_nova",
+      "spellId": 450138
+    },
+    "130813": {
+      "name": "Darkening Horizon",
+      "icon": "inv_misc_83_voidfocus",
+      "spellId": 449912
+    },
     "100212": {
+      "name": "Voidwraith",
+      "icon": "warlock_curse_shadow",
+      "spellId": 451234
+    },
+    "128679": {
       "name": "Voidwraith",
       "icon": "warlock_curse_shadow",
       "spellId": 451234
@@ -542,7 +1142,17 @@
       "icon": "inv_112_raidtrinkets_blobofswirlingvoid_purple",
       "spellId": 1266856
     },
+    "140792": {
+      "name": "Touch of the Void",
+      "icon": "inv_112_raidtrinkets_blobofswirlingvoid_purple",
+      "spellId": 1266856
+    },
     "94692": {
+      "name": "Quickened Pulse",
+      "icon": "ability_rogue_sanguinaryvein",
+      "spellId": 1266845
+    },
+    "122307": {
       "name": "Quickened Pulse",
       "icon": "ability_rogue_sanguinaryvein",
       "spellId": 1266845
@@ -552,17 +1162,42 @@
       "icon": "inv_misc_volatileshadow",
       "spellId": 450612
     },
+    "122284": {
+      "name": "Void Infusion",
+      "icon": "inv_misc_volatileshadow",
+      "spellId": 450612
+    },
     "94696": {
       "name": "Void Leech",
       "icon": "spell_shadow_soulleech_2",
       "spellId": 451311
+    },
+    "122311": {
+      "name": "Void Leech",
+      "icon": "spell_shadow_soulleech_2",
+      "spellId": 451311
+    },
+    "128682": {
+      "name": "Embrace the Shadow",
+      "icon": "spell_shadow_shadesofdarkness",
+      "spellId": 451569
     },
     "109778": {
       "name": "Overwhelming Shadows",
       "icon": "inv_shadowelementalmount",
       "spellId": 1266883
     },
+    "140791": {
+      "name": "Overwhelming Shadows",
+      "icon": "inv_shadowelementalmount",
+      "spellId": 1266883
+    },
     "94694": {
+      "name": "Collapsing Void",
+      "icon": "inv_cosmicvoid_groundsate",
+      "spellId": 448403
+    },
+    "122309": {
       "name": "Collapsing Void",
       "icon": "inv_cosmicvoid_groundsate",
       "spellId": 448403

@@ -7,7 +7,17 @@
       "icon": "spell_holy_layonhands",
       "spellId": 633
     },
+    "107588": {
+      "name": "Lay on Hands",
+      "icon": "spell_holy_layonhands",
+      "spellId": 633
+    },
     "81507": {
+      "name": "Cleanse Toxins",
+      "icon": "spell_holy_renew",
+      "spellId": 213644
+    },
+    "107481": {
       "name": "Cleanse Toxins",
       "icon": "spell_holy_renew",
       "spellId": 213644
@@ -17,7 +27,17 @@
       "icon": "spell_holy_layonhands",
       "spellId": 387791
     },
+    "133062": {
+      "name": "Empyreal Ward",
+      "icon": "spell_holy_layonhands",
+      "spellId": 387791
+    },
     "109999": {
+      "name": "Fist of Justice",
+      "icon": "spell_holy_fistofjustice",
+      "spellId": 234299
+    },
+    "141260": {
       "name": "Fist of Justice",
       "icon": "spell_holy_fistofjustice",
       "spellId": 234299
@@ -27,7 +47,17 @@
       "icon": "ability_paladin_blindinglight",
       "spellId": 115750
     },
+    "107589": {
+      "name": "Blinding Light",
+      "icon": "ability_paladin_blindinglight",
+      "spellId": 115750
+    },
     "93010": {
+      "name": "Turn Evil",
+      "icon": "ability_paladin_turnevil",
+      "spellId": 10326
+    },
+    "107628": {
       "name": "Turn Evil",
       "icon": "ability_paladin_turnevil",
       "spellId": 10326
@@ -37,12 +67,32 @@
       "icon": "spell_holy_blindingheal",
       "spellId": 469411
     },
+    "133061": {
+      "name": "A Just Reward",
+      "icon": "spell_holy_blindingheal",
+      "spellId": 469411
+    },
     "93189": {
       "name": "Afterimage",
       "icon": "spell_holy_aspiration",
       "spellId": 385414
     },
+    "120494": {
+      "name": "Afterimage",
+      "icon": "spell_holy_aspiration",
+      "spellId": 385414
+    },
+    "120493": {
+      "name": "Healing Hands",
+      "icon": "ability_paladin_infusionoflight",
+      "spellId": 326734
+    },
     "110012": {
+      "name": "Guided Prayer",
+      "icon": "ability_crown_of_the_heavens_icon",
+      "spellId": 404357
+    },
+    "141276": {
       "name": "Guided Prayer",
       "icon": "ability_crown_of_the_heavens_icon",
       "spellId": 404357
@@ -52,7 +102,17 @@
       "icon": "ability_paladin_divinesteed",
       "spellId": 190784
     },
+    "107630": {
+      "name": "Divine Steed",
+      "icon": "ability_paladin_divinesteed",
+      "spellId": 190784
+    },
     "103854": {
+      "name": "Light's Countenance",
+      "icon": "inv_shoulder_raidpaladindragon_d_01",
+      "spellId": 469325
+    },
+    "133054": {
       "name": "Light's Countenance",
       "icon": "inv_shoulder_raidpaladindragon_d_01",
       "spellId": 469325
@@ -62,7 +122,22 @@
       "icon": "ability_paladin_turnevil",
       "spellId": 460720
     },
+    "133057": {
+      "name": "Wrench Evil",
+      "icon": "ability_paladin_turnevil",
+      "spellId": 460720
+    },
+    "133056": {
+      "name": "Stand Against Evil",
+      "icon": "spell_holy_excorcism",
+      "spellId": 469317
+    },
     "103860": {
+      "name": "Holy Reprieve",
+      "icon": "spell_holy_sealofsalvation",
+      "spellId": 469445
+    },
+    "133063": {
       "name": "Holy Reprieve",
       "icon": "spell_holy_sealofsalvation",
       "spellId": 469445
@@ -72,7 +147,17 @@
       "icon": "ability_paladin_shieldofthetemplar",
       "spellId": 1261562
     },
+    "140882": {
+      "name": "Shield of Vengeance",
+      "icon": "ability_paladin_shieldofthetemplar",
+      "spellId": 1261562
+    },
     "81605": {
+      "name": "Cavalier",
+      "icon": "ability_paladin_divinesteed",
+      "spellId": 230332
+    },
+    "107597": {
       "name": "Cavalier",
       "icon": "ability_paladin_divinesteed",
       "spellId": 230332
@@ -82,12 +167,32 @@
       "icon": "ability_mount_charger",
       "spellId": 469409
     },
+    "133060": {
+      "name": "Divine Spurs",
+      "icon": "ability_mount_charger",
+      "spellId": 469409
+    },
     "81631": {
       "name": "Steed of Liberty",
       "icon": "spell_holy_crusaderaura",
       "spellId": 469304
     },
+    "107629": {
+      "name": "Steed of Liberty",
+      "icon": "spell_holy_crusaderaura",
+      "spellId": 469304
+    },
+    "133058": {
+      "name": "Blessing of Freedom",
+      "icon": "spell_holy_sealofvalor",
+      "spellId": 1044
+    },
     "110093": {
+      "name": "Rebuke",
+      "icon": "spell_holy_rebuke",
+      "spellId": 96231
+    },
+    "141367": {
       "name": "Rebuke",
       "icon": "spell_holy_rebuke",
       "spellId": 96231
@@ -97,7 +202,17 @@
       "icon": "ability_paladin_speedoflight",
       "spellId": 385427
     },
+    "107627": {
+      "name": "Obduracy",
+      "icon": "ability_paladin_speedoflight",
+      "spellId": 385427
+    },
     "109368": {
+      "name": "Divine Toll",
+      "icon": "inv_ability_paladin_divinetoll",
+      "spellId": 375576
+    },
+    "140320": {
       "name": "Divine Toll",
       "icon": "inv_ability_paladin_divinetoll",
       "spellId": 375576
@@ -107,7 +222,17 @@
       "icon": "spell_holy_sealofvalor",
       "spellId": 305394
     },
+    "120466": {
+      "name": "Unbound Freedom",
+      "icon": "spell_holy_sealofvalor",
+      "spellId": 305394
+    },
     "93009": {
+      "name": "Sanctified Plates",
+      "icon": "inv_chest_plate_raidpaladin_s_01",
+      "spellId": 402964
+    },
+    "120041": {
       "name": "Sanctified Plates",
       "icon": "inv_chest_plate_raidpaladin_s_01",
       "spellId": 402964
@@ -117,7 +242,17 @@
       "icon": "spell_holy_rebuke",
       "spellId": 403530
     },
+    "141365": {
+      "name": "Punishment",
+      "icon": "spell_holy_rebuke",
+      "spellId": 403530
+    },
     "93168": {
+      "name": "Divine Reach",
+      "icon": "spell_holy_mindvision",
+      "spellId": 469476
+    },
+    "120459": {
       "name": "Divine Reach",
       "icon": "spell_holy_mindvision",
       "spellId": 469476
@@ -127,7 +262,17 @@
       "icon": "paladin_holy",
       "spellId": 1265549
     },
+    "141259": {
+      "name": "Brought to Light",
+      "icon": "paladin_holy",
+      "spellId": 1265549
+    },
     "81614": {
+      "name": "Blessing of Sacrifice",
+      "icon": "spell_holy_sealofsacrifice",
+      "spellId": 6940
+    },
+    "107607": {
       "name": "Blessing of Sacrifice",
       "icon": "spell_holy_sealofsacrifice",
       "spellId": 6940
@@ -137,7 +282,22 @@
       "icon": "ability_mount_goatmountwhite",
       "spellId": 384027
     },
+    "120480": {
+      "name": "Divine Resonance",
+      "icon": "ability_mount_goatmountwhite",
+      "spellId": 384027
+    },
+    "120479": {
+      "name": "Quickened Invocation",
+      "icon": "spell_holy_pureofheart",
+      "spellId": 379391
+    },
     "81616": {
+      "name": "Blessing of Protection",
+      "icon": "spell_holy_sealofprotection",
+      "spellId": 1022
+    },
+    "107609": {
       "name": "Blessing of Protection",
       "icon": "spell_holy_sealofprotection",
       "spellId": 1022
@@ -147,7 +307,17 @@
       "icon": "inv_bracer_plate_raidpaladin_r_01mythic",
       "spellId": 1265541
     },
+    "141258": {
+      "name": "Fear No Evil",
+      "icon": "inv_bracer_plate_raidpaladin_r_01mythic",
+      "spellId": 1265541
+    },
     "81543": {
+      "name": "Consecrated Ground",
+      "icon": "ability_paladin_righteousvengeance",
+      "spellId": 204054
+    },
+    "107523": {
       "name": "Consecrated Ground",
       "icon": "ability_paladin_righteousvengeance",
       "spellId": 204054
@@ -157,17 +327,47 @@
       "icon": "ability_paladin_touchedbylight",
       "spellId": 385515
     },
+    "107602": {
+      "name": "Holy Aegis",
+      "icon": "ability_paladin_touchedbylight",
+      "spellId": 385515
+    },
     "81607": {
       "name": "Sacrifice of the Just",
       "icon": "spell_holy_sealofsacrifice",
       "spellId": 384820
+    },
+    "107600": {
+      "name": "Sacrifice of the Just",
+      "icon": "spell_holy_sealofsacrifice",
+      "spellId": 384820
+    },
+    "107599": {
+      "name": "Recompense",
+      "icon": "ability_racial_foregedinflames",
+      "spellId": 384914
     },
     "81618": {
       "name": "Sacred Strength",
       "icon": "spell_holy_righteousnessaura",
       "spellId": 469337
     },
+    "107613": {
+      "name": "Sacred Strength",
+      "icon": "spell_holy_righteousnessaura",
+      "spellId": 469337
+    },
+    "133050": {
+      "name": "Divine Purpose",
+      "icon": "spell_holy_divinepurpose",
+      "spellId": 408459
+    },
     "81617": {
+      "name": "Improved Blessing of Protection",
+      "icon": "spell_holy_sealofprotection",
+      "spellId": 384909
+    },
+    "107611": {
       "name": "Improved Blessing of Protection",
       "icon": "spell_holy_sealofprotection",
       "spellId": 384909
@@ -177,7 +377,17 @@
       "icon": "spell_holy_holyguidance",
       "spellId": 114154
     },
+    "107608": {
+      "name": "Unbreakable Spirit",
+      "icon": "spell_holy_holyguidance",
+      "spellId": 114154
+    },
     "93008": {
+      "name": "Lightforged Blessing",
+      "icon": "spell_holy_circleofrenewal",
+      "spellId": 403479
+    },
+    "120251": {
       "name": "Lightforged Blessing",
       "icon": "spell_holy_circleofrenewal",
       "spellId": 403479
@@ -187,12 +397,32 @@
       "icon": "inv_helm_plate_raidpaladin_r_01mythic",
       "spellId": 469780
     },
+    "133070": {
+      "name": "Lead the Charge",
+      "icon": "inv_helm_plate_raidpaladin_r_01mythic",
+      "spellId": 469780
+    },
     "103865": {
       "name": "Worthy Sacrifice",
       "icon": "ability_paladin_handoflight",
       "spellId": 469279
     },
+    "133068": {
+      "name": "Worthy Sacrifice",
+      "icon": "ability_paladin_handoflight",
+      "spellId": 469279
+    },
+    "133055": {
+      "name": "Righteous Protection",
+      "icon": "spell_holy_blessingofprotection",
+      "spellId": 469321
+    },
     "103866": {
+      "name": "Holy Ritual",
+      "icon": "inv_relics_libramoftruth",
+      "spellId": 199422
+    },
+    "133069": {
       "name": "Holy Ritual",
       "icon": "inv_relics_libramoftruth",
       "spellId": 199422
@@ -202,7 +432,17 @@
       "icon": "ability_paladin_judgementofthepure",
       "spellId": 469770
     },
+    "133071": {
+      "name": "Blessed Calling",
+      "icon": "ability_paladin_judgementofthepure",
+      "spellId": 469770
+    },
     "103864": {
+      "name": "Inspired Guard",
+      "icon": "spell_holy_divineprotection",
+      "spellId": 469439
+    },
+    "133067": {
       "name": "Inspired Guard",
       "icon": "spell_holy_divineprotection",
       "spellId": 469439
@@ -212,7 +452,17 @@
       "icon": "spell_holy_divineshield",
       "spellId": 146956
     },
+    "107601": {
+      "name": "Light's Revocation",
+      "icon": "spell_holy_divineshield",
+      "spellId": 146956
+    },
     "81495": {
+      "name": "Faith's Armor",
+      "icon": "inv_shield_1h_newplayer_a_01",
+      "spellId": 406101
+    },
+    "107469": {
       "name": "Faith's Armor",
       "icon": "inv_shield_1h_newplayer_a_01",
       "spellId": 406101
@@ -222,7 +472,17 @@
       "icon": "spell_magic_magearmor",
       "spellId": 469316
     },
+    "133065": {
+      "name": "Stoicism",
+      "icon": "spell_magic_magearmor",
+      "spellId": 469316
+    },
     "81621": {
+      "name": "Seal of Might",
+      "icon": "spell_holy_sealofwrath",
+      "spellId": 385450
+    },
+    "107617": {
       "name": "Seal of Might",
       "icon": "spell_holy_sealofwrath",
       "spellId": 385450
@@ -232,7 +492,17 @@
       "icon": "spell_paladin_hammerofwrath",
       "spellId": 1241958
     },
+    "133048": {
+      "name": "Vengeful Wrath",
+      "icon": "spell_paladin_hammerofwrath",
+      "spellId": 1241958
+    },
     "81628": {
+      "name": "Eye for an Eye",
+      "icon": "spell_holy_eyeforaneye",
+      "spellId": 469309
+    },
+    "107625": {
       "name": "Eye for an Eye",
       "icon": "spell_holy_eyeforaneye",
       "spellId": 469309
@@ -242,7 +512,22 @@
       "icon": "ability_priest_cascade",
       "spellId": 377128
     },
+    "133059": {
+      "name": "Golden Path",
+      "icon": "ability_priest_cascade",
+      "spellId": 377128
+    },
+    "133116": {
+      "name": "Selfless Healer",
+      "icon": "ability_paladin_gaurdedbythelight",
+      "spellId": 469434
+    },
     "93357": {
+      "name": "Blessing of Dawn",
+      "icon": "achievement_zone_valeofeternalblossoms",
+      "spellId": 183416
+    },
+    "120685": {
       "name": "Blessing of Dawn",
       "icon": "achievement_zone_valeofeternalblossoms",
       "spellId": 183416
@@ -252,7 +537,17 @@
       "icon": "spell_paladin_clarityofpurpose",
       "spellId": 469416
     },
+    "133064": {
+      "name": "Lightbearer",
+      "icon": "spell_paladin_clarityofpurpose",
+      "spellId": 469416
+    },
     "103863": {
+      "name": "Blessing of Dusk",
+      "icon": "achievement_zone_newshadowmoonvalley",
+      "spellId": 1241945
+    },
+    "133066": {
       "name": "Blessing of Dusk",
       "icon": "achievement_zone_newshadowmoonvalley",
       "spellId": 1241945
@@ -262,7 +557,17 @@
       "icon": "ability_paladin_bladeofjustice",
       "spellId": 184575
     },
+    "107503": {
+      "name": "Blade of Justice",
+      "icon": "ability_paladin_bladeofjustice",
+      "spellId": 184575
+    },
     "81527": {
+      "name": "Divine Storm",
+      "icon": "ability_paladin_divinestorm",
+      "spellId": 53385
+    },
+    "107504": {
       "name": "Divine Storm",
       "icon": "ability_paladin_divinestorm",
       "spellId": 53385
@@ -272,12 +577,32 @@
       "icon": "ability_paladin_bladeofjusticeblue",
       "spellId": 383344
     },
+    "119837": {
+      "name": "Expurgation",
+      "icon": "ability_paladin_bladeofjusticeblue",
+      "spellId": 383344
+    },
     "81521": {
       "name": "Swift Justice",
       "icon": "ability_paladin_judgementofthepure",
       "spellId": 383228
     },
+    "107496": {
+      "name": "Swift Justice",
+      "icon": "ability_paladin_judgementofthepure",
+      "spellId": 383228
+    },
+    "119835": {
+      "name": "Light of Justice",
+      "icon": "inv_offhand_1h_ulduarraid_d_01",
+      "spellId": 404436
+    },
     "93161": {
+      "name": "Judgment of Justice",
+      "icon": "ability_paladin_judgementblue",
+      "spellId": 403495
+    },
+    "120452": {
       "name": "Judgment of Justice",
       "icon": "ability_paladin_judgementblue",
       "spellId": 403495
@@ -287,7 +612,17 @@
       "icon": "spell_holy_avenginewrath",
       "spellId": 31884
     },
+    "107524": {
+      "name": "Avenging Wrath",
+      "icon": "spell_holy_avenginewrath",
+      "spellId": 31884
+    },
     "81532": {
+      "name": "Final Verdict",
+      "icon": "spell_paladin_templarsverdict",
+      "spellId": 383328
+    },
+    "107509": {
       "name": "Final Verdict",
       "icon": "spell_paladin_templarsverdict",
       "spellId": 383328
@@ -297,12 +632,37 @@
       "icon": "ability_paladin_bladeofjustice",
       "spellId": 403745
     },
+    "120030": {
+      "name": "Improved Blade of Justice",
+      "icon": "ability_paladin_bladeofjustice",
+      "spellId": 403745
+    },
+    "120029": {
+      "name": "Holy Blade",
+      "icon": "ability_paladin_lightoftheprotector",
+      "spellId": 383342
+    },
     "81523": {
       "name": "Righteous Cause",
       "icon": "inv_sword_133",
       "spellId": 402912
     },
+    "107499": {
+      "name": "Righteous Cause",
+      "icon": "inv_sword_133",
+      "spellId": 402912
+    },
+    "107498": {
+      "name": "Art of War",
+      "icon": "ability_paladin_artofwar",
+      "spellId": 406064
+    },
     "81542": {
+      "name": "Jurisdiction",
+      "icon": "ability_paladin_longarmofthelaw",
+      "spellId": 402971
+    },
+    "107521": {
       "name": "Jurisdiction",
       "icon": "ability_paladin_longarmofthelaw",
       "spellId": 402971
@@ -312,7 +672,17 @@
       "icon": "ability_malkorok_blightofyshaarj_yellow",
       "spellId": 383396
     },
+    "120464": {
+      "name": "Tempest of the Lightbringer",
+      "icon": "ability_malkorok_blightofyshaarj_yellow",
+      "spellId": 383396
+    },
     "81512": {
+      "name": "Rush of Light",
+      "icon": "spell_holy_borrowedtime",
+      "spellId": 407067
+    },
+    "120487": {
       "name": "Rush of Light",
       "icon": "spell_holy_borrowedtime",
       "spellId": 407067
@@ -322,7 +692,17 @@
       "icon": "achievement_zone_firelands",
       "spellId": 382536
     },
+    "120500": {
+      "name": "Sanctify",
+      "icon": "achievement_zone_firelands",
+      "spellId": 382536
+    },
     "109371": {
+      "name": "Holy Flames",
+      "icon": "ability_warlock_inferno",
+      "spellId": 406545
+    },
+    "120450": {
       "name": "Holy Flames",
       "icon": "ability_warlock_inferno",
       "spellId": 406545
@@ -332,7 +712,22 @@
       "icon": "spell_holy_righteousfury",
       "spellId": 405461
     },
+    "107510": {
+      "name": "Improved Judgment",
+      "icon": "spell_holy_righteousfury",
+      "spellId": 405461
+    },
+    "120028": {
+      "name": "Boundless Judgment",
+      "icon": "ability_paladin_judgementofthewise",
+      "spellId": 405278
+    },
     "92952": {
+      "name": "Zealot's Fervor",
+      "icon": "spell_holy_weaponmastery",
+      "spellId": 403509
+    },
+    "120172": {
       "name": "Zealot's Fervor",
       "icon": "spell_holy_weaponmastery",
       "spellId": 403509
@@ -342,7 +737,17 @@
       "icon": "spell_brokenheart",
       "spellId": 406154
     },
+    "120495": {
+      "name": "Heart of the Crusader",
+      "icon": "spell_brokenheart",
+      "spellId": 406154
+    },
     "81545": {
+      "name": "Blade of Vengeance",
+      "icon": "ability_paladin_bladeofjustice",
+      "spellId": 403826
+    },
+    "107526": {
       "name": "Blade of Vengeance",
       "icon": "ability_paladin_bladeofjustice",
       "spellId": 403826
@@ -352,7 +757,17 @@
       "icon": "ability_paladin_sheathoflight",
       "spellId": 326732
     },
+    "120058": {
+      "name": "Empyrean Power",
+      "icon": "ability_paladin_sheathoflight",
+      "spellId": 326732
+    },
     "81534": {
+      "name": "Highlord's Wrath",
+      "icon": "ability_paladin_judgementred",
+      "spellId": 404512
+    },
+    "107511": {
       "name": "Highlord's Wrath",
       "icon": "ability_paladin_judgementred",
       "spellId": 404512
@@ -362,7 +777,22 @@
       "icon": "inv_sword_2h_artifactashbringer_d_01",
       "spellId": 406646
     },
+    "120485": {
+      "name": "Templar Strikes",
+      "icon": "inv_sword_2h_artifactashbringer_d_01",
+      "spellId": 406646
+    },
+    "141572": {
+      "name": "Crusading Strikes",
+      "icon": "inv_sword_08",
+      "spellId": 404542
+    },
     "81541": {
+      "name": "Blessed Champion",
+      "icon": "achievement_bg_trueavshutout",
+      "spellId": 403010
+    },
+    "107520": {
       "name": "Blessed Champion",
       "icon": "achievement_bg_trueavshutout",
       "spellId": 403010
@@ -372,7 +802,17 @@
       "icon": "spell_fire_sealoffire",
       "spellId": 403026
     },
+    "120031": {
+      "name": "Burning Crusade",
+      "icon": "spell_fire_sealoffire",
+      "spellId": 403026
+    },
     "93164": {
+      "name": "Blades of Light",
+      "icon": "achievement_arena_3v3_7",
+      "spellId": 403664
+    },
+    "120455": {
       "name": "Blades of Light",
       "icon": "achievement_arena_3v3_7",
       "spellId": 403664
@@ -382,7 +822,17 @@
       "icon": "inv_sword_2h_artifactashbringerfire_d_03",
       "spellId": 255937
     },
+    "107502": {
+      "name": "Wake of Ashes",
+      "icon": "inv_sword_2h_artifactashbringerfire_d_03",
+      "spellId": 255937
+    },
     "93160": {
+      "name": "Divine Wrath",
+      "icon": "spell_holy_greaterblessingofkings",
+      "spellId": 406872
+    },
+    "120451": {
       "name": "Divine Wrath",
       "icon": "spell_holy_greaterblessingofkings",
       "spellId": 406872
@@ -392,7 +842,17 @@
       "icon": "spell_paladin_executionsentence",
       "spellId": 343527
     },
+    "120447": {
+      "name": "Execution Sentence",
+      "icon": "spell_paladin_executionsentence",
+      "spellId": 343527
+    },
     "92854": {
+      "name": "Seething Flames",
+      "icon": "ability_mage_flamecannon",
+      "spellId": 405355
+    },
+    "120050": {
       "name": "Seething Flames",
       "icon": "ability_mage_flamecannon",
       "spellId": 405355
@@ -402,7 +862,17 @@
       "icon": "item_holyspark",
       "spellId": 387170
     },
+    "120465": {
+      "name": "Empyrean Legacy",
+      "icon": "item_holyspark",
+      "spellId": 387170
+    },
     "81537": {
+      "name": "Judge, Jury and Executioner",
+      "icon": "spell_holy_sealofblood",
+      "spellId": 406157
+    },
+    "107516": {
       "name": "Judge, Jury and Executioner",
       "icon": "spell_holy_sealofblood",
       "spellId": 406157
@@ -412,7 +882,17 @@
       "icon": "achievement_dungeon_gloryoftheraider",
       "spellId": 458359
     },
+    "107530": {
+      "name": "Radiant Glory",
+      "icon": "achievement_dungeon_gloryoftheraider",
+      "spellId": 458359
+    },
     "92686": {
+      "name": "Burn to Ash",
+      "icon": "spell_burningsoul",
+      "spellId": 446663
+    },
+    "119831": {
       "name": "Burn to Ash",
       "icon": "spell_burningsoul",
       "spellId": 446663
@@ -422,12 +902,37 @@
       "icon": "ability_paladin_sanctifiedwrath",
       "spellId": 1253598
     },
+    "140321": {
+      "name": "Crusade",
+      "icon": "ability_paladin_sanctifiedwrath",
+      "spellId": 1253598
+    },
     "110419": {
       "name": "Light Within",
       "icon": "inv12_apextalent_paladin_lightwithin",
       "spellId": 1261113
     },
+    "141788": {
+      "name": "Light Within",
+      "icon": "inv12_apextalent_paladin_lightwithin",
+      "spellId": 1261113
+    },
+    "141787": {
+      "name": "Light Within",
+      "icon": "inv_ability_holyfire_buff",
+      "spellId": 1261111
+    },
+    "141786": {
+      "name": "Light Within",
+      "icon": "inv_ability_holyfire_buff",
+      "spellId": 1261159
+    },
     "95183": {
+      "name": "Zealous Vindication",
+      "icon": "spell_holy_surgeoflight",
+      "spellId": 431463
+    },
+    "122828": {
       "name": "Zealous Vindication",
       "icon": "spell_holy_surgeoflight",
       "spellId": 431463
@@ -437,7 +942,17 @@
       "icon": "ability_priest_holybolts01",
       "spellId": 431533
     },
+    "122835": {
+      "name": "Shake the Heavens",
+      "icon": "ability_priest_holybolts01",
+      "spellId": 431533
+    },
     "95177": {
+      "name": "Wrathful Descent",
+      "icon": "ability_paladin_intercession",
+      "spellId": 431551
+    },
+    "122822": {
       "name": "Wrathful Descent",
       "icon": "ability_paladin_intercession",
       "spellId": 431551
@@ -447,12 +962,32 @@
       "icon": "classicon_paladin",
       "spellId": 432929
     },
+    "140760": {
+      "name": "Divine Hammer",
+      "icon": "classicon_paladin",
+      "spellId": 432929
+    },
     "95073": {
       "name": "Morning Star",
       "icon": "spell_holy_persecution",
       "spellId": 431482
     },
+    "122682": {
+      "name": "Morning Star",
+      "icon": "spell_holy_persecution",
+      "spellId": 431482
+    },
+    "122790": {
+      "name": "Gleaming Rays",
+      "icon": "spell_priest_power_word",
+      "spellId": 431480
+    },
     "95095": {
+      "name": "Eternal Flame",
+      "icon": "inv_torch_thrown",
+      "spellId": 156322
+    },
+    "122704": {
       "name": "Eternal Flame",
       "icon": "inv_torch_thrown",
       "spellId": 156322
@@ -462,7 +997,17 @@
       "icon": "inv_qirajidol_sun",
       "spellId": 431402
     },
+    "122689": {
+      "name": "Luminosity",
+      "icon": "inv_qirajidol_sun",
+      "spellId": 431402
+    },
     "109748": {
+      "name": "Endless Gleam",
+      "icon": "spell_paladin_inquisition",
+      "spellId": 1263787
+    },
+    "140761": {
       "name": "Endless Gleam",
       "icon": "spell_paladin_inquisition",
       "spellId": 1263787
@@ -472,7 +1017,17 @@
       "icon": "inv_plate_raidpaladinprimalist_d_01_cape",
       "spellId": 431730
     },
+    "122824": {
+      "name": "Sacrosanct Crusade",
+      "icon": "inv_plate_raidpaladinprimalist_d_01_cape",
+      "spellId": 431730
+    },
     "95178": {
+      "name": "Higher Calling",
+      "icon": "ability_paladin_toweroflight",
+      "spellId": 431687
+    },
+    "122823": {
       "name": "Higher Calling",
       "icon": "ability_paladin_toweroflight",
       "spellId": 431687
@@ -482,7 +1037,22 @@
       "icon": "spell_holy_crusade",
       "spellId": 432992
     },
+    "122826": {
+      "name": "Bonds of Fellowship",
+      "icon": "spell_holy_crusade",
+      "spellId": 432992
+    },
+    "122870": {
+      "name": "Unrelenting Charger",
+      "icon": "ability_mount_mawhorsespikes_yellow",
+      "spellId": 432990
+    },
     "109746": {
+      "name": "Light's Judicator",
+      "icon": "ability_paladin_judgementofthepure",
+      "spellId": 1261525
+    },
+    "140759": {
       "name": "Light's Judicator",
       "icon": "ability_paladin_judgementofthepure",
       "spellId": 1261525
@@ -492,12 +1062,37 @@
       "icon": "spell_holy_divineillumination",
       "spellId": 431423
     },
+    "122707": {
+      "name": "Illumine",
+      "icon": "spell_holy_divineillumination",
+      "spellId": 431423
+    },
+    "122789": {
+      "name": "Will of the Dawn",
+      "icon": "spell_holy_divineprovidence",
+      "spellId": 431406
+    },
     "95071": {
       "name": "Blessing of An'she",
       "icon": "inv_ability_holyfire_orb",
       "spellId": 445200
     },
+    "122680": {
+      "name": "Blessing of An'she",
+      "icon": "inv_ability_holyfire_orb",
+      "spellId": 445200
+    },
+    "122791": {
+      "name": "Lingering Radiance",
+      "icon": "spell_holy_mindvision",
+      "spellId": 431407
+    },
     "95072": {
+      "name": "Sun Sear",
+      "icon": "spell_priest_burningwill",
+      "spellId": 431413
+    },
+    "122681": {
       "name": "Sun Sear",
       "icon": "spell_priest_burningwill",
       "spellId": 431413
@@ -507,12 +1102,32 @@
       "icon": "ability_malkorok_blightofyshaarj_yellow",
       "spellId": 431404
     },
+    "140763": {
+      "name": "Solar Grace",
+      "icon": "ability_malkorok_blightofyshaarj_yellow",
+      "spellId": 431404
+    },
     "95185": {
       "name": "Endless Wrath",
       "icon": "spell_holy_divinepurpose",
       "spellId": 432615
     },
+    "122832": {
+      "name": "Endless Wrath",
+      "icon": "spell_holy_divinepurpose",
+      "spellId": 432615
+    },
+    "122831": {
+      "name": "Sanctification",
+      "icon": "ability_paladin_blessedhands",
+      "spellId": 432977
+    },
     "95184": {
+      "name": "Hammerfall",
+      "icon": "ability_paladin_enlightenedjudgements",
+      "spellId": 432463
+    },
+    "122830": {
       "name": "Hammerfall",
       "icon": "ability_paladin_enlightenedjudgements",
       "spellId": 432463
@@ -522,12 +1137,32 @@
       "icon": "spell_holy_righteousfury",
       "spellId": 432626
     },
+    "122834": {
+      "name": "Undisputed Ruling",
+      "icon": "spell_holy_righteousfury",
+      "spellId": 432626
+    },
     "109745": {
       "name": "Divine Exaction",
       "icon": "inv_ability_paladin_divinetoll",
       "spellId": 1260429
     },
+    "140758": {
+      "name": "Divine Exaction",
+      "icon": "inv_ability_paladin_divinetoll",
+      "spellId": 1260429
+    },
+    "140957": {
+      "name": "Seal of the Templar",
+      "icon": "spell_paladin_templarsverdict",
+      "spellId": 1263252
+    },
     "95069": {
+      "name": "Aurora",
+      "icon": "spell_holy_rune",
+      "spellId": 439760
+    },
+    "122678": {
       "name": "Aurora",
       "icon": "spell_holy_rune",
       "spellId": 439760
@@ -537,7 +1172,17 @@
       "icon": "ability_paladin_sheathoflight",
       "spellId": 1263782
     },
+    "122703": {
+      "name": "Walk Into Light",
+      "icon": "ability_paladin_sheathoflight",
+      "spellId": 1263782
+    },
     "95086": {
+      "name": "Second Sunrise",
+      "icon": "ability_priest_halo",
+      "spellId": 431474
+    },
+    "122695": {
       "name": "Second Sunrise",
       "icon": "ability_priest_halo",
       "spellId": 431474
@@ -547,12 +1192,27 @@
       "icon": "spell_paladin_lightofdawn",
       "spellId": 1263920
     },
+    "140762": {
+      "name": "Born in Sunlight",
+      "icon": "spell_paladin_lightofdawn",
+      "spellId": 1263920
+    },
     "95182": {
       "name": "Light's Deliverance",
       "icon": "inv_glove_plate_raidpaladinmythic_q_01",
       "spellId": 425518
     },
+    "122827": {
+      "name": "Light's Deliverance",
+      "icon": "inv_glove_plate_raidpaladinmythic_q_01",
+      "spellId": 425518
+    },
     "95105": {
+      "name": "Sun's Avatar",
+      "icon": "ability_paladin_holyavenger",
+      "spellId": 431425
+    },
+    "122714": {
       "name": "Sun's Avatar",
       "icon": "ability_paladin_holyavenger",
       "spellId": 431425

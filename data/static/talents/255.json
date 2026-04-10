@@ -7,7 +7,17 @@
       "icon": "ability_druid_galewinds",
       "spellId": 385539
     },
+    "131270": {
+      "name": "Rejuvenating Wind",
+      "icon": "ability_druid_galewinds",
+      "spellId": 385539
+    },
     "102411": {
+      "name": "Posthaste",
+      "icon": "ability_hunter_posthaste",
+      "spellId": 109215
+    },
+    "131301": {
       "name": "Posthaste",
       "icon": "ability_hunter_posthaste",
       "spellId": 109215
@@ -17,7 +27,17 @@
       "icon": "ability_hunter_onewithnature",
       "spellId": 270581
     },
+    "131291": {
+      "name": "Natural Mending",
+      "icon": "ability_hunter_onewithnature",
+      "spellId": 270581
+    },
     "102406": {
+      "name": "Padded Armor",
+      "icon": "ability_rogue_plunderarmor",
+      "spellId": 459450
+    },
+    "131296": {
       "name": "Padded Armor",
       "icon": "ability_rogue_plunderarmor",
       "spellId": 459450
@@ -27,7 +47,17 @@
       "icon": "rogue_burstofspeed",
       "spellId": 384799
     },
+    "131315": {
+      "name": "Hunter's Avoidance",
+      "icon": "rogue_burstofspeed",
+      "spellId": 384799
+    },
     "102383": {
+      "name": "Wilderness Medicine",
+      "icon": "ability_hunter_mendpet",
+      "spellId": 343242
+    },
+    "131272": {
       "name": "Wilderness Medicine",
       "icon": "ability_hunter_mendpet",
       "spellId": 343242
@@ -37,7 +67,17 @@
       "icon": "ability_hunter_combatexperience",
       "spellId": 1268871
     },
+    "141449": {
+      "name": "Combat Experience",
+      "icon": "ability_hunter_combatexperience",
+      "spellId": 1268871
+    },
     "109485": {
+      "name": "Improved Aspect of the Cheetah",
+      "icon": "ability_mount_jungletiger",
+      "spellId": 1258407
+    },
+    "140463": {
       "name": "Improved Aspect of the Cheetah",
       "icon": "ability_mount_jungletiger",
       "spellId": 1258407
@@ -47,7 +87,17 @@
       "icon": "spell_frost_stun",
       "spellId": 5116
     },
+    "131297": {
+      "name": "Concussive Shot",
+      "icon": "spell_frost_stun",
+      "spellId": 5116
+    },
     "102380": {
+      "name": "Precision Strikes",
+      "icon": "inv12_ability_hunter_rupturingblow",
+      "spellId": 1267003
+    },
+    "131269": {
       "name": "Precision Strikes",
       "icon": "inv12_ability_hunter_rupturingblow",
       "spellId": 1267003
@@ -57,7 +107,17 @@
       "icon": "ability_hunter_negate",
       "spellId": 187707
     },
+    "105545": {
+      "name": "Muzzle",
+      "icon": "ability_hunter_negate",
+      "spellId": 187707
+    },
     "102384": {
+      "name": "Serrated Tips",
+      "icon": "inv_spear_01",
+      "spellId": 459502
+    },
+    "131273": {
       "name": "Serrated Tips",
       "icon": "inv_spear_01",
       "spellId": 459502
@@ -67,7 +127,17 @@
       "icon": "spell_nature_drowsy",
       "spellId": 19801
     },
+    "140467": {
+      "name": "Tranquilizing Shot",
+      "icon": "spell_nature_drowsy",
+      "spellId": 19801
+    },
     "102404": {
+      "name": "Pathfinding",
+      "icon": "ability_hunter_displacement",
+      "spellId": 378002
+    },
+    "131294": {
       "name": "Pathfinding",
       "icon": "ability_hunter_displacement",
       "spellId": 378002
@@ -77,7 +147,17 @@
       "icon": "hunter_pvp_vipersting",
       "spellId": 343244
     },
+    "131285": {
+      "name": "Disruptive Rounds",
+      "icon": "hunter_pvp_vipersting",
+      "spellId": 343244
+    },
     "109484": {
+      "name": "Improved Feign Death",
+      "icon": "ability_rogue_feigndeath",
+      "spellId": 1258486
+    },
+    "140461": {
       "name": "Improved Feign Death",
       "icon": "ability_rogue_feigndeath",
       "spellId": 1258486
@@ -87,12 +167,32 @@
       "icon": "ability_hunter_misdirection",
       "spellId": 34477
     },
+    "131310": {
+      "name": "Misdirection",
+      "icon": "ability_hunter_misdirection",
+      "spellId": 34477
+    },
     "102415": {
       "name": "Kodo Tranquilizer",
       "icon": "ability_mount_kodo_03",
       "spellId": 459983
     },
+    "131306": {
+      "name": "Kodo Tranquilizer",
+      "icon": "ability_mount_kodo_03",
+      "spellId": 459983
+    },
+    "131305": {
+      "name": "Devilsaur Tranquilizer",
+      "icon": "ability_hunter_pet_devilsaur",
+      "spellId": 459991
+    },
     "102425": {
+      "name": "Kindling Flare",
+      "icon": "achievment_raid_houroftwilight",
+      "spellId": 459506
+    },
+    "131317": {
       "name": "Kindling Flare",
       "icon": "achievment_raid_houroftwilight",
       "spellId": 459506
@@ -102,12 +202,32 @@
       "icon": "inv_10_engineering2_pvpflaregun_color1",
       "spellId": 459534
     },
+    "131286": {
+      "name": "Trigger Finger",
+      "icon": "inv_10_engineering2_pvpflaregun_color1",
+      "spellId": 459534
+    },
     "102393": {
       "name": "Tar Trap",
       "icon": "spell_yorsahj_bloodboil_black",
       "spellId": 187698
     },
+    "131283": {
+      "name": "Tar Trap",
+      "icon": "spell_yorsahj_bloodboil_black",
+      "spellId": 187698
+    },
+    "140462": {
+      "name": "Scare Beast",
+      "icon": "ability_druid_cower",
+      "spellId": 1513
+    },
     "109487": {
+      "name": "Touch of Grass",
+      "icon": "inv12_ability_druid_lifetreading",
+      "spellId": 1258402
+    },
+    "140465": {
       "name": "Touch of Grass",
       "icon": "inv12_ability_druid_lifetreading",
       "spellId": 1258402
@@ -117,7 +237,17 @@
       "icon": "ability_hunter_camouflage",
       "spellId": 199483
     },
+    "141448": {
+      "name": "Camouflage",
+      "icon": "ability_hunter_camouflage",
+      "spellId": 199483
+    },
     "102412": {
+      "name": "No Hard Feelings",
+      "icon": "ability_seal",
+      "spellId": 459546
+    },
+    "131302": {
       "name": "No Hard Feelings",
       "icon": "ability_seal",
       "spellId": 459546
@@ -127,7 +257,17 @@
       "icon": "ability_hunter_pet_turtle",
       "spellId": 1258485
     },
+    "131316": {
+      "name": "Improved Aspect of the Turtle",
+      "icon": "ability_hunter_pet_turtle",
+      "spellId": 1258485
+    },
     "102390": {
+      "name": "Specialized Arsenal",
+      "icon": "inv_misc_quiver_03",
+      "spellId": 459542
+    },
+    "131279": {
       "name": "Specialized Arsenal",
       "icon": "inv_misc_quiver_03",
       "spellId": 459542
@@ -137,7 +277,17 @@
       "icon": "ability_rogue_sprint",
       "spellId": 459455
     },
+    "140460": {
+      "name": "Scout's Instincts",
+      "icon": "ability_rogue_sprint",
+      "spellId": 459455
+    },
     "110154": {
+      "name": "Shell Wall",
+      "icon": "inv_cape_special_turtleshell_c_01",
+      "spellId": 1267218
+    },
+    "141445": {
       "name": "Shell Wall",
       "icon": "inv_cape_special_turtleshell_c_01",
       "spellId": 1267218
@@ -147,7 +297,17 @@
       "icon": "ability_devour",
       "spellId": 19577
     },
+    "133218": {
+      "name": "Intimidation",
+      "icon": "ability_devour",
+      "spellId": 19577
+    },
     "102414": {
+      "name": "Improved Snaring",
+      "icon": "inv_fishing_nethooks01",
+      "spellId": 1268868
+    },
+    "131304": {
       "name": "Improved Snaring",
       "icon": "inv_fishing_nethooks01",
       "spellId": 1268868
@@ -157,7 +317,17 @@
       "icon": "ability_hunter_huntervswild",
       "spellId": 388039
     },
+    "131280": {
+      "name": "Lone Survivor",
+      "icon": "ability_hunter_huntervswild",
+      "spellId": 388039
+    },
     "109486": {
+      "name": "Catlike Reflexes",
+      "icon": "ability_hunter_catlikereflexes",
+      "spellId": 1258404
+    },
+    "140464": {
       "name": "Catlike Reflexes",
       "icon": "ability_hunter_catlikereflexes",
       "spellId": 1258404
@@ -167,12 +337,32 @@
       "icon": "spell_shaman_bindelemental",
       "spellId": 109248
     },
+    "140466": {
+      "name": "Binding Shot",
+      "icon": "spell_shaman_bindelemental",
+      "spellId": 109248
+    },
     "110155": {
       "name": "Trailblazer",
       "icon": "ability_hunter_aspectmastery",
       "spellId": 199921
     },
+    "141447": {
+      "name": "Trailblazer",
+      "icon": "ability_hunter_aspectmastery",
+      "spellId": 199921
+    },
+    "141446": {
+      "name": "Moment of Opportunity",
+      "icon": "ability_karoz_leap",
+      "spellId": 459488
+    },
     "110153": {
+      "name": "Cold Feet",
+      "icon": "ability_mage_icyfeet",
+      "spellId": 1268671
+    },
+    "141444": {
       "name": "Cold Feet",
       "icon": "ability_mage_icyfeet",
       "spellId": 1268671
@@ -182,7 +372,22 @@
       "icon": "spell_nature_shamanrage",
       "spellId": 459507
     },
+    "131284": {
+      "name": "Territorial Instincts",
+      "icon": "spell_nature_shamanrage",
+      "spellId": 459507
+    },
+    "140459": {
+      "name": "Guttural Roar",
+      "icon": "ability_druid_challangingroar",
+      "spellId": 1258509
+    },
     "102416": {
+      "name": "Born To Be Wild",
+      "icon": "ability_hunter_aspectoftheviper",
+      "spellId": 266921
+    },
+    "131307": {
       "name": "Born To Be Wild",
       "icon": "ability_hunter_aspectoftheviper",
       "spellId": 266921
@@ -192,12 +397,32 @@
       "icon": "ability_hunter_silenthunter",
       "spellId": 378004
     },
+    "131299": {
+      "name": "Keen Eyesight",
+      "icon": "ability_hunter_silenthunter",
+      "spellId": 378004
+    },
     "110152": {
       "name": "Tar-Coated Bindings",
       "icon": "inv_misc_food_legion_goooil_pool",
       "spellId": 459460
     },
+    "141443": {
+      "name": "Tar-Coated Bindings",
+      "icon": "inv_misc_food_legion_goooil_pool",
+      "spellId": 459460
+    },
+    "141442": {
+      "name": "Horsehair Tether",
+      "icon": "inv_misc_rope_01",
+      "spellId": 472729
+    },
     "102418": {
+      "name": "Improved Traps",
+      "icon": "ability_hunter_traplauncher",
+      "spellId": 343247
+    },
+    "131309": {
       "name": "Improved Traps",
       "icon": "ability_hunter_traplauncher",
       "spellId": 343247
@@ -207,12 +432,32 @@
       "icon": "inv_potion_29",
       "spellId": 459517
     },
+    "131278": {
+      "name": "Emergency Salve",
+      "icon": "inv_potion_29",
+      "spellId": 459517
+    },
     "110164": {
       "name": "Roar of Sacrifice",
       "icon": "ability_hunter_fervor",
       "spellId": 53480
     },
+    "141458": {
+      "name": "Roar of Sacrifice",
+      "icon": "ability_hunter_fervor",
+      "spellId": 53480
+    },
+    "141457": {
+      "name": "Guardian's Hide",
+      "icon": "spell_druid_bristlingfur",
+      "spellId": 1272094
+    },
     "102387": {
+      "name": "Unnatural Causes",
+      "icon": "ability_hunter_potentvenom",
+      "spellId": 459527
+    },
+    "131276": {
       "name": "Unnatural Causes",
       "icon": "ability_hunter_potentvenom",
       "spellId": 459527
@@ -222,7 +467,17 @@
       "icon": "ability_hunter_killcommand",
       "spellId": 259489
     },
+    "131140": {
+      "name": "Kill Command",
+      "icon": "ability_hunter_killcommand",
+      "spellId": 259489
+    },
     "102264": {
+      "name": "Wildfire Bomb",
+      "icon": "inv_wildfirebomb",
+      "spellId": 259495
+    },
+    "131150": {
       "name": "Wildfire Bomb",
       "icon": "inv_wildfirebomb",
       "spellId": 259495
@@ -232,7 +487,17 @@
       "icon": "ability_hunter_raptorstrike",
       "spellId": 186270
     },
+    "131148": {
+      "name": "Raptor Strike",
+      "icon": "ability_hunter_raptorstrike",
+      "spellId": 186270
+    },
     "102285": {
+      "name": "Guerrilla Tactics",
+      "icon": "spell_mage_flameorb",
+      "spellId": 264332
+    },
+    "131171": {
       "name": "Guerrilla Tactics",
       "icon": "spell_mage_flameorb",
       "spellId": 264332
@@ -242,7 +507,17 @@
       "icon": "ability_bossmannoroth_glaivethrust",
       "spellId": 260285
     },
+    "131149": {
+      "name": "Tip of the Spear",
+      "icon": "ability_bossmannoroth_glaivethrust",
+      "spellId": 260285
+    },
     "102272": {
+      "name": "Lunge",
+      "icon": "inv_polearm_2h_kultirasharpoon_a_01",
+      "spellId": 378934
+    },
+    "131158": {
       "name": "Lunge",
       "icon": "inv_polearm_2h_kultirasharpoon_a_01",
       "spellId": 378934
@@ -252,7 +527,17 @@
       "icon": "inv_musket_04",
       "spellId": 1261193
     },
+    "140272": {
+      "name": "Boomstick",
+      "icon": "inv_musket_04",
+      "spellId": 1261193
+    },
     "109321": {
+      "name": "Strike as One",
+      "icon": "inv_coordinatedassault",
+      "spellId": 1251717
+    },
+    "140269": {
       "name": "Strike as One",
       "icon": "inv_coordinatedassault",
       "spellId": 1251717
@@ -262,7 +547,22 @@
       "icon": "inv_wildfirebomb_shrapnel",
       "spellId": 1253172
     },
+    "140257": {
+      "name": "Shrapnel Bomb",
+      "icon": "inv_wildfirebomb_shrapnel",
+      "spellId": 1253172
+    },
+    "140250": {
+      "name": "Flamebreak",
+      "icon": "inv_wildfirebomb_blood",
+      "spellId": 1253176
+    },
     "102270": {
+      "name": "Bloodseeker",
+      "icon": "ability_druid_primaltenacity",
+      "spellId": 260248
+    },
+    "131156": {
       "name": "Bloodseeker",
       "icon": "ability_druid_primaltenacity",
       "spellId": 260248
@@ -272,7 +572,17 @@
       "icon": "ability_vehicle_reloadammo",
       "spellId": 1272136
     },
+    "141455": {
+      "name": "Quick Reload",
+      "icon": "ability_vehicle_reloadammo",
+      "spellId": 1272136
+    },
     "102279": {
+      "name": "Flanker's Advantage",
+      "icon": "ability_hunter_beastmastery",
+      "spellId": 459964
+    },
+    "131165": {
       "name": "Flanker's Advantage",
       "icon": "ability_hunter_beastmastery",
       "spellId": 459964
@@ -282,7 +592,17 @@
       "icon": "ability_hunter_separationanxiety",
       "spellId": 1251718
     },
+    "141456": {
+      "name": "Two Against Many",
+      "icon": "ability_hunter_separationanxiety",
+      "spellId": 1251718
+    },
     "109310": {
+      "name": "Mongoose Fury",
+      "icon": "ability_hunter_mongoosebite",
+      "spellId": 1252708
+    },
+    "140258": {
       "name": "Mongoose Fury",
       "icon": "ability_hunter_mongoosebite",
       "spellId": 1252708
@@ -292,7 +612,22 @@
       "icon": "inv_ammo_bullet_08",
       "spellId": 1253945
     },
+    "140264": {
+      "name": "Mongoose Rounds",
+      "icon": "inv_ammo_bullet_08",
+      "spellId": 1253945
+    },
+    "140821": {
+      "name": "Wildfire Shells",
+      "icon": "inv_ammo_firetar",
+      "spellId": 1261229
+    },
     "109319": {
+      "name": "Shellshock",
+      "icon": "inv_10_engineering2_pvpflaregun_color1",
+      "spellId": 1252931
+    },
+    "140267": {
       "name": "Shellshock",
       "icon": "inv_10_engineering2_pvpflaregun_color1",
       "spellId": 1252931
@@ -302,12 +637,32 @@
       "icon": "ability_hunter_sickem",
       "spellId": 1253137
     },
+    "140253": {
+      "name": "Sic 'Em",
+      "icon": "ability_hunter_sickem",
+      "spellId": 1253137
+    },
     "109307": {
       "name": "Bloody Claws",
       "icon": "ability_druid_disembowel",
       "spellId": 385737
     },
+    "140255": {
+      "name": "Bloody Claws",
+      "icon": "ability_druid_disembowel",
+      "spellId": 385737
+    },
+    "140899": {
+      "name": "Wallop",
+      "icon": "ability_butcher_heavyhanded",
+      "spellId": 1252738
+    },
     "102289": {
+      "name": "Improved Wildfire Bomb",
+      "icon": "inv_eng_bombfire",
+      "spellId": 321290
+    },
+    "131175": {
       "name": "Improved Wildfire Bomb",
       "icon": "inv_eng_bombfire",
       "spellId": 321290
@@ -317,7 +672,17 @@
       "icon": "ability_hunter_beastwithin",
       "spellId": 1262442
     },
+    "140259": {
+      "name": "Bonding",
+      "icon": "ability_hunter_beastwithin",
+      "spellId": 1262442
+    },
     "109313": {
+      "name": "Sweeping Spear",
+      "icon": "spell_warrior_wildstrike",
+      "spellId": 378950
+    },
+    "140261": {
       "name": "Sweeping Spear",
       "icon": "spell_warrior_wildstrike",
       "spellId": 378950
@@ -327,7 +692,22 @@
       "icon": "ability_rogue_findweakness",
       "spellId": 1257011
     },
+    "131168": {
+      "name": "Vulnerability",
+      "icon": "ability_rogue_findweakness",
+      "spellId": 1257011
+    },
+    "140444": {
+      "name": "Blackrock Munitions",
+      "icon": "inv_ore_blackrock_nugget",
+      "spellId": 462036
+    },
     "109304": {
+      "name": "Shower of Blood",
+      "icon": "spell_druid_bloodythrash",
+      "spellId": 1253053
+    },
+    "140252": {
       "name": "Shower of Blood",
       "icon": "spell_druid_bloodythrash",
       "spellId": 1253053
@@ -337,7 +717,17 @@
       "icon": "ability_hunter_potentvenom",
       "spellId": 459939
     },
+    "140254": {
+      "name": "Outland Venom",
+      "icon": "ability_hunter_potentvenom",
+      "spellId": 459939
+    },
     "102281": {
+      "name": "Explosives Expert",
+      "icon": "inv_misc_bomb_05",
+      "spellId": 378937
+    },
+    "131167": {
       "name": "Explosives Expert",
       "icon": "inv_misc_bomb_05",
       "spellId": 378937
@@ -347,7 +737,17 @@
       "icon": "inv12_ability_hunter_takedown",
       "spellId": 1250646
     },
+    "140271": {
+      "name": "Takedown",
+      "icon": "inv12_ability_hunter_takedown",
+      "spellId": 1250646
+    },
     "109312": {
+      "name": "Killer Companion",
+      "icon": "ability_hunter_masterscall",
+      "spellId": 378955
+    },
+    "140260": {
       "name": "Killer Companion",
       "icon": "ability_hunter_masterscall",
       "spellId": 378955
@@ -357,7 +757,17 @@
       "icon": "inv_10_blacksmithing_craftedoptional_blacksmithdye_fire",
       "spellId": 1251592
     },
+    "131137": {
+      "name": "Flamefang Pitch",
+      "icon": "inv_10_blacksmithing_craftedoptional_blacksmithdye_fire",
+      "spellId": 1251592
+    },
     "109470": {
+      "name": "Twin Fangs",
+      "icon": "ability_hunter_spearhead",
+      "spellId": 1272139
+    },
+    "140445": {
       "name": "Twin Fangs",
       "icon": "ability_hunter_spearhead",
       "spellId": 1272139
@@ -367,7 +777,17 @@
       "icon": "ability_hunter_ferociousinspiration",
       "spellId": 1251790
     },
+    "140268": {
+      "name": "Savagery",
+      "icon": "ability_hunter_ferociousinspiration",
+      "spellId": 1251790
+    },
     "102268": {
+      "name": "Wildfire Infusion",
+      "icon": "inv_misc_5potionbag_special",
+      "spellId": 460198
+    },
+    "131154": {
       "name": "Wildfire Infusion",
       "icon": "inv_misc_5potionbag_special",
       "spellId": 460198
@@ -377,7 +797,17 @@
       "icon": "inv_misc_mohawkgrenade",
       "spellId": 459843
     },
+    "140265": {
+      "name": "Grenade Juggler",
+      "icon": "inv_misc_mohawkgrenade",
+      "spellId": 459843
+    },
     "110160": {
+      "name": "Wildfire Imbuement",
+      "icon": "spell_shaman_improvelavalash",
+      "spellId": 1252943
+    },
+    "141453": {
       "name": "Wildfire Imbuement",
       "icon": "spell_shaman_improvelavalash",
       "spellId": 1252943
@@ -387,7 +817,17 @@
       "icon": "ability_hunter_invigeration",
       "spellId": 1256938
     },
+    "141454": {
+      "name": "Flanked",
+      "icon": "ability_hunter_invigeration",
+      "spellId": 1256938
+    },
     "102257": {
+      "name": "Lethal Calibration",
+      "icon": "ability_siege_engineer_detonate",
+      "spellId": 1262409
+    },
+    "131142": {
       "name": "Lethal Calibration",
       "icon": "ability_siege_engineer_detonate",
       "spellId": 1262409
@@ -397,12 +837,37 @@
       "icon": "ability_hunter_longevity",
       "spellId": 1272154
     },
+    "141452": {
+      "name": "Primal Surge",
+      "icon": "ability_hunter_longevity",
+      "spellId": 1272154
+    },
     "110429": {
       "name": "Raptor Swipe",
       "icon": "inv12_apextalent_hunter_raptorswipe",
       "spellId": 1259003
     },
+    "141818": {
+      "name": "Raptor Swipe",
+      "icon": "inv12_apextalent_hunter_raptorswipe",
+      "spellId": 1259003
+    },
+    "141817": {
+      "name": "Raptor Swipe",
+      "icon": "ability_hunter_raptorstrike",
+      "spellId": 1259017
+    },
+    "141816": {
+      "name": "Raptor Swipe",
+      "icon": "inv_raptortravelform",
+      "spellId": 1259019
+    },
     "94989": {
+      "name": "Don't Look Back",
+      "icon": "ability_racial_forceshield",
+      "spellId": 450373
+    },
+    "122598": {
       "name": "Don't Look Back",
       "icon": "ability_racial_forceshield",
       "spellId": 450373
@@ -412,7 +877,17 @@
       "icon": "spell_druid_lunarinspiration",
       "spellId": 1253825
     },
+    "122582": {
+      "name": "Moon's Blessing",
+      "icon": "spell_druid_lunarinspiration",
+      "spellId": 1253825
+    },
     "94981": {
+      "name": "Sanctified Armaments",
+      "icon": "inv_polearm_2h_arakkoa_c_01",
+      "spellId": 1253831
+    },
+    "122590": {
       "name": "Sanctified Armaments",
       "icon": "inv_polearm_2h_arakkoa_c_01",
       "spellId": 1253831
@@ -422,12 +897,32 @@
       "icon": "inv_ability_hunter_deathchakram",
       "spellId": 1264902
     },
+    "140820": {
+      "name": "Moonlight Chakram",
+      "icon": "inv_ability_hunter_deathchakram",
+      "spellId": 1264902
+    },
     "94958": {
       "name": "Stargazer",
       "icon": "icon_7fx_nightborn_astromancer_blue",
       "spellId": 1253751
     },
+    "122567": {
+      "name": "Stargazer",
+      "icon": "icon_7fx_nightborn_astromancer_blue",
+      "spellId": 1253751
+    },
+    "140345": {
+      "name": "Open Fire",
+      "icon": "spell_fire_flare",
+      "spellId": 1253807
+    },
     "94990": {
+      "name": "Can't Miss, Won't Miss",
+      "icon": "ability_hunter_aimedshot",
+      "spellId": 1253830
+    },
+    "122599": {
       "name": "Can't Miss, Won't Miss",
       "icon": "ability_hunter_aimedshot",
       "spellId": 1253830
@@ -437,12 +932,32 @@
       "icon": "ability_mage_netherwindpresence",
       "spellId": 450379
     },
+    "122580": {
+      "name": "Invigorating Pulse",
+      "icon": "ability_mage_netherwindpresence",
+      "spellId": 450379
+    },
     "110028": {
       "name": "Twilight Requiem",
       "icon": "spell_nature_moonglow",
       "spellId": 1264904
     },
+    "141295": {
+      "name": "Twilight Requiem",
+      "icon": "spell_nature_moonglow",
+      "spellId": 1264904
+    },
+    "141294": {
+      "name": "Stalk and Strike",
+      "icon": "ability_ambush",
+      "spellId": 1266069
+    },
     "94970": {
+      "name": "Arcane Talons",
+      "icon": "inv_10_specialreagentfoozles_tuskclaw_ice",
+      "spellId": 1253846
+    },
+    "122579": {
       "name": "Arcane Talons",
       "icon": "inv_10_specialreagentfoozles_tuskclaw_ice",
       "spellId": 1253846
@@ -452,12 +967,32 @@
       "icon": "ability_hunter_sentinelowl",
       "spellId": 1253852
     },
+    "122574": {
+      "name": "Lunar Calling",
+      "icon": "ability_hunter_sentinelowl",
+      "spellId": 1253852
+    },
     "94980": {
       "name": "Conditioning",
       "icon": "ability_racial_runningwild",
       "spellId": 1253887
     },
+    "122589": {
+      "name": "Conditioning",
+      "icon": "ability_racial_runningwild",
+      "spellId": 1253887
+    },
+    "128708": {
+      "name": "Scout's Vigil",
+      "icon": "sha_ability_rogue_bloodyeye",
+      "spellId": 1253892
+    },
     "109805": {
+      "name": "Radiant Edge",
+      "icon": "inv_misc_nightelfglaive",
+      "spellId": 1264903
+    },
+    "140818": {
       "name": "Radiant Edge",
       "icon": "inv_misc_nightelfglaive",
       "spellId": 1264903
@@ -467,7 +1002,17 @@
       "icon": "artifactability_balancedruid_moonandstars",
       "spellId": 1253732
     },
+    "122587": {
+      "name": "Lunar Storm",
+      "icon": "artifactability_balancedruid_moonandstars",
+      "spellId": 1253732
+    },
     "94985": {
+      "name": "Pack Mentality",
+      "icon": "spell_hunter_lonewolf",
+      "spellId": 472358
+    },
+    "122594": {
       "name": "Pack Mentality",
       "icon": "spell_hunter_lonewolf",
       "spellId": 472358
@@ -477,7 +1022,17 @@
       "icon": "inv_misc_horn_01",
       "spellId": 472352
     },
+    "122601": {
+      "name": "Dire Summons",
+      "icon": "inv_misc_horn_01",
+      "spellId": 472352
+    },
     "94962": {
+      "name": "Better Together",
+      "icon": "ability_hunter_pathfinding2",
+      "spellId": 472357
+    },
+    "122571": {
       "name": "Better Together",
       "icon": "ability_hunter_pathfinding2",
       "spellId": 472357
@@ -487,12 +1042,37 @@
       "icon": "ability_heroicleap",
       "spellId": 472719
     },
+    "122588": {
+      "name": "Slicked Shoes",
+      "icon": "ability_heroicleap",
+      "spellId": 472719
+    },
+    "128619": {
+      "name": "Masterful Call",
+      "icon": "ability_hunter_masterscall",
+      "spellId": 1268705
+    },
     "94972": {
       "name": "Ursine Fury",
       "icon": "spell_druid_bearhug",
       "spellId": 472476
     },
+    "122581": {
+      "name": "Ursine Fury",
+      "icon": "spell_druid_bearhug",
+      "spellId": 472476
+    },
+    "133164": {
+      "name": "Sharpened Claws",
+      "icon": "ability_druid_swipe",
+      "spellId": 472524
+    },
     "94984": {
+      "name": "Fury of the Wyvern",
+      "icon": "spell_druid_feralchargecat",
+      "spellId": 472550
+    },
+    "122593": {
       "name": "Fury of the Wyvern",
       "icon": "spell_druid_feralchargecat",
       "spellId": 472550
@@ -502,7 +1082,17 @@
       "icon": "inv_misc_boarshead",
       "spellId": 472639
     },
+    "122597": {
+      "name": "Hogstrider",
+      "icon": "inv_misc_boarshead",
+      "spellId": 472639
+    },
     "109803": {
+      "name": "Lethal Barbs",
+      "icon": "ability_hunter_criticalshot",
+      "spellId": 1264781
+    },
+    "140816": {
       "name": "Lethal Barbs",
       "icon": "ability_hunter_criticalshot",
       "spellId": 1264781
@@ -512,7 +1102,17 @@
       "icon": "ability_hunter_goforthethroat",
       "spellId": 472660
     },
+    "122578": {
+      "name": "No Mercy",
+      "icon": "ability_hunter_goforthethroat",
+      "spellId": 472660
+    },
     "94967": {
+      "name": "Shell Cover",
+      "icon": "inv_babyturtle2",
+      "spellId": 472707
+    },
+    "122576": {
       "name": "Shell Cover",
       "icon": "inv_babyturtle2",
       "spellId": 472707
@@ -522,12 +1122,32 @@
       "icon": "ability_hunter_beastwithin",
       "spellId": 1264797
     },
+    "140817": {
+      "name": "Hoof and Blade",
+      "icon": "ability_hunter_beastwithin",
+      "spellId": 1264797
+    },
+    "141009": {
+      "name": "Wyvern's Gaze",
+      "icon": "ability_deathwing_assualtaspects",
+      "spellId": 1264792
+    },
     "109802": {
       "name": "Sharpened Fangs",
       "icon": "inv_misc_monsterfang_02",
       "spellId": 1264775
     },
+    "140815": {
+      "name": "Sharpened Fangs",
+      "icon": "inv_misc_monsterfang_02",
+      "spellId": 1264775
+    },
     "94966": {
+      "name": "Stampede!",
+      "icon": "ability_hunter_bestialdiscipline",
+      "spellId": 472741
+    },
+    "122575": {
       "name": "Stampede!",
       "icon": "ability_hunter_bestialdiscipline",
       "spellId": 472741

@@ -139,44 +139,43 @@ def get_talent_differences(talent_diffs, points_available, valid_talents):
     dungeon_counts = {}
     total_count = 0
     talent_counts = {}
+    talent_ranks = {}
     dungeon_talent_counts = {}
-    for hero_talent_id, dungeon, talent_id, count in talent_diffs:
+    for row in talent_diffs:
+        hero_talent_id, dungeon, talent_id, count = row[:4]
+        avg_rank = row[4] if len(row)>4 else 1.0
+
         if int(talent_id) not in valid_talents:
             continue
         dungeon_counts[dungeon] = dungeon_counts.get(dungeon, 0) + int(count)
         talent_counts[talent_id] = talent_counts.get(talent_id, 0) + int(count)
         total_count += int(count)
+        talent_ranks[talent_id] = float(avg_rank or 1.0)
         dungeon_talent_counts[dungeon] = dungeon_talent_counts.get(dungeon, {})
         dungeon_talent_counts[dungeon][talent_id] = dungeon_talent_counts[dungeon].get(
             talent_id, 0
         ) + int(count)
     overall_talent_diffs["total_count"] = total_count
-    data_count = total_count / points_available if points_available else 1
+    data_count = max(talent_counts.values()) if talent_counts else 1
     overall_talent_diffs["data_count"] = data_count
     enriched_talent_counts = []
     for talent, count in talent_counts.items():
         enriched_talent_counts.append(
-            {"id": talent, "count": int(count), "pct": (int(count) / data_count) * 100}
+            {"id": talent, "count": int(count), "pct": (int(count) / data_count) * 100, "avg_rank": talent_ranks.get(talent, 1.0)}
         )
     overall_talent_diffs["overall_dungeon_talents"] = enriched_talent_counts
 
     enriched_dungeon_talent_counts = {}
     for dungeon, talents in dungeon_talent_counts.items():
         enriched_dungeon_talents = []
+        dungeon_data_count = max(talents.values()) if talents else 1
         for talent, count in talents.items():
             enriched_dungeon_talents.append(
                 {
                     "id": talent,
                     "count": int(count),
-                    "pct": (
-                        int(count)
-                        / (
-                            dungeon_counts[dungeon] / points_available
-                            if points_available
-                            else 1
-                        )
-                    )
-                    * 100,
+                    "pct": (int(count) / dungeon_data_count) * 100,
+                    "avg_rank": talent_ranks.get(talent, 1.0)
                 }
             )
         enriched_dungeon_talent_counts[dungeon] = enriched_dungeon_talents
@@ -292,7 +291,7 @@ def get_hero_tree_differences(conn, cursor, spec_id, current_season_id):
     total_count = 0
     dungeon_counts = {}
     data = {}
-    for hero_tree, dungeon, count in top_hero_tree_differences:
+    for hero_tree, dungeon, count, avg_rank in top_hero_tree_differences:
         overall_counts[hero_tree] = overall_counts.get(hero_tree, 0) + int(count)
         total_count += int(count)
         dungeon_counts[dungeon] = dungeon_counts.get(dungeon, 0) + int(count)

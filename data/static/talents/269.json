@@ -7,7 +7,17 @@
       "icon": "ability_monk_soothingmists",
       "spellId": 115175
     },
+    "129771": {
+      "name": "Soothing Mist",
+      "icon": "ability_monk_soothingmists",
+      "spellId": 115175
+    },
     "101144": {
+      "name": "Elusive Mists",
+      "icon": "ability_monk_soothingmists",
+      "spellId": 388681
+    },
+    "129772": {
       "name": "Elusive Mists",
       "icon": "ability_monk_soothingmists",
       "spellId": 388681
@@ -17,12 +27,32 @@
       "icon": "ability_monk_tigerslust",
       "spellId": 116841
     },
+    "129775": {
+      "name": "Tiger's Lust",
+      "icon": "ability_monk_tigerslust",
+      "spellId": 116841
+    },
     "101149": {
       "name": "Crashing Momentum",
       "icon": "ability_monk_blackoutkick",
       "spellId": 450335
     },
+    "129778": {
+      "name": "Crashing Momentum",
+      "icon": "ability_monk_blackoutkick",
+      "spellId": 450335
+    },
+    "129777": {
+      "name": "Disable",
+      "icon": "ability_shockwave",
+      "spellId": 116095
+    },
     "101185": {
+      "name": "Fast Feet",
+      "icon": "ability_monk_risingsunkick",
+      "spellId": 388809
+    },
+    "129822": {
       "name": "Fast Feet",
       "icon": "ability_monk_risingsunkick",
       "spellId": 388809
@@ -32,7 +62,17 @@
       "icon": "monk_ability_cherrymanatea",
       "spellId": 388811
     },
+    "129774": {
+      "name": "Grace of the Crane",
+      "icon": "monk_ability_cherrymanatea",
+      "spellId": 388811
+    },
     "101161": {
+      "name": "Bounding Agility",
+      "icon": "ability_monk_roll",
+      "spellId": 450520
+    },
+    "129793": {
       "name": "Bounding Agility",
       "icon": "ability_monk_roll",
       "spellId": 450520
@@ -42,7 +82,17 @@
       "icon": "inv_misc_orb_01",
       "spellId": 388664
     },
+    "129782": {
+      "name": "Calming Presence",
+      "icon": "inv_misc_orb_01",
+      "spellId": 388664
+    },
     "101148": {
+      "name": "Wind's Reach",
+      "icon": "ability_monk_zenflight",
+      "spellId": 450514
+    },
+    "129776": {
       "name": "Wind's Reach",
       "icon": "ability_monk_zenflight",
       "spellId": 450514
@@ -52,7 +102,17 @@
       "icon": "ability_rogue_imrovedrecuperate",
       "spellId": 218164
     },
+    "129779": {
+      "name": "Detox",
+      "icon": "ability_rogue_imrovedrecuperate",
+      "spellId": 218164
+    },
     "110023": {
+      "name": "Vivacious Vivification",
+      "icon": "ability_monk_vivify",
+      "spellId": 388812
+    },
+    "141288": {
       "name": "Vivacious Vivification",
       "icon": "ability_monk_vivify",
       "spellId": 388812
@@ -62,7 +122,17 @@
       "icon": "spell_monk_zenpilgrimage",
       "spellId": 1266719
     },
+    "141290": {
+      "name": "Silent Sanctuary",
+      "icon": "spell_monk_zenpilgrimage",
+      "spellId": 1266719
+    },
     "101160": {
+      "name": "Jade Walk",
+      "icon": "spell_lifegivingspeed",
+      "spellId": 450553
+    },
+    "129792": {
       "name": "Jade Walk",
       "icon": "spell_lifegivingspeed",
       "spellId": 450553
@@ -72,7 +142,17 @@
       "icon": "ability_monk_deadlyreach",
       "spellId": 450432
     },
+    "129769": {
+      "name": "Pressure Points",
+      "icon": "ability_monk_deadlyreach",
+      "spellId": 450432
+    },
     "110098": {
+      "name": "Spear Hand Strike",
+      "icon": "ability_monk_spearhand",
+      "spellId": 116705
+    },
+    "141372": {
       "name": "Spear Hand Strike",
       "icon": "ability_monk_spearhand",
       "spellId": 116705
@@ -82,7 +162,17 @@
       "icon": "ability_monk_quipunch",
       "spellId": 1266740
     },
+    "141293": {
+      "name": "Reinvigoration",
+      "icon": "ability_monk_quipunch",
+      "spellId": 1266740
+    },
     "101184": {
+      "name": "Ancient Arts",
+      "icon": "ability_monk_dpsstance",
+      "spellId": 344359
+    },
+    "129821": {
       "name": "Ancient Arts",
       "icon": "ability_monk_dpsstance",
       "spellId": 344359
@@ -92,7 +182,17 @@
       "icon": "ability_mount_siberiantigermount",
       "spellId": 1272781
     },
+    "129791": {
+      "name": "Tiger Fang",
+      "icon": "ability_mount_siberiantigermount",
+      "spellId": 1272781
+    },
     "101167": {
+      "name": "Transcendence",
+      "icon": "monk_ability_transcendence",
+      "spellId": 101643
+    },
+    "129800": {
       "name": "Transcendence",
       "icon": "monk_ability_transcendence",
       "spellId": 101643
@@ -102,12 +202,32 @@
       "icon": "monk_ability_avertharm",
       "spellId": 450631
     },
+    "141369": {
+      "name": "Energy Transfer",
+      "icon": "monk_ability_avertharm",
+      "spellId": 450631
+    },
     "101183": {
       "name": "Celerity",
       "icon": "ability_monk_quipunch",
       "spellId": 115173
     },
+    "129820": {
+      "name": "Celerity",
+      "icon": "ability_monk_quipunch",
+      "spellId": 115173
+    },
+    "129819": {
+      "name": "Chi Torpedo",
+      "icon": "ability_monk_quitornado",
+      "spellId": 115008
+    },
     "110025": {
+      "name": "Stillstep Coil",
+      "icon": "inv_helm_leather_raidmonkprogenitormythic_d_01",
+      "spellId": 1266733
+    },
+    "141291": {
       "name": "Stillstep Coil",
       "icon": "inv_helm_leather_raidmonkprogenitormythic_d_01",
       "spellId": 1266733
@@ -117,7 +237,22 @@
       "icon": "ability_monk_hurricanestrike",
       "spellId": 450503
     },
+    "129789": {
+      "name": "Quick Footed",
+      "icon": "ability_monk_hurricanestrike",
+      "spellId": 450503
+    },
+    "129788": {
+      "name": "Hasty Provocation",
+      "icon": "ability_monk_provoke",
+      "spellId": 328670
+    },
     "101166": {
+      "name": "Ferocity of Xuen",
+      "icon": "ability_mount_pinktiger",
+      "spellId": 388674
+    },
+    "129799": {
       "name": "Ferocity of Xuen",
       "icon": "ability_mount_pinktiger",
       "spellId": 388674
@@ -127,7 +262,22 @@
       "icon": "spell_monk_ringofpeace",
       "spellId": 116844
     },
+    "129764": {
+      "name": "Ring of Peace",
+      "icon": "spell_monk_ringofpeace",
+      "spellId": 116844
+    },
+    "129763": {
+      "name": "Song of Chi-Ji",
+      "icon": "inv_chaos_orb",
+      "spellId": 198898
+    },
     "101138": {
+      "name": "Spirit's Essence",
+      "icon": "spell_shaman_spectraltransformation",
+      "spellId": 450595
+    },
+    "129766": {
       "name": "Spirit's Essence",
       "icon": "spell_shaman_spectraltransformation",
       "spellId": 450595
@@ -137,7 +287,17 @@
       "icon": "ability_monk_legsweep",
       "spellId": 264348
     },
+    "129818": {
+      "name": "Tiger Tail Sweep",
+      "icon": "ability_monk_legsweep",
+      "spellId": 264348
+    },
     "101140": {
+      "name": "Improved Touch of Death",
+      "icon": "ability_monk_touchofdeath",
+      "spellId": 322113
+    },
+    "129768": {
       "name": "Improved Touch of Death",
       "icon": "ability_monk_touchofdeath",
       "spellId": 322113
@@ -147,7 +307,17 @@
       "icon": "ability_monk_expelharm",
       "spellId": 392900
     },
+    "141284": {
+      "name": "Vigorous Expulsion",
+      "icon": "ability_monk_expelharm",
+      "spellId": 392900
+    },
     "101165": {
+      "name": "Yu'lon's Grace",
+      "icon": "ability_monk_dragonkick",
+      "spellId": 414131
+    },
+    "129798": {
       "name": "Yu'lon's Grace",
       "icon": "ability_monk_dragonkick",
       "spellId": 414131
@@ -157,7 +327,17 @@
       "icon": "inv_inscription_deck_redcrane",
       "spellId": 450448
     },
+    "129795": {
+      "name": "Peace and Prosperity",
+      "icon": "inv_inscription_deck_redcrane",
+      "spellId": 450448
+    },
     "101173": {
+      "name": "Fortifying Brew",
+      "icon": "ability_monk_fortifyingale_new",
+      "spellId": 388917
+    },
+    "129806": {
       "name": "Fortifying Brew",
       "icon": "ability_monk_fortifyingale_new",
       "spellId": 388917
@@ -167,7 +347,17 @@
       "icon": "ability_monk_dematerialize",
       "spellId": 432181
     },
+    "129765": {
+      "name": "Dance of the Wind",
+      "icon": "ability_monk_dematerialize",
+      "spellId": 432181
+    },
     "101157": {
+      "name": "Save Them All",
+      "icon": "inv_weapon_hand_22",
+      "spellId": 389579
+    },
+    "129787": {
       "name": "Save Them All",
       "icon": "inv_weapon_hand_22",
       "spellId": 389579
@@ -177,12 +367,32 @@
       "icon": "ability_monk_standingkick",
       "spellId": 450622
     },
+    "129785": {
+      "name": "Swift Art",
+      "icon": "ability_monk_standingkick",
+      "spellId": 450622
+    },
     "110022": {
       "name": "Strength of Spirit",
       "icon": "ability_monk_healthsphere",
       "spellId": 387276
     },
+    "141287": {
+      "name": "Strength of Spirit",
+      "icon": "ability_monk_healthsphere",
+      "spellId": 387276
+    },
+    "141286": {
+      "name": "Profound Rebuttal",
+      "icon": "ability_monk_expelharm",
+      "spellId": 392910
+    },
     "101162": {
+      "name": "Zenith Stomp",
+      "icon": "inv_ability_monk_jadefirestomp",
+      "spellId": 1272694
+    },
+    "129794": {
       "name": "Zenith Stomp",
       "icon": "inv_ability_monk_jadefirestomp",
       "spellId": 1272694
@@ -192,7 +402,22 @@
       "icon": "ability_monk_fortifyingale_new",
       "spellId": 388814
     },
+    "129808": {
+      "name": "Ironshell Brew",
+      "icon": "ability_monk_fortifyingale_new",
+      "spellId": 388814
+    },
+    "129807": {
+      "name": "Expeditious Fortification",
+      "icon": "ability_monk_fortifyingale_new",
+      "spellId": 388813
+    },
     "108540": {
+      "name": "Diffuse Magic",
+      "icon": "spell_monk_diffusemagic",
+      "spellId": 1243287
+    },
+    "138812": {
       "name": "Diffuse Magic",
       "icon": "spell_monk_diffusemagic",
       "spellId": 1243287
@@ -202,7 +427,17 @@
       "icon": "ability_monk_essencefont",
       "spellId": 450638
     },
+    "129815": {
+      "name": "Celestial Determination",
+      "icon": "ability_monk_essencefont",
+      "spellId": 450638
+    },
     "101169": {
+      "name": "Chi Proficiency",
+      "icon": "ability_monk_chiswirl",
+      "spellId": 450426
+    },
+    "129802": {
       "name": "Chi Proficiency",
       "icon": "ability_monk_chiswirl",
       "spellId": 450426
@@ -212,7 +447,17 @@
       "icon": "ability_monk_pathofmists",
       "spellId": 450560
     },
+    "129804": {
+      "name": "Healing Winds",
+      "icon": "ability_monk_pathofmists",
+      "spellId": 450560
+    },
     "101175": {
+      "name": "Windwalking",
+      "icon": "monk_stance_whitetiger",
+      "spellId": 157411
+    },
+    "129809": {
       "name": "Windwalking",
       "icon": "monk_stance_whitetiger",
       "spellId": 157411
@@ -222,7 +467,17 @@
       "icon": "ability_monk_zenmeditation",
       "spellId": 1272452
     },
+    "129812": {
+      "name": "Chi Transfer",
+      "icon": "ability_monk_zenmeditation",
+      "spellId": 1272452
+    },
     "101179": {
+      "name": "Martial Instincts",
+      "icon": "ability_monk_palmstrike",
+      "spellId": 450427
+    },
+    "129814": {
       "name": "Martial Instincts",
       "icon": "ability_monk_palmstrike",
       "spellId": 450427
@@ -232,7 +487,17 @@
       "icon": "ability_monk_ridethewind",
       "spellId": 449582
     },
+    "129801": {
+      "name": "Lighter Than Air",
+      "icon": "ability_monk_ridethewind",
+      "spellId": 449582
+    },
     "101170": {
+      "name": "Flow of Chi",
+      "icon": "ability_monk_healthsphere",
+      "spellId": 450569
+    },
+    "129803": {
       "name": "Flow of Chi",
       "icon": "ability_monk_healthsphere",
       "spellId": 450569
@@ -242,7 +507,22 @@
       "icon": "monk_ability_transcendence",
       "spellId": 394110
     },
+    "129811": {
+      "name": "Escape from Reality",
+      "icon": "monk_ability_transcendence",
+      "spellId": 394110
+    },
+    "129810": {
+      "name": "Transcendence: Linked Spirits",
+      "icon": "monk_ability_transcendence",
+      "spellId": 434774
+    },
     "101178": {
+      "name": "Fatal Touch",
+      "icon": "ability_monk_touchofdeath",
+      "spellId": 394123
+    },
+    "129813": {
       "name": "Fatal Touch",
       "icon": "ability_monk_touchofdeath",
       "spellId": 394123
@@ -252,7 +532,17 @@
       "icon": "ability_monk_yulonsgift",
       "spellId": 450154
     },
+    "129784": {
+      "name": "Rushing Reflexes",
+      "icon": "ability_monk_yulonsgift",
+      "spellId": 450154
+    },
     "101218": {
+      "name": "Fists of Fury",
+      "icon": "monk_ability_fistoffury",
+      "spellId": 113656
+    },
+    "129864": {
       "name": "Fists of Fury",
       "icon": "monk_ability_fistoffury",
       "spellId": 113656
@@ -262,7 +552,17 @@
       "icon": "inv_belt_leather_raidmonk_n_01",
       "spellId": 451294
     },
+    "129658": {
+      "name": "Momentum Boost",
+      "icon": "inv_belt_leather_raidmonk_n_01",
+      "spellId": 451294
+    },
     "101217": {
+      "name": "Combat Wisdom",
+      "icon": "ability_monk_expelharm",
+      "spellId": 121817
+    },
+    "129863": {
       "name": "Combat Wisdom",
       "icon": "ability_monk_expelharm",
       "spellId": 121817
@@ -272,7 +572,17 @@
       "icon": "ability_monk_roundhousekick",
       "spellId": 261917
     },
+    "129644": {
+      "name": "Sharp Reflexes",
+      "icon": "ability_monk_roundhousekick",
+      "spellId": 261917
+    },
     "101049": {
+      "name": "Touch of the Tiger",
+      "icon": "ability_monk_tigerpalm",
+      "spellId": 388856
+    },
+    "129659": {
       "name": "Touch of the Tiger",
       "icon": "ability_monk_tigerpalm",
       "spellId": 388856
@@ -282,7 +592,17 @@
       "icon": "ability_mount_whitetiger",
       "spellId": 458623
     },
+    "129643": {
+      "name": "Ferociousness",
+      "icon": "ability_mount_whitetiger",
+      "spellId": 458623
+    },
     "101047": {
+      "name": "Hardened Soles",
+      "icon": "ability_monk_roundhousekick",
+      "spellId": 391383
+    },
+    "129657": {
       "name": "Hardened Soles",
       "icon": "ability_monk_roundhousekick",
       "spellId": 391383
@@ -292,7 +612,17 @@
       "icon": "ability_monk_ascension",
       "spellId": 115396
     },
+    "129645": {
+      "name": "Ascension",
+      "icon": "ability_monk_ascension",
+      "spellId": 115396
+    },
     "101055": {
+      "name": "Dual Threat",
+      "icon": "ability_monk_standingkick",
+      "spellId": 451823
+    },
+    "129666": {
       "name": "Dual Threat",
       "icon": "ability_monk_standingkick",
       "spellId": 451823
@@ -302,7 +632,17 @@
       "icon": "passive_monk_teachingsofmonastery",
       "spellId": 116645
     },
+    "129665": {
+      "name": "Teachings of the Monastery",
+      "icon": "passive_monk_teachingsofmonastery",
+      "spellId": 116645
+    },
     "101039": {
+      "name": "Glory of the Dawn",
+      "icon": "ability_monk_mightyoxkick",
+      "spellId": 392958
+    },
+    "129648": {
       "name": "Glory of the Dawn",
       "icon": "ability_monk_mightyoxkick",
       "spellId": 392958
@@ -312,7 +652,17 @@
       "icon": "ability_monk_cranekick_new",
       "spellId": 388848
     },
+    "129856": {
+      "name": "Crane Vortex",
+      "icon": "ability_monk_cranekick_new",
+      "spellId": 388848
+    },
     "101061": {
+      "name": "Meridian Strikes",
+      "icon": "ability_monk_touchofdeath",
+      "spellId": 391330
+    },
+    "129673": {
       "name": "Meridian Strikes",
       "icon": "ability_monk_touchofdeath",
       "spellId": 391330
@@ -322,7 +672,17 @@
       "icon": "ability_monk_risingsunkick",
       "spellId": 388849
     },
+    "129850": {
+      "name": "Rising Star",
+      "icon": "ability_monk_risingsunkick",
+      "spellId": 388849
+    },
     "101053": {
+      "name": "Zenith",
+      "icon": "inv_ability_monk_weaponsoforder",
+      "spellId": 1249625
+    },
+    "129664": {
       "name": "Zenith",
       "icon": "inv_ability_monk_weaponsoforder",
       "spellId": 1249625
@@ -332,7 +692,17 @@
       "icon": "ability_monk_palmstrike",
       "spellId": 196740
     },
+    "129861": {
+      "name": "Hit Combo",
+      "icon": "ability_monk_palmstrike",
+      "spellId": 196740
+    },
     "101038": {
+      "name": "Brawler's Intensity",
+      "icon": "inv_staff_2h_artifactmonkeyking_d_03",
+      "spellId": 451485
+    },
+    "129647": {
       "name": "Brawler's Intensity",
       "icon": "inv_staff_2h_artifactmonkeyking_d_03",
       "spellId": 451485
@@ -342,17 +712,47 @@
       "icon": "ability_monk_chiexplosion",
       "spellId": 392979
     },
+    "129660": {
+      "name": "Jade Ignition",
+      "icon": "ability_monk_chiexplosion",
+      "spellId": 392979
+    },
     "101057": {
       "name": "Cyclone's Drift",
       "icon": "ability_skyreach_wind",
       "spellId": 1248749
+    },
+    "129668": {
+      "name": "Cyclone's Drift",
+      "icon": "ability_skyreach_wind",
+      "spellId": 1248749
+    },
+    "139224": {
+      "name": "Crashing Fists",
+      "icon": "inv_fistofthewhitetiger",
+      "spellId": 1248747
     },
     "101052": {
       "name": "Drinking Horn Cover",
       "icon": "ability_warrior_unrelentingassault",
       "spellId": 391370
     },
+    "129663": {
+      "name": "Drinking Horn Cover",
+      "icon": "ability_warrior_unrelentingassault",
+      "spellId": 391370
+    },
+    "129662": {
+      "name": "Spiritual Focus",
+      "icon": "spell_nature_giftofthewild",
+      "spellId": 280197
+    },
     "101051": {
+      "name": "Obsidian Spiral",
+      "icon": "ability_monk_spherediscord",
+      "spellId": 1249832
+    },
+    "129661": {
       "name": "Obsidian Spiral",
       "icon": "ability_monk_spherediscord",
       "spellId": 1249832
@@ -362,7 +762,17 @@
       "icon": "pandarenracial_bouncy",
       "spellId": 137384
     },
+    "129860": {
+      "name": "Combo Breaker",
+      "icon": "pandarenracial_bouncy",
+      "spellId": 137384
+    },
     "101060": {
+      "name": "Dance of Chi-Ji",
+      "icon": "ability_monk_cranekick_new",
+      "spellId": 325201
+    },
+    "129672": {
       "name": "Dance of Chi-Ji",
       "icon": "ability_monk_cranekick_new",
       "spellId": 325201
@@ -372,12 +782,32 @@
       "icon": "ability_monk_roundhousekick",
       "spellId": 392982
     },
+    "129674": {
+      "name": "Shadowboxing Treads",
+      "icon": "ability_monk_roundhousekick",
+      "spellId": 392982
+    },
     "101207": {
       "name": "Strike of the Windlord",
       "icon": "inv_hand_1h_artifactskywall_d_01",
       "spellId": 392983
     },
+    "129852": {
+      "name": "Strike of the Windlord",
+      "icon": "inv_hand_1h_artifactskywall_d_01",
+      "spellId": 392983
+    },
+    "139223": {
+      "name": "Whirling Dragon Punch",
+      "icon": "ability_monk_hurricanestrike",
+      "spellId": 152175
+    },
     "101056": {
+      "name": "Energy Burst",
+      "icon": "ability_monk_blackoutstrike",
+      "spellId": 451498
+    },
+    "129667": {
       "name": "Energy Burst",
       "icon": "ability_monk_blackoutstrike",
       "spellId": 451498
@@ -387,7 +817,17 @@
       "icon": "ability_monk_jasmineforcetea",
       "spellId": 397768
     },
+    "129859": {
+      "name": "Inner Peace",
+      "icon": "ability_monk_jasmineforcetea",
+      "spellId": 397768
+    },
     "101059": {
+      "name": "Sequenced Strikes",
+      "icon": "ability_monk_sparring",
+      "spellId": 451515
+    },
+    "129671": {
       "name": "Sequenced Strikes",
       "icon": "ability_monk_sparring",
       "spellId": 451515
@@ -397,7 +837,17 @@
       "icon": "inv_helm_suncrown_d_01",
       "spellId": 1272415
     },
+    "129858": {
+      "name": "Sunfire Spiral",
+      "icon": "inv_helm_suncrown_d_01",
+      "spellId": 1272415
+    },
     "101041": {
+      "name": "Communion With Wind",
+      "icon": "ability_skyreach_four_wind",
+      "spellId": 451576
+    },
+    "129650": {
       "name": "Communion With Wind",
       "icon": "ability_skyreach_four_wind",
       "spellId": 451576
@@ -407,7 +857,22 @@
       "icon": "ability_monk_chiswirl",
       "spellId": 451524
     },
+    "129848": {
+      "name": "Revolving Whirl",
+      "icon": "ability_monk_chiswirl",
+      "spellId": 451524
+    },
+    "129847": {
+      "name": "Echo Technique",
+      "icon": "ability_monk_cranekick",
+      "spellId": 1250042
+    },
     "101046": {
+      "name": "Universal Energy",
+      "icon": "ability_monk_chiswirl",
+      "spellId": 1272175
+    },
+    "129656": {
       "name": "Universal Energy",
       "icon": "ability_monk_chiswirl",
       "spellId": 1272175
@@ -417,7 +882,17 @@
       "icon": "ability_mount_goatmountwhite",
       "spellId": 454969
     },
+    "129854": {
+      "name": "Memory of the Monastery",
+      "icon": "ability_mount_goatmountwhite",
+      "spellId": 454969
+    },
     "108946": {
+      "name": "Rushing Wind Kick",
+      "icon": "inv12_ability_monk_rushingwindkick",
+      "spellId": 1250566
+    },
+    "139311": {
       "name": "Rushing Wind Kick",
       "icon": "inv12_ability_monk_rushingwindkick",
       "spellId": 1250566
@@ -427,7 +902,17 @@
       "icon": "monk_stance_whitetiger",
       "spellId": 392993
     },
+    "129855": {
+      "name": "Xuen's Battlegear",
+      "icon": "monk_stance_whitetiger",
+      "spellId": 392993
+    },
     "101040": {
+      "name": "Thunderfist",
+      "icon": "inv_hand_1h_artifactskywall_d_01",
+      "spellId": 392985
+    },
+    "129649": {
       "name": "Thunderfist",
       "icon": "inv_hand_1h_artifactskywall_d_01",
       "spellId": 392985
@@ -437,7 +922,17 @@
       "icon": "inv_tradeskillitem_sorcererswind_tong",
       "spellId": 1272678
     },
+    "129851": {
+      "name": "Weapon of Wind",
+      "icon": "inv_tradeskillitem_sorcererswind_tong",
+      "spellId": 1272678
+    },
     "101212": {
+      "name": "Knowledge of the Broken Temple",
+      "icon": "inv_glove_leather_pvpmonk_f_01",
+      "spellId": 451529
+    },
+    "129857": {
       "name": "Knowledge of the Broken Temple",
       "icon": "inv_glove_leather_pvpmonk_f_01",
       "spellId": 451529
@@ -447,7 +942,17 @@
       "icon": "ability_skyreach_wind_wall",
       "spellId": 1217413
     },
+    "131133": {
+      "name": "Slicing Winds",
+      "icon": "ability_skyreach_wind_wall",
+      "spellId": 1217413
+    },
     "101045": {
+      "name": "Jadefire Stomp",
+      "icon": "inv_ability_monk_jadefirestomp",
+      "spellId": 457974
+    },
+    "129655": {
       "name": "Jadefire Stomp",
       "icon": "inv_ability_monk_jadefirestomp",
       "spellId": 457974
@@ -457,7 +962,17 @@
       "icon": "inv_1115_warrior_kick",
       "spellId": 1248704
     },
+    "133513": {
+      "name": "Skyfire Heel",
+      "icon": "inv_1115_warrior_kick",
+      "spellId": 1248704
+    },
     "104129": {
+      "name": "Harmonic Combo",
+      "icon": "ability_monk_serenity",
+      "spellId": 1250041
+    },
+    "133514": {
       "name": "Harmonic Combo",
       "icon": "ability_monk_serenity",
       "spellId": 1250041
@@ -467,7 +982,17 @@
       "icon": "monk_stance_whitetiger",
       "spellId": 452137
     },
+    "129849": {
+      "name": "Flurry of Xuen",
+      "icon": "monk_stance_whitetiger",
+      "spellId": 452137
+    },
     "101208": {
+      "name": "Martial Agility",
+      "icon": "ability_monk_dpsstance",
+      "spellId": 1272685
+    },
+    "129853": {
       "name": "Martial Agility",
       "icon": "ability_monk_dpsstance",
       "spellId": 1272685
@@ -477,22 +1002,72 @@
       "icon": "inv_tradeskillitem_sorcererswind_tong",
       "spellId": 1248833
     },
+    "129653": {
+      "name": "Airborne Rhythm",
+      "icon": "inv_tradeskillitem_sorcererswind_tong",
+      "spellId": 1248833
+    },
+    "129652": {
+      "name": "Hurricane's Vault",
+      "icon": "ability_druid_galewinds",
+      "spellId": 1248837
+    },
     "101044": {
       "name": "Path of Jade",
       "icon": "achievement_zone_jadeforest",
       "spellId": 392994
+    },
+    "129654": {
+      "name": "Path of Jade",
+      "icon": "achievement_zone_jadeforest",
+      "spellId": 392994
+    },
+    "130858": {
+      "name": "Singularly Focused Jade",
+      "icon": "ability_monk_fortuneturned",
+      "spellId": 451573
     },
     "110436": {
       "name": "Tigereye Brew",
       "icon": "inv12_apextalent_monk_tigereyebrew",
       "spellId": 1261703
     },
+    "141840": {
+      "name": "Tigereye Brew",
+      "icon": "inv12_apextalent_monk_tigereyebrew",
+      "spellId": 1261703
+    },
+    "141841": {
+      "name": "Tigereye Brew",
+      "icon": "inv12_apextalent_monk_tigereyebrew",
+      "spellId": 1261844
+    },
+    "141842": {
+      "name": "Tigereye Brew",
+      "icon": "inv12_apextalent_monk_tigereyebrew",
+      "spellId": 1261849
+    },
     "101247": {
       "name": "Pride of Pandaria",
       "icon": "inv_staff_2h_pandarenmonk_c_01",
       "spellId": 450979
     },
+    "129900": {
+      "name": "Pride of Pandaria",
+      "icon": "inv_staff_2h_pandarenmonk_c_01",
+      "spellId": 450979
+    },
+    "129899": {
+      "name": "High Impact",
+      "icon": "ability_monk_powerstrikes",
+      "spellId": 450982
+    },
     "101249": {
+      "name": "Veteran's Eye",
+      "icon": "ability_monk_provoke",
+      "spellId": 450987
+    },
+    "129902": {
       "name": "Veteran's Eye",
       "icon": "ability_monk_provoke",
       "spellId": 450987
@@ -502,7 +1077,17 @@
       "icon": "ability_monk_jab",
       "spellId": 450990
     },
+    "129898": {
+      "name": "Martial Precision",
+      "icon": "ability_monk_jab",
+      "spellId": 450990
+    },
     "109697": {
+      "name": "Shado Over the Battlefield",
+      "icon": "inv_elemental_primal_shadow",
+      "spellId": 1262612
+    },
+    "140710": {
       "name": "Shado Over the Battlefield",
       "icon": "inv_elemental_primal_shadow",
       "spellId": 1262612
@@ -512,7 +1097,22 @@
       "icon": "ability_monk_provoke",
       "spellId": 442743
     },
+    "129886": {
+      "name": "Temple Training",
+      "icon": "ability_monk_provoke",
+      "spellId": 442743
+    },
+    "129885": {
+      "name": "Xuen's Guidance",
+      "icon": "ability_monk_dpsstance",
+      "spellId": 442687
+    },
     "101242": {
+      "name": "Courage of the White Tiger",
+      "icon": "ability_monk_summontigerstatue",
+      "spellId": 443087
+    },
+    "129893": {
       "name": "Courage of the White Tiger",
       "icon": "ability_monk_summontigerstatue",
       "spellId": 443087
@@ -522,7 +1122,22 @@
       "icon": "ability_monk_chiexplosion",
       "spellId": 442719
     },
+    "141531": {
+      "name": "Restore Balance",
+      "icon": "ability_monk_chiexplosion",
+      "spellId": 442719
+    },
+    "141516": {
+      "name": "Xuen's Bond",
+      "icon": "ability_demonhunter_netherbond",
+      "spellId": 392986
+    },
     "109701": {
+      "name": "Heart of the Jade Serpent",
+      "icon": "ability_monk_dragonkick",
+      "spellId": 443294
+    },
+    "140714": {
       "name": "Heart of the Jade Serpent",
       "icon": "ability_monk_dragonkick",
       "spellId": 443294
@@ -532,7 +1147,22 @@
       "icon": "ability_monk_roll",
       "spellId": 1272844
     },
+    "129908": {
+      "name": "Combat Stance",
+      "icon": "ability_monk_roll",
+      "spellId": 1272844
+    },
+    "129907": {
+      "name": "Initiator's Edge",
+      "icon": "crest_monk",
+      "spellId": 1272849
+    },
     "101250": {
+      "name": "One Versus Many",
+      "icon": "ability_monk_chargingoxwave",
+      "spellId": 450988
+    },
+    "129903": {
       "name": "One Versus Many",
       "icon": "ability_monk_chargingoxwave",
       "spellId": 450988
@@ -542,7 +1172,22 @@
       "icon": "ability_whirlwind",
       "spellId": 450991
     },
+    "129897": {
+      "name": "Whirling Steel",
+      "icon": "ability_whirlwind",
+      "spellId": 450991
+    },
+    "129896": {
+      "name": "Predictive Training",
+      "icon": "ability_monk_domeofmist",
+      "spellId": 450992
+    },
     "109698": {
+      "name": "Stand Ready",
+      "icon": "ability_monk_sparring",
+      "spellId": 1262603
+    },
+    "140711": {
       "name": "Stand Ready",
       "icon": "ability_monk_sparring",
       "spellId": 1262603
@@ -552,7 +1197,17 @@
       "icon": "inv_shoulder_leather_raidmonkemerald_d_01",
       "spellId": 443566
     },
+    "129887": {
+      "name": "Chi-Ji's Swiftness",
+      "icon": "inv_shoulder_leather_raidmonkemerald_d_01",
+      "spellId": 443566
+    },
     "110211": {
+      "name": "Strength of the Black Ox",
+      "icon": "ability_monk_chargingoxwave",
+      "spellId": 443110
+    },
+    "141519": {
       "name": "Strength of the Black Ox",
       "icon": "ability_monk_chargingoxwave",
       "spellId": 443110
@@ -562,7 +1217,17 @@
       "icon": "ability_monk_chiswirl",
       "spellId": 1273154
     },
+    "129882": {
+      "name": "Path of the Falling Star",
+      "icon": "ability_monk_chiswirl",
+      "spellId": 1273154
+    },
     "110218": {
+      "name": "Yu'lon's Avatar",
+      "icon": "inv_celestialserpentmount_jade",
+      "spellId": 1262667
+    },
+    "141526": {
       "name": "Yu'lon's Avatar",
       "icon": "inv_celestialserpentmount_jade",
       "spellId": 1262667
@@ -572,7 +1237,17 @@
       "icon": "achievement_legionpvp6tier1",
       "spellId": 450986
     },
+    "129906": {
+      "name": "Against All Odds",
+      "icon": "achievement_legionpvp6tier1",
+      "spellId": 450986
+    },
     "101251": {
+      "name": "Efficient Training",
+      "icon": "inv_fistofthewhitetiger",
+      "spellId": 450989
+    },
+    "129904": {
       "name": "Efficient Training",
       "icon": "inv_fistofthewhitetiger",
       "spellId": 450989
@@ -582,7 +1257,17 @@
       "icon": "ability_rogue_masterofsubtlety",
       "spellId": 450993
     },
+    "129895": {
+      "name": "Vigilant Watch",
+      "icon": "ability_rogue_masterofsubtlety",
+      "spellId": 450993
+    },
     "109699": {
+      "name": "Weapons of the Wall",
+      "icon": "misc_legionfall_monk",
+      "spellId": 1262610
+    },
+    "140712": {
       "name": "Weapons of the Wall",
       "icon": "misc_legionfall_monk",
       "spellId": 1262610
@@ -592,7 +1277,22 @@
       "icon": "ability_monk_chargingoxwave",
       "spellId": 442747
     },
+    "129889": {
+      "name": "Niuzao's Protection",
+      "icon": "ability_monk_chargingoxwave",
+      "spellId": 442747
+    },
+    "129888": {
+      "name": "Jade Sanctuary",
+      "icon": "ability_monk_jadeserpentbreath",
+      "spellId": 443059
+    },
     "110220": {
+      "name": "Celestial Conduit",
+      "icon": "inv_ability_conduitofthecelestialsmonk_celestialconduit",
+      "spellId": 1248989
+    },
+    "141517": {
       "name": "Celestial Conduit",
       "icon": "inv_ability_conduitofthecelestialsmonk_celestialconduit",
       "spellId": 1248989
@@ -602,7 +1302,17 @@
       "icon": "inv_10_dungeonjewelry_explorer_trinket_1compass_color2",
       "spellId": 443571
     },
+    "129884": {
+      "name": "Inner Compass",
+      "icon": "inv_10_dungeonjewelry_explorer_trinket_1compass_color2",
+      "spellId": 443571
+    },
     "109700": {
+      "name": "Flowing Wisdom",
+      "icon": "ability_monk_flyingdragonkick",
+      "spellId": 1262672
+    },
+    "140713": {
       "name": "Flowing Wisdom",
       "icon": "ability_monk_flyingdragonkick",
       "spellId": 1262672
@@ -612,7 +1322,17 @@
       "icon": "inv_legendary_sigilofwisdom",
       "spellId": 1272821
     },
+    "129905": {
+      "name": "Wisdom of the Wall",
+      "icon": "inv_legendary_sigilofwisdom",
+      "spellId": 1272821
+    },
     "101239": {
+      "name": "Unity Within",
+      "icon": "ability_monk_prideofthetiger",
+      "spellId": 443589
+    },
+    "129890": {
       "name": "Unity Within",
       "icon": "ability_monk_prideofthetiger",
       "spellId": 443589

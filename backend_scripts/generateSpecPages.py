@@ -227,6 +227,186 @@ def format_duration(ms):
 # helpers
 
 
+def build_ui_tree(nodes, pop_data, is_hero=False, pop_hero_tree_id=None):
+    if not nodes:
+        return {"nodes": [], "edges": []}
+        
+    if is_hero and pop_hero_tree_id is not None:
+        nodes = [n for n in nodes if n.get("subTreeId") == pop_hero_tree_id]
+
+    pop_map = {}
+    pop_avg_ranks = {}
+    pop_count_map = {}
+    total_data_count = 0
+    if isinstance(pop_data, dict):
+        total_data_count = pop_data.get("data_count", 0)
+        for t in pop_data.get("overall_dungeon_talents", []):
+            pop_map[int(t["id"])] = float(t.get("pct", 0.0))
+            pop_avg_ranks[int(t["id"])] = float(t.get("avg_rank", 1.0))
+            pop_count_map[int(t["id"])] = int(t.get("count", 0))
+
+    if not nodes:
+        return {"nodes": [], "edges": []}
+
+    min_x = min((n.get("posX", 0) for n in nodes), default=0)
+    max_x = max((n.get("posX", 0) for n in nodes), default=0)
+    min_y = min((n.get("posY", 0) for n in nodes), default=0)
+    max_y = max((n.get("posY", 0) for n in nodes), default=0)
+    
+    # Padding
+    min_x -= 150
+    max_x += 150
+    min_y -= 150
+    max_y += 150
+    
+    w = max_x - min_x
+    h = max_y - min_y
+    if w <= 0: w = 1
+    if h <= 0: h = 1
+
+    node_map = {n["id"]: n for n in nodes if "id" in n}
+    ui_nodes = []
+    
+    for n in nodes:
+        if "id" not in n: continue
+        
+        pct = pop_map.get(n["id"], 0.0)
+        count = pop_count_map.get(n["id"], 0)
+        
+        entries = n.get("entries", [])
+        node_choices = []
+        total_entry_pct = 0.0
+        
+        for e in entries:
+            e_pct = pop_map.get(e.get("definitionId"), 0.0)
+            e_count = pop_count_map.get(e.get("definitionId"), 0)
+            if e_pct == 0.0 and e.get("id"):
+                e_pct = pop_map.get(e["id"], 0.0)
+                e_count = pop_count_map.get(e["id"], 0)
+            if e_pct == 0.0 and e.get("spellId"):
+                e_pct = pop_map.get(e["spellId"], 0.0)
+                e_count = pop_count_map.get(e["spellId"], 0)
+            
+            total_entry_pct += e_pct
+            node_choices.append({
+                "name": e.get("name", ""),
+                "icon": e.get("icon", ""),
+                "pct": min(e_pct, 100.0),
+                "count": e_count,
+                "spellId": e.get("spellId", 0),
+                "maxRanks": e.get("maxRanks", 1)
+            })
+            
+        if entries and pct == 0.0:
+            pct = total_entry_pct
+            count = sum(c["count"] for c in node_choices)
+            
+        pct = min(pct, 100.0)
+
+        if n.get("freeNode") is True:
+            pct = 100.0
+            count = total_data_count
+
+        n_type = n.get("type", "passive")
+        max_ranks = n.get("maxRanks", 1)
+        
+        # if n_type == "tiered":
+        #     n_type = "passive"
+
+        if n_type != "tiered" and len(entries) > 1:
+            n_type = "choice"
+        elif n_type != "tiered" and entries:
+            n_type = entries[0].get("type", n_type)
+
+        if is_hero and n_type != "choice":
+            continue
+
+        icon = "inv_misc_questionmark"
+        spell_id = 0
+
+        if n_type == "choice" and len(node_choices) > 0:
+            best_choice = max(node_choices, key=lambda x: x["pct"])
+            icon = best_choice["icon"] or "inv_misc_questionmark"
+            spell_id = best_choice["spellId"]
+        elif entries:
+            icon = entries[0].get("icon", "inv_misc_questionmark")
+            spell_id = entries[0].get("spellId", 0)
+
+        if n_type == "choice" and count == 0:
+            count = sum(c["count"] for c in node_choices)
+
+        avg_rank = pop_avg_ranks.get(n["id"], 0.0)
+        
+        # If no avg_rank is explicitly mapped, look for it in the entries
+        if avg_rank == 0.0 and entries:
+            # Gather valid mapped entries
+            valid_e_ranks = [
+                pop_avg_ranks.get(e.get("definitionId"), 0.0) or 
+                pop_avg_ranks.get(e.get("id"), 0.0) or 
+                pop_avg_ranks.get(e.get("spellId"), 0.0) 
+                for e in entries
+            ]
+            valid_e_ranks = [r for r in valid_e_ranks if r > 0.0]
+            if valid_e_ranks:
+                if n_type == "tiered":
+                    avg_rank = max(valid_e_ranks)
+                else:
+                    avg_rank = sum(valid_e_ranks) / len(valid_e_ranks)
+
+        if avg_rank == 0.0:
+            avg_rank = float(max_ranks)
+
+        ui_nodes.append({
+            "id": n["id"],
+            "left": (n.get("posX", 0) - min_x) / w * 100,
+            "top": (n.get("posY", 0) - min_y) / h * 100,
+            "pct": "{:.1f}".format(pct),
+            "pct_val": pct,
+            "count": count,
+            "total_count": total_data_count,
+            "icon": icon,
+            "spellId": spell_id,
+            "type": n_type,
+            "maxRanks": max_ranks,
+            "avgRank": avg_rank,
+            "isFreeNode": n.get("freeNode", False),
+            "choices": sorted(node_choices, key=lambda x: x["pct"], reverse=True) if n_type == "choice" else (node_choices if n_type == "tiered" else [])
+        })
+
+    ui_edges = []
+    if not is_hero:
+        for n in nodes:
+            if "id" not in n: continue
+            
+            start_x = (n.get("posX", 0) - min_x) / w * 100
+            start_y = (n.get("posY", 0) - min_y) / h * 100
+            
+            start_pct = pop_map.get(n["id"], 0.0)
+            if start_pct == 0.0 and n.get("entries"):
+                start_pct = sum([pop_map.get(e.get("definitionId"), 0.0) or pop_map.get(e.get("id"), 0.0) or pop_map.get(e.get("spellId"), 0.0) for e in n["entries"]])
+            
+            for child_id in n.get("next", []):
+                child = node_map.get(child_id)
+                if not child: continue
+                
+                child_pct = pop_map.get(child_id, 0.0)
+                if child_pct == 0.0 and child.get("entries"):
+                    child_pct = sum([pop_map.get(e.get("definitionId"), 0.0) or pop_map.get(e.get("id"), 0.0) or pop_map.get(e.get("spellId"), 0.0) for e in child["entries"]])
+                    
+                end_x = (child.get("posX", 0) - min_x) / w * 100
+                end_y = (child.get("posY", 0) - min_y) / h * 100
+                
+                is_active = (start_pct >= 1.0 and child_pct >= 1.0)
+                
+                ui_edges.append({
+                    "x1": start_x, "y1": start_y,
+                    "x2": end_x, "y2": end_y,
+                    "active": is_active
+                })
+
+    return {"nodes": ui_nodes, "edges": ui_edges}
+
+
 def escape_raidbot_code(code):
     """ """
     loadout = {}
@@ -623,6 +803,8 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
 
     # Load lookup tables
     enchant_lookup_all = load_json(os.path.join(LOOKUP_DIR, "enchantments.json"))
+    talents_tree_data = load_json(os.path.join(LOOKUP_DIR, "talents.json"))
+    tree_by_spec = {t.get("specId"): t for t in talents_tree_data if t.get("specId")}
     embellishment_lookup = load_json(os.path.join(LOOKUP_DIR, "embellishments.json"))
     missive_lookup = load_json(os.path.join(LOOKUP_DIR, "missives.json"))
     price_lookup = load_json(
@@ -712,21 +894,20 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 )
                 valid_talents = {int(tid) for tid in talent_lookup.get("talents", {})}
                 print(f"[{datetime.now(timezone.utc).isoformat()}] Fetching talents...")
-                hero_talents_difs = aggregateData.biggest_deviations_per_dungeon(
-                    aggregateData.get_hero_talent_differences(
-                        conn, cursor, spec_id, current_season_id, valid_talents
-                    )
+                hero_talents_full = aggregateData.get_hero_talent_differences(
+                    conn, cursor, spec_id, current_season_id, valid_talents
                 )
-                spec_talents_difs = aggregateData.biggest_deviations_per_dungeon(
-                    aggregateData.get_spec_talent_differences(
-                        conn, cursor, spec_id, current_season_id, valid_talents
-                    )
+                spec_talents_full = aggregateData.get_spec_talent_differences(
+                    conn, cursor, spec_id, current_season_id, valid_talents
                 )
-                class_talents_difs = aggregateData.biggest_deviations_per_dungeon(
-                    aggregateData.get_class_talent_differences(
-                        conn, cursor, spec_id, current_season_id, valid_talents
-                    )
+
+                class_talents_full = aggregateData.get_class_talent_differences(
+                    conn, cursor, spec_id, current_season_id, valid_talents
                 )
+
+                hero_talents_difs = aggregateData.biggest_deviations_per_dungeon(hero_talents_full)
+                spec_talents_difs = aggregateData.biggest_deviations_per_dungeon(spec_talents_full)
+                class_talents_difs = aggregateData.biggest_deviations_per_dungeon(class_talents_full)
                 hero_tree_difs = aggregateData.get_hero_tree_differences(
                     conn, cursor, spec_id, current_season_id
                 )
@@ -906,7 +1087,11 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     conn, cursor, spec_id, current_season_id
                 )
 
+            if not tree_by_spec.get(int(spec_id)):
+                raise ValueError(f"No talent tree data for spec {spec_id}")
+
             print(f"[{datetime.now(timezone.utc).isoformat()}] generating page...")
+            print(tree_by_spec.get(int(spec_id)))
             output_html = template.render(
                 generated_at=datetime.now(timezone.utc).timestamp(),
                 spec_id=spec_id,
@@ -958,6 +1143,15 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     "Hero": hero_talents_difs,
                     "Spec": spec_talents_difs,
                 },
+                talent_difs_full={
+                    "Class": class_talents_full,
+                    "Hero": hero_talents_full,
+                    "Spec": spec_talents_full,
+                },
+                ui_class_tree=build_ui_tree(tree_by_spec.get(int(spec_id), {}).get("classNodes", []), class_talents_full) if spec_id else None,
+                ui_hero_tree=build_ui_tree(tree_by_spec.get(int(spec_id), {}).get("heroNodes", []), hero_talents_full, is_hero=True, pop_hero_tree_id=popular_hero_tree) if spec_id else None,
+                ui_spec_tree=build_ui_tree(tree_by_spec.get(int(spec_id), {}).get("specNodes", []), spec_talents_full) if spec_id else None,
+                tree_data=tree_by_spec.get(int(spec_id)),
                 hero_tree_difs=hero_tree_difs,
                 hero_tree_count=hero_tree_count,
                 top_routes=top_routes,

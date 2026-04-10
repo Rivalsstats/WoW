@@ -7,7 +7,17 @@
       "icon": "spell_mage_altertime",
       "spellId": 342245
     },
+    "85177": {
+      "name": "Alter Time",
+      "icon": "spell_mage_altertime",
+      "spellId": 342245
+    },
     "62122": {
+      "name": "Ice Block",
+      "icon": "spell_frost_frost",
+      "spellId": 45438
+    },
+    "85184": {
       "name": "Ice Block",
       "icon": "spell_frost_frost",
       "spellId": 45438
@@ -17,7 +27,22 @@
       "icon": "warrior_doubletime",
       "spellId": 1244087
     },
+    "138963": {
+      "name": "Time Walk",
+      "icon": "warrior_doubletime",
+      "spellId": 1244087
+    },
+    "138962": {
+      "name": "Temporal Realignment",
+      "icon": "ability_evoker_timedilation",
+      "spellId": 1244090
+    },
     "62102": {
+      "name": "Master of Time",
+      "icon": "inv_belt_armor_waistoftime_d_01",
+      "spellId": 342249
+    },
+    "85162": {
       "name": "Master of Time",
       "icon": "inv_belt_armor_waistoftime_d_01",
       "spellId": 342249
@@ -27,7 +52,17 @@
       "icon": "spell_ice_rune",
       "spellId": 382424
     },
+    "85185": {
+      "name": "Winter's Protection",
+      "icon": "spell_ice_rune",
+      "spellId": 382424
+    },
     "62107": {
+      "name": "Frost Conditioning",
+      "icon": "spell_frost_icefloes",
+      "spellId": 1250315
+    },
+    "85168": {
       "name": "Frost Conditioning",
       "icon": "spell_frost_icefloes",
       "spellId": 1250315
@@ -37,7 +72,17 @@
       "icon": "spell_arcane_arcaneresilience",
       "spellId": 383092
     },
+    "85176": {
+      "name": "Arcane Warding",
+      "icon": "spell_arcane_arcaneresilience",
+      "spellId": 383092
+    },
     "108660": {
+      "name": "Inspired Intellect",
+      "icon": "spell_holy_arcaneintellect",
+      "spellId": 458437
+    },
+    "138970": {
       "name": "Inspired Intellect",
       "icon": "spell_holy_arcaneintellect",
       "spellId": 458437
@@ -47,7 +92,17 @@
       "icon": "spell_magic_lesserinvisibilty",
       "spellId": 55342
     },
+    "85186": {
+      "name": "Mirror Image",
+      "icon": "spell_magic_lesserinvisibilty",
+      "spellId": 55342
+    },
     "62084": {
+      "name": "Spellsteal",
+      "icon": "spell_arcane_arcane02",
+      "spellId": 30449
+    },
+    "85143": {
       "name": "Spellsteal",
       "icon": "spell_arcane_arcane02",
       "spellId": 30449
@@ -57,12 +112,32 @@
       "icon": "ability_priest_surgeofdarkness",
       "spellId": 382297
     },
+    "85164": {
+      "name": "Quick Witted",
+      "icon": "ability_priest_surgeofdarkness",
+      "spellId": 382297
+    },
     "101883": {
       "name": "Dragon's Breath",
       "icon": "inv_misc_head_dragon_01",
       "spellId": 31661
     },
+    "130651": {
+      "name": "Dragon's Breath",
+      "icon": "inv_misc_head_dragon_01",
+      "spellId": 31661
+    },
+    "130650": {
+      "name": "Supernova",
+      "icon": "spell_mage_supernova",
+      "spellId": 157980
+    },
     "62116": {
+      "name": "Remove Curse",
+      "icon": "spell_nature_removecurse",
+      "spellId": 475
+    },
+    "85178": {
       "name": "Remove Curse",
       "icon": "spell_nature_removecurse",
       "spellId": 475
@@ -72,7 +147,17 @@
       "icon": "spell_arcane_focusedpower",
       "spellId": 1244025
     },
+    "138972": {
+      "name": "Improved Conjuration",
+      "icon": "spell_arcane_focusedpower",
+      "spellId": 1244025
+    },
     "110082": {
+      "name": "Improved Spellsteal",
+      "icon": "spell_arcane_arcane02",
+      "spellId": 1270827
+    },
+    "141354": {
       "name": "Improved Spellsteal",
       "icon": "spell_arcane_arcane02",
       "spellId": 1270827
@@ -82,7 +167,22 @@
       "icon": "spell_arcane_massdispel",
       "spellId": 212653
     },
+    "85166": {
+      "name": "Shimmer",
+      "icon": "spell_arcane_massdispel",
+      "spellId": 212653
+    },
+    "138977": {
+      "name": "Improved Blink",
+      "icon": "spell_arcane_blink",
+      "spellId": 1244340
+    },
     "110079": {
+      "name": "Improved Counterspell",
+      "icon": "inv_1115_mage_counterspell",
+      "spellId": 1270865
+    },
+    "141350": {
       "name": "Improved Counterspell",
       "icon": "inv_1115_mage_counterspell",
       "spellId": 1270865
@@ -92,7 +192,17 @@
       "icon": "spell_arcane_manatap",
       "spellId": 390218
     },
+    "138971": {
+      "name": "Overflowing Energy",
+      "icon": "spell_arcane_manatap",
+      "spellId": 390218
+    },
     "110078": {
+      "name": "Improved Remove Curse",
+      "icon": "spell_nature_removecurse",
+      "spellId": 1270847
+    },
+    "141349": {
       "name": "Improved Remove Curse",
       "icon": "spell_nature_removecurse",
       "spellId": 1270847
@@ -102,12 +212,32 @@
       "icon": "ability_mage_greaterinvisibility",
       "spellId": 110959
     },
+    "120889": {
+      "name": "Greater Invisibility",
+      "icon": "ability_mage_greaterinvisibility",
+      "spellId": 110959
+    },
     "62110": {
       "name": "Improved Frost Nova",
       "icon": "spell_frost_frostnova",
       "spellId": 343183
     },
+    "85171": {
+      "name": "Improved Frost Nova",
+      "icon": "spell_frost_frostnova",
+      "spellId": 343183
+    },
+    "141239": {
+      "name": "Ice Ward",
+      "icon": "spell_frost_frostward",
+      "spellId": 205036
+    },
     "62125": {
+      "name": "Captured Thoughts",
+      "icon": "spell_nature_elementalabsorption",
+      "spellId": 1270872
+    },
+    "138964": {
       "name": "Captured Thoughts",
       "icon": "spell_nature_elementalabsorption",
       "spellId": 1270872
@@ -117,7 +247,17 @@
       "icon": "inv_misc_book_04",
       "spellId": 382493
     },
+    "85190": {
+      "name": "Tome of Rhonin",
+      "icon": "inv_misc_book_04",
+      "spellId": 382493
+    },
     "62098": {
+      "name": "Tome of Antonidas",
+      "icon": "inv_misc_book_18",
+      "spellId": 382490
+    },
+    "85158": {
       "name": "Tome of Antonidas",
       "icon": "inv_misc_book_18",
       "spellId": 382490
@@ -127,7 +267,17 @@
       "icon": "rogue_burstofspeed",
       "spellId": 382293
     },
+    "85173": {
+      "name": "Incantation of Swiftness",
+      "icon": "rogue_burstofspeed",
+      "spellId": 382293
+    },
     "108659": {
+      "name": "Master of Escape",
+      "icon": "ability_mage_invisibility",
+      "spellId": 210476
+    },
+    "138969": {
       "name": "Master of Escape",
       "icon": "ability_mage_invisibility",
       "spellId": 210476
@@ -137,7 +287,17 @@
       "icon": "inv_nerubian_necklace_02_color5",
       "spellId": 1244105
     },
+    "138968": {
+      "name": "Charm of Aegwynn",
+      "icon": "inv_nerubian_necklace_02_color5",
+      "spellId": 1244105
+    },
     "110081": {
+      "name": "Brainstorm",
+      "icon": "ability_kaztik_dominatemind",
+      "spellId": 461261
+    },
+    "141352": {
       "name": "Brainstorm",
       "icon": "ability_kaztik_dominatemind",
       "spellId": 461261
@@ -147,7 +307,17 @@
       "icon": "spell_arcane_blink",
       "spellId": 382268
     },
+    "85156": {
+      "name": "Flow of Time",
+      "icon": "spell_arcane_blink",
+      "spellId": 382268
+    },
     "110080": {
+      "name": "Mana Confluence",
+      "icon": "spell_shaman_blessingoftheeternals",
+      "spellId": 1270845
+    },
+    "141351": {
       "name": "Mana Confluence",
       "icon": "spell_shaman_blessingoftheeternals",
       "spellId": 1270845
@@ -157,7 +327,17 @@
       "icon": "inv_nerubian_necklace_02_color1",
       "spellId": 1244107
     },
+    "138967": {
+      "name": "Charm of Medivh",
+      "icon": "inv_nerubian_necklace_02_color1",
+      "spellId": 1244107
+    },
     "62086": {
+      "name": "Permafrost Bauble",
+      "icon": "inv_10_dungeonjewelry_primalist_necklace_2_frost",
+      "spellId": 1265517
+    },
+    "85145": {
       "name": "Permafrost Bauble",
       "icon": "inv_10_dungeonjewelry_primalist_necklace_2_frost",
       "spellId": 1265517
@@ -167,7 +347,22 @@
       "icon": "spell_frost_glacier",
       "spellId": 386763
     },
+    "85146": {
+      "name": "Freezing Cold",
+      "icon": "spell_frost_glacier",
+      "spellId": 386763
+    },
+    "138979": {
+      "name": "Ice Nova",
+      "icon": "spell_mage_icenova",
+      "spellId": 157997
+    },
     "62129": {
+      "name": "Time Manipulation",
+      "icon": "spell_nature_timestop",
+      "spellId": 387807
+    },
+    "85192": {
       "name": "Time Manipulation",
       "icon": "spell_nature_timestop",
       "spellId": 387807
@@ -177,7 +372,22 @@
       "icon": "spell_frost_ring_of_frost",
       "spellId": 113724
     },
+    "85147": {
+      "name": "Ring of Frost",
+      "icon": "spell_frost_ring_of_frost",
+      "spellId": 113724
+    },
+    "138978": {
+      "name": "Mass Polymorph",
+      "icon": "spell_nature_doublepolymorph1",
+      "spellId": 383121
+    },
     "62100": {
+      "name": "Energized Barriers",
+      "icon": "spell_mage_temporalshield",
+      "spellId": 386828
+    },
+    "85160": {
       "name": "Energized Barriers",
       "icon": "spell_mage_temporalshield",
       "spellId": 386828
@@ -187,7 +397,17 @@
       "icon": "ability_mage_massinvisibility",
       "spellId": 414664
     },
+    "120890": {
+      "name": "Mass Invisibility",
+      "icon": "ability_mage_massinvisibility",
+      "spellId": 414664
+    },
     "62091": {
+      "name": "Barrier Diffusion",
+      "icon": "spell_mage_evanesce",
+      "spellId": 455428
+    },
+    "85150": {
       "name": "Barrier Diffusion",
       "icon": "spell_mage_evanesce",
       "spellId": 455428
@@ -197,12 +417,32 @@
       "icon": "spell_fire_bluefire",
       "spellId": 414659
     },
+    "85144": {
+      "name": "Ice Cold",
+      "icon": "spell_fire_bluefire",
+      "spellId": 414659
+    },
     "62094": {
       "name": "Spatial Manipulation",
       "icon": "spell_mage_overpowered",
       "spellId": 1244031
     },
+    "130892": {
+      "name": "Spatial Manipulation",
+      "icon": "spell_mage_overpowered",
+      "spellId": 1244031
+    },
+    "141353": {
+      "name": "Reflection",
+      "icon": "ability_hunter_displacement",
+      "spellId": 1270829
+    },
     "108664": {
+      "name": "Improved Prismatic Barrier",
+      "icon": "spell_magearmor",
+      "spellId": 321745
+    },
+    "138974": {
       "name": "Improved Prismatic Barrier",
       "icon": "spell_magearmor",
       "spellId": 321745
@@ -212,7 +452,17 @@
       "icon": "spell_nature_starfall",
       "spellId": 5143
     },
+    "131363": {
+      "name": "Arcane Missiles",
+      "icon": "spell_nature_starfall",
+      "spellId": 5143
+    },
     "108538": {
+      "name": "Concentrated Power",
+      "icon": "spell_mage_overpowered",
+      "spellId": 414379
+    },
+    "138810": {
       "name": "Concentrated Power",
       "icon": "spell_mage_overpowered",
       "spellId": 414379
@@ -222,7 +472,17 @@
       "icon": "inv12_ability_mage_arcanesalvo",
       "spellId": 384452
     },
+    "138811": {
+      "name": "Arcane Salvo",
+      "icon": "inv12_ability_mage_arcanesalvo",
+      "spellId": 384452
+    },
     "102473": {
+      "name": "Amplification",
+      "icon": "spell_arcane_invocation",
+      "spellId": 236628
+    },
+    "131369": {
       "name": "Amplification",
       "icon": "spell_arcane_invocation",
       "spellId": 236628
@@ -232,7 +492,17 @@
       "icon": "spell_shadow_manaburn",
       "spellId": 321420
     },
+    "131341": {
+      "name": "Improved Clearcasting",
+      "icon": "spell_shadow_manaburn",
+      "spellId": 321420
+    },
     "102471": {
+      "name": "Arcing Cleave",
+      "icon": "ability_mage_arcanebarrage",
+      "spellId": 231564
+    },
+    "131367": {
       "name": "Arcing Cleave",
       "icon": "ability_mage_arcanebarrage",
       "spellId": 231564
@@ -242,7 +512,17 @@
       "icon": "spell_arcane_arcanetorrent",
       "spellId": 1241462
     },
+    "131335": {
+      "name": "Arcane Pulse",
+      "icon": "spell_arcane_arcanetorrent",
+      "spellId": 1241462
+    },
     "102449": {
+      "name": "Arcane Surge",
+      "icon": "ability_mage_arcanesurge",
+      "spellId": 365350
+    },
+    "131345": {
       "name": "Arcane Surge",
       "icon": "ability_mage_arcanesurge",
       "spellId": 365350
@@ -252,7 +532,17 @@
       "icon": "spell_mage_arcaneorb",
       "spellId": 153626
     },
+    "133492": {
+      "name": "Arcane Orb",
+      "icon": "spell_mage_arcaneorb",
+      "spellId": 153626
+    },
     "102462": {
+      "name": "Reverberate",
+      "icon": "spell_arcane_arcane04",
+      "spellId": 281482
+    },
+    "131358": {
       "name": "Reverberate",
       "icon": "spell_arcane_arcane04",
       "spellId": 281482
@@ -262,7 +552,22 @@
       "icon": "spell_nature_enchantarmor",
       "spellId": 205025
     },
+    "131356": {
+      "name": "Presence of Mind",
+      "icon": "spell_nature_enchantarmor",
+      "spellId": 205025
+    },
+    "138808": {
+      "name": "Slipstream",
+      "icon": "spell_holy_mindsooth",
+      "spellId": 236457
+    },
     "102440": {
+      "name": "Mana Bomb",
+      "icon": "spell_holy_surgeoflight_shadow",
+      "spellId": 457521
+    },
+    "131336": {
       "name": "Mana Bomb",
       "icon": "spell_holy_surgeoflight_shadow",
       "spellId": 457521
@@ -272,7 +577,17 @@
       "icon": "ability_socererking_arcanemines",
       "spellId": 205022
     },
+    "131365": {
+      "name": "Arcane Familiar",
+      "icon": "ability_socererking_arcanemines",
+      "spellId": 205022
+    },
     "102475": {
+      "name": "Charged Orb",
+      "icon": "spell_mage_arcaneorb",
+      "spellId": 384651
+    },
+    "131371": {
       "name": "Charged Orb",
       "icon": "spell_mage_arcaneorb",
       "spellId": 384651
@@ -282,7 +597,17 @@
       "icon": "spell_shadow_brainwash",
       "spellId": 1223798
     },
+    "131342": {
+      "name": "Intuition",
+      "icon": "spell_shadow_brainwash",
+      "spellId": 1223798
+    },
     "102468": {
+      "name": "Touch of the Magi",
+      "icon": "inv_ability_mage_radiantspark",
+      "spellId": 321507
+    },
+    "131364": {
       "name": "Touch of the Magi",
       "icon": "inv_ability_mage_radiantspark",
       "spellId": 321507
@@ -292,7 +617,17 @@
       "icon": "spell_lightning_lightningbolt01",
       "spellId": 452997
     },
+    "131337": {
+      "name": "Energized Familiar",
+      "icon": "spell_lightning_lightningbolt01",
+      "spellId": 452997
+    },
     "109002": {
+      "name": "Expanded Mind",
+      "icon": "inv_helmet_101",
+      "spellId": 1243557
+    },
+    "139602": {
       "name": "Expanded Mind",
       "icon": "inv_helmet_101",
       "spellId": 1243557
@@ -302,7 +637,17 @@
       "icon": "inv_6_2raid_trinket_1b",
       "spellId": 461260
     },
+    "138807": {
+      "name": "Consortium's Bauble",
+      "icon": "inv_6_2raid_trinket_1b",
+      "spellId": 461260
+    },
     "110442": {
+      "name": "Arcane Tempo",
+      "icon": "ability_socererking_arcaneacceleration",
+      "spellId": 383980
+    },
+    "141848": {
       "name": "Arcane Tempo",
       "icon": "ability_socererking_arcaneacceleration",
       "spellId": 383980
@@ -312,12 +657,32 @@
       "icon": "inv_enchant_essencearcanelarge",
       "spellId": 1243307
     },
+    "138806": {
+      "name": "Aether Attunement",
+      "icon": "inv_enchant_essencearcanelarge",
+      "spellId": 1243307
+    },
     "102465": {
       "name": "Aegwynn's Technique",
       "icon": "inv_misc_scrollrolled03d",
       "spellId": 1243507
     },
+    "138803": {
+      "name": "Aegwynn's Technique",
+      "icon": "inv_misc_scrollrolled03d",
+      "spellId": 1243507
+    },
+    "140454": {
+      "name": "Arcane Echo",
+      "icon": "ability_socererking_arcanewrath",
+      "spellId": 342231
+    },
     "108541": {
+      "name": "Resonance",
+      "icon": "spell_arcane_arcane01",
+      "spellId": 205028
+    },
+    "138813": {
       "name": "Resonance",
       "icon": "spell_arcane_arcane01",
       "spellId": 205028
@@ -327,12 +692,32 @@
       "icon": "spell_arcane_arcanetorrent",
       "spellId": 383676
     },
+    "131349": {
+      "name": "Impetus",
+      "icon": "spell_arcane_arcanetorrent",
+      "spellId": 383676
+    },
     "102454": {
       "name": "Evocation",
       "icon": "spell_nature_purge",
       "spellId": 12051
     },
+    "131350": {
+      "name": "Evocation",
+      "icon": "spell_nature_purge",
+      "spellId": 12051
+    },
+    "141238": {
+      "name": "Mana Adept",
+      "icon": "spell_arcane_arcanepotency",
+      "spellId": 321526
+    },
     "102470": {
+      "name": "Enlightened",
+      "icon": "ability_socererking_arcanefortification",
+      "spellId": 321387
+    },
+    "131366": {
       "name": "Enlightened",
       "icon": "ability_socererking_arcanefortification",
       "spellId": 321387
@@ -342,7 +727,17 @@
       "icon": "ability_racial_arcaneaffinity",
       "spellId": 461257
     },
+    "131347": {
+      "name": "Focusing Crystal",
+      "icon": "ability_racial_arcaneaffinity",
+      "spellId": 461257
+    },
     "108551": {
+      "name": "Illuminated Thoughts",
+      "icon": "spell_arcane_focusedpower",
+      "spellId": 384060
+    },
+    "138830": {
       "name": "Illuminated Thoughts",
       "icon": "spell_arcane_focusedpower",
       "spellId": 384060
@@ -352,7 +747,17 @@
       "icon": "ability_mage_studentofthemind",
       "spellId": 384612
     },
+    "131376": {
+      "name": "Prodigious Savant",
+      "icon": "ability_mage_studentofthemind",
+      "spellId": 384612
+    },
     "108665": {
+      "name": "Eureka",
+      "icon": "spell_mage_presenceofmind",
+      "spellId": 452198
+    },
+    "138976": {
       "name": "Eureka",
       "icon": "spell_mage_presenceofmind",
       "spellId": 452198
@@ -362,12 +767,32 @@
       "icon": "spell_nature_wispheal",
       "spellId": 1244001
     },
+    "138809": {
+      "name": "Arcane Singularity",
+      "icon": "spell_nature_wispheal",
+      "spellId": 1244001
+    },
     "102472": {
       "name": "High Voltage",
       "icon": "spell_shaman_maelstromweapon",
       "spellId": 461248
     },
+    "131368": {
+      "name": "High Voltage",
+      "icon": "spell_shaman_maelstromweapon",
+      "spellId": 461248
+    },
+    "138805": {
+      "name": "Charged Missiles",
+      "icon": "ability_mage_missilebarrage",
+      "spellId": 461251
+    },
     "102476": {
+      "name": "Overflowing Insight",
+      "icon": "inv_offhand_pvealliance_d_01",
+      "spellId": 1243542
+    },
+    "131372": {
       "name": "Overflowing Insight",
       "icon": "inv_offhand_pvealliance_d_01",
       "spellId": 1243542
@@ -377,7 +802,17 @@
       "icon": "ability_socererking_arcanereplication",
       "spellId": 1244329
     },
+    "140453": {
+      "name": "Overpowered Missiles",
+      "icon": "ability_socererking_arcanereplication",
+      "spellId": 1244329
+    },
     "102438": {
+      "name": "Orb Mastery",
+      "icon": "ability_evoker_powerswell",
+      "spellId": 1243435
+    },
+    "131334": {
       "name": "Orb Mastery",
       "icon": "ability_evoker_powerswell",
       "spellId": 1243435
@@ -387,12 +822,37 @@
       "icon": "spell_mage_arcaneorb_nightborne",
       "spellId": 384858
     },
+    "131370": {
+      "name": "Orb Barrage",
+      "icon": "spell_mage_arcaneorb_nightborne",
+      "spellId": 384858
+    },
     "110420": {
       "name": "Touch of the Archmage",
       "icon": "inv12_apextalent_mage_touchofthearchmage",
       "spellId": 1257942
     },
+    "141791": {
+      "name": "Touch of the Archmage",
+      "icon": "inv12_apextalent_mage_touchofthearchmage",
+      "spellId": 1257942
+    },
+    "141790": {
+      "name": "Touch of the Archmage",
+      "icon": "spell_holy_arcaneintellect",
+      "spellId": 1257947
+    },
+    "141789": {
+      "name": "Touch of the Archmage",
+      "icon": "spell_arcane_invocation",
+      "spellId": 1257950
+    },
     "94662": {
+      "name": "Augury Abounds",
+      "icon": "spell_arcane_arcanepotency",
+      "spellId": 1280165
+    },
+    "122277": {
       "name": "Augury Abounds",
       "icon": "spell_arcane_arcanepotency",
       "spellId": 1280165
@@ -402,7 +862,17 @@
       "icon": "spell_mage_overpowered",
       "spellId": 444719
     },
+    "122278": {
+      "name": "Force of Will",
+      "icon": "spell_mage_overpowered",
+      "spellId": 444719
+    },
     "94661": {
+      "name": "Splintering Orbs",
+      "icon": "item_azereansphere",
+      "spellId": 444256
+    },
+    "122276": {
       "name": "Splintering Orbs",
       "icon": "item_azereansphere",
       "spellId": 444256
@@ -412,12 +882,37 @@
       "icon": "ability_socererking_arcanemines",
       "spellId": 1261106
     },
+    "140675": {
+      "name": "Attuned Familiar",
+      "icon": "ability_socererking_arcanemines",
+      "spellId": 1261106
+    },
+    "140701": {
+      "name": "Shifting Shards",
+      "icon": "ability_mage_freeze",
+      "spellId": 444675
+    },
     "94659": {
       "name": "Slippery Slinging",
       "icon": "ability_mage_icyfeet",
       "spellId": 444752
     },
+    "122274": {
+      "name": "Slippery Slinging",
+      "icon": "ability_mage_icyfeet",
+      "spellId": 444752
+    },
+    "128256": {
+      "name": "Look Again",
+      "icon": "achievement_bg_tophealer_av",
+      "spellId": 444756
+    },
     "94656": {
+      "name": "Controlled Instincts",
+      "icon": "spell_frost_ice_shards",
+      "spellId": 444483
+    },
+    "122271": {
       "name": "Controlled Instincts",
       "icon": "spell_frost_ice_shards",
       "spellId": 444483
@@ -427,7 +922,22 @@
       "icon": "ability_racial_forceshield",
       "spellId": 444827
     },
+    "122275": {
+      "name": "Reactive Barrier",
+      "icon": "ability_racial_forceshield",
+      "spellId": 444827
+    },
+    "128255": {
+      "name": "Phantasmal Image",
+      "icon": "spell_arcane_prismaticcloak",
+      "spellId": 444784
+    },
     "109668": {
+      "name": "Infused Splinters",
+      "icon": "spell_mage_focusingcrystal",
+      "spellId": 1261080
+    },
+    "140674": {
       "name": "Infused Splinters",
       "icon": "spell_mage_focusingcrystal",
       "spellId": 1261080
@@ -437,7 +947,17 @@
       "icon": "spell_arcane_arcane03",
       "spellId": 444968
     },
+    "122273": {
+      "name": "Archmage's Wrath",
+      "icon": "spell_arcane_arcane03",
+      "spellId": 444968
+    },
     "94657": {
+      "name": "Signature Spell",
+      "icon": "inv_enchanting_815_drustwand",
+      "spellId": 470021
+    },
+    "133074": {
       "name": "Signature Spell",
       "icon": "inv_enchanting_815_drustwand",
       "spellId": 470021
@@ -447,7 +967,17 @@
       "icon": "70_inscription_vantus_rune_azure",
       "spellId": 444986
     },
+    "122270": {
+      "name": "Spellfrost Teachings",
+      "icon": "70_inscription_vantus_rune_azure",
+      "spellId": 444986
+    },
     "109667": {
+      "name": "Polished Focus",
+      "icon": "inv_misc_orb_blue",
+      "spellId": 1261082
+    },
+    "140673": {
       "name": "Polished Focus",
       "icon": "inv_misc_orb_blue",
       "spellId": 1261082
@@ -457,7 +987,17 @@
       "icon": "ability_mage_burstofcold",
       "spellId": 443783
     },
+    "122269": {
+      "name": "Splinterstorm",
+      "icon": "ability_mage_burstofcold",
+      "spellId": 443783
+    },
     "94653": {
+      "name": "Mana Cascade",
+      "icon": "spell_frost_manarecharge",
+      "spellId": 449293
+    },
+    "122268": {
       "name": "Mana Cascade",
       "icon": "spell_frost_manarecharge",
       "spellId": 449293
@@ -467,7 +1007,17 @@
       "icon": "inv_misc_phoenixegg",
       "spellId": 448658
     },
+    "122267": {
+      "name": "Invocation: Arcane Phoenix",
+      "icon": "inv_misc_phoenixegg",
+      "spellId": 448658
+    },
     "94644": {
+      "name": "Burden of Power",
+      "icon": "inv_ragnaros_heart",
+      "spellId": 451035
+    },
+    "122259": {
       "name": "Burden of Power",
       "icon": "inv_ragnaros_heart",
       "spellId": 451035
@@ -477,12 +1027,32 @@
       "icon": "spell_burningsoul",
       "spellId": 449394
     },
+    "140681": {
+      "name": "Glorious Incandescence",
+      "icon": "spell_burningsoul",
+      "spellId": 449394
+    },
     "94649": {
       "name": "Merely a Setback",
       "icon": "inv_helm_robe_raidmage_i_01",
       "spellId": 449330
     },
+    "122264": {
+      "name": "Merely a Setback",
+      "icon": "inv_helm_robe_raidmage_i_01",
+      "spellId": 449330
+    },
+    "140354": {
+      "name": "Time Twist",
+      "icon": "spell_holy_borrowedtime",
+      "spellId": 1255166
+    },
     "94645": {
+      "name": "Codex of the Sunstriders",
+      "icon": "inv_10_inscription2_book3_color1",
+      "spellId": 449382
+    },
+    "122260": {
       "name": "Codex of the Sunstriders",
       "icon": "inv_10_inscription2_book3_color1",
       "spellId": 449382
@@ -492,7 +1062,22 @@
       "icon": "ability_paladin_handoflight",
       "spellId": 449627
     },
+    "122266": {
+      "name": "Lessons in Debilitation",
+      "icon": "ability_paladin_handoflight",
+      "spellId": 449627
+    },
+    "139025": {
+      "name": "Explosive Potential",
+      "icon": "6bf_explosive_shard",
+      "spellId": 1246030
+    },
     "109674": {
+      "name": "Pyrocosm",
+      "icon": "spell_fire_meteorstorm",
+      "spellId": 1260673
+    },
+    "140680": {
       "name": "Pyrocosm",
       "icon": "spell_fire_meteorstorm",
       "spellId": 1260673
@@ -502,7 +1087,22 @@
       "icon": "spell_fire_masterofelements",
       "spellId": 449412
     },
+    "122265": {
+      "name": "Savor the Moment",
+      "icon": "spell_fire_masterofelements",
+      "spellId": 449412
+    },
+    "128705": {
+      "name": "Sunfury Execution",
+      "icon": "spell_shadow_shadowandflame",
+      "spellId": 449349
+    },
     "94643": {
+      "name": "Ashes of Inspiration",
+      "icon": "inv_misc_powder_copper",
+      "spellId": 1260272
+    },
+    "122258": {
       "name": "Ashes of Inspiration",
       "icon": "inv_misc_powder_copper",
       "spellId": 1260272
@@ -512,12 +1112,27 @@
       "icon": "spell_arcane_focusedpower",
       "spellId": 449596
     },
+    "122263": {
+      "name": "Rondurmancy",
+      "icon": "spell_arcane_focusedpower",
+      "spellId": 449596
+    },
     "109673": {
       "name": "Spellfire Salvo",
       "icon": "shaman_talent_elementalblast",
       "spellId": 1260616
     },
+    "140679": {
+      "name": "Spellfire Salvo",
+      "icon": "shaman_talent_elementalblast",
+      "spellId": 1260616
+    },
     "94646": {
+      "name": "Memory of Al'ar",
+      "icon": "inv_ability_sunfurymage_spellfirespheres",
+      "spellId": 449619
+    },
+    "122261": {
       "name": "Memory of Al'ar",
       "icon": "inv_ability_sunfurymage_spellfirespheres",
       "spellId": 449619

@@ -7,7 +7,17 @@
       "icon": "inv_throwingknife_04",
       "spellId": 5938
     },
+    "117635": {
+      "name": "Shiv",
+      "icon": "inv_throwingknife_04",
+      "spellId": 5938
+    },
     "90697": {
+      "name": "Cloak of Shadows",
+      "icon": "spell_shadow_nethercloak",
+      "spellId": 31224
+    },
+    "117590": {
       "name": "Cloak of Shadows",
       "icon": "spell_shadow_nethercloak",
       "spellId": 31224
@@ -17,7 +27,17 @@
       "icon": "ability_rogue_poisonedknife",
       "spellId": 1267182
     },
+    "141646": {
+      "name": "Toxic Stiletto",
+      "icon": "ability_rogue_poisonedknife",
+      "spellId": 1267182
+    },
     "90764": {
+      "name": "Fleet Footed",
+      "icon": "ability_rogue_quickrecovery",
+      "spellId": 378813
+    },
+    "117662": {
       "name": "Fleet Footed",
       "icon": "ability_rogue_quickrecovery",
       "spellId": 378813
@@ -27,7 +47,22 @@
       "icon": "ability_gouge",
       "spellId": 1776
     },
+    "117636": {
+      "name": "Gouge",
+      "icon": "ability_gouge",
+      "spellId": 1776
+    },
+    "122752": {
+      "name": "Airborne Irritant",
+      "icon": "ability_rogue_bloodyeye",
+      "spellId": 200733
+    },
     "90695": {
+      "name": "Thrill Seeking",
+      "icon": "inv_ragnaros_heart_shadowflame",
+      "spellId": 394931
+    },
+    "117588": {
       "name": "Thrill Seeking",
       "icon": "inv_ragnaros_heart_shadowflame",
       "spellId": 394931
@@ -37,7 +72,17 @@
       "icon": "ability_stealth",
       "spellId": 378807
     },
+    "141645": {
+      "name": "Shadowrunner",
+      "icon": "ability_stealth",
+      "spellId": 378807
+    },
     "90636": {
+      "name": "Master Poisoner",
+      "icon": "ability_creature_poison_06",
+      "spellId": 378436
+    },
+    "117526": {
       "name": "Master Poisoner",
       "icon": "ability_creature_poison_06",
       "spellId": 378436
@@ -47,12 +92,37 @@
       "icon": "ability_rogue_turnthetables",
       "spellId": 79008
     },
+    "117637": {
+      "name": "Elusiveness",
+      "icon": "ability_rogue_turnthetables",
+      "spellId": 79008
+    },
+    "119744": {
+      "name": "Cheat Death",
+      "icon": "ability_rogue_cheatdeath",
+      "spellId": 31230
+    },
     "90686": {
       "name": "Tricks of the Trade",
       "icon": "ability_rogue_tricksofthetrade",
       "spellId": 57934
     },
+    "117579": {
+      "name": "Tricks of the Trade",
+      "icon": "ability_rogue_tricksofthetrade",
+      "spellId": 57934
+    },
+    "122155": {
+      "name": "Blackjack",
+      "icon": "ability_rogue_blackjack",
+      "spellId": 379005
+    },
     "90637": {
+      "name": "Improved Wound Poison",
+      "icon": "inv_misc_herb_16",
+      "spellId": 319066
+    },
+    "117527": {
       "name": "Improved Wound Poison",
       "icon": "inv_misc_herb_16",
       "spellId": 319066
@@ -62,7 +132,17 @@
       "icon": "ability_rogue_crimsonvial",
       "spellId": 378427
     },
+    "117640": {
+      "name": "Nimble Fingers",
+      "icon": "ability_rogue_crimsonvial",
+      "spellId": 378427
+    },
     "110323": {
+      "name": "Deadened Nerves",
+      "icon": "ability_rogue_nervesofsteel",
+      "spellId": 231719
+    },
+    "141644": {
       "name": "Deadened Nerves",
       "icon": "ability_rogue_nervesofsteel",
       "spellId": 231719
@@ -72,7 +152,17 @@
       "icon": "ability_rogue_improvedrecuperate",
       "spellId": 1267210
     },
+    "117641": {
+      "name": "Quick Fingers",
+      "icon": "ability_rogue_improvedrecuperate",
+      "spellId": 1267210
+    },
     "90687": {
+      "name": "Improved Sprint",
+      "icon": "ability_rogue_sprint",
+      "spellId": 231691
+    },
+    "117580": {
       "name": "Improved Sprint",
       "icon": "ability_rogue_sprint",
       "spellId": 231691
@@ -82,7 +172,17 @@
       "icon": "inv_misc_potionsete",
       "spellId": 423701
     },
+    "122163": {
+      "name": "Superior Mixture",
+      "icon": "inv_misc_potionsete",
+      "spellId": 423701
+    },
     "90762": {
+      "name": "Evasion",
+      "icon": "spell_shadow_shadowward",
+      "spellId": 5277
+    },
+    "117659": {
       "name": "Evasion",
       "icon": "spell_shadow_shadowward",
       "spellId": 5277
@@ -92,7 +192,17 @@
       "icon": "inv_misc_organ_11",
       "spellId": 193546
     },
+    "117639": {
+      "name": "Iron Stomach",
+      "icon": "inv_misc_organ_11",
+      "spellId": 193546
+    },
     "90747": {
+      "name": "Virulent Poisons",
+      "icon": "ability_creature_poison_06",
+      "spellId": 381543
+    },
+    "117643": {
       "name": "Virulent Poisons",
       "icon": "ability_creature_poison_06",
       "spellId": 381543
@@ -102,7 +212,17 @@
       "icon": "ability_rogue_shroudofconcealment",
       "spellId": 423662
     },
+    "122158": {
+      "name": "Stillshroud",
+      "icon": "ability_rogue_shroudofconcealment",
+      "spellId": 423662
+    },
     "90754": {
+      "name": "Graceful Guile",
+      "icon": "ability_rogue_ghostpirate",
+      "spellId": 423647
+    },
+    "117651": {
       "name": "Graceful Guile",
       "icon": "ability_rogue_ghostpirate",
       "spellId": 423647
@@ -112,12 +232,32 @@
       "icon": "spell_magic_featherfall",
       "spellId": 423683
     },
+    "130447": {
+      "name": "Featherfoot",
+      "icon": "spell_magic_featherfall",
+      "spellId": 423683
+    },
     "90763": {
       "name": "Numbing Poison",
       "icon": "spell_nature_nullifydisease",
       "spellId": 5761
     },
+    "117661": {
+      "name": "Numbing Poison",
+      "icon": "spell_nature_nullifydisease",
+      "spellId": 5761
+    },
+    "117660": {
+      "name": "Atrophic Poison",
+      "icon": "ability_rogue_nervesofsteel",
+      "spellId": 381637
+    },
     "90743": {
+      "name": "Deadly Precision",
+      "icon": "ability_rogue_deadenednerves",
+      "spellId": 381542
+    },
+    "117638": {
       "name": "Deadly Precision",
       "icon": "ability_rogue_deadenednerves",
       "spellId": 381542
@@ -127,7 +267,17 @@
       "icon": "inv_1115_firstkilloftheday_firstkilloftheday",
       "spellId": 1267216
     },
+    "122157": {
+      "name": "Deep Cuts",
+      "icon": "inv_1115_firstkilloftheday_firstkilloftheday",
+      "spellId": 1267216
+    },
     "94561": {
+      "name": "Unbreakable Stride",
+      "icon": "ability_rogue_trip",
+      "spellId": 400804
+    },
+    "122156": {
       "name": "Unbreakable Stride",
       "icon": "ability_rogue_trip",
       "spellId": 400804
@@ -137,7 +287,17 @@
       "icon": "ability_rogue_wrongfullyaccused",
       "spellId": 1267220
     },
+    "117657": {
+      "name": "Danger Sense",
+      "icon": "ability_rogue_wrongfullyaccused",
+      "spellId": 1267220
+    },
     "90752": {
+      "name": "Swift Slasher",
+      "icon": "ability_rogue_slicedice",
+      "spellId": 381988
+    },
+    "117649": {
       "name": "Swift Slasher",
       "icon": "ability_rogue_slicedice",
       "spellId": 381988
@@ -147,7 +307,22 @@
       "icon": "ability_rogue_ambush",
       "spellId": 381620
     },
+    "117585": {
+      "name": "Improved Ambush",
+      "icon": "ability_rogue_ambush",
+      "spellId": 381620
+    },
+    "122164": {
+      "name": "Tight Spender",
+      "icon": "inv_misc_coin_03",
+      "spellId": 381621
+    },
     "90758": {
+      "name": "Leeching Poison",
+      "icon": "rogue_leeching_poison",
+      "spellId": 280716
+    },
+    "117655": {
       "name": "Leeching Poison",
       "icon": "rogue_leeching_poison",
       "spellId": 280716
@@ -157,7 +332,17 @@
       "icon": "ability_criticalstrike",
       "spellId": 382238
     },
+    "117645": {
+      "name": "Lethality",
+      "icon": "ability_criticalstrike",
+      "spellId": 382238
+    },
     "90640": {
+      "name": "Recuperator",
+      "icon": "inv_gizmo_runichealthinjector",
+      "spellId": 378996
+    },
+    "117531": {
       "name": "Recuperator",
       "icon": "inv_gizmo_runichealthinjector",
       "spellId": 378996
@@ -167,7 +352,17 @@
       "icon": "ability_paladin_speedoflight",
       "spellId": 193539
     },
+    "117648": {
+      "name": "Alacrity",
+      "icon": "ability_paladin_speedoflight",
+      "spellId": 193539
+    },
     "90691": {
+      "name": "Soothing Darkness",
+      "icon": "spell_shadow_twilight",
+      "spellId": 393970
+    },
+    "117584": {
       "name": "Soothing Darkness",
       "icon": "spell_shadow_twilight",
       "spellId": 393970
@@ -177,7 +372,17 @@
       "icon": "ability_rogue_vigor",
       "spellId": 14983
     },
+    "117656": {
+      "name": "Vigor",
+      "icon": "ability_rogue_vigor",
+      "spellId": 14983
+    },
     "90639": {
+      "name": "Supercharger",
+      "icon": "inv_engineering_90_electrifiedether",
+      "spellId": 470347
+    },
+    "117530": {
       "name": "Supercharger",
       "icon": "inv_engineering_90_electrifiedether",
       "spellId": 470347
@@ -187,7 +392,17 @@
       "icon": "rogue_subterfuge",
       "spellId": 108208
     },
+    "117581": {
+      "name": "Subterfuge",
+      "icon": "rogue_subterfuge",
+      "spellId": 108208
+    },
     "90756": {
+      "name": "Thistle Tea",
+      "icon": "inv_drink_milk_05",
+      "spellId": 469779
+    },
+    "117653": {
       "name": "Thistle Tea",
       "icon": "inv_drink_milk_05",
       "spellId": 469779
@@ -197,12 +412,32 @@
       "icon": "spell_ice_lament",
       "spellId": 382245
     },
+    "117644": {
+      "name": "Cold Blooded Killer",
+      "icon": "spell_ice_lament",
+      "spellId": 382245
+    },
     "90638": {
       "name": "Echoing Reprimand",
       "icon": "inv_ability_rogue_echoingreprimand",
       "spellId": 470669
     },
+    "117529": {
+      "name": "Echoing Reprimand",
+      "icon": "inv_ability_rogue_echoingreprimand",
+      "spellId": 470669
+    },
+    "117528": {
+      "name": "Forced Induction",
+      "icon": "inv_misc_enggizmos_06",
+      "spellId": 470668
+    },
     "90750": {
+      "name": "Deeper Stratagem",
+      "icon": "archaeology_5_0_changkiboard",
+      "spellId": 193531
+    },
+    "117647": {
       "name": "Deeper Stratagem",
       "icon": "archaeology_5_0_changkiboard",
       "spellId": 193531
@@ -212,7 +447,17 @@
       "icon": "ability_vanish",
       "spellId": 382513
     },
+    "130446": {
+      "name": "Without a Trace",
+      "icon": "ability_vanish",
+      "spellId": 382513
+    },
     "90683": {
+      "name": "Opportunity",
+      "icon": "ability_rogue_pistolshot",
+      "spellId": 279876
+    },
+    "117576": {
       "name": "Opportunity",
       "icon": "ability_rogue_pistolshot",
       "spellId": 279876
@@ -222,7 +467,22 @@
       "icon": "ability_rogue_fleetfooted",
       "spellId": 196922
     },
+    "117574": {
+      "name": "Hit and Run",
+      "icon": "ability_rogue_fleetfooted",
+      "spellId": 196922
+    },
+    "140489": {
+      "name": "Combat Stamina",
+      "icon": "ability_rogue_imrovedrecuperate",
+      "spellId": 381877
+    },
     "90659": {
+      "name": "Adrenaline Rush",
+      "icon": "spell_shadow_shadowworddominate",
+      "spellId": 13750
+    },
+    "117550": {
       "name": "Adrenaline Rush",
       "icon": "spell_shadow_shadowworddominate",
       "spellId": 13750
@@ -232,7 +492,22 @@
       "icon": "ability_rogue_grapplinghook",
       "spellId": 256188
     },
+    "117565": {
+      "name": "Retractable Hook",
+      "icon": "ability_rogue_grapplinghook",
+      "spellId": 256188
+    },
+    "140488": {
+      "name": "Blinding Powder",
+      "icon": "inv_misc_ammo_gunpowder_06",
+      "spellId": 256165
+    },
     "90645": {
+      "name": "Expert Duelist",
+      "icon": "inv_weapon_rifle_01",
+      "spellId": 1259498
+    },
+    "117536": {
       "name": "Expert Duelist",
       "icon": "inv_weapon_rifle_01",
       "spellId": 1259498
@@ -242,7 +517,17 @@
       "icon": "inv_weapon_shortblade_38",
       "spellId": 61329
     },
+    "117539": {
+      "name": "Combat Potency",
+      "icon": "inv_weapon_shortblade_38",
+      "spellId": 61329
+    },
     "90643": {
+      "name": "Deadly Pursuit",
+      "icon": "ability_rogue_murderspree",
+      "spellId": 1259612
+    },
+    "117534": {
       "name": "Deadly Pursuit",
       "icon": "ability_rogue_murderspree",
       "spellId": 1259612
@@ -252,7 +537,17 @@
       "icon": "inv_legendary_gun",
       "spellId": 428377
     },
+    "117652": {
+      "name": "Precision Shot",
+      "icon": "inv_legendary_gun",
+      "spellId": 428377
+    },
     "90661": {
+      "name": "Crescendo of Violence",
+      "icon": "ability_rogue_dirtydeeds",
+      "spellId": 1259499
+    },
+    "117552": {
       "name": "Crescendo of Violence",
       "icon": "ability_rogue_dirtydeeds",
       "spellId": 1259499
@@ -262,7 +557,17 @@
       "icon": "spell_warrior_wildstrike",
       "spellId": 381878
     },
+    "117538": {
+      "name": "Deft Maneuvers",
+      "icon": "spell_warrior_wildstrike",
+      "spellId": 381878
+    },
     "90679": {
+      "name": "Devious Stratagem",
+      "icon": "archaeology_5_0_changkiboard",
+      "spellId": 394321
+    },
+    "117572": {
       "name": "Devious Stratagem",
       "icon": "archaeology_5_0_changkiboard",
       "spellId": 394321
@@ -272,7 +577,17 @@
       "icon": "ability_rogue_unfairadvantage",
       "spellId": 35551
     },
+    "117553": {
+      "name": "Fatal Flourish",
+      "icon": "ability_rogue_unfairadvantage",
+      "spellId": 35551
+    },
     "90663": {
+      "name": "Quick Draw",
+      "icon": "inv_weapon_rifle_40",
+      "spellId": 196938
+    },
+    "117554": {
       "name": "Quick Draw",
       "icon": "inv_weapon_rifle_40",
       "spellId": 196938
@@ -282,7 +597,17 @@
       "icon": "ability_druid_disembowel",
       "spellId": 14161
     },
+    "117573": {
+      "name": "Ruthlessness",
+      "icon": "ability_druid_disembowel",
+      "spellId": 14161
+    },
     "90649": {
+      "name": "Blade Rush",
+      "icon": "ability_arakkoa_spinning_blade",
+      "spellId": 271877
+    },
+    "117540": {
       "name": "Blade Rush",
       "icon": "ability_arakkoa_spinning_blade",
       "spellId": 271877
@@ -292,7 +617,17 @@
       "icon": "ability_rogue_rollthebones",
       "spellId": 256170
     },
+    "117547": {
+      "name": "Loaded Dice",
+      "icon": "ability_rogue_rollthebones",
+      "spellId": 256170
+    },
     "90651": {
+      "name": "Sleight of Hand",
+      "icon": "inv_misc_dice_02",
+      "spellId": 381839
+    },
+    "117542": {
       "name": "Sleight of Hand",
       "icon": "inv_misc_dice_02",
       "spellId": 381839
@@ -302,12 +637,32 @@
       "icon": "ability_rogue_rollthebones01",
       "spellId": 235484
     },
+    "117650": {
+      "name": "Improved Between the Eyes",
+      "icon": "ability_rogue_rollthebones01",
+      "spellId": 235484
+    },
     "90671": {
       "name": "Thief's Versatility",
       "icon": "ability_rogue_versatility",
       "spellId": 381619
     },
+    "117563": {
+      "name": "Thief's Versatility",
+      "icon": "ability_rogue_versatility",
+      "spellId": 381619
+    },
+    "140486": {
+      "name": "Flickering Steel",
+      "icon": "inv_1115_warrior_fastermeleeattacks",
+      "spellId": 1259492
+    },
     "90641": {
+      "name": "Audacity",
+      "icon": "ability_rogue_ambush",
+      "spellId": 381845
+    },
+    "117532": {
       "name": "Audacity",
       "icon": "ability_rogue_ambush",
       "spellId": 381845
@@ -317,7 +672,17 @@
       "icon": "spell_shadow_ritualofsacrifice",
       "spellId": 381885
     },
+    "117571": {
+      "name": "Heavy Hitter",
+      "icon": "spell_shadow_ritualofsacrifice",
+      "spellId": 381885
+    },
     "90654": {
+      "name": "Improved Adrenaline Rush",
+      "icon": "spell_shadow_shadowworddominate",
+      "spellId": 395422
+    },
+    "117545": {
       "name": "Improved Adrenaline Rush",
       "icon": "spell_shadow_shadowworddominate",
       "spellId": 395422
@@ -327,7 +692,17 @@
       "icon": "inv_inscription_darkmooncard_putrescence",
       "spellId": 381828
     },
+    "117560": {
+      "name": "Ace Up Your Sleeve",
+      "icon": "inv_inscription_darkmooncard_putrescence",
+      "spellId": 381828
+    },
     "90669": {
+      "name": "Dancing Steel",
+      "icon": "ability_warrior_punishingblow",
+      "spellId": 272026
+    },
+    "117561": {
       "name": "Dancing Steel",
       "icon": "ability_warrior_punishingblow",
       "spellId": 272026
@@ -337,7 +712,17 @@
       "icon": "ability_rogue_pistolshot",
       "spellId": 1259457
     },
+    "117570": {
+      "name": "Find an Opening",
+      "icon": "ability_rogue_pistolshot",
+      "spellId": 1259457
+    },
     "90664": {
+      "name": "Acrobatic Strikes",
+      "icon": "spell_warrior_wildstrike",
+      "spellId": 455143
+    },
+    "117556": {
       "name": "Acrobatic Strikes",
       "icon": "spell_warrior_wildstrike",
       "spellId": 455143
@@ -347,7 +732,22 @@
       "icon": "spell_shadow_unholyfrenzy",
       "spellId": 1259465
     },
+    "117546": {
+      "name": "Heightened Rush",
+      "icon": "spell_shadow_unholyfrenzy",
+      "spellId": 1259465
+    },
+    "140487": {
+      "name": "Menacing Rush",
+      "icon": "inv_1115_warrior_fasterreflexes",
+      "spellId": 1256630
+    },
     "90670": {
+      "name": "Zero In",
+      "icon": "ability_hisek_aim",
+      "spellId": 1259485
+    },
+    "117562": {
       "name": "Zero In",
       "icon": "ability_hisek_aim",
       "spellId": 1259485
@@ -357,7 +757,17 @@
       "icon": "ability_rogue_rollthebones02",
       "spellId": 1259469
     },
+    "117559": {
+      "name": "Grand Melee",
+      "icon": "ability_rogue_rollthebones02",
+      "spellId": 1259469
+    },
     "90676": {
+      "name": "Summarily Dispatched",
+      "icon": "ability_rogue_waylay",
+      "spellId": 381990
+    },
+    "117568": {
       "name": "Summarily Dispatched",
       "icon": "ability_rogue_waylay",
       "spellId": 381990
@@ -367,7 +777,17 @@
       "icon": "ability_rogue_rollthebones",
       "spellId": 1259481
     },
+    "117544": {
+      "name": "Dragon-Bone Dice",
+      "icon": "ability_rogue_rollthebones",
+      "spellId": 1259481
+    },
     "90666": {
+      "name": "Fan the Hammer",
+      "icon": "ability_rogue_pistolshot",
+      "spellId": 381846
+    },
+    "117558": {
       "name": "Fan the Hammer",
       "icon": "ability_rogue_pistolshot",
       "spellId": 381846
@@ -377,7 +797,17 @@
       "icon": "ability_rogue_ambush",
       "spellId": 383281
     },
+    "117567": {
+      "name": "Hidden Opportunity",
+      "icon": "ability_rogue_ambush",
+      "spellId": 383281
+    },
     "94565": {
+      "name": "Killing Spree",
+      "icon": "inv_112_rogue_betweentheeyes",
+      "spellId": 51690
+    },
+    "122160": {
       "name": "Killing Spree",
       "icon": "inv_112_rogue_betweentheeyes",
       "spellId": 51690
@@ -387,7 +817,17 @@
       "icon": "ability_rogue_keepitrolling",
       "spellId": 381989
     },
+    "117543": {
+      "name": "Keep It Rolling",
+      "icon": "ability_rogue_keepitrolling",
+      "spellId": 381989
+    },
     "90644": {
+      "name": "Fast Action",
+      "icon": "inv_musket_02",
+      "spellId": 1259480
+    },
+    "117535": {
       "name": "Fast Action",
       "icon": "inv_musket_02",
       "spellId": 1259480
@@ -397,17 +837,52 @@
       "icon": "ability_rogue_preparation",
       "spellId": 1277933
     },
+    "117557": {
+      "name": "Preparation",
+      "icon": "ability_rogue_preparation",
+      "spellId": 1277933
+    },
     "110434": {
       "name": "Gravedigger",
       "icon": "inv12_apextalent_rogue_gravedigger",
       "spellId": 1265861
+    },
+    "141834": {
+      "name": "Gravedigger",
+      "icon": "inv12_apextalent_rogue_gravedigger",
+      "spellId": 1265861
+    },
+    "141833": {
+      "name": "Gravedigger",
+      "icon": "inv12_apextalent_rogue_gravedigger",
+      "spellId": 1265862
+    },
+    "141832": {
+      "name": "Gravedigger",
+      "icon": "inv12_apextalent_rogue_gravedigger",
+      "spellId": 1265863
     },
     "95138": {
       "name": "Chosen's Revelry",
       "icon": "ability_priest_heavanlyvoice",
       "spellId": 1249201
     },
+    "122747": {
+      "name": "Chosen's Revelry",
+      "icon": "ability_priest_heavanlyvoice",
+      "spellId": 1249201
+    },
+    "129964": {
+      "name": "Tempted Fate",
+      "icon": "ability_rogue_sabreslash",
+      "spellId": 454286
+    },
     "95122": {
+      "name": "Mean Streak",
+      "icon": "inv_sigil_thorim",
+      "spellId": 453428
+    },
+    "122731": {
       "name": "Mean Streak",
       "icon": "inv_sigil_thorim",
       "spellId": 453428
@@ -417,7 +892,22 @@
       "icon": "ability_monk_ridethewind",
       "spellId": 454432
     },
+    "122739": {
+      "name": "Inexorable March",
+      "icon": "ability_monk_ridethewind",
+      "spellId": 454432
+    },
+    "129972": {
+      "name": "Death's Arrival",
+      "icon": "achievement_guildperk_havegroup_willtravel",
+      "spellId": 454433
+    },
     "109767": {
+      "name": "Sometimes Lucky",
+      "icon": "inv_misc_celestialmap",
+      "spellId": 1277030
+    },
+    "140780": {
       "name": "Sometimes Lucky",
       "icon": "inv_misc_celestialmap",
       "spellId": 1277030
@@ -427,7 +917,17 @@
       "icon": "ability_rogue_preparation",
       "spellId": 454419
     },
+    "122716": {
+      "name": "Deal Fate",
+      "icon": "ability_rogue_preparation",
+      "spellId": 454419
+    },
     "95139": {
+      "name": "Fate Intertwined",
+      "icon": "inv_cosmicvoid_beam",
+      "spellId": 1249215
+    },
+    "122748": {
       "name": "Fate Intertwined",
       "icon": "inv_cosmicvoid_beam",
       "spellId": 1249215
@@ -437,7 +937,17 @@
       "icon": "item_icecrownnecklacea",
       "spellId": 453457
     },
+    "122729": {
+      "name": "Edge Case",
+      "icon": "item_icecrownnecklacea",
+      "spellId": 453457
+    },
     "109768": {
+      "name": "Controlled Chaos",
+      "icon": "inv_112_raidtrinkets_blobofswirlingvoid_purple",
+      "spellId": 1276816
+    },
+    "140781": {
       "name": "Controlled Chaos",
       "icon": "inv_112_raidtrinkets_blobofswirlingvoid_purple",
       "spellId": 1276816
@@ -447,12 +957,32 @@
       "icon": "ability_bossgorefiend_touchofdoom",
       "spellId": 1249194
     },
+    "122728": {
+      "name": "Delivered Doom",
+      "icon": "ability_bossgorefiend_touchofdoom",
+      "spellId": 1249194
+    },
     "95114": {
       "name": "Overflowing Purse",
       "icon": "inv_misc_coinbag_special",
       "spellId": 1249190
     },
+    "122723": {
+      "name": "Overflowing Purse",
+      "icon": "inv_misc_coinbag_special",
+      "spellId": 1249190
+    },
+    "129971": {
+      "name": "Destiny Defined",
+      "icon": "ability_boss_fatescribe_rune6",
+      "spellId": 454435
+    },
     "95129": {
+      "name": "Rush to the Inevitable",
+      "icon": "ability_rogue_vigor",
+      "spellId": 1249204
+    },
+    "122738": {
       "name": "Rush to the Inevitable",
       "icon": "ability_rogue_vigor",
       "spellId": 1249204
@@ -462,7 +992,17 @@
       "icon": "inv_misc_coin_02",
       "spellId": 1276809
     },
+    "140779": {
+      "name": "Ravenholdt Mint",
+      "icon": "inv_misc_coin_02",
+      "spellId": 1276809
+    },
     "95127": {
+      "name": "Lucky Coin",
+      "icon": "inv_misc_markoftheworldtree",
+      "spellId": 1248970
+    },
+    "122736": {
       "name": "Lucky Coin",
       "icon": "inv_misc_markoftheworldtree",
       "spellId": 1248970
@@ -472,12 +1012,32 @@
       "icon": "ability_rogue_surpriseattack2",
       "spellId": 441273
     },
+    "122730": {
+      "name": "Surprising Strikes",
+      "icon": "ability_rogue_surpriseattack2",
+      "spellId": 441273
+    },
     "95141": {
       "name": "Smoke",
       "icon": "rogue_dirtytricks",
       "spellId": 441247
     },
+    "122750": {
+      "name": "Smoke",
+      "icon": "rogue_dirtytricks",
+      "spellId": 441247
+    },
+    "125030": {
+      "name": "Mirrors",
+      "icon": "trade_archaeology_highbornesoulmirror",
+      "spellId": 441250
+    },
     "95111": {
+      "name": "Flawless Form",
+      "icon": "inv_qiraj_jewelblessed",
+      "spellId": 441321
+    },
+    "122720": {
       "name": "Flawless Form",
       "icon": "inv_qiraj_jewelblessed",
       "spellId": 441321
@@ -487,12 +1047,32 @@
       "icon": "spell_holy_dizzy",
       "spellId": 1276626
     },
+    "140778": {
+      "name": "Hoodwink",
+      "icon": "spell_holy_dizzy",
+      "spellId": 1276626
+    },
     "95134": {
       "name": "So Tricky",
       "icon": "ability_rogue_tricksofthetrade",
       "spellId": 441403
     },
+    "122743": {
+      "name": "So Tricky",
+      "icon": "ability_rogue_tricksofthetrade",
+      "spellId": 441403
+    },
+    "125033": {
+      "name": "Don't Be Suspicious",
+      "icon": "ability_rogue_disguise",
+      "spellId": 441415
+    },
     "95133": {
+      "name": "Devious Distractions",
+      "icon": "ability_rogue_ghostpirate",
+      "spellId": 441263
+    },
+    "122742": {
       "name": "Devious Distractions",
       "icon": "ability_rogue_ghostpirate",
       "spellId": 441263
@@ -502,7 +1082,22 @@
       "icon": "inv_10_specialization_blacksmithing_blades_color1",
       "spellId": 441346
     },
+    "122746": {
+      "name": "Thousand Cuts",
+      "icon": "inv_10_specialization_blacksmithing_blades_color1",
+      "spellId": 441346
+    },
+    "125031": {
+      "name": "Flickerstrike",
+      "icon": "spell_nature_invisibilty",
+      "spellId": 441359
+    },
     "109764": {
+      "name": "Flashing Steel",
+      "icon": "inv_1115_warrior_fastermeleeattacks",
+      "spellId": 1276630
+    },
+    "140777": {
       "name": "Flashing Steel",
       "icon": "inv_1115_warrior_fastermeleeattacks",
       "spellId": 1276630
@@ -512,12 +1107,32 @@
       "icon": "petbattle_speed",
       "spellId": 441274
     },
+    "122727": {
+      "name": "Disorienting Strikes",
+      "icon": "petbattle_speed",
+      "spellId": 441274
+    },
     "95116": {
       "name": "Cloud Cover",
       "icon": "ability_rogue_smoke",
       "spellId": 441429
     },
+    "122725": {
+      "name": "Cloud Cover",
+      "icon": "ability_rogue_smoke",
+      "spellId": 441429
+    },
+    "125032": {
+      "name": "No Scruples",
+      "icon": "ability_rogue_surpriseattack",
+      "spellId": 441398
+    },
     "95128": {
+      "name": "Nimble Flurry",
+      "icon": "ability_rogue_bladetwisting",
+      "spellId": 441367
+    },
+    "122737": {
       "name": "Nimble Flurry",
       "icon": "ability_rogue_bladetwisting",
       "spellId": 441367
@@ -527,7 +1142,17 @@
       "icon": "ability_rogue_versatility",
       "spellId": 1276679
     },
+    "140776": {
+      "name": "Clever Combatant",
+      "icon": "ability_rogue_versatility",
+      "spellId": 1276679
+    },
     "95115": {
+      "name": "Coup de Grace",
+      "icon": "inv_ability_tricksterrogue_coupdegrace",
+      "spellId": 441423
+    },
+    "122724": {
       "name": "Coup de Grace",
       "icon": "inv_ability_tricksterrogue_coupdegrace",
       "spellId": 441423

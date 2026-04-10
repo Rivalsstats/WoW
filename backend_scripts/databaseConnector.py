@@ -794,7 +794,7 @@ def fetch_hero_tree_overview(connection, cursor, spec_id, season):
 
 
 FETCH_HERO_TREE_DIFFERENCES_SQL = """
-SELECT hero_talent_id, dungeon_id, SUM(run_count) 
+SELECT hero_talent_id, dungeon_id, SUM(run_count), AVG(avg_rank) 
 FROM Mythistone.aggregated_hero_talent aht 
 WHERE aht.spec_id = %s AND aht.season = %s  
 GROUP BY aht.hero_talent_id, aht.dungeon_id 
@@ -808,7 +808,7 @@ def fetch_hero_tree_differences(connection, cursor, spec_id, season):
 
 
 FETCH_HERO_TALENTS_DIFFERENCES_SQL = """
-SELECT hero_talent_id, dungeon_id, talent_id, SUM(run_count) 
+SELECT hero_talent_id, dungeon_id, talent_id, SUM(run_count), AVG(avg_rank) 
 FROM Mythistone.aggregated_hero_talent aht 
 WHERE aht.spec_id = %s AND aht.season = %s  
 GROUP BY aht.talent_id, aht.hero_talent_id, aht.dungeon_id 
@@ -824,7 +824,7 @@ def fetch_hero_talents_differences(connection, cursor, spec_id, season):
 
 
 FETCH_SPEC_TALENTS_DIFFERENCES_SQL = """
-SELECT hero_talent_id, dungeon_id, talent_id, SUM(run_count) 
+SELECT hero_talent_id, dungeon_id, talent_id, SUM(run_count), AVG(avg_rank) 
 FROM Mythistone.aggregated_spec_talent aht 
 WHERE aht.spec_id = %s AND aht.season = %s  
 GROUP BY aht.talent_id, aht.hero_talent_id, aht.dungeon_id 
@@ -840,7 +840,7 @@ def fetch_spec_talents_differences(connection, cursor, spec_id, season):
 
 
 FETCH_CLASS_TALENTS_DIFFERENCES_SQL = """
-SELECT hero_talent_id, dungeon_id, talent_id, SUM(run_count) 
+SELECT hero_talent_id, dungeon_id, talent_id, SUM(run_count), AVG(avg_rank) 
 FROM Mythistone.aggregated_class_talent aht 
 WHERE aht.spec_id = %s AND aht.season = %s  
 GROUP BY aht.talent_id, aht.hero_talent_id, aht.dungeon_id 
@@ -1750,7 +1750,7 @@ def fetch_runs_per_dungeon_per_level_above_level(
 
 
 FETCH_SPEC_TALENT_OVERVIEW_SQL = """
-SELECT talent_id, SUM(run_count) as count
+SELECT talent_id, SUM(run_count) AS count
 FROM Mythistone.aggregated_spec_talent aht 
 WHERE aht.spec_id = %s AND aht.season = %s
 GROUP BY aht.talent_id
@@ -1846,7 +1846,7 @@ def fetch_groupbuffs_stats(
 
 
 FETCH_CLASS_TALENT_OVERVIEW_SQL = """
-SELECT talent_id, SUM(run_count) as count
+SELECT talent_id, SUM(run_count) AS count
 FROM Mythistone.aggregated_class_talent aht 
 WHERE aht.spec_id = %s AND aht.season = %s
 GROUP BY aht.talent_id
@@ -2629,6 +2629,7 @@ LIMIT 1
 
 def fetch_example_skip_route(connection, cursor, dungeon_id: str, npc_id: int):
     return fetch_with_retry(connection, cursor, FETCH_EXAMPLE_SKIP_ROUTE_SQL, (dungeon_id, npc_id))
+
 
 
 
