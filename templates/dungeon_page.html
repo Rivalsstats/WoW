@@ -145,14 +145,14 @@
                             <h4 class="mb-0" id="{{ run_entry.name }}-run-value">Cleared in {{run_data.duration|
                                 duration}}
                             </h4>
-                            <div class="d-flex align-items-center mt-2">
+                            <div class="d-flex align-items-center justify-content-between mt-3">
                                 {% set role_order = ['0','1','2'] %}
                                 {% for role in role_order %}
                                 {% for member in run_data.members %}
                                 {% set spec = specs[ member.spec_id|string ] %}
                                 {% if spec and spec.role|string == role %}
                                 <img src="/data/icons/{{ spec.SpellIconFileId }}.jpg" alt="{{ spec.name }}"
-                                    title="{{ spec.name }}" class="me-1 avatar avatar-sm rounded-circle" />
+                                    title="{{ spec.name }}" class="rounded-circle border border-dark mb-1" style="width: 18%; max-width: 80px; aspect-ratio: 1; object-fit: cover;" />
                                 {% endif %}
                                 {% endfor %}
                                 {% endfor %}

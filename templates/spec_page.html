@@ -448,7 +448,7 @@
               </div>
               <div class="card-body ">
                 <h4 class="mb-0" id="fastest-run-value">Cleared in {{highest_run.duration| duration}}</h4>
-                <div class="d-flex align-items-center flex-wrap mt-1">
+                <div class="d-flex align-items-center justify-content-between mt-3">
                   {% set role_order = ['0','1','2'] %}
                   {# sort members tank -> heal -> dps #}
                   {% for role in role_order %}
@@ -456,7 +456,7 @@
                   {% set spec = spec_lookup[ member.spec_id|string ] %}
                   {% if spec.role == role %}
                   <img src="/data/icons/{{ spec_lookup[member.spec_id|string].SpellIconFileId }}.jpg"
-                    alt="{{ spec.name }}" title="{{ spec.name }}" class="avatar avatar-sm me-1 rounded-circle border border-dark" />
+                    alt="{{ spec.name }}" title="{{ spec.name }}" class="rounded-circle border border-dark mb-1" style="width: 18%; max-width: 80px; aspect-ratio: 1; object-fit: cover;" />
                   {% endif %}
                   {% endfor %}
                   {% endfor %}
