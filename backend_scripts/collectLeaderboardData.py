@@ -106,6 +106,17 @@ RUNS_DIR = DATA_DIR / "runs"
 DUNGEON_STATIC = DATA_DIR / "static" / "dungeons.json"
 HUNTER_SPEC_IDS = [253, 254, 255]
 
+TALENTS_STATIC = DATA_DIR / "static" / "talents.json"
+CHOICE_NODE_IDS = set()
+with open(TALENTS_STATIC, "r", encoding="utf-8") as f:
+    talents_data = json.load(f)
+    for spec in talents_data:
+        for node_type in ("classNodes", "specNodes", "heroNodes"):
+            for node in spec.get(node_type, []):
+                if node.get("type") == "choice":
+                    CHOICE_NODE_IDS.add(node["id"])
+
+print(f"Loaded {len(CHOICE_NODE_IDS)} choice node IDs from talents data.")
 # rio settings to get Highest Key Levels
 PAGE_TO_FETCH = 100
 KEYLEVELS_DOWN = 5
@@ -176,15 +187,14 @@ def aggregate_talents(talents_list: list) -> list:
     counts = defaultdict(int)
     for t in talents_list:
         tid = t.get("id")
+        rank = t.get("rank", 1)
         if tid is not None:
-            counts[tid] += t.get("rank", 0)
-        
-        # Choice nodes: also count the specifically chosen entry or spell
-        tooltip = t.get("tooltip", {})
-        talent_id = tooltip.get("talent", {}).get("id")
-        if talent_id is not None:
-            counts[talent_id] += t.get("rank", 0)
-            
+            counts[tid] += rank
+            if tid in CHOICE_NODE_IDS:
+                tooltip = t.get("tooltip", {})
+                choice_id = tooltip.get("talent", {}).get("id")
+                if choice_id is not None:
+                    counts[choice_id] += rank
     return list(counts.items())
 
 def aggregate_enemies_occurrence(pull: dict) -> dict:
@@ -500,12 +510,14 @@ async def load_processed_runs(session):
         is_active = season_part == active_season and period == active_period
 
         if is_active:
+            print(f"Loading runs from active season/period {season_part}/{period} for region {region} and realm {realm} from {runs_csv}")
             with runs_csv.open(newline="") as f:
                 reader = csv.reader(f)
-                next(reader, None)
+                print(f"Reading rows from {runs_csv}")
                 for row in reader:
                     if row:
                         processed_runs.add(row[0])
+                print(f"Finished loading {len(processed_runs)} runs from {runs_csv}")
         else:
             try:
                 runs_csv.unlink()
