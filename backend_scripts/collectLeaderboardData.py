@@ -824,13 +824,13 @@ async def get_hunter_pets(
 
 
 MAINSTATS = ["strength", "agility", "intellect"]
-NORMALSTATS = ["stamina"]
+NORMALSTATS = []
 VALUESTATS = ["mastery", "lifesteal", "speed"]
 RATINGBONUSSTATS = ["avoidance"]
 CRITSTATS = ["spell_crit"]
 HASTESTATS = ["spell_haste"]
 VERSASTATS = ["versatility", "versatility_damage_done_bonus"]
-RAWSTATS = ["health"]
+RAWSTATS = []
 
 
 def normalize_stats(data):
