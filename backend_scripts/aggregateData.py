@@ -265,18 +265,20 @@ def biggest_deviations_per_dungeon(data, top_n=3):
                     "dungeon_pct": dungeon_pct,
                     "pct_point_diff": pct_point_diff,
                     "rel_pct_change_percent": rel_change,
+                    "id": tid,
+                    "pct": pct_point_diff, # Keep this for compatibility if it's used elsewhere, though usually rel_change is better
                 }
             )
 
         # gains: positive pct_point_diff, sorted descending
-        gains = [r for r in rows if r["pct_point_diff"] > 0]
-        gains_sorted = sorted(gains, key=lambda r: r["pct_point_diff"], reverse=True)[
+        gains = [r for r in rows if r["rel_pct_change_percent"] is not None and r["rel_pct_change_percent"] > 0]
+        gains_sorted = sorted(gains, key=lambda r: r["rel_pct_change_percent"], reverse=True)[
             :top_n
         ]
 
         # losses: negative pct_point_diff, sorted ascending (most negative first)
-        losses = [r for r in rows if r["pct_point_diff"] < 0]
-        losses_sorted = sorted(losses, key=lambda r: r["pct_point_diff"])[:top_n]
+        losses = [r for r in rows if r["rel_pct_change_percent"] is not None and r["rel_pct_change_percent"] < 0]
+        losses_sorted = sorted(losses, key=lambda r: r["rel_pct_change_percent"])[:top_n]
 
         results[str(dungeon)] = {"gains": gains_sorted, "losses": losses_sorted}
 

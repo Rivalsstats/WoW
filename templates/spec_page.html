@@ -1544,6 +1544,9 @@
           <h5 class="modal-title" id="talentModalLabel">Talent Usage Variance by Dungeon</h5>
         </div>
         <div class="modal-body">
+          <p class="text-sm mb-3">
+            Percentages show the relative difference in a talent's usage within a specific dungeon compared to its average usage across all dungeons. For example, a +100% gain means the talent is used twice as often here.
+          </p>
           <div class="accordion" id="dungeonAccordion">
             {% for dungeon in hero_tree_difs['dungeons'] %}
             <div class="accordion-item mb-2">
@@ -1617,7 +1620,7 @@
                                 {{ lookup[top.talent_id|string].name }}
                               </span>
                               <span class="flex-shrink-0 mx-3 text-success">
-                                +{{ top.pct_point_diff |round(2) }}%
+                                {% if top.rel_pct_change_percent is not none %}+{{ top.rel_pct_change_percent |round(2) }}%{% endif %}
                               </span>
                             </a>
                             {% else %}
@@ -1633,7 +1636,7 @@
                               {% for item in data.gains[1:] %}
                               {% set tid = item.talent_id %}
                               {# prefer pct from item; if you have hero_tree_difs keyed by talent id use it instead #}
-                              {% set delta = item.pct_point_diff %}
+                              {% set delta = item.rel_pct_change_percent %}
                               <a class="d-flex align-items-center mb-2 text-decoration-none text-reset"
                                 href="https://www.wowhead.com{{ url_prefix }}={{ lookup[tid|string][id_attr] }}?spec={{ spec_id }}"
                                 target="_blank">
@@ -1641,7 +1644,7 @@
                                   style="width:24px;height:24px;" />
                                 <span class="ms-2">{{ lookup[tid|string].name }}</span>
                                 <span class="ms-auto text-success">
-                                  +{{ delta|round(2) }}%
+                                  {% if delta is not none %}+{{ delta|round(2) }}%{% endif %}
                                 </span>
                               </a>
                               {% endfor %}
@@ -1670,7 +1673,7 @@
                                 {{ lookup[top.talent_id|string].name }}
                               </span>
                               <span class="flex-shrink-0 mx-3 text-danger">
-                                {{ top.pct_point_diff|round(2) }}%
+                                {% if top.rel_pct_change_percent is not none %}{{ top.rel_pct_change_percent|round(2) }}%{% endif %}
                               </span>
                             </a>
                             {% else %}
@@ -1684,7 +1687,7 @@
                             <div class="accordion-body p-2">
                               {% for item in data.losses[1:] %}
                               {% set tid = item.talent_id %}
-                              {% set delta = item.pct_point_diff %}
+                              {% set delta = item.rel_pct_change_percent %}
                               <a class="d-flex align-items-center mb-2 text-decoration-none text-reset"
                                 href="https://www.wowhead.com{{ url_prefix }}={{ lookup[tid|string][id_attr] }}?spec={{ spec_id }}"
                                 target="_blank">
@@ -1692,7 +1695,7 @@
                                   style="width:24px;height:24px;" />
                                 <span class="ms-2">{{ lookup[tid|string].name }}</span>
                                 <span class="ms-auto text-danger">
-                                  {{ delta|round(2) }}%
+                                  {% if delta is not none %}{{ delta|round(2) }}%{% endif %}
                                 </span>
                               </a>
                               {% endfor %}
