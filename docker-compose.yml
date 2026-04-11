@@ -6,7 +6,7 @@ services:
     restart: always
     volumes:
       - ./.env:/app/.env:ro
-      - ./runs:/data/runs
+      - ./runs:/app/data/runs
     env_file: .env 
     environment:
       - GIT_BRANCH=main
