@@ -226,13 +226,24 @@ def format_duration(ms):
 
 # helpers
 
+def node_has_valid_spellid(node):
+    entries = node.get("entries", [])
+    # For choice/tiered nodes, at least one entry must have a nonzero spellId
+    for e in entries:
+        if e.get("spellId", 0):
+            return True
+    return False
 
 def build_ui_tree(nodes, pop_data, is_hero=False, pop_hero_tree_id=None):
+
     if not nodes:
         return {"nodes": [], "edges": []}
-        
+
     if is_hero and pop_hero_tree_id is not None:
         nodes = [n for n in nodes if n.get("subTreeId") == pop_hero_tree_id]
+
+    # Filter out nodes with no valid spellId in any entry
+    nodes = [n for n in nodes if node_has_valid_spellid(n)]
 
     pop_map = {}
     pop_avg_ranks = {}
