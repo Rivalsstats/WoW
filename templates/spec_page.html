@@ -88,7 +88,7 @@
 
           {% if reagent_lookup[entry.embellishment].craftingQuality %}
           <!-- Overlay icon -->
-          <img src="/data/icons/crafting-quality-{{ reagent_lookup[entry.embellishment].craftingQuality }}.png" alt=""
+          <img src="/data/icons/consumable-quality-{{ reagent_lookup[entry.embellishment].craftingQuality }}.png" alt=""
             class="position-absolute top-0 start-0 secondary-icon-overlay">
           {% endif %}
         </div>
@@ -126,7 +126,7 @@
             class="position-absolute top-0 start-0 border {% if enchant_lookup[entry.enchantment.id].quality %}border-quality-{{enchant_lookup[entry.enchantment.id].quality}} {% else %}border-grey-100{% endif %} secondary-icon-base">
           {% if enchant_lookup[entry.enchantment.id].craftingQuality %}
           <!-- Overlay icon -->
-          <img src="/data/icons/crafting-quality-{{ enchant_lookup[entry.enchantment.id].craftingQuality }}.png" alt=""
+          <img src="/data/icons/consumable-quality-{{ enchant_lookup[entry.enchantment.id].craftingQuality }}.png" alt=""
             class="position-absolute top-0 start-0 secondary-icon-overlay">
           {% endif %}
         </div>
@@ -146,7 +146,7 @@
 
             {% if socket_lookup[sock.id | int].craftingQuality %}
             <!-- Overlay icon -->
-            <img src="/data/icons/crafting-quality-{{ socket_lookup[sock.id | int].craftingQuality }}.png" alt=""
+            <img src="/data/icons/consumable-quality-{{ socket_lookup[sock.id | int].craftingQuality }}.png" alt=""
               class="position-absolute top-0 start-0 secondary-icon-overlay">
             {% endif %}
           </div>
@@ -933,7 +933,7 @@
                                               class="border {% if enchant_lookup[enchant].quality %}border-quality-{{ enchant_lookup[enchant].quality }}{% else %}border-grey-100{% endif %}">
                                             {% if enchant_lookup[enchant].craftingQuality %}
                                             <img
-                                              src="/data/icons/crafting-quality-{{ enchant_lookup[enchant].craftingQuality }}.png"
+                                              src="/data/icons/consumable-quality-{{ enchant_lookup[enchant].craftingQuality }}.png"
                                               alt="" class="icon-overlay">
                                             {% endif %}
                                           </a>
@@ -992,7 +992,7 @@
                                               class="border {% if enchant_lookup[enchant].quality %}border-quality-{{ enchant_lookup[enchant].quality }}{% else %}border-grey-100{% endif %}">
                                             {% if enchant_lookup[enchant].craftingQuality %}
                                             <img
-                                              src="/data/icons/crafting-quality-{{ enchant_lookup[enchant].craftingQuality }}.png"
+                                              src="/data/icons/consumable-quality-{{ enchant_lookup[enchant].craftingQuality }}.png"
                                               alt="" class="icon-overlay">
                                             {% endif %}
                                           </a>
@@ -1104,7 +1104,7 @@
                                     <img src="/data/icons/{{ gem.itemIcon }}.png" alt=""
                                       class="base-icon border {% if gem.quality %}border-quality-{{gem.quality}}{% else %}border-grey-100{% endif %}">
                                     {% if gem.craftingQuality %}
-                                    <img src="/data/icons/crafting-quality-{{ gem.craftingQuality }}.png" alt=""
+                                    <img src="/data/icons/consumable-quality-{{ gem.craftingQuality }}.png" alt=""
                                       class="icon-overlay">
                                     {% endif %}
                                   </a>
@@ -1206,7 +1206,7 @@
                                       class="base-icon border {% if reagent_lookup[embellishment].quality %}border-quality-{{reagent_lookup[embellishment].quality}}{% else %}border-grey-100{% endif %}">
                                     {% if reagent_lookup[embellishment].craftingQuality %}
                                     <img
-                                      src="/data/icons/crafting-quality-{{ reagent_lookup[embellishment].craftingQuality }}.png"
+                                      src="/data/icons/consumable-quality-{{ reagent_lookup[embellishment].craftingQuality }}.png"
                                       alt="" class="icon-overlay">
                                     {% endif %}
                                   </a>
