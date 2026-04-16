@@ -2,6 +2,7 @@ from contextlib import closing
 import requests
 import json
 import os
+import re
 import databaseConnector
 
 # List of Blizzard API regions to process
@@ -138,6 +139,28 @@ def main():
         raise ValueError(
             f"Could not find RaiderIO season matching Blizzard season ID {highest_season_id}. Is the expansion correct?"
         )
+    # prefer Blizzard's season name (text inside parentheses) when available
+    try:
+        bliz_region = "us"
+        bliz_namespace = f"dynamic-{bliz_region}"
+        bliz_season = blizzard_get(
+            season_details_url.format(region=bliz_region, season_id=highest_season_id),
+            params={"namespace": bliz_namespace, "locale": "en_US"},
+            token=token,
+        )
+        bliz_full_name = bliz_season.get("season_name", "") or ""
+        m = re.search(r"\(([^)]+)\)", bliz_full_name)
+        if m:
+            extracted = m.group(1).strip()
+        else:
+            extracted = bliz_full_name.strip()
+
+        # keep original raider.io structure but override 'name' for frontend display
+        CURRENT_SEASON["blizzard_season_name"] = bliz_full_name
+        CURRENT_SEASON["name"] = extracted
+    except Exception as e:
+        print(f"Failed to fetch/parse Blizzard season name: {e}")
+
     # persist season info
     with open(SEASON_INFO_JSON, "w", encoding="utf-8") as f:
         json.dump(CURRENT_SEASON, f, indent=2)
