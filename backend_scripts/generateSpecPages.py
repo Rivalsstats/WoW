@@ -623,6 +623,8 @@ def convert_slots(
     spec_talents_difs=None,
     missives=None,
     embellishments=None,
+    total_enchant_counts=None,
+    spec_runs=0,
 ):
     primary_ids = {int(items[0]["item"]) for items in slots if len(items) > 0}
 
@@ -701,17 +703,34 @@ def convert_slots(
                 item["socket"] = sockets_data
 
             enchantment_data = {}
-            if slot in WEAPON_SLOTS:
-                if item_lookup[int(item["item"])].get("itemClass") == 2 and enchant_slots.get("WEAPON") and len(enchant_slots["WEAPON"]) > 0:
-                    enchantment_data = enchant_slots["WEAPON"][0]
-            elif enchant_slots.get(slot) and len(enchant_slots[slot]) > 0:
-                enchantment_data = enchant_slots[slot][0]
-            elif (
-                MULTI_SLOT_GROUPS.get(slot)
-                and enchant_slots.get(MULTI_SLOT_GROUPS[slot])
-                and len(enchant_slots[MULTI_SLOT_GROUPS[slot]]) > 0
-            ):
-                enchantment_data = enchant_slots.get(MULTI_SLOT_GROUPS[slot], [])[0]
+            # Apply the same low-usage filtering used by the template dropdowns
+            # Template uses: total_enchant_counts[slot_name] >= (summary_data.count * 0.01)
+            threshold = (spec_runs * 0.01) if spec_runs else 0
+            try:
+                # weapon enchants live under the "WEAPON" group
+                if slot in WEAPON_SLOTS:
+                    weapon_ok = (
+                        enchant_slots.get("WEAPON")
+                        and len(enchant_slots["WEAPON"]) > 0
+                        and (total_enchant_counts.get("WEAPON", 0) >= threshold if total_enchant_counts else True)
+                    )
+                    if item_lookup[int(item["item"])].get("itemClass") == 2 and weapon_ok:
+                        enchantment_data = enchant_slots["WEAPON"][0]
+                # direct slot-specific enchants
+                elif enchant_slots.get(slot) and len(enchant_slots[slot]) > 0:
+                    if total_enchant_counts is None or total_enchant_counts.get(slot, 0) >= threshold:
+                        enchantment_data = enchant_slots[slot][0]
+                # multi-slot groups (FINGER/TRINKET)
+                elif (
+                    MULTI_SLOT_GROUPS.get(slot)
+                    and enchant_slots.get(MULTI_SLOT_GROUPS[slot])
+                    and len(enchant_slots[MULTI_SLOT_GROUPS[slot]]) > 0
+                ):
+                    group = MULTI_SLOT_GROUPS[slot]
+                    if total_enchant_counts is None or total_enchant_counts.get(group, 0) >= threshold:
+                        enchantment_data = enchant_slots.get(group, [])[0]
+            except Exception:
+                enchantment_data = {}
             item["enchantment"] = enchantment_data
 
 
@@ -981,6 +1000,8 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     conn, cursor, spec_id, current_season_id
                 )
                 total_crafted_items_count = sum(e[1] for e in crafted_items)
+                print(f"[{datetime.now(timezone.utc).isoformat()}] fetched {total_crafted_items_count} crafted items")
+                print(f"[{datetime.now(timezone.utc).isoformat()}] fetching socket limits...")
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching sockets...")
                 sockets = aggregateData.get_sockets(
                     conn, cursor, spec_id, current_season_id
@@ -1035,6 +1056,8 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     spec_talents_difs,
                     missives,
                     embellishments,
+                    total_enchant_counts,
+                    spec_runs,
                 )
                 print(
                     f"[{datetime.now(timezone.utc).isoformat()}] normalizing slots..."
