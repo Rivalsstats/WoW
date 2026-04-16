@@ -297,3 +297,92 @@
   cursor: help;
   font-weight: 500;
 }
+
+/* Compact stat card tweaks */
+.stat-card {
+  min-height: 54px;
+  border-radius: 8px;
+}
+.stat-card .card-body {
+  padding: 0.4rem;
+}
+.stat-icon-wrapper {
+  width: 34px;
+  height: 34px;
+}
+.stat-icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.stat-badge-sm {
+  font-size: 0.65rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  color: #ffffff;
+}
+.stat-value {
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1;
+  min-width: 48px;
+}
+.stat-progress {
+  background: rgba(255,255,255,0.04);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.stat-progress .progress-bar {
+  box-shadow: none;
+  transition: width 0.4s ease;
+}
+@media (max-width: 576px) {
+  .stat-card { min-height: 50px; }
+  .stat-value { font-size: 0.85rem; }
+  .stat-badge-sm { font-size: 0.6rem; }
+}
+
+/* Chip-style stat elements (icon + label + value + color dot) */
+.stat-chip {
+  display: inline-flex;
+  background: rgba(255,255,255,0.035);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 10px 18px;
+  gap: 12px;
+  align-items: center;
+  min-width: 220px;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.25) inset;
+}
+.stat-chip-icon {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+.stat-chip-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--bs-gray-100);
+  line-height: 1;
+}
+.stat-chip-value {
+  font-size: 1rem;
+  color: var(--bs-gray-300);
+  line-height: 1;
+}
+@media (max-width: 992px) {
+  .stat-chip { min-width: 180px; padding: 8px 14px; }
+  .stat-chip-icon { width: 30px; height: 30px; }
+  .stat-chip-name { font-size: 0.95rem; }
+  .stat-chip-value { font-size: 0.9rem; }
+}
+
+@media (max-width: 576px) {
+  .stat-chip { padding: 8px 10px; min-width: 0; width: 100%; }
+  .stat-chip-name { font-size: 0.95rem; }
+  .stat-chip-value { font-size: 0.9rem; }
+  .stat-chip-icon { width: 24px; height: 24px; }
+  .stat-chip-rank { width: 34px; height: 34px; border-radius: 8px; background: rgba(255,255,255,0.03); color: var(--bs-gray-100); font-weight:700; margin-right:6px; }
+}
+
+/* rank visible only on xs via bootstrap d-sm-none class; .stat-chip-rank styling above */
