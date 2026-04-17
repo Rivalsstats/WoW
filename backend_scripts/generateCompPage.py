@@ -20,6 +20,12 @@ def calculate_comp_stats(connection, cursor, season, spec_lookup):
     compiled_comps = {}
     spec_weights = {}
     total_runs = 0
+    # keystone level -> runs (used to determine top keylevels dynamically)
+    keylevel_counts = {}
+    # per-dungeon keystone counts: dungeon_id -> { keylevel: runs }
+    keylevel_counts_by_dungeon = {}
+    # Exponent used to emphasize higher keys when ranking high-key comps
+    HIGHKEY_EXP = 3
 
     for row in raw_comps:
         # row: dungeon_id, keystone_level, comp (csv string), timed_runs, depleted_runs
@@ -56,6 +62,10 @@ def calculate_comp_stats(connection, cursor, season, spec_lookup):
                 'depleted': 0,
                 'max_key': 0,
                 'avg_key_acc': 0,
+                # per-keylevel accumulators for dynamic top-keylevel metrics
+                'keylevel_runs': {},
+                'keylevel_timed': {},
+                'keylevel_weight': {},
                 'dungeons': {}
             }
             
@@ -65,7 +75,16 @@ def calculate_comp_stats(connection, cursor, season, spec_lookup):
         c['depleted'] += depleted
 
         if dungeon_id not in c['dungeons']:
-            c['dungeons'][dungeon_id] = {'w': 0, 't': 0, 'd': 0, 'mk': 0}
+            c['dungeons'][dungeon_id] = {
+                'w': 0,
+                't': 0,
+                'd': 0,
+                'mk': 0,
+                'avg_key_acc': 0,
+                'keylevel_runs': {},
+                'keylevel_timed': {},
+                'keylevel_weight': {}
+            }
         
         c['dungeons'][dungeon_id]['w'] += row_weight
         c['dungeons'][dungeon_id]['t'] += timed
@@ -76,6 +95,21 @@ def calculate_comp_stats(connection, cursor, season, spec_lookup):
         if keystone_level > c['max_key']:
             c['max_key'] = keystone_level
         c['avg_key_acc'] += (keystone_level * runs)
+        # accumulate per-keylevel stats for comp and per-dungeon
+        c['keylevel_runs'][keystone_level] = c['keylevel_runs'].get(keystone_level, 0) + runs
+        c['keylevel_timed'][keystone_level] = c['keylevel_timed'].get(keystone_level, 0) + timed
+        c['keylevel_weight'][keystone_level] = c['keylevel_weight'].get(keystone_level, 0) + row_weight
+        c['dungeons'][dungeon_id]['avg_key_acc'] += (keystone_level * runs)
+        c['dungeons'][dungeon_id]['keylevel_runs'][keystone_level] = c['dungeons'][dungeon_id]['keylevel_runs'].get(keystone_level, 0) + runs
+        c['dungeons'][dungeon_id]['keylevel_timed'][keystone_level] = c['dungeons'][dungeon_id]['keylevel_timed'].get(keystone_level, 0) + timed
+        c['dungeons'][dungeon_id]['keylevel_weight'][keystone_level] = c['dungeons'][dungeon_id]['keylevel_weight'].get(keystone_level, 0) + row_weight
+
+        # global keystone counts (for top N keylevels selection)
+        keylevel_counts[keystone_level] = keylevel_counts.get(keystone_level, 0) + runs
+        # per-dungeon keystone counts
+        if dungeon_id not in keylevel_counts_by_dungeon:
+            keylevel_counts_by_dungeon[dungeon_id] = {}
+        keylevel_counts_by_dungeon[dungeon_id][keystone_level] = keylevel_counts_by_dungeon[dungeon_id].get(keystone_level, 0) + runs
         
         for s in specs:
             spec_weights[s] = spec_weights.get(s, 0) + row_weight
@@ -92,6 +126,15 @@ def calculate_comp_stats(connection, cursor, season, spec_lookup):
             data['avg_key'] = 0
             
         unique_comps_list.append(data)
+
+    # Determine global top-2 keylevels by raw runs (fallback)
+    top_key_levels = [k for k, _ in sorted(keylevel_counts.items(), key=lambda x: x[1], reverse=True)][:2]
+
+    # Determine per-dungeon top-2 keylevels
+    top_key_levels_by_dungeon = {}
+    for did, counts in keylevel_counts_by_dungeon.items():
+        top_levels = [k for k, _ in sorted(counts.items(), key=lambda x: x[1], reverse=True)][:2]
+        top_key_levels_by_dungeon[did] = top_levels
 
     # Calculate Synergy
     print("Calculating synergy heatmap...")
@@ -169,25 +212,91 @@ def calculate_comp_stats(connection, cursor, season, spec_lookup):
     
     frontend_json = []
     for tc in top_comps:
+        # compute runs and best dungeon
         best_dungeon_id = max(tc['dungeons'].items(), key=lambda x: x[1]['t'] + x[1]['d'])[0] if tc['dungeons'] else 0
         best_dungeon_runs = sum(x for x in [tc['dungeons'].get(best_dungeon_id, {}).get('t', 0), tc['dungeons'].get(best_dungeon_id, {}).get('d', 0)])
+        tc_runs = tc.get('timed', 0) + tc.get('depleted', 0)
         
         # Round the weights inside the dungeons dictionary
         for did, d_stats in tc['dungeons'].items():
             d_stats['w'] = round(d_stats['w'], 2)
+            # compute per-dungeon runs and avg_key
+            d_runs = d_stats.get('t', 0) + d_stats.get('d', 0)
+            d_stats['runs'] = d_runs
+            if d_runs > 0:
+                d_stats['avg_key'] = round(d_stats.get('avg_key_acc', 0) / d_runs, 2)
+            else:
+                d_stats['avg_key'] = 0
+            # compute top-keylevel metrics for this dungeon using dungeon-specific top-2 levels
+            d_stats['top_key_runs'] = 0
+            d_stats['top_key_weight'] = 0
+            dungeon_top_levels = top_key_levels_by_dungeon.get(did, top_key_levels)
+            # compute per-dungeon high-key aggregates and identify highest top-key level this comp hit
+            d_stats['highkey_score'] = 0
+            d_stats['top_key_max'] = 0
+            for lvl in dungeon_top_levels:
+                lvl_runs = d_stats.get('keylevel_runs', {}).get(lvl, 0)
+                lvl_timed = d_stats.get('keylevel_timed', {}).get(lvl, 0)
+                lvl_weight = d_stats.get('keylevel_weight', {}).get(lvl, 0)
+                d_stats['top_key_runs'] += lvl_runs
+                d_stats['top_key_weight'] += round(lvl_weight, 2)
+                d_stats['top_key_timed'] = d_stats.get('top_key_timed', 0) + lvl_timed
+                # exponential score (timed weighted more, depleted as 10%)
+                key_factor = max(1, lvl - 9)
+                d_stats['highkey_score'] += lvl_timed * (key_factor ** HIGHKEY_EXP)
+                depleted = max(0, lvl_runs - lvl_timed)
+                d_stats['highkey_score'] += depleted * 0.1 * (key_factor ** HIGHKEY_EXP)
+                if lvl_runs > 0 and lvl > d_stats['top_key_max']:
+                    d_stats['top_key_max'] = lvl
+            # clean up heavy internals
+            d_stats.pop('avg_key_acc', None)
+            d_stats.pop('keylevel_runs', None)
+            d_stats.pop('keylevel_timed', None)
+            d_stats.pop('keylevel_weight', None)
             
+        # compute comp-level aggregated fields for frontend
+        # compute comp-level aggregated fields for frontend using global top-2 keylevels
+        top_key_runs = 0
+        top_key_weight = 0
+        top_key_timed = 0
+        highkey_score = 0
+        top_key_max = 0
+        for lvl in top_key_levels:
+            lvl_runs = tc.get('keylevel_runs', {}).get(lvl, 0)
+            lvl_timed = tc.get('keylevel_timed', {}).get(lvl, 0)
+            lvl_weight = tc.get('keylevel_weight', {}).get(lvl, 0)
+            top_key_runs += lvl_runs
+            top_key_weight += lvl_weight
+            top_key_timed += lvl_timed
+            # exponential high-key score (timed weighted more, depleted as 10%)
+            key_factor = max(1, lvl - 9)
+            highkey_score += lvl_timed * (key_factor ** HIGHKEY_EXP)
+            depleted_lvl = max(0, lvl_runs - lvl_timed)
+            highkey_score += depleted_lvl * 0.1 * (key_factor ** HIGHKEY_EXP)
+            if lvl_runs > 0 and lvl > top_key_max:
+                top_key_max = lvl
+
         frontend_json.append({
             'c': tc['specs'],
             'w': round(tc['weight'], 2),
             't': tc['timed'],
             'd': tc['depleted'],
+            'runs': tc_runs,
+            'avg_key': round(tc.get('avg_key', 0), 2),
             'mk': tc['max_key'],
             'bd': best_dungeon_id,
             'bdr': best_dungeon_runs,
+            'top_key_levels': top_key_levels,
+            'top_key_runs': top_key_runs,
+            'top_key_timed': top_key_timed,
+            'top_key_weight': round(top_key_weight, 2),
+            'highkey_score': round(highkey_score, 2),
+            'top_key_max': top_key_max,
             'dungeons': tc['dungeons']
         })
 
-    return frontend_json, synergy_matrix, hidden_gems_out, glue_specs_list
+    # also keep per-dungeon top keylevels for debugging or advanced UIs (not required client-side)
+    return frontend_json, synergy_matrix, hidden_gems_out, glue_specs_list, top_key_levels
 
 
 def main(template_path, output_dir):
@@ -227,7 +336,7 @@ def main(template_path, output_dir):
                     'icon': sdata.get('SpellIconFileId')
                 })
         
-        frontend_json, synergy_matrix, hidden_gems, glue_specs = calculate_comp_stats(conn, cursor, season, spec_lookup)
+        frontend_json, synergy_matrix, hidden_gems, glue_specs, top_key_levels = calculate_comp_stats(conn, cursor, season, spec_lookup)
         
         # Save Perfect Fit JSON
         json_out_dir = os.path.join("assets", "json")
@@ -260,6 +369,7 @@ def main(template_path, output_dir):
             ],
             notifications=notifications,
             cur_page="comps",
+            top_key_levels=top_key_levels,
         )
         
         out_path = os.path.join(output_dir, "comps.html")
