@@ -299,8 +299,7 @@
         specName: "{{ s.name }}",
           className: "{{ s.className }}",
             cleanClass: "{{ s.className|replace(' ', '') }}",
-              roleName: roleMap[{{ s.role }
-    }] || 'Dps',
+              roleName: roleMap[{{ s.role }}] || 'Dps',
       icon: "{{ s.icon }}" 
       },
     {% endfor %}
