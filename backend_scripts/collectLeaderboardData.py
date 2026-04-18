@@ -47,10 +47,10 @@ shutdown_event = asyncio.Event()
 MAX_GLOBAL_BACKOFF = 60.0
 WORKERS_PER_REALM = int(getenv_clean("WORKERS_PER_REALM", "5"))
 POLL_INTERVAL_SECONDS = int(getenv_clean("POLL_INTERVAL_SECONDS", "300"))
-TOP_PLAYER_LOADOUTS_TARGET = int(getenv_clean("TOP_PLAYER_LOADOUTS_TARGET", "5"))
+TOP_PLAYER_LOADOUTS_TARGET = int(getenv_clean("TOP_PLAYER_LOADOUTS_TARGET", "50"))
 TOP_PLAYER_LOADOUTS_PAGE_LIMIT = int(getenv_clean("TOP_PLAYER_LOADOUTS_PAGE_LIMIT", "200"))
 TOP_PLAYER_LOADOUTS_DAYS = int(getenv_clean("TOP_PLAYER_LOADOUTS_DAYS", "14"))
-TOP_PLAYER_LOADOUTS_PAGE_SLEEP = float(getenv_clean("TOP_PLAYER_LOADOUTS_PAGE_SLEEP", "1"))
+TOP_PLAYER_LOADOUTS_PAGE_SLEEP = float(getenv_clean("TOP_PLAYER_LOADOUTS_PAGE_SLEEP", "60"))
 
 # queues
 simple_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
@@ -557,7 +557,15 @@ async def load_processed_runs(session):
         active_seasons[region] = str(current_season)
         active_periods[region] = str(active_period)
 
-    for runs_csv in RUNS_DIR.rglob("*.csv"):
+    try:
+        runs_list = list(RUNS_DIR.rglob("*.csv"))
+    except FileNotFoundError:
+        runs_list = []
+
+    for runs_csv in runs_list:
+        # File may have been removed since we took the snapshot
+        if not runs_csv.exists():
+            continue
         try:
             rel = runs_csv.relative_to(RUNS_DIR)
         except Exception:
@@ -565,6 +573,9 @@ async def load_processed_runs(session):
             continue
 
         parts = rel.parts
+        if len(parts) < 4:
+            # unexpected layout, skip
+            continue
 
         region, realm, season_part, period_file = parts[0], parts[1], parts[2], parts[3]
         period = Path(period_file).stem
