@@ -25,6 +25,7 @@ import shutil
 from dotenv import load_dotenv
 import stats
 import discordHandler
+from urllib.parse import quote_plus
 
 # Load environment variables first as we need it for some of the configs
 load_dotenv()
@@ -46,6 +47,10 @@ shutdown_event = asyncio.Event()
 MAX_GLOBAL_BACKOFF = 60.0
 WORKERS_PER_REALM = int(getenv_clean("WORKERS_PER_REALM", "5"))
 POLL_INTERVAL_SECONDS = int(getenv_clean("POLL_INTERVAL_SECONDS", "300"))
+TOP_PLAYER_LOADOUTS_TARGET = int(getenv_clean("TOP_PLAYER_LOADOUTS_TARGET", "5"))
+TOP_PLAYER_LOADOUTS_PAGE_LIMIT = int(getenv_clean("TOP_PLAYER_LOADOUTS_PAGE_LIMIT", "200"))
+TOP_PLAYER_LOADOUTS_DAYS = int(getenv_clean("TOP_PLAYER_LOADOUTS_DAYS", "14"))
+TOP_PLAYER_LOADOUTS_PAGE_SLEEP = float(getenv_clean("TOP_PLAYER_LOADOUTS_PAGE_SLEEP", "1"))
 
 # queues
 simple_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
@@ -86,7 +91,7 @@ databaseConnector.init_connection_pool(
     getenv_clean("DATABASE_PASSWORD"),
     getenv_clean("DATABASE_NAME"),
     getenv_clean("DATABASE_PORT"),
-    DATABASE_WORKERS + 1,  # +1 for route_db_worker
+    DATABASE_WORKERS + 2,  # +2 for route_db_worker and run_raiderio_top_loadouts
 )
 
 if args.region:
@@ -452,6 +457,7 @@ async def get_max_keys_by_dungeon(session: ClientSession) -> dict[int, int]:
     """Returns a map dungeon_id -> highest mythic_level seen on Raider.IO."""
     # load slug lookup
     static = json.loads((DUNGEON_STATIC).read_text())
+    global CURRENT_SEASON
     max_keys = {}
     for did, info in static.items():
         slug = info["slug"]
@@ -466,10 +472,72 @@ async def get_max_keys_by_dungeon(session: ClientSession) -> dict[int, int]:
             async with session.get(url, params=static_params) as resp:
                 resp.raise_for_status()
                 data = await resp.json()
-            if data and data.get("rankings"):
-                max_keys[int(did)] = min(
-                    r["run"]["mythic_level"] for r in data["rankings"]
-                )
+
+            # Raider.IO may include the season slug in several places; check known locations
+            try:
+                season_slug = None
+                if isinstance(data, dict):
+                    season_slug = data.get("params", {}).get("season")
+                    if not season_slug:
+                        rankings_block = data.get("rankings")
+                        if isinstance(rankings_block, dict):
+                            season_slug = rankings_block.get("ui", {}).get("season")
+                    if not season_slug:
+                        season_slug = data.get("ui", {}).get("season")
+
+                if season_slug and not CURRENT_SEASON:
+                    CURRENT_SEASON = season_slug
+                    GLOBAL_STATS.console_log(f"Captured Raider.IO season slug: {CURRENT_SEASON}")
+            except Exception:
+                pass
+
+            # Extract mythic levels from the returned shape (be defensive about structure)
+            found_levels = []
+            try:
+                rankings_block = data.get("rankings") if isinstance(data, dict) else None
+                if isinstance(rankings_block, list):
+                    for r in rankings_block:
+                        if isinstance(r, dict):
+                            run = r.get("run")
+                            if isinstance(run, dict) and run.get("mythic_level") is not None:
+                                found_levels.append(int(run["mythic_level"]))
+                            else:
+                                runs = r.get("runs") or []
+                                if isinstance(runs, list):
+                                    for ru in runs:
+                                        if isinstance(ru, dict) and ru.get("mythic_level") is not None:
+                                            found_levels.append(int(ru.get("mythic_level")))
+
+                elif isinstance(rankings_block, dict):
+                    # common inner lists
+                    for key in ("rankedCharacters", "players", "characters"):
+                        lst = rankings_block.get(key)
+                        if isinstance(lst, list):
+                            for char in lst:
+                                if not isinstance(char, dict):
+                                    continue
+                                runs = char.get("runs") or []
+                                if isinstance(runs, list):
+                                    for ru in runs:
+                                        if isinstance(ru, dict) and ru.get("mythic_level") is not None:
+                                            found_levels.append(int(ru.get("mythic_level")))
+                else:
+                    # try top-level lists
+                    for key in ("rankedCharacters", "players"):
+                        lst = data.get(key)
+                        if isinstance(lst, list):
+                            for char in lst:
+                                runs = char.get("runs") or []
+                                if isinstance(runs, list):
+                                    for ru in runs:
+                                        if isinstance(ru, dict) and ru.get("mythic_level") is not None:
+                                            found_levels.append(int(ru.get("mythic_level")))
+
+                if found_levels:
+                    # choose the maximum seen mythic level for this dungeon
+                    max_keys[int(did)] = max(found_levels)
+            except Exception:
+                pass
         except Exception as e:
             GLOBAL_STATS.console_log(
                 f"Error fetching max keys for dungeon {did} ({slug}): {e}"
@@ -797,6 +865,587 @@ async def get_leaderboard_index(
         {"dungeon_id": lb["id"], "name": lb["name"]}
         for lb in data["current_leaderboards"]
     ]
+
+
+def slugify(name: str) -> str:
+    if not name:
+        return ""
+    s = name.lower().strip()
+    s = s.replace(" ", "-").replace("'", "").replace(".", "")
+    return s
+
+
+async def fetch_spec_rankings(session, class_slug, spec_slug, season, page=0):
+    url = "https://raider.io/api/mythic-plus/rankings/specs"
+    params = {
+        "region": "world",
+        "class": class_slug,
+        "spec": spec_slug,
+        "page": page,
+    }
+    if season:
+        params["season"] = season
+    await RAIDER_RATE_LIMIT.acquire()
+    try:
+        async with session.get(url, params=params) as resp:
+            if resp.status == 404:
+                return None
+            if resp.status == 429:
+                ra = resp.headers.get("Retry-After")
+                wait = float(ra) if ra else 2.0
+                await asyncio.sleep(wait)
+                return None
+            resp.raise_for_status()
+            return await resp.json()
+    except Exception as e:
+        GLOBAL_STATS.console_log(f"ERROR fetching spec rankings {class_slug}/{spec_slug} page {page}: {e}")
+        return None
+
+
+async def fetch_character_loadouts(session, region, realm, name):
+    # realm may be a dict from Raider.IO payloads; normalize to a slug string
+    realm_slug = None
+    try:
+        if isinstance(realm, dict):
+            realm_slug = (
+                realm.get("slug")
+                or realm.get("altSlug")
+                or realm.get("alt_slug")
+                or realm.get("name")
+                or realm.get("altName")
+                or realm.get("alt_name")
+                or (str(realm.get("id")) if realm.get("id") is not None else None)
+            )
+            if realm_slug:
+                realm_slug = slugify(str(realm_slug))
+        else:
+            realm_slug = str(realm)
+    except Exception:
+        realm_slug = str(realm)
+
+    if not realm_slug:
+        GLOBAL_STATS.console_log(f"ERROR: could not determine realm slug for character {name}: {realm!r}")
+        return None
+
+    # name may also be an object in some payloads
+    name_str = name.get("name") if isinstance(name, dict) and name.get("name") else str(name)
+
+    # realm and name should be URL-safe
+    realm_q = quote_plus(realm_slug)
+    name_q = quote_plus(name_str)
+    url = f"https://raider.io/api/characters/{region}/{realm_q}/{name_q}/loadouts"
+    params = {"access_key": RAIDERIO_API_KEY}
+    await RAIDER_RATE_LIMIT.acquire()
+    try:
+        async with session.get(url, params=params) as resp:
+            if resp.status == 404:
+                return None
+            if resp.status == 429:
+                ra = resp.headers.get("Retry-After")
+                wait = float(ra) if ra else 2.0
+                await asyncio.sleep(wait)
+                return None
+            resp.raise_for_status()
+            return await resp.json()
+    except Exception as e:
+        GLOBAL_STATS.console_log(f"ERROR fetching loadouts for {name_str}@{realm_slug}: {e}")
+        return None
+
+
+async def fetch_loadout_detail(session, loadout_id , realm, name, region):
+    url = f"https://raider.io/api/characters/{region}/{realm}/{name}?loadout={loadout_id}"
+    await RAIDER_RATE_LIMIT.acquire()
+    try:
+        async with session.get(url) as resp:
+            if resp.status == 404:
+                return None
+            if resp.status == 429:
+                ra = resp.headers.get("Retry-After")
+                wait = float(ra) if ra else 2.0
+                await asyncio.sleep(wait)
+                return None
+            resp.raise_for_status()
+            return await resp.json()
+    except Exception as e:
+        GLOBAL_STATS.console_log(f"ERROR fetching loadout detail {loadout_id}: {e}")
+        return None
+
+RAIDERIO_SLOT_MAP = {
+    "back": "BACK",
+    "chest": "CHEST",
+    "feet": "FEET",
+    "finger1": "FINGER_1",
+    "finger2": "FINGER_2",
+    "finger": "FINGER_1",
+    "hands": "HANDS",
+    "head": "HEAD",
+    "legs": "LEGS",
+    "mainhand": "MAIN_HAND",
+    "offhand": "OFF_HAND",
+    "neck": "NECK",
+    "shirt": None,  # ignore shirt
+    "shoulder": "SHOULDERS",
+    "trinket1": "TRINKET_1",
+    "trinket2": "TRINKET_2",
+    "trinket": "TRINKET_1",
+    "waist": "WAIST",
+    "wrist": "WRIST",
+}
+def parse_loadout_for_db(spec_id, season, rank, loadout_detail):
+    items_rows = []
+    gems_rows = []
+    talents_rows = []
+    enchants_rows = []
+    # items may appear under itemDetails.items or items
+    item_details = {}
+    if isinstance(loadout_detail, dict):
+        item_details = loadout_detail.get("itemDetails") or loadout_detail.get("items") or {}
+        # also support nested structure from characterDetails -> itemDetails
+        if not item_details and loadout_detail.get("characterDetails"):
+            item_details = loadout_detail["characterDetails"].get("itemDetails", {})
+    if isinstance(item_details, dict):
+        items_map = item_details.get("items") if "items" in item_details else item_details
+        # Map common Raider.IO slot names to Blizzard slot names used in DB
+        for slot, obj in items_map.items():
+            try:
+                # normalize incoming slot key for lookup
+                if not slot:
+                    continue
+                norm_slot = str(slot).lower().replace(" ", "").replace("-", "").replace("/", "").replace("\\", "").replace("_", "")
+                bliz_slot = RAIDERIO_SLOT_MAP.get(norm_slot)
+                if bliz_slot is None:
+                    continue
+                item_id = obj.get("item_id") or obj.get("id") or obj.get("itemId") or None
+                if item_id is None:
+                    continue
+                item_level = obj.get("item_level") or obj.get("item_level_equipped") or None
+                enchant = obj.get("enchant") or obj.get("enchantment") or obj.get("enchantment_id") or None
+                # don't include enchant in items_rows; store separately
+                items_rows.append((spec_id, season, rank, bliz_slot, int(item_id), int(item_level) if item_level else None))
+                # normalize enchant id if present
+                try:
+                    if enchant:
+                        if isinstance(enchant, dict):
+                            ench_id = enchant.get("item_id") or enchant.get("id") or enchant.get("enchantment_id")
+                        else:
+                            ench_id = enchant
+                        if ench_id:
+                            enchants_rows.append((spec_id, season, rank, bliz_slot, int(ench_id)))
+                except Exception:
+                    pass
+                gems = obj.get("gems") or obj.get("gems_detail") or []
+                for g in gems:
+                    # Only store the gem item id; do not record socket indices or slot
+                    if isinstance(g, dict):
+                        gem_id = g.get("item_id") or g.get("id") or g.get("itemId") or None
+                    else:
+                        gem_id = g
+                    if gem_id:
+                        try:
+                            gems_rows.append((spec_id, season, rank, int(gem_id)))
+                        except Exception:
+                            continue
+            except Exception:
+                continue
+    # talents under characterDetails.character.talentLoadout.nodes
+    try:
+        nodes = loadout_detail.get("characterDetails", {}).get("character", {}).get("talentLoadout", {}).get("nodes", []) if isinstance(loadout_detail, dict) else []
+        for n in nodes:
+            node_obj = n.get("node") or n.get("node_id") or {}
+            node_id = node_obj.get("id") if isinstance(node_obj, dict) else node_obj
+            node_rank = int(n.get("rank") or 1)
+            if node_id:
+                talents_rows.append((spec_id, season, rank, int(node_id), node_rank))
+    except Exception:
+        pass
+    return items_rows, gems_rows, talents_rows, enchants_rows
+
+
+def extract_rankings_from_spec_response(data):
+    """Normalize Raider.IO /rankings/specs response to a list of ranking entries.
+
+    The Raider.IO API returns several shapes depending on endpoint/version:
+    - {'rankings': [ ... ]}
+    - {'rankings': {'rankedCharacters': [ ... ], 'ui': {...}}}
+    - {'rankedCharacters': [ ... ]}
+    - a plain list
+
+    This helper tries common variants and returns an empty list if none found.
+    """
+    if not data:
+        return []
+
+    # direct list response
+    if isinstance(data, list):
+        return data
+
+    # direct 'rankings' key
+    rankings = data.get("rankings") if isinstance(data, dict) else None
+    if isinstance(rankings, list):
+        return rankings
+    if isinstance(rankings, dict):
+        # look for common inner list keys
+        for key in ("rankedCharacters", "players", "rankings"):
+            val = rankings.get(key)
+            if isinstance(val, list):
+                return val
+        # fallback: return first list value inside the dict
+        for v in rankings.values():
+            if isinstance(v, list):
+                return v
+
+    # top-level list-like keys
+    for key in ("rankedCharacters", "players", "rankings"):
+        val = data.get(key)
+        if isinstance(val, list):
+            return val
+
+    return []
+
+
+async def run_raiderio_top_loadouts(session):
+    """Collect best N verified loadouts per spec and write to DB."""
+    GLOBAL_STATS.console_log(f"Starting top-player loadouts collector (target={TOP_PLAYER_LOADOUTS_TARGET})")
+    specs = json.loads((DATA_DIR / "static" / "specs.json").read_text())
+    class_lookup = json.loads((DATA_DIR / "static" / "classes.json").read_text())
+
+    global CURRENT_SEASON
+
+    # season: prefer CURRENT_SEASON, then environment override; otherwise attempt to fetch from Raider.IO
+    season = CURRENT_SEASON or getenv_clean("RAIDERIO_SEASON") or getenv_clean("TOP_PLAYER_LOADOUTS_SEASON") or ""
+
+    if not season:
+        try:
+            # pick a sample dungeon and read its runs page to learn the current Raider.IO season param
+            dungeons = json.loads(DUNGEON_STATIC.read_text())
+            sample_info = next(iter(dungeons.values()))
+            sample_slug = sample_info.get("slug")
+            if sample_slug:
+                data = await fetch_raider_page(session, sample_slug, 1)
+                season = data.get("params", {}).get("season") if data else ""
+                if season:
+                    CURRENT_SEASON = season
+                    GLOBAL_STATS.console_log(f"Determined Raider.IO season: {season}")
+        except Exception as e:
+            GLOBAL_STATS.console_log(f"Unable to determine Raider.IO season automatically: {e}")
+            season = ""
+
+    with closing(databaseConnector.get_connection()) as conn:
+        cursor = conn.cursor()
+
+        for spec_id_str, spec_info in specs.items():
+            if cancel_event.is_set():
+                break
+            try:
+                spec_id = int(spec_id_str)
+                spec_name = spec_info.get("name")
+                class_id = spec_info.get("classID")
+                class_name = class_lookup.get(str(class_id), {}).get("name") if class_id else None
+                class_slug = slugify(class_name)
+                spec_slug = slugify(spec_name)
+
+                if not class_slug or not spec_slug:
+                    GLOBAL_STATS.console_log(f"Skipping spec {spec_id} missing slug mapping: {spec_name}")
+                    continue
+
+                GLOBAL_STATS.console_log(f"Collecting top loadouts for spec {spec_id} ({class_slug}/{spec_slug})")
+                collected = {}
+                page = 0
+                while len(collected) < TOP_PLAYER_LOADOUTS_TARGET and page < TOP_PLAYER_LOADOUTS_PAGE_LIMIT:
+                    data = await fetch_spec_rankings(session, class_slug, spec_slug, season, page)
+                    if not data:
+                        page += 1
+                        await asyncio.sleep(TOP_PLAYER_LOADOUTS_PAGE_SLEEP)
+                        continue
+                    rankings = extract_rankings_from_spec_response(data)
+                    if not rankings:
+                        raise ValueError(f"No rankings found in response for spec {spec_id} page {page}: {data!r}")
+                        break
+
+                    # determine region for character/profile requests from the rankings page
+                    region_slug = None
+                    if isinstance(data, dict):
+                        region_slug = data.get("ui", {}).get("region") or (data.get("region") or {}).get("slug")
+                    if not region_slug:
+                        region_slug = "world"
+                    for idx, entry in enumerate(rankings):
+                        print(f"Processing spec {spec_id} page {page} entry {idx} (collected so far: {len(collected)})")
+                        if len(collected) >= TOP_PLAYER_LOADOUTS_TARGET:
+                            break
+                        if not isinstance(entry, dict):
+                            await GLOBAL_STATS.increment("skipped_ranking_entries")
+                            continue
+
+                        # compute rank robustly
+                        pos = entry.get("position") or entry.get("rank")
+                        try:
+                            rank = int(pos) if pos is not None else (page * 100 + idx + 1)
+                        except Exception:
+                            rank = page * 100 + idx + 1
+
+                        char = entry.get("character")
+                        if not isinstance(char, dict):
+                            await GLOBAL_STATS.increment("skipped_character_entries")
+                            continue
+                        char_name = char.get("name")
+                        char_realm = None
+                        try:
+                            char_realm = (char.get("realm") or {}).get("slug")
+                        except Exception:
+                            char_realm = None
+                        if not char_name or not char_realm:
+                            continue
+
+                        # gather highest key per dungeon for this ranked character from the ranking entry
+                        runs_list = entry.get("runs") or char.get("runs") or []
+                        runs_by_zone = {}
+                        for ru in runs_list:
+                            if not isinstance(ru, dict):
+                                continue
+                            zid = ru.get("zoneId") or ru.get("zone_id") or (ru.get("zone") or {}).get("id")
+                            lvl = ru.get("mythicLevel") or ru.get("mythic_level") or ru.get("level") or ru.get("keystone_level")
+                            try:
+                                zid_i = int(zid) if zid is not None else None
+                            except Exception:
+                                zid_i = None
+                            try:
+                                lvl_i = int(lvl) if lvl is not None else 0
+                            except Exception:
+                                lvl_i = 0
+                            if zid_i:
+                                runs_by_zone[zid_i] = max(runs_by_zone.get(zid_i, 0), lvl_i)
+
+                        # fetch verified loadouts for character (prefer character region if available)
+                        char_region_slug = (char.get("region") or {}).get("slug") or region_slug or "world"
+                        loadouts_resp = await fetch_character_loadouts(session, char_region_slug, char_realm, char_name)
+                        await asyncio.sleep(TOP_PLAYER_LOADOUTS_PAGE_SLEEP)
+                        if not loadouts_resp:
+                            continue
+                        candidate_loadouts = loadouts_resp.get("loadouts") if isinstance(loadouts_resp, dict) and "loadouts" in loadouts_resp else loadouts_resp
+                        if not candidate_loadouts or not isinstance(candidate_loadouts, list):
+                            continue
+
+                        # For this ranked character, pick at most one loadout per dungeon where a verified loadout exists
+                        per_dungeon_selected = []
+                        for zid, highest_key in runs_by_zone.items():
+                            allowed_min = max(0, highest_key - 1)
+                            # find matching loadouts for this dungeon (match by zone.id == zid)
+                            matches = []
+                            for ld in candidate_loadouts:
+                                if not isinstance(ld, dict):
+                                    continue
+                                z = ld.get("zone") or {}
+                                try:
+                                    ld_zone_id = int(z.get("id")) if isinstance(z, dict) and z.get("id") is not None else None
+                                except Exception:
+                                    ld_zone_id = None
+                                if ld_zone_id != zid:
+                                    continue
+                                # get mythic level for the loadout (logged-mplus)
+                                lvl = ld.get("mythic_level") or ld.get("mythicLevel") or 0
+                                try:
+                                    lvl_i = int(lvl) if lvl is not None else 0
+                                except Exception:
+                                    lvl_i = 0
+                                if lvl_i >= allowed_min:
+                                    # prefer higher key, then newer loadoutDate
+                                    date_str = ld.get("loadoutDate") or ld.get("createdAt") or ld.get("updatedAt")
+                                    try:
+                                        date_dt = datetime.fromisoformat(date_str.replace("Z", "+00:00")) if date_str else datetime.fromtimestamp(0, tz=timezone.utc)
+                                    except Exception:
+                                        date_dt = datetime.fromtimestamp(0, tz=timezone.utc)
+                                    matches.append((lvl_i, date_dt, ld))
+                            if not matches:
+                                continue
+                            # choose best match
+                            matches.sort(key=lambda x: (-x[0], -int(x[1].timestamp())))
+                            chosen = matches[0][2]
+                            # prepare detail (may need fetching)
+                            loadout_id = chosen.get("optionKey") or chosen.get("id")
+                            detail = None
+                            try:
+                                if loadout_id:
+                                    detail = await fetch_loadout_detail(session, loadout_id, char_realm, char_name, char_region_slug)
+                                    await asyncio.sleep(TOP_PLAYER_LOADOUTS_PAGE_SLEEP)
+                            except Exception:
+                                detail = None
+                            if not detail:
+                                detail = chosen
+
+                            items_rows, gems_rows, talents_rows, enchants_rows = parse_loadout_for_db(spec_id, season, rank, detail)
+
+                            per_dungeon_selected.append(
+                                {
+                                    "meta": {
+                                        "region": char_region_slug,
+                                        "character_id": chosen.get("character_id") or chosen.get("id"),
+                                        "character_name": char_name,
+                                        "realm": char_realm,
+                                        "loadout_key": loadout_id,
+                                        "loadout_updated_at": chosen.get("loadoutDate") or chosen.get("createdAt"),
+                                        "keystone_level": chosen.get("mythic_level") or chosen.get("mythicLevel") or None,
+                                        "zone_id": zid,
+                                        "map_challenge_mode_id": (chosen.get("zone") or {}).get("map_challenge_mode_id") if isinstance(chosen.get("zone"), dict) else None,
+                                    },
+                                    "items": items_rows,
+                                    "gems": gems_rows,
+                                    "talents": talents_rows,
+                                    "enchants": enchants_rows,
+                                }
+                            )
+
+                        if per_dungeon_selected:
+                            # store list of per-dungeon entries under this rank
+                            if rank not in collected:
+                                collected[rank] = []
+                            collected[rank].extend(per_dungeon_selected)
+
+                    page += 1
+                    await asyncio.sleep(TOP_PLAYER_LOADOUTS_PAGE_SLEEP)
+
+                # persist top N ranks in DB (ensure ranks 1..N canonical)
+                ranks_sorted = sorted(collected.keys())[:TOP_PLAYER_LOADOUTS_TARGET]
+                # cache Blizzard numeric season id per region to avoid repeated API calls
+                season_id_cache: dict[str, int] = {}
+                for r in ranks_sorted:
+                    entries = collected.get(r) or []
+                    # resolve DB season id cache per entry region as needed
+                    for entry in entries:
+                        meta = entry.get("meta") or {}
+                        items = entry.get("items") or []
+                        gems = entry.get("gems") or []
+                        talents = entry.get("talents") or []
+                        enchants = entry.get("enchants") or []
+
+                        # convert loadout_updated_at to DATETIME string if present
+                        lut = None
+                        if meta.get("loadout_updated_at"):
+                            try:
+                                lut_dt = datetime.fromisoformat(str(meta["loadout_updated_at"]).replace("Z", "+00:00"))
+                                lut = lut_dt.strftime("%Y-%m-%d %H:%M:%S")
+                            except Exception:
+                                lut = None
+
+                        try:
+                            # determine integer DB season id
+                            db_season = None
+                            try:
+                                if isinstance(season, int):
+                                    db_season = int(season)
+                                elif isinstance(season, str) and season.isdigit():
+                                    db_season = int(season)
+                            except Exception:
+                                db_season = None
+
+                            if db_season is None:
+                                entry_region = meta.get("region") or (REGIONS[0] if REGIONS else "us")
+                                if entry_region == "world" or entry_region not in REGIONS:
+                                    entry_region = REGIONS[0] if REGIONS else "us"
+                                if entry_region in season_id_cache:
+                                    db_season = season_id_cache[entry_region]
+                                else:
+                                    try:
+                                        sid = await get_current_season_id(session, entry_region)
+                                        if sid:
+                                            season_id_cache[entry_region] = int(sid)
+                                            db_season = int(sid)
+                                    except Exception:
+                                        db_season = None
+
+                            if db_season is None:
+                                raise ValueError(f"Unable to determine numeric season id for DB for spec {spec_id}")
+
+                            # map challenge id expected by DB
+                            map_challenge_mode_id = meta.get("map_challenge_mode_id") or meta.get("zone_id")
+                            if map_challenge_mode_id is None:
+                                # nothing to insert for this dungeon
+                                continue
+
+                            # Delete existing meta (cascades children), then insert meta + children in a transaction
+                            deleted = databaseConnector.delete_top_player_meta(conn, cursor, spec_id, r, int(map_challenge_mode_id))
+                            GLOBAL_STATS.console_log(f"DEBUG delete_top_player_meta rowcount={deleted} spec={spec_id} rank={r} map_challenge_mode_id={map_challenge_mode_id}")
+
+                            databaseConnector.insert_top_player_meta(
+                                conn,
+                                cursor,
+                                spec_id,
+                                db_season,
+                                r,
+                                int(map_challenge_mode_id),
+                                meta.get("region"),
+                                meta.get("character_id"),
+                                meta.get("character_name"),
+                                meta.get("realm"),
+                                str(meta.get("loadout_key")),
+                                lut,
+                                meta.get("keystone_level"),
+                            )
+
+                            # batch insert children - ensure season is numeric DB id
+                            if items:
+                                items_to_insert = []
+                                for it in items:
+                                    try:
+                                        # it format: (spec_id, season, rank, slot, item_id, item_level)
+                                        items_to_insert.append((it[0], db_season, r, int(map_challenge_mode_id), it[3], it[4], it[5]))
+                                    except Exception:
+                                        continue
+                                if items_to_insert:
+                                    databaseConnector.insert_top_player_items_batch(conn, cursor, items_to_insert)
+
+                            # insert enchantments (moved out of items table)
+                            if enchants:
+                                enchants_to_insert = []
+                                for e in enchants:
+                                    try:
+                                        # e format: (spec_id, season, rank, slot, enchantment_id)
+                                        enchants_to_insert.append((e[0], db_season, r, int(map_challenge_mode_id), e[3], e[4]))
+                                    except Exception:
+                                        continue
+                                if enchants_to_insert:
+                                    databaseConnector.insert_top_player_enchants_batch(conn, cursor, enchants_to_insert)
+
+                            if gems:
+                                # Aggregate gem usage counts across all items in this loadout
+                                gem_counts = Counter()
+                                for g in gems:
+                                    try:
+                                        # g format: (spec_id, season, rank, gem_item_id)
+                                        gem_id = int(g[3])
+                                        gem_counts[gem_id] += 1
+                                    except Exception:
+                                        continue
+                                gems_to_insert = []
+                                for gem_id, cnt in gem_counts.items():
+                                    gems_to_insert.append((spec_id, db_season, r, int(map_challenge_mode_id), gem_id, cnt))
+                                if gems_to_insert:
+                                    databaseConnector.insert_top_player_gems_batch(conn, cursor, gems_to_insert)
+
+                            if talents:
+                                talents_to_insert = []
+                                for t in talents:
+                                    try:
+                                        # t format: (spec_id, season, rank, node_id, node_rank)
+                                        talents_to_insert.append((t[0], db_season, r, int(map_challenge_mode_id), t[3], t[4]))
+                                    except Exception:
+                                        continue
+                                if talents_to_insert:
+                                    databaseConnector.insert_top_player_talents_batch(conn, cursor, talents_to_insert)
+
+                            databaseConnector.commit_with_retry(conn)
+                            await GLOBAL_STATS.increment("db_top_loadout_insert")
+                        except Exception as e:
+                            conn.rollback()
+                            GLOBAL_STATS.console_log(f"DB error inserting top loadout for spec {spec_id} rank {r}: {e}")
+                            traceback.print_exc()
+                            continue
+
+            except Exception as e:
+                GLOBAL_STATS.console_log(f"Error processing spec {spec_id}: {e}")
+                traceback.print_exc()
+
+    GLOBAL_STATS.console_log("Completed top-player loadouts collector.")
+
 
 
 async def get_leaderboard(
@@ -1510,6 +2159,7 @@ async def main():
             tasks.append(asyncio.create_task(realm_poller(region, session, max_keys)))
 
         tasks.append(asyncio.create_task(route_poller_task(session)))
+        tasks.append(asyncio.create_task(run_raiderio_top_loadouts(session)))
 
 
         GLOBAL_STATS.console_log(

@@ -999,9 +999,9 @@ def fetch_total_season_runs(connection, cursor, season):
     if not amount_row:
         return 0
     if isinstance(amount_row, dict):
-        total_runs = amount_row.get("total_runs") or 0
+        total_runs = amount_row.get("total_runs", 0)
     else:
-        total_runs = amount_row[0] or 0
+        total_runs = amount_row[0] if amount_row[0] is not None else 0
     return total_runs
 
 
@@ -1021,9 +1021,9 @@ def fetch_runs_per_spec(connection, cursor, season, spec_id):
         return 0
     row = rows[0]
     if isinstance(row, dict):
-        total_runs = row.get("total_runs") or 0
+        total_runs = row.get("total_runs", 0)
     else:
-        total_runs = row[0] or 0
+        total_runs = row[0] if row[0] is not None else 0
     return int(total_runs)
 
 
@@ -2629,6 +2629,188 @@ LIMIT 1
 
 def fetch_example_skip_route(connection, cursor, dungeon_id: str, npc_id: int):
     return fetch_with_retry(connection, cursor, FETCH_EXAMPLE_SKIP_ROUTE_SQL, (dungeon_id, npc_id))
+
+
+
+# -- Top player verified loadouts: SQL + helpers ---------------------------------
+
+DELETE_TOP_PLAYER_META_SQL = """
+DELETE FROM `Mythistone`.`top_player_loadouts`
+WHERE `spec_id` = %s AND `rank` = %s AND `map_challenge_mode_id` = %s
+"""
+
+INSERT_TOP_PLAYER_META_SQL = """
+INSERT INTO `Mythistone`.`top_player_loadouts`
+(`spec_id`, `season`, `rank`, `map_challenge_mode_id`, `region`, `character_id`, `character_name`, `realm`, `loadout_key`, `loadout_updated_at`, `keystone_level`)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+"""
+
+INSERT_TOP_PLAYER_ITEMS_SQL = """
+INSERT INTO `Mythistone`.`top_player_loadout_items`
+(`spec_id`, `season`, `rank`, `map_challenge_mode_id`, `slot`, `item_id`, `item_level`)
+VALUES (%s, %s, %s, %s, %s, %s, %s)
+"""
+
+INSERT_TOP_PLAYER_GEMS_SQL = """
+INSERT INTO `Mythistone`.`top_player_loadout_gems`
+(`spec_id`, `season`, `rank`, `map_challenge_mode_id`, `gem_item_id`, `usage_count`)
+VALUES (%s, %s, %s, %s, %s, %s)
+"""
+
+INSERT_TOP_PLAYER_ENCHANTS_SQL = """
+INSERT INTO `Mythistone`.`top_player_loadout_enchants`
+(`spec_id`, `season`, `rank`, `map_challenge_mode_id`, `slot_group`, `enchantment_id`)
+VALUES (%s, %s, %s, %s, %s, %s)
+"""
+
+INSERT_TOP_PLAYER_TALENTS_SQL = """
+INSERT INTO `Mythistone`.`top_player_loadout_talents`
+(`spec_id`, `season`, `rank`, `map_challenge_mode_id`, `node_id`, `node_rank`)
+VALUES (%s, %s, %s, %s, %s, %s)
+"""
+
+FETCH_TOP_PLAYER_META_SQL = """
+SELECT `spec_id`, `season`, `rank`, `map_challenge_mode_id`, `region`, `character_id`, `character_name`, `realm`, `loadout_key`, `loadout_updated_at`, `keystone_level`
+FROM `Mythistone`.`top_player_loadouts`
+WHERE `spec_id` = %s AND `rank` = %s AND `map_challenge_mode_id` = %s
+ORDER BY `season` DESC
+LIMIT 1
+"""
+
+
+def delete_top_player_meta(connection, cursor, spec_id, rank, map_challenge_mode_id):
+    """Delete the top-player meta row (cascades to child tables).
+
+    Note: `season` was removed from the primary key; this function deletes by
+    the new unique key (spec_id, rank, map_challenge_mode_id)."""
+    params = (spec_id, rank, map_challenge_mode_id)
+    # Debugging: print SQL + params to help diagnose syntax errors
+    try:
+        print(f"DEBUG delete_top_player_meta executing SQL: {DELETE_TOP_PLAYER_META_SQL.strip()} params={params!r}")
+        execute_with_retry(connection, cursor, DELETE_TOP_PLAYER_META_SQL, params)
+        return cursor.rowcount
+    except Exception as err:
+        # Print detailed debug info and re-raise
+        try:
+            stmt = getattr(cursor, "statement", None)
+        except Exception:
+            stmt = None
+        print("ERROR in delete_top_player_meta:")
+        print("SQL:", DELETE_TOP_PLAYER_META_SQL)
+        print("params:", params)
+        if stmt:
+            print("cursor.statement:", stmt)
+        raise
+
+
+def insert_top_player_meta(
+    connection,
+    cursor,
+    spec_id,
+    season,
+    rank,
+    map_challenge_mode_id,
+    region=None,
+    character_id=None,
+    character_name=None,
+    realm=None,
+    loadout_key=None,
+    loadout_updated_at=None,
+    keystone_level=None,
+):
+    """Insert a top-player meta row."""
+    val = (
+        spec_id,
+        season,
+        rank,
+        map_challenge_mode_id,
+        region,
+        character_id,
+        character_name,
+        realm,
+        loadout_key,
+        loadout_updated_at,
+        keystone_level,
+    )
+    execute_with_retry(connection, cursor, INSERT_TOP_PLAYER_META_SQL, val)
+    return cursor.lastrowid
+
+
+def insert_top_player_items_batch(connection, cursor, rows):
+    """
+    Bulk insert item rows for a top-player loadout.
+    Each row should be a tuple matching the INSERT_TOP_PLAYER_ITEMS_SQL params.
+    """
+    if not rows:
+        return 0
+    executemany_with_retry(connection, cursor, INSERT_TOP_PLAYER_ITEMS_SQL, rows)
+    return cursor.lastrowid
+
+
+def insert_top_player_gems_batch(connection, cursor, rows):
+    """Bulk insert gem/socket rows for a top-player loadout."""
+    if not rows:
+        return 0
+    executemany_with_retry(connection, cursor, INSERT_TOP_PLAYER_GEMS_SQL, rows)
+    return cursor.lastrowid
+
+
+def insert_top_player_enchants_batch(connection, cursor, rows):
+    """Bulk insert enchantment rows for a top-player loadout."""
+    if not rows:
+        return 0
+    executemany_with_retry(connection, cursor, INSERT_TOP_PLAYER_ENCHANTS_SQL, rows)
+    return cursor.lastrowid
+
+
+def insert_top_player_talents_batch(connection, cursor, rows):
+    """Bulk insert talent node rows for a top-player loadout."""
+    if not rows:
+        return 0
+    executemany_with_retry(connection, cursor, INSERT_TOP_PLAYER_TALENTS_SQL, rows)
+    return cursor.lastrowid
+
+
+def fetch_top_player_meta(connection, cursor, spec_id, rank, map_challenge_mode_id):
+    """Fetch a single top-player meta row as a dict, or None if not found.
+
+    Since `season` is no longer part of the unique key, this returns the
+    most-recent (`season` DESC) row for the given (spec_id, rank, map_challenge_mode_id).
+    """
+    params = (spec_id, rank, map_challenge_mode_id)
+    rows = fetch_with_retry(connection, cursor, FETCH_TOP_PLAYER_META_SQL, params)
+    if not rows:
+        return None
+    row = rows[0]
+    # row may be tuple or dict depending on cursor type
+    if isinstance(row, dict):
+        return {
+            "spec_id": int(row.get("spec_id")),
+            "season": int(row.get("season")),
+            "rank": int(row.get("rank")),
+            "map_challenge_mode_id": int(row.get("map_challenge_mode_id")) if row.get("map_challenge_mode_id") else None,
+            "region": row.get("region"),
+            "character_id": int(row.get("character_id")) if row.get("character_id") else None,
+            "character_name": row.get("character_name"),
+            "realm": row.get("realm"),
+            "loadout_key": row.get("loadout_key"),
+            "loadout_updated_at": row.get("loadout_updated_at"),
+            "keystone_level": int(row.get("keystone_level")) if row.get("keystone_level") else None,
+        }
+    else:
+        return {
+            "spec_id": int(row[0]),
+            "season": int(row[1]),
+            "rank": int(row[2]),
+            "map_challenge_mode_id": int(row[3]) if row[3] is not None else None,
+            "region": row[4],
+            "character_id": int(row[5]) if row[5] is not None else None,
+            "character_name": row[6],
+            "realm": row[7],
+            "loadout_key": row[8],
+            "loadout_updated_at": row[9],
+            "keystone_level": int(row[10]) if row[10] is not None else None,
+        }
 
 
 
