@@ -137,7 +137,26 @@
             </div>
             <div class="card-body px-0 pb-2">
               <div id="most-popular-list" class="list-group list-group-flush px-3 py-2">
-                <!-- Populated by JS -->
+                {% for comp in most_popular %}
+                {% set total_runs = comp.runs if comp.runs else (comp.t + comp.d) %}
+                {% set win_rate = (comp.t / total_runs * 100) | round(0) if total_runs > 0 else 0 %}
+                <div class="list-group-item border-0 d-flex justify-content-between px-3 mb-2 border-radius-lg align-items-center"
+                  data-comp-c="{{ comp.c | join(',') }}" data-comp-dungeon="all" data-comp-useTop="false">
+                  <div class="d-flex align-items-center">
+                    {% for sid in comp.c %}
+                    {% set s = spec_lookup[sid|string] %}
+                    <img src="/data/icons/{{ s.SpellIconFileId }}.jpg" class="avatar avatar-sm me-1" title="{{ s.name }}">
+                    {% endfor %}
+                    <div class="ms-3">
+                      <div class="text-sm font-weight-bolder">{{ total_runs }} runs</div>
+                      <div class="text-xs text-secondary">Max: {{ comp.mk }} &nbsp; Success %: {{ win_rate }}%</div>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <button class="btn btn-sm btn-white" onclick="showCompDetailsByC('{{ comp.c | join(',') }}', false, 'all')">Details</button>
+                  </div>
+                </div>
+                {% endfor %}
               </div>
             </div>
           </div>
@@ -154,7 +173,26 @@
             </div>
             <div class="card-body px-0 pb-2">
               <div id="best-highkey-list" class="list-group list-group-flush px-3 py-2">
-                <!-- Populated by JS -->
+                {% for comp in best_highkey %}
+                {% set total_top_runs = comp.top_key_runs if comp.top_key_runs else 0 %}
+                {% set top_win_rate = (comp.top_key_timed / total_top_runs * 100) | round(0) if total_top_runs > 0 else 0 %}
+                <div class="list-group-item border-0 d-flex justify-content-between px-3 mb-2 border-radius-lg align-items-center"
+                  data-comp-c="{{ comp.c | join(',') }}" data-comp-dungeon="all" data-comp-useTop="true">
+                  <div class="d-flex align-items-center">
+                    {% for sid in comp.c %}
+                    {% set s = spec_lookup[sid|string] %}
+                    <img src="/data/icons/{{ s.SpellIconFileId }}.jpg" class="avatar avatar-sm me-1" title="{{ s.name }}">
+                    {% endfor %}
+                    <div class="ms-3">
+                      <div class="text-sm font-weight-bolder">{{ comp.top_key_runs }} top-key runs</div>
+                      <div class="text-xs text-secondary">Top Key Max: {{ comp.top_key_max }} &nbsp; Success %: {{ top_win_rate }}%</div>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <button class="btn btn-sm btn-white" onclick="showCompDetailsByC('{{ comp.c | join(',') }}', true, 'all')">Details</button>
+                  </div>
+                </div>
+                {% endfor %}
               </div>
             </div>
           </div>
@@ -287,23 +325,8 @@
     const suggestionsContainer = document.getElementById('suggestions-container');
 
     const roleMap = { 0: 'Tank', 1: 'Healer', 2: 'Dps' };
-    const dungeonLookup = {
-      {% for id, details in dungeon_lookup.items() %}
-    { { id } }: "{{ details.name.en_US }}",
-      {% endfor %}
-    };
-    const specLookup = {
-      {% for s in specs_ui %}
-    { { s.id } }: {
-      name: "{{ s.name }} {{ s.className }}",
-        specName: "{{ s.name }}",
-          className: "{{ s.className }}",
-            cleanClass: "{{ s.className|replace(' ', '') }}",
-              roleName: roleMap[{{ s.role }}] || 'Dps',
-      icon: "{{ s.icon }}" 
-      },
-    {% endfor %}
-    };
+    const dungeonLookup = {{ dungeon_lookup_js | tojson | safe }};
+    const specLookup = {{ specs_ui_map | tojson | safe }};
 
     const TOP_KEY_LEVELS = {{ top_key_levels | default ([]) | tojson }};
     const synergyMatrix = {{ synergy_matrix | default ('{}') | safe }};
@@ -754,6 +777,35 @@
       const modalEl = document.getElementById('compDetailsModal');
       const modal = new bootstrap.Modal(modalEl);
       modal.show();
+    }
+
+    function showCompDetailsByC(cKey, useTopKey = false, contextDungeonId = 'all') {
+      const findComp = () => {
+        if (Array.isArray(compsData) && compsData.length) {
+          return compsData.find(c => Array.isArray(c.c) && c.c.join(',') === cKey);
+        }
+        return null;
+      };
+
+      const comp = findComp();
+      if (comp) {
+        showCompDetails(comp, useTopKey, contextDungeonId);
+        return;
+      }
+
+      // If compsData not yet loaded, fetch and try again
+      fetch('/assets/json/comps_index.json')
+        .then(r => r.json())
+        .then(data => {
+          compsData = data;
+          const c2 = compsData.find(x => Array.isArray(x.c) && x.c.join(',') === cKey);
+          if (c2) showCompDetails(c2, useTopKey, contextDungeonId);
+          else alert('Comp details not available');
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Comp details not available');
+        });
     }
 
     function renderTopLists() {

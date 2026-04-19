@@ -327,22 +327,53 @@ def main(template_path, output_dir):
             for sid, sdata in spec_lookup.items():
                 c_id = str(sdata.get('classID'))
                 c_data = class_lookup.get(c_id, {})
+                role_int = int(sdata.get('role', 2))
+                role_name = 'Tank' if role_int == 0 else ('Healer' if role_int == 1 else 'Dps')
+                class_name = c_data.get('name', 'Unknown')
                 specs_ui.append({
                     'id': int(sid),
                     'name': sdata.get('name', 'Unknown'),
-                    'role': int(sdata.get('role', 2)),
-                    'className': c_data.get('name', 'Unknown'),
+                    'specName': sdata.get('name', 'Unknown'),
+                    'role': role_int,
+                    'roleName': role_name,
+                    'className': class_name,
+                    'cleanClass': class_name.replace(' ', ''),
                     'classId': int(c_id) if c_id else 0,
                     'icon': sdata.get('SpellIconFileId')
                 })
         
         frontend_json, synergy_matrix, hidden_gems, glue_specs, top_key_levels = calculate_comp_stats(conn, cursor, season, spec_lookup)
-        
+
         # Save Perfect Fit JSON
         json_out_dir = os.path.join("assets", "json")
         os.makedirs(json_out_dir, exist_ok=True)
         with open(os.path.join(json_out_dir, "comps_index.json"), "w", encoding="utf-8") as f:
             json.dump(frontend_json, f, separators=(',', ':'))
+
+        # Compute server-side top lists for initial page render
+        # Most popular by raw runs
+        most_popular = sorted(frontend_json, key=lambda x: x.get('runs', 0), reverse=True)[:6]
+
+        # Best for high keys: primary by highkey_score, then max key, then runs
+        best_highkey = sorted(
+            frontend_json,
+            key=lambda x: (x.get('highkey_score', 0), x.get('mk', 0), x.get('runs', 0)),
+            reverse=True,
+        )[:6]
+
+        # Prepare JS-friendly lookups to safely serialize into template
+        dungeon_lookup_js = {}
+        for k, v in dungeon_lookup.items():
+            try:
+                dk = int(k)
+            except Exception:
+                dk = k
+            name = v.get('name') if isinstance(v, dict) else v
+            if isinstance(name, dict):
+                name = name.get('en_US') or next(iter(name.values()), '')
+            dungeon_lookup_js[dk] = name
+
+        specs_ui_map = {s['id']: s for s in specs_ui}
             
         print("Rendering template...")
         env = Environment(
@@ -370,6 +401,11 @@ def main(template_path, output_dir):
             notifications=notifications,
             cur_page="comps",
             top_key_levels=top_key_levels,
+            # server-side precomputed lists for initial render
+            most_popular=most_popular,
+            best_highkey=best_highkey,
+            dungeon_lookup_js=dungeon_lookup_js,
+            specs_ui_map=specs_ui_map,
         )
         
         out_path = os.path.join(output_dir, "comps.html")
