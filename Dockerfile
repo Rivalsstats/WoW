@@ -20,6 +20,7 @@ RUN mkdir -p ${APP_DIR}/data/static
 COPY data/static/dungeons.json ${APP_DIR}/data/static/dungeons.json
 COPY data/static/specs.json ${APP_DIR}/data/static/specs.json
 COPY data/static/talents.json ${APP_DIR}/data/static/talents.json
+COPY data/static/classes.json ${APP_DIR}/data/static/classes.json
 
 # entrypoint and executable
 COPY entrypoint.sh /entrypoint.sh

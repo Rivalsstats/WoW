@@ -39,7 +39,7 @@ if [ "${#missing[@]}" -ne 0 ]; then
 fi
 
 # required static files
-REQUIRED_FILES=("/app/data/static/dungeons.json" "/app/data/static/specs.json" "/app/data/static/talents.json")
+REQUIRED_FILES=("/app/data/static/dungeons.json" "/app/data/static/specs.json" "/app/data/static/talents.json" "/app/data/static/classes.json")
 missing_files=()
 for f in "${REQUIRED_FILES[@]}"; do
   if [ ! -f "$f" ]; then
