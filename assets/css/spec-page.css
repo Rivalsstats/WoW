@@ -260,6 +260,8 @@
   width: 16px;
   height: 16px;
   display: inline-block;
+  overflow: visible;
+  vertical-align: middle;
 }
 
 .secondary-icon-base {
@@ -273,6 +275,24 @@
   height: 100%;
   object-fit: contain;
   z-index: 1;
+}
+
+/* Ensure BIS badges placed inside secondary icon wrappers are visible above overlays */
+.secondary-icon-wrapper .bis-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  z-index: 10;
+  display: inline-block;
+  white-space: nowrap;
+}
+.secondary-icon-wrapper .bis-badge-sm {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  z-index: 10;
+  display: inline-block;
+  white-space: nowrap;
 }
 
 .socket-icons-container {
@@ -296,6 +316,44 @@
   font-size: 0.75rem;
   cursor: help;
   font-weight: 500;
+}
+
+/* BIS highlight styles */
+.bis-highlight {
+  box-shadow: 0 0 12px rgba(255, 208, 64, 0.25);
+  border-color: #ffd100 !important;
+}
+.bis-badge {
+  background: #ffd100;
+  color: #000;
+  font-weight: 700;
+  padding: 0.08rem 0.4rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
+}
+
+.bis-badge-sm {
+  padding: 0.02rem 0.28rem;
+  font-size: 0.6rem;
+  line-height: 1;
+}
+
+.bis-dot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffd100;
+  border: 2px solid rgba(0,0,0,0.6);
+  z-index: 4;
+  display: inline-block;
+}
+
+/* Ensure bootstrap tooltips render above external (Wowhead) tooltips */
+.tooltip {
+  z-index: 99999 !important;
 }
 
 /* Compact stat card tweaks */

@@ -275,7 +275,7 @@ CREATE TABLE `members` (
   `loadout` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `hero_talent_id` int DEFAULT NULL,
   PRIMARY KEY (`member`)
-) /*!50100 TABLESPACE `members` */ ENGINE=InnoDB AUTO_INCREMENT=94436941 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) /*!50100 TABLESPACE `members` */ ENGINE=InnoDB AUTO_INCREMENT=98366169 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.missives definition
@@ -328,6 +328,24 @@ CREATE TABLE `summary_meta` (
   `name` varchar(100) NOT NULL,
   `last_run_id` bigint unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- Mythistone.top_player_loadouts definition
+
+CREATE TABLE `top_player_loadouts` (
+  `spec_id` int NOT NULL,
+  `season` int NOT NULL,
+  `rank` tinyint unsigned NOT NULL,
+  `map_challenge_mode_id` int NOT NULL,
+  `region` varchar(32) DEFAULT NULL,
+  `character_id` bigint DEFAULT NULL,
+  `character_name` varchar(255) DEFAULT NULL,
+  `realm` varchar(255) DEFAULT NULL,
+  `loadout_key` varchar(255) DEFAULT NULL,
+  `loadout_updated_at` datetime DEFAULT NULL,
+  `keystone_level` tinyint DEFAULT NULL,
+  PRIMARY KEY (`spec_id`,`rank`,`map_challenge_mode_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -520,7 +538,7 @@ CREATE TABLE `character_stats` (
   PRIMARY KEY (`stat`,`member`),
   KEY `character_stats_members_FK` (`member`),
   CONSTRAINT `character_stats_members_FK` FOREIGN KEY (`member`) REFERENCES `members` (`member`) ON DELETE CASCADE ON UPDATE CASCADE
-) /*!50100 TABLESPACE `character_stats` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) /*!50100 TABLESPACE `ts_character_stats` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.class_talents definition
@@ -545,7 +563,7 @@ CREATE TABLE `equipment` (
   PRIMARY KEY (`equipment_id`),
   KEY `equipment_run_members_FK` (`member`),
   CONSTRAINT `equipment_run_members_FK` FOREIGN KEY (`member`) REFERENCES `members` (`member`) ON DELETE CASCADE ON UPDATE CASCADE
-) /*!50100 TABLESPACE `equipments` */ ENGINE=InnoDB AUTO_INCREMENT=234874660 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) /*!50100 TABLESPACE `equipments` */ ENGINE=InnoDB AUTO_INCREMENT=259835510 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.hero_talents definition
@@ -567,7 +585,7 @@ CREATE TABLE `route_pulls` (
   PRIMARY KEY (`pull_id`,`route_key`),
   KEY `route_pulls_route_data_FK` (`route_key`),
   CONSTRAINT `route_pulls_route_data_FK` FOREIGN KEY (`route_key`) REFERENCES `route_data` (`route_key`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=242788 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=271943 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.route_specs definition
@@ -579,7 +597,7 @@ CREATE TABLE `route_specs` (
   PRIMARY KEY (`id`),
   KEY `idx_route_key` (`route_key`),
   CONSTRAINT `route_specs_route_data_FK` FOREIGN KEY (`route_key`) REFERENCES `route_data` (`route_key`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=81965 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=90900 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.runs definition
@@ -596,7 +614,7 @@ CREATE TABLE `runs` (
   PRIMARY KEY (`run_id`),
   UNIQUE KEY `runs_unique` (`dungeon_id`,`keystone_level`,`duration`,`timestamp`,`faction`,`region`,`season`),
   CONSTRAINT `runs_dungeon_data_FK` FOREIGN KEY (`dungeon_id`) REFERENCES `dungeon_data` (`dungeon_id`)
-) /*!50100 TABLESPACE `ts_runs` */ ENGINE=InnoDB AUTO_INCREMENT=48501966 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) /*!50100 TABLESPACE `ts_runs` */ ENGINE=InnoDB AUTO_INCREMENT=52673706 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.sockets definition
@@ -609,7 +627,7 @@ CREATE TABLE `sockets` (
   PRIMARY KEY (`socket_id_pk`),
   KEY `sockets_equipment_FK` (`equipment_id`),
   CONSTRAINT `sockets_equipment_FK` FOREIGN KEY (`equipment_id`) REFERENCES `equipment` (`equipment_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=10632978 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15062646 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.spec_talents definition
@@ -622,6 +640,64 @@ CREATE TABLE `spec_talents` (
   KEY `spec_talents_run_members_FK` (`member`),
   CONSTRAINT `spec_talents_run_members_FK` FOREIGN KEY (`member`) REFERENCES `members` (`member`) ON DELETE CASCADE ON UPDATE CASCADE
 ) /*!50100 TABLESPACE `spec_talents_vol` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- Mythistone.top_player_loadout_enchants definition
+
+CREATE TABLE `top_player_loadout_enchants` (
+  `spec_id` int NOT NULL,
+  `season` int NOT NULL,
+  `rank` tinyint unsigned NOT NULL,
+  `map_challenge_mode_id` int NOT NULL,
+  `slot_group` varchar(100) NOT NULL,
+  `enchantment_id` int NOT NULL,
+  PRIMARY KEY (`spec_id`,`rank`,`map_challenge_mode_id`,`slot_group`),
+  CONSTRAINT `fk_tpl_enchants_meta` FOREIGN KEY (`spec_id`, `rank`, `map_challenge_mode_id`) REFERENCES `top_player_loadouts` (`spec_id`, `rank`, `map_challenge_mode_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- Mythistone.top_player_loadout_gems definition
+
+CREATE TABLE `top_player_loadout_gems` (
+  `spec_id` int NOT NULL,
+  `season` int NOT NULL,
+  `rank` tinyint unsigned NOT NULL,
+  `map_challenge_mode_id` int NOT NULL,
+  `gem_item_id` int NOT NULL,
+  `usage_count` bigint NOT NULL DEFAULT '0',
+  PRIMARY KEY (`spec_id`,`season`,`rank`,`map_challenge_mode_id`,`gem_item_id`),
+  KEY `fk_tpl_gems_meta` (`spec_id`,`rank`,`map_challenge_mode_id`),
+  CONSTRAINT `fk_tpl_gems_meta` FOREIGN KEY (`spec_id`, `rank`, `map_challenge_mode_id`) REFERENCES `top_player_loadouts` (`spec_id`, `rank`, `map_challenge_mode_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- Mythistone.top_player_loadout_items definition
+
+CREATE TABLE `top_player_loadout_items` (
+  `spec_id` int NOT NULL,
+  `season` int NOT NULL,
+  `rank` tinyint unsigned NOT NULL,
+  `map_challenge_mode_id` int NOT NULL,
+  `slot` varchar(64) NOT NULL,
+  `item_id` int NOT NULL,
+  `item_level` smallint DEFAULT NULL,
+  PRIMARY KEY (`spec_id`,`rank`,`map_challenge_mode_id`,`slot`),
+  CONSTRAINT `fk_tpl_items_meta` FOREIGN KEY (`spec_id`, `rank`, `map_challenge_mode_id`) REFERENCES `top_player_loadouts` (`spec_id`, `rank`, `map_challenge_mode_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- Mythistone.top_player_loadout_talents definition
+
+CREATE TABLE `top_player_loadout_talents` (
+  `spec_id` int NOT NULL,
+  `season` int NOT NULL,
+  `rank` tinyint unsigned NOT NULL,
+  `map_challenge_mode_id` int NOT NULL,
+  `node_id` int NOT NULL,
+  `node_rank` tinyint unsigned NOT NULL,
+  PRIMARY KEY (`spec_id`,`rank`,`map_challenge_mode_id`,`node_id`),
+  CONSTRAINT `fk_tpl_talents_meta` FOREIGN KEY (`spec_id`, `rank`, `map_challenge_mode_id`) REFERENCES `top_player_loadouts` (`spec_id`, `rank`, `map_challenge_mode_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.bonus_ids definition
@@ -643,7 +719,7 @@ CREATE TABLE `enchantments` (
   PRIMARY KEY (`enchantment_id_pk`),
   KEY `enchantments_equipment_FK` (`equipment_id`),
   CONSTRAINT `enchantments_equipment_FK` FOREIGN KEY (`equipment_id`) REFERENCES `equipment` (`equipment_id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=25717264 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=36601181 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.pull_enemies definition

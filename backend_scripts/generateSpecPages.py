@@ -477,6 +477,11 @@ def normalize_slot_collections(list_of_lists, slot_names):
                 "missive": e.get("missive"),
                 "max_timed_key": e.get("max_timed_key", 0),
                 "max_depleted_key": e.get("max_depleted_key", 0),
+                # BIS passthroughs
+                "is_bis": e.get("is_bis", False),
+                "bis_pct": e.get("bis_pct"),
+                "bis_count": e.get("bis_count"),
+                "bis_rank": e.get("bis_rank"),
                 "quality_override": e.get("quality_override"),
                 "crafted_stats": e.get("crafted_stats"),
                 "slot_slug": slot_slug,
@@ -513,6 +518,128 @@ def checkItemLimits(sockets, socket_lookup, socket_limits):
         else:
             return socket
     return
+
+
+def compute_bis_from_top_loadouts(top_loadouts):
+    """Compute BIS summary from a list of top-player loadouts.
+
+    Input: list of loadout dicts as returned by `databaseConnector.fetch_top50_loadouts`.
+    Returns a dict with `items`, `enchants`, `gems`, `talents`, `full_loadout` summary.
+    """
+
+    n = len(top_loadouts)
+    if n == 0:
+        return {}
+
+    # Counts
+    items_counts = defaultdict(lambda: defaultdict(int))  # slot -> item_id -> count
+    item_ilvl_sum = defaultdict(lambda: defaultdict(int))
+    enchant_counts = defaultdict(lambda: defaultdict(int))  # slot_group -> enchant_id -> count
+    gem_counts = defaultdict(int)  # gem_item_id -> count (weighted by usage_count)
+    talent_node_counts = defaultdict(int)  # node_id -> count
+    full_loadout_counts = defaultdict(int)
+
+    for lo in top_loadouts:
+        # meta loadout key
+        meta = lo.get("meta") if isinstance(lo.get("meta"), dict) else lo
+        loadout_key = meta.get("loadout_key") if isinstance(meta, dict) else None
+        if loadout_key:
+            full_loadout_counts[loadout_key] += 1
+
+        # items
+        for it in lo.get("items", []) or []:
+            slot = it.get("slot")
+            # normalize multi-slot names to their group (e.g., TRINKET_1 -> TRINKET)
+            slot = MULTI_SLOT_GROUPS.get(slot, slot)
+            item_id = it.get("item_id") or it.get("item")
+            if not slot or not item_id:
+                continue
+            items_counts[slot][int(item_id)] += 1
+            ilvl = it.get("item_level")
+            if ilvl:
+                item_ilvl_sum[slot][int(item_id)] += int(ilvl)
+
+        # gems
+        for g in lo.get("gems", []) or []:
+            gid = g.get("gem_item_id") or g.get("id")
+            if not gid:
+                continue
+            usage = int(g.get("usage_count", 1) or 1)
+            gem_counts[int(gid)] += usage
+
+        # enchants
+        for e in lo.get("enchants", []) or []:
+            sg = e.get("slot_group") or e.get("slot")
+            eid = e.get("enchantment_id") or e.get("id")
+            if not sg or not eid:
+                continue
+            enchant_counts[sg][int(eid)] += 1
+
+        # talents
+        for t in lo.get("talents", []) or []:
+            node = t.get("node_id") or t.get("id")
+            if not node:
+                continue
+            talent_node_counts[int(node)] += 1
+
+    # Build summary
+    def _top_n_from_countmap(countmap, n_top=3, total=n):
+        items = sorted(countmap.items(), key=lambda x: x[1], reverse=True)
+        out = []
+        for item_id, cnt in items[:n_top]:
+            out.append({"id": int(item_id), "count": int(cnt), "pct": (int(cnt) / total) * 100.0})
+        return out
+
+    items_summary = {}
+    for slot, cmap in items_counts.items():
+        details = _top_n_from_countmap(cmap, 3, n)
+        best = details[0] if details else None
+        # average ilvl for each detail if available
+        for d in details:
+            iid = d["id"]
+            ilvl_sum = item_ilvl_sum.get(slot, {}).get(iid)
+            if ilvl_sum:
+                # divide by number of occurrences of this item
+                occurrences = cmap.get(iid, 1)
+                try:
+                    d["avg_item_level"] = int(ilvl_sum / occurrences)
+                except Exception:
+                    d["avg_item_level"] = None
+        items_summary[slot] = {"best": best, "details": details, "total": n}
+
+    enchants_summary = {}
+    for sg, cmap in enchant_counts.items():
+        details = _top_n_from_countmap(cmap, 3, n)
+        enchants_summary[sg] = {"best": details[0] if details else None, "details": details, "total": n}
+
+    gems_summary = []
+    for gid, cnt in sorted(gem_counts.items(), key=lambda x: x[1], reverse=True)[:10]:
+        raw_cnt = int(cnt)
+        # cap displayed gem count at the number of loadouts (n) to avoid >100% values
+        display_cnt = raw_cnt if raw_cnt <= n else n
+        pct = (display_cnt / (n or 1)) * 100.0
+        if pct > 100.0:
+            pct = 100.0
+        gems_summary.append({"id": int(gid), "count": int(display_cnt), "pct": pct, "raw_count": raw_cnt})
+
+    talents_summary = []
+    for nid, cnt in sorted(talent_node_counts.items(), key=lambda x: x[1], reverse=True)[:20]:
+        talents_summary.append({"node_id": int(nid), "count": int(cnt), "pct": (int(cnt) / (n or 1)) * 100.0})
+
+    # most common full loadout if present
+    full_loadout_top = None
+    if full_loadout_counts:
+        fk, fc = max(full_loadout_counts.items(), key=lambda x: x[1])
+        full_loadout_top = {"loadout_key": fk, "count": int(fc), "pct": (int(fc) / n) * 100.0}
+
+    return {
+        "num_loadouts": n,
+        "items": items_summary,
+        "enchants": enchants_summary,
+        "gems": gems_summary,
+        "talents": talents_summary,
+        "full_loadout": full_loadout_top,
+    }
 
 
 def handleSocketsForItem(
@@ -625,6 +752,7 @@ def convert_slots(
     embellishments=None,
     total_enchant_counts=None,
     spec_runs=0,
+    bis_summary=None,
 ):
     primary_ids = {int(items[0]["item"]) for items in slots if len(items) > 0}
 
@@ -706,32 +834,165 @@ def convert_slots(
             # Apply the same low-usage filtering used by the template dropdowns
             # Template uses: total_enchant_counts[slot_name] >= (summary_data.count * 0.01)
             threshold = (spec_runs * 0.01) if spec_runs else 0
-            try:
-                # weapon enchants live under the "WEAPON" group
-                if slot in WEAPON_SLOTS:
-                    weapon_ok = (
-                        enchant_slots.get("WEAPON")
-                        and len(enchant_slots["WEAPON"]) > 0
-                        and (total_enchant_counts.get("WEAPON", 0) >= threshold if total_enchant_counts else True)
-                    )
-                    if item_lookup[int(item["item"])].get("itemClass") == 2 and weapon_ok:
-                        enchantment_data = enchant_slots["WEAPON"][0]
-                # direct slot-specific enchants
-                elif enchant_slots.get(slot) and len(enchant_slots[slot]) > 0:
-                    if total_enchant_counts is None or total_enchant_counts.get(slot, 0) >= threshold:
-                        enchantment_data = enchant_slots[slot][0]
-                # multi-slot groups (FINGER/TRINKET)
-                elif (
-                    MULTI_SLOT_GROUPS.get(slot)
-                    and enchant_slots.get(MULTI_SLOT_GROUPS[slot])
-                    and len(enchant_slots[MULTI_SLOT_GROUPS[slot]]) > 0
-                ):
-                    group = MULTI_SLOT_GROUPS[slot]
-                    if total_enchant_counts is None or total_enchant_counts.get(group, 0) >= threshold:
-                        enchantment_data = enchant_slots.get(group, [])[0]
-            except Exception:
-                enchantment_data = {}
+            if slot in WEAPON_SLOTS:
+                weapon_ok = (
+                    enchant_slots.get("WEAPON")
+                    and len(enchant_slots["WEAPON"]) > 0
+                    and (total_enchant_counts.get("WEAPON", 0) >= threshold if total_enchant_counts else True)
+                )
+                if item_lookup[int(item["item"])].get("itemClass") == 2 and weapon_ok:
+                    enchantment_data = enchant_slots["WEAPON"][0]
+            # direct slot-specific enchants
+            elif enchant_slots.get(slot) and len(enchant_slots[slot]) > 0:
+                if total_enchant_counts is None or total_enchant_counts.get(slot, 0) >= threshold:
+                    enchantment_data = enchant_slots[slot][0]
+            # multi-slot groups (FINGER/TRINKET)
+            elif (
+                MULTI_SLOT_GROUPS.get(slot)
+                and enchant_slots.get(MULTI_SLOT_GROUPS[slot])
+                and len(enchant_slots[MULTI_SLOT_GROUPS[slot]]) > 0
+            ):
+                group = MULTI_SLOT_GROUPS[slot]
+                if total_enchant_counts is None or total_enchant_counts.get(group, 0) >= threshold:
+                    enchantment_data = enchant_slots.get(group, [])[0]
             item["enchantment"] = enchantment_data
+
+            # BIS annotations: items, enchants, gems (respect multi-slot groups)
+            if bis_summary and isinstance(bis_summary, dict):
+                bis_threshold = 80.0
+                # Items: support group mapping for TRINKET/FINGER
+                items_map = bis_summary.get("items", {})
+                # prefer group summary (e.g., TRINKET, FINGER) for multi-slot
+                slot_candidates = [slot]
+                grp = MULTI_SLOT_GROUPS.get(slot)
+                if grp:
+                    slot_candidates.insert(0, grp)
+
+                slot_summary = None
+                for sc in slot_candidates:
+                    if sc in items_map:
+                        slot_summary = items_map.get(sc)
+                        break
+
+                if slot_summary:
+                    details = slot_summary.get("details", [])
+                    # For groups that allow two equipped items (e.g., FINGER, TRINKET), respect usage threshold
+                    two_slot_groups = {"FINGER", "TRINKET"}
+                    try:
+                        grp_name = grp or None
+                    except Exception:
+                        grp_name = None
+
+                    if grp_name in two_slot_groups:
+                        # collect top entries (up to first two) that exceed threshold
+                        top_candidates = [d for d in details[:2] if float(d.get("pct", 0.0)) > bis_threshold]
+                        top_ids = [int(d.get("id")) for d in top_candidates if d.get("id")]
+                        if int(item.get("item")) in top_ids:
+                            # set rank/pct/count based on position in the first-two list
+                            for idx, d in enumerate(details[:2]):
+                                if int(d.get("id")) == int(item.get("item")) and float(d.get("pct", 0.0)) > bis_threshold:
+                                    item["is_bis"] = True
+                                    item["bis_rank"] = idx + 1
+                                    item["bis_pct"] = float(d.get("pct", 0.0))
+                                    item["bis_count"] = int(d.get("count", 0))
+                                    break
+                    else:
+                        best = slot_summary.get("best")
+                        if best and float(best.get("pct", 0.0)) > bis_threshold and int(best.get("id")) == int(item.get("item")):
+                            item["is_bis"] = True
+                            item["bis_pct"] = float(best.get("pct", 0.0))
+                            item["bis_count"] = int(best.get("count", 0))
+                        else:
+                            for idx, d in enumerate(details):
+                                if int(d.get("id")) == int(item.get("item")):
+                                    item["bis_rank"] = idx + 1
+                                    item["bis_pct"] = float(d.get("pct", 0.0))
+                                    item["bis_count"] = int(d.get("count", 0))
+                                    break
+
+                # Enchants: per-slot-group
+                # Be tolerant of plural/singular differences (e.g., SHOULDERS vs SHOULDER)
+                ench_map = bis_summary.get("enchants", {})
+                ench_id = None
+                if item.get("enchantment"):
+                    ench_id = item["enchantment"].get("id") or item["enchantment"].get("enchantment_id")
+                if ench_id:
+                    # build candidate keys to search in the bis enchants map
+                    candidates = set()
+                    candidates.add(slot)
+                    candidates.add(f"{slot}S")
+                    if slot.endswith("S"):
+                        candidates.add(slot.rstrip("S"))
+                    if grp:
+                        candidates.add(grp)
+                        candidates.add(f"{grp}S")
+                        candidates.add(f"{grp}_1")
+                        candidates.add(f"{grp}_2")
+                    # try each candidate key to find a matching best enchant that exceeds threshold
+                    found = None
+                    for k in candidates:
+                        s = ench_map.get(k)
+                        if not s:
+                            continue
+                        best_e = s.get("best")
+                        if best_e and float(best_e.get("pct", 0.0)) > bis_threshold and int(best_e.get("id")) == int(ench_id):
+                            found = best_e
+                            break
+                    if found:
+                        item["enchantment"]["is_bis"] = True
+                        item["enchantment"]["bis_pct"] = float(found.get("pct", 0.0))
+                # Gems: mark sockets only for gems exceeding the threshold
+                gems_list = bis_summary.get("gems", []) or []
+                top_gems = [g for g in gems_list if float(g.get("pct", 0.0)) > bis_threshold and g.get("id")]
+                top_gem_ids = {int(g.get("id")) for g in top_gems}
+                top_gem_map = {int(g.get("id")): g for g in top_gems}
+                if item.get("socket") and isinstance(item.get("socket"), list):
+                    for sock in item.get("socket"):
+                        sid = sock.get("id") or sock.get("gem_item_id")
+                        try:
+                            sid_int = int(sid)
+                        except Exception:
+                            continue
+                        if sid_int in top_gem_ids:
+                            sock["is_bis"] = True
+                            gem = top_gem_map.get(sid_int, {})
+                            sock["bis_pct"] = float(gem.get("pct", 0.0))
+                            sock["bis_count"] = int(gem.get("count", 0))
+                            for idx, g in enumerate(top_gems):
+                                if int(g.get("id")) == sid_int:
+                                    sock["bis_rank"] = idx + 1
+                                    break
+
+                # Also annotate the global enchant_slots structure so the Enchantment Details
+                # accordion can render BIS badges reliably (matches template checks).
+                # Always only mark the single best enchant as BIS if it exceeds threshold.
+                if enchant_slots and isinstance(enchant_slots, dict):
+                    ench_map_all = bis_summary.get("enchants", {}) if bis_summary else {}
+                    for e_slot_name, e_list in enchant_slots.items():
+                        if not e_list:
+                            continue
+                        # group fallback (e.g., FINGER -> FINGER_1/FINGER_2)
+                        group_name = e_slot_name.split("_")[0] if isinstance(e_slot_name, str) else e_slot_name
+                        # try plural/singular variants and group-indexed keys
+                        possible_keys = [e_slot_name, f"{e_slot_name}S", group_name, f"{group_name}S", f"{group_name}_1", f"{group_name}_2"]
+                        for e in e_list:
+                            eid = e.get("id")
+                            if eid is None:
+                                continue
+                            marked = False
+                            for k in possible_keys:
+                                ssum = ench_map_all.get(k) if ench_map_all else None
+                                if ssum and isinstance(ssum.get("details"), list) and len(ssum.get("details", [])) > 0:
+                                    d = ssum.get("details", [])[0]
+                                    if d and float(d.get("pct", 0.0)) > bis_threshold and int(d.get("id")) == int(eid):
+                                        e["is_bis"] = True
+                                        e["bis_pct"] = float(d.get("pct", 0.0))
+                                        e["bis_count"] = int(d.get("count", 0))
+                                        e["bis_rank"] = 1
+                                        marked = True
+                                        break
+                                if marked:
+                                    break
 
 
 def fetch_stat_info(conn, cursor, spec_id, current_season_id, spec_lookup):
@@ -824,6 +1085,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
     env = Environment(
         loader=FileSystemLoader(os.path.dirname(template_path)),
         autoescape=select_autoescape(["html", "xml"]),
+        extensions=["jinja2.ext.loopcontrols"],
     )
     env.filters["humanize"] = humanize_number
     env.filters["duration"] = format_duration
@@ -872,6 +1134,29 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
             set_members[sid].append(iid)
     crafting_all = load_json(os.path.join(LOOKUP_DIR, "crafting.json"))
     reagent_lookup = {r["id"]: r for r in crafting_all.get("reagents", [])}
+    # Normalize reagent stats so templates can rely on `stat.type` and `stat.amount`
+    for _rid, _r in reagent_lookup.items():
+        stats = _r.get("stats")
+        if not stats or not isinstance(stats, list):
+            continue
+        normalized = []
+        for s in stats:
+            # If already in desired shape, keep it
+            if isinstance(s, dict) and s.get("type") and (s.get("amount") is not None):
+                normalized.append({"type": s.get("type"), "amount": s.get("amount")})
+                continue
+            # Support legacy shapes coming from crafting.json: { "id": <stat_id>, "alloc": <value> }
+            stat_id = s.get("id") if isinstance(s, dict) else None
+            stat_amount = None
+            if isinstance(s, dict):
+                stat_amount = s.get("amount") if s.get("amount") is not None else s.get("alloc")
+            # Map numeric blizzard stat id to short name when possible
+            stat_type = BLIZZARD_STAT_MAP.get(stat_id) if stat_id is not None else None
+            if stat_type and stat_amount is not None:
+                normalized.append({"type": stat_type, "amount": stat_amount})
+        # only replace if we actually found normalized entries
+        if normalized:
+            _r["stats"] = normalized
     spec_lookup = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
     season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
@@ -1026,10 +1311,42 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     conn, cursor, current_season_id, spec_id
                 )
 
+                # Filter embellishments to remove very rarely used entries
+                try:
+                    if isinstance(spec_runs, int):
+                        spec_runs_count = spec_runs
+                    elif isinstance(spec_runs, (list, tuple)):
+                        spec_runs_count = len(spec_runs)
+                    else:
+                        spec_runs_count = int(spec_runs) if spec_runs else 0
+                except Exception:
+                    spec_runs_count = int(spec_runs) if spec_runs else 0
+
+                embellishment_threshold = (spec_runs_count * 0.001) if spec_runs_count else 0
+                if embellishments and embellishment_threshold > 0:
+                    filtered_embs = []
+                    for e in embellishments:
+                        # support tuple/list rows or dict rows
+                        count = e[1] if isinstance(e, (list, tuple)) else (e.get('total_runs') or e.get('run_count') or 0)
+                        if count >= embellishment_threshold:
+                            filtered_embs.append(e)
+                    embellishments = filtered_embs
+
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching loadout...")
                 loadouts = aggregateData.get_loadout(
                     conn, cursor, spec_id, current_season_id
                 )
+                # fetch top-50 verified loadouts (meta + items/gems/enchants/talents)
+                try:
+                    top50_raw = databaseConnector.fetch_top50_loadouts(
+                        conn, cursor, spec_id, current_season_id, limit=50
+                    )
+                except Exception as e:
+                    print(f"Warning: fetch_top50_loadouts failed: {e}")
+                    top50_raw = []
+
+                bis_summary = compute_bis_from_top_loadouts(top50_raw)
+                print(f"[{datetime.now(timezone.utc).isoformat()}] BIS summary from top loadouts: {bis_summary}")
                 print(
                     f"[{datetime.now(timezone.utc).isoformat()}] fetching highest run..."
                 )
@@ -1058,6 +1375,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     embellishments,
                     total_enchant_counts,
                     spec_runs,
+                    bis_summary=bis_summary,
                 )
                 print(
                     f"[{datetime.now(timezone.utc).isoformat()}] normalizing slots..."
@@ -1088,6 +1406,30 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                             weapon_slots = [
                                 g for g in weapon_slots if g["slot"] != "OFF_HAND"
                             ]
+                # Annotate the global sockets list with BIS flags (so Gem Details can read it directly)
+                try:
+                    if bis_summary and isinstance(bis_summary, dict) and bis_summary.get("gems") and sockets:
+                        gems_list = bis_summary.get("gems", []) or []
+                        top_two = [g for g in gems_list[:2] if g.get("id")]
+                        top_two_ids = {int(g.get("id")) for g in top_two}
+                        top_two_map = {int(g.get("id")): g for g in top_two}
+                        for s in sockets:
+                            sid = s.get("id") or s.get("gem_item_id") or s.get("itemId")
+                            try:
+                                sid_int = int(sid)
+                            except Exception:
+                                continue
+                            if sid_int in top_two_ids:
+                                s["is_bis"] = True
+                                gem = top_two_map.get(sid_int, {})
+                                s["bis_pct"] = float(gem.get("pct", 0.0))
+                                s["bis_count"] = int(gem.get("count", 0))
+                                for idx, g in enumerate(top_two):
+                                    if int(g.get("id")) == sid_int:
+                                        s["bis_rank"] = idx + 1
+                                        break
+                except Exception:
+                    pass
                 print(
                     f"[{datetime.now(timezone.utc).isoformat()}] fetching upgrade counts..."
                 )
@@ -1158,6 +1500,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 dungeon_lookup_slug=dungeon_lookup_slug,
                 role=ROLE_FOLDERS[spec_data.get("role", 2)],
                 talent_lookup=talent_lookup,
+                bis_summary=bis_summary,
                 current_spec=f"{spec_data['name']} {class_data.get('name')}",
                 sockets=sockets,
                 embellishments=embellishments,

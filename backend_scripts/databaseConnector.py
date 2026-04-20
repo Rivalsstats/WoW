@@ -2813,5 +2813,240 @@ def fetch_top_player_meta(connection, cursor, spec_id, rank, map_challenge_mode_
         }
 
 
+# Fetch top N top-player loadouts (meta + related child rows)
+def fetch_top50_loadouts(connection, cursor, spec_id, season, limit=50):
+    """Return up to `limit` top-player loadouts for the given spec and season.
+
+    Each returned entry is a dict with keys:
+      - meta: dict (spec_id, season, rank, map_challenge_mode_id, region, character_id, character_name, realm, loadout_key, loadout_updated_at, keystone_level)
+      - items: list of { slot, item_id, item_level }
+      - gems: list of { gem_item_id, usage_count }
+      - enchants: list of { slot_group, enchantment_id }
+      - talents: list of { node_id, node_rank }
+
+    This helper performs a small number of queries (1 meta + up to 4 child queries).
+    """
+    FETCH_TOP50_META_SQL = """
+    SELECT `spec_id`, `season`, `rank`, `map_challenge_mode_id`, `region`, `character_id`, `character_name`, `realm`, `loadout_key`, `loadout_updated_at`, `keystone_level`
+    FROM `Mythistone`.`top_player_loadouts`
+    WHERE `spec_id` = %s AND `season` = %s
+    ORDER BY `rank` ASC
+    LIMIT %s
+    """
+
+    params = (spec_id, season, limit)
+    rows = fetch_with_retry(connection, cursor, FETCH_TOP50_META_SQL, params)
+    if not rows:
+        return []
+
+    metas = []
+    pairs = []  # list of (rank, map_challenge_mode_id)
+    for row in rows:
+        if isinstance(row, dict):
+            rank = int(row.get("rank"))
+            map_id = int(row.get("map_challenge_mode_id")) if row.get("map_challenge_mode_id") is not None else None
+            meta = {
+                "spec_id": int(row.get("spec_id")),
+                "season": int(row.get("season")),
+                "rank": rank,
+                "map_challenge_mode_id": map_id,
+                "region": row.get("region"),
+                "character_id": int(row.get("character_id")) if row.get("character_id") else None,
+                "character_name": row.get("character_name"),
+                "realm": row.get("realm"),
+                "loadout_key": row.get("loadout_key"),
+                "loadout_updated_at": row.get("loadout_updated_at"),
+                "keystone_level": int(row.get("keystone_level")) if row.get("keystone_level") else None,
+            }
+        else:
+            rank = int(row[2])
+            map_id = int(row[3]) if row[3] is not None else None
+            meta = {
+                "spec_id": int(row[0]),
+                "season": int(row[1]),
+                "rank": rank,
+                "map_challenge_mode_id": map_id,
+                "region": row[4],
+                "character_id": int(row[5]) if row[5] is not None else None,
+                "character_name": row[6],
+                "realm": row[7],
+                "loadout_key": row[8],
+                "loadout_updated_at": row[9],
+                "keystone_level": int(row[10]) if row[10] is not None else None,
+            }
+        metas.append(meta)
+        pairs.append((rank, map_id))
+
+    # build a mapping key -> meta dict
+    meta_map = {f"{m['rank']}|{m['map_challenge_mode_id']}": {**m, "items": [], "gems": [], "enchants": [], "talents": []} for m in metas}
+
+    # helper to construct tuple IN clause placeholders and params for non-null map_ids
+    def _tuple_in_clause(pairs_list):
+        ph = ",".join(["(%s,%s)" for _ in pairs_list]) if pairs_list else ""
+        flat = []
+        for r, m in pairs_list:
+            flat.append(r)
+            flat.append(m)
+        return ph, flat
+
+    # Fetch child rows in batch for items/gems/enchants/talents
+    # split pairs into those with non-null map_id and those with NULL map_id
+    non_null_pairs = [(r, m) for (r, m) in pairs if m is not None]
+    null_ranks = [r for (r, m) in pairs if m is None]
+    _, pair_params = _tuple_in_clause(non_null_pairs)
+
+    # build an OR clause (`rank` = %s AND `map_challenge_mode_id` = %s) OR ...
+    pair_or_clause = (
+        " OR ".join(["(`rank` = %s AND `map_challenge_mode_id` = %s)" for _ in non_null_pairs])
+        if non_null_pairs
+        else ""
+    )
+
+    # ITEMS - run separate queries for non-null composite keys and NULL map_id rows
+    item_rows = []
+    if non_null_pairs:
+        ITEMS_SQL = f"""
+        SELECT `spec_id`, `season`, `rank`, `map_challenge_mode_id`, `slot`, `item_id`, `item_level`
+        FROM `Mythistone`.`top_player_loadout_items`
+        WHERE `spec_id` = %s AND `season` = %s AND ({pair_or_clause})
+        ORDER BY `rank`, `slot`
+        """
+        params_items = [spec_id, season] + pair_params
+        item_rows.extend(fetch_with_retry(connection, cursor, ITEMS_SQL, params_items))
+
+    if null_ranks:
+        # fetch rows where map_challenge_mode_id IS NULL and rank in (..)
+        rank_ph = ",".join(["%s" for _ in null_ranks])
+        ITEMS_NULL_SQL = f"""
+        SELECT `spec_id`, `season`, `rank`, `map_challenge_mode_id`, `slot`, `item_id`, `item_level`
+        FROM `Mythistone`.`top_player_loadout_items`
+        WHERE `spec_id` = %s AND `season` = %s AND `rank` IN ({rank_ph}) AND `map_challenge_mode_id` IS NULL
+        ORDER BY `rank`, `slot`
+        """
+        params_items_null = [spec_id, season] + null_ranks
+        item_rows.extend(fetch_with_retry(connection, cursor, ITEMS_NULL_SQL, params_items_null))
+    for row in item_rows:
+        if isinstance(row, dict):
+            rank = int(row.get("rank"))
+            map_id = int(row.get("map_challenge_mode_id"))
+            key = f"{rank}|{map_id}"
+            entry = {"slot": row.get("slot"), "item_id": int(row.get("item_id")), "item_level": int(row.get("item_level")) if row.get("item_level") else None}
+        else:
+            rank = int(row[2])
+            map_id = int(row[3])
+            key = f"{rank}|{map_id}"
+            entry = {"slot": row[4], "item_id": int(row[5]), "item_level": int(row[6]) if row[6] is not None else None}
+        meta_map.get(key, {}).get("items", []).append(entry)
+
+    # GEMS
+    GEMS_SQL = f"""
+    SELECT `spec_id`, `season`, `rank`, `map_challenge_mode_id`, `gem_item_id`, `usage_count`
+    FROM `Mythistone`.`top_player_loadout_gems`
+    WHERE `spec_id` = %s AND `season` = %s AND ({pair_or_clause})
+    ORDER BY `rank`
+    """
+    gem_rows = []
+    if non_null_pairs:
+        params_gems = [spec_id, season] + pair_params
+        gem_rows.extend(fetch_with_retry(connection, cursor, GEMS_SQL, params_gems))
+    if null_ranks:
+        rank_ph = ",".join(["%s" for _ in null_ranks])
+        GEMS_NULL_SQL = f"""
+        SELECT `spec_id`, `season`, `rank`, `map_challenge_mode_id`, `gem_item_id`, `usage_count`
+        FROM `Mythistone`.`top_player_loadout_gems`
+        WHERE `spec_id` = %s AND `season` = %s AND `rank` IN ({rank_ph}) AND `map_challenge_mode_id` IS NULL
+        ORDER BY `rank`
+        """
+        params_gems_null = [spec_id, season] + null_ranks
+        gem_rows.extend(fetch_with_retry(connection, cursor, GEMS_NULL_SQL, params_gems_null))
+    for row in gem_rows:
+        if isinstance(row, dict):
+            rank = int(row.get("rank"))
+            map_id = int(row.get("map_challenge_mode_id"))
+            key = f"{rank}|{map_id}"
+            entry = {"gem_item_id": int(row.get("gem_item_id")), "usage_count": int(row.get("usage_count"))}
+        else:
+            rank = int(row[2])
+            map_id = int(row[3])
+            key = f"{rank}|{map_id}"
+            entry = {"gem_item_id": int(row[4]), "usage_count": int(row[5])}
+        meta_map.get(key, {}).get("gems", []).append(entry)
+
+    # ENCHANTS
+    ENCHANTS_SQL = f"""
+    SELECT `spec_id`, `season`, `rank`, `map_challenge_mode_id`, `slot_group`, `enchantment_id`
+    FROM `Mythistone`.`top_player_loadout_enchants`
+    WHERE `spec_id` = %s AND `season` = %s AND ({pair_or_clause})
+    ORDER BY `rank`
+    """
+    enchant_rows = []
+    if non_null_pairs:
+        params_enchants = [spec_id, season] + pair_params
+        enchant_rows.extend(fetch_with_retry(connection, cursor, ENCHANTS_SQL, params_enchants))
+    if null_ranks:
+        rank_ph = ",".join(["%s" for _ in null_ranks])
+        ENCHANTS_NULL_SQL = f"""
+        SELECT `spec_id`, `season`, `rank`, `map_challenge_mode_id`, `slot_group`, `enchantment_id`
+        FROM `Mythistone`.`top_player_loadout_enchants`
+        WHERE `spec_id` = %s AND `season` = %s AND `rank` IN ({rank_ph}) AND `map_challenge_mode_id` IS NULL
+        ORDER BY `rank`
+        """
+        params_enchants_null = [spec_id, season] + null_ranks
+        enchant_rows.extend(fetch_with_retry(connection, cursor, ENCHANTS_NULL_SQL, params_enchants_null))
+    for row in enchant_rows:
+        if isinstance(row, dict):
+            rank = int(row.get("rank"))
+            map_id = int(row.get("map_challenge_mode_id"))
+            key = f"{rank}|{map_id}"
+            entry = {"slot_group": row.get("slot_group"), "enchantment_id": int(row.get("enchantment_id"))}
+        else:
+            rank = int(row[2])
+            map_id = int(row[3])
+            key = f"{rank}|{map_id}"
+            entry = {"slot_group": row[4], "enchantment_id": int(row[5])}
+        meta_map.get(key, {}).get("enchants", []).append(entry)
+
+    # TALENTS
+    TALENTS_SQL = f"""
+    SELECT `spec_id`, `season`, `rank`, `map_challenge_mode_id`, `node_id`, `node_rank`
+    FROM `Mythistone`.`top_player_loadout_talents`
+    WHERE `spec_id` = %s AND `season` = %s AND ({pair_or_clause})
+    ORDER BY `rank`, `node_id`
+    """
+    talent_rows = []
+    if non_null_pairs:
+        params_talents = [spec_id, season] + pair_params
+        talent_rows.extend(fetch_with_retry(connection, cursor, TALENTS_SQL, params_talents))
+    if null_ranks:
+        rank_ph = ",".join(["%s" for _ in null_ranks])
+        TALENTS_NULL_SQL = f"""
+        SELECT `spec_id`, `season`, `rank`, `map_challenge_mode_id`, `node_id`, `node_rank`
+        FROM `Mythistone`.`top_player_loadout_talents`
+        WHERE `spec_id` = %s AND `season` = %s AND `rank` IN ({rank_ph}) AND `map_challenge_mode_id` IS NULL
+        ORDER BY `rank`, `node_id`
+        """
+        params_talents_null = [spec_id, season] + null_ranks
+        talent_rows.extend(fetch_with_retry(connection, cursor, TALENTS_NULL_SQL, params_talents_null))
+    for row in talent_rows:
+        if isinstance(row, dict):
+            rank = int(row.get("rank"))
+            map_id = int(row.get("map_challenge_mode_id"))
+            key = f"{rank}|{map_id}"
+            entry = {"node_id": int(row.get("node_id")), "node_rank": int(row.get("node_rank"))}
+        else:
+            rank = int(row[2])
+            map_id = int(row[3])
+            key = f"{rank}|{map_id}"
+            entry = {"node_id": int(row[4]), "node_rank": int(row[5])}
+        meta_map.get(key, {}).get("talents", []).append(entry)
+
+    # Return ordered list corresponding to metas
+    out = []
+    for m in metas:
+        key = f"{m['rank']}|{m['map_challenge_mode_id']}"
+        out.append(meta_map.get(key, m))
+    return out
+
+
 
 

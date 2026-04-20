@@ -55,7 +55,7 @@
       href="https://www.wowhead.com/item={{ entry.id }}?bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}} {% endif %}"
       data-wowhead="bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}}{% endif %}{%- if entry.pcs %}&pcs={{ entry.pcs|join(':') }}{%- endif %}"
       data-wh-rename-link="true" {% if tag=='button' %}onclick="event.preventDefault();" {% endif %}>
-      <p class="mb-0 text-truncate item-name-text">{{ item_lookup[entry.id].name }}</p>
+        <p class="mb-0 text-truncate item-name-text">{{ item_lookup[entry.id].name }}{% if entry.is_bis %} <span class="badge bis-badge" data-bs-toggle="tooltip" title="Used by {{ '%.0f' % (entry.bis_pct) if entry.bis_pct else 'N/A' }}% of the top 50 {{ spec.name }} {{ class_info.name }} players according to Raider.io verified Loadouts.">BIS</span>{% endif %}</p>
     </a>
     {% set reagent = reagent_lookup.get(entry.missive|string) or reagent_lookup.get(entry.missive|int) %}
     {% set display_stats = reagent.stats if entry.missive and reagent and reagent.stats else item_lookup[entry.id].stats
@@ -129,6 +129,7 @@
           <img src="/data/icons/consumable-quality-{{ enchant_lookup[entry.enchantment.id].craftingQuality }}.png" alt=""
             class="position-absolute top-0 start-0 secondary-icon-overlay">
           {% endif %}
+          {# Enchant BIS badge removed from gear overview; shown in Enchant Details accordion only #}
         </div>
       </a>
       {% endif %}
@@ -149,6 +150,7 @@
             <img src="/data/icons/consumable-quality-{{ socket_lookup[sock.id | int].craftingQuality }}.png" alt=""
               class="position-absolute top-0 start-0 secondary-icon-overlay">
             {% endif %}
+            {# Gem BIS badge removed from gear overview; shown in Gem Details accordion only #}
           </div>
 
         </a>
@@ -906,18 +908,20 @@
                                         <div class="flex-shrink-0 me-2">{{ slot_name }}</div>
 
                                         <div class="col-auto d-flex align-items-center me-2">
-                                          <a target="_blank" href="{{ url }}" class="icon-link position-relative"
-                                            aria-hidden="true">
-                                            <img
-                                              src="/data/icons/{% if enchant_lookup[enchant].itemIcon %}{{ enchant_lookup[enchant].itemIcon }}.png{% else %}{{ enchant_lookup[enchant].spellIcon }}.png{% endif %}"
-                                              alt=""
-                                              class="border {% if enchant_lookup[enchant].quality %}border-quality-{{ enchant_lookup[enchant].quality }}{% else %}border-grey-100{% endif %}">
-                                            {% if enchant_lookup[enchant].craftingQuality %}
-                                            <img
-                                              src="/data/icons/consumable-quality-{{ enchant_lookup[enchant].craftingQuality }}.png"
-                                              alt="" class="icon-overlay">
-                                            {% endif %}
-                                          </a>
+                                          <div class="position-relative secondary-icon-wrapper" style="width:32px;height:32px;">
+                                            <a target="_blank" href="{{ url }}" class="icon-link" aria-hidden="true">
+                                              <img
+                                                src="/data/icons/{% if enchant_lookup[enchant].itemIcon %}{{ enchant_lookup[enchant].itemIcon }}.png{% else %}{{ enchant_lookup[enchant].spellIcon }}.png{% endif %}"
+                                                alt=""
+                                                class="position-absolute top-0 start-0 border {% if enchant_lookup[enchant].quality %}border-quality-{{ enchant_lookup[enchant].quality }}{% else %}border-grey-100{% endif %} secondary-icon-base">
+                                              {% if enchant_lookup[enchant].craftingQuality %}
+                                              <img
+                                                src="/data/icons/consumable-quality-{{ enchant_lookup[enchant].craftingQuality }}.png"
+                                                alt="" class="position-absolute top-0 start-0 secondary-icon-overlay">
+                                              {% endif %}
+                                            </a>
+                                            {# BIS badge moved to the accordion body rows only #}
+                                          </div>
                                         </div>
 
 
@@ -947,6 +951,7 @@
                                       {% for ench in ench_list %}
                                       {% set total = ench.count %}
                                       {% set enchant = ench.id %}
+                                      {% set is_bis_enchant = ench.is_bis | default(False) %}
                                       {% if enchant_lookup[enchant].itemName %}
                                       {% set name = enchant_lookup[enchant].itemName %}
                                       {% else %}
@@ -965,18 +970,26 @@
                                       <div class="row align-items-center mb-2">
                                         <!-- Item icon & link -->
                                         <div class="col-auto d-flex align-items-center me-2">
-                                          <a target="_blank" href="{{ url }}" class="icon-link position-relative"
-                                            aria-hidden="true">
-                                            <img
-                                              src="/data/icons/{% if enchant_lookup[enchant].itemIcon %}{{ enchant_lookup[enchant].itemIcon }}.png{% else %}{{ enchant_lookup[enchant].spellIcon }}.png{% endif %}"
-                                              alt=""
-                                              class="border {% if enchant_lookup[enchant].quality %}border-quality-{{ enchant_lookup[enchant].quality }}{% else %}border-grey-100{% endif %}">
-                                            {% if enchant_lookup[enchant].craftingQuality %}
-                                            <img
-                                              src="/data/icons/consumable-quality-{{ enchant_lookup[enchant].craftingQuality }}.png"
-                                              alt="" class="icon-overlay">
+                                          <div class="position-relative secondary-icon-wrapper" style="width:32px;height:32px;">
+                                            <a target="_blank" href="{{ url }}" class="icon-link" aria-hidden="true">
+                                              <img
+                                                src="/data/icons/{% if enchant_lookup[enchant].itemIcon %}{{ enchant_lookup[enchant].itemIcon }}.png{% else %}{{ enchant_lookup[enchant].spellIcon }}.png{% endif %}"
+                                                alt=""
+                                                class="position-absolute top-0 start-0 border {% if enchant_lookup[enchant].quality %}border-quality-{{ enchant_lookup[enchant].quality }}{% else %}border-grey-100{% endif %} secondary-icon-base">
+                                              {% if enchant_lookup[enchant].craftingQuality %}
+                                              <img
+                                                src="/data/icons/consumable-quality-{{ enchant_lookup[enchant].craftingQuality }}.png"
+                                                alt="" class="position-absolute top-0 start-0 secondary-icon-overlay">
+                                              {% endif %}
+                                            </a>
+                                            {% if is_bis_enchant %}
+                                              {% set ench_bis_pct = ench.bis_pct | default(None) %}
+                                              {% set ench_bis_count = ench.bis_count | default(None) %}
+                                              <span class="badge bis-badge bis-badge-sm"
+                                                data-bs-toggle="tooltip" data-bs-container="body"
+                                                title="Used by {{ '%.0f' % ench_bis_pct }}% of the top 50 {{ spec.name }} {{ class_info.name }} players according to Raider.io verified Loadouts.">BIS</span>
                                             {% endif %}
-                                          </a>
+                                          </div>
                                         </div>
 
                                         <!-- Name -->
@@ -1076,19 +1089,46 @@
                               {% set gem_id = (s.id if s.id is defined else s['id']) |int %}
                               {% set total = (s.count if s.count is defined else s['count']) %}
                               {% set gem = socket_lookup[gem_id] %}
+                              {# Prefer socket-level annotation, fall back to bis_summary.gems #}
+                              {% set is_bis_gem = s.is_bis | default(False) %}
+                              {% if not is_bis_gem and bis_summary and bis_summary.get('gems') %}
+                                {% for g in bis_summary.get('gems') %}
+                                  {% if g.id|int == gem_id|int %}
+                                    {% set is_bis_gem = True %}
+                                    {% break %}
+                                  {% endif %}
+                                {% endfor %}
+                              {% endif %}
                               <div class="row align-items-center mb-2">
                                 <!-- Gem icon & link -->
                                 <div class="col-auto">
-                                  <a target="_blank"
-                                    href="https://www.wowhead.com/item={{ gem.itemId }}&spec={{ spec_id }}"
-                                    class="icon-link position-relative" style="width:24px; height:24px;">
-                                    <img src="/data/icons/{{ gem.itemIcon }}.png" alt=""
-                                      class="base-icon border {% if gem.quality %}border-quality-{{gem.quality}}{% else %}border-grey-100{% endif %}">
-                                    {% if gem.craftingQuality %}
-                                    <img src="/data/icons/consumable-quality-{{ gem.craftingQuality }}.png" alt=""
-                                      class="icon-overlay">
+                                  <div class="position-relative secondary-icon-wrapper" style="width:24px;height:24px;">
+                                    <a target="_blank"
+                                      href="https://www.wowhead.com/item={{ gem.itemId }}&spec={{ spec_id }}"
+                                      class="icon-link" aria-hidden="true">
+                                      <img src="/data/icons/{{ gem.itemIcon }}.png" alt=""
+                                        class="position-absolute top-0 start-0 border {% if gem.quality %}border-quality-{{gem.quality}}{% else %}border-grey-100{% endif %} secondary-icon-base">
+                                      {% if gem.craftingQuality %}
+                                      <img src="/data/icons/consumable-quality-{{ gem.craftingQuality }}.png" alt=""
+                                        class="position-absolute top-0 start-0 secondary-icon-overlay">
+                                      {% endif %}
+                                    </a>
+                                    {% if is_bis_gem %}
+                                      {% set gem_bis_pct = s.bis_pct | default(None) %}
+                                      {% set gem_bis_count = s.bis_count | default(None) %}
+                                      {% if not gem_bis_pct and bis_summary and bis_summary.get('gems') %}
+                                        {% for g in bis_summary.get('gems') %}
+                                          {% if g.id|int == gem_id|int %}
+                                            {% set gem_bis_pct = g.pct %}
+                                            {% set gem_bis_count = g.count %}
+                                            {% break %}
+                                          {% endif %}
+                                        {% endfor %}
+                                      {% endif %}
+                                      <span class="badge bis-badge bis-badge-sm" data-bs-toggle="tooltip" data-bs-container="body"
+                                        title="Used by {{ '%.0f' % gem_bis_pct }}% of the top 50 {{ spec.name }} {{ class_info.name }} players according to Raider.io verified Loadouts.">BIS</span>
                                     {% endif %}
-                                  </a>
+                                  </div>
                                 </div>
                                 <!-- Gem Name -->
                                 <div class="col">
@@ -1205,13 +1245,13 @@
                                   <a target="_blank"
                                     href="https://www.wowhead.com/item={{ reagent_lookup[embellishment].itemId }}&spec={{ spec_id }}">
                                     {% for stat in reagent_lookup[embellishment].stats %}
-                                    <span class="badge stat-{{ stat.type }}">
-                                      +{{ stat.amount }} {% if stat_names[stat.type] %}{{ stat_names[stat.type] }}{%
-                                      else
-                                      %}{{
-                                      stat.type
-                                      }}{% endif %}
+                                    {# support multiple stat shapes: {type,amount} or {id,alloc} #}
+                                    {% set amt = stat.amount if stat.amount is not none else (stat.alloc if stat.alloc is not none else '') %}
+                                    {% if amt != '' %}
+                                    <span class="badge stat-{{ stat.type or stat.id }}">
+                                      +{{ amt }} {% if stat_names.get(stat.type) %}{{ stat_names.get(stat.type) }}{% else %}{{ stat.type or stat.id }}{% endif %}
                                     </span>
+                                    {% endif %}
                                     {% endfor %}
                                   </a>
                                   {% endif %}
