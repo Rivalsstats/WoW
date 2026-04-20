@@ -50,7 +50,7 @@ POLL_INTERVAL_SECONDS = int(getenv_clean("POLL_INTERVAL_SECONDS", "300"))
 TOP_PLAYER_LOADOUTS_TARGET = int(getenv_clean("TOP_PLAYER_LOADOUTS_TARGET", "50"))
 TOP_PLAYER_LOADOUTS_PAGE_LIMIT = int(getenv_clean("TOP_PLAYER_LOADOUTS_PAGE_LIMIT", "200"))
 TOP_PLAYER_LOADOUTS_DAYS = int(getenv_clean("TOP_PLAYER_LOADOUTS_DAYS", "14"))
-TOP_PLAYER_LOADOUTS_PAGE_SLEEP = float(getenv_clean("TOP_PLAYER_LOADOUTS_PAGE_SLEEP", "5"))
+TOP_PLAYER_LOADOUTS_PAGE_SLEEP = float(getenv_clean("TOP_PLAYER_LOADOUTS_PAGE_SLEEP", "4"))
 
 # queues
 simple_queue: asyncio.Queue[tuple] = asyncio.Queue(maxsize=QUEUE_MAXSIZE)
@@ -1207,6 +1207,11 @@ async def run_raiderio_top_loadouts(session):
                         if not char_name or not char_realm:
                             continue
 
+                        # use collection-order (1..N) as the stored "rank" so persisted
+                        # rows represent the Nth datapoint we collected rather than
+                        # the original leaderboard position (avoids stale data issues)
+                        collected_rank = len(collected) + 1
+
                         # gather highest key per dungeon for this ranked character from the ranking entry
                         runs_list = entry.get("runs") or char.get("runs") or []
                         runs_by_zone = {}
@@ -1283,7 +1288,7 @@ async def run_raiderio_top_loadouts(session):
                             if not detail:
                                 detail = chosen
 
-                            items_rows, gems_rows, talents_rows, enchants_rows = parse_loadout_for_db(spec_id, season, rank, detail)
+                            items_rows, gems_rows, talents_rows, enchants_rows = parse_loadout_for_db(spec_id, season, collected_rank, detail)
 
                             per_dungeon_selected.append(
                                 {
@@ -1306,10 +1311,10 @@ async def run_raiderio_top_loadouts(session):
                             )
 
                         if per_dungeon_selected:
-                            # store list of per-dungeon entries under this rank
-                            if rank not in collected:
-                                collected[rank] = []
-                            collected[rank].extend(per_dungeon_selected)
+                            # store list of per-dungeon entries under this collection ordinal
+                            if collected_rank not in collected:
+                                collected[collected_rank] = []
+                            collected[collected_rank].extend(per_dungeon_selected)
 
                     page += 1
                     await asyncio.sleep(TOP_PLAYER_LOADOUTS_PAGE_SLEEP)
