@@ -2522,7 +2522,7 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
             # Step 1: Check if this dungeon has combined view enabled
             combined_view_enabled = False
             try:
-                dungeon_r = requests.get('https://keystone.guru/api/v1/dungeon', timeout=20, auth=auth)
+                dungeon_r = requests.get('https://keystone.guru/api/v1/dungeon', timeout=60, auth=auth)
                 if dungeon_r.status_code == 200:
                     dungeons_data = dungeon_r.json().get('data', [])
                     for d in dungeons_data:
@@ -2544,7 +2544,7 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
               "quality": 90
             }
             try:
-                r = requests.post(url, json=payload, timeout=20, auth=auth)
+                r = requests.post(url, json=payload, timeout=60, auth=auth)
                 if r.status_code == 200:
                     resp_data = r.json()
                     jobs = resp_data.get("data", [])
@@ -2560,8 +2560,8 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
                         if status in ["queued", "processing", "error"]:
                             status_url = job["links"]["status"]
                             for _ in range(15): # wait up to 2 minutes
-                                time.sleep(8)
-                                poll_r = requests.get(status_url, auth=auth, timeout=10)
+                                time.sleep(10)
+                                poll_r = requests.get(status_url, auth=auth, timeout=20)
                                 if poll_r.status_code == 200:
                                     poll_data = poll_r.json()
                                     poll_job = poll_data.get("data", {})
@@ -2573,7 +2573,7 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
                         if status == "completed" and job.get("links", {}).get("result"):
                             img_url = job["links"]["result"]
                             print(f"Thumbnail ready, fetching image from {img_url}...")
-                            img_r = requests.get(img_url, timeout=20)
+                            img_r = requests.get(img_url, timeout=60)
                             if img_r.status_code == 200:
                                 print("Thumbnail image fetched successfully, processing image...")
                                 route_img = Image.open(io.BytesIO(img_r.content)).convert("RGBA")
