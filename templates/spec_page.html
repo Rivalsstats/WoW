@@ -55,7 +55,7 @@
       href="https://www.wowhead.com/item={{ entry.id }}?bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}} {% endif %}"
       data-wowhead="bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}}{% endif %}{%- if entry.pcs %}&pcs={{ entry.pcs|join(':') }}{%- endif %}"
       data-wh-rename-link="true" {% if tag=='button' %}onclick="event.preventDefault();" {% endif %}>
-        <p class="mb-0 text-truncate item-name-text">{{ item_lookup[entry.id].name }}{% if entry.is_bis %} <span class="badge bis-badge" data-bs-toggle="tooltip" title="Used by {{ '%.0f' % (entry.bis_pct) if entry.bis_pct else 'N/A' }}% of the top 50 {{ spec.name }} {{ class_info.name }} players according to Raider.io verified Loadouts.">BIS</span>{% endif %}</p>
+        <p class="mb-0 text-truncate item-name-text">{{ item_lookup[entry.id].name }}{% if entry.is_bis %} <span class="badge bis-badge" data-bs-toggle="tooltip" title="Used by {{ '%.0f' % (entry.bis_pct) if entry.bis_pct else 'N/A' }}% of the top 50 {{ spec.name }} {{ class_info.name }} players according to Raider.io verified Loadouts.">TOP</span>{% endif %}</p>
     </a>
     {% set reagent = reagent_lookup.get(entry.missive|string) or reagent_lookup.get(entry.missive|int) %}
     {% set display_stats = reagent.stats if entry.missive and reagent and reagent.stats else item_lookup[entry.id].stats
@@ -129,7 +129,6 @@
           <img src="/data/icons/consumable-quality-{{ enchant_lookup[entry.enchantment.id].craftingQuality }}.png" alt=""
             class="position-absolute top-0 start-0 secondary-icon-overlay">
           {% endif %}
-          {# Enchant BIS badge removed from gear overview; shown in Enchant Details accordion only #}
         </div>
       </a>
       {% endif %}
@@ -150,7 +149,6 @@
             <img src="/data/icons/consumable-quality-{{ socket_lookup[sock.id | int].craftingQuality }}.png" alt=""
               class="position-absolute top-0 start-0 secondary-icon-overlay">
             {% endif %}
-            {# Gem BIS badge removed from gear overview; shown in Gem Details accordion only #}
           </div>
 
         </a>
@@ -920,7 +918,6 @@
                                                 alt="" class="position-absolute top-0 start-0 secondary-icon-overlay">
                                               {% endif %}
                                             </a>
-                                            {# BIS badge moved to the accordion body rows only #}
                                           </div>
                                         </div>
 
@@ -987,7 +984,7 @@
                                               {% set ench_bis_count = ench.bis_count | default(None) %}
                                               <span class="badge bis-badge bis-badge-sm"
                                                 data-bs-toggle="tooltip" data-bs-container="body"
-                                                title="Used by {{ '%.0f' % ench_bis_pct }}% of the top 50 {{ spec.name }} {{ class_info.name }} players according to Raider.io verified Loadouts.">BIS</span>
+                                                title="Used by {{ '%.0f' % ench_bis_pct }}% of the top 50 {{ spec.name }} {{ class_info.name }} players according to Raider.io verified Loadouts.">TOP</span>
                                             {% endif %}
                                           </div>
                                         </div>
@@ -1126,7 +1123,7 @@
                                         {% endfor %}
                                       {% endif %}
                                       <span class="badge bis-badge bis-badge-sm" data-bs-toggle="tooltip" data-bs-container="body"
-                                        title="Used by {{ '%.0f' % gem_bis_pct }}% of the top 50 {{ spec.name }} {{ class_info.name }} players according to Raider.io verified Loadouts.">BIS</span>
+                                        title="Used by {{ '%.0f' % gem_bis_pct }}% of the top 50 {{ spec.name }} {{ class_info.name }} players according to Raider.io verified Loadouts.">TOP</span>
                                     {% endif %}
                                   </div>
                                 </div>
