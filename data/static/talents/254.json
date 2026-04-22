@@ -552,15 +552,20 @@
       "icon": "inv_111_hunter_ability_doubleknock",
       "spellId": 470945
     },
-    "103948": {
-      "name": "In the Rhythm",
-      "icon": "ability_hunter_longshots",
-      "spellId": 407404
+    "103959": {
+      "name": "Obsidian Arrowhead",
+      "icon": "ability_theblackarrow",
+      "spellId": 471350
     },
-    "133174": {
-      "name": "In the Rhythm",
-      "icon": "ability_hunter_longshots",
-      "spellId": 407404
+    "133186": {
+      "name": "Obsidian Arrowhead",
+      "icon": "ability_theblackarrow",
+      "spellId": 471350
+    },
+    "133516": {
+      "name": "On Target",
+      "icon": "ability_hunter_blindingshot",
+      "spellId": 471348
     },
     "103964": {
       "name": "Penetrating Shots",
@@ -607,30 +612,25 @@
       "icon": "ships_ability_armorpiercingammo",
       "spellId": 378913
     },
-    "103959": {
-      "name": "Obsidian Arrowhead",
-      "icon": "ability_theblackarrow",
-      "spellId": 471350
+    "109490": {
+      "name": "Kill Shot",
+      "icon": "ability_hunter_assassinate2",
+      "spellId": 53351
     },
-    "133186": {
-      "name": "Obsidian Arrowhead",
-      "icon": "ability_theblackarrow",
-      "spellId": 471350
+    "140468": {
+      "name": "Kill Shot",
+      "icon": "ability_hunter_assassinate2",
+      "spellId": 53351
     },
-    "133516": {
-      "name": "On Target",
-      "icon": "ability_hunter_blindingshot",
-      "spellId": 471348
+    "110572": {
+      "name": "No Scope",
+      "icon": "inv_eng_crowsnestscope",
+      "spellId": 473385
     },
-    "103978": {
-      "name": "Small Game Hunter",
-      "icon": "inv_rabbit2_darkmoon",
-      "spellId": 459802
-    },
-    "133206": {
-      "name": "Small Game Hunter",
-      "icon": "inv_rabbit2_darkmoon",
-      "spellId": 459802
+    "142135": {
+      "name": "No Scope",
+      "icon": "inv_eng_crowsnestscope",
+      "spellId": 473385
     },
     "103947": {
       "name": "Trueshot",
@@ -642,75 +642,35 @@
       "icon": "ability_trueshot",
       "spellId": 288613
     },
-    "104126": {
-      "name": "Lethality",
-      "icon": "ability_hunter_quickshot",
-      "spellId": 1259922
-    },
-    "133511": {
-      "name": "Lethality",
-      "icon": "ability_hunter_quickshot",
-      "spellId": 1259922
-    },
-    "109490": {
-      "name": "Kill Shot",
-      "icon": "ability_hunter_assassinate2",
-      "spellId": 53351
-    },
-    "140468": {
-      "name": "Kill Shot",
-      "icon": "ability_hunter_assassinate2",
-      "spellId": 53351
-    },
-    "103968": {
-      "name": "Target Acquisition",
-      "icon": "ability_rogue_findweakness",
-      "spellId": 473379
-    },
-    "133196": {
-      "name": "Target Acquisition",
-      "icon": "ability_rogue_findweakness",
-      "spellId": 473379
-    },
-    "110208": {
-      "name": "Critical Precision",
-      "icon": "ability_impalingbolt",
-      "spellId": 1277572
-    },
-    "141513": {
-      "name": "Critical Precision",
-      "icon": "ability_impalingbolt",
-      "spellId": 1277572
-    },
     "103955": {
-      "name": "No Scope",
-      "icon": "inv_eng_crowsnestscope",
-      "spellId": 473385
+      "name": "Critical Precision",
+      "icon": "ability_impalingbolt",
+      "spellId": 1277572
     },
     "133181": {
-      "name": "No Scope",
-      "icon": "inv_eng_crowsnestscope",
-      "spellId": 473385
+      "name": "Critical Precision",
+      "icon": "ability_impalingbolt",
+      "spellId": 1277572
     },
-    "103984": {
-      "name": "Feathered Frenzy",
-      "icon": "inv_111_hunter_ability_featheredfrenzy",
-      "spellId": 470943
+    "110575": {
+      "name": "Explosive Shot",
+      "icon": "ability_hunter_explosiveshot",
+      "spellId": 212431
     },
-    "133212": {
-      "name": "Feathered Frenzy",
-      "icon": "inv_111_hunter_ability_featheredfrenzy",
-      "spellId": 470943
+    "142138": {
+      "name": "Explosive Shot",
+      "icon": "ability_hunter_explosiveshot",
+      "spellId": 212431
     },
-    "103985": {
-      "name": "Bullseye",
-      "icon": "ability_hunter_focusedaim",
-      "spellId": 204089
+    "109491": {
+      "name": "Deathblow",
+      "icon": "ability_hunter_runningshot",
+      "spellId": 343248
     },
-    "133213": {
-      "name": "Bullseye",
-      "icon": "ability_hunter_focusedaim",
-      "spellId": 204089
+    "140469": {
+      "name": "Deathblow",
+      "icon": "ability_hunter_runningshot",
+      "spellId": 343248
     },
     "103972": {
       "name": "Headshot",
@@ -727,15 +687,55 @@
       "icon": "spell_hunter_focusingshot",
       "spellId": 321460
     },
-    "109491": {
-      "name": "Deathblow",
-      "icon": "ability_hunter_runningshot",
-      "spellId": 343248
+    "103985": {
+      "name": "Bullseye",
+      "icon": "ability_hunter_focusedaim",
+      "spellId": 204089
     },
-    "140469": {
-      "name": "Deathblow",
-      "icon": "ability_hunter_runningshot",
-      "spellId": 343248
+    "133213": {
+      "name": "Bullseye",
+      "icon": "ability_hunter_focusedaim",
+      "spellId": 204089
+    },
+    "103984": {
+      "name": "Feathered Frenzy",
+      "icon": "inv_111_hunter_ability_featheredfrenzy",
+      "spellId": 470943
+    },
+    "133212": {
+      "name": "Feathered Frenzy",
+      "icon": "inv_111_hunter_ability_featheredfrenzy",
+      "spellId": 470943
+    },
+    "103978": {
+      "name": "Small Game Hunter",
+      "icon": "inv_rabbit2_darkmoon",
+      "spellId": 459802
+    },
+    "133206": {
+      "name": "Small Game Hunter",
+      "icon": "inv_rabbit2_darkmoon",
+      "spellId": 459802
+    },
+    "110574": {
+      "name": "Precision Detonation",
+      "icon": "ability_hunter_explosiveshot",
+      "spellId": 471369
+    },
+    "142137": {
+      "name": "Precision Detonation",
+      "icon": "ability_hunter_explosiveshot",
+      "spellId": 471369
+    },
+    "110573": {
+      "name": "Shrapnel Shot",
+      "icon": "spell_sandexplosion",
+      "spellId": 473520
+    },
+    "142136": {
+      "name": "Shrapnel Shot",
+      "icon": "spell_sandexplosion",
+      "spellId": 473520
     },
     "103950": {
       "name": "Unmatched Precision",
@@ -861,21 +861,6 @@
       "name": "Salvo",
       "icon": "spell_hunter_exoticmunitions_incendiary",
       "spellId": 400456
-    },
-    "103981": {
-      "name": "Bullet Hell",
-      "icon": "buff_epichunter",
-      "spellId": 473378
-    },
-    "133209": {
-      "name": "Bullet Hell",
-      "icon": "buff_epichunter",
-      "spellId": 473378
-    },
-    "140490": {
-      "name": "Shrapnel Shot",
-      "icon": "spell_sandexplosion",
-      "spellId": 473520
     },
     "104095": {
       "name": "Unload",

@@ -15281,12 +15281,6 @@
         "category": 512,
         "quantity": 2
       },
-      "stats": [
-        {
-          "id": 71,
-          "alloc": 6666
-        }
-      ],
       "craftingQuality": 1,
       "craftingBonusIds": [
         12990,
@@ -15310,12 +15304,6 @@
         "category": 512,
         "quantity": 2
       },
-      "stats": [
-        {
-          "id": 71,
-          "alloc": 6666
-        }
-      ],
       "craftingQuality": 2,
       "craftingBonusIds": [
         12990,
@@ -15339,12 +15327,6 @@
         "category": 697,
         "quantity": 1
       },
-      "stats": [
-        {
-          "id": 71,
-          "alloc": 6666
-        }
-      ],
       "craftingBonusIds": [
         12991,
         13555
@@ -15838,8 +15820,7 @@
       "quality": 4,
       "expansion": 11,
       "craftingBonusIds": [
-        13621,
-        13667
+        13621
       ],
       "craftingCategoryId": 901,
       "craftingPrereqs": [
@@ -15858,8 +15839,7 @@
       "quality": 4,
       "expansion": 11,
       "craftingBonusIds": [
-        13622,
-        13667
+        13622
       ],
       "craftingCategoryId": 901,
       "craftingPrereqs": [

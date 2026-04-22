@@ -527,25 +527,25 @@
       "icon": "achievement_dungeon_plaguefall_stradamamargrave",
       "spellId": 1238900
     },
-    "108130": {
-      "name": "Doomed Bidding",
-      "icon": "ability_deathknight_shatteringbone",
-      "spellId": 455386
+    "110260": {
+      "name": "Necromancer's Cunning",
+      "icon": "artifactability_unholydeathknight_deathsembrace",
+      "spellId": 288848
     },
-    "130648": {
-      "name": "Doomed Bidding",
-      "icon": "ability_deathknight_shatteringbone",
-      "spellId": 455386
+    "141560": {
+      "name": "Necromancer's Cunning",
+      "icon": "artifactability_unholydeathknight_deathsembrace",
+      "spellId": 288848
     },
     "76197": {
-      "name": "Morbidity",
-      "icon": "spell_necro_deathlyecho",
-      "spellId": 377592
+      "name": "Ebon Fever",
+      "icon": "spell_shadow_creepingplague",
+      "spellId": 207269
     },
     "101336": {
-      "name": "Morbidity",
-      "icon": "spell_necro_deathlyecho",
-      "spellId": 377592
+      "name": "Ebon Fever",
+      "icon": "spell_shadow_creepingplague",
+      "spellId": 207269
     },
     "76193": {
       "name": "Festering Scythe",
@@ -567,15 +567,15 @@
       "icon": "spell_deathknight_explode_ghoul",
       "spellId": 390283
     },
-    "110259": {
-      "name": "March of Madness",
-      "icon": "inv_10xp_worldevent_special_ghoulfigure",
-      "spellId": 1241707
+    "76179": {
+      "name": "Soul Reaper",
+      "icon": "ability_deathknight_soulreaper",
+      "spellId": 343294
     },
-    "138307": {
-      "name": "March of Madness",
-      "icon": "inv_10xp_worldevent_special_ghoulfigure",
-      "spellId": 1241707
+    "101316": {
+      "name": "Soul Reaper",
+      "icon": "ability_deathknight_soulreaper",
+      "spellId": 343294
     },
     "76148": {
       "name": "Magus of the Dead",
@@ -597,25 +597,15 @@
       "icon": "ability_creature_disease_05",
       "spellId": 207272
     },
-    "76160": {
-      "name": "Ebon Fever",
-      "icon": "spell_shadow_creepingplague",
-      "spellId": 207269
-    },
-    "101296": {
-      "name": "Ebon Fever",
-      "icon": "spell_shadow_creepingplague",
-      "spellId": 207269
-    },
     "76155": {
-      "name": "Scythe of Decay",
+      "name": "Cycle of Death",
       "icon": "ability_ironmaidens_whirlofblood",
-      "spellId": 1242561
+      "spellId": 1290864
     },
     "101291": {
-      "name": "Scythe of Decay",
+      "name": "Cycle of Death",
       "icon": "ability_ironmaidens_whirlofblood",
-      "spellId": 1242561
+      "spellId": 1290864
     },
     "76156": {
       "name": "Coil of Devastation",
@@ -637,15 +627,15 @@
       "icon": "spell_deathknight_armyofthedead",
       "spellId": 42650
     },
-    "76184": {
-      "name": "Unholy Devotion",
-      "icon": "ability_creature_cursed_03",
-      "spellId": 1241858
+    "109392": {
+      "name": "Reaping",
+      "icon": "ability_deathwing_bloodcorruption_death",
+      "spellId": 377514
     },
-    "101323": {
-      "name": "Unholy Devotion",
-      "icon": "ability_creature_cursed_03",
-      "spellId": 1241858
+    "138303": {
+      "name": "Reaping",
+      "icon": "ability_deathwing_bloodcorruption_death",
+      "spellId": 377514
     },
     "101882": {
       "name": "Menacing Magus",
@@ -667,15 +657,15 @@
       "icon": "ability_warlock_baneofhavoc",
       "spellId": 377587
     },
-    "76195": {
-      "name": "Blightfall",
-      "icon": "inv_nullstone_shadow",
-      "spellId": 1242616
+    "76160": {
+      "name": "Morbidity",
+      "icon": "spell_necro_deathlyecho",
+      "spellId": 377592
     },
-    "101334": {
-      "name": "Blightfall",
-      "icon": "inv_nullstone_shadow",
-      "spellId": 1242616
+    "101296": {
+      "name": "Morbidity",
+      "icon": "spell_necro_deathlyecho",
+      "spellId": 377592
     },
     "76178": {
       "name": "Harbinger of Doom",
@@ -702,15 +692,15 @@
       "icon": "ability_deathknight_summongargoyle",
       "spellId": 1242147
     },
-    "108151": {
-      "name": "Putrid Echoes",
-      "icon": "inv12_ability_deathknight_dreadplague",
-      "spellId": 377580
+    "76184": {
+      "name": "Unholy Devotion",
+      "icon": "ability_creature_cursed_03",
+      "spellId": 1241858
     },
-    "138332": {
-      "name": "Putrid Echoes",
-      "icon": "inv12_ability_deathknight_dreadplague",
-      "spellId": 377580
+    "101323": {
+      "name": "Unholy Devotion",
+      "icon": "ability_creature_cursed_03",
+      "spellId": 1241858
     },
     "76181": {
       "name": "All Will Serve",
@@ -732,25 +722,25 @@
       "icon": "spell_shadow_unstableaffliction_3_purple",
       "spellId": 1254552
     },
-    "76179": {
-      "name": "Soul Reaper",
-      "icon": "ability_deathknight_soulreaper",
-      "spellId": 343294
+    "108151": {
+      "name": "Putrid Echoes",
+      "icon": "inv12_ability_deathknight_dreadplague",
+      "spellId": 377580
     },
-    "101316": {
-      "name": "Soul Reaper",
-      "icon": "ability_deathknight_soulreaper",
-      "spellId": 343294
+    "138332": {
+      "name": "Putrid Echoes",
+      "icon": "inv12_ability_deathknight_dreadplague",
+      "spellId": 377580
     },
-    "110260": {
-      "name": "Necromancer's Cunning",
-      "icon": "artifactability_unholydeathknight_deathsembrace",
-      "spellId": 288848
+    "108130": {
+      "name": "Doomed Bidding",
+      "icon": "ability_deathknight_shatteringbone",
+      "spellId": 455386
     },
-    "141560": {
-      "name": "Necromancer's Cunning",
-      "icon": "artifactability_unholydeathknight_deathsembrace",
-      "spellId": 288848
+    "130648": {
+      "name": "Doomed Bidding",
+      "icon": "ability_deathknight_shatteringbone",
+      "spellId": 455386
     },
     "108127": {
       "name": "Scourging",
@@ -771,16 +761,6 @@
       "name": "Ancient Power",
       "icon": "inv_relics_runestone",
       "spellId": 377590
-    },
-    "109392": {
-      "name": "Reaping",
-      "icon": "ability_deathwing_bloodcorruption_death",
-      "spellId": 377514
-    },
-    "138303": {
-      "name": "Reaping",
-      "icon": "ability_deathwing_bloodcorruption_death",
-      "spellId": 377514
     },
     "76150": {
       "name": "Unholy Aura",
@@ -803,13 +783,13 @@
       "spellId": 390259
     },
     "108124": {
-      "name": "Pestilence",
-      "icon": "spell_shadow_plaguecloud",
+      "name": "Blightfall",
+      "icon": "inv_nullstone_shadow",
       "spellId": 1271974
     },
     "138299": {
-      "name": "Pestilence",
-      "icon": "spell_shadow_plaguecloud",
+      "name": "Blightfall",
+      "icon": "inv_nullstone_shadow",
       "spellId": 1271974
     },
     "109458": {
