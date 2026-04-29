@@ -35088,5 +35088,143 @@
     },
     "family_id": 154,
     "image": "data/creature_img/114992.jpg"
+  },
+  "250033": {
+    "name": {
+      "en_US": "Springpaw Lynx",
+      "es_MX": "Lince garrágil",
+      "pt_BR": "Lince Garrataque",
+      "de_DE": "Bachtatzenluchs",
+      "en_GB": "Springpaw Lynx",
+      "es_ES": "Lince garrágil",
+      "fr_FR": "Lynx preste-patte",
+      "it_IT": "Lince Verartiglio",
+      "ru_RU": "Рысь-прыголап",
+      "ko_KR": "갈기발 스라소니",
+      "zh_TW": "泉爪山貓",
+      "zh_CN": "魔泉山猫"
+    },
+    "type": {
+      "en_US": "Beast",
+      "es_MX": "Bestia",
+      "pt_BR": "Fera",
+      "de_DE": "Wildtier",
+      "en_GB": "Beast",
+      "es_ES": "Bestia",
+      "fr_FR": "Bête",
+      "it_IT": "Bestia",
+      "ru_RU": "Животное",
+      "ko_KR": "야수",
+      "zh_TW": "野獸",
+      "zh_CN": "野兽"
+    },
+    "family": {
+      "en_US": "Cat",
+      "es_MX": "Felino",
+      "pt_BR": "Gato",
+      "de_DE": "Katze",
+      "en_GB": "Cat",
+      "es_ES": "Felino",
+      "fr_FR": "Félin",
+      "it_IT": "Felino",
+      "ru_RU": "Кошка",
+      "ko_KR": "살쾡이",
+      "zh_TW": "大貓",
+      "zh_CN": "豹"
+    },
+    "family_id": 2,
+    "image": "data/creature_img/250033.jpg"
+  },
+  "250125": {
+    "name": {
+      "en_US": "Scavenging Chitterfang",
+      "es_MX": "Chillidientes carroñero",
+      "pt_BR": "Gorjepresa Carniceiro",
+      "de_DE": "Plündernder Zischzahn",
+      "en_GB": "Scavenging Chitterfang",
+      "es_ES": "Colmicanto carroñero",
+      "fr_FR": "Crissecroc charognard",
+      "it_IT": "Vibrazanna Predatore",
+      "ru_RU": "Щелкоклык-падальщик",
+      "ko_KR": "청소부 딸깍송곳니",
+      "zh_TW": "食腐牙鼠",
+      "zh_CN": "觅食的吱牙鼠"
+    },
+    "type": {
+      "en_US": "Beast",
+      "es_MX": "Bestia",
+      "pt_BR": "Fera",
+      "de_DE": "Wildtier",
+      "en_GB": "Beast",
+      "es_ES": "Bestia",
+      "fr_FR": "Bête",
+      "it_IT": "Bestia",
+      "ru_RU": "Животное",
+      "ko_KR": "야수",
+      "zh_TW": "野獸",
+      "zh_CN": "野兽"
+    },
+    "family": {
+      "en_US": "Rodent",
+      "es_MX": "Roedor",
+      "pt_BR": "Roedor",
+      "de_DE": "Nager",
+      "en_GB": "Rodent",
+      "es_ES": "Roedor",
+      "fr_FR": "Rongeur",
+      "it_IT": "Roditore",
+      "ru_RU": "Грызун",
+      "ko_KR": "설치류",
+      "zh_TW": "齧齒類",
+      "zh_CN": "啮齿动物"
+    },
+    "family_id": 127,
+    "image": "data/creature_img/250125.jpg"
+  },
+  "256364": {
+    "name": {
+      "en_US": "Misthop Potatoad",
+      "es_MX": "Papasapo saltaniebla",
+      "pt_BR": "Sapérculo Salta-névoa",
+      "de_DE": "Nebelsprungkrötoffel",
+      "en_GB": "Misthop Potatoad",
+      "es_ES": "Sapotata nieblabrinco",
+      "fr_FR": "Terratracien sautebrume",
+      "it_IT": "Patarospo Balzanebbia",
+      "ru_RU": "Бульбожаба-туманопрыг",
+      "ko_KR": "안개폴짝 감자꺼비",
+      "zh_TW": "跳霧馬鈴薯蟾蜍",
+      "zh_CN": "跃谷薯身蟾"
+    },
+    "type": {
+      "en_US": "Elemental",
+      "es_MX": "Elemental",
+      "pt_BR": "Elemental",
+      "de_DE": "Elementar",
+      "en_GB": "Elemental",
+      "es_ES": "Elemental",
+      "fr_FR": "Élémentaire",
+      "it_IT": "Elementale",
+      "ru_RU": "Элементаль",
+      "ko_KR": "정령",
+      "zh_TW": "元素生物",
+      "zh_CN": "元素生物"
+    },
+    "family": {
+      "en_US": "Hopper",
+      "es_MX": "Saltarín",
+      "pt_BR": "Pulante",
+      "de_DE": "Hüpfer",
+      "en_GB": "Hopper",
+      "es_ES": "Saltarines",
+      "fr_FR": "Sautilleur",
+      "it_IT": "Salterino",
+      "ru_RU": "Прыгун",
+      "ko_KR": "깡충이",
+      "zh_TW": "跳跳兔妖",
+      "zh_CN": "跃行者"
+    },
+    "family_id": 291,
+    "image": "data/creature_img/256364.jpg"
   }
 }
