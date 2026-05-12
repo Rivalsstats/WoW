@@ -1016,69 +1016,6 @@ def fetch_stat_info(conn, cursor, spec_id, current_season_id, spec_lookup):
     return stat_priority, tertiary_priority, health_priority
 
 
-def fetch_hunter_pets(
-    conn, cursor, spec_id, spec_data, spec_runs, creature_lookup, non_tameable_creatures
-):
-    hunter_pets = []
-
-    # check for hunter
-    if str(spec_data.get("classID")) == "3":
-        print(
-            f"[{datetime.now(timezone.utc).isoformat()}] fetching hunter pets for spec {spec_id}..."
-        )
-        try:
-            pet_rows = databaseConnector.fetch_top_hunter_pets_by_spec(
-                conn, cursor, spec_id
-            )
-        except Exception as e:
-            print(f"Error fetching hunter pets: {e}")
-            pet_rows = []
-
-        # pet_rows expected: list of dicts { 'creature_id': int, 'run_count': int }
-        # Determine spec_runs_count: spec_runs may be an int or list — be defensive
-        if isinstance(spec_runs, int):
-            spec_runs_count = spec_runs
-        elif isinstance(spec_runs, (list, tuple)):
-            spec_runs_count = len(spec_runs)
-        else:
-            # fallback if spec_runs is missing or something else
-            spec_runs_count = int(spec_runs) if spec_runs else 0
-
-        # avoid zero division later
-        if spec_runs_count == 0:
-            spec_runs_count = 1
-
-        total_pet_runs = sum(int(p.get("run_count", 0)) for p in pet_rows) or 1
-
-        for p in pet_rows:
-            cid = str(p.get("creature_id"))
-            info = creature_lookup.get(cid, {})
-            name = info.get("name", {}).get("en_US") or info.get("name") or cid
-            family = info.get("family", {}).get("en_US") or ""
-            family_id = info.get("family_id") or ""
-            if family_id in non_tameable_creatures[spec_id]:
-                print(f"Skipping non-tameable pet {name} ({cid}) for spec {spec_id}")
-                continue
-            ctype = info.get("type", {}).get("en_US") or ""
-            image = info.get("image") or f"data/creature_img/{cid}.jpg"
-            run_count = int(p.get("run_count", 0))
-            pet = {
-                "creature_id": cid,
-                "name": name,
-                "family": family,
-                "type": ctype,
-                "image": image,
-                "run_count": run_count,
-                # % of this spec's runs that included this pet
-                "pet_pct_spec": (run_count / spec_runs_count) * 100,
-                # % of total pet observations
-                "pet_pct_of_pet_total": (run_count / total_pet_runs) * 100,
-            }
-            hunter_pets.append(pet)
-    hunter_pets = hunter_pets[:10]
-    return hunter_pets
-
-
 def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=None):
     from generateSocialsPost import createSpecOverviewImg # local import so we don't get circular dependency issues
     # Prepare Jinja2 environment
@@ -1160,10 +1097,6 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
     spec_lookup = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
     season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
-    creature_lookup = load_json(os.path.join(LOOKUP_DIR, "creatures.json"))
-    non_tameable_creatures = load_json(
-        os.path.join(LOOKUP_DIR, "notTamablePetFamilies.json")
-    )
     os.makedirs(output_dir, exist_ok=True)
 
     set_members = defaultdict(list)
@@ -1441,19 +1374,6 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     conn, cursor, spec_id, current_season_id, spec_lookup
                 )
                 print(
-                    f"[{datetime.now(timezone.utc).isoformat()}] fetching hunter pets..."
-                )
-                hunter_pets = fetch_hunter_pets(
-                    conn,
-                    cursor,
-                    spec_id,
-                    spec_data,
-                    spec_runs,
-                    creature_lookup,
-                    non_tameable_creatures,
-                )
-
-                print(
                     f"[{datetime.now(timezone.utc).isoformat()}] fetching top comps..."
                 )
                 top_comps_data = databaseConnector.fetch_spec_top_comps(
@@ -1533,8 +1453,6 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 stats=stat_priority,
                 tertiary_priority=tertiary_priority,
                 health_priority=health_priority,
-                hunter_pets=hunter_pets,
-                creature_lookup=creature_lookup,
                 spec_runs=spec_runs,
                 breadcrumbs=[
                     {"title": "Classes"},

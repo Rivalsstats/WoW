@@ -109,7 +109,6 @@ LOCALE = getenv_clean("LOCALE", "en_US")
 DATA_DIR = Path("data")
 RUNS_DIR = DATA_DIR / "runs"
 DUNGEON_STATIC = DATA_DIR / "static" / "dungeons.json"
-HUNTER_SPEC_IDS = [253, 254, 255]
 
 TALENTS_STATIC = DATA_DIR / "static" / "talents.json"
 CHOICE_NODE_IDS = set()
@@ -1486,20 +1485,6 @@ async def get_equipment(
     return data.get("equipped_items", [])
 
 
-async def get_hunter_pets(
-    session: ClientSession, region: str, realm_slug: str, name: str
-) -> list:
-    url = f"{API_BASE.format(region=region)}/profile/wow/character/{realm_slug}/{name}/hunter-pets"
-    params = {"namespace": f"profile-{region}", "locale": LOCALE}
-    data = await fetch_json(session, url, params, region)
-    if not data or "hunter_pets" not in data:
-        return []
-    hunter_pets = []
-    for pet in data["hunter_pets"]:
-        hunter_pets.append(pet["creature"]["id"])
-    return hunter_pets
-
-
 MAINSTATS = ["strength", "agility", "intellect"]
 NORMALSTATS = []
 VALUESTATS = ["mastery", "lifesteal", "speed"]
@@ -1674,7 +1659,6 @@ async def simple_worker(name: str, session: ClientSession):
                         "class_talents": [],
                         "spec_talents": [],
                         "hero_talents": [],
-                        "hunter_pets": [],
                         "equipment": [],
                     }
                 )
@@ -1733,10 +1717,6 @@ async def advanced_worker(name: str, session: ClientSession):
                         session, region, realm_slug, name_l
                     )
                     stats = await get_stats(session, region, realm_slug, name_l)
-                    if member["specialization"]["id"] in HUNTER_SPEC_IDS:
-                        hunter_pets = await get_hunter_pets(
-                            session, region, realm_slug, name_l
-                        )
                     await GLOBAL_STATS.increment("fetched_profile")
                     try:
                         active_spec = next(
@@ -1797,10 +1777,6 @@ async def advanced_worker(name: str, session: ClientSession):
                                 for item in eq_data
                                 if item.get("item")
                             ],
-                            "hunter_pets": hunter_pets
-                            if member["specialization"]["id"] in HUNTER_SPEC_IDS
-                            and hunter_pets
-                            else [],
                             "stats": stats,
                         }
                     )
@@ -1918,7 +1894,6 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
     ct_vals = []
     st_vals = []
     ht_vals = []
-    hunter_pet_vals = []
     ench_vals = []
     sock_vals = []
     bonus_vals = []
@@ -1947,8 +1922,6 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
                 st_vals.append((mid, t, rk))
             for t, rk in m["hero_talents"]:
                 ht_vals.append((mid, t, rk))
-            for pet in m["hunter_pets"]:
-                hunter_pet_vals.append((mid, pet))
             # collect equipment
             for e in m["equipment"]:
                 eq_id = databaseConnector.insert_equipment(
@@ -1968,10 +1941,9 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
         or len(sock_vals) > 0
         or len(bonus_vals) > 0
         or len(stat_vals) > 0
-        or len(hunter_pet_vals) > 0
     ):
         GLOBAL_STATS.console_log(
-            f"[{name}] Inserting talents and equipment for {len(ct_vals)} class talents, {len(st_vals)} spec talents, {len(ht_vals)} hero talents, {len(ench_vals)} enchantments, {len(sock_vals)} sockets and {len(bonus_vals)} bonuses and {len(stat_vals)} stats and {len(hunter_pet_vals)} hunter pets"
+            f"[{name}] Inserting talents and equipment for {len(ct_vals)} class talents, {len(st_vals)} spec talents, {len(ht_vals)} hero talents, {len(ench_vals)} enchantments, {len(sock_vals)} sockets and {len(bonus_vals)} bonuses and {len(stat_vals)} stats"
         )
 
     if stats_collector:
@@ -1997,9 +1969,6 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
         if len(stat_vals) > 0:
             GLOBAL_STATS.console_log(f"Stats: {len(stat_vals)}")
             await stats_collector.increment("stats", len(stat_vals))
-        if len(hunter_pet_vals) > 0:
-            GLOBAL_STATS.console_log(f"Hunter Pets: {len(hunter_pet_vals)}")
-            await stats_collector.increment("hunter_pets", len(hunter_pet_vals))
 
     if ct_vals and len(ct_vals) > 0:
         for sub in chunked(ct_vals, BATCH_SIZE):
@@ -2017,10 +1986,6 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
             except Exception as e:
                 GLOBAL_STATS.console_log(f"sub: {sub}")
                 GLOBAL_STATS.console_log(f"Error inserting stats batch: {e}")
-    if hunter_pet_vals and len(hunter_pet_vals) > 0:
-        for sub in chunked(hunter_pet_vals, BATCH_SIZE):
-            databaseConnector.insert_hunter_pets_batch(conn, cursor, sub)
-            databaseConnector.commit_changes(conn)
     if ht_vals and len(ht_vals) > 0:
         for sub in chunked(ht_vals, BATCH_SIZE):
             databaseConnector.insert_hero_talents(conn, cursor, sub)

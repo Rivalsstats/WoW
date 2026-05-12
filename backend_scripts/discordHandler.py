@@ -596,11 +596,6 @@ class DiscordReporter:
             inline=True,
         )
         embed.add_field(
-            name="Hunter Pets",
-            value=str(window_counts.get("hunter_pets", 0)),
-            inline=True,
-        )
-        embed.add_field(
             name="Routes Saved",
             value=f"Inserted: {window_counts.get('db_insert_route', 0)}\nDuplicate: {window_counts.get('duplicate_routes', 0)}",
             inline=True,
@@ -674,9 +669,6 @@ class DiscordReporter:
             name="Gear Extras",
             value=f"Ench: {totals.get('enchantments', 0)} | Sock: {totals.get('sockets', 0)}\nBonus: {totals.get('bonuses', 0)} | Stats: {totals.get('stats', 0)}",
             inline=True
-        )
-        totals_embed.add_field(
-            name="Hunter Pets", value=str(totals.get("hunter_pets", 0)), inline=True
         )
         totals_embed.add_field(
             name="Routes Saved", 

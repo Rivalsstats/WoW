@@ -221,21 +221,6 @@ def insert_runs_batch(connection, cursor, run_vals):
     return cursor.lastrowid
 
 
-INSERT_HUNTER_PETS_SQL = "INSERT IGNORE INTO Mythistone.hunter_pets (`member`, `creature_id`) VALUES (%s, %s)"
-
-
-def insert_hunter_pets_batch(connection, cursor, run_vals):
-    """Bulk-insert hunter pets, returns first inserted run_id."""
-    executemany_with_retry(connection, cursor, INSERT_HUNTER_PETS_SQL, run_vals)
-    return cursor.lastrowid
-
-
-def insert_hunter_pets(connection, cursor, member: int, creature_id: int):
-    """Insert a member into the members table."""
-    val = (member, creature_id)
-    return execute_with_retry(connection, cursor, INSERT_HUNTER_PETS_SQL, val)
-
-
 SELECT_RUNS_SQL = "SELECT id, `dungeon_id`, `keystone_level`, `duration`, `timestamp`, `faction`, `run_id`, `region`, season FROM runs WHERE (`season`, `region`, `dungeon_id`) IN (%s, %s, %s)"
 
 
@@ -1885,38 +1870,6 @@ def fetch_stats(connection, cursor, spec_id, season):
             "max_raw": float(row[5]),
         }
     return data
-
-
-FETCH_TOP_HUNTER_PETS_BY_SPEC_SQL = """
-SELECT COUNT(hp.`member` ) as run_count, hp.creature_id  
-from Mythistone.hunter_pets hp 
-JOIN Mythistone.members m on hp.`member` = m.`member` 
-WHERE m.spec_id = %s
-GROUP BY hp.creature_id  ORDER BY run_count DESC LIMIT 100
-"""
-
-
-def fetch_top_hunter_pets_by_spec(connection, cursor, spec_id):
-    params = (spec_id,)
-    rows = fetch_with_retry(
-        connection, cursor, FETCH_TOP_HUNTER_PETS_BY_SPEC_SQL, params
-    )
-    if not rows:
-        return []
-    return [{"creature_id": int(row[1]), "run_count": int(row[0])} for row in rows]
-
-
-FETCH_TOP_HUNTER_PETS_SQL = """
-SELECT COUNT(hp.`member` ) as run_count, hp.creature_id  
-from Mythistone.hunter_pets hp GROUP BY hp.creature_id  ORDER BY run_count DESC LIMIT 500
-"""
-
-
-def fetch_top_hunter_pets(connection, cursor):
-    rows = fetch_with_retry(connection, cursor, FETCH_TOP_HUNTER_PETS_SQL)
-    if not rows:
-        return []
-    return [{"creature_id": int(row[1]), "run_count": int(row[0])} for row in rows]
 
 
 INSERT_PULL_ENEMIES_SQL = """

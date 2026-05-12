@@ -258,15 +258,6 @@ CREATE TABLE `global_aggregated_missives` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
--- Mythistone.hunter_pets definition
-
-CREATE TABLE `hunter_pets` (
-  `member` int unsigned NOT NULL,
-  `creature_id` bigint unsigned NOT NULL,
-  PRIMARY KEY (`creature_id`,`member`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
 -- Mythistone.members definition
 
 CREATE TABLE `members` (
