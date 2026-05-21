@@ -2059,9 +2059,11 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
         ("spec_talents", spec_talent_overview),
     ):
         talents[section] = []
+        max_count = max((t["count"] for t in data), default=0)
+        baseline = max_count if max_count > 0 else 1
         for t in data:
             # each t has 'talent_id' and 'count'
-            pick_rate = t["count"] / play_count * 100
+            pick_rate = t["count"] / baseline * 100
             # look up icon & name via talent_lookup
             tl = talent_lookup.get("talents", {}).get(str(t["talent_id"]), {})
             if not tl:
