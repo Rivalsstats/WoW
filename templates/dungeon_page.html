@@ -304,6 +304,9 @@
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"
                                                 style="position: sticky; top: 0; background-color: #1d1d1d;">Lust Rate
                                             </th>
+                                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                                                style="position: sticky; top: 0; background-color: #1d1d1d;">Example Route
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -354,11 +357,22 @@
                                                 <p class="text-xs text-secondary mt-1 mb-0">{{ pull.lust_count }} / {{
                                                     pull.total_pulls_at_index }} Pulls</p>
                                             </td>
+                                            <td class="align-middle text-center">
+                                                {% if pull.example_route %}
+                                                    <a href="https://keystone.guru/route/{{ dungeon.slug }}/{{ pull.example_route.route_key }}/{{ dungeon.slug }}"
+                                                    class="text-white text-sm font-weight-bold" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Level {{ pull.example_route.keystone_level }} route on Keystone.guru. The exact pull in this route is Pull #{{ pull.example_route.pull_number }}.">
+                                                        <i class="bi bi-box-arrow-up-right me-1"></i>View Example Route
+                                                    </a>
+                                                    <span class="text-muted text-xs d-block mt-1">Pull: {{ pull.example_route.pull_number }}</span>
+                                                {% else %}
+                                                    <span class="text-secondary text-sm">N/A</span>
+                                                {% endif %}
+                                            </td>
                                         </tr>
                                         {% endfor %}
                                         {% if lust_timeline | length == 0 %}
                                         <tr>
-                                            <td colspan="2" class="text-center text-sm p-3">No lust data available.</td>
+                                            <td colspan="3" class="text-center text-sm p-3">No lust data available.</td>
                                         </tr>
                                         {% endif %}
                                     </tbody>

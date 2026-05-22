@@ -2584,6 +2584,34 @@ def fetch_example_skip_route(connection, cursor, dungeon_id: str, npc_id: int):
     return fetch_with_retry(connection, cursor, FETCH_EXAMPLE_SKIP_ROUTE_SQL, (dungeon_id, npc_id))
 
 
+FETCH_EXAMPLE_LUST_ROUTE_SQL = """
+WITH target_pull AS (
+    SELECT 
+        rp.route_key,
+        rp.pull_id
+    FROM route_data rd
+    JOIN route_pulls rp ON rd.route_key = rp.route_key
+    JOIN pull_enemies pe ON rp.pull_id = pe.pull_id AND rp.route_key = pe.route_key
+    JOIN pull_spells ps ON rp.pull_id = ps.pull_id AND rp.route_key = ps.route_key 
+        AND ps.spell_id IN (SELECT spell_id FROM bloodlust_spells)
+    WHERE rd.dungeon_id = %s
+    GROUP BY rp.route_key, rp.pull_id
+    HAVING GROUP_CONCAT(DISTINCT pe.npc_id ORDER BY pe.npc_id ASC SEPARATOR ',') = %s
+    LIMIT 1
+)
+SELECT 
+    rd.rio_run_id, 
+    rd.route_key, 
+    rd.keystone_level,
+    (SELECT COUNT(*) FROM route_pulls rp2 WHERE rp2.route_key = tp.route_key AND rp2.pull_id <= tp.pull_id) as pull_number
+FROM target_pull tp
+JOIN route_data rd ON rd.route_key = tp.route_key;
+"""
+
+def fetch_example_lust_route(connection, cursor, dungeon_id: str, pull_sig: str):
+    return fetch_with_retry(connection, cursor, FETCH_EXAMPLE_LUST_ROUTE_SQL, (dungeon_id, pull_sig))
+
+
 
 # -- Top player verified loadouts: SQL + helpers ---------------------------------
 

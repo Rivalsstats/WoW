@@ -190,6 +190,13 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                     example_route = databaseConnector.fetch_example_skip_route(conn, cursor, dungeon_id, skip['npc_id'])
                     if example_route:
                         skip['example_route'] = example_route[0]
+                        
+                for pull in lust_timeline:
+                    top_npcs_str = pull.get('top_npcs', '')
+                    if top_npcs_str:
+                        example_lust_route = databaseConnector.fetch_example_lust_route(conn, cursor, dungeon_id, top_npcs_str)
+                        if example_lust_route:
+                            pull['example_route'] = example_lust_route[0]
 
                 # Validate lust_timeline contains at least one boss pull
                 dungeon_bosses = bosses_lookup.get(str(dungeon_id), [])
