@@ -2588,15 +2588,17 @@ FETCH_EXAMPLE_LUST_ROUTE_SQL = """
 WITH target_pull AS (
     SELECT 
         rp.route_key,
-        rp.pull_id
+        rp.pull_id,
+        rd.keystone_level
     FROM route_data rd
     JOIN route_pulls rp ON rd.route_key = rp.route_key
     JOIN pull_enemies pe ON rp.pull_id = pe.pull_id AND rp.route_key = pe.route_key
     JOIN pull_spells ps ON rp.pull_id = ps.pull_id AND rp.route_key = ps.route_key 
         AND ps.spell_id IN (SELECT spell_id FROM bloodlust_spells)
     WHERE rd.dungeon_id = %s
-    GROUP BY rp.route_key, rp.pull_id
+    GROUP BY rp.route_key, rp.pull_id, rd.keystone_level
     HAVING GROUP_CONCAT(DISTINCT pe.npc_id ORDER BY pe.npc_id ASC SEPARATOR ',') = %s
+    ORDER BY rd.keystone_level DESC
     LIMIT 1
 )
 SELECT 
