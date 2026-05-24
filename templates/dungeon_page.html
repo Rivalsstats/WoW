@@ -305,6 +305,9 @@
                                                 style="position: sticky; top: 0; background-color: #1d1d1d;">Lust Rate
                                             </th>
                                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+                                                style="position: sticky; top: 0; background-color: #1d1d1d;">Max Key<br><span class="text-success">Lusted</span> / Not Lusted
+                                            </th>
+                                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
                                                 style="position: sticky; top: 0; background-color: #1d1d1d;">Example Route
                                             </th>
                                         </tr>
@@ -347,7 +350,7 @@
                                                         </div>
                                                     </div>
                                                     <div class="progress">
-                                                        <div class="progress-bar bg-gradient-danger opacity-8"
+                                                        <div class="progress-bar bg-gradient-success opacity-8"
                                                             role="progressbar"
                                                             aria-valuenow="{{ pull.lust_percentage }}" aria-valuemin="0"
                                                             aria-valuemax="100"
@@ -356,6 +359,14 @@
                                                 </div>
                                                 <p class="text-xs text-secondary mt-1 mb-0">{{ pull.lust_count }} / {{
                                                     pull.total_pulls_at_index }} Pulls</p>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="badge badge-sm bg-gradient-success me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Highest key where this pull was lusted">
+                                                    {{ ("+"~pull.max_key_lusted) if pull.max_key_lusted else "-" }}
+                                                </span>
+                                                <span class="badge badge-sm bg-gradient-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Highest key where this pull was NOT lusted">
+                                                    {{ ("+"~pull.max_key_not_lusted) if pull.max_key_not_lusted else "-" }}
+                                                </span>
                                             </td>
                                             <td class="align-middle text-center">
                                                 {% if pull.example_route %}
@@ -372,7 +383,7 @@
                                         {% endfor %}
                                         {% if lust_timeline | length == 0 %}
                                         <tr>
-                                            <td colspan="3" class="text-center text-sm p-3">No lust data available.</td>
+                                            <td colspan="4" class="text-center text-sm p-3">No lust data available.</td>
                                         </tr>
                                         {% endif %}
                                     </tbody>
@@ -537,11 +548,11 @@
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
                                                 style="position: sticky; top: 0; background-color: #1d1d1d;">NPC / Trash
                                             </th>
-                                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                                                style="position: sticky; top: 0; background-color: #1d1d1d;">Pull Rate
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2"
+                                                style="position: sticky; top: 0; background-color: #1d1d1d;">Skip Rate
                                             </th>
                                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                                                style="position: sticky; top: 0; background-color: #1d1d1d;">Skipped %
+                                                style="position: sticky; top: 0; background-color: #1d1d1d;">Max Key<br><span class="text-success">Skipped</span> / Played
                                             </th>
                                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
                                                 style="position: sticky; top: 0; background-color: #1d1d1d;">Example Route
@@ -564,14 +575,32 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-sm font-weight-bold">{{
-                                                    skip.total_encounters }} / {{ skip.total_routes }}</span>
+                                            <td class="align-middle">
+                                                {% set skipped_pct = 100.0 - skip.inclusion_percentage|float %}
+                                                <div class="progress-wrapper w-100">
+                                                    <div class="progress-info">
+                                                        <div class="progress-percentage">
+                                                            <span class="text-sm font-weight-bold me-2">{{
+                                                                "%.1f"|format(skipped_pct) }}%</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="progress">
+                                                        <div class="progress-bar bg-gradient-success opacity-8"
+                                                            role="progressbar"
+                                                            aria-valuenow="{{ skipped_pct }}" aria-valuemin="0"
+                                                            aria-valuemax="100"
+                                                            style="width: {{ skipped_pct }}%;"></div>
+                                                    </div>
+                                                </div>
+                                                <p class="text-xs text-secondary mt-1 mb-0">{{ skip.total_routes - skip.total_encounters }} / {{ skip.total_routes }} Skips</p>
                                             </td>
                                             <td class="align-middle text-center">
-                                                {% set skipped_pct = 100.0 - skip.inclusion_percentage|float %}
-                                                <span class="badge badge-sm bg-gradient-danger">{{
-                                                    "%.1f"|format(skipped_pct) }}%</span>
+                                                <span class="badge badge-sm bg-gradient-success me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Highest key where this NPC was skipped">
+                                                    {{ ("+"~skip.max_key_skipped) if skip.max_key_skipped else "-" }}
+                                                </span>
+                                                <span class="badge badge-sm bg-gradient-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Highest key where this NPC was played">
+                                                    {{ ("+"~skip.max_key_played) if skip.max_key_played else "-" }}
+                                                </span>
                                             </td>
                                             <td class="align-middle text-center">
                                                 {% if skip.example_route %}

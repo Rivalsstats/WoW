@@ -2525,7 +2525,8 @@ WITH PullSigs AS (
         rp.route_key,
         rp.pull_id,
         GROUP_CONCAT(DISTINCT pe.npc_id ORDER BY pe.npc_id ASC SEPARATOR ',') as pull_sig,
-        CASE WHEN MAX(ps.spell_id) IS NOT NULL THEN 1 ELSE 0 END as lusted
+        CASE WHEN MAX(ps.spell_id) IS NOT NULL THEN 1 ELSE 0 END as lusted,
+        MAX(rd.keystone_level) as keystone_level
     FROM route_data rd
     JOIN route_pulls rp ON rd.route_key = rp.route_key
     JOIN pull_enemies pe ON rp.pull_id = pe.pull_id AND rp.route_key = pe.route_key
@@ -2543,7 +2544,9 @@ SELECT
     pull_sig as top_npcs,
     COUNT(*) as total_pulls_at_index,
     SUM(lusted) as lust_count,
-    (SUM(lusted) / COUNT(*)) * 100 AS lust_percentage
+    (SUM(lusted) / COUNT(*)) * 100 AS lust_percentage,
+    MAX(CASE WHEN lusted = 1 THEN keystone_level ELSE NULL END) AS max_key_lusted,
+    MAX(CASE WHEN lusted = 0 THEN keystone_level ELSE NULL END) AS max_key_not_lusted
 FROM PullSigs
 GROUP BY pull_sig
 HAVING SUM(lusted) > 0
@@ -2556,12 +2559,14 @@ def fetch_dungeon_lust_timeline(connection, cursor, dungeon_id: str):
 
 FETCH_DUNGEON_SKIP_RATES_SQL = """
 SELECT 
-    npc_id,
-    total_encounters,
-    total_routes,
-    (total_encounters / total_routes) * 100 AS inclusion_percentage
-FROM aggregated_npc_skip_rates
-WHERE dungeon_id = %s AND total_routes > 0 AND total_encounters < total_routes
+    ansr.npc_id,
+    ansr.total_encounters,
+    ansr.total_routes,
+    (ansr.total_encounters / ansr.total_routes) * 100 AS inclusion_percentage,
+    (SELECT MAX(rd.keystone_level) FROM route_data rd JOIN pull_enemies pe ON rd.route_key = pe.route_key WHERE rd.dungeon_id = ansr.dungeon_id AND pe.npc_id = ansr.npc_id) as max_key_played,
+    (SELECT MAX(rd.keystone_level) FROM route_data rd WHERE rd.dungeon_id = ansr.dungeon_id AND NOT EXISTS (SELECT 1 FROM pull_enemies pe WHERE pe.route_key = rd.route_key AND pe.npc_id = ansr.npc_id)) as max_key_skipped
+FROM aggregated_npc_skip_rates ansr
+WHERE ansr.dungeon_id = %s AND ansr.total_routes > 0 AND ansr.total_encounters < ansr.total_routes
 ORDER BY inclusion_percentage ASC
 LIMIT 50
 """
