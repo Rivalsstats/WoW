@@ -104,27 +104,6 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                     continue
                 
                 print(f"Generating dungeon page for {dungeon_data['name']['en_US']} ({dungeon_id})")
-                
-                # Fetch top specs
-                top_specs_rows = databaseConnector.fetch_dungeon_top_specs(conn, cursor, dungeon_id, current_season)
-                print(top_specs_rows)
-                top_specs = []
-                for row in top_specs_rows:
-                    sid = str(row['spec_id'])
-                    if sid in spec_lookup:
-                        s_data = spec_lookup[sid]
-                        c_id = str(s_data.get('classID', ''))
-                        c_data = class_lookup.get(c_id, {})
-                        role_key = str(s_data.get('role', 2))
-                        
-                        top_specs.append({
-                            'spec_id': sid,
-                            'spec_name': s_data.get('name', 'Unknown'),
-                            'class_name': c_data.get('name', 'Unknown'),
-                            'icon': s_data.get('SpellIconFileId', ''),
-                            'runs': int(row['total_runs']),
-                            'role': role_key
-                        })
 
                 # Over-represented specs
                 local_total_res = databaseConnector.fetch_dungeon_totals(conn, cursor, dungeon_id, current_season)
@@ -228,7 +207,6 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                     npcs=npcs_lookup,
                     bosses=bosses_lookup.get(dungeon_id, []),
                     top_routes=top_routes,
-                    top_specs=top_specs,
                     top_comps=top_comps,
                     top_over_represented=top_over_represented,
                     generated_at=datetime.now(timezone.utc).timestamp(),

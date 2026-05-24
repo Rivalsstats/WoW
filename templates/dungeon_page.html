@@ -463,7 +463,7 @@
                                 <h6 class="text-white text-capitalize ps-3" data-bs-toggle="tooltip"
                                     data-bs-placement="top"
                                     title="Specs with highest % difference compared to their global average.">Uniquely
-                                    Popular Here</h6>
+                                    Popular Here (+12 and higher)</h6>
                             </div>
                         </div>
                         <div class="card-body px-0 pb-2">
@@ -617,66 +617,6 @@
                                         <tr>
                                             <td colspan="4" class="text-center py-4">
                                                 yet.</td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Popular Specs -->
-                <div class="col-lg-6 col-md-12 mb-4">
-                    <div class="card h-100">
-                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                            <div class="bg-gradient-info shadow-info border-radius-lg pt-3 pb-3">
-                                <h6 class="text-white text-capitalize ps-3">Most Popular Specs (+12 and higher)</h6>
-                            </div>
-                        </div>
-                        <div class="card-body px-0 pb-2">
-                            <div class="table-responsive p-0">
-                                <table class="table align-items-center mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th
-                                                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                                Spec</th>
-                                            <th
-                                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                                Runs Logged</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for s in top_specs %}
-                                        <tr>
-                                            <td>
-                                                <div class="d-flex px-2 py-1">
-                                                    <div>
-                                                        <a href="/classes/{{ role_lookup.get(s.role|string, 'Other') }}/{{ s.spec_name }}_{{ s.class_name }}"
-                                                            class="text-decoration-none">
-                                                            <img src="/data/icons/{{ s.icon }}.jpg"
-                                                                class="avatar avatar-sm me-3 border border-dark border-1"
-                                                                alt="{{ s.spec_name }}">
-                                                        </a>
-                                                    </div>
-                                                    <div class="d-flex flex-column justify-content-center">
-                                                        <a href="/classes/{{ role_lookup.get(s.role|string, 'Other') }}/{{ s.spec_name }}_{{ s.class_name }}"
-                                                            class="text-decoration-none">
-                                                            <h6
-                                                                class="mb-0 text-sm class-{{ s.class_name|replace(' ', '') }}-text">
-                                                                {{ s.spec_name }} {{ s.class_name }}</h6>
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="align-middle text-center">
-                                                <span class="text-secondary text-xs font-weight-bold">{{
-                                                    "{:,}".format(s.runs) }}</span>
-                                            </td>
-                                        </tr>
-                                        {% else %}
-                                        <tr>
-                                            <td colspan="2" class="text-center text-sm">No specs logged yet.</td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
