@@ -121,6 +121,12 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                     global_pct = global_runs / global_total_count
                     if global_pct == 0: continue
 
+                    highest_key = r.get('highest_key', 0)
+                    timed_runs = r.get('timed_runs', 0)
+                    depleted_runs = r.get('depleted_runs', 0)
+                    total_runs_status = timed_runs + depleted_runs
+                    win_rate = (timed_runs / total_runs_status * 100) if total_runs_status > 0 else 0
+
                     diff_pct = local_pct - global_pct
                     relative_diff_pct = diff_pct / global_pct
                     
@@ -135,7 +141,9 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                             'icon': s_data.get('SpellIconFileId', ''),
                             'diff_pct': diff_pct * 100,
                             'relative_diff_pct': relative_diff_pct * 100,
-                            'ratio': local_pct / global_pct
+                            'ratio': local_pct / global_pct,
+                            'highest_key': highest_key,
+                            'win_rate': round(win_rate)
                         })
                 
                 over_represented.sort(key=lambda x: x['relative_diff_pct'], reverse=True)
@@ -152,7 +160,9 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                     if r['comp']:
                         top_comps.append({
                             'specs': r['comp'].split(','),
-                            'count': r['comp_count']
+                            'count': r['comp_count'],
+                            'highest_key': r.get('highest_key', 0),
+                            'win_rate': r.get('win_rate', 0)
                         })
 
                 # Fetch top routes for this dungeon

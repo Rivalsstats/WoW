@@ -417,6 +417,12 @@
                                                 Composition</th>
                                             <th
                                                 class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                                Highest Key</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                                Timed %</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                                                 Runs Logged</th>
                                         </tr>
                                     </thead>
@@ -439,6 +445,12 @@
                                                     {% endfor %}
                                                 </div>
                                             </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <span class="badge badge-sm bg-gradient-success">+{{ comp.highest_key|default(0) }}</span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <span class="text-xs font-weight-bold">{{ comp.win_rate }}%</span>
+                                            </td>
                                             <td class="align-middle text-center">
                                                 <span class="text-secondary text-xs font-weight-bold">{{
                                                     "{:,}".format(comp.count) }}</span>
@@ -446,7 +458,7 @@
                                         </tr>
                                         {% else %}
                                         <tr>
-                                            <td colspan="2" class="text-center text-sm p-3">No comps logged yet.</td>
+                                            <td colspan="4" class="text-center text-sm p-3">No comps logged yet.</td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
@@ -474,6 +486,12 @@
                                             <th
                                                 class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                                                 Spec</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                                Highest Key</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                                Timed %</th>
                                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
                                                 data-bs-toggle="tooltip" title="Absolute difference in play rate">Vs Avg
                                                 (Total)</th>
@@ -504,6 +522,12 @@
                                                         </a>
                                                     </div>
                                                 </div>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <span class="badge badge-sm bg-gradient-success">+{{ s.highest_key|default(0) }}</span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                <span class="text-xs font-weight-bold">{{ s.win_rate }}%</span>
                                             </td>
                                             <td class="align-middle text-center">
                                                 <span class="badge badge-sm bg-gradient-success">+{{

@@ -2271,7 +2271,10 @@ FETCH_DUNGEON_SPECS_RATIO_SQL = """
 SELECT 
     ds.spec_id,
     ds.run_count as local_runs,
-    gs.run_count as global_runs
+    gs.run_count as global_runs,
+    ds.max_keystone_level as highest_key,
+    ds.timed_runs as timed_runs,
+    ds.depleted_runs as depleted_runs
 FROM Mythistone.aggregated_dungeon_specs ds
 JOIN Mythistone.aggregated_dungeon_global_specs gs 
   ON ds.spec_id = gs.spec_id AND ds.season = gs.season
@@ -2352,7 +2355,11 @@ def fetch_spec_top_comps(connection, cursor, spec_id: str, season: int):
     )
 
 FETCH_DUNGEON_TOP_COMPS_SQL = """
-SELECT comp, SUM(timed_runs + depleted_runs) as comp_count
+SELECT 
+    comp, 
+    SUM(timed_runs + depleted_runs) as comp_count,
+    MAX(keystone_level) as highest_key,
+    ROUND((SUM(timed_runs) / SUM(timed_runs + depleted_runs)) * 100) as win_rate
 FROM Mythistone.aggregated_dungeon_comps
 WHERE dungeon_id = %s AND season = %s
 GROUP BY comp
