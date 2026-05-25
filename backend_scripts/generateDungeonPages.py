@@ -139,6 +139,11 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                     if diff_pct > 0 and s_id in spec_lookup:
                         s_data = spec_lookup[s_id]
                         c_id = str(s_data.get('classID', ''))
+                        
+                        win_rate = 0
+                        if (r['timed_runs'] + r['depleted_runs']) > 0:
+                            win_rate = round((r['timed_runs'] / (r['timed_runs'] + r['depleted_runs'])) * 100)
+                            
                         over_represented.append({
                             'spec_id': s_id,
                             'spec_name': s_data.get('name', 'Unknown'),
@@ -147,7 +152,9 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                             'icon': s_data.get('SpellIconFileId', ''),
                             'diff_pct': diff_pct * 100,
                             'relative_diff_pct': relative_diff_pct * 100,
-                            'ratio': local_pct / global_pct
+                            'ratio': local_pct / global_pct,
+                            'highest_key': r['highest_key'],
+                            'win_rate': win_rate
                         })
                 
                 over_represented.sort(key=lambda x: x['relative_diff_pct'], reverse=True)
@@ -164,7 +171,9 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                     if r['comp']:
                         top_comps.append({
                             'specs': r['comp'].split(','),
-                            'count': r['comp_count']
+                            'count': r['comp_count'],
+                            'highest_key': r['highest_key'],
+                            'win_rate': r['win_rate']
                         })
 
                 # Fetch top routes for this dungeon
