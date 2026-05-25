@@ -99,6 +99,18 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
             global_total = databaseConnector.fetch_global_totals(conn, cursor, current_season)
             global_total_count = global_total[0]['total'] if global_total and global_total[0]['total'] else 1
 
+            print("Pre-fetching global dungeon success rates...")
+            all_dungeon_runs = databaseConnector.fetch_runs_per_dungeon(conn, cursor, current_season)
+            dungeon_runs_lookup = {str(d['dungeon_id']): d for d in all_dungeon_runs}
+            
+            all_dungeon_runs_per_level = databaseConnector.fetch_runs_per_dungeon_per_level(conn, cursor, current_season)
+            dungeon_runs_per_level_lookup = {}
+            for d in all_dungeon_runs_per_level:
+                d_id = str(d['dungeon_id'])
+                if d_id not in dungeon_runs_per_level_lookup:
+                    dungeon_runs_per_level_lookup[d_id] = []
+                dungeon_runs_per_level_lookup[d_id].append(d)
+
             for dungeon_id, dungeon_data in dungeon_lookup.items():
                 if target_dungeon and str(dungeon_id) != str(target_dungeon):
                     continue
@@ -121,12 +133,6 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                     global_pct = global_runs / global_total_count
                     if global_pct == 0: continue
 
-                    highest_key = r.get('highest_key', 0)
-                    timed_runs = r.get('timed_runs', 0)
-                    depleted_runs = r.get('depleted_runs', 0)
-                    total_runs_status = timed_runs + depleted_runs
-                    win_rate = (timed_runs / total_runs_status * 100) if total_runs_status > 0 else 0
-
                     diff_pct = local_pct - global_pct
                     relative_diff_pct = diff_pct / global_pct
                     
@@ -141,9 +147,7 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                             'icon': s_data.get('SpellIconFileId', ''),
                             'diff_pct': diff_pct * 100,
                             'relative_diff_pct': relative_diff_pct * 100,
-                            'ratio': local_pct / global_pct,
-                            'highest_key': highest_key,
-                            'win_rate': round(win_rate)
+                            'ratio': local_pct / global_pct
                         })
                 
                 over_represented.sort(key=lambda x: x['relative_diff_pct'], reverse=True)
@@ -160,9 +164,7 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                     if r['comp']:
                         top_comps.append({
                             'specs': r['comp'].split(','),
-                            'count': r['comp_count'],
-                            'highest_key': r.get('highest_key', 0),
-                            'win_rate': r.get('win_rate', 0)
+                            'count': r['comp_count']
                         })
 
                 # Fetch top routes for this dungeon
@@ -203,6 +205,11 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                 # Only throw a validation error if there is actually lust data available
                 if lust_timeline and len(lust_timeline) > 0 and not has_boss_lust:
                     raise RuntimeError(f"Dungeon {dungeon_data['name']['en_US']} ({dungeon_id}) has no lust pull marked as a boss. This indicates missing boss NPC data in data/boss_npcs.json.")
+                
+                # Fetch Overall Stats
+                d_id_str = str(dungeon_id)
+                overall_stats = dungeon_runs_lookup.get(d_id_str, {})
+                level_stats = dungeon_runs_per_level_lookup.get(d_id_str, [])
 
                 runs_cards = [
                     {"name": "Shortest", "data": shortest_run, "icon": "sprint"},
@@ -219,6 +226,8 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                     top_routes=top_routes,
                     top_comps=top_comps,
                     top_over_represented=top_over_represented,
+                    overall_stats=overall_stats,
+                    level_stats=level_stats,
                     generated_at=datetime.now(timezone.utc).timestamp(),
                     specs=spec_lookup,
                     spec_nav=spec_nav,

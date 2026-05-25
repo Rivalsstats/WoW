@@ -649,6 +649,49 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Keystone Success Rates Chart -->
+                <div class="col-lg-6 col-md-12 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                            <div class="bg-gradient-dark shadow-dark border-radius-lg pt-3 pb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="text-white text-capitalize ps-3 m-0">Success Rate by Keystone Level</h6>
+                                    <button id="resetZoomBtn" class="btn btn-sm btn-outline-light me-3 mb-0" style="display: none;">Reset Zoom</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body p-3">
+                            {% if level_stats %}
+                            {% set total_runs = overall_stats.total_runs if overall_stats else (level_stats|map(attribute='total_runs')|sum) %}
+                            {% set timed_total = (overall_stats.upgrade_1 + overall_stats.upgrade_2 + overall_stats.upgrade_3) if overall_stats else ((level_stats|map(attribute='upgrade_1')|sum) + (level_stats|map(attribute='upgrade_2')|sum) + (level_stats|map(attribute='upgrade_3')|sum)) %}
+                            {% set depleted_total = overall_stats.depleted if overall_stats else (level_stats|map(attribute='depleted')|sum) %}
+                            
+                            <div class="d-flex justify-content-around mb-3">
+                                <div class="text-center">
+                                    <div class="text-xs text-secondary">Total runs</div>
+                                    <div class="h5">{{ total_runs }}</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-xs text-secondary">Timed %</div>
+                                    <div class="h5 text-success">{{ ((timed_total / (total_runs if total_runs else 1)) * 100)|round(1) }}%</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-xs text-secondary">Depleted %</div>
+                                    <div class="h5 text-danger">{{ ((depleted_total / (total_runs if total_runs else 1)) * 100)|round(1) }}%</div>
+                                </div>
+                            </div>
+                            
+                            <div class="chart" style="height: 300px;">
+                                <canvas id="keyLevelChart" class="chart-canvas" height="300"></canvas>
+                            </div>
+                            <p class="text-xs text-center text-secondary mt-2 mb-0">Use mouse scroll or pinch to zoom. Drag to pan.</p>
+                            {% else %}
+                            <p class="text-sm text-center">No key level data available yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
             </div>
             {% include "footer.html" %}
         </div>
@@ -656,10 +699,77 @@
     {% include "right_aside.html" %}
     {% include "fixed_plugin.html" %}
     {% include "javascript_imports.html" %}
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
     <script src="/assets/js/plugins/chartjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            {% if level_stats %}
+            var levelData = {{ level_stats | tojson }};
+            // sort by key level
+            levelData.sort((a,b) => a.keystone_level - b.keystone_level);
+
+            var labels = levelData.map(d => '+' + d.keystone_level);
+            var up3 = levelData.map(d => d.upgrade_3);
+            var up2 = levelData.map(d => d.upgrade_2);
+            var up1 = levelData.map(d => d.upgrade_1);
+            var depleted = levelData.map(d => d.depleted);
+
+            var ctxBar = document.getElementById("keyLevelChart").getContext("2d");
+            var keyLevelChart = new Chart(ctxBar, {
+                type: "bar",
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: "+3 Upgrade", data: up3, backgroundColor: "#4caf50" },
+                        { label: "+2 Upgrade", data: up2, backgroundColor: "#8bc34a" },
+                        { label: "+1 Upgrade", data: up1, backgroundColor: "#cddc39" },
+                        { label: "Depleted", data: depleted, backgroundColor: "#f44336" }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true, ticks: { color: '#fff' }, grid: { display: false } },
+                        y: { stacked: true, ticks: { color: '#fff' }, grid: { color: '#333' } }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#fff' } },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'x',
+                                onPan: function({chart}) {
+                                    document.getElementById('resetZoomBtn').style.display = 'block';
+                                }
+                            },
+                            zoom: {
+                                wheel: { enabled: true },
+                                pinch: { enabled: true },
+                                mode: 'x',
+                                onZoom: function({chart}) {
+                                    document.getElementById('resetZoomBtn').style.display = 'block';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('resetZoomBtn').addEventListener('click', function() {
+                keyLevelChart.resetZoom();
+                this.style.display = 'none';
+            });
+            {% endif %}
+        });
+    </script>
     <script type="text/plain" data-type="application/javascript" data-name="wowhead"
         data-src='https://wow.zamimg.com/widgets/power.js'></script>
-</body>
 </body>
 
 </html>

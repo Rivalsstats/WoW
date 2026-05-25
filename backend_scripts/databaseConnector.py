@@ -1514,17 +1514,28 @@ def fetch_runs_per_dungeon(connection, cursor, season):
     rows = fetch_with_retry(connection, cursor, DUNGEON_UPGRADES_SQL, params)
     if not rows:
         return []
-    return [
-        {
-            "dungeon_id": int(row[0]),
-            "upgrade_3": int(row[1]),
-            "upgrade_2": int(row[2]),
-            "upgrade_1": int(row[3]),
-            "depleted": int(row[4]),
-            "total_runs": int(row[5]),
-        }
-        for row in rows
-    ]
+        
+    out = []
+    for row in rows:
+        if isinstance(row, dict):
+            out.append({
+                "dungeon_id": row["dungeon_id"],
+                "upgrade_3": int(row["tier_3"]),
+                "upgrade_2": int(row["tier_2"]),
+                "upgrade_1": int(row["tier_1"]),
+                "depleted": int(row["depleted"]),
+                "total_runs": int(row["total_runs"]),
+            })
+        else:
+            out.append({
+                "dungeon_id": row[0],
+                "upgrade_3": int(row[1]),
+                "upgrade_2": int(row[2]),
+                "upgrade_1": int(row[3]),
+                "depleted": int(row[4]),
+                "total_runs": int(row[5]),
+            })
+    return out
 
 
 FETCH_SPEC_UPGRADES_SQL = """
@@ -1671,18 +1682,30 @@ def fetch_runs_per_dungeon_per_level(connection, cursor, season):
     )
     if not rows:
         return []
-    return [
-        {
-            "dungeon_id": int(row[0]),
-            "keystone_level": int(row[1]),
-            "upgrade_3": int(row[2]),
-            "upgrade_2": int(row[3]),
-            "upgrade_1": int(row[4]),
-            "depleted": int(row[5]),
-            "total_runs": int(row[6]),
-        }
-        for row in rows
-    ]
+    
+    out = []
+    for row in rows:
+        if isinstance(row, dict):
+            out.append({
+                "dungeon_id": row["dungeon_id"],
+                "keystone_level": int(row["keystone_level"]),
+                "upgrade_3": int(row["tier_3"]),
+                "upgrade_2": int(row["tier_2"]),
+                "upgrade_1": int(row["tier_1"]),
+                "depleted": int(row["depleted"]),
+                "total_runs": int(row["total_runs"]),
+            })
+        else:
+            out.append({
+                "dungeon_id": row[0],
+                "keystone_level": int(row[1]),
+                "upgrade_3": int(row[2]),
+                "upgrade_2": int(row[3]),
+                "upgrade_1": int(row[4]),
+                "depleted": int(row[5]),
+                "total_runs": int(row[6]),
+            })
+    return out
 
 
 DUNGEON_UPGRADES_PER_KEYLEVEL_ABOVE_LEVEL_SQL = """
@@ -3041,6 +3064,7 @@ def fetch_top50_loadouts(connection, cursor, spec_id, season, limit=50):
         key = f"{m['rank']}|{m['map_challenge_mode_id']}"
         out.append(meta_map.get(key, m))
     return out
+
 
 
 
