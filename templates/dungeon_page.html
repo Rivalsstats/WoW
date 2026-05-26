@@ -699,9 +699,9 @@
     {% include "right_aside.html" %}
     {% include "fixed_plugin.html" %}
     {% include "javascript_imports.html" %}
-    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="/assets/js/plugins/hammer.min.js"></script>
     <script src="/assets/js/plugins/chartjs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+    <script src="/assets/js/plugins/chartjs-plugin-zoom.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             {% if level_stats %}
@@ -721,10 +721,10 @@
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: "+3", data: up3, backgroundColor: "#ff8000" },
-                        { label: "+2", data: up2, backgroundColor: "#a335ee" },
+                        { label: "Depleted", data: depleted, backgroundColor: "#FF0000" },
                         { label: "+1", data: up1, backgroundColor: "#1eff00" },
-                        { label: "Depleted", data: depleted, backgroundColor: "#FF0000" }
+                        { label: "+2", data: up2, backgroundColor: "#a335ee" },   
+                        { label: "+3", data: up3, backgroundColor: "#ff8000" }
                     ]
                 },
                 options: {
