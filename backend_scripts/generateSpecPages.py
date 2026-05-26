@@ -1384,6 +1384,35 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 raise ValueError(f"No talent tree data for spec {spec_id}")
 
             print(f"[{datetime.now(timezone.utc).isoformat()}] generating page...")
+            # Build per-key-level stats for this spec to render stacked success chart
+            try:
+                spec_upgrades_all = databaseConnector.fetch_spec_upgrades(conn, cursor, current_season_id)
+                level_stats = [
+                    {
+                        "keystone_level": int(r["keystone_level"]),
+                        "upgrade_3": int(r.get("upgrade_3", 0)),
+                        "upgrade_2": int(r.get("upgrade_2", 0)),
+                        "upgrade_1": int(r.get("upgrade_1", 0)),
+                        "depleted": int(r.get("depleted", 0)),
+                        "total_runs": int(r.get("total_runs", 0)),
+                    }
+                    for r in spec_upgrades_all
+                    if int(r.get("spec_id", -1)) == int(spec_id)
+                ]
+                level_stats.sort(key=lambda e: e["keystone_level"]) if level_stats else None
+                if level_stats:
+                    overall_stats = {
+                        "total_runs": sum(e.get("total_runs", 0) for e in level_stats),
+                        "upgrade_3": sum(e.get("upgrade_3", 0) for e in level_stats),
+                        "upgrade_2": sum(e.get("upgrade_2", 0) for e in level_stats),
+                        "upgrade_1": sum(e.get("upgrade_1", 0) for e in level_stats),
+                        "depleted": sum(e.get("depleted", 0) for e in level_stats),
+                    }
+                else:
+                    overall_stats = None
+            except Exception:
+                level_stats = []
+                overall_stats = None
             output_html = template.render(
                 generated_at=datetime.now(timezone.utc).timestamp(),
                 spec_id=spec_id,
@@ -1411,6 +1440,8 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 enchant_lookup=enchant_lookup,
                 embellishment_lookup=embellishment_lookup,
                 missive_lookup=missive_lookup,
+                level_stats=level_stats,
+                overall_stats=overall_stats,
                 socket_lookup=socket_lookup,
                 spec_lookup=spec_lookup,
                 item_lookup=item_lookup,
