@@ -1229,7 +1229,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     f"[{datetime.now(timezone.utc).isoformat()}] fetching spec data count..."
                 )
                 data_count = databaseConnector.fetch_spec_data_count(
-                    conn, cursor, spec_id, current_season_id
+                    conn, cursor, spec_id
                 )
                 print(
                     f"[{datetime.now(timezone.utc).isoformat()}] fetching total runs..."
@@ -1241,7 +1241,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     f"[{datetime.now(timezone.utc).isoformat()}] fetching spec runs..."
                 )
                 spec_runs = databaseConnector.fetch_runs_per_spec(
-                    conn, cursor, current_season_id, spec_id
+                    conn, cursor, spec_id
                 )
 
                 # Filter embellishments to remove very rarely used entries
@@ -1325,10 +1325,14 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 oh = next((g for g in weapon_slots if g["slot"] == "OFF_HAND"), None)
                 if mh and mh["entries"] and len(mh["entries"]) > 0:
                     mh_item_id = mh["entries"][0]["id"]
-                    # look up its inventoryType; two‑handers are 17 and ranged weapons are 26
+                    # look up its inventoryType; two‑handers are 17 and ranged weapons are 15
+                    print(f"Checking MAIN_HAND item {mh_item_id} for two‑hander or ranged type to determine if OFF_HAND slot should be removed")
+                    print(f"MAIN_HAND item {mh_item_id} inventoryType: {item_lookup.get(mh_item_id, {}).get('inventoryType')}, itemSubClass: {item_lookup.get(mh_item_id, {}).get('itemSubClass')}")
                     if (
                         item_lookup.get(mh_item_id, {}).get("inventoryType") == 17
-                        or item_lookup.get(mh_item_id, {}).get("itemSubClass") == 3
+                        or item_lookup.get(mh_item_id, {}).get("itemSubClass") == 3 # guns
+                        or item_lookup.get(mh_item_id, {}).get("itemSubClass") == 2 # bows
+                        or item_lookup.get(mh_item_id, {}).get("itemSubClass") == 18 # Crossbows
                     ):
                         # always build combined list (falls back to just mh entries if oh is None)
                         combined = mh["entries"] + (oh.get("entries", []) if oh else [])
@@ -1367,7 +1371,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     f"[{datetime.now(timezone.utc).isoformat()}] fetching upgrade counts..."
                 )
                 upgrade_counts = databaseConnector.fetch_spec_upgrade(
-                    conn, cursor, spec_id, current_season_id
+                    conn, cursor, spec_id
                 )
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching stats...")
                 stat_priority, tertiary_priority, health_priority = fetch_stat_info(
@@ -1386,7 +1390,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
             print(f"[{datetime.now(timezone.utc).isoformat()}] generating page...")
             # Build per-key-level stats for this spec to render stacked success chart
             try:
-                spec_upgrades_all = databaseConnector.fetch_spec_upgrades(conn, cursor, current_season_id)
+                spec_upgrades_all = databaseConnector.fetch_spec_upgrades(conn, cursor)
                 level_stats = [
                     {
                         "keystone_level": int(r["keystone_level"]),
@@ -1518,6 +1522,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 raise ValueError("Debug mode: stopping after first spec")
         except Exception as e:
             print(f"Error processing spec {spec_id}: {e}")
+            raise e
 
 
 if __name__ == "__main__":

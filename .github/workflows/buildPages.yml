@@ -67,7 +67,7 @@ jobs:
         run: |
           python backend_scripts/generateDashboardPage.py \
             --template templates/dashboard.html \
-            --output_dir pages \
+            --output_dir pages 
       
       - name: Generate Index HTML page
         env:

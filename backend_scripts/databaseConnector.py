@@ -221,7 +221,7 @@ def insert_runs_batch(connection, cursor, run_vals):
     return cursor.lastrowid
 
 
-SELECT_RUNS_SQL = "SELECT id, `dungeon_id`, `keystone_level`, `duration`, `timestamp`, `faction`, `run_id`, `region`, season FROM runs WHERE (`season`, `region`, `dungeon_id`) IN (%s, %s, %s)"
+SELECT_RUNS_SQL = "SELECT `run_id`, `dungeon_id`, `keystone_level`, `duration`, `timestamp`, `faction`, `region`, `season` FROM runs WHERE (`season`, `region`, `dungeon_id`) IN ((%s, %s, %s))"
 
 
 def select_runs(connection, cursor, season, region, dungeon_id):
@@ -766,15 +766,14 @@ SELECT
   max_depleted_key
 FROM Mythistone.global_aggregated_hero_talent_overview
 WHERE spec_id = %s
-  AND season  = %s
   AND hero_talent_id IS NOT NULL
   AND hero_talent_id <> 0
 ORDER BY run_count DESC;
 """
 
-def fetch_hero_tree_overview(connection, cursor, spec_id, season):
-    """Fetch the top hero trees for a specific spec and season from the database."""
-    params = (spec_id, season)
+def fetch_hero_tree_overview(connection, cursor, spec_id):
+    """Fetch the top hero trees for a specific spec from the database."""
+    params = (spec_id,)
     return fetch_with_retry(connection, cursor, FETCH_HERO_TREE_OVERVIEW_SQL, params)
 
 
@@ -843,7 +842,8 @@ def fetch_class_talents_differences(connection, cursor, spec_id, season):
 FETCH_HERO_TALENTS_TOTAL_AMOUNT_SQL = """
 SELECT COUNT(DISTINCT talent_id) AS distinct_talents
 FROM Mythistone.aggregated_hero_talent
-WHERE spec_id = %s;
+WHERE spec_id = %s
+  AND season = %s;
 """
 
 
@@ -859,16 +859,15 @@ FETCH_SPEC_DATA_COUNT_SQL = """
 SELECT SUM(run_count) AS total_runs
 FROM aggregated_spec
 WHERE spec_id = %s
-  AND season = %s
   AND hero_talent_id <> 0;
 
 """
 
 
-def fetch_spec_data_count(connection, cursor, spec_id, season):
-    """Fetch the spec data count for a specific spec and season from the database.
+def fetch_spec_data_count(connection, cursor, spec_id):
+    """Fetch the spec data count for a specific spec from the database.
     Always returns an int (0 if no runs)."""
-    params = (spec_id, season)
+    params = (spec_id,)
     result = fetch_with_retry(connection, cursor, FETCH_SPEC_DATA_COUNT_SQL, params)
 
     if isinstance(result, dict):
@@ -993,14 +992,13 @@ def fetch_total_season_runs(connection, cursor, season):
 FETCH_SEASON_RUNS_FOR_SPEC_SQL = """
 SELECT SUM(run_count) AS total_runs
 FROM aggregated_spec
-WHERE season = %s
-AND spec_id = %s
+WHERE spec_id = %s
 """
 
 
-def fetch_runs_per_spec(connection, cursor, season, spec_id):
+def fetch_runs_per_spec(connection, cursor, spec_id):
     """Fetch the total season runs for a specific season+spec and return an int."""
-    params = (season, spec_id)
+    params = (spec_id,)
     rows = fetch_with_retry(connection, cursor, FETCH_SEASON_RUNS_FOR_SPEC_SQL, params)
     if not rows:
         return 0
@@ -1014,18 +1012,17 @@ def fetch_runs_per_spec(connection, cursor, season, spec_id):
 
 FETCH_MAX_KEY_SPEC_SQL = """
 WITH maxk AS (
-  SELECT spec_id, season, MAX(keystone_level) AS max_keystone
+  SELECT spec_id, MAX(keystone_level) AS max_keystone
   FROM aggregated_spec
   WHERE spec_id = %s
-    AND season = %s
-  GROUP BY spec_id, season
+  GROUP BY spec_id
 ),
 chosen_run AS (
   SELECT r.*
   FROM runs r
-  JOIN maxk m ON r.season = m.season
-              AND r.keystone_level = m.max_keystone
-  WHERE EXISTS (
+  JOIN maxk m ON r.keystone_level = m.max_keystone
+  WHERE r.season = %s
+    AND EXISTS (
     SELECT 1
     FROM run_members rm
     JOIN members mm ON mm.member = rm.member
@@ -1098,17 +1095,15 @@ def fetch_max_key_run_per_spec(connection, cursor, spec_id, season):
 
 FETCH_MAX_KEY_SQL = """
 WITH maxk AS (
-  SELECT season, MAX(keystone_level) AS max_keystone
+  SELECT MAX(keystone_level) AS max_keystone
   FROM aggregated_spec
-  WHERE season = %s
-  GROUP BY season
 ),
 chosen_run AS (
   SELECT r.*
   FROM runs r
-  JOIN maxk m ON r.season = m.season
-              AND r.keystone_level = m.max_keystone
-  WHERE EXISTS (
+  JOIN maxk m ON r.keystone_level = m.max_keystone
+  WHERE r.season = %s
+    AND EXISTS (
     SELECT 1
     FROM run_members rm
     JOIN members mm ON mm.member = rm.member
@@ -1341,14 +1336,13 @@ FETCH_SPEC_UPGRADE_SQL = """
 SELECT upgrade_tier, sum(run_count) 
 FROM Mythistone.aggregated_spec
 WHERE spec_id = %s
-AND season = %s
 GROUP BY upgrade_tier 
 
 """
 
 
-def fetch_spec_upgrade(connection, cursor, spec_id, season):
-    params = (spec_id, season)
+def fetch_spec_upgrade(connection, cursor, spec_id):
+    params = (spec_id,)
     rows = fetch_with_retry(connection, cursor, FETCH_SPEC_UPGRADE_SQL, params)
     if not rows:
         return []
@@ -1379,15 +1373,13 @@ def insert_season_periods(
 FETCH_SPEC_RUN_COUNTS = """
 SELECT spec_id, SUM(run_count) AS count
 FROM Mythistone.aggregated_spec
-WHERE season = %s
 GROUP BY spec_id
 ORDER BY count DESC
 """
 
 
-def fetch_spec_run_counts(connection, cursor, season):
-    params = (season,)
-    rows = fetch_with_retry(connection, cursor, FETCH_SPEC_RUN_COUNTS, params)
+def fetch_spec_run_counts(connection, cursor):
+    rows = fetch_with_retry(connection, cursor, FETCH_SPEC_RUN_COUNTS, None)
     if not rows:
         return []
     return [{"id": int(row[0]), "count": int(row[1])} for row in rows]
@@ -1396,15 +1388,13 @@ def fetch_spec_run_counts(connection, cursor, season):
 FETCH_SPEC_RUN_COUNTS_PER_LEVEL = """
 SELECT spec_id, keystone_level, SUM(run_count) AS count
 FROM Mythistone.aggregated_spec
-WHERE season = %s
 GROUP BY spec_id, keystone_level
 ORDER BY spec_id, keystone_level;
 """
 
 
-def fetch_spec_run_counts_per_level(connection, cursor, season):
-    params = (season,)
-    rows = fetch_with_retry(connection, cursor, FETCH_SPEC_RUN_COUNTS_PER_LEVEL, params)
+def fetch_spec_run_counts_per_level(connection, cursor):
+    rows = fetch_with_retry(connection, cursor, FETCH_SPEC_RUN_COUNTS_PER_LEVEL, None)
     if not rows:
         return []
     return [
@@ -1548,16 +1538,14 @@ SELECT
     SUM(CASE WHEN upgrade_tier = 'depleted' THEN run_count ELSE 0 END) AS depleted,
     SUM(run_count) AS total_runs
 FROM aggregated_spec
-WHERE season = %s
 GROUP BY spec_id, keystone_level
 ORDER BY total_runs DESC;
 
 """
 
 
-def fetch_spec_upgrades(connection, cursor, season):
-    params = (season,)
-    rows = fetch_with_retry(connection, cursor, FETCH_SPEC_UPGRADES_SQL, params)
+def fetch_spec_upgrades(connection, cursor):
+    rows = fetch_with_retry(connection, cursor, FETCH_SPEC_UPGRADES_SQL, None)
     if not rows:
         return []
     return [
@@ -1584,15 +1572,15 @@ SELECT
     SUM(CASE WHEN upgrade_tier = 'depleted' THEN run_count ELSE 0 END) AS depleted,
     SUM(run_count) AS total_runs
 FROM aggregated_spec
-WHERE season = %s AND keystone_level > %s
+WHERE keystone_level > %s
 GROUP BY spec_id, keystone_level
 ORDER BY total_runs DESC;
 
 """
 
 
-def fetch_spec_upgrades_above_level(connection, cursor, season, min_keylevel=15):
-    params = (season, min_keylevel)
+def fetch_spec_upgrades_above_level(connection, cursor, min_keylevel=15):
+    params = (min_keylevel,)
     rows = fetch_with_retry(
         connection, cursor, FETCH_SPEC_UPGRADES_ABOVE_LEVEL_SQL, params
     )
@@ -1621,18 +1609,18 @@ SELECT
     SUM(CASE WHEN upgrade_tier = 'depleted' THEN run_count ELSE 0 END) AS depleted,
     SUM(run_count) AS total_runs
 FROM aggregated_spec
-WHERE season = %s AND spec_id IN ({placeholders}) and keystone_level > %s
+WHERE spec_id IN ({placeholders}) and keystone_level > %s
 GROUP BY keystone_level
 ORDER BY total_runs DESC;
 
 """
 
 
-def fetch_upgrade_for_specs(connection, cursor, season, specs, min_keylevel=15):
+def fetch_upgrade_for_specs(connection, cursor, specs, min_keylevel=15):
     spec_placeholder = ",".join(["%s"] * len(specs))
     specs_clean = [str(i) for i in specs]
     sql = FETCH_UPGRADES_FOR_SPECS_SQL.format(placeholders=spec_placeholder)
-    params = [season] + specs_clean + [min_keylevel]
+    params = specs_clean + [min_keylevel]
     rows = fetch_with_retry(connection, cursor, sql, params)
     if not rows:
         return []
@@ -3064,8 +3052,3 @@ def fetch_top50_loadouts(connection, cursor, spec_id, season, limit=50):
         key = f"{m['rank']}|{m['map_challenge_mode_id']}"
         out.append(meta_map.get(key, m))
     return out
-
-
-
-
-

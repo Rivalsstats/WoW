@@ -538,7 +538,7 @@ def create_overall_spec_popularity(
 
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()
-        spec_upgrades = databaseConnector.fetch_spec_upgrades(conn, cursor, season)
+        spec_upgrades = databaseConnector.fetch_spec_upgrades(conn, cursor)
         dungeon_runs_per_level = databaseConnector.fetch_runs_per_dungeon_per_level(
             conn, cursor, season
         )
@@ -766,7 +766,7 @@ def create_spec_popularity_by_level(
 
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()
-        spec_upgrades = databaseConnector.fetch_spec_upgrades(conn, cursor, season)
+        spec_upgrades = databaseConnector.fetch_spec_upgrades(conn, cursor)
 
     # build records from DB rows (one row per spec-level)
     records = []
@@ -1043,7 +1043,7 @@ def create_spec_popularity_vs_performance_img(
     """
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()
-        spec_upgrades = databaseConnector.fetch_spec_upgrades(conn, cursor, season)
+        spec_upgrades = databaseConnector.fetch_spec_upgrades(conn, cursor)
         highest_run = databaseConnector.fetch_max_key_run(conn, cursor, season)
     # get point data dicts with x, y, iconUrl, borderColor, backgroundColor
     raw_points = create_spec_scatter(
@@ -1419,7 +1419,7 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()
         spec_upgrade_counts = databaseConnector.fetch_spec_upgrade(
-            conn, cursor, spec_id, season
+            conn, cursor, spec_id
         )
         play_count = 0
         for u in spec_upgrade_counts:
@@ -1431,7 +1431,7 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
 
         # hero tree picks
         hero_trees_raw = databaseConnector.fetch_hero_tree_overview(
-            conn, cursor, spec_id, season
+            conn, cursor, spec_id
         )
         hero_trees = []
         for row in hero_trees_raw:

@@ -506,11 +506,11 @@ def main(template_path, output_dir):
         )
         print("fetching spec run counts...")
         spec_run_counts = databaseConnector.fetch_spec_run_counts(
-            conn, cursor, current_season_id
+            conn, cursor
         )
         print("fetching spec run counts per level...")
         counts_per_level = databaseConnector.fetch_spec_run_counts_per_level(
-            conn, cursor, current_season_id
+            conn, cursor
         )
         print("fetching runs per period...")
         runs_per_period = databaseConnector.fetch_runs_per_period(
@@ -526,7 +526,7 @@ def main(template_path, output_dir):
         )
         print("fetching spec upgrades...")
         spec_upgrades = databaseConnector.fetch_spec_upgrades(
-            conn, cursor, current_season_id
+            conn, cursor
         )
     print("Assembling Spec Run Counts per Level...")
     key_levels, datasets_json = assemble_spec_level_datasets(

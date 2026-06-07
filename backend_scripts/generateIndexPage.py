@@ -733,7 +733,7 @@ def main(template_path, output_dir):
         dungeon_data = databaseConnector.fetch_runs_per_dungeon_per_level(
             conn, cursor, current_season
         )
-        spec_data = databaseConnector.fetch_spec_upgrades(conn, cursor, current_season)
+        spec_data = databaseConnector.fetch_spec_upgrades(conn, cursor)
         groupbuffs_stats = databaseConnector.fetch_groupbuffs_stats(
             conn, cursor, group_buffs, current_season, 12, 14
         )
