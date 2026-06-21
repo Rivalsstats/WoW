@@ -16,6 +16,7 @@ on:
       - 'backend_scripts/generateDungeonPages.py'
       - 'backend_scripts/generateSearchIndex.py'
       - 'backend_scripts/generateSitemap.py'
+      - 'backend_scripts/generateLlmTxt.py'
 
   workflow_dispatch:
   workflow_run:
@@ -158,6 +159,17 @@ jobs:
         run: |
           python backend_scripts/generateSitemap.py
 
+      - name: Generate llms.txt
+        env:
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORT }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+        run: |
+          python backend_scripts/generateLlmTxt.py \
+            --output_dir .
+
       - name: Commit and push pages
         run: |
           set -e  # Exit script on any command failure
@@ -176,6 +188,7 @@ jobs:
           git add assets/json/compRoutes.json
           git add assets/json/comps_index.json
           git add sitemap.xml
+          git add llms.txt
           
           # Commit only if there are changes
           if git diff --cached --quiet; then
@@ -224,6 +237,7 @@ jobs:
             index.html
             ads.txt
             sitemap.xml
+            llms.txt
 
       
       - name: Upload static files as artifact
