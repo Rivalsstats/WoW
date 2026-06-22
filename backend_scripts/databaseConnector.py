@@ -1473,6 +1473,42 @@ def fetch_runs_per_period(connection, cursor, season):
     ]
 
 
+FETCH_KEY_THROUGHPUT_SQL = """
+SELECT region, period_id, run_count, max_ts
+FROM aggregated_key_throughput
+WHERE season = %s
+ORDER BY period_id, region;
+"""
+
+
+def fetch_key_throughput(connection, cursor, season):
+    """
+    Per-region, per-period key throughput for the dashboard "Key Throughput"
+    chart.
+
+    Reads the pre-aggregated `aggregated_key_throughput` table (populated by the
+    ev_update_key_throughput event) rather than scanning the full runs table at
+    page-build time. Returns one row per (region, period): run count and the
+    latest recorded run timestamp (max_ts). Period start/end bounds are static
+    and supplied by the caller from data/static/periods.json; keys-per-minute is
+    derived as count / period length, so a collection gap shrinks the count
+    rather than inflating the rate.
+    """
+    params = (season,)
+    rows = fetch_with_retry(connection, cursor, FETCH_KEY_THROUGHPUT_SQL, params)
+    if not rows:
+        return []
+    return [
+        {
+            "region": row[0],
+            "period_id": int(row[1]),
+            "run_count": int(row[2]) if row[2] is not None else 0,
+            "max_ts": int(row[3]) if row[3] is not None else None,
+        }
+        for row in rows
+    ]
+
+
 DUNGEON_UPGRADES_SQL = """
 SELECT
   r.dungeon_id,

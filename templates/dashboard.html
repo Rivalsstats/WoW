@@ -132,6 +132,45 @@
             Overall Mythic+ Statistics for {{ season_info.name }}.
           </p>
         </div>
+        <!-- Key Throughput card -->
+        <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
+          <div class="card h-100">
+            <div class="card-header p-2 ps-3">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <p class="text-sm mb-0 text-capitalize">Keys / Minute</p>
+                  {% set delta = key_throughput.delta_pct %}
+                  <div class="d-flex align-items-baseline">
+                    <span class="font-weight-bolder h4 text-white mb-0">{{ key_throughput.current_total }}</span>
+                    <span class="text-xs ms-1 text-white opacity-8">/min this week</span>
+                  </div>
+                  <p class="text-xs mb-0 mt-1">
+                    <span class="font-weight-bolder {{ 'text-success' if delta >= 0 else 'text-danger' }}">
+                      <i class="material-symbols-rounded text-xs align-middle">{{ 'arrow_upward' if delta >= 0 else 'arrow_downward' }}</i>{{ delta | abs }}%
+                    </span>
+                    <span class="text-white opacity-8">vs season avg ({{ key_throughput.season_total }}/min)</span>
+                  </p>
+                </div>
+                <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                  <i class="material-symbols-rounded opacity-10">speed</i>
+                </div>
+              </div>
+            </div>
+            <div class="card-body p-2 pt-0">
+              <div class="chart" style="height: 150px;">
+                <canvas id="chart-key-throughput" class="chart-canvas"></canvas>
+              </div>
+            </div>
+            <hr class="dark horizontal my-0">
+            <div class="card-footer p-2 ps-3">
+              <div class="d-flex justify-content-between align-items-center">
+                <p class="mb-0 text-sm timestamp" data-bs-toggle="tooltip" data-bs-placement="top"
+                  data-timestamp={{generated_at}}>Last Update: </p>
+                <a id="resetThroughputZoom" class="text-sm" style="cursor:pointer; display:none;">Reset Zoom</a>
+              </div>
+            </div>
+          </div>
+        </div>
         {% for run_entry in runs %}
         {% set run_data = run_entry['data'] %}
         {# coerce dungeon_id to string (handles int or str) #}
@@ -779,7 +818,9 @@
   </main>
   {% include "fixed_plugin.html" %}
   {% include "javascript_imports.html" %}
+  <script src="/assets/js/plugins/hammer.min.js"></script>
   <script src="/assets/js/plugins/chartjs.min.js"></script>
+  <script src="/assets/js/plugins/chartjs-plugin-zoom.min.js"></script>
 
   <!-- initialize charts -->
 
@@ -1246,6 +1287,93 @@
       }
     });
 }) ();
+  </script>
+  <!-- Key Throughput Chart -->
+  <script>
+    (() => {
+      const el = document.getElementById("chart-key-throughput");
+      if (!el) return;
+      const ctx = el.getContext("2d");
+
+      const labels = {{ key_throughput.labels | tojson }};
+      const series = {{ key_throughput.series | tojson }};
+
+      const datasets = series.map(s => ({
+        label: s.region,
+        data: s.data,
+        borderColor: s.color,
+        backgroundColor: s.color,
+        pointBackgroundColor: s.color,
+        // emphasise the combined "Overall" line; regions are thinner/dashed
+        borderWidth: s.overall ? 3 : 1.5,
+        borderDash: s.overall ? [] : [4, 3],
+        tension: 0.35,
+        pointRadius: s.overall ? 0 : 2,
+        pointHoverRadius: 5,
+        order: s.overall ? 0 : 1,
+        spanGaps: true
+      }));
+
+      const resetBtn = document.getElementById("resetThroughputZoom");
+
+      const chart = new Chart(ctx, {
+        type: "line",
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { intersect: false, mode: "index" },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: "#9ca3af", maxRotation: 0, autoSkip: true, font: { size: 10 } }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: "rgba(255,255,255,0.08)" },
+              ticks: { color: "#9ca3af", maxTicksLimit: 4, font: { size: 10 } }
+            }
+          },
+          plugins: {
+            legend: {
+              position: "top",
+              labels: {
+                color: "#cbd5e1", usePointStyle: true, pointStyle: "circle",
+                boxWidth: 8, padding: 8, font: { size: 10 }
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: c => ` ${c.dataset.label}: ${c.parsed.y == null ? "—" : c.parsed.y.toLocaleString() + " keys/min"}`
+              }
+            },
+            zoom: {
+              // weeks are the finest grain in the data, so cap how far you can
+              // zoom in (minRange ≈ keep at least ~2 weeks in view).
+              limits: { x: { min: "original", max: "original", minRange: 1 } },
+              pan: {
+                enabled: true,
+                mode: "x",
+                onPan: () => { if (resetBtn) resetBtn.style.display = "inline-block"; }
+              },
+              zoom: {
+                wheel: { enabled: true },
+                pinch: { enabled: true },
+                mode: "x",
+                onZoom: () => { if (resetBtn) resetBtn.style.display = "inline-block"; }
+              }
+            }
+          }
+        }
+      });
+
+      if (resetBtn) {
+        resetBtn.addEventListener("click", () => {
+          chart.resetZoom();
+          resetBtn.style.display = "none";
+        });
+      }
+    })();
   </script>
 </body>
 

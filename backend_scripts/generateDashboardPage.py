@@ -466,6 +466,154 @@ def assemble_spec_level_datasets(
     return key_levels, json.dumps(datasets)
 
 
+REGION_ORDER = ["us", "eu", "kr", "tw", "cn"]
+REGION_COLORS = {
+    "us": "#4A90E2",
+    "eu": "#2DCE89",
+    "kr": "#B37FEB",
+    "tw": "#FB8C00",
+    "cn": "#F5365C",
+}
+
+
+def _region_sort_key(region):
+    region = region.lower()
+    return (
+        REGION_ORDER.index(region) if region in REGION_ORDER else len(REGION_ORDER),
+        region,
+    )
+
+
+OVERALL_COLOR = "#ffffff"
+
+
+def build_period_bounds(period_info):
+    """
+    Flatten data/static/periods.json into a {(region, period_id): (start, end)}
+    lookup of static period boundaries (epoch ms).
+    """
+    bounds = {}
+    for region, info in period_info.items():
+        for p in info.get("periods", []):
+            bounds[(region.lower(), int(p["id"]))] = (
+                int(p["start_timestamp"]),
+                int(p["end_timestamp"]),
+            )
+    return bounds
+
+
+def compute_key_throughput(rows, period_bounds, now_ts=None):
+    """
+    Build the dashboard "Key Throughput" figures from the pre-aggregated
+    per-(region, period) rows returned by fetch_key_throughput.
+
+    Produces the headline keys-per-minute KPI (latest period combined + season
+    average) and a per-region weekly time series (plus a combined "Overall"
+    line) for the chart.
+
+    Rate = run count / period length (minutes). The period bounds come from the
+    static periods.json (`period_bounds`), so the denominator is the *actual*
+    period length and the rate tracks the weekly key counts faithfully:
+      * Completed period -> the full (end - start) span. A week is a week
+        regardless of collection gaps, so a low-count week reads as a low rate
+        instead of being inflated by a short observed run span.
+      * Ongoing (current) period -> elapsed time so far (latest run - start),
+        so a partially elapsed week isn't divided by a whole week.
+    """
+    MS_PER_MIN = 60000.0
+    if now_ts is None:
+        now_ts = datetime.now(timezone.utc).timestamp() * 1000.0
+
+    def elapsed_min(r):
+        """Minutes the period has actually been running (within observed data)."""
+        bounds = period_bounds.get((r["region"].lower(), r["period_id"]))
+        if not bounds:
+            return None
+        start, end = bounds
+        if end is None or end > now_ts:
+            # ongoing period: only count time up to the latest recorded run
+            end = r["max_ts"]
+        if start is None or end is None:
+            return None
+        span = (end - start) / MS_PER_MIN
+        return span if span > 0 else None
+
+    def rate(r):
+        span = elapsed_min(r)
+        if not r["run_count"] or not span:
+            return None
+        return round(r["run_count"] / span, 1)
+
+    def combined_rate(subrows):
+        # sum the per-region rates so each region is normalised by its own
+        # (region-specific) reset schedule before being combined.
+        vals = [rate(r) for r in subrows]
+        vals = [v for v in vals if v is not None]
+        return round(sum(vals), 1) if vals else 0.0
+
+    if not rows:
+        return {
+            "current_total": 0.0,
+            "season_total": 0.0,
+            "delta_pct": 0.0,
+            "labels": [],
+            "series": [],
+        }
+
+    periods = sorted({r["period_id"] for r in rows})
+    period_index = {pid: i for i, pid in enumerate(periods)}
+    labels = [f"Week {i + 1}" for i in range(len(periods))]
+
+    regions = sorted({r["region"] for r in rows}, key=_region_sort_key)
+
+    series = []
+    for region in regions:
+        data = [None] * len(periods)
+        for r in rows:
+            if r["region"] == region:
+                data[period_index[r["period_id"]]] = rate(r)
+        series.append(
+            {
+                "region": region.upper(),
+                "color": REGION_COLORS.get(region, "#9ca3af"),
+                "data": data,
+                "overall": False,
+            }
+        )
+
+    # combined "Overall" line = sum of the available per-region rates per week
+    overall = []
+    for i in range(len(periods)):
+        vals = [s["data"][i] for s in series if s["data"][i] is not None]
+        overall.append(round(sum(vals), 1) if vals else None)
+    series.insert(
+        0,
+        {"region": "Overall", "color": OVERALL_COLOR, "data": overall, "overall": True},
+    )
+
+    latest_period = periods[-1]
+    current_total = combined_rate([r for r in rows if r["period_id"] == latest_period])
+    season_rows_rate = [v for v in overall if v is not None]
+    season_total = (
+        round(sum(season_rows_rate) / len(season_rows_rate), 1)
+        if season_rows_rate
+        else 0.0
+    )
+    delta_pct = (
+        round((current_total - season_total) / season_total * 100.0, 1)
+        if season_total
+        else 0.0
+    )
+
+    return {
+        "current_total": current_total,
+        "season_total": season_total,
+        "delta_pct": delta_pct,
+        "labels": labels,
+        "series": series,
+    }
+
+
 def main(template_path, output_dir):
 
     from generateSocialsPost import create_dungeon_popularity_vs_ease_img
@@ -495,9 +643,6 @@ def main(template_path, output_dir):
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()
         print("fetching runs...")
-        shortest_run = databaseConnector.fetch_shortest_run(
-            conn, cursor, current_season_id
-        )
         longest_run = databaseConnector.fetch_longest_run(
             conn, cursor, current_season_id
         )
@@ -528,6 +673,18 @@ def main(template_path, output_dir):
         spec_upgrades = databaseConnector.fetch_spec_upgrades(
             conn, cursor
         )
+        print("fetching key throughput...")
+        key_throughput_rows = databaseConnector.fetch_key_throughput(
+            conn, cursor, current_season_id
+        )
+    print("Computing key throughput...")
+    generated_at = datetime.now(timezone.utc).timestamp()
+    period_bounds = build_period_bounds(
+        load_json(os.path.join(LOOKUP_DIR, "periods.json"))
+    )
+    key_throughput = compute_key_throughput(
+        key_throughput_rows, period_bounds, now_ts=generated_at * 1000.0
+    )
     print("Assembling Spec Run Counts per Level...")
     key_levels, datasets_json = assemble_spec_level_datasets(
         counts_per_level,
@@ -547,14 +704,13 @@ def main(template_path, output_dir):
     print("Creating Dungeon Ease...")
     ease_data = create_dungeon_ease(dungeon_runs_per_level, dungeon_lookup)
     runs = [
-        {"name": "Shortest", "data": shortest_run, "icon": "sprint"},
         {"name": "Longest", "data": longest_run, "icon": "hourglass_bottom"},
         {"name": "Highest", "data": highest_run, "icon": "leaderboard"},
     ]
     print("Rendering template...")
 
     output_html = template.render(
-        generated_at=datetime.now(timezone.utc).timestamp(),
+        generated_at=generated_at,
         spec_nav=spec_nav,
         dungeon_nav=dungeon_nav,
         dungeon_lookup=dungeon_lookup,
@@ -562,6 +718,7 @@ def main(template_path, output_dir):
         class_lookup=class_lookup,
         spec_run_counts=spec_run_counts,
         runs=runs,
+        key_throughput=key_throughput,
         runs_per_period=runs_per_period,
         key_levels=key_levels,
         spec_run_counts_per_level=datasets_json,
