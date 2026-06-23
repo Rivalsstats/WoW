@@ -1388,6 +1388,7 @@ def fetch_spec_run_counts(connection, cursor):
 FETCH_SPEC_RUN_COUNTS_PER_LEVEL = """
 SELECT spec_id, keystone_level, SUM(run_count) AS count
 FROM Mythistone.aggregated_spec
+WHERE upgrade_tier <> 'depleted'
 GROUP BY spec_id, keystone_level
 ORDER BY spec_id, keystone_level;
 """

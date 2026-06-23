@@ -221,8 +221,8 @@ def create_dungeon_ease(dungeon_data, dungeon_lookup, top_n=None):
     for r in dungeon_data:
         dungeon_id = str(r["dungeon_id"])
         level = int(r["keystone_level"])
-        # prefer the provided total_runs column
-        cnt = int(r.get("total_runs", 0))
+        # popularity should reflect timed keys only, so exclude depleted runs
+        cnt = int(r.get("total_runs", 0)) - int(r.get("depleted", 0))
 
         counts_by_dungeon[dungeon_id][level] += cnt
         total_by_dungeon[dungeon_id] += cnt
