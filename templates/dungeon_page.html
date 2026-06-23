@@ -111,10 +111,88 @@
                 </div>
             </div>
 
+            {# Shared inner markup for a single featured-run card #}
+            {% macro run_card_inner(run_entry, dungeon, specs) %}
+            {% set run_data = run_entry.data %}
+            <div class="card-header p-2 ps-3">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-sm mb-0 text-capitalize">{{ run_entry.label }}</p>
+                        {% set info = run_data.duration|upgrade_info(dungeon.keystone_upgrades, run_data.keystone_level) %}
+                        <div>
+                            <span class="font-weight-bolder h4 {{ info.css }}">{{ info.text }}</span>
+                            <span class="font-weight-bolder h4">{{dungeon.name.en_US}}</span>
+                            <span class="font-weight-bolder h4">{{run_data.region|upper}}</span>
+                        </div>
+                    </div>
+                    <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                        <i class="material-symbols-rounded opacity-10">{{run_entry.icon}}</i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <h4 class="mb-0" id="{{ run_entry.name }}-run-value">Cleared in {{run_data.duration|duration}}</h4>
+                {% if run_entry.show_margin and dungeon.keystone_upgrades %}
+                {% set plus_one_timer = dungeon.keystone_upgrades.values()|map(attribute='qualifying_duration')|max %}
+                <p class="text-sm text-success mb-0 mt-1">Beat the timer by {{ (plus_one_timer - run_data.duration)|duration }}</p>
+                {% elif run_entry.subtitle %}
+                <p class="text-sm text-secondary mb-0 mt-1">{{ run_entry.subtitle }}</p>
+                {% else %}
+                {# placeholder keeps every panel the same height so toggling doesn't shift the layout #}
+                <p class="text-sm mb-0 mt-1" style="visibility: hidden;" aria-hidden="true">&nbsp;</p>
+                {% endif %}
+                <div class="d-flex align-items-center justify-content-between mt-3">
+                    {% set role_order = ['0','1','2'] %}
+                    {% for role in role_order %}
+                    {% for member in run_data.members %}
+                    {% set spec = specs[ member.spec_id|string ] %}
+                    {% if spec and spec.role|string == role %}
+                    <img src="/data/icons/{{ spec.SpellIconFileId }}.jpg" alt="{{ spec.name }}"
+                        title="{{ spec.name }}" class="rounded-circle border border-dark mb-1" style="width: 18%; max-width: 80px; aspect-ratio: 1; object-fit: cover;" />
+                    {% endif %}
+                    {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+            <hr class="dark horizontal my-0">
+            <div class="card-footer p-2 ps-3">
+                <p class="mb-0 text-sm">
+                    <span class="timestamp" data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-timestamp={{run_data.timestamp|int/1000}}>Run happened:</span>
+                </p>
+            </div>
+            {% endmacro %}
+
             <div class="row mb-6">
-                {% for run_entry in runs %}
-                {% if run_entry['data'] %}
-                {% set run_data = run_entry['data'] %}
+                {# Combined card: toggle between Closest Call / Shortest / Longest #}
+                {% set available_toggle = toggle_runs|selectattr('data')|list %}
+                {% if available_toggle %}
+                <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
+                    <div class="card h-100 run-toggle-card" style="
+                      background-image: url('/data/icons/{{ dungeon.icon }}');
+                      background-size: cover;
+                      background-position: center;
+                      background-repeat: no-repeat;
+                      background-blend-mode: overlay;
+                    ">
+                        <div class="btn-group btn-group-sm w-100 run-toggle-tabs" role="group">
+                            {% for run_entry in available_toggle %}
+                            <button type="button" class="btn btn-outline-light mb-0 run-toggle-btn{% if loop.first %} active{% endif %}"
+                                data-target="panel-{{ run_entry.name }}">{{ run_entry.tab }}</button>
+                            {% endfor %}
+                        </div>
+                        {% for run_entry in available_toggle %}
+                        <div class="run-panel{% if not loop.first %} d-none{% endif %}" id="panel-{{ run_entry.name }}">
+                            {{ run_card_inner(run_entry, dungeon, specs) }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {# Stand-alone cards: Highest, Fastest (Top 3 Keys) #}
+                {% for run_entry in single_runs %}
+                {% if run_entry.data %}
                 <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
                     <div class="card h-100" style="
                       background-image: url('/data/icons/{{ dungeon.icon }}');
@@ -123,53 +201,32 @@
                       background-repeat: no-repeat;
                       background-blend-mode: overlay;
                     ">
-                        <div class="card-header p-2 ps-3">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <p class="text-sm mb-0 text-capitalize">{{ run_entry.name }} Run</p>
-                                    {% set info = run_data.duration|upgrade_info(dungeon.keystone_upgrades,
-                                    run_data.keystone_level) %}
-                                    <div>
-                                        <span class="font-weight-bolder h4 {{ info.css }}">{{ info.text }}</span>
-                                        <span class="font-weight-bolder h4">{{dungeon.name.en_US}}</span>
-                                        <span class="font-weight-bolder h4">{{run_data.region|upper}}</span>
-                                    </div>
-                                </div>
-                                <div
-                                    class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
-                                    <i class="material-symbols-rounded opacity-10">{{run_entry.icon}}</i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-body ">
-                            <h4 class="mb-0" id="{{ run_entry.name }}-run-value">Cleared in {{run_data.duration|
-                                duration}}
-                            </h4>
-                            <div class="d-flex align-items-center justify-content-between mt-3">
-                                {% set role_order = ['0','1','2'] %}
-                                {% for role in role_order %}
-                                {% for member in run_data.members %}
-                                {% set spec = specs[ member.spec_id|string ] %}
-                                {% if spec and spec.role|string == role %}
-                                <img src="/data/icons/{{ spec.SpellIconFileId }}.jpg" alt="{{ spec.name }}"
-                                    title="{{ spec.name }}" class="rounded-circle border border-dark mb-1" style="width: 18%; max-width: 80px; aspect-ratio: 1; object-fit: cover;" />
-                                {% endif %}
-                                {% endfor %}
-                                {% endfor %}
-                            </div>
-                        </div>
-                        <hr class="dark horizontal my-0">
-                        <div class="card-footer p-2 ps-3">
-                            <p class="mb-0 text-sm">
-                                <span class="timestamp" data-bs-toggle="tooltip" data-bs-placement="top"
-                                    data-timestamp={{run_data.timestamp|int/1000}}>Run happened:</span>
-                            </p>
-                        </div>
+                        {{ run_card_inner(run_entry, dungeon, specs) }}
                     </div>
                 </div>
                 {% endif %}
                 {% endfor %}
             </div>
+
+            <style>
+                .run-panel { display: flex; flex-direction: column; flex: 1 1 auto; }
+                .run-toggle-tabs .run-toggle-btn.active { background-color: rgba(255, 255, 255, 0.18); color: #fff; }
+            </style>
+            <script>
+                (function () {
+                    document.querySelectorAll('.run-toggle-btn').forEach(function (btn) {
+                        btn.addEventListener('click', function () {
+                            var card = btn.closest('.run-toggle-card');
+                            if (!card) return;
+                            card.querySelectorAll('.run-panel').forEach(function (p) { p.classList.add('d-none'); });
+                            card.querySelectorAll('.run-toggle-btn').forEach(function (b) { b.classList.remove('active'); });
+                            var target = document.getElementById(btn.dataset.target);
+                            if (target) target.classList.remove('d-none');
+                            btn.classList.add('active');
+                        });
+                    });
+                })();
+            </script>
 
             <div class="row">
                 <!-- Top Routes -->
@@ -560,8 +617,8 @@
                             <div class="bg-gradient-danger shadow-danger border-radius-lg pt-3 pb-3">
                                 <h6 class="text-white text-capitalize ps-3" data-bs-toggle="tooltip"
                                     data-bs-placement="top"
-                                    title="Least encountered enemies across all logged routes for this dungeon.">Most
-                                    Skipped NPC's</h6>
+                                    title="Least encountered enemies across all logged routes for this dungeon.">Least
+                                    Played NPC's</h6>
                             </div>
                         </div>
                         <div class="card-body px-0 pb-2">

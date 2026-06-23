@@ -2574,6 +2574,54 @@ ORDER BY rm.member;
 def fetch_dungeon_max_key_run(connection, cursor, dungeon_id: str, season: int):
     return fetch_with_retry(connection, cursor, FETCH_DUNGEON_MAX_KEY_RUN_SQL, (dungeon_id, season))
 
+FETCH_DUNGEON_CLOSEST_CALL_RUN_SQL = """
+SELECT r.dungeon_id, r.keystone_level, r.duration, r.timestamp, r.faction, r.run_id, r.region, r.season, rm.member, m.spec_id
+FROM runs r
+LEFT JOIN run_members rm ON rm.run_id = r.run_id
+LEFT JOIN members m       ON m.member = rm.member
+WHERE r.run_id = (
+    SELECT r2.run_id
+    FROM runs r2
+    JOIN dungeon_data dd ON dd.dungeon_id = r2.dungeon_id
+    WHERE r2.dungeon_id = %s AND r2.season = %s AND r2.duration > 0
+      AND dd.upgrade_1_duration IS NOT NULL
+      AND r2.duration <= dd.upgrade_1_duration
+    ORDER BY (dd.upgrade_1_duration - r2.duration) ASC, r2.run_id ASC
+    LIMIT 1
+)
+ORDER BY rm.member;
+"""
+
+def fetch_dungeon_closest_call_run(connection, cursor, dungeon_id: str, season: int):
+    return fetch_with_retry(connection, cursor, FETCH_DUNGEON_CLOSEST_CALL_RUN_SQL, (dungeon_id, season))
+
+FETCH_DUNGEON_FASTEST_TOP_LEVELS_RUN_SQL = """
+SELECT r.dungeon_id, r.keystone_level, r.duration, r.timestamp, r.faction, r.run_id, r.region, r.season, rm.member, m.spec_id
+FROM runs r
+LEFT JOIN run_members rm ON rm.run_id = r.run_id
+LEFT JOIN members m       ON m.member = rm.member
+WHERE r.run_id = (
+    SELECT r2.run_id
+    FROM runs r2
+    WHERE r2.dungeon_id = %s AND r2.season = %s AND r2.duration > 0
+      AND r2.keystone_level >= (
+          SELECT MIN(t.kl) FROM (
+              SELECT DISTINCT keystone_level AS kl
+              FROM runs
+              WHERE dungeon_id = %s AND season = %s
+              ORDER BY kl DESC
+              LIMIT 3
+          ) AS t
+      )
+    ORDER BY r2.duration ASC, r2.run_id ASC
+    LIMIT 1
+)
+ORDER BY rm.member;
+"""
+
+def fetch_dungeon_fastest_top_levels_run(connection, cursor, dungeon_id: str, season: int):
+    return fetch_with_retry(connection, cursor, FETCH_DUNGEON_FASTEST_TOP_LEVELS_RUN_SQL, (dungeon_id, season, dungeon_id, season))
+
 FETCH_DUNGEON_LUST_TIMELINE_SQL = """
 WITH PullSigs AS (
     SELECT 

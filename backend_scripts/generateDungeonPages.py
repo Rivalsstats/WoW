@@ -179,9 +179,11 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                 # Fetch top routes for this dungeon
                 top_routes = databaseConnector.fetch_dungeon_top_routes(conn, cursor, dungeon_id)
 
+                closest_call_run = parse_run_rows(databaseConnector.fetch_dungeon_closest_call_run(conn, cursor, dungeon_id, current_season))
                 shortest_run = parse_run_rows(databaseConnector.fetch_dungeon_shortest_run(conn, cursor, dungeon_id, current_season))
                 longest_run = parse_run_rows(databaseConnector.fetch_dungeon_longest_run(conn, cursor, dungeon_id, current_season))
                 highest_run = parse_run_rows(databaseConnector.fetch_dungeon_max_key_run(conn, cursor, dungeon_id, current_season))
+                fastest_top_run = parse_run_rows(databaseConnector.fetch_dungeon_fastest_top_levels_run(conn, cursor, dungeon_id, current_season))
 
                 lust_timeline = databaseConnector.fetch_dungeon_lust_timeline(conn, cursor, dungeon_id)
                 skip_rates = databaseConnector.fetch_dungeon_skip_rates(conn, cursor, dungeon_id, current_season)
@@ -220,14 +222,22 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                 overall_stats = dungeon_runs_lookup.get(d_id_str, {})
                 level_stats = dungeon_runs_per_level_lookup.get(d_id_str, [])
 
-                runs_cards = [
-                    {"name": "Shortest", "data": shortest_run, "icon": "sprint"},
-                    {"name": "Longest", "data": longest_run, "icon": "hourglass_bottom"},
-                    {"name": "Highest", "data": highest_run, "icon": "leaderboard"},
+                # Cards the user can toggle between inside a single card
+                toggle_runs = [
+                    {"name": "closest-call", "label": "Closest Call", "tab": "Closest", "data": closest_call_run, "icon": "timer", "show_margin": True},
+                    {"name": "shortest", "label": "Shortest Run", "tab": "Shortest", "data": shortest_run, "icon": "sprint"},
+                    {"name": "longest", "label": "Longest Run", "tab": "Longest", "data": longest_run, "icon": "hourglass_bottom"},
+                ]
+                # Stand-alone cards
+                single_runs = [
+                    {"name": "highest", "label": "Highest Run", "data": highest_run, "icon": "leaderboard"},
+                    {"name": "fastest-top", "label": "Fastest (Top 3 Keys)", "data": fastest_top_run, "icon": "bolt",
+                     "subtitle": "Fastest clear among the 3 highest key levels"},
                 ]
                 
                 output_html = template.render(dungeon=dungeon_data,
-                    runs=runs_cards,
+                    toggle_runs=toggle_runs,
+                    single_runs=single_runs,
                     lust_timeline=lust_timeline,
                     skip_rates=skip_rates,
                     npcs=npcs_lookup,
