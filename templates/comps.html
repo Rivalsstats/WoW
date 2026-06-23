@@ -47,6 +47,12 @@
     {% include "navbar.html" %}
     {% include "notifications.html" %}
 
+    <style>
+      .meta-comp { background: rgba(255, 206, 74, 0.10) !important; border-left: 3px solid #ffce4a !important; }
+      .meta-badge { background: linear-gradient(310deg, #f5b50e, #f7d774); color: #3a2d00; font-weight: 700; }
+      .meta-badge .material-symbols-rounded { font-size: 0.9rem; line-height: 1; }
+    </style>
+    {% set meta_badge_html = '<span class="badge meta-badge ms-2" title="Current meta comp: the strongest composition in the highest keys"><i class="material-symbols-rounded align-middle">workspace_premium</i> META</span>' %}
     <div class="container-fluid py-2">
       <div class="row">
         <div class="ms-3 mb-4">
@@ -140,7 +146,8 @@
                 {% for comp in most_popular %}
                 {% set total_runs = comp.runs if comp.runs else (comp.t + comp.d) %}
                 {% set win_rate = (comp.t / total_runs * 100) | round(0) if total_runs > 0 else 0 %}
-                <div class="list-group-item border-0 d-flex justify-content-between px-3 mb-2 border-radius-lg align-items-center"
+                {% set is_meta = (comp.c | join(',')) == meta_comp_key %}
+                <div class="list-group-item border-0 d-flex justify-content-between px-3 mb-2 border-radius-lg align-items-center{% if is_meta %} meta-comp{% endif %}"
                   data-comp-c="{{ comp.c | join(',') }}" data-comp-dungeon="all" data-comp-useTop="false">
                   <div class="d-flex align-items-center">
                     {% for sid in comp.c %}
@@ -148,7 +155,7 @@
                     <img src="/data/icons/{{ s.SpellIconFileId }}.jpg" class="avatar avatar-sm me-1" title="{{ s.name }}">
                     {% endfor %}
                     <div class="ms-3">
-                      <div class="text-sm font-weight-bolder">{{ total_runs }} runs</div>
+                      <div class="text-sm font-weight-bolder">{{ total_runs }} runs{% if is_meta %}{{ meta_badge_html | safe }}{% endif %}</div>
                       <div class="text-xs text-secondary">Max: {{ comp.mk }} &nbsp; Success %: {{ win_rate }}%</div>
                     </div>
                   </div>
@@ -176,7 +183,8 @@
                 {% for comp in best_highkey %}
                 {% set total_top_runs = comp.top_key_runs if comp.top_key_runs else 0 %}
                 {% set top_win_rate = (comp.top_key_timed / total_top_runs * 100) | round(0) if total_top_runs > 0 else 0 %}
-                <div class="list-group-item border-0 d-flex justify-content-between px-3 mb-2 border-radius-lg align-items-center"
+                {% set is_meta = (comp.c | join(',')) == meta_comp_key %}
+                <div class="list-group-item border-0 d-flex justify-content-between px-3 mb-2 border-radius-lg align-items-center{% if is_meta %} meta-comp{% endif %}"
                   data-comp-c="{{ comp.c | join(',') }}" data-comp-dungeon="all" data-comp-useTop="true">
                   <div class="d-flex align-items-center">
                     {% for sid in comp.c %}
@@ -184,7 +192,7 @@
                     <img src="/data/icons/{{ s.SpellIconFileId }}.jpg" class="avatar avatar-sm me-1" title="{{ s.name }}">
                     {% endfor %}
                     <div class="ms-3">
-                      <div class="text-sm font-weight-bolder">{{ comp.top_key_runs }} top-key runs</div>
+                      <div class="text-sm font-weight-bolder">{{ comp.top_key_runs }} top-key runs{% if is_meta %}{{ meta_badge_html | safe }}{% endif %}</div>
                       <div class="text-xs text-secondary">Top Key Max: {{ comp.top_key_max }} &nbsp; Success %: {{ top_win_rate }}%</div>
                     </div>
                   </div>
@@ -222,14 +230,16 @@
                   </thead>
                   <tbody>
                     {% for hg in hidden_gems %}
-                    <tr>
+                    {% set is_meta = (hg.specs | join(',')) == meta_comp_key %}
+                    <tr{% if is_meta %} class="meta-comp"{% endif %}>
                       <td>
-                        <div class="d-flex px-2 py-1">
+                        <div class="d-flex px-2 py-1 align-items-center">
                           {% for spec_id in hg.specs %}
                           {% set s = spec_lookup[spec_id|string] %}
                           <img src="/data/icons/{{ s.SpellIconFileId }}.jpg" class="avatar avatar-sm me-1"
                             title="{{ s.name }}">
                           {% endfor %}
+                          {% if is_meta %}{{ meta_badge_html | safe }}{% endif %}
                         </div>
                       </td>
                       <td class="align-middle text-center text-sm">
@@ -330,6 +340,19 @@
 
     const TOP_KEY_LEVELS = {{ top_key_levels | default ([]) | tojson }};
     const synergyMatrix = {{ synergy_matrix | default ('{}') | safe }};
+
+    // The "meta" comp (strongest in the highest keys) is highlighted everywhere.
+    const META_COMP_KEY = {{ meta_comp_key | default('') | tojson }};
+    const META_COMP_SPECS = META_COMP_KEY ? META_COMP_KEY.split(',').map(Number) : [];
+    const META_BADGE = '<span class="badge meta-badge ms-2" title="Current meta comp: the strongest composition in the highest keys"><i class="material-symbols-rounded align-middle">workspace_premium</i> META</span>';
+    function isMetaComp(cArr) {
+      return Array.isArray(cArr) && META_COMP_KEY && cArr.join(',') === META_COMP_KEY;
+    }
+    // True when every selected spec is part of the meta comp, so adding more of
+    // its specs keeps the user on the path toward building the meta comp.
+    function onMetaPath(selected) {
+      return META_COMP_SPECS.length > 0 && Array.from(selected).every(s => META_COMP_SPECS.includes(Number(s)));
+    }
 
     function readUrlParams() {
       const sp = new URLSearchParams(window.location.search);
@@ -490,9 +513,9 @@
           }
 
           suggestionsContainer.innerHTML = `
-            <div class="card bg-dark border border-secondary mb-3 mt-2">
+            <div class="card bg-dark border border-secondary mb-3 mt-2${isMetaComp(comp.c) ? ' meta-comp' : ''}">
               <div class="card-body p-3">
-                <h6 class="text-white mb-3">Stats for Selected Comp</h6>
+                <h6 class="text-white mb-3">Stats for Selected Comp${isMetaComp(comp.c) ? META_BADGE : ''}</h6>
                 <div class="d-flex justify-content-between mb-2">
                   <span class="text-sm text-secondary">Max Key Timed:</span>
                   <span class="text-sm text-white font-weight-bold">${cMaxKey}</span>
@@ -562,18 +585,22 @@
         .sort((a, b) => b[1].w - a[1].w)
         .slice(0, 10);
 
+      // Suggestions that complete the meta comp (only when still on its path)
+      const metaPath = onMetaPath(selectedSpecs);
+
       let html = '<div class="w-100"><ul class="list-group mb-0">';
       sortedSuggestions.forEach(([specId, stats]) => {
         const specInfo = specLookup[specId] || { name: "Unknown", icon: "inv_misc_questionmark", specName: "Unknown", className: "Unknown", cleanClass: "Unknown", roleName: "Dps" };
         const total = stats.t + stats.d;
         const winRate = total > 0 ? Math.round((stats.t / total) * 100) : 0;
+        const isMetaSpec = metaPath && META_COMP_SPECS.includes(Number(specId));
 
         html += `
-          <li class="list-group-item border-0 d-flex justify-content-between px-3 mb-2 border-radius-lg cursor-pointer flex-column flex-md-row" onclick="addSuggestedSpec(${specId})">
+          <li class="list-group-item border-0 d-flex justify-content-between px-3 mb-2 border-radius-lg cursor-pointer flex-column flex-md-row${isMetaSpec ? ' meta-comp' : ''}" onclick="addSuggestedSpec(${specId})">
             <div class="d-flex align-items-center">
               <img src="/data/icons/${specInfo.icon}.jpg" class="avatar avatar-sm me-3 border-radius-sm text-white">
               <div class="d-flex flex-column">
-                <a href="/classes/${specInfo.roleName}/${specInfo.specName}_${specInfo.className}" onclick="event.stopPropagation();" class="mb-1 text-sm font-weight-bolder class-${specInfo.cleanClass}-text">${specInfo.name}</a>
+                <a href="/classes/${specInfo.roleName}/${specInfo.specName}_${specInfo.className}" onclick="event.stopPropagation();" class="mb-1 text-sm font-weight-bolder class-${specInfo.cleanClass}-text">${specInfo.name}${isMetaSpec ? META_BADGE : ''}</a>
                 <span class="text-xs text-secondary mt-1">
                   Runs: <span class="text-white pe-2">${total}</span>
                   Success %: <span class="${winRate >= 70 ? 'text-success' : 'text-warning'} pe-2">${winRate}%</span>
@@ -660,13 +687,14 @@
       }
       const winRate = runs > 0 ? Math.round((timed || 0) / runs * 100) : 0;
       const mk = comp.mk || 0;
+      const meta = isMetaComp(comp.c);
 
       return `
-        <div class="list-group-item border-0 d-flex justify-content-between px-3 mb-2 border-radius-lg align-items-center">
+        <div class="list-group-item border-0 d-flex justify-content-between px-3 mb-2 border-radius-lg align-items-center${meta ? ' meta-comp' : ''}">
           <div class="d-flex align-items-center">
             ${specImgs}
             <div class="ms-3">
-              <div class="text-sm font-weight-bolder">${runs} runs</div>
+              <div class="text-sm font-weight-bolder">${runs} runs${meta ? META_BADGE : ''}</div>
               <div class="text-xs text-secondary">Max: ${mk} &nbsp; Success %: ${winRate}%</div>
             </div>
           </div>
@@ -717,7 +745,7 @@
       });
       html += `</div>`;
       html += `<div>`;
-      html += `<h6 class="mb-1">Overall</h6>`;
+      html += `<h6 class="mb-1">Overall${isMetaComp(comp.c) ? META_BADGE : ''}</h6>`;
       html += `<div class="text-sm">Runs: <strong>${runs}</strong> &nbsp; Success %: <strong>${successPct}%</strong> &nbsp; Max Key: <strong>${mk}</strong></div>`;
       if (bestDungeonName) html += `<div class="text-sm">Top Dungeon: <strong>${bestDungeonName}</strong> (${comp.bdr || 0} runs)</div>`;
       html += `</div></div>`;

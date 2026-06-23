@@ -174,12 +174,23 @@ def calculate_comp_stats(connection, cursor, season, spec_lookup):
         synergy_matrix[sB][sA] = lift
 
     # Hidden Gems
-    # Comp < 1% popularity but high avg key and > 90% timed in high keys or just very strong weight relative to raw runs
+    # A hidden gem is a comp that is played far less than the established meta
+    # comps but still performs well at high keys. Popularity has to be measured
+    # relative to the most-played comps -- NOT the raw total key count. Keys are
+    # split across thousands of distinct 5-spec comps, so even the #1/#2 comp is
+    # a tiny fraction of all runs and would wrongly slip under a "% of total
+    # keys" gate (which is why the 2nd most-played comp used to show up here).
     print("Finding hidden gems...")
+    POPULARITY_FRACTION = 0.02  # a gem is played at most 2% as often as the #1 comp
+    max_comp_runs = max(
+        (d['timed'] + d['depleted'] for d in unique_comps_list),
+        default=0,
+    )
+    popularity_cutoff = max_comp_runs * POPULARITY_FRACTION
     hidden_gems = []
     for data in unique_comps_list:
         runs = data['timed'] + data['depleted']
-        if runs < (total_runs * 0.005) and runs > 20: # Between 20 runs and 0.5% popularity
+        if 20 < runs < popularity_cutoff:  # niche, but with enough of a sample
             success_rate = data['timed'] / runs
             if success_rate >= 0.75 and data['avg_key'] >= 10:
                 score = success_rate * data['avg_key']
@@ -354,12 +365,22 @@ def main(template_path, output_dir):
         # Most popular by raw runs
         most_popular = sorted(frontend_json, key=lambda x: x.get('runs', 0), reverse=True)[:6]
 
-        # Best for high keys: primary by highkey_score, then max key, then runs
+        # Best for high keys. This mirrors the client-side renderTopLists ranking
+        # exactly (global view): comps with at least MIN_RUNS runs, sorted by
+        # highest key reached, then high-key score, then runs. Keeping it in sync
+        # means the server-rendered list matches the client re-render, and the
+        # meta comp is precisely this list's rank 1.
+        MIN_COMP_RUNS = 20
         best_highkey = sorted(
-            frontend_json,
-            key=lambda x: (x.get('highkey_score', 0), x.get('mk', 0), x.get('runs', 0)),
+            (c for c in frontend_json if c.get('runs', 0) >= MIN_COMP_RUNS),
+            key=lambda x: (x.get('mk', 0), x.get('highkey_score', 0), x.get('runs', 0)),
             reverse=True,
         )[:6]
+
+        # The "meta" comp is the rank 1 comp in "Best for High Keys". It is
+        # highlighted everywhere it appears across the page. Key is the canonical
+        # comma-joined spec list, matching the 'c' arrays used client-side.
+        meta_comp_key = ",".join(str(s) for s in best_highkey[0]['c']) if best_highkey else ""
 
         # Prepare JS-friendly lookups to safely serialize into template
         dungeon_lookup_js = {}
@@ -404,6 +425,7 @@ def main(template_path, output_dir):
             # server-side precomputed lists for initial render
             most_popular=most_popular,
             best_highkey=best_highkey,
+            meta_comp_key=meta_comp_key,
             dungeon_lookup_js=dungeon_lookup_js,
             specs_ui_map=specs_ui_map,
         )
