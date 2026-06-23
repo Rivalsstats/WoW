@@ -10,6 +10,24 @@ from pageGeneration import generateSpecNav, generateDungeonNav
 from generateSpecPages import LOOKUP_DIR, load_json
 from generateSocialsPost import createCompOverviewImg
 
+def avg_top_n_keys(keylevel_timed, n=5):
+    """Average key level of a comp's N highest *timed* runs.
+
+    Used as a tie-breaker between gems that share the same highest key: it
+    rewards the comp that more consistently reaches near that ceiling, rather
+    than one that hit the high key a single time.
+    """
+    collected = []
+    for lvl in sorted(keylevel_timed.keys(), reverse=True):
+        for _ in range(keylevel_timed[lvl]):
+            collected.append(lvl)
+            if len(collected) >= n:
+                break
+        if len(collected) >= n:
+            break
+    return (sum(collected) / len(collected)) if collected else 0
+
+
 def calculate_comp_stats(connection, cursor, season, spec_lookup):
     # Fetch all comp aggregation data
     print("Fetching comps from database...")
@@ -193,11 +211,15 @@ def calculate_comp_stats(connection, cursor, season, spec_lookup):
         if 20 < runs < popularity_cutoff:  # niche, but with enough of a sample
             success_rate = data['timed'] / runs
             if success_rate >= 0.75 and data['avg_key'] >= 10:
-                score = success_rate * data['avg_key']
-                hidden_gems.append((score, data))
-                
-    hidden_gems.sort(key=lambda x: x[0], reverse=True)
-    hidden_gems_out = [x[1] for x in hidden_gems[:10]]
+                # Rank by the comp's actual highest key (the displayed column),
+                # tie-broken by the avg of its top-5 timed keys, then success and
+                # runs.
+                data['success_pct'] = round(success_rate * 100)
+                top5_avg = avg_top_n_keys(data.get('keylevel_timed', {}), 5)
+                hidden_gems.append((data['max_key'], top5_avg, success_rate, runs, data))
+
+    hidden_gems.sort(key=lambda x: (x[0], x[1], x[2], x[3]), reverse=True)
+    hidden_gems_out = [x[-1] for x in hidden_gems[:10]]
 
     # Glue Specs (Flexibility Index)
     # Number of distinctly timed high-key comps (e.g. timed > 5, avg key > 12) it appears in

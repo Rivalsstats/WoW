@@ -39,6 +39,7 @@
   <meta name="apple-mobile-web-app-title" content="MythiStone" />
   {% include "header_imports.html" %}
   <link rel="stylesheet" href="/assets/css/comps.css">
+  <link rel="stylesheet" href="/assets/css/dataTables.min.css">
 </head>
 
 <body class="g-sidenav-show g-sidenav-show-right" data-bs-theme="dark">
@@ -51,6 +52,8 @@
       .meta-comp { background: rgba(255, 206, 74, 0.10) !important; border-left: 3px solid #ffce4a !important; }
       .meta-badge { background: linear-gradient(310deg, #f5b50e, #f7d774); color: #3a2d00; font-weight: 700; }
       .meta-badge .material-symbols-rounded { font-size: 0.9rem; line-height: 1; }
+      /* keep DataTables' sort icons aligned with the centered numeric headers */
+      #hidden-gems-table thead th.dt-orderable-asc, #hidden-gems-table thead th.dt-orderable-desc { cursor: pointer; }
     </style>
     {% set meta_badge_html = '<span class="badge meta-badge ms-2" title="Current meta comp: the strongest composition in the highest keys"><i class="material-symbols-rounded align-middle">workspace_premium</i> META</span>' %}
     <div class="container-fluid py-2">
@@ -213,19 +216,21 @@
           <div class="card h-100">
             <div class="card-header pb-0">
               <h6>Hidden Gems</h6>
-              <p class="text-sm">Comps with low overall popularity (< 1%) but incredible high-key success rates.</p>
+              <p class="text-sm">Niche comps, played far less than the meta, but with strong success in high keys.</p>
             </div>
             <div class="card-body px-0 pb-2">
               <div class="table-responsive" style="max-height: 435px; overflow-y: auto;">
-                <table class="table align-items-center mb-0">
+                <table id="hidden-gems-table" class="table align-items-center mb-0">
                   <thead class="sticky-top" style="z-index: 10; background-color: #1d1d1d;">
                     <tr>
                       <th class="text-uppercase text-white text-xxs font-weight-bolder opacity-7"
                         style="position: sticky; top: 0; background-color: #1d1d1d;">Comp</th>
                       <th class="text-center text-uppercase text-white text-xxs font-weight-bolder opacity-7"
-                        style="position: sticky; top: 0; background-color: #1d1d1d;">Runs</th>
+                        style="position: sticky; top: 0; background-color: #1d1d1d;" title="Highest key this comp has reached">Highest Key</th>
                       <th class="text-center text-uppercase text-white text-xxs font-weight-bolder opacity-7"
-                        style="position: sticky; top: 0; background-color: #1d1d1d;">Max Key</th>
+                        style="position: sticky; top: 0; background-color: #1d1d1d;" title="Share of this comp's runs that were timed">Success</th>
+                      <th class="text-center text-uppercase text-white text-xxs font-weight-bolder opacity-7"
+                        style="position: sticky; top: 0; background-color: #1d1d1d;">Runs</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -242,11 +247,14 @@
                           {% if is_meta %}{{ meta_badge_html | safe }}{% endif %}
                         </div>
                       </td>
-                      <td class="align-middle text-center text-sm">
-                        <span class="text-xs font-weight-bold">{{ hg.timed + hg.depleted }}</span>
-                      </td>
-                      <td class="align-middle text-center text-sm">
+                      <td class="align-middle text-center text-sm" data-order="{{ hg.max_key }}">
                         <span class="text-xs font-weight-bold">{{ hg.max_key }}</span>
+                      </td>
+                      <td class="align-middle text-center text-sm" data-order="{{ hg.success_pct }}">
+                        <span class="text-xs font-weight-bold {{ 'text-success' if hg.success_pct >= 90 else 'text-warning' }}">{{ hg.success_pct }}%</span>
+                      </td>
+                      <td class="align-middle text-center text-sm" data-order="{{ hg.timed + hg.depleted }}">
+                        <span class="text-xs font-weight-bold">{{ hg.timed + hg.depleted }}</span>
                       </td>
                     </tr>
                     {% endfor %}
@@ -303,6 +311,8 @@
   {% include "right_aside.html" %}
   {% include "fixed_plugin.html" %}
   {% include "javascript_imports.html" %}
+  <!-- DataTables (sortable Hidden Gems table) -->
+  <script src="/assets/js/plugins/dataTables.min.js"></script>
   <!-- Comp details modal -->
   <div class="modal fade" id="compDetailsModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -880,6 +890,20 @@
       writeUrlParams();
       updateSuggestions();
       renderTopLists();
+    });
+
+    // --- Hidden Gems: DataTables (click headers to sort) ---
+    $(function () {
+      $('#hidden-gems-table').DataTable({
+        paging: false,
+        searching: false,
+        info: false,
+        order: [[1, 'desc']],            // default: Highest Key, descending
+        columnDefs: [
+          { targets: 0, orderable: false }  // Comp (icons) is not sortable
+        ],
+        language: { emptyTable: 'No hidden gems found.' }
+      });
     });
   </script>
 </body>
