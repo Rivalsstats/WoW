@@ -217,6 +217,41 @@
   border-radius: 4px;
 }
 
+/* Route modal accordion button: stack the dungeon name / timing / spec icons
+   into clean left-aligned rows on small screens instead of squeezing three
+   columns side by side. */
+@media (max-width: 575.98px) {
+  .spec-route-btn > div {
+    flex: 1 1 100% !important;
+    text-align: left !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .spec-route-btn .d-inline-flex {
+    justify-content: flex-start;
+  }
+  .spec-route-btn .badge {
+    margin-left: 0 !important;
+    margin-right: 0.25rem !important;
+  }
+}
+
+/* Talent tree: scale node icons down on smaller screens.
+   Node centers are %-positioned so edges stay aligned; only the icon
+   footprint shrinks, preventing overlap when the column is narrow. */
+@media (max-width: 991.98px) {
+  #static-talent-tree .tt-node { width: 38px; height: 38px; }
+  #static-talent-tree .tt-node img { width: 28px; height: 28px; }
+  #static-talent-tree .tt-badge,
+  #static-talent-tree .tt-maxrank { font-size: 9px; }
+}
+@media (max-width: 575.98px) {
+  #static-talent-tree .tt-node { width: 32px; height: 32px; }
+  #static-talent-tree .tt-node img { width: 24px; height: 24px; }
+  #tt-col-hero .tt-choice-wrapper { width: 40px !important; height: 40px !important; }
+  #tt-col-hero .tt-hero-choice-inner { width: 40px !important; height: 40px !important; }
+}
+
 /* Item render slot styles */
 .item-icon-img {
   width: 56px;
@@ -237,7 +272,7 @@
 }
 
 .item-stats-container {
-  height: 20px;
+  min-height: 20px;
   display: flex;
   align-items: center;
 }
@@ -248,7 +283,9 @@
 }
 
 .item-secondary-icons {
-  height: 16px;
+  min-height: 16px;
+  flex-wrap: wrap;
+  row-gap: 4px;
 }
 
 .secondary-icon-link {

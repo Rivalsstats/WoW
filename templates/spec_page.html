@@ -75,7 +75,7 @@
       {% endif %}
     </div>
 
-    <div class="d-flex align-items-center gap-1 flex-nowrap item-secondary-icons">
+    <div class="d-flex align-items-center gap-1 flex-wrap item-secondary-icons">
       {% if entry.embellishment and reagent_lookup[entry.embellishment] %}
       <!-- embellishment icon -->
       <a target="_blank" href="https://www.wowhead.com/item={{ entry.embellishment }}&spec={{ spec_id }}" {% if
@@ -351,7 +351,7 @@
                     <div class="text-xs text-secondary mt-1">Overall Played: <span class="text-white">{{ ((summary_data.count / (total_season_runs if total_season_runs else 1)) * 100) | round(1) }}%</span></div>
                   </div>
                   <div class="d-flex align-items-center">
-                    <button id="resetZoomBtnSpec" class="btn btn-sm btn-outline-light me-2 mb-0" style="display: none;">Reset Zoom</button>
+                    <button id="resetZoomBtnSpec" class="btn btn-sm btn-outline-light me-2 mb-0 d-none d-lg-inline-block" style="display: none;">Reset Zoom</button>
                     <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
                       <i class="material-symbols-rounded opacity-10">{%if trending %}trending_up {%else%}trending_down{%endif%}</i>
                     </div>
@@ -360,7 +360,7 @@
               </div>
               <div class="card-body">
                 <div class="spec-popularity-chart-wrapper px-2">
-                  <p class="text-xs text-center text-secondary mb-1">Use mouse scroll or pinch to zoom. Drag to pan.</p>
+                  <p class="text-xs text-center text-secondary mb-1 d-none d-lg-block">Use mouse scroll to zoom. Drag to pan.</p>
                   <div class="chart-scroll-container" style="overflow-x:auto;">
                     <canvas id="runsBarChart" style="display:block;height:100%;"></canvas>
                   </div>
@@ -389,28 +389,26 @@
                   </div>
                 </div>
               </div>
-              <div class="card-body p-3 flex-grow-1 d-flex flex-column justify-content-around overflow-hidden">
+              <div class="card-body p-3 flex-grow-1">
                 {% for comp_data in top_comps_data[:3] %}
-                <div class="d-flex flex-wrap justify-content-between align-items-center mb-2">
-                  <div class="d-flex mb-1 mb-xl-0 align-items-center flex-wrap">
+                <div class="{% if not loop.last %}border-bottom border-secondary pb-2 {% endif %}mb-2">
+                  <div class="d-flex align-items-center flex-wrap gap-1 mb-2">
                     {% set comp_members = comp_data[0].split(',') %}
                     {% for role in ['0','1','2'] %}
                     {% for member in comp_members %}
                     {% set related_spec = spec_lookup[member|string] %}
                     {% if related_spec and related_spec.role|string == role %}
                     <img src="/data/icons/{{ related_spec.SpellIconFileId }}.jpg"
-                      class="avatar avatar-sm me-1 rounded-circle border border-dark"
+                      class="avatar avatar-sm rounded-circle border border-dark"
                       title="{{ related_spec.name }}">
                     {% endif %}
                     {% endfor %}
                     {% endfor %}
                   </div>
-                  <div class="text-start text-xl-end d-flex flex-column justify-content-center">
+                  <div class="d-flex align-items-center flex-wrap gap-2">
                     <span class="text-sm font-weight-bold">{{ comp_data[1]|humanize }} Runs</span>
-                    <span class="text-xs text-secondary mt-1">
-                      <span class="{% if comp_data[3]|int >= 70 %}text-success{% else %}text-warning{% endif %} pe-1">{{ comp_data[3]|int }}% Timed</span>
-                      Highest Key: <span class="text-body font-weight-bold">{{ comp_data[2]|int }}</span>
-                    </span>
+                    <span class="badge bg-gradient-{{ 'success' if comp_data[3]|int >= 70 else 'warning' }}">{{ comp_data[3]|int }}% Timed</span>
+                    <span class="text-xs text-secondary">Highest Key: <span class="text-body font-weight-bold">+{{ comp_data[2]|int }}</span></span>
                   </div>
                 </div>
                 {% endfor %}
@@ -1721,7 +1719,7 @@
             {% if dungeon_lookup[ds] %}
             <div class="accordion-item mb-2">
               <h2 class="accordion-header" id="routeDungeonHeading-{{ ds }}">
-                <button class="accordion-button collapsed d-flex" type="button" data-bs-toggle="collapse"
+                <button class="accordion-button collapsed d-flex flex-wrap gap-2 spec-route-btn" type="button" data-bs-toggle="collapse"
                   data-bs-target="#routeDungeonCollapse-{{ ds }}" aria-expanded="false"
                   aria-controls="routeDungeonCollapse-{{ ds }}" style="
                             background-image: url('/data/icons/{{ dungeon_lookup[ds].icon }}');
@@ -1730,8 +1728,8 @@
                             background-repeat: no-repeat;
                             background-blend-mode: overlay;
                           ">
-                  <div class="flex-fill text-start text-nowrap">
-                    <span class="badge bg-dark bg-opacity-50 rounded px-2">{{
+                  <div class="flex-fill text-start" style="min-width: 0;">
+                    <span class="badge bg-dark bg-opacity-50 rounded px-2 text-wrap">{{
                       dungeon_lookup[ds|string].name['en_US'] }}</span>
                     {% set info = top_routes[ds|string].duration|
                     upgrade_info(dungeon_lookup[ds|string].keystone_upgrades,
@@ -1756,7 +1754,8 @@
                       {% set spec = spec_lookup[ member|string ] %}
                       {% if spec.role == role %}
                       <img src="/data/icons/{{ spec.SpellIconFileId }}.jpg" alt="{{ spec.name }}"
-                        title="{{ spec.name }}" class="me-1" />
+                        title="{{ spec.name }}" class="me-1 rounded"
+                        style="width:24px;height:24px;object-fit:cover;" />
                       {% endif %}
                       {% endfor %}
                       {% endfor %}
@@ -1822,6 +1821,9 @@
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
 
+      // Disable chart pan/zoom on small screens so it doesn't hijack page scrolling.
+      const enableZoom = window.matchMedia('(min-width: 992px)').matches;
+
       // Use per-key-level stacked counts for this spec
       var levelData = {{ level_stats | tojson }};
       levelData.sort((a,b) => a.keystone_level - b.keystone_level);
@@ -1869,8 +1871,8 @@
             tooltip: { mode: 'index', intersect: false },
             datalabels: { display: false },
             zoom: {
-              pan: { enabled: true, mode: 'x', onPan: function({chart}) { document.getElementById('resetZoomBtnSpec').style.display = 'block'; } },
-              zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x', onZoom: function({chart}) { document.getElementById('resetZoomBtnSpec').style.display = 'block'; } }
+              pan: { enabled: enableZoom, mode: 'x', onPan: function({chart}) { document.getElementById('resetZoomBtnSpec').style.display = 'block'; } },
+              zoom: { wheel: { enabled: enableZoom }, pinch: { enabled: enableZoom }, mode: 'x', onZoom: function({chart}) { document.getElementById('resetZoomBtnSpec').style.display = 'block'; } }
             }
           }
         }

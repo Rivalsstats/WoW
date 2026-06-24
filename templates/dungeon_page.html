@@ -52,6 +52,7 @@
     <meta name="theme-color" content="#1a202c">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="MythiStone" />
+    <link rel="stylesheet" href="/assets/css/datatables.min.css">
 
 </head>
 
@@ -256,7 +257,7 @@
                                 background-repeat: no-repeat;
                                 background-blend-mode: overlay;
                                 ">
-                                            <div class="w-100 row w-100 gx-2 align-items-center py-3 px-4">
+                                            <div class="w-100 row w-100 gx-2 gy-2 align-items-center py-3 px-4">
                                                 <div class="col-12 col-sm-4 text-start">
                                                     <span
                                                         class="badge bg-dark bg-opacity-50 text-white rounded px-2 mx-1">
@@ -275,7 +276,7 @@
                                                     {% endif %}
                                                 </div>
 
-                                                <div class="col-12 col-sm-4 text-center">
+                                                <div class="col-12 col-sm-4 text-start text-sm-center">
                                                     <span
                                                         class="badge bg-dark bg-opacity-50 text-white rounded px-2 mx-2">
                                                         {{ route.duration|duration }}
@@ -286,8 +287,8 @@
                                                         data-timestamp={{ route.timestamp|int }}></span>
                                                 </div>
 
-                                                <div class="col-12 col-sm-4 text-end">
-                                                    <div class="d-inline-flex align-items-center">
+                                                <div class="col-12 col-sm-4 text-start text-sm-end">
+                                                    <div class="d-inline-flex align-items-center flex-wrap">
                                                         {% for role in ['0','1','2'] %}
                                                         {% for sid in route.specs %}
                                                         {% set spec = specs[sid|string] %}
@@ -351,8 +352,8 @@
                             </div>
                         </div>
                         <div class="card-body px-0 pb-2">
-                            <div class="table-responsive p-0" style="max-height: 435px; overflow-y: auto;">
-                                <table class="table align-items-center mb-0">
+                            <div class="p-0 custom-scrollbar" style="max-height: 435px; overflow-y: auto; overflow-x: hidden;">
+                                <table id="lust-table" class="table align-items-center mb-0 w-100">
                                     <thead class="sticky-top" style="z-index: 10; background-color: #1d1d1d;">
                                         <tr>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3"
@@ -465,8 +466,8 @@
                             </div>
                         </div>
                         <div class="card-body px-0 pb-2">
-                            <div class="table-responsive p-0">
-                                <table class="table align-items-center mb-0">
+                            <div class="p-0">
+                                <table id="popular-comps-table" class="table align-items-center mb-0 w-100">
                                     <thead>
                                         <tr>
                                             <th
@@ -536,8 +537,8 @@
                             </div>
                         </div>
                         <div class="card-body px-0 pb-2">
-                            <div class="table-responsive p-0">
-                                <table class="table align-items-center mb-0">
+                            <div class="p-0">
+                                <table id="unique-specs-table" class="table align-items-center mb-0 w-100">
                                     <thead>
                                         <tr>
                                             <th
@@ -597,7 +598,7 @@
                                         </tr>
                                         {% else %}
                                         <tr>
-                                            <td colspan="3" class="text-center text-sm p-3">Not enough data.</td>
+                                            <td colspan="5" class="text-center text-sm p-3">Not enough data.</td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
@@ -622,8 +623,8 @@
                             </div>
                         </div>
                         <div class="card-body px-0 pb-2">
-                            <div class="table-responsive p-0" style="max-height: 320px; overflow-y: auto;">
-                                <table class="table align-items-center mb-0">
+                            <div class="p-0 custom-scrollbar" style="max-height: 320px; overflow-y: auto; overflow-x: hidden;">
+                                <table id="skip-npcs-table" class="table align-items-center mb-0 w-100">
                                     <thead class="sticky-top" style="z-index: 10; background-color: #1d1d1d;">
                                         <tr>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
@@ -714,7 +715,7 @@
                             <div class="bg-gradient-dark shadow-dark border-radius-lg pt-3 pb-3">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h6 class="text-white text-capitalize ps-3 m-0">Success Rate by Keystone Level</h6>
-                                    <button id="resetZoomBtn" class="btn btn-sm btn-outline-light me-3 mb-0" style="display: none;">Reset Zoom</button>
+                                    <button id="resetZoomBtn" class="btn btn-sm btn-outline-light me-3 mb-0 d-none d-lg-inline-block" style="display: none;">Reset Zoom</button>
                                 </div>
                             </div>
                         </div>
@@ -742,7 +743,7 @@
                             <div class="chart" style="height: 300px;">
                                 <canvas id="keyLevelChart" class="chart-canvas" height="300"></canvas>
                             </div>
-                            <p class="text-xs text-center text-secondary mt-2 mb-0">Use mouse scroll or pinch to zoom. Drag to pan.</p>
+                            <p class="text-xs text-center text-secondary mt-2 mb-0 d-none d-lg-block">Use mouse scroll to zoom. Drag to pan.</p>
                             {% else %}
                             <p class="text-sm text-center">No key level data available yet.</p>
                             {% endif %}
@@ -756,12 +757,33 @@
     {% include "right_aside.html" %}
     {% include "fixed_plugin.html" %}
     {% include "javascript_imports.html" %}
+    <!-- DataTables (responsive tables) -->
+    <script src="/assets/js/plugins/dataTables.min.js"></script>
+    <script>
+        // Curated, pre-ranked tables: enable Responsive column collapsing on small
+        // screens while keeping their server-side order (ordering disabled).
+        $(function () {
+            var common = { responsive: true, ordering: false, paging: false, searching: false, info: false };
+            var tables = {
+                'lust-table':          [{ targets: 0, responsivePriority: 1 }, { targets: 1, responsivePriority: 2 }, { targets: 3, responsivePriority: 4 }, { targets: 2, responsivePriority: 5 }],
+                'popular-comps-table': [{ targets: 0, responsivePriority: 1 }, { targets: 1, responsivePriority: 2 }, { targets: 3, responsivePriority: 3 }, { targets: 2, responsivePriority: 4 }],
+                'unique-specs-table':  [{ targets: 0, responsivePriority: 1 }, { targets: 4, responsivePriority: 2 }, { targets: 1, responsivePriority: 3 }, { targets: 2, responsivePriority: 5 }, { targets: 3, responsivePriority: 6 }],
+                'skip-npcs-table':     [{ targets: 0, responsivePriority: 1 }, { targets: 1, responsivePriority: 2 }, { targets: 3, responsivePriority: 4 }, { targets: 2, responsivePriority: 5 }]
+            };
+            Object.keys(tables).forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el) $(el).DataTable(Object.assign({ columnDefs: tables[id] }, common));
+            });
+        });
+    </script>
     <script src="/assets/js/plugins/hammer.min.js"></script>
     <script src="/assets/js/plugins/chartjs.min.js"></script>
     <script src="/assets/js/plugins/chartjs-plugin-zoom.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             {% if level_stats %}
+            // Disable chart pan/zoom on small screens so it doesn't hijack page scrolling.
+            var enableZoom = window.matchMedia('(min-width: 992px)').matches;
             var levelData = {{ level_stats | tojson }};
             // sort by key level
             levelData.sort((a,b) => a.keystone_level - b.keystone_level);
@@ -799,15 +821,15 @@
                         },
                         zoom: {
                             pan: {
-                                enabled: true,
+                                enabled: enableZoom,
                                 mode: 'x',
                                 onPan: function({chart}) {
                                     document.getElementById('resetZoomBtn').style.display = 'block';
                                 }
                             },
                             zoom: {
-                                wheel: { enabled: true },
-                                pinch: { enabled: true },
+                                wheel: { enabled: enableZoom },
+                                pinch: { enabled: enableZoom },
                                 mode: 'x',
                                 onZoom: function({chart}) {
                                     document.getElementById('resetZoomBtn').style.display = 'block';

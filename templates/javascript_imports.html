@@ -57,6 +57,16 @@
         el.textContent = `${el.textContent} ${timeAgo(Number(timestamp))}`;
         el.setAttribute('title', new Date(Number(timestamp) * 1000).toLocaleString());
     });
+
+    // Move focus out of a modal before Bootstrap sets aria-hidden on it, otherwise
+    // browsers warn about hiding a focused element from assistive tech (e.g. when
+    // closing via the in-modal "Close" button). hide.bs.modal bubbles to document.
+    document.addEventListener('hide.bs.modal', function (e) {
+        const focused = e.target.querySelector(':focus');
+        if (focused && typeof focused.blur === 'function') {
+            focused.blur();
+        }
+    });
 </script>
 <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
 <script src="/assets/js/material-dashboard.js"></script>

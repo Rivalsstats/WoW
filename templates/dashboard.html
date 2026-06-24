@@ -157,7 +157,7 @@
               </div>
             </div>
             <div class="card-body p-2 pt-0">
-              <div class="chart" style="height: 150px;">
+              <div class="chart d-none d-lg-block" style="height: 150px;">
                 <canvas id="chart-key-throughput" class="chart-canvas"></canvas>
               </div>
             </div>
@@ -238,7 +238,37 @@
         <div class="col-lg-12 col-md-6 mt-4 mb-4">
           <div class="card ">
             <div class="card-body">
-              <ul class="nav nav-tabs mb-3" id="specTabs" role="tablist">
+              <!-- Mobile: compact ranked table instead of the dense spec charts -->
+              <div class="d-lg-none">
+                <h6 class="mb-0">Spec popularity</h6>
+                <p class="text-sm mb-2">Most played specs across all key levels</p>
+                {% set top_specs = spec_run_counts | sort(attribute='count', reverse=True) %}
+                {% set spec_total = (spec_run_counts | sum(attribute='count')) or 1 %}
+                {% set spec_max = (top_specs[0].count) if top_specs else 1 %}
+                <table class="dash-rank-table text-sm">
+                  <tbody>
+                    {% for s in top_specs[:15] %}
+                    {% set si = spec_lookup[s.id|string] %}
+                    {% set ci = class_lookup[si.classID|string] %}
+                    <tr>
+                      <td class="dash-rank-num">{{ loop.index }}</td>
+                      <td style="width:28px;"><img src="/data/icons/{{ si.SpellIconFileId }}.jpg" class="dash-rank-icon" alt="{{ si.name }}"></td>
+                      <td>
+                        <div class="dash-rank-name" style="color: rgb({{ ci.color.r|int }},{{ ci.color.g|int }},{{ ci.color.b|int }});">{{ si.name }}</div>
+                        <div class="dash-rank-bar"><span style="width: {{ (s.count / spec_max * 100)|round(1) }}%; background: rgb({{ ci.color.r|int }},{{ ci.color.g|int }},{{ ci.color.b|int }});"></span></div>
+                      </td>
+                      <td class="dash-rank-value">
+                        <div class="font-weight-bold">{{ "{:,}".format(s.count) }}</div>
+                        <div class="text-xs text-secondary">{{ (s.count / spec_total * 100)|round(1) }}%</div>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <!-- Desktop: tabbed charts -->
+              <div class="d-none d-lg-block">
+              <ul class="nav nav-tabs nav-fill mb-3" id="specTabs" role="tablist">
                 <li class="nav-item" role="presentation">
                   <button class="nav-link active" id="overall-tab" data-bs-toggle="tab" data-bs-target="#overall"
                     type="button" role="tab" aria-controls="overall" aria-selected="false">
@@ -263,7 +293,7 @@
                         <div class="card-body">
                           <h6 class="mb-0">Spec popularity</h6>
                           <p class="text-sm">Across all Keylevels</p>
-                          <div class="pe-2">
+                          <div class="pe-2 dash-dense-chart">
                             <div class="chart">
                               <canvas id="chart-overall" class="chart-canvas" height="100"></canvas>
                             </div>
@@ -287,7 +317,7 @@
                         <div class="card-body">
                           <h6 class="mb-0">Spec popularity</h6>
                           <p class="text-sm">By Keylevel</p>
-                          <div class="pe-2">
+                          <div class="pe-2 dash-dense-chart">
                             <div class="chart">
                               <canvas id="chart-keylevel" class="chart-canvas" height="80"></canvas>
                             </div>
@@ -307,6 +337,7 @@
 
 
               </div>
+              </div>
             </div>
           </div>
         </div>
@@ -318,9 +349,13 @@
               <h6 class="mb-0 "> Keys per Week</h6>
               <p class="text-sm "></p>
               <div class="pe-2">
-                <div class="chart">
+                <div class="chart d-none d-lg-block">
                   <canvas id="chart-keys-per-week" class="chart-canvas" height="170"></canvas>
                 </div>
+                <p class="text-sm text-secondary d-lg-none mb-0 py-3 text-center">
+                  <i class="material-symbols-rounded align-middle me-1">show_chart</i>
+                  The weekly key trend is best viewed on a larger screen.
+                </p>
               </div>
               <hr class="dark horizontal">
               <div class="d-flex ">
@@ -338,8 +373,31 @@
               <h6 class="mb-0 ">Most Popular Dungeons</h6>
               <p class="text-sm "></p>
               <div class="pe-2">
-                <div class="chart">
+                <div class="chart d-none d-lg-block">
                   <canvas id="chart-dungeon-popularity" class="chart-canvas" height="170"></canvas>
+                </div>
+                <!-- Mobile: ranked table -->
+                <div class="d-lg-none">
+                  {% set d_max = (dungeon_total_counts | max) or 1 %}
+                  {% set d_sum = (dungeon_total_counts | sum) or 1 %}
+                  <table class="dash-rank-table text-sm">
+                    <tbody>
+                      {% for i in range(dungeon_full_names | length) %}
+                      <tr>
+                        <td class="dash-rank-num">{{ loop.index }}</td>
+                        <td style="width:28px;"><img src="{{ dungeon_icon_urls[i] }}" class="dash-rank-icon" alt="{{ dungeon_full_names[i] }}"></td>
+                        <td>
+                          <div class="dash-rank-name">{{ dungeon_full_names[i] }}</div>
+                          <div class="dash-rank-bar"><span style="width: {{ (dungeon_total_counts[i] / d_max * 100)|round(1) }}%; background: var(--bs-primary, #e91e63);"></span></div>
+                        </td>
+                        <td class="dash-rank-value">
+                          <div class="font-weight-bold">{{ "{:,}".format(dungeon_total_counts[i]) }}</div>
+                          <div class="text-xs text-secondary">{{ (dungeon_total_counts[i] / d_sum * 100)|round(1) }}%</div>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
                 </div>
               </div>
               <hr class="dark horizontal">
@@ -361,8 +419,33 @@
               <h6 class="mb-0 ">Spec Popularity vs Performance</h6>
               <p class="text-sm "></p>
               <div class="pe-2">
-                <div class="chart">
+                <div class="chart d-none d-lg-block">
                   <canvas id="chart-popularity-vs-tier" class="chart-canvas" height="170"></canvas>
+                </div>
+                <!-- Mobile: ranked table sorted by performance score -->
+                <div class="d-lg-none">
+                  {% set perf_sorted = scatter_data | sort(attribute='x', reverse=True) %}
+                  {% set perf_max = (perf_sorted[0].x) if perf_sorted else 1 %}
+                  <table class="dash-rank-table text-sm">
+                    <thead>
+                      <tr class="text-xxs text-uppercase text-secondary">
+                        <th></th><th></th><th>Spec</th>
+                        <th class="text-end">Perf.</th>
+                        <th class="text-end">Runs</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for p in perf_sorted[:15] %}
+                      <tr>
+                        <td class="dash-rank-num">{{ loop.index }}</td>
+                        <td style="width:28px;"><img src="{{ p.iconUrl }}" class="dash-rank-icon" alt="{{ p.label }}"></td>
+                        <td><div class="dash-rank-name">{{ p.label }}</div></td>
+                        <td class="dash-rank-value font-weight-bold">{{ "%.2f"|format(p.x) }}</td>
+                        <td class="dash-rank-value text-secondary">{{ "{:,}".format(p.y) }}</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
                 </div>
               </div>
               <hr class="dark horizontal">
@@ -385,9 +468,13 @@
               <h6 class="mb-0 ">Dungeon Popularity across Keylevels</h6>
               <p class="text-sm "></p>
               <div class="pe-2">
-                <div class="chart">
+                <div class="chart d-none d-lg-block">
                   <canvas id="chart-dungeon-popularity-vs-ease" class="chart-canvas" height="170"></canvas>
                 </div>
+                <p class="text-sm text-secondary d-lg-none mb-0 py-3 text-center">
+                  <i class="material-symbols-rounded align-middle me-1">bar_chart</i>
+                  The per-key-level breakdown is best viewed on a larger screen.
+                </p>
               </div>
               <hr class="dark horizontal">
               <div class="d-flex ">
@@ -1315,6 +1402,8 @@
       }));
 
       const resetBtn = document.getElementById("resetThroughputZoom");
+      // Disable chart pan/zoom on small screens so it doesn't hijack page scrolling.
+      const enableZoom = window.matchMedia('(min-width: 992px)').matches;
 
       const chart = new Chart(ctx, {
         type: "line",
@@ -1352,13 +1441,13 @@
               // zoom in (minRange ≈ keep at least ~2 weeks in view).
               limits: { x: { min: "original", max: "original", minRange: 1 } },
               pan: {
-                enabled: true,
+                enabled: enableZoom,
                 mode: "x",
                 onPan: () => { if (resetBtn) resetBtn.style.display = "inline-block"; }
               },
               zoom: {
-                wheel: { enabled: true },
-                pinch: { enabled: true },
+                wheel: { enabled: enableZoom },
+                pinch: { enabled: enableZoom },
                 mode: "x",
                 onZoom: () => { if (resetBtn) resetBtn.style.display = "inline-block"; }
               }

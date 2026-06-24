@@ -69,15 +69,15 @@
         <!-- The Perfect Fit Widget -->
         <div class="col-12 mb-4">
           <div class="card">
-            <div class="card-header pb-0 p-3 d-flex justify-content-between align-items-center">
+            <div class="card-header pb-0 p-3 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
               <div>
                 <h6 class="mb-0">The Perfect Fit</h6>
                 <p class="text-sm mb-0">Select your current group to find the statistically best specs to fill the
                   remaining slots.</p>
               </div>
-              <div class="d-flex align-items-center">
-                <select id="dungeonFilter" class="form-select form-select-sm"
-                  style="width: auto; min-width: 250px; background-color: #1d1d1d; color: white;">
+              <div class="d-flex align-items-center w-100 w-md-auto">
+                <select id="dungeonFilter" class="form-select form-select-sm w-100 w-md-auto"
+                  style="min-width: 0; background-color: #1d1d1d; color: white;">
                   <option value="all">All Dungeons</option>
                   {% for id, details in dungeon_lookup.items() %}
                   <option value="{{ id }}">{{ details.name.en_US }}</option>
@@ -89,8 +89,7 @@
               <div class="row">
                 <div class="col-lg-6 col-md-12">
                   <h6 class="text-uppercase text-white text-xs font-weight-bolder">Tanks</h6>
-                  <div class="mb-3"
-                    style="display: grid; grid-template-columns: repeat(7, 40px); gap: 0.5rem; justify-content: start;">
+                  <div class="mb-3 spec-picker-grid">
                     {% for s in specs_ui %}
                     {% if s.role == 0 %}
                     <img src="/data/icons/{{ s.icon }}.jpg" class="spec-icon" data-spec="{{ s.id }}"
@@ -99,8 +98,7 @@
                     {% endfor %}
                   </div>
                   <h6 class="text-uppercase text-white text-xs font-weight-bolder">Healers</h6>
-                  <div class="mb-3"
-                    style="display: grid; grid-template-columns: repeat(7, 40px); gap: 0.5rem; justify-content: start;">
+                  <div class="mb-3 spec-picker-grid">
                     {% for s in specs_ui %}
                     {% if s.role == 1 %}
                     <img src="/data/icons/{{ s.icon }}.jpg" class="spec-icon" data-spec="{{ s.id }}"
@@ -109,8 +107,7 @@
                     {% endfor %}
                   </div>
                   <h6 class="text-uppercase text-white text-xs font-weight-bolder">DPS</h6>
-                  <div class="mb-3"
-                    style="display: grid; grid-template-columns: repeat(7, 40px); gap: 0.5rem; justify-content: start;">
+                  <div class="mb-3 spec-picker-grid">
                     {% for s in specs_ui %}
                     {% if s.role == 2 %}
                     <img src="/data/icons/{{ s.icon }}.jpg" class="spec-icon" data-spec="{{ s.id }}"
@@ -219,8 +216,8 @@
               <p class="text-sm">Niche comps, played far less than the meta, but with strong success in high keys.</p>
             </div>
             <div class="card-body px-0 pb-2">
-              <div class="table-responsive" style="max-height: 435px; overflow-y: auto;">
-                <table id="hidden-gems-table" class="table align-items-center mb-0">
+              <div class="custom-scrollbar" style="max-height: 435px; overflow-y: auto; overflow-x: hidden;">
+                <table id="hidden-gems-table" class="table align-items-center mb-0 w-100">
                   <thead class="sticky-top" style="z-index: 10; background-color: #1d1d1d;">
                     <tr>
                       <th class="text-uppercase text-white text-xxs font-weight-bolder opacity-7"
@@ -274,7 +271,7 @@
                 much it's played so popularity isn't mistaken for flexibility. Hover a value for the raw comp count.</p>
             </div>
             <div class="card-body px-0 pt-0 pb-2">
-              <div class="table-responsive p-0" style="max-height: 470px; overflow-y: auto; overflow-x: hidden;">
+              <div class="p-0 custom-scrollbar" style="max-height: 470px; overflow-y: auto; overflow-x: hidden;">
                 {% set role_meta = [('0', 'Tanks'), ('1', 'Healers'), ('2', 'DPS')] %}
                 {% set role_map = {'0': 'Tank', '1': 'Healer', '2': 'Dps'} %}
                 {% for role_id, role_label in role_meta %}
@@ -954,12 +951,17 @@
     // --- DataTables (click headers to sort) ---
     $(function () {
       $('#hidden-gems-table').DataTable({
+        responsive: true,
         paging: false,
         searching: false,
         info: false,
         order: [[1, 'desc']],            // default: Highest Key, descending
         columnDefs: [
-          { targets: 0, orderable: false }  // Comp (icons) is not sortable
+          // Comp (icons) always shown; lower-value numeric columns collapse first on mobile
+          { targets: 0, orderable: false, responsivePriority: 1 },
+          { targets: 1, responsivePriority: 2 },  // Highest Key
+          { targets: 3, responsivePriority: 4 },  // Runs
+          { targets: 2, responsivePriority: 5 }   // Success collapses first
         ],
         language: { emptyTable: 'No hidden gems found.' }
       });
@@ -969,12 +971,13 @@
         var el = document.getElementById('glue-table-' + role);
         if (!el) return;
         $(el).DataTable({
+          responsive: true,
           paging: false,
           searching: false,
           info: false,
           order: [[1, 'desc']],          // default: Flexibility, descending
           columnDefs: [
-            { targets: 0, orderable: false }  // Spec (icon/name) is not sortable
+            { targets: 0, orderable: false, responsivePriority: 1 }  // Spec (icon/name) is not sortable
           ]
         });
       });

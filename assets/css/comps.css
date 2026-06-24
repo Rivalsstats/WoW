@@ -37,3 +37,39 @@
     width: auto;
   }
 }
+
+/* The Perfect Fit — spec picker grid reflows on small screens, but is capped
+   at 8 icons per row on larger screens so it doesn't become one long line. */
+.spec-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 40px);
+  gap: 0.5rem;
+  justify-content: start;
+}
+@media (min-width: 768px) {
+  .spec-picker-grid {
+    grid-template-columns: repeat(8, 40px);
+  }
+}
+
+/* Most Popular / Best High-Key rows: let icons + stats + button wrap on
+   narrow screens instead of overflowing off the card. */
+#most-popular-list .list-group-item,
+#best-highkey-list .list-group-item {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+#most-popular-list .list-group-item > .d-flex,
+#best-highkey-list .list-group-item > .d-flex {
+  flex-wrap: wrap;
+  min-width: 0;
+}
+#most-popular-list .list-group-item .ms-3,
+#best-highkey-list .list-group-item .ms-3 {
+  margin-left: 0.5rem !important;
+}
+
+@media (max-width: 575.98px) {
+  .spec-icon { width: 34px; height: 34px; }
+  .spec-picker-grid { grid-template-columns: repeat(auto-fill, 34px); }
+}

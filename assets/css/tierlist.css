@@ -79,6 +79,52 @@
   }
 }
 
+/* On small screens the centered overlay label is unreadable. Switch to an
+   icon-with-caption layout: circular icon on top, full name wrapping below. */
+@media (max-width: 575.98px) {
+  .round-tierlist {
+    --spec-size: 64px;
+    --spec-gap: 14px;
+  }
+  .round-tierlist .spec-col {
+    width: auto;
+    height: auto;
+  }
+  .round-tierlist .spec-btn {
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .round-tierlist .spec-btn > img,
+  .round-tierlist .spec-btn > span:not(.spec-label):not(.visually-hidden) {
+    width: var(--spec-size);
+    height: var(--spec-size);
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .round-tierlist .spec-label {
+    position: static;
+    transform: none;
+    background: transparent;
+    white-space: normal;
+    max-width: 80px;
+    text-align: center;
+    font-size: 0.62rem;
+    font-weight: 600;
+    line-height: 1.15;
+    padding: 3px 0 0;
+    margin: 0;
+    color: var(--bs-gray-300, #cfd2d6);
+    display: block;
+    overflow: visible;
+    text-overflow: clip;
+  }
+}
+
 .tier-row {
   align-items: flex-start;
 }
