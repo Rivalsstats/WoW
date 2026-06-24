@@ -39,7 +39,7 @@
   <meta name="apple-mobile-web-app-title" content="MythiStone" />
   {% include "header_imports.html" %}
   <link rel="stylesheet" href="/assets/css/comps.css">
-  <link rel="stylesheet" href="/assets/css/dataTables.min.css">
+  <link rel="stylesheet" href="/assets/css/datatables.min.css">
 </head>
 
 <body class="g-sidenav-show g-sidenav-show-right" data-bs-theme="dark">
@@ -270,35 +270,49 @@
           <div class="card h-100">
             <div class="card-header pb-0">
               <h6>Glue Specs (Flexibility Index)</h6>
-              <p class="text-sm">Specs that appear in the highest number of <strong>distinct</strong> successful
-                high-key combinations.</p>
+              <p class="text-sm">How versatile each spec is within its <strong>own role</strong> &mdash; adjusted for how
+                much it's played so popularity isn't mistaken for flexibility. Hover a value for the raw comp count.</p>
             </div>
             <div class="card-body px-0 pt-0 pb-2">
-              <div class="table-responsive p-0" style="max-height: 435px; overflow-y: auto; overflow-x: hidden;">
-                <ul class="list-group mb-0">
-                  {% for gs in glue_specs %}
-                  {% set s = spec_lookup[gs.spec_id|string] %}
-                  {% set c = class_lookup[s.classID|string] %}
-                  {% set role_map = {'0': 'Tank', '1': 'Healer', '2': 'Dps'} %}
-                  {% set role_name = role_map.get(s.role|string, 'Dps') %}
-                  {% set clean_cname = c.name|replace(' ', '') %}
-                  <li class="list-group-item border-0 d-flex justify-content-between px-4 mb-2 border-radius-lg">
-                    <div class="d-flex align-items-center">
-                      <img src="/data/icons/{{ s.SpellIconFileId }}.jpg" class="avatar avatar-sm me-3 border-radius-sm">
-                      <div class="d-flex flex-column">
-                        <a href="/classes/{{ role_name }}/{{ s.name }}_{{ c.name }}"
-                          class="mb-1 text-sm font-weight-bolder class-{{ clean_cname }}-text">{{ s.name }} {{ c.name
-                          }}</a>
-                        <span class="text-xs text-secondary mt-1">
-                          Viable Comps: <span class="text-white pe-2">{{ gs.comps }}</span>
-                          Runs: <span class="text-white pe-2">{{ gs.runs }}</span>
-                          Max Key: <span class="text-white">{{ gs.max_key }}</span>
-                        </span>
-                      </div>
-                    </div>
-                  </li>
-                  {% endfor %}
-                </ul>
+              <div class="table-responsive p-0" style="max-height: 470px; overflow-y: auto; overflow-x: hidden;">
+                {% set role_meta = [('0', 'Tanks'), ('1', 'Healers'), ('2', 'DPS')] %}
+                {% set role_map = {'0': 'Tank', '1': 'Healer', '2': 'Dps'} %}
+                {% for role_id, role_label in role_meta %}
+                {% set role_specs = glue_specs_by_role.get(role_id, []) %}
+                {% if role_specs %}
+                <h6 class="text-uppercase text-white text-xs font-weight-bolder px-3 mt-3 mb-1">{{ role_label }}</h6>
+                <table id="glue-table-{{ role_id }}" class="table align-items-center mb-2 glue-table">
+                  <thead>
+                    <tr>
+                      <th class="text-uppercase text-white text-xxs font-weight-bolder opacity-7 ps-3">Spec</th>
+                      <th class="text-center text-uppercase text-white text-xxs font-weight-bolder opacity-7"
+                        title="Flexibility relative to the most flexible spec in this role">Flexibility</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for gs in role_specs %}
+                    {% set s = spec_lookup[gs.spec_id|string] %}
+                    {% set c = class_lookup[s.classID|string] %}
+                    {% set role_name = role_map.get(s.role|string, 'Dps') %}
+                    {% set clean_cname = c.name|replace(' ', '') %}
+                    <tr>
+                      <td class="ps-3">
+                        <div class="d-flex align-items-center">
+                          <img src="/data/icons/{{ s.SpellIconFileId }}.jpg" class="avatar avatar-sm me-2 border-radius-sm">
+                          <a href="/classes/{{ role_name }}/{{ s.name }}_{{ c.name }}"
+                            class="text-sm font-weight-bolder class-{{ clean_cname }}-text">{{ s.name }} {{ c.name }}</a>
+                        </div>
+                      </td>
+                      <td class="align-middle text-center text-sm" data-order="{{ gs.flex_pct }}"
+                        title="Appears in {{ gs.comps }} viable high-key comps &middot; {{ gs.runs }} runs &middot; highest key {{ gs.max_key }}">
+                        <span class="text-xs font-weight-bold">{{ gs.flex_pct }}%</span>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                {% endif %}
+                {% endfor %}
               </div>
             </div>
           </div>
@@ -892,7 +906,7 @@
       renderTopLists();
     });
 
-    // --- Hidden Gems: DataTables (click headers to sort) ---
+    // --- DataTables (click headers to sort) ---
     $(function () {
       $('#hidden-gems-table').DataTable({
         paging: false,
@@ -903,6 +917,21 @@
           { targets: 0, orderable: false }  // Comp (icons) is not sortable
         ],
         language: { emptyTable: 'No hidden gems found.' }
+      });
+
+      // Glue specs: one sortable table per role, default sorted by flexibility
+      ['0', '1', '2'].forEach(function (role) {
+        var el = document.getElementById('glue-table-' + role);
+        if (!el) return;
+        $(el).DataTable({
+          paging: false,
+          searching: false,
+          info: false,
+          order: [[1, 'desc']],          // default: Flexibility, descending
+          columnDefs: [
+            { targets: 0, orderable: false }  // Spec (icon/name) is not sortable
+          ]
+        });
       });
     });
   </script>
