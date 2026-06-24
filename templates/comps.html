@@ -732,72 +732,114 @@
     // Note: 'Use this comp' functionality removed per UX feedback.
 
     function showCompDetails(comp, useTopKey = false, contextDungeonId = 'all') {
-      // build modal content
       const body = document.getElementById('compDetailsBody');
-      if (!body) {
-        alert('Comp details not available');
-        return;
-      }
-      // Determine which metrics to show: overall or top-key (either global or per-dungeon)
-      let runs = 0;
-      let timed = 0;
-      if (useTopKey) {
-        if (contextDungeonId && contextDungeonId !== 'all' && comp.dungeons && comp.dungeons[contextDungeonId]) {
-          runs = comp.dungeons[contextDungeonId].top_key_runs || 0;
-          timed = comp.dungeons[contextDungeonId].top_key_timed || 0;
-        } else {
-          runs = comp.top_key_runs || 0;
-          timed = comp.top_key_timed || 0;
-        }
-      } else {
-        runs = comp.runs || ((comp.t || 0) + (comp.d || 0));
-        if (contextDungeonId && contextDungeonId !== 'all' && comp.dungeons && comp.dungeons[contextDungeonId]) {
-          timed = comp.dungeons[contextDungeonId].t || 0;
-        } else {
-          timed = comp.t || 0;
-        }
-      }
-      const successPct = runs > 0 ? Math.round((timed || 0) / runs * 100) : 0;
-      const mk = comp.mk || 0;
-      const bestDungeonName = comp.bd && dungeonLookup[comp.bd] ? dungeonLookup[comp.bd] : '';
-      let html = '';
-      html += `<div class="d-flex align-items-center mb-3">`;
-      html += `<div class="me-3">`;
-      comp.c.forEach(sid => {
-        const si = specLookup[sid] || { icon: 'inv_misc_questionmark', name: sid };
-        html += `<img src="/data/icons/${si.icon}.jpg" class="avatar avatar-sm me-1" title="${si.name}">`;
-      });
-      html += `</div>`;
-      html += `<div>`;
-      html += `<h6 class="mb-1">Overall${isMetaComp(comp.c) ? META_BADGE : ''}</h6>`;
-      html += `<div class="text-sm">Runs: <strong>${runs}</strong> &nbsp; Success %: <strong>${successPct}%</strong> &nbsp; Max Key: <strong>${mk}</strong></div>`;
-      if (bestDungeonName) html += `<div class="text-sm">Top Dungeon: <strong>${bestDungeonName}</strong> (${comp.bdr || 0} runs)</div>`;
-      html += `</div></div>`;
+      const titleEl = document.querySelector('#compDetailsModal .modal-title');
+      if (!body) { alert('Comp details not available'); return; }
 
-      // per-dungeon breakdown
-      html += `<h6 class="mt-3">Per-dungeon breakdown</h6>`;
-      html += `<div class="table-responsive"><table class="table table-sm table-borderless">
-        <thead><tr><th>Dungeon</th><th class="text-end">Runs</th><th class="text-end">Success %</th><th class="text-end">Max Key</th></tr></thead><tbody>`;
+      // Always show the comp's full (overall) picture, with high-key performance
+      // called out separately, so numbers are never mislabeled by how it was opened.
+      const runs = comp.runs || ((comp.t || 0) + (comp.d || 0));
+      const timed = comp.t || 0;
+      const successPct = runs > 0 ? Math.round(timed / runs * 100) : 0;
+      const mk = comp.mk || 0;
+      const avgKey = comp.avg_key != null ? Math.round(comp.avg_key * 10) / 10 : 0;
+      const isMeta = isMetaComp(comp.c);
+      const successClass = pct => pct >= 80 ? 'text-success' : (pct >= 60 ? 'text-warning' : 'text-danger');
+
+      if (titleEl) titleEl.innerHTML = `Composition Details${isMeta ? META_BADGE : ''}`;
+
+      // header: spec icon + class-coloured name + class
+      let specsHtml = '';
+      comp.c.forEach(sid => {
+        const si = specLookup[sid] || { icon: 'inv_misc_questionmark', name: sid, cleanClass: '', className: '' };
+        specsHtml += `
+          <div class="d-flex align-items-center me-4 mb-2">
+            <img src="/data/icons/${si.icon}.jpg" class="avatar avatar-sm border border-secondary me-2" title="${si.name}">
+            <div class="lh-sm">
+              <div class="text-sm font-weight-bold class-${si.cleanClass}-text">${si.name}</div>
+              <div class="text-xs text-secondary">${si.className || ''}</div>
+            </div>
+          </div>`;
+      });
+
+      const tile = (label, value, valueClass = 'text-white') => `
+        <div class="col">
+          <div class="border border-secondary border-radius-lg p-2 text-center h-100">
+            <div class="text-xs text-secondary text-uppercase">${label}</div>
+            <div class="h6 mb-0 ${valueClass}">${value}</div>
+          </div>
+        </div>`;
+
+      let html = '';
+      html += `<div class="d-flex flex-wrap align-items-center mb-3">${specsHtml}</div>`;
+
+      html += `<div class="row g-2 row-cols-2 row-cols-md-4 mb-3">`;
+      html += tile('Total Runs', runs.toLocaleString());
+      html += tile('Success', `${successPct}%`, successClass(successPct));
+      html += tile('Highest Key', mk ? ('+' + mk) : '–');
+      html += tile('Avg Key', avgKey || '–');
+      html += `</div>`;
+
+      // high-key performance, explicitly labelled (not mixed into the overall stats)
+      const topRuns = comp.top_key_runs || 0;
+      if (topRuns > 0) {
+        const topTimed = comp.top_key_timed || 0;
+        const topPct = Math.round(topTimed / topRuns * 100);
+        const lvls = (comp.top_key_levels || []).map(l => '+' + l).join(', ');
+        html += `<div class="alert alert-dark border border-secondary py-2 px-3 text-sm mb-3">
+            <i class="material-symbols-rounded align-middle me-1 text-warning">trending_up</i>
+            In the season's top key levels${lvls ? ' (' + lvls + ')' : ''}:
+            <strong>${topTimed}/${topRuns}</strong> timed
+            (<strong class="${successClass(topPct)}">${topPct}%</strong>)
+          </div>`;
+      }
+
+      // most-played dungeon
+      const bestDungeonName = comp.bd && dungeonLookup[comp.bd] ? dungeonLookup[comp.bd] : '';
+      if (bestDungeonName) {
+        const share = runs > 0 ? Math.round((comp.bdr || 0) / runs * 100) : 0;
+        html += `<p class="text-sm mb-3"><span class="text-secondary">Most played in</span>
+          <strong>${bestDungeonName}</strong>
+          <span class="text-secondary">— ${comp.bdr || 0} runs (${share}% of this comp)</span></p>`;
+      }
+
+      // per-dungeon breakdown (overall numbers, resolved names, busiest first)
+      const dungeonRows = [];
       if (comp.dungeons) {
         Object.entries(comp.dungeons).forEach(([did, dstats]) => {
-          let dRuns = 0;
-          let dTimed = 0;
-          if (useTopKey) {
-            dRuns = dstats.top_key_runs || 0;
-            dTimed = dstats.top_key_timed || 0;
-          } else {
-            dRuns = dstats.runs || ((dstats.t || 0) + (dstats.d || 0));
-            dTimed = dstats.t || 0;
-          }
-          const dSuccess = dRuns > 0 ? Math.round((dTimed || 0) / dRuns * 100) : 0;
-          const dMk = dstats.mk || 0;
-          const dName = dungeonLookup[did] || did;
-          html += `<tr><td>${dName}</td><td class="text-end">${dRuns}</td><td class="text-end">${dSuccess}%</td><td class="text-end">${dMk}</td></tr>`;
+          const dRuns = dstats.runs || ((dstats.t || 0) + (dstats.d || 0));
+          if (dRuns <= 0) return;
+          const dTimed = dstats.t || 0;
+          dungeonRows.push({
+            name: dungeonLookup[did] || ('Dungeon ' + did),
+            runs: dRuns,
+            success: Math.round(dTimed / dRuns * 100),
+            mk: dstats.mk || 0
+          });
         });
       }
-      html += `</tbody></table></div>`;
+      dungeonRows.sort((a, b) => b.runs - a.runs);
+      if (dungeonRows.length) {
+        html += `<h6 class="mb-2">Per-dungeon breakdown</h6>`;
+        html += `<div class="table-responsive mb-3"><table class="table table-sm align-items-center mb-0">
+          <thead><tr>
+            <th class="text-xxs text-uppercase text-secondary">Dungeon</th>
+            <th class="text-xxs text-uppercase text-secondary text-end">Runs</th>
+            <th class="text-xxs text-uppercase text-secondary text-end">Success</th>
+            <th class="text-xxs text-uppercase text-secondary text-end">Highest Key</th>
+          </tr></thead><tbody>`;
+        dungeonRows.forEach(r => {
+          html += `<tr>
+            <td class="text-sm">${r.name}</td>
+            <td class="text-sm text-end">${r.runs}</td>
+            <td class="text-sm text-end ${successClass(r.success)}">${r.success}%</td>
+            <td class="text-sm text-end">${r.mk ? '+' + r.mk : '–'}</td>
+          </tr>`;
+        });
+        html += `</tbody></table></div>`;
+      }
 
-      // synergy snippet (if available)
+      // strongest synergies as compact chips
       try {
         if (typeof synergyMatrix !== 'undefined') {
           const pairs = [];
@@ -805,25 +847,28 @@
             for (let j = i + 1; j < comp.c.length; j++) {
               const a = comp.c[i], b = comp.c[j];
               const val = (synergyMatrix[a] && synergyMatrix[a][b]) ? synergyMatrix[a][b] : 0;
-              pairs.push({ pair: `${a}-${b}`, val, a, b });
+              if (val) pairs.push({ val, a, b });
             }
           }
           pairs.sort((x, y) => y.val - x.val);
           if (pairs.length) {
-            html += `<h6 class="mt-3">Top synergy pairs</h6>`;
-            html += `<p class="text-sm text-secondary">Synergy score (lift): how much two specs appear together compared to expectation. Values &gt;1 indicate the pair shows up more often than expected and may represent positive synergy.</p>`;
-            html += `<ul class="list-group list-group-flush mb-0">`;
+            html += `<h6 class="mb-1">Strongest synergies</h6>`;
+            html += `<p class="text-xs text-secondary mb-2">How much more often a pair is played together than expected (1.0 = as expected).</p>`;
+            html += `<div class="d-flex flex-wrap">`;
             pairs.slice(0, 3).forEach(p => {
-              const aName = (specLookup[p.a] && specLookup[p.a].name) ? specLookup[p.a].name : p.a;
-              const bName = (specLookup[p.b] && specLookup[p.b].name) ? specLookup[p.b].name : p.b;
-              html += `<li class="list-group-item bg-transparent border-0 px-0">${aName} + ${bName}: <strong>${p.val.toFixed(2)}</strong></li>`;
+              const a = specLookup[p.a] || { name: p.a, icon: 'inv_misc_questionmark' };
+              const b = specLookup[p.b] || { name: p.b, icon: 'inv_misc_questionmark' };
+              const vc = p.val >= 1.1 ? 'text-success' : (p.val >= 0.9 ? 'text-white' : 'text-secondary');
+              html += `<div class="d-flex align-items-center border border-secondary border-radius-lg px-2 py-1 me-2 mb-2">
+                <img src="/data/icons/${a.icon}.jpg" title="${a.name}" style="width:22px;height:22px;border-radius:4px;" class="me-1">
+                <img src="/data/icons/${b.icon}.jpg" title="${b.name}" style="width:22px;height:22px;border-radius:4px;" class="me-2">
+                <span class="text-sm font-weight-bold ${vc}">${p.val.toFixed(2)}</span>
+              </div>`;
             });
-            html += `</ul>`;
+            html += `</div>`;
           }
         }
-      } catch (e) {
-        // ignore
-      }
+      } catch (e) { /* ignore */ }
 
       body.innerHTML = html;
       const modalEl = document.getElementById('compDetailsModal');
