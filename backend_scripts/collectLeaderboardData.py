@@ -92,7 +92,7 @@ databaseConnector.init_connection_pool(
     getenv_clean("DATABASE_PASSWORD"),
     getenv_clean("DATABASE_NAME"),
     getenv_clean("DATABASE_PORT"),
-    DATABASE_WORKERS + 2,  # +2 for route_db_worker and run_raiderio_top_loadouts
+    DATABASE_WORKERS + 3,  # +2 for route_db_worker and run_raiderio_top_loadouts and simworker
 )
 
 if args.region:
