@@ -28,6 +28,7 @@ class StatsCollector:
         self.window = window_seconds
         self.events = deque()  # (timestamp, name)
         self.totals = Counter()  # cumulative totals since process start
+        self.status: dict[str, str] = {}  # free-form gauges/labels (e.g. simc current spec)
         self.lock = asyncio.Lock()
         self.queues = {
             "simple_queue": simple_queue,
@@ -57,6 +58,20 @@ class StatsCollector:
                 dict(self.totals),
                 {k: q.qsize() for k, q in self.queues.items()},
             )
+
+    def set_status(self, key: str, value: str) -> None:
+        """Set a free-form status label (synchronous, best-effort).
+
+        Used for non-counter gauges such as the spec SimulationCraft is currently
+        simulating. Read back via get_status() when building the Discord embed.
+        """
+        try:
+            self.status[key] = value
+        except Exception:
+            pass
+
+    def get_status(self, key: str, default: str = "") -> str:
+        return self.status.get(key, default)
 
     def console_log(
         self, *args, sep: str = " ", end: str = "\n", file=None, flush: bool = False

@@ -3137,3 +3137,128 @@ def fetch_top50_loadouts(connection, cursor, spec_id, season, limit=50):
         key = f"{m['rank']}|{m['map_challenge_mode_id']}"
         out.append(meta_map.get(key, m))
     return out
+
+# ---------------------------------------------------------------------------
+# SimulationCraft "best item per slot" (simc BiS) helpers
+# ---------------------------------------------------------------------------
+
+DELETE_SIMC_BIS_META_SQL = """
+DELETE FROM `Mythistone`.`simc_bis_meta`
+WHERE `spec_id` = %s AND `season` = %s
+"""
+
+INSERT_SIMC_BIS_META_SQL = """
+INSERT INTO `Mythistone`.`simc_bis_meta`
+(`spec_id`, `season`, `simc_version`, `baseline_dps`, `iterations`, `target_error`, `tier_config`, `updated_at`)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+"""
+
+INSERT_SIMC_BIS_ITEMS_SQL = """
+INSERT INTO `Mythistone`.`simc_bis_items`
+(`spec_id`, `season`, `slot`, `rank`, `item_id`, `bonus_list`, `ilevel`, `dps`, `dps_pct_gain`, `is_set_piece`, `item_set_id`)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+"""
+
+FETCH_SIMC_BIS_ITEMS_SQL = """
+SELECT `slot`, `rank`, `item_id`, `bonus_list`, `ilevel`, `dps`, `dps_pct_gain`, `is_set_piece`, `item_set_id`
+FROM `Mythistone`.`simc_bis_items`
+WHERE `spec_id` = %s AND `season` = %s
+ORDER BY `slot`, `rank`
+"""
+
+FETCH_SIMC_BIS_UPDATED_AT_SQL = """
+SELECT `updated_at`
+FROM `Mythistone`.`simc_bis_meta`
+WHERE `spec_id` = %s AND `season` = %s
+"""
+
+
+def delete_simc_bis(connection, cursor, spec_id, season):
+    """Delete the simc BiS meta row for a spec/season (cascades to simc_bis_items)."""
+    params = (spec_id, season)
+    execute_with_retry(connection, cursor, DELETE_SIMC_BIS_META_SQL, params)
+    return cursor.rowcount
+
+
+def insert_simc_bis_meta(
+    connection,
+    cursor,
+    spec_id,
+    season,
+    simc_version=None,
+    baseline_dps=None,
+    iterations=None,
+    target_error=None,
+    tier_config=None,
+    updated_at=None,
+):
+    """Insert a simc BiS meta row."""
+    val = (
+        spec_id,
+        season,
+        simc_version,
+        baseline_dps,
+        iterations,
+        target_error,
+        tier_config,
+        updated_at,
+    )
+    execute_with_retry(connection, cursor, INSERT_SIMC_BIS_META_SQL, val)
+    return cursor.lastrowid
+
+
+def insert_simc_bis_items_batch(connection, cursor, rows):
+    """Bulk insert simc BiS per-slot ranked item rows.
+
+    Each row must match INSERT_SIMC_BIS_ITEMS_SQL:
+    (spec_id, season, slot, rank, item_id, bonus_list, ilevel, dps, dps_pct_gain, is_set_piece, item_set_id)
+    """
+    if not rows:
+        return 0
+    executemany_with_retry(connection, cursor, INSERT_SIMC_BIS_ITEMS_SQL, rows)
+    return cursor.lastrowid
+
+
+def fetch_simc_bis_updated_at(connection, cursor, spec_id, season):
+    """Return the `updated_at` datetime for a spec/season simc BiS run, or None."""
+    rows = fetch_with_retry(
+        connection, cursor, FETCH_SIMC_BIS_UPDATED_AT_SQL, (spec_id, season)
+    )
+    if not rows:
+        return None
+    row = rows[0]
+    return row.get("updated_at") if isinstance(row, dict) else row[0]
+
+
+def fetch_simc_bis(connection, cursor, spec_id, season):
+    """Return simc BiS results as {slot: [ {item_id, bonus_list, ilevel, dps,
+    dps_pct_gain, rank, is_set_piece, item_set_id}, ... ]} ordered by rank (1 = BiS)."""
+    rows = fetch_with_retry(connection, cursor, FETCH_SIMC_BIS_ITEMS_SQL, (spec_id, season))
+    out = {}
+    for row in rows:
+        if isinstance(row, dict):
+            slot = row.get("slot")
+            entry = {
+                "rank": int(row.get("rank")),
+                "item_id": int(row.get("item_id")),
+                "bonus_list": row.get("bonus_list"),
+                "ilevel": int(row.get("ilevel")) if row.get("ilevel") is not None else None,
+                "dps": float(row.get("dps")) if row.get("dps") is not None else None,
+                "dps_pct_gain": float(row.get("dps_pct_gain")) if row.get("dps_pct_gain") is not None else None,
+                "is_set_piece": bool(row.get("is_set_piece")),
+                "item_set_id": int(row.get("item_set_id")) if row.get("item_set_id") is not None else None,
+            }
+        else:
+            slot = row[0]
+            entry = {
+                "rank": int(row[1]),
+                "item_id": int(row[2]),
+                "bonus_list": row[3],
+                "ilevel": int(row[4]) if row[4] is not None else None,
+                "dps": float(row[5]) if row[5] is not None else None,
+                "dps_pct_gain": float(row[6]) if row[6] is not None else None,
+                "is_set_piece": bool(row[7]),
+                "item_set_id": int(row[8]) if row[8] is not None else None,
+            }
+        out.setdefault(slot, []).append(entry)
+    return out

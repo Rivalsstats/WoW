@@ -482,6 +482,10 @@ def normalize_slot_collections(list_of_lists, slot_names):
                 "bis_pct": e.get("bis_pct"),
                 "bis_count": e.get("bis_count"),
                 "bis_rank": e.get("bis_rank"),
+                # SimulationCraft BiS passthroughs
+                "is_simc_bis": e.get("is_simc_bis", False),
+                "simc_dps_pct": e.get("simc_dps_pct"),
+                "simc_rank": e.get("simc_rank"),
                 "quality_override": e.get("quality_override"),
                 "crafted_stats": e.get("crafted_stats"),
                 "slot_slug": slot_slug,
@@ -753,6 +757,7 @@ def convert_slots(
     total_enchant_counts=None,
     spec_runs=0,
     bis_summary=None,
+    simc_bis=None,
 ):
     primary_ids = {int(items[0]["item"]) for items in slots if len(items) > 0}
 
@@ -856,6 +861,18 @@ def convert_slots(
                 if total_enchant_counts is None or total_enchant_counts.get(group, 0) >= threshold:
                     enchantment_data = enchant_slots.get(group, [])[0]
             item["enchantment"] = enchantment_data
+
+            # SimulationCraft BiS annotation: mark the item if it is the rank-1
+            # (highest simulated DPS) candidate for this slot. Keyed by the same
+            # Blizzard slot names used here (HEAD, FINGER_1, TRINKET_1, ...).
+            if simc_bis:
+                ranked = simc_bis.get(slot)
+                if ranked:
+                    best = ranked[0]
+                    if int(best.get("item_id")) == int(item.get("item")):
+                        item["is_simc_bis"] = True
+                        item["simc_rank"] = best.get("rank", 1)
+                        item["simc_dps_pct"] = best.get("dps_pct_gain")
 
             # BIS annotations: items, enchants, gems (respect multi-slot groups)
             if bis_summary and isinstance(bis_summary, dict):
@@ -1280,6 +1297,16 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
 
                 bis_summary = compute_bis_from_top_loadouts(top50_raw)
                 print(f"[{datetime.now(timezone.utc).isoformat()}] BIS summary from top loadouts: {bis_summary}")
+
+                # SimulationCraft per-slot BiS (sim-derived highlight, parallel to the
+                # frequency-based "TOP" highlight above). slot -> ranked candidate list.
+                try:
+                    simc_bis = databaseConnector.fetch_simc_bis(
+                        conn, cursor, spec_id, current_season_id
+                    )
+                except Exception as e:
+                    print(f"Warning: fetch_simc_bis failed: {e}")
+                    simc_bis = {}
                 print(
                     f"[{datetime.now(timezone.utc).isoformat()}] fetching highest run..."
                 )
@@ -1309,6 +1336,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     total_enchant_counts,
                     spec_runs,
                     bis_summary=bis_summary,
+                    simc_bis=simc_bis,
                 )
                 print(
                     f"[{datetime.now(timezone.utc).isoformat()}] normalizing slots..."

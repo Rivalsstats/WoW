@@ -3,6 +3,9 @@ import requests
 import json
 import os
 import re
+import csv
+import io
+from collections import Counter
 import databaseConnector
 
 # List of Blizzard API regions to process
@@ -58,6 +61,36 @@ def fetch_rio_season():
     resp = requests.get(rio_season_url, {"access_key": RAIDERIO_API_KEY})
     resp.raise_for_status()
     return resp.json().get("seasons", [])
+
+
+# wago.tools exposes Blizzard DB2 tables. ContentTuning carries the player level
+# bracket (MaxLevelSquish) per piece of content; the current max level is the
+# highest bracket value that appears as a real content bracket (ignoring the
+# handful of >100 scaling outliers). This avoids hardcoding the cap each expansion.
+CONTENT_TUNING_CSV = "https://wago.tools/db2/ContentTuning/csv"
+
+
+def fetch_max_character_level(min_occurrences=10, ceiling=100):
+    """Return the current player max level derived from wago.tools ContentTuning,
+    or None if it can't be determined."""
+    resp = requests.get(
+        CONTENT_TUNING_CSV,
+        headers={"User-Agent": "Mythistone-static-collector"},
+        timeout=60,
+    )
+    resp.raise_for_status()
+    counts = Counter()
+    for row in csv.DictReader(io.StringIO(resp.text)):
+        try:
+            v = int(row.get("MaxLevelSquish") or 0)
+        except (TypeError, ValueError):
+            continue
+        if 0 < v <= ceiling:
+            counts[v] += 1
+    brackets = [v for v, c in counts.items() if c >= min_occurrences]
+    if brackets:
+        return max(brackets)
+    return max(counts) if counts else None
 
 
 def main():
@@ -160,6 +193,18 @@ def main():
         CURRENT_SEASON["name"] = extracted
     except Exception as e:
         print(f"Failed to fetch/parse Blizzard season name: {e}")
+
+    # current player max level (derived, not hardcoded) for downstream consumers
+    # such as the SimulationCraft BiS collector.
+    try:
+        max_level = fetch_max_character_level()
+        if max_level:
+            CURRENT_SEASON["max_character_level"] = max_level
+            print(f"Derived current max character level: {max_level}")
+        else:
+            print("Warning: could not derive max character level from ContentTuning")
+    except Exception as e:
+        print(f"Failed to derive max character level: {e}")
 
     # persist season info
     with open(SEASON_INFO_JSON, "w", encoding="utf-8") as f:

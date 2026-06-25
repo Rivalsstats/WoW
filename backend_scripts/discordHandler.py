@@ -1,5 +1,6 @@
 import os
 import json
+import time
 import asyncio
 from pathlib import Path
 from datetime import datetime, timezone
@@ -67,6 +68,8 @@ class DiscordReporter:
         self.stats = stats
         self.session = session
         self.interval = interval_seconds
+        # last-sent timestamp per alert key, for throttling repeated alerts
+        self._alert_throttle: dict[str, float] = {}
 
         self.startTime = datetime.now(timezone.utc)
         # config
@@ -367,6 +370,56 @@ class DiscordReporter:
                     pass
 
     # -------------------------
+    # Standalone alerts (errors / warnings)
+    # -------------------------
+    async def send_alert(self, title, message, level="error",
+                         throttle_key=None, throttle_seconds=900):
+        """Post a standalone alert embed to Discord (separate from the rolling
+        status message). Best-effort: never raises. Repeated alerts with the same
+        throttle_key are suppressed for throttle_seconds to avoid spam."""
+        if self.mode == "none":
+            return
+        if throttle_key:
+            now = time.time()
+            last = self._alert_throttle.get(throttle_key, 0.0)
+            if now - last < throttle_seconds:
+                return
+            self._alert_throttle[throttle_key] = now
+
+        color = discord.Color.red() if level == "error" else discord.Color.orange()
+        icon = "❌" if level == "error" else "⚠️"
+        embed = discord.Embed(
+            title=f"{icon} {title}",
+            description=str(message)[:4000],
+            color=color,
+            timestamp=datetime.now(timezone.utc),
+        )
+        embed.set_footer(text="Mythistone Collector")
+
+        try:
+            if self.mode == "webhook":
+                if not self._webhook:
+                    try:
+                        self._webhook = discord.Webhook.from_url(
+                            self.webhook_url, session=self.session
+                        )
+                    except Exception:
+                        self._webhook = None
+                if self._webhook:
+                    await self._webhook.send(embed=embed, wait=False)
+            elif self.mode == "bot" and self._client:
+                channel = self._client.get_channel(int(self.channel_id))
+                if channel is None:
+                    channel = await self._client.fetch_channel(int(self.channel_id))
+                if channel:
+                    await channel.send(embed=embed)
+        except Exception as e:
+            try:
+                self.stats.console_log(f"DiscordReporter.send_alert failed: {e}")
+            except Exception:
+                pass
+
+    # -------------------------
     # Persistence
     # -------------------------
     def _load_persisted(self):
@@ -605,6 +658,17 @@ class DiscordReporter:
             value=f"RIO Pages: {window_counts.get('rio_pages_checked', 0)}\nRIO Routes: {window_counts.get('rio_routes_checked', 0)}\nKG Routes: {window_counts.get('kg_routes_fetched', 0)}",
             inline=True,
         )
+        simc_current = self.stats.get_status("simc_current", "idle") if hasattr(self.stats, "get_status") else "n/a"
+        simc_build = self.stats.get_status("simc_build", "?") if hasattr(self.stats, "get_status") else "?"
+        embed.add_field(
+            name="SimulationCraft",
+            value=(
+                f"Now: {simc_current}\n"
+                f"Profilesets: {window_counts.get('simc_profilesets_run', 0)}\n"
+                f"Specs done: {window_counts.get('simc_specs_completed', 0)} | build {simc_build}"
+            ),
+            inline=True,
+        )
         embed.add_field(
             name="Queues",
             value=f"Simple: {queue_sizes.get('simple_queue', 0)} | Adv: {queue_sizes.get('advanced_queue', 0)}\nDB: {queue_sizes.get('database_queue', 0)} | Route: {queue_sizes.get('route_db_queue', 0)}",
@@ -676,9 +740,14 @@ class DiscordReporter:
             inline=True
         )
         totals_embed.add_field(
-            name="Route APIs", 
-            value=f"RIO Pages: {totals.get('rio_pages_checked', 0)}\nRIO Routes: {totals.get('rio_routes_checked', 0)}\nKG Routes: {totals.get('kg_routes_fetched', 0)}", 
+            name="Route APIs",
+            value=f"RIO Pages: {totals.get('rio_pages_checked', 0)}\nRIO Routes: {totals.get('rio_routes_checked', 0)}\nKG Routes: {totals.get('kg_routes_fetched', 0)}",
             inline=True
+        )
+        totals_embed.add_field(
+            name="SimulationCraft",
+            value=f"Profilesets: {totals.get('simc_profilesets_run', 0)}\nSpecs done: {totals.get('simc_specs_completed', 0)}",
+            inline=True,
         )
 
         # -------------------------

@@ -25,6 +25,7 @@ import shutil
 from dotenv import load_dotenv
 import stats
 import discordHandler
+import simcBis
 from urllib.parse import quote_plus
 
 # Load environment variables first as we need it for some of the configs
@@ -2142,6 +2143,26 @@ async def main():
         tasks.append(asyncio.create_task(route_poller_task(session)))
         tasks.append(asyncio.create_task(run_raiderio_top_loadouts(session)))
 
+        # SimulationCraft per-slot BiS collector (runs continuously, one spec at a
+        # time). Gated behind SIMC_ENABLED so deployments without a simc image /
+        # docker socket can opt out.
+        if getenv_clean("SIMC_ENABLED", "true").lower() in ("1", "true", "yes"):
+            try:
+                simc_season = await get_current_season_id(session, REGIONS[0])
+            except Exception as e:
+                GLOBAL_STATS.console_log(f"simc: could not resolve season: {e}")
+                simc_season = None
+            tasks.append(
+                asyncio.create_task(
+                    simcBis.run_simc_bis(
+                        session,
+                        cancel_event=cancel_event,
+                        stats=GLOBAL_STATS,
+                        get_season=(lambda conn, cursor: simc_season) if simc_season else None,
+                        reporter=reporter,
+                    )
+                )
+            )
 
         GLOBAL_STATS.console_log(
             f"Started {len(tasks)} tasks for processing realms across all regions."

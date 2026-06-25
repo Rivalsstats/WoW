@@ -7,10 +7,28 @@ services:
     volumes:
       - ./.env:/app/.env:ro
       - ./runs:/app/data/runs
-    env_file: .env 
+      # shared with the short-lived simc sibling containers
+      - simc_io:/app/data/simc_io
+      # lets the collector launch simc sibling containers via the Docker SDK
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file: .env
     environment:
       - GIT_BRANCH=main
       - CHECK_INTERVAL=60
+      # SimulationCraft BiS collector. The collector launches short-lived `--rm`
+      # simc sibling containers from SIMC_DOCKER_IMAGE and self-pulls that image
+      # on SIMC_PULL_INTERVAL (watchtower cannot track ephemeral containers).
+      - SIMC_ENABLED=true
+      # Optional override; when unset, simcBis uses max_character_level from the
+      # collected seasonInfo.json (derived from wago.tools ContentTuning).
+      - SIMC_LEVEL=${SIMC_LEVEL:-}
+      - SIMC_DOCKER_IMAGE=${SIMC_DOCKER_IMAGE:-simulationcraftorg/simc:latest}
+      - SIMC_IO_DIR=/app/data/simc_io
+      - SIMC_IO_VOLUME=mythistone_simc_io
+      - SIMC_THREADS=${SIMC_THREADS:-2}
+      - SIMC_CPUS=${SIMC_CPUS:-2}
+      - SIMC_TARGET_ERROR=${SIMC_TARGET_ERROR:-0.1}
+      - SIMC_PULL_INTERVAL=${SIMC_PULL_INTERVAL:-21600}
     logging:
       options:
         max-size: "10m"
@@ -29,4 +47,11 @@ services:
       - WATCHTOWER_NOTIFICATION_URL=discord://${WEBHOOK_TOKEN}@${WEBHOOK_CHANNEL}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+
+volumes:
+  # Shared between the collector and its short-lived simc sibling containers.
+  # Explicit name so `SIMC_IO_VOLUME` matches the real docker volume regardless
+  # of the compose project prefix.
+  simc_io:
+    name: mythistone_simc_io
 
