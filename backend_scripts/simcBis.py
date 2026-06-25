@@ -3,31 +3,35 @@
 Runs continuously inside the collector container (registered alongside
 ``run_raiderio_top_loadouts``). For each DPS / Tank spec it:
 
-  1. Builds a baseline ``.simc`` profile from our most-popular loadout
-     (most-common item per slot + most-common talent loadout). This baseline
-     already wears the current meta tier set.
+  1. Builds the candidate "bag" per slot from our most-popular loadout data
+     (top-N most-common items per slot + most-common talent loadout).
   2. Detects the tier slots dynamically via Blizzard ``itemSetId``.
-  3. Runs a small tier-scenario sweep to decide which slots wear the set.
-  4. Iteratively greedy-optimizes every slot by profileset-swapping the
-     top-10 candidate items (sourced from our own leaderboard data) one at a
-     time, ranking each slot's candidates by simulated DPS.
-  5. Persists the per-slot ranked results to ``simc_bis_meta`` /
-     ``simc_bis_items`` for the page build to render a "SIM" badge.
+  3. Runs a small tier-scenario sweep to decide which slots wear the set and
+     locks those slots to the tier piece.
+  4. Evaluates whole-set combinations (Raidbots "Top Gear" style): the cartesian
+     product of each non-tier slot's candidate bag, pruning any set that breaks
+     an equip limit (<=2 embellishments via itemLimit category 512, no duplicate
+     unique-equipped item, other itemLimit categories), and evaluating each legal
+     set as a full profileset in a single simc invocation. The bag is trimmed
+     (least-popular first) so the product fits ``SIMC_MAX_COMBINATIONS``.
+  5. Derives a per-slot ranking from the full-set DPS results and persists it to
+     ``simc_bis_meta`` / ``simc_bis_items`` for the page build's "SIM" badge.
 
 SimulationCraft itself is executed as a short-lived sibling Docker container
 (``docker run --rm``) over a shared volume, so watchtower keeps simc patch-current.
 Set ``SIMC_BIN`` to run a local binary instead (used for local debugging).
 
-Profilesets are the core mechanism: one baseline is simulated, then each
-variation overrides one (or, for tier scenarios, several) gear slot(s) and is
-evaluated in isolation. One simc invocation evaluates a whole pass of
-variations and emits JSON (``json2``) with ``sim.profilesets.results[]``.
+Profilesets are the core mechanism: one baseline set is simulated, then each
+combination overrides its (non-locked) gear slots and is evaluated in isolation.
+One simc invocation evaluates every combination and emits JSON (``json2``) with
+``sim.profilesets.results[]``.
 """
 
 import os
 import json
 import asyncio
 import argparse
+import itertools
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -57,11 +61,20 @@ SIMC_PROFILESET_WORK_THREADS = os.environ.get("SIMC_PROFILESET_WORK_THREADS", "1
 SIMC_ITERATIONS = os.environ.get("SIMC_ITERATIONS")  # e.g. "5000"; if unset, use target_error
 SIMC_TARGET_ERROR = os.environ.get("SIMC_TARGET_ERROR", "0.1")
 SIMC_RUN_TIMEOUT = int(os.environ.get("SIMC_RUN_TIMEOUT", str(60 * 60)))  # seconds per invocation
-SIMC_MAX_PASSES = int(os.environ.get("SIMC_MAX_PASSES", "3"))
-# Minimum relative DPS gain for a single-slot swap to be accepted into the next
-# greedy baseline (guards against sim-noise-driven drift). 0.002 = 0.2%.
+# Candidates within this relative DPS margin of a slot's best are treated as a
+# statistical tie, so we surface the most-popular one as rank-1 (stable badge)
+# instead of letting sim noise pick between near-identical items. 0.002 = 0.2%.
 SIMC_IMPROVE_MARGIN = float(os.environ.get("SIMC_IMPROVE_MARGIN", "0.002"))
 SIMC_CANDIDATES_PER_SLOT = int(os.environ.get("SIMC_CANDIDATES_PER_SLOT", "10"))
+# Top-Gear combination budget: hard cap on the number of full-set profilesets we
+# evaluate per spec. The per-slot candidate "bag" is trimmed (least-popular items
+# first) until its cartesian product fits this cap. One simc invocation handles
+# them all as profilesets.
+SIMC_MAX_COMBINATIONS = int(os.environ.get("SIMC_MAX_COMBINATIONS", "2000"))
+# Fixed iteration count for the combination pass (Raidbots Top Gear uses 5000):
+# a fixed count is generally faster than target_error for large profileset
+# batches. Set to empty/0 to fall back to SIMC_ITERATIONS / SIMC_TARGET_ERROR.
+SIMC_COMBO_ITERATIONS = os.environ.get("SIMC_COMBO_ITERATIONS", "5000")
 # Drop slot candidates used by fewer than this fraction of the slot's most-popular
 # item (filters stale/old-expansion items that pollute the aggregated pool).
 SIMC_MIN_CANDIDATE_FRACTION = float(os.environ.get("SIMC_MIN_CANDIDATE_FRACTION", "0.02"))
@@ -209,9 +222,36 @@ def load_static():
 
 
 def load_item_lookup():
-    """id -> item dict from equippable-items.json (has inventoryType, itemSetId)."""
+    """id -> item dict from equippable-items.json (has inventoryType, itemSetId,
+    uniqueEquipped and itemLimit:{category,quantity})."""
     items = json.loads((STATIC_DIR / "equippable-items.json").read_text(encoding="utf-8"))
     return {int(i["id"]): i for i in items if i.get("id") is not None}
+
+
+_EMBELLISH_BONUS_IDS = None
+
+
+def load_embellishment_bonus_ids():
+    """Set of bonus_id strings that apply an embellishment.
+
+    embellishments.json maps embellishment bonus_id -> reagent item_id. Every
+    embellishment reagent shares itemLimit {category: 512, quantity: 2}, so a
+    crafted item carries an embellishment (and counts toward that cap) when any
+    of its bonus_ids is one of these keys."""
+    global _EMBELLISH_BONUS_IDS
+    if _EMBELLISH_BONUS_IDS is None:
+        try:
+            data = json.loads((STATIC_DIR / "embellishments.json").read_text(encoding="utf-8"))
+            _EMBELLISH_BONUS_IDS = {str(k) for k in data.keys()}
+        except Exception as e:
+            _log(f"could not load embellishments.json: {e}")
+            _EMBELLISH_BONUS_IDS = set()
+    return _EMBELLISH_BONUS_IDS
+
+
+# Embellishment item-limit category/quantity (Blizzard crafting category 512).
+EMBELLISH_LIMIT_CATEGORY = 512
+EMBELLISH_LIMIT_QUANTITY = 2
 
 
 def bonus_to_simc(bonus_list):
@@ -237,6 +277,7 @@ def gather_candidates(conn, cursor, spec_id, season, item_lookup):
     count is at least SIMC_MIN_CANDIDATE_FRACTION of the slot's most-popular item
     (the top item always passes).
     """
+    embellish_ids = load_embellishment_bonus_ids()
     out = {}
     for slot in ALL_SLOTS:
         rows = databaseConnector.fetch_top_items_for_slot_with_bonus(
@@ -254,6 +295,9 @@ def gather_candidates(conn, cursor, spec_id, season, item_lookup):
             item_id = int(r["item"])
             bonus_list = (r.get("bonus") or {}).get("ids") if r.get("bonus") else None
             meta = item_lookup.get(item_id, {})
+            has_embellishment = bool(
+                bonus_list and any(str(b) in embellish_ids for b in bonus_list)
+            )
             cands.append(
                 {
                     "item_id": item_id,
@@ -262,11 +306,108 @@ def gather_candidates(conn, cursor, spec_id, season, item_lookup):
                     "simc_bonus": bonus_to_simc(bonus_list),
                     "item_set_id": meta.get("itemSetId"),
                     "inv_type": meta.get("inventoryType"),
+                    "unique_equipped": bool(meta.get("uniqueEquipped")),
+                    "item_limit": meta.get("itemLimit"),
+                    "has_embellishment": has_embellishment,
                 }
             )
         if cands:
             out[slot] = cands
     return out
+
+
+# --------------------------------------------------------------------------
+# Equip-limit constraints (item-limit categories, unique-equipped)
+# --------------------------------------------------------------------------
+
+def candidate_limit_categories(cand):
+    """Yield (category, max_quantity) limit contributions for a candidate:
+    the item's own itemLimit (e.g. unique-equipped categories) plus the
+    embellishment cap (category 512, quantity 2) when it carries one."""
+    out = []
+    lim = cand.get("item_limit")
+    if lim and lim.get("category") is not None:
+        out.append((lim["category"], lim.get("quantity")))
+    if cand.get("has_embellishment"):
+        out.append((EMBELLISH_LIMIT_CATEGORY, EMBELLISH_LIMIT_QUANTITY))
+    return out
+
+
+def set_is_valid(chosen):
+    """True if a full equipped set respects every equip limit.
+
+    chosen: dict slot -> candidate. Enforces unique-equipped (no duplicate of the
+    same unique item across slots) and per-category itemLimit quantities (the
+    embellishment cap, alchemist-stone-style unique categories, etc.)."""
+    seen_unique = set()
+    cat_counts = {}
+    cat_limit = {}
+    for cand in chosen.values():
+        if not cand:
+            continue
+        if cand.get("unique_equipped"):
+            iid = cand["item_id"]
+            if iid in seen_unique:
+                return False
+            seen_unique.add(iid)
+        for cat, qty in candidate_limit_categories(cand):
+            cat_counts[cat] = cat_counts.get(cat, 0) + 1
+            if qty is not None:
+                cat_limit[cat] = qty if cat not in cat_limit else min(cat_limit[cat], qty)
+    for cat, n in cat_counts.items():
+        q = cat_limit.get(cat)
+        if q is not None and n > q:
+            return False
+    return True
+
+
+def _combo_count(opts):
+    """Cartesian size of a per-slot option bag (slot -> list of candidates)."""
+    n = 1
+    for v in opts.values():
+        n *= len(v)
+        if n > 10 ** 18:
+            return n  # effectively unbounded; caller will trim
+    return n
+
+
+def trim_bag(opts, cap):
+    """Trim the least-popular candidate from the bag's largest slot until the
+    cartesian product fits `cap`. Candidates are most-popular first, so popping
+    the tail drops the least-equipped option. Every slot keeps >= 1 candidate."""
+    while _combo_count(opts) > cap:
+        slot = max((s for s, v in opts.items() if len(v) > 1),
+                   key=lambda s: len(opts[s]), default=None)
+        if slot is None:
+            break
+        opts[slot] = opts[slot][:-1]
+    return opts
+
+
+def _same_cand(a, b):
+    """True if two candidates are the same equipped item (id + bonus_list)."""
+    if a is None or b is None:
+        return a is None and b is None
+    return a.get("item_id") == b.get("item_id") and a.get("bonus_list") == b.get("bonus_list")
+
+
+def enumerate_valid_combos(fixed_gear, vary, cap):
+    """Cartesian product of the varying slots, keeping only sets that pass
+    set_is_valid (combined with the fixed/locked gear). Most-popular-first order
+    is preserved, so the earliest valid combo is the most popular legal set.
+
+    Returns a list of `chosen` dicts (slot -> candidate) over the varying slots."""
+    slots = list(vary.keys())
+    if not slots:
+        return [{}] if set_is_valid(fixed_gear) else []
+    combos = []
+    for choice in itertools.product(*(vary[s] for s in slots)):
+        chosen = dict(zip(slots, choice))
+        if set_is_valid({**fixed_gear, **chosen}):
+            combos.append(chosen)
+            if len(combos) >= cap:
+                break
+    return combos
 
 
 def detect_tier(candidates):
@@ -325,13 +466,6 @@ def best_tier_candidate(candidates, slot, tier_set_id):
     return None
 
 
-def best_non_tier_candidate(candidates, slot, tier_set_id):
-    for cand in candidates.get(slot, []):
-        if cand.get("item_set_id") != tier_set_id:
-            return cand
-    return None
-
-
 # --------------------------------------------------------------------------
 # .simc text construction
 # --------------------------------------------------------------------------
@@ -366,28 +500,33 @@ def build_header(class_name, spec_name, primary_stat, talents_code):
     return lines
 
 
-def sim_options():
+def sim_options(iterations=None):
+    """simc-wide options. `iterations`, when given, pins a fixed iteration count
+    for this run (used by the combination pass); otherwise we fall back to the
+    SIMC_ITERATIONS env override or the default target_error."""
     opts = [
         f"threads={SIMC_THREADS}",
         f"profileset_work_threads={SIMC_PROFILESET_WORK_THREADS}",
         "profileset_metric=dps",
         "single_actor_batch=1",
     ]
-    if SIMC_ITERATIONS:
+    if iterations:
+        opts.append(f"iterations={iterations}")
+    elif SIMC_ITERATIONS:
         opts.append(f"iterations={SIMC_ITERATIONS}")
     else:
         opts.append(f"target_error={SIMC_TARGET_ERROR}")
     return opts
 
 
-def build_profile(header, baseline_gear, profilesets):
+def build_profile(header, baseline_gear, profilesets, iterations=None):
     """Assemble the full .simc text.
 
     baseline_gear: dict slot -> candidate (the current best-known set).
     profilesets: list of (name, [(slot, candidate), ...]) overrides.
     """
     out = []
-    out.extend(sim_options())
+    out.extend(sim_options(iterations))
     out.append("")
     out.extend(header)
     out.append("")
@@ -407,51 +546,101 @@ def build_profile(header, baseline_gear, profilesets):
     return "\n".join(out) + "\n"
 
 
-def build_tier_sweep_profilesets(candidates, tier_set_id, tier_slots):
-    """Profilesets for the tier-scenario sweep: 'all' (full set) plus one
-    'drop:<slot>' per tier slot (4-set + best off-piece in the dropped slot).
-    Returns (profilesets, index) where index maps name -> (dropped_slot, overrides)."""
-    tier_slots = sorted(tier_slots)
+def build_combinations(candidates, baseline, active_slots, tier_set_id, tier_slots,
+                       item_lookup, cap):
+    """Build Top-Gear-style full-set combinations across every tier scenario.
+
+    Each combination is a complete legal equipped set (equip limits enforced).
+    Tier configuration is part of the search, not decided up front: we enumerate
+    "wear the full set" plus, when there are >=5 tier slots, "drop one slot to an
+    off-piece" (always keeping >=4pc). simc applies the set bonus per combo, so the
+    tier-vs-off-piece choice — and which off-piece — is settled by full-set DPS.
+
+    Returns (base_full, profilesets, index, all_combos, scenarios):
+      base_full   : dict slot->cand seeding the simc base actor (most-popular combo)
+      profilesets : list of (name, [(slot, cand), ...]) overrides vs base_full
+      index       : name -> (full_set_dict, config_label)
+      all_combos  : list of (full_set_dict, config_label)
+      scenarios   : list of config labels explored
+    """
+    # Tier piece available per tier slot, and the tier scenarios to explore.
+    tier_pieces = {}
+    if tier_set_id:
+        for s in tier_slots:
+            tc = best_tier_candidate(candidates, s, tier_set_id)
+            if tc:
+                tier_pieces[s] = tc
+    n_tier = len(tier_pieces)
+
+    scenarios = []   # (config_label, kept_tier_gear, dropped_slot)
+    if n_tier >= 4:
+        scenarios.append(("all", dict(tier_pieces), None))
+        if n_tier >= 5:                 # drop one slot to an off-piece, still >=4pc
+            for drop in tier_pieces:
+                kept = {s: c for s, c in tier_pieces.items() if s != drop}
+                scenarios.append((f"drop:{drop}", kept, drop))
+        tiered_slots = set(tier_pieces)
+    else:
+        scenarios.append(("none", {}, None))   # no meaningful set: optimise freely
+        tiered_slots = set()
+
+    # Non-tier varying slots, with the main hand pinned to the baseline's
+    # handedness so a two-hander is never paired with an off-hand.
+    base_mh = baseline.get("MAIN_HAND")
+    base_mh_2h = bool(base_mh and item_lookup.get(base_mh["item_id"], {}).get("inventoryType") in TWO_HAND_INVTYPES)
+
+    def slot_bag(slot, cands):
+        if slot == "MAIN_HAND":
+            cands = [c for c in cands
+                     if (item_lookup.get(c["item_id"], {}).get("inventoryType") in TWO_HAND_INVTYPES) == base_mh_2h]
+            if not cands and base_mh:
+                cands = [base_mh]
+        return list(cands)
+
+    normal_slots = [s for s in active_slots if s not in tiered_slots]
+    normal_bag = {s: slot_bag(s, candidates.get(s, [])) for s in normal_slots if candidates.get(s)}
+    normal_bag = {s: v for s, v in normal_bag.items() if v}
+
+    # Share the combination budget across scenarios so the whole search fits.
+    per_scenario_cap = max(1, cap // len(scenarios))
+
+    all_combos = []   # list of (full_set_dict, config_label)
+    used_labels = []
+    for label, kept_tier, dropped in scenarios:
+        bag = {s: list(v) for s, v in normal_bag.items()}
+        if dropped:
+            off = [c for c in candidates.get(dropped, []) if c.get("item_set_id") != tier_set_id]
+            if not off:
+                continue   # nothing to drop to; "all" already covers wearing it
+            bag[dropped] = slot_bag(dropped, off)
+        trim_bag(bag, per_scenario_cap)
+        fixed_slots = {s: v[0] for s, v in bag.items() if len(v) == 1}
+        vary = {s: v for s, v in bag.items() if len(v) > 1}
+        scen_fixed = dict(baseline)        # most-popular per slot ...
+        scen_fixed.update(kept_tier)       # ... tier slots wear the set ...
+        if dropped:
+            scen_fixed.pop(dropped, None)   # ... except the dropped slot (from bag)
+        scen_fixed.update(fixed_slots)
+        for chosen in enumerate_valid_combos(scen_fixed, vary, per_scenario_cap):
+            all_combos.append(({**scen_fixed, **chosen}, label))
+        used_labels.append(label)
+
+    if not all_combos:
+        return None, [], {}, [], used_labels
+
+    # Seed the base actor with the first (most-popular) combo; express every other
+    # combo as a profileset overriding only the slots that differ from it.
+    base_full, _ = all_combos[0]
     profilesets = []
     index = {}
-
-    all_overrides = [(s, best_tier_candidate(candidates, s, tier_set_id))
-                     for s in tier_slots if best_tier_candidate(candidates, s, tier_set_id)]
-    if all_overrides:
-        profilesets.append(("tall", all_overrides))
-        index["tall"] = ("all", all_overrides)
-
-    if len(tier_slots) >= 5:
-        for i, drop in enumerate(tier_slots):
-            overrides = []
-            for slot in tier_slots:
-                cand = (best_non_tier_candidate(candidates, slot, tier_set_id) if slot == drop
-                        else best_tier_candidate(candidates, slot, tier_set_id))
-                if cand:
-                    overrides.append((slot, cand))
-            name = f"td{i}"
-            profilesets.append((name, overrides))
-            index[name] = (drop, overrides)
-    return profilesets, index
-
-
-def build_greedy_profilesets(baseline, candidates, greedy_slots):
-    """One single-slot-override profileset per candidate that differs from the
-    baseline, across the given slots. Returns (profilesets, index) where index
-    maps name -> (slot, candidate)."""
-    profilesets = []
-    index = {}
-    n = 0
-    for slot in greedy_slots:
-        base_cand = baseline.get(slot)
-        for cand in candidates.get(slot, []):
-            if base_cand and cand["item_id"] == base_cand["item_id"] and cand["bonus_list"] == base_cand["bonus_list"]:
-                continue  # identical to baseline, no need to re-sim
-            name = f"c{n}"
-            profilesets.append((name, [(slot, cand)]))
-            index[name] = (slot, cand)
-            n += 1
-    return profilesets, index
+    for i, (full, label) in enumerate(all_combos[1:], start=1):
+        overrides = [(s, full[s]) for s in full if not _same_cand(full.get(s), base_full.get(s))]
+        if not overrides:
+            continue
+        name = f"g{i}"
+        profilesets.append((name, overrides))
+        index[name] = (full, label)
+    return base_full, profilesets, index, all_combos, used_labels
 
 
 # --------------------------------------------------------------------------
@@ -684,135 +873,94 @@ async def optimize_spec(spec_id, spec_info, class_info, season, conn, cursor,
     tier_slots = prep["tier_slots"]
     active_slots = prep["active_slots"]
 
-    # ---- Pass A: tier-scenario sweep ----
-    tier_config = "none"
-    if tier_set_id and len(tier_slots) >= 4:
-        tier_config = await _tier_sweep(
-            header, baseline, candidates, tier_set_id, tier_slots, stats
-        )
+    # ---- Top-Gear-style full-set combinations (tier configs co-optimised) ----
+    # Evaluate whole-set combinations rather than optimising one slot at a time,
+    # pruning any set that breaks an equip limit. This captures cross-slot
+    # interactions and keeps the recommended set legal (<=2 embellishments, no
+    # duplicate unique-equipped item, itemLimit categories respected). The tier
+    # set is co-optimised here too (see build_combinations): the tier-vs-off-piece
+    # tradeoff is settled by full-set DPS, not decided up front by popularity.
+    try:
+        combo_iters = int(SIMC_COMBO_ITERATIONS) if SIMC_COMBO_ITERATIONS else None
+    except ValueError:
+        combo_iters = None
+    if combo_iters is not None and combo_iters <= 0:
+        combo_iters = None
 
-    # Lock the tier slots that the sweep assigned to the set: keeping the 4pc
-    # intact during greedy (swapping a tier slot to an off-piece would silently
-    # break the bonus and tank DPS). Their BiS is simply the tier piece.
-    locked_tier_slots = set()
-    if tier_set_id:
-        for s in tier_slots:
-            bc = baseline.get(s)
-            if bc and bc.get("item_set_id") == tier_set_id:
-                locked_tier_slots.add(s)
-    greedy_slots = [s for s in active_slots if s not in locked_tier_slots]
-
-    # ---- Pass B: iterative greedy per slot, never accepting a regression ----
-    simc_version = None
-    iterations_used = 0
-    best_dps = None
-    best_baseline = None
-    best_ranked = None
-
-    for pass_n in range(SIMC_MAX_PASSES):
-        profilesets, index = build_greedy_profilesets(baseline, candidates, greedy_slots)
-
-        profile_text = build_profile(header, baseline, profilesets)
-        result = await run_simc(profile_text, f"spec{spec_id}_p{pass_n}")
-        if not result:
-            break
-        baseline_dps = parse_baseline_dps(result)
-        if baseline_dps is None:
-            break
-        simc_version = parse_simc_version(result) or simc_version
-        if simc_version and stats is not None:
-            try:
-                stats.set_status("simc_build", simc_version)
-            except Exception:
-                pass
-        means = parse_profileset_means(result)
-        if stats is not None:
-            try:
-                await stats.increment("simc_profilesets_run", len(means))
-            except Exception:
-                pass
-        iterations_used += 1
-
-        # per-slot ranked results for this pass (baseline item included)
-        slot_results = {slot: [(baseline[slot], baseline_dps)] for slot in greedy_slots if baseline.get(slot)}
-        for name, dps in means.items():
-            slot, cand = index[name]
-            slot_results.setdefault(slot, []).append((cand, dps))
-        per_slot_ranked = {
-            slot: rank_candidates(res)
-            for slot, res in slot_results.items()
-        }
-        # locked tier slots: their BiS is the equipped tier piece
-        for slot in locked_tier_slots:
-            if baseline.get(slot):
-                per_slot_ranked[slot] = [(baseline[slot], baseline_dps)]
-
-        # Regression guard: only keep a pass that did not lose DPS vs the best so far.
-        if best_dps is None or baseline_dps >= best_dps:
-            best_dps = baseline_dps
-            best_baseline = dict(baseline)
-            best_ranked = per_slot_ranked
-        else:
-            _stat_log(stats, f"simc: spec {spec_id} pass {pass_n} regressed ({baseline_dps:.0f} < {best_dps:.0f}); keeping best")
-            break
-
-        # Apply only single-slot winners that beat the baseline by the margin.
-        changed = False
-        for slot in greedy_slots:
-            ranked = per_slot_ranked.get(slot) or []
-            if not ranked or not baseline.get(slot):
-                continue
-            top_cand, top_dps = ranked[0]
-            if top_cand["item_id"] != baseline[slot]["item_id"] and top_dps > baseline_dps * (1 + SIMC_IMPROVE_MARGIN):
-                baseline[slot] = top_cand
-                changed = True
-
-        _stat_log(stats, f"simc: spec {spec_id} pass {pass_n} baseline_dps={baseline_dps:.0f} changed={changed}")
-        if not changed:
-            break
-
-    if not best_ranked or best_dps is None:
+    base_full, profilesets, index, all_combos, scenarios = build_combinations(
+        candidates, baseline, active_slots, tier_set_id, tier_slots,
+        item_lookup, SIMC_MAX_COMBINATIONS,
+    )
+    if not all_combos:
+        _stat_log(stats, f"simc: spec {spec_id} produced no valid gear combinations")
         return None
+    base_label = all_combos[0][1]
 
-    return {
-        "spec_id": spec_id,
-        "season": season,
-        "baseline_dps": best_dps,
-        "simc_version": simc_version,
-        "tier_set_id": tier_set_id,
-        "tier_config": tier_config,
-        "per_slot_ranked": best_ranked,
-        "passes": iterations_used,
-    }
-
-
-async def _tier_sweep(header, baseline, candidates, tier_set_id, tier_slots, stats):
-    """Decide which tier slots wear the set. Mutates `baseline` in place to the
-    winning tier configuration. Returns a short text label of the chosen config."""
-    profilesets, index = build_tier_sweep_profilesets(candidates, tier_set_id, tier_slots)
-    if not profilesets:
-        return "none"
-
-    profile_text = build_profile(header, baseline, profilesets)
-    result = await run_simc(profile_text, f"tier_{tier_set_id}")
+    _stat_log(stats, f"simc: spec {spec_id} evaluating {len(all_combos)} full-set combos "
+                     f"across {len(scenarios)} tier scenario(s)")
+    profile_text = build_profile(header, base_full, profilesets, iterations=combo_iters)
+    result = await run_simc(profile_text, f"spec{spec_id}_topgear")
     if not result:
-        return "all"
+        return None
+    baseline_dps = parse_baseline_dps(result)
+    if baseline_dps is None:
+        return None
+    simc_version = parse_simc_version(result)
+    if simc_version and stats is not None:
+        try:
+            stats.set_status("simc_build", simc_version)
+        except Exception:
+            pass
     means = parse_profileset_means(result)
     if stats is not None:
         try:
             await stats.increment("simc_profilesets_run", len(means))
         except Exception:
             pass
-    if not means:
-        return "all"
 
-    best_name = max(means, key=lambda k: means[k])
-    _, overrides = index[best_name]
-    for slot, cand in overrides:
-        baseline[slot] = cand
-    label = "all" if best_name == "tall" else f"drop:{index[best_name][0]}"
-    _stat_log(stats, f"simc: tier sweep chose {label} ({means.get(best_name)})")
-    return label
+    # Reassemble every simmed combo as (full set, dps, config_label).
+    combo_results = [(base_full, baseline_dps, base_label)]
+    for name, dps in means.items():
+        full, label = index[name]
+        combo_results.append((full, dps, label))
+    best_full, best_dps, tier_config = max(combo_results, key=lambda x: x[1])
+
+    # Per-slot ranking derived from the full-set sims: each item is represented by
+    # the best full-set DPS in which it appears, so rank-1 is the item worn by the
+    # single best set. The per-slot reference (for the % gain in the badge) is the
+    # most-equipped item's best full-set DPS — what a typical player wears.
+    per_slot_ranked = {}
+    slot_baseline_dps = {}
+    for slot in active_slots:
+        best_by_item = {}
+        for full, dps, _ in combo_results:
+            cand = full.get(slot)
+            if not cand:
+                continue
+            key = cand["item_id"]
+            if key not in best_by_item or dps > best_by_item[key][1]:
+                best_by_item[key] = (cand, dps)
+        if not best_by_item:
+            continue
+        per_slot_ranked[slot] = rank_candidates(list(best_by_item.values()))
+        cs = candidates.get(slot)
+        me = best_by_item.get(cs[0]["item_id"]) if cs else None
+        slot_baseline_dps[slot] = me[1] if me else best_dps
+
+    if not per_slot_ranked:
+        return None
+
+    return {
+        "spec_id": spec_id,
+        "season": season,
+        "baseline_dps": best_dps,
+        "slot_baseline_dps": slot_baseline_dps,
+        "simc_version": simc_version,
+        "tier_set_id": tier_set_id,
+        "tier_config": tier_config,
+        "per_slot_ranked": per_slot_ranked,
+        "combos": len(combo_results),
+    }
 
 
 # --------------------------------------------------------------------------
@@ -823,12 +971,16 @@ def persist(conn, cursor, result, item_lookup):
     spec_id = result["spec_id"]
     season = result["season"]
     baseline_dps = result["baseline_dps"]
+    slot_baseline_dps = result.get("slot_baseline_dps", {})
     tier_set_id = result.get("tier_set_id")
 
     item_rows = []
     for slot, ranked in result["per_slot_ranked"].items():
+        # Reference for this slot is the most-equipped item's DPS (see
+        # optimize_spec); fall back to the converged baseline if unavailable.
+        ref_dps = slot_baseline_dps.get(slot) or baseline_dps
         for rank, (cand, dps) in enumerate(ranked, start=1):
-            pct = ((dps - baseline_dps) / baseline_dps * 100.0) if baseline_dps else None
+            pct = ((dps - ref_dps) / ref_dps * 100.0) if (ref_dps and dps is not None) else None
             sid = item_lookup.get(cand["item_id"], {}).get("itemSetId")
             item_rows.append(
                 (
@@ -846,6 +998,16 @@ def persist(conn, cursor, result, item_lookup):
                 )
             )
 
+    # Effective simc accuracy used for the combination pass: a fixed iteration
+    # count (combo / env override) or the default target_error.
+    try:
+        effective_iters = int(SIMC_COMBO_ITERATIONS) if SIMC_COMBO_ITERATIONS else None
+    except ValueError:
+        effective_iters = None
+    if not effective_iters or effective_iters <= 0:
+        effective_iters = int(SIMC_ITERATIONS) if SIMC_ITERATIONS else None
+    effective_terr = None if effective_iters else float(SIMC_TARGET_ERROR)
+
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     try:
         databaseConnector.delete_simc_bis(conn, cursor, spec_id, season)
@@ -853,8 +1015,8 @@ def persist(conn, cursor, result, item_lookup):
             conn, cursor, spec_id, season,
             simc_version=result.get("simc_version"),
             baseline_dps=baseline_dps,
-            iterations=result.get("passes"),
-            target_error=float(SIMC_TARGET_ERROR) if not SIMC_ITERATIONS else None,
+            iterations=effective_iters,
+            target_error=effective_terr,
             tier_config=result.get("tier_config"),
             updated_at=now,
         )
@@ -1082,24 +1244,24 @@ async def _dry_run_single(spec_id, season):
     SIMC_IO_DIR.mkdir(parents=True, exist_ok=True)
     written = []
 
-    # tier-sweep profile
-    if tier_set_id and len(tier_slots) >= 4:
-        ps, _ = build_tier_sweep_profilesets(candidates, tier_set_id, tier_slots)
-        txt = build_profile(header, baseline, ps)
-        p = SIMC_IO_DIR / f"dryrun_spec{spec_id}_tier.simc"
-        p.write_text(txt, encoding="utf-8")
-        written.append(p)
-        print(f"\n=== TIER-SWEEP PROFILE ({p}) ===\n{txt}")
-
-    # pass-0 greedy profile (locked tier slots excluded, as in the real run)
-    locked = {s for s in tier_slots if baseline.get(s) and baseline[s].get("item_set_id") == tier_set_id}
-    greedy_slots = [s for s in active_slots if s not in locked]
-    ps, _ = build_greedy_profilesets(baseline, candidates, greedy_slots)
-    txt = build_profile(header, baseline, ps)
-    p = SIMC_IO_DIR / f"dryrun_spec{spec_id}_p0.simc"
+    # full-set Top-Gear combination profile (tier configs co-optimised), exactly
+    # as the real run builds it.
+    base_full, ps, index, all_combos, scenarios = build_combinations(
+        candidates, baseline, active_slots, tier_set_id, tier_slots,
+        item_lookup, SIMC_MAX_COMBINATIONS,
+    )
+    try:
+        combo_iters = int(SIMC_COMBO_ITERATIONS) if SIMC_COMBO_ITERATIONS else None
+    except ValueError:
+        combo_iters = None
+    txt = build_profile(header, base_full or baseline, ps, iterations=combo_iters)
+    p = SIMC_IO_DIR / f"dryrun_spec{spec_id}_topgear.simc"
     p.write_text(txt, encoding="utf-8")
     written.append(p)
-    print(f"\n=== GREEDY PASS-0 PROFILE ({p}) — {len(ps)} profilesets, locked tier slots {sorted(locked)} ===\n{txt}")
+    from collections import Counter
+    by_scen = Counter(label for _, label in all_combos)
+    print(f"\n=== TOP-GEAR COMBO PROFILE ({p}) — {len(all_combos)} valid combos, "
+          f"{len(ps)} profilesets, tier scenarios {dict(by_scen)} ===\n{txt}")
 
     print(f"\nWrote {len(written)} profile(s) to {SIMC_IO_DIR}:")
     for p in written:
@@ -1132,13 +1294,16 @@ async def _debug_single(spec_id, season, do_persist=False):
         "simc_version": result["simc_version"],
         "tier_set_id": result["tier_set_id"],
         "tier_config": result["tier_config"],
-        "passes": result["passes"],
+        "combos": result.get("combos"),
         "bis_per_slot": {
             slot: {
                 "item_id": ranked[0][0]["item_id"],
                 "bonus_list": ranked[0][0]["bonus_list"],
                 "dps": ranked[0][1],
-                "dps_pct_gain": ((ranked[0][1] - result["baseline_dps"]) / result["baseline_dps"] * 100.0) if result["baseline_dps"] else None,
+                "dps_pct_gain": (
+                    (ranked[0][1] - (result.get("slot_baseline_dps", {}).get(slot) or result["baseline_dps"]))
+                    / (result.get("slot_baseline_dps", {}).get(slot) or result["baseline_dps"]) * 100.0
+                ) if (result.get("slot_baseline_dps", {}).get(slot) or result["baseline_dps"]) else None,
             }
             for slot, ranked in result["per_slot_ranked"].items() if ranked
         },

@@ -369,6 +369,17 @@
   font-size: 0.7rem;
 }
 
+/* SimulationCraft-derived "best in slot" highlight (distinct from the gold
+   frequency-based TOP badge). */
+.simc-badge {
+  background: #3a8dde;
+  color: #fff;
+  font-weight: 700;
+  padding: 0.08rem 0.4rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
+}
+
 .bis-badge-sm {
   padding: 0.02rem 0.28rem;
   font-size: 0.6rem;
