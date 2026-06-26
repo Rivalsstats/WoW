@@ -31,3 +31,37 @@
 #route-search-overlay .overlay-content .small {
   margin-top: 0.5rem;
 }
+
+/* Filter dropdown icons */
+.route-search-card .dropdown-icon-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.route-search-card .dropdown-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex: 0 0 auto;
+}
+.route-search-card .dropdown-icon-label {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.route-search-card .bootstrap-select .dropdown-menu .text {
+  display: block;
+}
+.route-search-card .bootstrap-select .dropdown-menu li.dropdown-header,
+.route-search-card .bootstrap-select .dropdown-menu .dropdown-item.opt-group-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+  opacity: 0.7;
+}
+.route-search-card .bootstrap-select .dropdown-menu .divider {
+  margin: 0.25rem 0;
+  opacity: 0.5;
+}

@@ -18,10 +18,12 @@ from aggregateData import get_access_token
 
 # Config
 SPELL_URL_TPL = "https://us.api.blizzard.com/data/wow/spell/{spell_id}"
+SPELL_MEDIA_URL_TPL = "https://us.api.blizzard.com/data/wow/media/spell/{spell_id}"
 NAMESPACE = (
     "static-us"  # keep the namespace but omit locale so the API returns all locales
 )
 OUT_PATH = Path("data") / "static" / "spells.json"
+ICON_DIR = Path("data") / "icons"
 
 
 # Simple retry helper
@@ -44,6 +46,46 @@ def get_with_retries(
                 return None
             time.sleep(backoff_base * attempt)
     return None
+
+
+def fetch_spell_icon(spell_id: int, headers: Dict[str, str]) -> Optional[str]:
+    """Fetch the spell's icon via Blizzard's media API and cache it in data/icons/.
+
+    Returns the icon filename (relative to data/icons/) or None on failure.
+    """
+    media_url = SPELL_MEDIA_URL_TPL.format(spell_id=spell_id)
+    resp = get_with_retries(media_url, headers, params={"namespace": NAMESPACE})
+    if resp is None or resp.status_code != 200:
+        return None
+
+    try:
+        media = resp.json()
+    except Exception:
+        return None
+
+    icon_asset = next(
+        (a for a in media.get("assets", []) if a.get("key") == "icon"), None
+    )
+    if not icon_asset or not icon_asset.get("value"):
+        return None
+
+    icon_url = icon_asset["value"]
+    icon_filename = icon_url.rsplit("/", 1)[-1]
+    dest = ICON_DIR / icon_filename
+    if dest.exists():
+        return icon_filename
+
+    try:
+        ICON_DIR.mkdir(parents=True, exist_ok=True)
+        img_resp = requests.get(icon_url, timeout=15)
+        img_resp.raise_for_status()
+        with open(dest, "wb") as imgf:
+            imgf.write(img_resp.content)
+    except requests.RequestException as e:
+        print(f"  Error fetching icon for spell {spell_id}: {e}")
+        return None
+
+    return icon_filename
 
 
 def process_spell_ids(spell_ids: List[int]):
@@ -99,6 +141,8 @@ def process_spell_ids(spell_ids: List[int]):
                 entry["description"] = data["description"]
             else:
                 entry["description"] = None
+
+            entry["icon"] = fetch_spell_icon(spell_id, headers)
 
             # Only include the entry if at least one of the fields is present
             if entry.get("name") is not None or entry.get("description") is not None:

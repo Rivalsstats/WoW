@@ -126,9 +126,13 @@
               <div class="col-12 col-lg-6">
                 <label class="form-label">Dungeons</label>
                 <select id="dungeonSelect" class="selectpicker form-control" data-style="btn-outline-primary"
-                  data-live-search="true" multiple title="Select Dungeon(s)…" data-selected-text-format="count >1">
-                  {% for d in dungeon_lookup %}
-                  <option value="{{ d }}">{{ dungeon_lookup[d].name['en_US'] }}</option>
+                  data-live-search="true" multiple title="Select Dungeon(s)…" data-selected-text-format="count >1"
+                  data-sanitize="false">
+                  {% for d in dungeon_lookup.items()|sort(attribute='1.name.en_US', case_sensitive=false) %}
+                  {% set dname = d[1].name['en_US'] %}
+                  <option value="{{ d[0] }}" data-tokens="{{ dname }}"
+                    data-content="<span class='dropdown-icon-item'><img src='/data/icons/{{ d[1].icon }}' class='dropdown-icon' alt='' style='width:20px;height:20px;border-radius:4px;object-fit:cover;flex:0 0 20px;margin-right:8px;'><span class='dropdown-icon-label'>{{ dname }}</span></span>">
+                    {{ dname }}</option>
                   {% endfor %}
                 </select>
               </div>
@@ -137,10 +141,19 @@
                 <label class="form-label">Specs (pick 1–5)</label>
                 <select id="specSelect" class="selectpicker form-control" data-style="btn-outline-primary"
                   data-live-search="true" multiple title="Select Spec(s)…" data-selected-text-format="count >1"
-                  maxOptions="5">
-                  {% for sid in specs %}
-                  <option value="{{ sid }}">{{ specs[sid].name if specs[sid] else sid }} {{
-                    class_lookup[specs[sid].classID].name if specs[sid] }}</option>
+                  maxOptions="5" data-sanitize="false">
+                  {% for cid, cls in class_lookup.items()|sort(attribute='1.name', case_sensitive=false) %}
+                  {% set class_specs = specs.items()|selectattr('1.classID', 'eq', cid)|list %}
+                  {% if class_specs %}
+                  {% set class_color = "rgb(%s, %s, %s)"|format(cls.color.r, cls.color.g, cls.color.b) %}
+                  <optgroup label="{{ cls.name }}">
+                    {% for sid, spec in class_specs %}
+                    <option value="{{ sid }}" data-tokens="{{ spec.name }} {{ cls.name }}"
+                      data-content="<span class='dropdown-icon-item'><img src='/data/icons/{{ spec.SpellIconFileId }}.jpg' class='dropdown-icon' alt='' style='width:20px;height:20px;border-radius:4px;object-fit:cover;flex:0 0 20px;margin-right:8px;'><span class='dropdown-icon-label'>{{ spec.name }} <small style='color:{{ class_color }}'>{{ cls.name }}</small></span></span>">
+                      {{ spec.name }} {{ cls.name }}</option>
+                    {% endfor %}
+                  </optgroup>
+                  {% endif %}
                   {% endfor %}
                 </select>
               </div>
@@ -152,9 +165,12 @@
                 <label class="form-label">Spells (match if route uses ANY)</label>
                 <select id="spellSelect" class="selectpicker form-control" data-style="btn-outline-primary"
                   data-live-search="true" multiple title="Select Spell(s)…" data-selected-text-format="count >1"
-                  data-actions-box="true">
-                  {% for sid, sval in spell_lookup.items() %}
-                  <option value="{{ sid }}">{{ sval.name['en_US'] if sval.name is defined else sval }}</option>
+                  data-actions-box="true" data-sanitize="false">
+                  {% for sid, sval in spell_lookup.items()|sort(attribute='1.name.en_US', case_sensitive=false) %}
+                  {% set sname = sval.name['en_US'] if sval.name is defined else sval %}
+                  <option value="{{ sid }}" data-tokens="{{ sname }}"
+                    data-content="<span class='dropdown-icon-item'>{% if sval.icon %}<img src='/data/icons/{{ sval.icon }}' class='dropdown-icon' alt='' style='width:20px;height:20px;border-radius:4px;object-fit:cover;flex:0 0 20px;margin-right:8px;'>{% endif %}<span class='dropdown-icon-label'>{{ sname }}</span></span>">
+                    {{ sname }}</option>
                   {% endfor %}
                 </select>
               </div>
@@ -163,15 +179,19 @@
                 <label class="form-label">NPCs include (must include all)</label>
                 <select id="npcIncludeSelect" class="selectpicker form-control" data-style="btn-outline-primary"
                   data-live-search="true" multiple title="Include NPC(s)…" data-selected-text-format="count >1"
-                  data-actions-box="true">
+                  data-actions-box="true" data-sanitize="false">
                   {% for did in npc_map %}
                   <optgroup label="{{ dungeon_lookup[did]['name']['en_US'] }}">
                     {% for nid in npc_map[did] %}
-                    <option value="{{ nid }}" data-tokens="{{ nid }} {{ dungeon_lookup[did]['name']['en_US'] }}">{{
-                      npc_lookup['en_US'][nid|string] }} ({{ nid }})</option>
+                    {% set nname = npc_lookup['en_US'][nid|string] %}
+                    <option value="{{ nid }}" data-tokens="{{ nid }} {{ dungeon_lookup[did]['name']['en_US'] }}"
+                      data-content="<span class='dropdown-icon-label'>{{ nname }} <small class='text-muted'>#{{ nid }}</small></span>">
+                      {{ nname }} ({{ nid }})</option>
                     {% endfor %}
-                    <option value="{{ did }}" data-divider="true"></option>
                   </optgroup>
+                  {% if not loop.last %}
+                  <option data-divider="true"></option>
+                  {% endif %}
                   {% endfor %}
                 </select>
               </div>
@@ -180,15 +200,19 @@
                 <label class="form-label">NPCs exclude (must NOT include either)</label>
                 <select id="npcExcludeSelect" class="selectpicker form-control" data-style="btn-outline-primary"
                   data-live-search="true" multiple title="Exclude NPC(s)…" data-selected-text-format="count >1"
-                  data-actions-box="true">
+                  data-actions-box="true" data-sanitize="false">
                   {% for did in npc_map %}
                   <optgroup label="{{ dungeon_lookup[did]['name']['en_US'] }}">
                     {% for nid in npc_map[did] %}
-                    <option value="{{ nid }}" data-tokens="{{ nid }} {{ dungeon_lookup[did]['name']['en_US'] }}">{{
-                      npc_lookup['en_US'][nid|string] }} ({{ nid }})</option>
+                    {% set nname = npc_lookup['en_US'][nid|string] %}
+                    <option value="{{ nid }}" data-tokens="{{ nid }} {{ dungeon_lookup[did]['name']['en_US'] }}"
+                      data-content="<span class='dropdown-icon-label'>{{ nname }} <small class='text-muted'>#{{ nid }}</small></span>">
+                      {{ nname }} ({{ nid }})</option>
                     {% endfor %}
-                    <option value="{{ did }}" data-divider="true"></option>
                   </optgroup>
+                  {% if not loop.last %}
+                  <option data-divider="true"></option>
+                  {% endif %}
                   {% endfor %}
                 </select>
               </div>
