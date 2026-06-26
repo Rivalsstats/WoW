@@ -60,7 +60,7 @@ SIMC_CPUS = os.environ.get("SIMC_CPUS")  # optional docker --cpus cap
 SIMC_PROFILESET_WORK_THREADS = os.environ.get("SIMC_PROFILESET_WORK_THREADS", "1")
 SIMC_ITERATIONS = os.environ.get("SIMC_ITERATIONS")  # e.g. "5000"; if unset, use target_error
 SIMC_TARGET_ERROR = os.environ.get("SIMC_TARGET_ERROR", "0.1")
-SIMC_RUN_TIMEOUT = int(os.environ.get("SIMC_RUN_TIMEOUT", str(60 * 60)))  # seconds per invocation
+SIMC_RUN_TIMEOUT = int(os.environ.get("SIMC_RUN_TIMEOUT", str(6 * 60 * 60)))  # seconds per invocation
 # Candidates within this relative DPS margin of a slot's best are treated as a
 # statistical tie, so we surface the most-popular one as rank-1 (stable badge)
 # instead of letting sim noise pick between near-identical items. 0.002 = 0.2%.
@@ -648,7 +648,7 @@ def build_combinations(candidates, baseline, active_slots, tier_set_id, tier_slo
 # --------------------------------------------------------------------------
 
 async def run_simc(profile_text, token):
-    """Write the profile, run simc, return the parsed JSON dict (or None).
+    """Write the profile, run simc, return (result_dict_or_None, error_str_or_None).
 
     Two execution modes:
       * SIMC_BIN set  -> run a local simc binary directly (local debugging).
@@ -664,19 +664,21 @@ async def run_simc(profile_text, token):
         out_path.unlink()
 
     if SIMC_BIN:
-        ok = await _run_simc_local(token, in_path, out_path)
+        ok, err = await _run_simc_local(token, in_path, out_path)
     else:
-        ok = await _run_simc_docker(token)
+        ok, err = await _run_simc_docker(token)
     if not ok:
-        return None
+        return None, err
     if not out_path.exists():
-        _log(f"simc produced no output for {token}")
-        return None
+        msg = f"simc produced no output for {token}"
+        _log(msg)
+        return None, msg
     try:
-        return json.loads(out_path.read_text(encoding="utf-8"))
+        return json.loads(out_path.read_text(encoding="utf-8")), None
     except Exception as e:
-        _log(f"failed to parse simc json for {token}: {e}")
-        return None
+        msg = f"failed to parse simc json for {token}: {e}"
+        _log(msg)
+        return None, msg
 
 
 async def _run_simc_local(token, in_path, out_path):
@@ -689,13 +691,15 @@ async def _run_simc_local(token, in_path, out_path):
         stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=SIMC_RUN_TIMEOUT)
     except asyncio.TimeoutError:
         proc.kill()
-        _log(f"simc timed out after {SIMC_RUN_TIMEOUT}s for {token}")
-        return False
+        msg = f"simc timed out after {SIMC_RUN_TIMEOUT}s for {token}"
+        _log(msg)
+        return False, msg
     if proc.returncode != 0:
         tail = (stdout or b"").decode("utf-8", "replace")[-1500:]
-        _log(f"simc exited {proc.returncode} for {token}:\n{tail}")
-        return False
-    return True
+        msg = f"simc exited {proc.returncode} for {token}:\n{tail}"
+        _log(msg)
+        return False, tail
+    return True, None
 
 
 async def pull_simc_image(stats=None):
@@ -722,10 +726,17 @@ async def pull_simc_image(stats=None):
 
 
 async def _run_simc_docker(token):
-    """Run simc in a sibling container via the Docker SDK (blocking call run in a
-    thread so the event loop is never blocked)."""
-    def _run():
-        import docker  # imported lazily so local/debug runs don't require the SDK
+    """Run simc in a sibling container via the Docker SDK.
+
+    Launches detached (rather than blocking `containers.run`) so that if our
+    own wait times out we can actually stop/remove the container ourselves —
+    a blocking run() call can't be cancelled from the outside, which used to
+    leave the container running indefinitely in the background after we'd
+    already given up and moved on to the next spec.
+    """
+    import docker  # imported lazily so local/debug runs don't require the SDK
+
+    def _start():
         client = docker.from_env()
         command = ([SIMC_CMD] if SIMC_CMD else []) + [
             f"/data/{token}.simc",
@@ -739,10 +750,8 @@ async def _run_simc_docker(token):
             "image": SIMC_DOCKER_IMAGE,
             "command": command,
             "volumes": {mount_src: {"bind": "/data", "mode": "rw"}},
-            "remove": True,
-            "detach": False,
-            "stdout": True,
-            "stderr": True,
+            "remove": False,
+            "detach": True,
         }
         if SIMC_CPUS:
             try:
@@ -751,21 +760,58 @@ async def _run_simc_docker(token):
                 pass
         return client.containers.run(**kwargs)
 
+    def _wait_and_collect(container):
+        try:
+            status = container.wait(timeout=SIMC_RUN_TIMEOUT)
+            exit_code = status.get("StatusCode", 1) if isinstance(status, dict) else status
+            logs = container.logs(stdout=True, stderr=True).decode("utf-8", "replace")
+            return exit_code, logs
+        finally:
+            try:
+                container.remove(force=True)
+            except Exception:
+                pass
+
     _log(f"running simc container {SIMC_DOCKER_IMAGE} for {token}")
     try:
-        logs = await asyncio.wait_for(asyncio.to_thread(_run), timeout=SIMC_RUN_TIMEOUT)
-        return True
-    except asyncio.TimeoutError:
-        _log(f"simc container timed out after {SIMC_RUN_TIMEOUT}s for {token}")
-        return False
+        container = await asyncio.to_thread(_start)
     except ModuleNotFoundError:
-        _log("simc: the 'docker' Python SDK is not installed. Either `pip install docker` "
-             "(with Docker running) or set SIMC_BIN=<path to simc.exe> for a local run.")
-        return False
+        msg = ("simc: the 'docker' Python SDK is not installed. Either `pip install docker` "
+               "(with Docker running) or set SIMC_BIN=<path to simc.exe> for a local run.")
+        _log(msg)
+        return False, msg
     except Exception as e:
-        # docker.errors.ContainerError carries the simc stderr in str(e)
-        _log(f"simc container failed for {token}: {str(e)[-1500:]}")
-        return False
+        msg = f"simc container failed to start for {token}: {str(e)[-1500:]}"
+        _log(msg)
+        return False, msg
+
+    try:
+        exit_code, logs = await asyncio.wait_for(
+            asyncio.to_thread(_wait_and_collect, container), timeout=SIMC_RUN_TIMEOUT
+        )
+    except asyncio.TimeoutError:
+        msg = f"simc container timed out after {SIMC_RUN_TIMEOUT}s for {token}"
+        _log(msg)
+        try:
+            await asyncio.to_thread(container.stop, timeout=10)
+        except Exception:
+            pass
+        try:
+            await asyncio.to_thread(container.remove, force=True)
+        except Exception as e:
+            _log(f"failed to remove timed-out container for {token}: {e}")
+        return False, msg
+    except Exception as e:
+        msg = f"simc container failed for {token}: {str(e)[-1500:]}"
+        _log(msg)
+        return False, msg
+
+    if exit_code != 0:
+        tail = logs[-1500:]
+        msg = f"simc container exited {exit_code} for {token}:\n{tail}"
+        _log(msg)
+        return False, tail
+    return True, None
 
 
 def parse_baseline_dps(result):
@@ -804,19 +850,22 @@ def parse_simc_version(result):
 def _prepare_spec(spec_id, spec_info, class_info, season, conn, cursor, item_lookup, stats=None):
     """Gather everything needed to build profiles for a spec (no simming).
 
-    Returns a dict with header, candidates, baseline, tier info and active_slots,
-    or None if the spec can't be prepared. Shared by optimize_spec and --dry-run.
+    Returns (dict, None) with header, candidates, baseline, tier info and
+    active_slots, or (None, error_str) if the spec can't be prepared. Shared
+    by optimize_spec and --dry-run.
     """
     spec_name = spec_info.get("name")
     class_name = class_info.get("name")
     if not class_token(class_name):
-        _stat_log(stats, f"simc: unknown class token for {class_name}, skipping spec {spec_id}")
-        return None
+        msg = f"unknown class token for {class_name}"
+        _stat_log(stats, f"simc: {msg}, skipping spec {spec_id}")
+        return None, msg
 
     candidates = gather_candidates(conn, cursor, spec_id, season, item_lookup)
     if not candidates:
-        _stat_log(stats, f"simc: no candidate items for spec {spec_id}, skipping")
-        return None
+        msg = f"no candidate items for spec {spec_id}"
+        _stat_log(stats, f"simc: {msg}, skipping")
+        return None, msg
 
     # most-popular talent loadout code
     talents_code = None
@@ -857,15 +906,18 @@ def _prepare_spec(spec_id, spec_info, class_info, season, conn, cursor, item_loo
         "tier_slots": tier_slots,
         "active_slots": active_slots,
         "talents_code": talents_code,
-    }
+    }, None
 
 
 async def optimize_spec(spec_id, spec_info, class_info, season, conn, cursor,
                         item_lookup, stats=None):
-    """Run the full optimisation for one spec. Returns a result dict or None."""
-    prep = _prepare_spec(spec_id, spec_info, class_info, season, conn, cursor, item_lookup, stats)
+    """Run the full optimisation for one spec.
+
+    Returns (result_dict, None) on success, or (None, error_str) on failure.
+    """
+    prep, prep_err = _prepare_spec(spec_id, spec_info, class_info, season, conn, cursor, item_lookup, stats)
     if not prep:
-        return None
+        return None, prep_err
     header = prep["header"]
     candidates = prep["candidates"]
     baseline = prep["baseline"]
@@ -892,19 +944,20 @@ async def optimize_spec(spec_id, spec_info, class_info, season, conn, cursor,
         item_lookup, SIMC_MAX_COMBINATIONS,
     )
     if not all_combos:
-        _stat_log(stats, f"simc: spec {spec_id} produced no valid gear combinations")
-        return None
+        msg = f"spec {spec_id} produced no valid gear combinations"
+        _stat_log(stats, f"simc: {msg}")
+        return None, msg
     base_label = all_combos[0][1]
 
     _stat_log(stats, f"simc: spec {spec_id} evaluating {len(all_combos)} full-set combos "
                      f"across {len(scenarios)} tier scenario(s)")
     profile_text = build_profile(header, base_full, profilesets, iterations=combo_iters)
-    result = await run_simc(profile_text, f"spec{spec_id}_topgear")
+    result, run_err = await run_simc(profile_text, f"spec{spec_id}_topgear")
     if not result:
-        return None
+        return None, run_err or "simc produced no result"
     baseline_dps = parse_baseline_dps(result)
     if baseline_dps is None:
-        return None
+        return None, "could not parse baseline dps from simc result"
     simc_version = parse_simc_version(result)
     if simc_version and stats is not None:
         try:
@@ -948,7 +1001,7 @@ async def optimize_spec(spec_id, spec_info, class_info, season, conn, cursor,
         slot_baseline_dps[slot] = me[1] if me else best_dps
 
     if not per_slot_ranked:
-        return None
+        return None, f"spec {spec_id} produced no per-slot ranking"
 
     return {
         "spec_id": spec_id,
@@ -960,7 +1013,7 @@ async def optimize_spec(spec_id, spec_info, class_info, season, conn, cursor,
         "tier_config": tier_config,
         "per_slot_ranked": per_slot_ranked,
         "combos": len(combo_results),
-    }
+    }, None
 
 
 # --------------------------------------------------------------------------
@@ -1144,7 +1197,7 @@ async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, 
                     except Exception:
                         pass
 
-                result = await optimize_spec(
+                result, fail_reason = await optimize_spec(
                     spec_id, info, class_info, season, conn, cursor, item_lookup, stats
                 )
                 if result:
@@ -1156,11 +1209,11 @@ async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, 
                             pass
                     _stat_log(stats, f"simc: completed spec {spec_id} (baseline {result['baseline_dps']:.0f} dps)")
                 else:
+                    reason_tail = (fail_reason or "unknown error")[-1000:]
                     await _alert(
                         reporter, stats, "SimC: spec simulation failed",
                         f"No result for spec {spec_id} "
-                        f"({class_info.get('name')}/{info.get('name')}). Likely a "
-                        f"simc run error or empty candidate pool — see collector logs.",
+                        f"({class_info.get('name')}/{info.get('name')}).\n```\n{reason_tail}\n```",
                         level="error", throttle_key=f"simc_spec_fail_{spec_id}",
                     )
                     # mark an attempt so we don't hammer a broken spec; write empty meta
@@ -1222,9 +1275,9 @@ async def _dry_run_single(spec_id, season):
 
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()
-        prep = _prepare_spec(spec_id, info, class_info, season, conn, cursor, item_lookup)
+        prep, prep_err = _prepare_spec(spec_id, info, class_info, season, conn, cursor, item_lookup)
     if not prep:
-        _log("could not prepare spec (no candidates / unknown class)")
+        _log(f"could not prepare spec: {prep_err}")
         return
 
     header = prep["header"]
@@ -1281,12 +1334,12 @@ async def _debug_single(spec_id, season, do_persist=False):
     from contextlib import closing
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()
-        result = await optimize_spec(spec_id, info, class_info, season, conn, cursor, item_lookup)
+        result, fail_reason = await optimize_spec(spec_id, info, class_info, season, conn, cursor, item_lookup)
         if result and do_persist:
             persist(conn, cursor, result, item_lookup)
             _log(f"persisted simc_bis rows for spec {spec_id} season {season}")
     if not result:
-        _log("no result")
+        _log(f"no result: {fail_reason}")
         return
     print(json.dumps({
         "spec_id": result["spec_id"],
