@@ -56,7 +56,12 @@ SIMC_IO_DIR = Path(os.environ.get("SIMC_IO_DIR", str(DATA_DIR / "simc_io")))  # 
 SIMC_IO_VOLUME = os.environ.get("SIMC_IO_VOLUME", "")
 SIMC_PULL_INTERVAL = int(os.environ.get("SIMC_PULL_INTERVAL", str(6 * 60 * 60)))  # self-pull cadence (s)
 SIMC_THREADS = os.environ.get("SIMC_THREADS", "2")
-SIMC_CPUS = os.environ.get("SIMC_CPUS")  # optional docker --cpus cap
+SIMC_CPUS = os.environ.get("SIMC_CPUS")  # optional docker --cpus hard cap
+# Relative scheduling weight (docker --cpu-shares; default weight is 1024). Unlike
+# SIMC_CPUS this is NOT a hard cap: it only matters when CPUs are contended, so a
+# low value lets simc burst to 100% of every core when nothing else needs them but
+# yields to other containers/processes under load. Linux enforces a minimum of 2.
+SIMC_CPU_SHARES = os.environ.get("SIMC_CPU_SHARES", "128")
 SIMC_PROFILESET_WORK_THREADS = os.environ.get("SIMC_PROFILESET_WORK_THREADS", "1")
 SIMC_ITERATIONS = os.environ.get("SIMC_ITERATIONS")  # e.g. "5000"; if unset, use target_error
 SIMC_TARGET_ERROR = os.environ.get("SIMC_TARGET_ERROR", "0.1")
@@ -756,6 +761,11 @@ async def _run_simc_docker(token):
         if SIMC_CPUS:
             try:
                 kwargs["nano_cpus"] = int(float(SIMC_CPUS) * 1e9)
+            except Exception:
+                pass
+        if SIMC_CPU_SHARES:
+            try:
+                kwargs["cpu_shares"] = max(2, int(SIMC_CPU_SHARES))
             except Exception:
                 pass
         return client.containers.run(**kwargs)
