@@ -300,9 +300,14 @@ def gather_candidates(conn, cursor, spec_id, season, item_lookup):
             item_id = int(r["item"])
             bonus_list = (r.get("bonus") or {}).get("ids") if r.get("bonus") else None
             meta = item_lookup.get(item_id, {})
-            has_embellishment = bool(
-                bonus_list and any(str(b) in embellish_ids for b in bonus_list)
+            # bonus_list is a comma-separated string (e.g. "8791,12384,..."); split
+            # into ids before testing membership — iterating the raw string would
+            # walk it character-by-character and never match an embellishment id.
+            bonus_ids = (
+                [b.strip() for b in str(bonus_list).split(",") if b.strip()]
+                if bonus_list else []
             )
+            has_embellishment = any(b in embellish_ids for b in bonus_ids)
             cands.append(
                 {
                     "item_id": item_id,
