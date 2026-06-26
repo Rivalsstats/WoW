@@ -66,10 +66,6 @@ SIMC_PROFILESET_WORK_THREADS = os.environ.get("SIMC_PROFILESET_WORK_THREADS", "1
 SIMC_ITERATIONS = os.environ.get("SIMC_ITERATIONS")  # e.g. "5000"; if unset, use target_error
 SIMC_TARGET_ERROR = os.environ.get("SIMC_TARGET_ERROR", "0.1")
 SIMC_RUN_TIMEOUT = int(os.environ.get("SIMC_RUN_TIMEOUT", str(6 * 60 * 60)))  # seconds per invocation
-# Candidates within this relative DPS margin of a slot's best are treated as a
-# statistical tie, so we surface the most-popular one as rank-1 (stable badge)
-# instead of letting sim noise pick between near-identical items. 0.002 = 0.2%.
-SIMC_IMPROVE_MARGIN = float(os.environ.get("SIMC_IMPROVE_MARGIN", "0.002"))
 SIMC_CANDIDATES_PER_SLOT = int(os.environ.get("SIMC_CANDIDATES_PER_SLOT", "10"))
 # Top-Gear combination budget: hard cap on the number of full-set profilesets we
 # evaluate per spec. The per-slot candidate "bag" is trimmed (least-popular items
@@ -442,26 +438,6 @@ def detect_tier(candidates):
     if best is None:
         return None, set()
     return best, set(coverage[best])
-
-
-def rank_candidates(results, margin=None):
-    """Rank (candidate, dps) pairs for a slot, highest DPS first.
-
-    Candidates within `margin` of the top DPS are a statistical tie (sim error),
-    so among those we surface the most-popular one as rank-1 for a stable badge
-    instead of letting sim noise pick between near-identical items.
-    """
-    if not results:
-        return []
-    if margin is None:
-        margin = SIMC_IMPROVE_MARGIN
-    mx = max(d for _, d in results)
-    threshold = mx * (1 - margin)
-    tied = [r for r in results if r[1] >= threshold]
-    rest = [r for r in results if r[1] < threshold]
-    tied.sort(key=lambda r: (-(r[0].get("count", 0) or 0), -r[1]))
-    rest.sort(key=lambda r: -r[1])
-    return tied + rest
 
 
 def best_tier_candidate(candidates, slot, tier_set_id):
@@ -988,26 +964,35 @@ async def optimize_spec(spec_id, spec_info, class_info, season, conn, cursor,
         combo_results.append((full, dps, label))
     best_full, best_dps, tier_config = max(combo_results, key=lambda x: x[1])
 
-    # Per-slot ranking derived from the full-set sims: each item is represented by
-    # the best full-set DPS in which it appears, so rank-1 is the item worn by the
-    # single best set. The per-slot reference (for the % gain in the badge) is the
-    # most-equipped item's best full-set DPS — what a typical player wears.
+    # Per-slot ranking derived from the full-set sims. Every combo in
+    # combo_results already passed set_is_valid as a whole set, so rank N per
+    # slot must come from the Nth-best *valid combo*, not from independently
+    # re-maximising each item's best DPS across every combo it ever appeared
+    # in — that decomposition can stitch together items that were never
+    # legal together (e.g. >2 embellishments, or the same unique trinket in
+    # both trinket slots). Walking combos best-to-worst and taking each
+    # slot's first (= best) occurrence of an item keeps every rank, including
+    # rank 1, self-consistent with a single real valid combo.
+    combos_by_dps = sorted(combo_results, key=lambda x: x[1], reverse=True)
     per_slot_ranked = {}
     slot_baseline_dps = {}
     for slot in active_slots:
-        best_by_item = {}
-        for full, dps, _ in combo_results:
+        seen_items = set()
+        ranked = []
+        for full, dps, _ in combos_by_dps:
             cand = full.get(slot)
             if not cand:
                 continue
             key = cand["item_id"]
-            if key not in best_by_item or dps > best_by_item[key][1]:
-                best_by_item[key] = (cand, dps)
-        if not best_by_item:
+            if key in seen_items:
+                continue
+            seen_items.add(key)
+            ranked.append((cand, dps))
+        if not ranked:
             continue
-        per_slot_ranked[slot] = rank_candidates(list(best_by_item.values()))
+        per_slot_ranked[slot] = ranked
         cs = candidates.get(slot)
-        me = best_by_item.get(cs[0]["item_id"]) if cs else None
+        me = next((cd for cd in ranked if cd[0]["item_id"] == cs[0]["item_id"]), None) if cs else None
         slot_baseline_dps[slot] = me[1] if me else best_dps
 
     if not per_slot_ranked:
