@@ -129,6 +129,19 @@ DB_TO_SIMC_SLOT = {
 }
 ALL_SLOTS = list(DB_TO_SIMC_SLOT.keys())
 
+# Paired ring/trinket slots. The spec page (generateSpecPages.fetch_slot_info)
+# ranks the DISTINCT items across the whole pair from the slot GROUP and assigns
+# one to each numbered slot, rather than ranking each numbered slot on its own —
+# the game fills FINGER_1/FINGER_2 fairly arbitrarily, so a per-slot ranking can
+# surface the SAME ring as the top item for both slots. We mirror the page here so
+# our baseline ("default starting profile") equals the gear shown on the spec page.
+MULTI_SLOT_GROUPS = {
+    "FINGER_1": "FINGER",
+    "FINGER_2": "FINGER",
+    "TRINKET_1": "TRINKET",
+    "TRINKET_2": "TRINKET",
+}
+
 # Blizzard inventoryType values that can carry a tier set bonus (armor pieces).
 # 1=head, 3=shoulder, 5=chest, 20=robe(chest), 7=legs, 10=hands.
 TIER_INVTYPES = {1, 3, 5, 20, 7, 10}
@@ -271,6 +284,40 @@ def bonus_to_simc(bonus_list):
 # Candidate gathering & tier detection
 # --------------------------------------------------------------------------
 
+def fetch_slot_rows(conn, cursor, spec_id, season, slot, group_cache=None):
+    """Per-slot candidate rows (most-popular first), matching the spec page's
+    ``generateSpecPages.fetch_slot_info`` so our baseline equals the page's gear.
+
+    For paired ring/trinket slots we rank the distinct items across the GROUP and
+    drop the slot's positional index (FINGER_1 -> drop the #1 item, FINGER_2 ->
+    drop the #2 item). That hands the two slots the two most-popular *different*
+    items, instead of each numbered slot's own top item — which is frequently the
+    same ring/trinket in both and never appears that way on the spec page.
+
+    The group query is the same for both numbered slots of a pair, so when a
+    ``group_cache`` dict is supplied we run it once per group and reuse the result
+    (the heavier slot_group_map join would otherwise run twice per pair).
+    """
+    group = MULTI_SLOT_GROUPS.get(slot)
+    if group:
+        if group_cache is not None and group in group_cache:
+            base = group_cache[group]
+        else:
+            base = databaseConnector.fetch_top_items_for_slot_group_with_bonus(
+                conn, cursor, spec_id, season, group
+            )
+            if group_cache is not None:
+                group_cache[group] = base
+        rows = list(base)  # copy: we drop a positional index per numbered slot
+        idx = int(slot.rsplit("_", 1)[1]) - 1  # FINGER_1 -> 0, FINGER_2 -> 1
+        if 0 <= idx < len(rows):
+            del rows[idx]
+        return rows
+    return databaseConnector.fetch_top_items_for_slot_with_bonus(
+        conn, cursor, spec_id, season, slot
+    )
+
+
 def gather_candidates(conn, cursor, spec_id, season, item_lookup):
     """slot -> ordered list of candidate dicts (most-popular first).
 
@@ -284,10 +331,9 @@ def gather_candidates(conn, cursor, spec_id, season, item_lookup):
     """
     embellish_ids = load_embellishment_bonus_ids()
     out = {}
+    group_cache = {}  # slot_group -> group rows, so each pair's query runs once
     for slot in ALL_SLOTS:
-        rows = databaseConnector.fetch_top_items_for_slot_with_bonus(
-            conn, cursor, spec_id, season, slot
-        )
+        rows = fetch_slot_rows(conn, cursor, spec_id, season, slot, group_cache)
         if not rows:
             continue
         top_count = max((int(r.get("count", 0)) for r in rows), default=0)
