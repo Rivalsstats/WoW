@@ -66,6 +66,10 @@ SIMC_PROFILESET_WORK_THREADS = os.environ.get("SIMC_PROFILESET_WORK_THREADS", "1
 SIMC_ITERATIONS = os.environ.get("SIMC_ITERATIONS")  # e.g. "5000"; if unset, use target_error
 SIMC_TARGET_ERROR = os.environ.get("SIMC_TARGET_ERROR", "0.1")
 SIMC_RUN_TIMEOUT = int(os.environ.get("SIMC_RUN_TIMEOUT", str(6 * 60 * 60)))  # seconds per invocation
+# Applied to every sibling simc container we launch so it can be found and torn
+# down independently of our own process state (e.g. when watchtower replaces this
+# collector container, these siblings aren't tracked/updated by watchtower at all).
+SIMC_CONTAINER_LABEL = {"mythistone.role": "simc-sim"}
 SIMC_CANDIDATES_PER_SLOT = int(os.environ.get("SIMC_CANDIDATES_PER_SLOT", "10"))
 # Top-Gear combination budget: hard cap on the number of full-set profilesets we
 # evaluate per spec. The per-slot candidate "bag" is trimmed (least-popular items
@@ -706,6 +710,33 @@ async def pull_simc_image(stats=None):
         return False
 
 
+def cleanup_orphaned_containers(reason="shutdown"):
+    """Force-stop/remove any simc sibling containers we previously launched.
+
+    Sibling containers aren't children of this process and aren't tracked by
+    watchtower (they're short-lived and unnamed), so nothing else will clean
+    them up when this collector container is replaced. Called from the
+    entrypoint's SIGTERM trap so an update doesn't leave a sim running forever
+    on the host. Matches purely by label, so it's safe to call even if no
+    sibling is currently running.
+    """
+    try:
+        import docker
+        client = docker.from_env()
+        label_filter = [f"{k}={v}" for k, v in SIMC_CONTAINER_LABEL.items()]
+        containers = client.containers.list(all=True, filters={"label": label_filter})
+    except Exception as e:
+        _log(f"simc: cleanup skipped, could not reach docker ({reason}): {e}")
+        return
+
+    for container in containers:
+        try:
+            container.remove(force=True)
+            _log(f"simc: removed orphaned container {container.short_id} ({reason})")
+        except Exception as e:
+            _log(f"simc: failed to remove container {container.short_id} ({reason}): {e}")
+
+
 async def _run_simc_docker(token):
     """Run simc in a sibling container via the Docker SDK.
 
@@ -733,6 +764,7 @@ async def _run_simc_docker(token):
             "volumes": {mount_src: {"bind": "/data", "mode": "rw"}},
             "remove": False,
             "detach": True,
+            "labels": SIMC_CONTAINER_LABEL,
         }
         if SIMC_CPUS:
             try:

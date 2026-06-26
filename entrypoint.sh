@@ -69,6 +69,11 @@ send_webhook started
 # ensure /data/runs exists (volume)
 mkdir -p /data/runs || true
 
+# clear out any simc sibling container left running from a previous instance
+# that was SIGKILLed before it could clean up after itself (e.g. watchtower's
+# stop timeout expired before our own SIGTERM handler finished).
+python -u -c "import sys; sys.path.insert(0, '/app'); import simcBis; simcBis.cleanup_orphaned_containers('startup')" 2>&1 || true
+
 python -u /app/collectLeaderboardData.py &
 APP_PID=$!
 
@@ -76,6 +81,11 @@ _term(){
   send_webhook stopping
   kill -TERM "$APP_PID" 2>/dev/null || true
   wait "$APP_PID" 2>/dev/null || true
+  # simc sibling containers aren't children of this process and aren't tracked
+  # by watchtower, so nothing else stops them when this container is replaced
+  # (e.g. on a watchtower update). Clean them up by label, independent of
+  # whatever state the python process exited in.
+  python -u -c "import sys; sys.path.insert(0, '/app'); import simcBis; simcBis.cleanup_orphaned_containers('container stopping')" 2>&1 || true
   exit 0
 }
 trap _term SIGTERM SIGINT
