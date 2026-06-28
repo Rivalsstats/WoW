@@ -25,8 +25,22 @@ services:
       - SIMC_DOCKER_IMAGE=${SIMC_DOCKER_IMAGE:-simulationcraftorg/simc:latest}
       - SIMC_IO_DIR=/app/data/simc_io
       - SIMC_IO_VOLUME=mythistone_simc_io
-      - SIMC_THREADS=${SIMC_THREADS:-2}
-      - SIMC_CPUS=${SIMC_CPUS:-2}
+      # --- Resource isolation (2-core host) -------------------------------
+      # Pin simc to core 1 ONLY; core 0 is reserved for MySQL + the system, so
+      # the co-located DB is never preempted by simc and remote page/social
+      # build jobs stop timing out. Hard guarantee, not a "yield under load"
+      # hint (cpu_shares can't arbitrate against a host-level mysqld).
+      - SIMC_CPUSET=${SIMC_CPUSET:-1}
+      # One worker thread to match the single pinned core (extra threads on one
+      # core only add context-switch overhead, no speedup).
+      - SIMC_THREADS=${SIMC_THREADS:-1}
+      # Belt-and-suspenders 1.0-CPU hard cap alongside the cpuset pin.
+      - SIMC_CPUS=${SIMC_CPUS:-1}
+      # Let simc's profileset disk writes yield bandwidth to MySQL (10-1000).
+      - SIMC_BLKIO_WEIGHT=${SIMC_BLKIO_WEIGHT:-100}
+      # Optional RAM cap so a big pass can't swap out MySQL. Set e.g. 1g based
+      # on the host's free memory; unset = no limit.
+      - SIMC_MEM_LIMIT=${SIMC_MEM_LIMIT:-}
       - SIMC_TARGET_ERROR=${SIMC_TARGET_ERROR:-0.1}
       - SIMC_PULL_INTERVAL=${SIMC_PULL_INTERVAL:-21600}
     logging:

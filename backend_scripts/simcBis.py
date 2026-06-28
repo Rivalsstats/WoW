@@ -62,6 +62,19 @@ SIMC_CPUS = os.environ.get("SIMC_CPUS")  # optional docker --cpus hard cap
 # low value lets simc burst to 100% of every core when nothing else needs them but
 # yields to other containers/processes under load. Linux enforces a minimum of 2.
 SIMC_CPU_SHARES = os.environ.get("SIMC_CPU_SHARES", "128")
+# Hard CPU pin (docker --cpuset-cpus, e.g. "1" or "1-3"). On a small host this is
+# stronger than nano_cpus/cpu_shares: it guarantees simc NEVER runs on the
+# reserved core(s), so a DB or other service pinned to a *different* core is never
+# preempted by simc. cpu_shares only arbitrates between cgroups, which does not
+# help against a host-level mysqld; cpuset does. Leave unset to let simc float
+# across all cores (old behaviour).
+SIMC_CPUSET = os.environ.get("SIMC_CPUSET")
+# Optional hard memory cap (docker --memory, e.g. "1g") so a large profileset pass
+# can't push the host into swap and stall a co-located DB. Unset = no limit.
+SIMC_MEM_LIMIT = os.environ.get("SIMC_MEM_LIMIT")
+# Optional block-IO weight (docker --blkio-weight, 10-1000; default 500). A low
+# value makes simc's profileset disk writes yield bandwidth under contention.
+SIMC_BLKIO_WEIGHT = os.environ.get("SIMC_BLKIO_WEIGHT")
 SIMC_PROFILESET_WORK_THREADS = os.environ.get("SIMC_PROFILESET_WORK_THREADS", "1")
 SIMC_ITERATIONS = os.environ.get("SIMC_ITERATIONS")  # e.g. "5000"; if unset, use target_error
 SIMC_TARGET_ERROR = os.environ.get("SIMC_TARGET_ERROR", "0.1")
@@ -825,6 +838,16 @@ async def _run_simc_docker(token):
         if SIMC_CPU_SHARES:
             try:
                 kwargs["cpu_shares"] = max(2, int(SIMC_CPU_SHARES))
+            except Exception:
+                pass
+        if SIMC_CPUSET:
+            # Passed through verbatim (e.g. "1" or "1-3"); docker validates it.
+            kwargs["cpuset_cpus"] = str(SIMC_CPUSET)
+        if SIMC_MEM_LIMIT:
+            kwargs["mem_limit"] = SIMC_MEM_LIMIT
+        if SIMC_BLKIO_WEIGHT:
+            try:
+                kwargs["blkio_weight"] = max(10, min(1000, int(SIMC_BLKIO_WEIGHT)))
             except Exception:
                 pass
         return client.containers.run(**kwargs)
