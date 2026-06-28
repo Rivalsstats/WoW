@@ -92,12 +92,21 @@ def get_items_for_slot_group(conn, cursor, spec_id, current_season_id, slot_grou
     return item_data
 
 
-def get_hero_trees(conn, cursor, spec_id, current_season_id):
+def get_hero_trees(conn, cursor, spec_id, current_season_id, valid_subtrees=None):
     top_hero_trees = databaseConnector.fetch_hero_tree_overview(
         conn, cursor, spec_id
     )
     overall_hero_trees = []
     for hero_tree_id, count, max_timed_key, max_depleted_key in top_hero_trees:
+        # Skip hero trees that don't belong to this spec (e.g. cross-spec
+        # contaminated loadouts) so downstream subTrees lookups never miss.
+        if valid_subtrees is not None and int(hero_tree_id) not in valid_subtrees:
+            print(
+                f"WARNING: spec {spec_id} returned hero tree {hero_tree_id} "
+                f"(count={count}) not in its subTrees {sorted(valid_subtrees)}; "
+                f"skipping contaminated loadout."
+            )
+            continue
         overall_hero_trees.append({"id": hero_tree_id, "count": int(count), "max_timed_key": int(max_timed_key), "max_depleted_key": int(max_depleted_key)})
     return overall_hero_trees
 

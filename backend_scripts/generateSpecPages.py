@@ -1,6 +1,7 @@
 import os
 import json
 import argparse
+import traceback
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import databaseConnector
 import aggregateData
@@ -710,10 +711,12 @@ def fetch_slot_info(conn, cursor, spec_id, current_season_id, slot):
         )
 
 
-def fetch_hero_tree_info(conn, cursor, spec_id, current_season_id):
+def fetch_hero_tree_info(conn, cursor, spec_id, current_season_id, valid_subtrees=None):
     popular_hero_tree = 0
     popular_hero_tree_count = 0
-    hero_trees = aggregateData.get_hero_trees(conn, cursor, spec_id, current_season_id)
+    hero_trees = aggregateData.get_hero_trees(
+        conn, cursor, spec_id, current_season_id, valid_subtrees
+    )
     hero_tree_count = 0
     for tree in hero_trees:
         if tree.get("count"):
@@ -1219,7 +1222,9 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     popular_hero_tree,
                     popular_hero_tree_count,
                     hero_tree_count,
-                ) = fetch_hero_tree_info(conn, cursor, spec_id, current_season_id)
+                ) = fetch_hero_tree_info(
+                    conn, cursor, spec_id, current_season_id, valid_subtrees
+                )
                 print(
                     f"[{datetime.now(timezone.utc).isoformat()}] fetching enchants..."
                 )
@@ -1561,7 +1566,11 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
             if debug:
                 raise ValueError("Debug mode: stopping after first spec")
         except Exception as e:
-            print(f"Error processing spec {spec_id}: {e}")
+            print(
+                f"[{datetime.now(timezone.utc).isoformat()}] "
+                f"Error processing spec {spec_id}: {type(e).__name__}: {e}"
+            )
+            traceback.print_exc()
             raise e
 
 

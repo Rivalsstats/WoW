@@ -1433,10 +1433,22 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
         hero_trees_raw = databaseConnector.fetch_hero_tree_overview(
             conn, cursor, spec_id
         )
+        valid_subtrees = set(talent_lookup.get("subTrees", {}).keys())
         hero_trees = []
         for row in hero_trees_raw:
             tree_id = row[0]
             tree_count = row[1]
+            # Drop hero trees that don't belong to this spec (e.g. cross-spec
+            # contaminated loadouts). Without this the subTrees lookup below
+            # KeyErrors and the whole overview image fails to render.
+            if str(tree_id) not in valid_subtrees:
+                print(
+                    f"[{datetime.now(timezone.utc).isoformat()}] "
+                    f"WARNING: spec {spec_id} returned hero tree {tree_id} "
+                    f"(count={tree_count}) which is not in its subTrees "
+                    f"{sorted(valid_subtrees)}; skipping contaminated loadout."
+                )
+                continue
             hero_trees.append({"tree_id": tree_id, "count": tree_count})
 
         hero_total = sum(tree["count"] for tree in hero_trees)
