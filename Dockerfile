@@ -25,6 +25,11 @@ COPY data/static/classes.json ${APP_DIR}/data/static/classes.json
 # equippable-items.json provides inventoryType + itemSetId for dynamic tier-set
 # detection in the SimulationCraft BiS collector (simcBis.py).
 COPY data/static/equippable-items.json ${APP_DIR}/data/static/equippable-items.json
+# embellishments.json maps embellishment bonus_id -> reagent; simcBis.py needs it
+# to enforce the <=2 embellishment equip cap. Without it the cap is silently
+# disabled (every set treated as 0 embellishments) so illegal over-embellished
+# combos bloat the profileset count and skew the BiS results.
+COPY data/static/embellishments.json ${APP_DIR}/data/static/embellishments.json
 # seasonInfo.json provides the derived max_character_level used by simcBis.py.
 COPY data/static/seasonInfo.json ${APP_DIR}/data/static/seasonInfo.json
 

@@ -2,6 +2,10 @@ name: Build and publish collector image
 
 on:
   push:
+    # Keep this list in sync with every file COPYed into the image in the
+    # Dockerfile — otherwise a changed runtime file ships stale (or, for a file
+    # that isn't copied at all, never reaches the container). See the COPY block
+    # in Dockerfile.
     paths:
       - 'backend_scripts/collectLeaderboardData.py'
       - 'backend_scripts/databaseConnector.py'
@@ -9,6 +13,12 @@ on:
       - 'backend_scripts/stats.py'
       - 'backend_scripts/simcBis.py'
       - 'data/static/dungeons.json'
+      - 'data/static/specs.json'
+      - 'data/static/talents.json'
+      - 'data/static/classes.json'
+      - 'data/static/equippable-items.json'
+      - 'data/static/embellishments.json'
+      - 'data/static/seasonInfo.json'
       - 'Dockerfile'
       - 'entrypoint.sh'
   workflow_dispatch: {}
