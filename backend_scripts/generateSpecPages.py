@@ -1169,6 +1169,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     os.path.join(LOOKUP_DIR, "talents", f"{spec_id}.json")
                 )
                 valid_talents = {int(tid) for tid in talent_lookup.get("talents", {})}
+                valid_subtrees = {int(tid) for tid in talent_lookup.get("subTrees", {})}
                 print(f"[{datetime.now(timezone.utc).isoformat()}] Fetching talents...")
                 hero_talents_full = aggregateData.get_hero_talent_differences(
                     conn, cursor, spec_id, current_season_id, valid_talents
@@ -1185,7 +1186,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 spec_talents_difs = aggregateData.biggest_deviations_per_dungeon(spec_talents_full)
                 class_talents_difs = aggregateData.biggest_deviations_per_dungeon(class_talents_full)
                 hero_tree_difs = aggregateData.get_hero_tree_differences(
-                    conn, cursor, spec_id, current_season_id
+                    conn, cursor, spec_id, current_season_id, valid_subtrees
                 )
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching slots...")
                 # Split slots into left/right/weapon/trinket

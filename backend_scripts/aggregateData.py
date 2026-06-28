@@ -285,7 +285,7 @@ def biggest_deviations_per_dungeon(data, top_n=3):
     return results
 
 
-def get_hero_tree_differences(conn, cursor, spec_id, current_season_id):
+def get_hero_tree_differences(conn, cursor, spec_id, current_season_id, valid_subtrees=None):
     top_hero_tree_differences = databaseConnector.fetch_hero_tree_differences(
         conn, cursor, spec_id, current_season_id
     )
@@ -294,6 +294,10 @@ def get_hero_tree_differences(conn, cursor, spec_id, current_season_id):
     dungeon_counts = {}
     data = {}
     for hero_tree, dungeon, count, avg_rank in top_hero_tree_differences:
+        # Skip hero trees that don't belong to this spec (e.g. cross-spec
+        # contaminated loadouts) so downstream subtree-id lookups never miss.
+        if valid_subtrees is not None and int(hero_tree) not in valid_subtrees:
+            continue
         overall_counts[hero_tree] = overall_counts.get(hero_tree, 0) + int(count)
         total_count += int(count)
         dungeon_counts[dungeon] = dungeon_counts.get(dungeon, 0) + int(count)

@@ -1564,6 +1564,7 @@
                   <div class="row justify-content-center mb-3">
                     {% set lookup = talent_lookup.subTrees %}
                     {% for tid in hero_tree_difs['dungeons'][dungeon] %}
+                    {% if lookup[tid|string] %}
                     {% set delta = hero_tree_difs['dungeons'][dungeon][tid].diff %}
                     <div class="col-auto text-center mx-2">
                       <a target="_blank"
@@ -1576,6 +1577,7 @@
                         </small>
                       </a>
                     </div>
+                    {% endif %}
                     {% endfor %}
                   </div>
                   {% endif %}
