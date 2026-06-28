@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Utility/legal pages are also marked noindex at the page level
+Disallow: /pages/search
+
+Sitemap: https://mythistone.com/sitemap.xml

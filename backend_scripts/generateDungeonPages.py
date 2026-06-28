@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import databaseConnector
 from pageGeneration import generateSpecNav, generateDungeonNav, ROLE_FOLDERS
-from generateSpecPages import format_duration, format_utc_timestamp, load_json, upgrade_info
+from generateSpecPages import format_duration, format_utc_timestamp, format_iso_timestamp, load_json, upgrade_info
 from generateSocialsPost import createDungeonOverviewImg
 
 LOOKUP_DIR = "data/static"
@@ -83,6 +83,7 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
     )
     env.filters["duration"] = format_duration
     env.filters["format_ts"] = format_utc_timestamp
+    env.filters["iso_ts"] = format_iso_timestamp
     env.filters["upgrade_info"] = upgrade_info
     template = env.get_template(os.path.basename(template_path))
 

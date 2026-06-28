@@ -224,7 +224,7 @@
   <title>{{ spec.name }} {{ class_info.name }} Mythic+ Build & Gear Guide in {{ season_info.name }} | MythiStone</title>
   <meta name="description"
     content="Discover the most popular Mythic+ build for {{ spec.name }} {{ class_info.name }} in {{ season_info.name }}, with top talents, gear, enchants, gems, Embelishments & more—based on {{ total_season_runs | humanize }} runs. Updated {{ generated_at|format_ts }}.">
-  <link rel="canonical" href="https://mythistone.com/classes/{{role}}/{{ spec.name}}_{{class_info.name }}">
+  <link rel="canonical" href="https://mythistone.com/classes/{{ role | urlencode }}/{{ (spec.name ~ '_' ~ class_info.name) | urlencode }}">
   <meta name="keywords"
     content="MythiStone, Mythic+, build, gear, guide, enchantments, gems, talents, embellishment, missive, stats, WoW meta, {{ season_info.name }}">
 
@@ -234,13 +234,15 @@
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="MythiStone">
-  <meta property="og:url" content="https://mythistone.com/classes/{{role}}/{{ spec.name}}_{{class_info.name }}">
+  <meta property="og:url" content="https://mythistone.com/classes/{{ role | urlencode }}/{{ (spec.name ~ '_' ~ class_info.name) | urlencode }}">
   <meta property="og:title"
     content="{{ spec.name }} {{ class_info.name }} in {{ season_info.name }} Mythic+ Build & Gear Guide">
   <meta property="og:description"
     content="See the top talents, gear, enchants and socket setup for {{ spec.name }} {{ class_info.name }} Mythic+ players in {{ season_info.name }}, sourced from {{ total_season_runs | humanize }} runs.">
-  <meta property="og:image" content="https://mythistone.com/assets/img/previews/{{spec.name}}_{{class_info.name}}.png">
-  <meta property="og:image:alt" content="{{ spec.name }} icon">
+  <meta property="og:image" content="https://mythistone.com/assets/img/previews/{{ (spec.name ~ '_' ~ class_info.name) | urlencode }}.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="{{ spec.name }} {{ class_info.name }} Mythic+ build and gear overview">
   <meta property="og:locale" content="en_US">
 
   <!-- Twitter -->
@@ -251,7 +253,8 @@
     content="{{ spec.name }} {{ class_info.name }} in {{ season_info.name }} Mythic+ Build & Gear Guide ">
   <meta name="twitter:description"
     content="Break down the best Mythic+ build for {{ spec.name }} {{ class_info.name }}—talents, gear, enchants, gems—based on real data from {{ total_season_runs | humanize }} runs.">
-  <meta name="twitter:image" content="https://mythistone.com/assets/img/previews/{{spec.name}}_{{class_info.name}}.png">
+  <meta name="twitter:image" content="https://mythistone.com/assets/img/previews/{{ (spec.name ~ '_' ~ class_info.name) | urlencode }}.png">
+  <meta name="twitter:image:alt" content="{{ spec.name }} {{ class_info.name }} Mythic+ build and gear overview">
 
   <!-- Mobile / Theme -->
   <meta name="theme-color" content="#1a202c">
@@ -261,10 +264,14 @@
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebPage",
-  "url": "https://mythistone.com/classes/{{role}}/{{ spec.name}}_{{class_info.name }}",
+  "@type": "TechArticle",
+  "url": "https://mythistone.com/classes/{{ role | urlencode }}/{{ (spec.name ~ '_' ~ class_info.name) | urlencode }}",
+  "mainEntityOfPage": "https://mythistone.com/classes/{{ role | urlencode }}/{{ (spec.name ~ '_' ~ class_info.name) | urlencode }}",
+  "headline": "{{ spec.name }} {{ class_info.name }} Mythic+ Build & Gear Guide in {{ season_info.name }}",
   "name": "{{ spec.name }} {{ class_info.name }} Mythic+ Build & Gear Guide in {{ season_info.name }} | MythiStone",
   "description": "The definitive Mythic+ build and gear overview for {{ spec.name }} {{ class_info.name }} players in {{ season_info.name }}, including gear popularity, talent picks, enchants, gems, and best runs.",
+  "image": "https://mythistone.com/assets/img/previews/{{ (spec.name ~ '_' ~ class_info.name) | urlencode }}.png",
+  "inLanguage": "en-US",
   "@graph": [
     {
       "@type": "BreadcrumbList",
@@ -298,8 +305,17 @@
     "name": "MythiStone",
     "url": "https://mythistone.com"
   },
-  "datePublished": "01/07/2025",
-  "dateModified": "{{ generated_at|format_ts }}"
+  "publisher": {
+    "@type": "Organization",
+    "name": "MythiStone",
+    "url": "https://mythistone.com",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://mythistone.com/assets/img/favicon/favicon-96x96.png"
+    }
+  },
+  "datePublished": "2025-07-01",
+  "dateModified": "{{ generated_at|iso_ts }}"
 }
   </script>
   <link id="pagestyle" href="/assets/css/stat-colors.css" rel="stylesheet" />
@@ -333,8 +349,8 @@
     {% include "notifications.html" %}
     <!-- End Notifications -->
     <div class="container-fluid py-2">
-      <h3> <span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{
-          spec.name }} {{ class_info.name }} </span> Mythic + build in {{ season_info.name }}</h6>
+      <h1 class="h3"> <span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{
+          spec.name }} {{ class_info.name }} </span> Mythic+ Build &amp; Gear Guide in {{ season_info.name }}</h1>
         <div class="row justify-content-center text-start gx-4 align-items-stretch text-body-emphasis">
           <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
             <div class="card h-100" style="

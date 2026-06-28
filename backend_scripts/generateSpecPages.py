@@ -121,6 +121,16 @@ def format_utc_timestamp(ms):
     return dt.strftime("%d/%m/%Y, %H:%M:%S")
 
 
+def format_iso_timestamp(ts):
+    """
+    Convert a UTC timestamp in seconds into an ISO 8601 string
+    (e.g. "2026-06-28T11:16:37Z") for use in JSON-LD date fields.
+    """
+
+    dt = datetime.fromtimestamp(int(ts), timezone.utc)
+    return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 def format_buyout(buyout):
     if buyout is None:
         return "N/A"
@@ -1044,6 +1054,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
     env.filters["humanize"] = humanize_number
     env.filters["duration"] = format_duration
     env.filters["format_ts"] = format_utc_timestamp
+    env.filters["iso_ts"] = format_iso_timestamp
     env.filters["upgrade_info"] = upgrade_info
     template = env.get_template(os.path.basename(template_path))
 

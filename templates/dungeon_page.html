@@ -36,7 +36,9 @@
     <meta property="og:description"
         content="See the top specs, routes, and information for {{ dungeon.name.en_US }} in {{ season_info.name }}">
     <meta property="og:image" content="https://mythistone.com/assets/img/previews/{{dungeon.slug}}.png">
-    <meta property="og:image:alt" content="{{ dungeon.name.en_US }} icon">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="{{ dungeon.name.en_US }} Mythic+ guide and routes">
     <meta property="og:locale" content="en_US">
 
     <!-- Twitter -->
@@ -47,11 +49,53 @@
     <meta name="twitter:description"
         content="See the top specs, routes, and information for {{ dungeon.name.en_US }} in {{ season_info.name }}">
     <meta name="twitter:image" content="https://mythistone.com/assets/img/previews/{{dungeon.slug}}.png">
+    <meta name="twitter:image:alt" content="{{ dungeon.name.en_US }} Mythic+ guide and routes">
 
     <!-- Mobile / Theme -->
     <meta name="theme-color" content="#1a202c">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="MythiStone" />
+
+    <!-- JSON‑LD Structured Data -->
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "url": "https://mythistone.com/dungeons/{{ dungeon.slug }}",
+  "mainEntityOfPage": "https://mythistone.com/dungeons/{{ dungeon.slug }}",
+  "headline": "{{ dungeon.name.en_US }} Mythic+ Guide in {{ season_info.name }}",
+  "name": "{{ dungeon.name.en_US }} in {{ season_info.name }} | MythiStone",
+  "description": "Top specs, routes, timers and details for {{ dungeon.name.en_US }} in {{ season_info.name }} Mythic+.",
+  "image": "https://mythistone.com/assets/img/previews/{{ dungeon.slug }}.png",
+  "inLanguage": "en-US",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://mythistone.com" },
+        { "@type": "ListItem", "position": 2, "name": "Dungeons", "item": "https://mythistone.com/pages/dashboard" },
+        { "@type": "ListItem", "position": 3, "name": "{{ dungeon.name.en_US }}", "item": "https://mythistone.com/dungeons/{{ dungeon.slug }}" }
+      ]
+    }
+  ],
+  "author": {
+    "@type": "Organization",
+    "name": "MythiStone",
+    "url": "https://mythistone.com"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "MythiStone",
+    "url": "https://mythistone.com",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://mythistone.com/assets/img/favicon/favicon-96x96.png"
+    }
+  },
+  "datePublished": "2025-07-01",
+  "dateModified": "{{ generated_at|iso_ts }}"
+}
+    </script>
     <link rel="stylesheet" href="/assets/css/datatables.min.css">
 
 </head>
@@ -74,11 +118,11 @@
                                 class="w-100 rounded border-radius-lg shadow-sm border border-secondary shadow-lg">
                         </div>
                         <div>
-                            <h3 class="mb-0 font-weight-bolder">
-                                {{ dungeon.name.en_US }}
-                            </h3>
+                            <h1 class="h3 mb-0 font-weight-bolder">
+                                {{ dungeon.name.en_US }} Mythic+ Guide
+                            </h1>
                             <p class="mb-0 text-md">
-                                Mythic+ Dungeon Details
+                                {{ dungeon.name.en_US }} routes, timers and details for {{ season_info.name }}
                             </p>
                         </div>
                     </div>
