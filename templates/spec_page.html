@@ -215,6 +215,88 @@
 {% endif %}
 {%- endmacro %}
 
+{# Class / Spec talent tree node (positioned). Shared by both columns. #}
+{% macro render_tree_node(n) -%}
+<div class="tt-node{% if n.pct_val == 0 %} inactive{% endif %}" data-spellid="{{n.spellId}}" data-ntype="{{n.type}}" style="position: absolute; left: {{n.left}}%; top: {{n.top}}%; transform: translate(-50%, -50%); z-index: 2;">
+  {% if n.type == 'choice' %}
+      <div class="tt-choice-wrapper" style="position: relative; display: inline-flex; --border-color: #ffb000; width: 100%; height: 100%;">
+        <div class="arrow-left"></div>
+        <div class="tt-octagon-border" style="width: 100%; height: 100%; filter: grayscale({{ 100 - n.pct_val }}%);">
+          <img src="/data/icons/{{n.icon}}.png" alt="Icon" class="tt-octagon" style="width: 100%; height: 100%;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+        </div>
+        <div class="arrow-right"></div>
+        <div class="tt-custom-tooltip" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px; white-space: nowrap; z-index: 1050; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 5px;">
+          {% for c in n.choices %}
+          <a href="https://www.wowhead.com/spell={{c.spellId}}" style="color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; font-size: 13px;" target="_blank">
+            <img src="/data/icons/{{c.icon}}.png" width="24" height="24" style="border-radius: 4px;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+            <span>{{c.name}} : {{ '{:.0f}'.format(c.pct) }}%</span>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    {% else %}
+    <div class="tt-icon-container {% if n.type == 'tiered' %}tt-choice-wrapper{% endif %}" style="position: relative; display: inline-flex;">
+      {% if n.type == 'tiered' %}<span style="cursor:default;">{% else %}<a href="https://www.wowhead.com/spell={{n.spellId}}" target="_blank">{% endif %}
+        <img src="/data/icons/{{n.icon}}.png" alt="Icon" width="32" height="32" style="border-radius: {% if n.type == 'passive' or n.type == 'tiered' %}50%{% else %}10%{% endif %}; border: 1px solid #ffb000; filter: grayscale({{ 100 - n.pct_val }}%);" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+      {% if n.type == 'tiered' %}</span>{% else %}</a>{% endif %}
+      {% if n.type == 'tiered' %}
+      <div class="tt-custom-tooltip" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px; white-space: nowrap; z-index: 1050; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 5px;">
+        {% set rank_counter = namespace(value=0) %}
+        {% for c in n.choices %}
+        {% set rank_counter.value = rank_counter.value + c.maxRanks %}
+        {% set current_avg = n.avgRank | float %}
+          {% set start_rank = rank_counter.value - c.maxRanks | float %}
+          {% set end_rank = rank_counter.value | float %}
+          {% if current_avg >= end_rank %}
+            {% set spent = c.maxRanks %}
+          {% elif current_avg > start_rank %}
+            {% set spent = (current_avg - start_rank) | round | int %}
+          {% else %}
+            {% set spent = 0 %}
+          {% endif %}
+          {% set is_active = spent > 0 %}
+        <a href="https://www.wowhead.com/spell={{c.spellId}}" target="_blank" style="color: {% if is_active %}#fff{% else %}#777{% endif %}; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; font-size: 13px;">
+          <img src="/data/icons/{{c.icon}}.png" width="24" height="24" style="border-radius: 4px; filter: {% if is_active %}none{% else %}grayscale(100%){% endif %};" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+          <span>{{c.name}}{% if c.maxRanks > 1 %} ({{ spent }}/{{ c.maxRanks }} points){% endif %}</span>
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  {% endif %}
+  {% if not n.isFreeNode %}<div class="tt-badge" style="position: absolute; left: auto; bottom: -8px; right: -8px; transform: none; white-space: nowrap; background: #000; color: #fff; font-size: 10px; padding: 1px 4px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; z-index: 5;" title="{{ '{:.1f}'.format(n.pct_val) }}%">{{n.pct_val | round | int}}%</div>{% endif %}
+  {% if n.maxRanks > 1 %}
+    <div class="tt-maxrank" style="position: absolute; top: -6px; right: -6px; background: #333; border: 1px solid #777; color: #fff; font-size: 10px; padding: 0px 3px; border-radius: 3px; z-index: 5; cursor: default;" title="Average points spent: {{ n.avgRank | round(2) }}/{{ n.maxRanks }}">
+      {{ n.avgRank | round | int }}
+    </div>
+  {% endif %}
+</div>
+{%- endmacro %}
+
+{# Hero talent tree choice node (stacked column layout). #}
+{% macro render_hero_node(n) -%}
+<div class="d-flex flex-column align-items-center" data-spellid="{{n.spellId}}" data-ntype="{{n.type}}">
+  {% if n.type == 'choice' %}
+    <div class="tt-choice-wrapper" style="position: relative; display: inline-flex; --border-color: #ffb000; width: 46px; height: 46px;">
+      <div class="arrow-left"></div>
+      <div class="tt-octagon-border" style="width: 100%; height: 100%; filter: grayscale({{ 100 - n.pct_val }}%);">
+        <img src="/data/icons/{{n.icon}}.png" alt="Icon" class="tt-octagon" style="width: 100%; height: 100%;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+      </div>
+      <div class="arrow-right"></div>
+      <div class="text-center mt-1" style="background: #000; color: #fff; font-size: 11px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; padding: 1px 4px; position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); white-space: nowrap;" title="{{ '{:.1f}'.format(n.pct_val) }}%">{{n.pct_val | round | int}}%</div>
+      <div class="tt-custom-tooltip" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px; white-space: nowrap; z-index: 1050; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 5px;">
+        {% for c in n.choices %}
+        <a href="https://www.wowhead.com/spell={{c.spellId}}" style="color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; font-size: 13px;" target="_blank">
+          <img src="/data/icons/{{c.icon}}.png" width="24" height="24" style="border-radius: 4px;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+          <span>{{c.name}} : {{ '{:.0f}'.format(c.pct) }}%</span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{%- endmacro %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -367,7 +449,7 @@
                     <div class="text-xs text-secondary mt-1">Overall Played: <span class="text-white">{{ ((summary_data.count / (total_season_runs if total_season_runs else 1)) * 100) | round(1) }}%</span></div>
                   </div>
                   <div class="d-flex align-items-center">
-                    <button id="resetZoomBtnSpec" class="btn btn-sm btn-outline-light me-2 mb-0 d-none d-lg-inline-block" style="display: none;">Reset Zoom</button>
+                    <button id="resetZoomBtnSpec" class="btn btn-sm btn-outline-light me-2 mb-0" style="display: none;">Reset Zoom</button>
                     <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
                       <i class="material-symbols-rounded opacity-10">{%if trending %}trending_up {%else%}trending_down{%endif%}</i>
                     </div>
@@ -496,178 +578,66 @@
           </div>
           {% endif %}
 
-          {% if ui_class_tree and ui_spec_tree %}
-          <div id="static-talent-tree" class="talent-tree-wrapper d-flex flex-column flex-xl-row justify-content-center align-items-center gap-5 gap-xl-4">
-            <div class="tt-column tt-class tt-tree-column" id="tt-col-class">
-              <svg class="tt-edges">
-                {% for e in ui_class_tree.edges %}
-                <line x1="{{e.x1}}%" y1="{{e.y1}}%" x2="{{e.x2}}%" y2="{{e.y2}}%" style="stroke: {% if e.active %}#ffb000{% else %}#555{% endif %}; stroke-width: 2px;"></line>
-                {% endfor %}
-              </svg>
-              {% for n in ui_class_tree.nodes %}
-              <div class="tt-node{% if n.pct_val == 0 %} inactive{% endif %}" data-spellid="{{n.spellId}}" data-ntype="{{n.type}}" style="position: absolute; left: {{n.left}}%; top: {{n.top}}%; transform: translate(-50%, -50%); z-index: 2;">
-                {% if n.type == 'choice' %}
-                    <div class="tt-choice-wrapper" style="position: relative; display: inline-flex; --border-color: {% if n.pct_val > 0 %}#ffb000{% else %}#555{% endif %}; width: 100%; height: 100%;">
-                      <div class="arrow-left"></div>
-                      <div class="tt-octagon-border" style="width: 100%; height: 100%; filter: grayscale({{ 100 - n.pct_val }}%);">
-                        <img src="/data/icons/{{n.icon}}.png" alt="Icon" class="tt-octagon" style="width: 100%; height: 100%;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+          {% if hero_variants and hero_variants | length > 0 %}
+          <div id="static-talent-tree">
+            {% for v in hero_variants %}
+            {% if v.ui_class_tree and v.ui_spec_tree %}
+            <div class="tt-variant" data-hero-tree-id="{{ v.id }}" data-loadout="{{ v.loadout_code.original if v.loadout_code else '' }}"{% if not v.is_default %} style="display: none;"{% endif %}>
+              <div class="talent-tree-wrapper d-flex flex-column flex-xl-row justify-content-center align-items-center gap-5 gap-xl-4">
+                <div class="tt-column tt-class tt-tree-column">
+                  <svg class="tt-edges">
+                    {% for e in v.ui_class_tree.edges %}
+                    <line x1="{{e.x1}}%" y1="{{e.y1}}%" x2="{{e.x2}}%" y2="{{e.y2}}%" style="stroke: {% if e.active %}#ffb000{% else %}#555{% endif %}; stroke-width: 2px;"></line>
+                    {% endfor %}
+                  </svg>
+                  {% for n in v.ui_class_tree.nodes %}
+                  {{ render_tree_node(n) }}
+                  {% endfor %}
+                </div>
+
+                {% if v.ui_hero_tree and v.ui_hero_tree.nodes %}
+                <div class="tt-column tt-hero d-flex flex-column justify-content-center align-items-center my-5 my-xl-0 tt-hero-column">
+                  <div class="mb-4 text-center">
+                    <h5 class="text-uppercase font-weight-bolder" style="letter-spacing: 1px; font-size: 16px;">{{ v.name }}</h5>
+                    <div class="position-relative d-inline-block mt-2 tt-hero-switch{% if hero_variants | length > 1 %} tt-hero-switch-active{% endif %}"
+                      {% if hero_variants | length > 1 %}role="button" tabindex="0" title="Click to switch hero tree"{% endif %}>
+                      <img src="/data/icons/{{ v.icon }}.png" alt="{{ v.name }}" style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid #ffb000; box-shadow: 0 0 15px rgba(255, 176, 0, 0.4);" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+                      <div style="position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); background: #000; color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; border: 1px solid #ffb000; white-space: nowrap;" title="{{ '{:.1f}'.format(v.pct) }}%">
+                        {{ v.pct | round | int }}%
                       </div>
-                      <div class="arrow-right"></div>
-                      <div class="tt-custom-tooltip" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px; white-space: nowrap; z-index: 1050; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 5px;">
-                        {% for c in n.choices %}
-                        <a href="https://www.wowhead.com/spell={{c.spellId}}" style="color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; font-size: 13px;" target="_blank">
-                          <img src="/data/icons/{{c.icon}}.png" width="24" height="24" style="border-radius: 4px;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
-                          <span>{{c.name}} : {{ '{:.0f}'.format(c.pct) }}%</span>
-                        </a>
-                        {% endfor %}
-                      </div>
+                      {% if hero_variants | length > 1 %}
+                      <span class="tt-hero-switch-hint" aria-hidden="true" title="Click to switch hero tree">
+                        <i class="material-symbols-rounded">swap_horiz</i>
+                      </span>
+                      {% endif %}
                     </div>
-                  {% else %}
-                  <div class="tt-icon-container {% if n.type == 'tiered' %}tt-choice-wrapper{% endif %}" style="position: relative; display: inline-flex;">
-                    {% if n.type == 'tiered' %}<span style="cursor:default;">{% else %}<a href="https://www.wowhead.com/spell={{n.spellId}}" target="_blank">{% endif %}
-                      <img src="/data/icons/{{n.icon}}.png" alt="Icon" width="32" height="32" style="border-radius: {% if n.type == 'passive' or n.type == 'tiered' %}50%{% else %}10%{% endif %}; border: 1px solid {% if n.pct_val > 0 %}#ffb000{% else %}#555{% endif %}; filter: grayscale({{ 100 - n.pct_val }}%);" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
-                    {% if n.type == 'tiered' %}</span>{% else %}</a>{% endif %}
-                    {% if n.type == 'tiered' %}
-                    <div class="tt-custom-tooltip" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px; white-space: nowrap; z-index: 1050; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 5px;">
-                      {% set rank_counter = namespace(value=0) %}
-                      {% for c in n.choices %}
-                      {% set rank_counter.value = rank_counter.value + c.maxRanks %}
-                      {% set current_avg = n.avgRank | float %}
-                        {% set start_rank = rank_counter.value - c.maxRanks | float %}
-                        {% set end_rank = rank_counter.value | float %}
-                        {% if current_avg >= end_rank %}
-                          {% set spent = c.maxRanks %}
-                        {% elif current_avg > start_rank %}
-                          {% set spent = (current_avg - start_rank) | round | int %}
-                        {% else %}
-                          {% set spent = 0 %}
-                        {% endif %}
-                        {% set is_active = spent > 0 %}
-                      <a href="https://www.wowhead.com/spell={{c.spellId}}" target="_blank" style="color: {% if is_active %}#fff{% else %}#777{% endif %}; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; font-size: 13px;">
-                        <img src="/data/icons/{{c.icon}}.png" width="24" height="24" style="border-radius: 4px; filter: {% if is_active %}none{% else %}grayscale(100%){% endif %};" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
-                        <span>{{c.name}}{% if c.maxRanks > 1 %} ({{ spent }}/{{ c.maxRanks }} points){% endif %}</span>
-                      </a>
-                      {% endfor %}
-                    </div>
+                    {% if hero_variants | length > 1 %}
+                    <div class="text-xs text-secondary mt-5 tt-hero-switch-label">Click icon to switch hero tree</div>
                     {% endif %}
                   </div>
-                {% endif %}
-                {% if n.pct_val > 0.0 and not n.isFreeNode %}<div class="tt-badge" style="position: absolute; bottom: -8px; right: -8px; background: #000; color: #fff; font-size: 10px; padding: 1px 4px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; z-index: 5;" title="{{ '{:.1f}'.format(n.pct_val) }}%">{{n.pct_val | round | int}}%</div>{% endif %}
-                {% if n.maxRanks > 1 %}
-                  <div class="tt-maxrank" style="position: absolute; top: -6px; right: -6px; background: #333; border: 1px solid #777; color: #fff; font-size: 10px; padding: 0px 3px; border-radius: 3px; z-index: 5; cursor: default;" title="Average points spent: {{ n.avgRank | round(2) }}/{{ n.maxRanks }}">
-                    {{ n.avgRank | round | int }}
-                  </div>
-                {% endif %}
-              </div>
-              {% endfor %}
-            </div>
 
-            {% if ui_hero_tree and ui_hero_tree.nodes %}
-            <div class="tt-column tt-hero d-flex flex-column justify-content-center align-items-center my-5 my-xl-0 tt-hero-column" id="tt-col-hero">
-              {% if hero_trees and hero_trees | length > 0 %}
-              {% set top_tree = hero_trees | sort(attribute='count', reverse=True) | first %}
-              {% set top_sub = talent_lookup['subTrees'][ top_tree.id|string ] %}
-              <div class="mb-4 text-center">
-                <h5 class="text-uppercase font-weight-bolder" style="letter-spacing: 1px; font-size: 16px;">{{ top_sub.name }}</h5>
-                <div class="position-relative d-inline-block mt-2">
-                  <img src="/data/icons/{{ top_sub.icon }}.png" alt="{{ top_sub.name }}" style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid #ffb000; box-shadow: 0 0 15px rgba(255, 176, 0, 0.4);" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
-                  <div style="position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); background: #000; color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; border: 1px solid #ffb000; white-space: nowrap;" title="{{ '{:.1f}'.format((top_tree.count / hero_tree_count) * 100) }}%">
-                    {{ ((top_tree.count / hero_tree_count) * 100) | round | int }}%
+                  <div class="d-flex flex-column align-items-center gap-3 mt-3 w-100">
+                    {% for n in v.ui_hero_tree.nodes %}
+                    {{ render_hero_node(n) }}
+                    {% endfor %}
                   </div>
                 </div>
-              </div>
-              {% endif %}
+                {% endif %}
 
-              <div class="d-flex flex-column align-items-center gap-3 mt-3 w-100">
-                {% for n in ui_hero_tree.nodes %}
-                <div class="d-flex flex-column align-items-center" data-spellid="{{n.spellId}}" data-ntype="{{n.type}}">
-                  {% if n.type == 'choice' %}
-                    <div class="tt-choice-wrapper" style="position: relative; display: inline-flex; --border-color: {% if n.pct_val > 0 %}#ffb000{% else %}#555{% endif %}; width: 46px; height: 46px;">
-                      <div class="arrow-left"></div>
-                      <div class="tt-octagon-border" style="width: 100%; height: 100%; filter: grayscale({{ 100 - n.pct_val }}%);">
-                        <img src="/data/icons/{{n.icon}}.png" alt="Icon" class="tt-octagon" style="width: 100%; height: 100%;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
-                      </div>
-                      <div class="arrow-right"></div>
-                      <div class="text-center mt-1" style="background: #000; color: #fff; font-size: 11px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; padding: 1px 4px; position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); white-space: nowrap;" title="{{ '{:.1f}'.format(n.pct_val) }}%">{{n.pct_val | round | int}}%</div>
-                      <div class="tt-custom-tooltip" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px; white-space: nowrap; z-index: 1050; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 5px;">
-                        {% for c in n.choices %}
-                        <a href="https://www.wowhead.com/spell={{c.spellId}}" style="color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; font-size: 13px;" target="_blank">
-                          <img src="/data/icons/{{c.icon}}.png" width="24" height="24" style="border-radius: 4px;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
-                          <span>{{c.name}} : {{ '{:.0f}'.format(c.pct) }}%</span>
-                        </a>
-                        {% endfor %}
-                      </div>
-                    </div>
-                  {% endif %}
+                <div class="tt-column tt-spec tt-tree-column">
+                  <svg class="tt-edges">
+                    {% for e in v.ui_spec_tree.edges %}
+                    <line x1="{{e.x1}}%" y1="{{e.y1}}%" x2="{{e.x2}}%" y2="{{e.y2}}%" style="stroke: {% if e.active %}#ffb000{% else %}#555{% endif %}; stroke-width: 2px;"></line>
+                    {% endfor %}
+                  </svg>
+                  {% for n in v.ui_spec_tree.nodes %}
+                  {{ render_tree_node(n) }}
+                  {% endfor %}
                 </div>
-                {% endfor %}
               </div>
             </div>
             {% endif %}
-
-            <div class="tt-column tt-spec tt-tree-column" id="tt-col-spec">
-              <svg class="tt-edges">
-                {% for e in ui_spec_tree.edges %}
-                <line x1="{{e.x1}}%" y1="{{e.y1}}%" x2="{{e.x2}}%" y2="{{e.y2}}%" style="stroke: {% if e.active %}#ffb000{% else %}#555{% endif %}; stroke-width: 2px;"></line>
-                {% endfor %}
-              </svg>
-              {% for n in ui_spec_tree.nodes %}
-              <div class="tt-node{% if n.pct_val == 0 %} inactive{% endif %}" data-spellid="{{n.spellId}}" data-ntype="{{n.type}}" style="position: absolute; left: {{n.left}}%; top: {{n.top}}%; transform: translate(-50%, -50%); z-index: 2;">
-                {% if n.type == 'choice' %}
-                    <div class="tt-choice-wrapper" style="position: relative; display: inline-flex; --border-color: {% if n.pct_val > 0 %}#ffb000{% else %}#555{% endif %}; width: 100%; height: 100%;">
-                      <div class="arrow-left"></div>
-                      <div class="tt-octagon-border" style="width: 100%; height: 100%; filter: grayscale({{ 100 - n.pct_val }}%);">
-                        <img src="/data/icons/{{n.icon}}.png" alt="Icon" class="tt-octagon" style="width: 100%; height: 100%;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
-                      </div>
-                      <div class="arrow-right"></div>
-                      <div class="tt-custom-tooltip" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px; white-space: nowrap; z-index: 1050; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 5px;">
-                        {% for c in n.choices %}
-                        <a href="https://www.wowhead.com/spell={{c.spellId}}" style="color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; font-size: 13px;" target="_blank">
-                          <img src="/data/icons/{{c.icon}}.png" width="24" height="24" style="border-radius: 4px;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
-                          <span>{{c.name}} : {{ '{:.0f}'.format(c.pct) }}%</span>
-                        </a>
-                        {% endfor %}
-                      </div>
-                    </div>
-                  {% else %}
-                  <div class="tt-icon-container {% if n.type == 'tiered' %}tt-choice-wrapper{% endif %}" style="position: relative; display: inline-flex;">
-                    {% if n.type == 'tiered' %}<span style="cursor:default;">{% else %}<a href="https://www.wowhead.com/spell={{n.spellId}}" target="_blank">{% endif %}
-                      <img src="/data/icons/{{n.icon}}.png" alt="Icon" width="32" height="32" style="border-radius: {% if n.type == 'passive' or n.type == 'tiered' %}50%{% else %}10%{% endif %}; border: 1px solid {% if n.pct_val > 0 %}#ffb000{% else %}#555{% endif %}; filter: grayscale({{ 100 - n.pct_val }}%);" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
-                    {% if n.type == 'tiered' %}</span>{% else %}</a>{% endif %}
-                    {% if n.type == 'tiered' %}
-                    <div class="tt-custom-tooltip" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px; white-space: nowrap; z-index: 1050; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 5px;">
-                      {% set rank_counter = namespace(value=0) %}
-                      {% for c in n.choices %}
-                      {% set rank_counter.value = rank_counter.value + c.maxRanks %}
-                      {% set current_avg = n.avgRank | float %}
-                        {% set start_rank = rank_counter.value - c.maxRanks | float %}
-                        {% set end_rank = rank_counter.value | float %}
-                        {% if current_avg >= end_rank %}
-                          {% set spent = c.maxRanks %}
-                        {% elif current_avg > start_rank %}
-                          {% set spent = (current_avg - start_rank) | round | int %}
-                        {% else %}
-                          {% set spent = 0 %}
-                        {% endif %}
-                        {% set is_active = spent > 0 %}
-                      <a href="https://www.wowhead.com/spell={{c.spellId}}" target="_blank" style="color: {% if is_active %}#fff{% else %}#777{% endif %}; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; font-size: 13px;">
-                        <img src="/data/icons/{{c.icon}}.png" width="24" height="24" style="border-radius: 4px; filter: {% if is_active %}none{% else %}grayscale(100%){% endif %};" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
-                        <span>{{c.name}}{% if c.maxRanks > 1 %} ({{ spent }}/{{ c.maxRanks }} points){% endif %}</span>
-                      </a>
-                      {% endfor %}
-                    </div>
-                    {% endif %}
-                  </div>
-                {% endif %}
-                {% if n.pct_val > 0.0 and not n.isFreeNode %}<div class="tt-badge" style="position: absolute; bottom: -8px; right: -8px; background: #000; color: #fff; font-size: 10px; padding: 1px 4px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; z-index: 5;" title="{{ '{:.1f}'.format(n.pct_val) }}%">{{n.pct_val | round | int}}%</div>{% endif %}
-                {% if n.maxRanks > 1 %}
-                  <div class="tt-maxrank" style="position: absolute; top: -6px; right: -6px; background: #333; border: 1px solid #777; color: #fff; font-size: 10px; padding: 0px 3px; border-radius: 3px; z-index: 5; cursor: default;" title="Average points spent: {{ n.avgRank | round(2) }}/{{ n.maxRanks }}">
-                    {{ n.avgRank | round | int }}
-                  </div>
-                {% endif %}
-              </div>
-              {% endfor %}
-            </div>
+            {% endfor %}
           </div>
           {% endif %}
           <div class="row align-items-center justify-content-center my-2">
@@ -677,11 +647,14 @@
                 Routes for every Dungeon
               </button>
             </div>
-            {% if loadout_code and loadout_code.code %}
+            {% set default_variant = ((hero_variants | selectattr('is_default') | first) or (hero_variants | first)) if hero_variants else None %}
+            {% set has_any_loadout = (hero_variants | selectattr('loadout_code') | selectattr('loadout_code.code') | list | length > 0) if hero_variants else False %}
+            {% if has_any_loadout %}
+            {% set default_loadout = default_variant.loadout_code.original if (default_variant and default_variant.loadout_code) else '' %}
             <div class="col-12 col-md-auto d-flex justify-content-center mb-2 mb-md-0">
-              <button id="copyBtn" class="btn btn-primary d-flex align-items-center">
+              <button id="copyBtn" class="btn btn-primary d-flex align-items-center"{% if not default_loadout %} style="display: none;"{% endif %}>
                 <i class="fas fa-copy me-2"></i>
-                <span id="btnText" data-loadout="{{loadout_code.original}}" data-text="Export Talent String">Export
+                <span id="btnText" data-loadout="{{ default_loadout }}" data-text="Export Talent String">Export
                   Talent
                   String</span>
               </button>
@@ -1584,28 +1557,31 @@
 
                   {# — Class/Spec/Hero Talents — #}
 
-                  {% for category in talent_difs %}
-                  {% set all_data = talent_difs[category] %}
+                  {% for v in hero_variants %}
+                  <div class="talent-dif-variant" data-hero-tree-id="{{ v.id }}"{% if not v.is_default %} style="display: none;"{% endif %}>
+                  {% for category in v.talent_difs %}
+                  {% set all_data = v.talent_difs[category] %}
                   {% set data = all_data.get(dungeon|string, {}) %}
                   {% set lookup = talent_lookup.talents %}
                   {% set url_prefix = '/spell' %}
                   {% set id_attr = 'spellId' %}
+                  {% set uid = dungeon ~ '-' ~ category ~ '-' ~ v.id %}
 
                   <h4 class="mt-3">{{ category }} Talents</h4>
                   <div class="row">
                     {# Gains Accordion #}
                     <div class="col-md-6 mb-3">
-                      <div class="accordion" id="gainAcc-{{ dungeon }}-{{ category }}">
+                      <div class="accordion" id="gainAcc-{{ uid }}">
                         <div class="accordion-item">
-                          <h2 class="accordion-header" id="gainHead-{{ dungeon }}-{{ category }}">
+                          <h2 class="accordion-header" id="gainHead-{{ uid }}">
                             {% if data.gains %}
                             {# top is a dict now, use .talent_id and .pct_point_diff #}
                             {% set top = data.gains[0] %}
                             <a class="accordion-button collapsed border-success d-flex align-items-center overflow-hidden"
                               href="https://www.wowhead.com{{ url_prefix }}={{ lookup[top.talent_id|string][id_attr] }}?spec={{ spec_id }}"
                               target="_blank" role="button" data-bs-toggle="collapse"
-                              data-bs-target="#gainCol-{{ dungeon }}-{{ category }}" aria-expanded="false"
-                              aria-controls="gainCol-{{ dungeon }}-{{ category }}">
+                              data-bs-target="#gainCol-{{ uid }}" aria-expanded="false"
+                              aria-controls="gainCol-{{ uid }}">
                               <img src="/data/icons/{{ lookup[top.talent_id|string].icon }}.png" alt=""
                                 class="flex-shrink-0 me-2" style="width:24px; height:24px;" />
                               <span class="flex-grow-1 text-truncate" title="{{ lookup[top.talent_id|string].name }}">
@@ -1620,9 +1596,9 @@
                             {% endif %}
                           </h2>
                           {% if data.gains %}
-                          <div id="gainCol-{{ dungeon }}-{{ category }}" class="accordion-collapse collapse"
-                            aria-labelledby="gainHead-{{ dungeon }}-{{ category }}"
-                            data-bs-parent="#gainAcc-{{ dungeon }}-{{ category }}">
+                          <div id="gainCol-{{ uid }}" class="accordion-collapse collapse"
+                            aria-labelledby="gainHead-{{ uid }}"
+                            data-bs-parent="#gainAcc-{{ uid }}">
                             <div class="accordion-body p-2">
                               {# loop over remaining items; each 'item' is a dict #}
                               {% for item in data.gains[1:] %}
@@ -1649,16 +1625,16 @@
 
                     {# Losses Accordion (mirror of gains with sign/colour changes) #}
                     <div class="col-md-6 mb-3">
-                      <div class="accordion" id="lossAcc-{{ dungeon }}-{{ category }}">
+                      <div class="accordion" id="lossAcc-{{ uid }}">
                         <div class="accordion-item">
-                          <h2 class="accordion-header" id="lossHead-{{ dungeon }}-{{ category }}">
+                          <h2 class="accordion-header" id="lossHead-{{ uid }}">
                             {% if data.losses %}
                             {% set top = data.losses[0] %}
                             <a class="accordion-button collapsed border-danger d-flex align-items-center overflow-hidden"
                               href="https://www.wowhead.com{{ url_prefix }}={{ lookup[top.talent_id|string][id_attr] }}?spec={{ spec_id }}"
                               target="_blank" role="button" data-bs-toggle="collapse"
-                              data-bs-target="#lossCol-{{ dungeon }}-{{ category }}" aria-expanded="false"
-                              aria-controls="lossCol-{{ dungeon }}-{{ category }}">
+                              data-bs-target="#lossCol-{{ uid }}" aria-expanded="false"
+                              aria-controls="lossCol-{{ uid }}">
                               <img src="/data/icons/{{ lookup[top.talent_id|string].icon }}.png" alt=""
                                 class="flex-shrink-0 me-2" style="width:24px; height:24px;" />
                               <span class="flex-grow-1 text-truncate" title="{{ lookup[top.talent_id|string].name }}">
@@ -1673,9 +1649,9 @@
                             {% endif %}
                           </h2>
                           {% if data.losses %}
-                          <div id="lossCol-{{ dungeon }}-{{ category }}" class="accordion-collapse collapse"
-                            aria-labelledby="lossHead-{{ dungeon }}-{{ category }}"
-                            data-bs-parent="#lossAcc-{{ dungeon }}-{{ category }}">
+                          <div id="lossCol-{{ uid }}" class="accordion-collapse collapse"
+                            aria-labelledby="lossHead-{{ uid }}"
+                            data-bs-parent="#lossAcc-{{ uid }}">
                             <div class="accordion-body p-2">
                               {% for item in data.losses[1:] %}
                               {% set tid = item.talent_id %}
@@ -1697,6 +1673,8 @@
                         </div>
                       </div>
                     </div>
+                  </div>
+                  {% endfor %}
                   </div>
                   {% endfor %}
 
@@ -1889,8 +1867,8 @@
             tooltip: { mode: 'index', intersect: false },
             datalabels: { display: false },
             zoom: {
-              pan: { enabled: enableZoom, mode: 'x', onPan: function({chart}) { document.getElementById('resetZoomBtnSpec').style.display = 'block'; } },
-              zoom: { wheel: { enabled: enableZoom }, pinch: { enabled: enableZoom }, mode: 'x', onZoom: function({chart}) { document.getElementById('resetZoomBtnSpec').style.display = 'block'; } }
+              pan: { enabled: enableZoom, mode: 'x', onPan: function({chart}) { document.getElementById('resetZoomBtnSpec').style.display = 'inline-block'; } },
+              zoom: { wheel: { enabled: enableZoom }, pinch: { enabled: enableZoom }, mode: 'x', onZoom: function({chart}) { document.getElementById('resetZoomBtnSpec').style.display = 'inline-block'; } }
             }
           }
         }
@@ -2054,11 +2032,12 @@
     (function () {
       const copyBtn = document.getElementById('copyBtn');
       const btnText = document.getElementById('btnText');
-      // Your predefined text:
-      const toCopy = btnText.getAttribute('data-loadout') || '';
-      const text = btnText.getAttribute('data-text')
+      if (!copyBtn || !btnText) return;
+      const text = btnText.getAttribute('data-text');
 
       copyBtn.addEventListener('click', async () => {
+        // Read the loadout at click time so it reflects the active hero tree.
+        const toCopy = btnText.getAttribute('data-loadout') || '';
         try {
           await navigator.clipboard.writeText(toCopy);
           // Show success state
@@ -2077,6 +2056,52 @@
             copyBtn.classList.replace('btn-danger', 'btn-primary');
           }, 2000);
         }
+      });
+    })();
+    // Hero-tree switcher: cycles the talent overview (class/spec/hero trees),
+    // the Talent Differences modal, and the Export Talent String between hero
+    // trees. Clicking the hero icon advances to the next tree.
+    (function () {
+      const variants = Array.from(document.querySelectorAll('.tt-variant'));
+      if (variants.length <= 1) return;
+      const difVariants = Array.from(document.querySelectorAll('.talent-dif-variant'));
+
+      function syncExport(variantEl) {
+        const btnText = document.getElementById('btnText');
+        const copyBtn = document.getElementById('copyBtn');
+        if (!btnText || !copyBtn) return;
+        const loadout = variantEl.getAttribute('data-loadout') || '';
+        btnText.setAttribute('data-loadout', loadout);
+        copyBtn.style.display = loadout ? '' : 'none';
+      }
+
+      function show(idx) {
+        const treeId = variants[idx].getAttribute('data-hero-tree-id');
+        variants.forEach((el, i) => { el.style.display = (i === idx) ? '' : 'none'; });
+        difVariants.forEach((el) => {
+          el.style.display = (el.getAttribute('data-hero-tree-id') === treeId) ? '' : 'none';
+        });
+        syncExport(variants[idx]);
+      }
+
+      // Determine the initially visible variant (the server-rendered default).
+      let current = variants.findIndex((el) => el.style.display !== 'none');
+      if (current < 0) current = 0;
+      show(current);
+
+      function advance() {
+        current = (current + 1) % variants.length;
+        show(current);
+      }
+
+      document.querySelectorAll('.tt-hero-switch-active').forEach((el) => {
+        el.addEventListener('click', advance);
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            advance();
+          }
+        });
       });
     })();
   </script>

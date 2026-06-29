@@ -1174,20 +1174,22 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 valid_talents = {int(tid) for tid in talent_lookup.get("talents", {})}
                 valid_subtrees = {int(tid) for tid in talent_lookup.get("subTrees", {})}
                 print(f"[{datetime.now(timezone.utc).isoformat()}] Fetching talents...")
-                hero_talents_full = aggregateData.get_hero_talent_differences(
-                    conn, cursor, spec_id, current_season_id, valid_talents
-                )
+                # spec_talents_difs is still threaded into convert_slots below.
                 spec_talents_full = aggregateData.get_spec_talent_differences(
                     conn, cursor, spec_id, current_season_id, valid_talents
                 )
-
-                class_talents_full = aggregateData.get_class_talent_differences(
+                spec_talents_difs = aggregateData.biggest_deviations_per_dungeon(spec_talents_full)
+                # Per-hero-tree breakdowns so the talent overview can be shown
+                # relative to a single hero tree (toggleable on the page).
+                class_by_tree = aggregateData.get_class_talent_differences_by_hero_tree(
                     conn, cursor, spec_id, current_season_id, valid_talents
                 )
-
-                hero_talents_difs = aggregateData.biggest_deviations_per_dungeon(hero_talents_full)
-                spec_talents_difs = aggregateData.biggest_deviations_per_dungeon(spec_talents_full)
-                class_talents_difs = aggregateData.biggest_deviations_per_dungeon(class_talents_full)
+                spec_by_tree = aggregateData.get_spec_talent_differences_by_hero_tree(
+                    conn, cursor, spec_id, current_season_id, valid_talents
+                )
+                hero_by_tree = aggregateData.get_hero_talent_differences_by_hero_tree(
+                    conn, cursor, spec_id, current_season_id, valid_talents
+                )
                 hero_tree_difs = aggregateData.get_hero_tree_differences(
                     conn, cursor, spec_id, current_season_id, valid_subtrees
                 )
@@ -1432,6 +1434,52 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
             if not tree_by_spec.get(int(spec_id)):
                 raise ValueError(f"No talent tree data for spec {spec_id}")
 
+            # Build one talent-overview variant per hero tree (most popular
+            # first, which becomes the default shown). Each variant carries its
+            # own class/spec/hero UI trees, per-dungeon deviations, and loadout
+            # string so the page can switch the whole overview client-side.
+            tree_nodes = tree_by_spec.get(int(spec_id), {})
+            sub_trees = talent_lookup.get("subTrees", {})
+            hero_variants = []
+            for ht in sorted(
+                hero_trees, key=lambda t: t.get("count", 0), reverse=True
+            ):
+                tid = ht["id"]
+                sub = sub_trees.get(str(tid), {})
+                hero_variants.append({
+                    "id": tid,
+                    "name": sub.get("name"),
+                    "icon": sub.get("icon"),
+                    "pct": (ht["count"] / hero_tree_count * 100) if hero_tree_count else 0,
+                    "is_default": tid == popular_hero_tree,
+                    "ui_class_tree": build_ui_tree(
+                        tree_nodes.get("classNodes", []), class_by_tree.get(tid, {})
+                    ),
+                    "ui_spec_tree": build_ui_tree(
+                        tree_nodes.get("specNodes", []), spec_by_tree.get(tid, {})
+                    ),
+                    "ui_hero_tree": build_ui_tree(
+                        tree_nodes.get("heroNodes", []),
+                        hero_by_tree.get(tid, {}),
+                        is_hero=True,
+                        pop_hero_tree_id=tid,
+                    ),
+                    "loadout_code": escape_raidbot_code(
+                        loadouts.get(tid, {}).get("loadout")
+                    ),
+                    "talent_difs": {
+                        "Class": aggregateData.biggest_deviations_per_dungeon(
+                            class_by_tree.get(tid, {})
+                        ),
+                        "Hero": aggregateData.biggest_deviations_per_dungeon(
+                            hero_by_tree.get(tid, {})
+                        ),
+                        "Spec": aggregateData.biggest_deviations_per_dungeon(
+                            spec_by_tree.get(tid, {})
+                        ),
+                    },
+                })
+
             print(f"[{datetime.now(timezone.utc).isoformat()}] generating page...")
             # Build per-key-level stats for this spec to render stacked success chart
             try:
@@ -1483,9 +1531,6 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 trinket_slots=trinket_slots,
                 enchant_slots=enchant_slots,
                 hero_trees=hero_trees,
-                loadout_code=escape_raidbot_code(
-                    loadouts.get(popular_hero_tree, {}).get("loadout")
-                ),
                 enchant_lookup=enchant_lookup,
                 embellishment_lookup=embellishment_lookup,
                 missive_lookup=missive_lookup,
@@ -1511,19 +1556,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 stat_names=STAT_NAMES,
                 trending=spec_runs / total_runs if total_runs > 0 else 0,
                 highest_run=highest_run,
-                talent_difs={
-                    "Class": class_talents_difs,
-                    "Hero": hero_talents_difs,
-                    "Spec": spec_talents_difs,
-                },
-                talent_difs_full={
-                    "Class": class_talents_full,
-                    "Hero": hero_talents_full,
-                    "Spec": spec_talents_full,
-                },
-                ui_class_tree=build_ui_tree(tree_by_spec.get(int(spec_id), {}).get("classNodes", []), class_talents_full) if spec_id else None,
-                ui_hero_tree=build_ui_tree(tree_by_spec.get(int(spec_id), {}).get("heroNodes", []), hero_talents_full, is_hero=True, pop_hero_tree_id=popular_hero_tree) if spec_id else None,
-                ui_spec_tree=build_ui_tree(tree_by_spec.get(int(spec_id), {}).get("specNodes", []), spec_talents_full) if spec_id else None,
+                hero_variants=hero_variants,
                 tree_data=tree_by_spec.get(int(spec_id)),
                 hero_tree_difs=hero_tree_difs,
                 hero_tree_count=hero_tree_count,

@@ -1,5 +1,6 @@
 import databaseConnector
 import json
+from collections import defaultdict
 from pathlib import Path
 import requests
 
@@ -231,6 +232,57 @@ def get_class_talent_differences(
 
     return get_talent_differences(
         top_class_talent_diffs, class_talent_points_available, valid_talents
+    )
+
+
+def _by_hero_tree(rows, valid_talents):
+    """Partition raw talent-difference rows by hero tree.
+
+    rows: iterable of (hero_talent_id, dungeon, talent_id, count, avg_rank).
+    Returns {hero_tree_id: <same dict shape as get_talent_differences>}.
+
+    get_talent_differences already reads hero_talent_id as row[0] and ignores
+    it, so running it on a single-tree slice produces tree-relative stats.
+    """
+    buckets = defaultdict(list)
+    for row in rows:
+        buckets[int(row[0])].append(row)
+    return {
+        tid: get_talent_differences(tree_rows, 0, valid_talents)
+        for tid, tree_rows in buckets.items()
+    }
+
+
+def get_hero_talent_differences_by_hero_tree(
+    conn, cursor, spec_id, current_season_id, valid_talents
+):
+    return _by_hero_tree(
+        databaseConnector.fetch_hero_talents_differences(
+            conn, cursor, spec_id, current_season_id
+        ),
+        valid_talents,
+    )
+
+
+def get_spec_talent_differences_by_hero_tree(
+    conn, cursor, spec_id, current_season_id, valid_talents
+):
+    return _by_hero_tree(
+        databaseConnector.fetch_spec_talents_differences(
+            conn, cursor, spec_id, current_season_id
+        ),
+        valid_talents,
+    )
+
+
+def get_class_talent_differences_by_hero_tree(
+    conn, cursor, spec_id, current_season_id, valid_talents
+):
+    return _by_hero_tree(
+        databaseConnector.fetch_class_talents_differences(
+            conn, cursor, spec_id, current_season_id
+        ),
+        valid_talents,
     )
 
 

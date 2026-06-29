@@ -430,7 +430,11 @@ window.onload = function() {
       rippleDiv.style.top = (e.offsetY - rippleDiv.offsetHeight / 2) + 'px';
       rippleDiv.classList.add('ripple');
       setTimeout(function() {
-        rippleDiv.parentElement.removeChild(rippleDiv);
+        // Guard against the ripple's host being detached/replaced before the
+        // timer fires (e.g. a button that rewrites its inner content on click).
+        if (rippleDiv.parentElement) {
+          rippleDiv.parentElement.removeChild(rippleDiv);
+        }
       }, 600);
     }, false);
   }

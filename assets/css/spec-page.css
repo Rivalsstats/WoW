@@ -248,8 +248,51 @@
 @media (max-width: 575.98px) {
   #static-talent-tree .tt-node { width: 32px; height: 32px; }
   #static-talent-tree .tt-node img { width: 24px; height: 24px; }
-  #tt-col-hero .tt-choice-wrapper { width: 40px !important; height: 40px !important; }
-  #tt-col-hero .tt-hero-choice-inner { width: 40px !important; height: 40px !important; }
+  .tt-hero .tt-choice-wrapper { width: 40px !important; height: 40px !important; }
+  .tt-hero .tt-hero-choice-inner { width: 40px !important; height: 40px !important; }
+}
+
+/* Hero-tree switcher: the hero icon doubles as a button to cycle the talent
+   overview between hero trees. The swap badge + label hint at the affordance. */
+.tt-hero-switch-active {
+  cursor: pointer;
+  outline: none;
+}
+.tt-hero-switch-active:hover img,
+.tt-hero-switch-active:focus-visible img {
+  box-shadow: 0 0 20px rgba(255, 176, 0, 0.75) !important;
+}
+.tt-hero-switch-hint {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #ffb000;
+  color: #000;
+  border: 2px solid #1a202c;
+  box-shadow: 0 0 8px rgba(255, 176, 0, 0.6);
+  z-index: 6;
+  pointer-events: none;
+  animation: tt-hero-switch-pulse 1.8s ease-in-out infinite;
+}
+.tt-hero-switch-hint .material-symbols-rounded {
+  font-size: 18px;
+  line-height: 1;
+}
+.tt-hero-switch-label {
+  letter-spacing: 0.3px;
+}
+@keyframes tt-hero-switch-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 8px rgba(255, 176, 0, 0.6); }
+  50% { transform: scale(1.12); box-shadow: 0 0 14px rgba(255, 176, 0, 0.9); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tt-hero-switch-hint { animation: none; }
 }
 
 /* Item render slot styles */
