@@ -2031,8 +2031,6 @@ async def database_worker(name: str):
             if run_obj is None:
                 if batch:
                     await process_batch(name, conn, cursor, batch, GLOBAL_STATS)
-                    cursor.close()
-                    conn.close()
                 break
             if len(batch) >= BATCH_SIZE:
                 try:
@@ -2046,8 +2044,10 @@ async def database_worker(name: str):
                     conn.rollback()
                     continue
 
+        # `with closing(...)` returns the pooled connection exactly once on exit;
+        # do not call conn.close() here or it double-returns and injects a surplus
+        # connection into the shared pool ("Failed adding connection; queue is full").
         cursor.close()
-        conn.close()
 
 
 async def main():
