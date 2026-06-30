@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from contextlib import closing
 import re
 from urllib.parse import quote_plus
-from pageGeneration import ROLE_FOLDERS, generateSpecNav, generateDungeonNav
+from pageGeneration import ROLE_FOLDERS, generateSpecNav, generateDungeonNav, build_item_slug_map
 
 LOOKUP_DIR = "data/static"  # Default lookup directory, can be overridden by command line argument
 LEFT_ORDER = ["HEAD", "NECK", "SHOULDER", "BACK", "CHEST", "WRIST"]
@@ -1095,6 +1095,9 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
     item_lookup = {
         i["id"]: i for i in equippable_items
     }
+    # item_id -> URL slug for linking to the dedicated item pages (/items/<slug>).
+    # Derived from item names; matches the map generateItemPages.py builds.
+    item_slug_map = build_item_slug_map(item_lookup)
     set_members = defaultdict(list)
     for iid, itm in item_lookup.items():
         sid = itm.get("itemSetId")
@@ -1539,6 +1542,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 socket_lookup=socket_lookup,
                 spec_lookup=spec_lookup,
                 item_lookup=item_lookup,
+                item_slug_map=item_slug_map,
                 notifications=notifications,
                 reagent_lookup=reagent_lookup,
                 dungeon_lookup=dungeon_lookup,

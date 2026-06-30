@@ -723,6 +723,212 @@ def fetch_top_sockets(connection, cursor, spec_id, season):
     return fetch_with_retry(connection, cursor, FETCH_TOP_SOCKETS_SQL, params)
 
 
+# ---------------------------------------------------------------------------
+# Item-page sweeps
+#
+# The dedicated item pages (generateItemPages.py) need data keyed by item_id
+# rather than by spec/slot. Each helper sweeps one spec at a time: every one of
+# these aggregation tables has a primary key that *starts* with spec_id, so
+# filtering by spec_id (plus season) uses the index, whereas a season-only
+# filter would force a full table scan (the bonus table in particular is huge
+# and carries a large text column). The generator loops over the specs and
+# buckets rows by item_id (keeping the per-spec split for the bySpec view).
+# ---------------------------------------------------------------------------
+
+FETCH_ITEM_SPEC_USAGE_SQL = """
+SELECT item_id, run_count, max_timed_key, max_depleted_key
+FROM Mythistone.global_aggregated_items
+WHERE spec_id = %s
+  AND season = %s
+  AND run_count > 0;
+"""
+
+
+def fetch_item_spec_usage(connection, cursor, season, spec_id):
+    """Per-item usage rollup for one spec/season.
+
+    Returns rows: (item_id, run_count, max_timed_key, max_depleted_key).
+    Across all specs, the distinct item_ids here define which items get a page.
+    """
+    return fetch_with_retry(
+        connection, cursor, FETCH_ITEM_SPEC_USAGE_SQL, (spec_id, season)
+    )
+
+
+FETCH_ITEM_SOCKET_USAGE_SQL = """
+SELECT item_id, socket_item_id, SUM(run_count) AS run_count
+FROM Mythistone.global_aggregated_item_sockets
+WHERE spec_id = %s
+  AND season = %s
+GROUP BY item_id, socket_item_id;
+"""
+
+
+def fetch_item_socket_usage(connection, cursor, season, spec_id):
+    """Per-(item, gem) socket usage for one spec/season.
+
+    Returns rows: (item_id, socket_item_id, run_count).
+    """
+    return fetch_with_retry(
+        connection, cursor, FETCH_ITEM_SOCKET_USAGE_SQL, (spec_id, season)
+    )
+
+
+FETCH_ITEM_BONUS_USAGE_SQL = """
+SELECT item_id, bonus_list, run_count
+FROM Mythistone.global_aggregated_bonus_lists
+WHERE spec_id = %s
+  AND season = %s
+  AND run_count > 0;
+"""
+
+
+def fetch_item_bonus_usage(connection, cursor, season, spec_id):
+    """Per-(item, bonus_list) usage for one spec/season (ilvl / bonus variants).
+
+    Returns rows: (item_id, bonus_list, run_count). The generator keeps only the
+    top few combos per item.
+    """
+    return fetch_with_retry(
+        connection, cursor, FETCH_ITEM_BONUS_USAGE_SQL, (spec_id, season)
+    )
+
+
+FETCH_ITEM_DUNGEON_USAGE_SQL = """
+SELECT item_id, dungeon_id, keystone_level,
+       SUM(CASE WHEN upgrade_tier = 'depleted' THEN 0 ELSE run_count END) AS timed_runs,
+       SUM(CASE WHEN upgrade_tier = 'depleted' THEN run_count ELSE 0 END) AS depleted_runs
+FROM Mythistone.aggregated_equipment
+WHERE spec_id = %s
+  AND season = %s
+GROUP BY item_id, dungeon_id, keystone_level;
+"""
+
+
+def fetch_item_dungeon_usage(connection, cursor, season, spec_id):
+    """Per-(item, dungeon, keystone level) usage for one spec, split timed/depleted.
+
+    Collapses hero_talent / tier / slot out of aggregated_equipment. Returns rows:
+    (item_id, dungeon_id, keystone_level, timed_runs, depleted_runs).
+    """
+    return fetch_with_retry(
+        connection, cursor, FETCH_ITEM_DUNGEON_USAGE_SQL, (spec_id, season)
+    )
+
+
+# --- Denominators for adoption-rate (% of runs) metrics on the item page ----
+# These are item-independent run totals: how many runs each spec / dungeon /
+# key level had overall, so the item page can show "X% of this spec's runs use
+# the item" instead of raw counts that just track how much each spec is played.
+
+FETCH_SPEC_TOTAL_RUNS_SQL = """
+SELECT spec_id, run_count
+FROM Mythistone.aggregated_dungeon_global_specs
+WHERE season = %s;
+"""
+
+
+def fetch_spec_total_runs(connection, cursor, season):
+    """Total runs per spec for the season: {str(spec_id): run_count}."""
+    rows = fetch_with_retry(connection, cursor, FETCH_SPEC_TOTAL_RUNS_SQL, (season,))
+    return {str(sp): int(rc) for sp, rc in rows}
+
+
+FETCH_DUNGEON_SPEC_TOTAL_RUNS_SQL = """
+SELECT spec_id, dungeon_id, run_count
+FROM Mythistone.aggregated_dungeon_specs
+WHERE season = %s;
+"""
+
+
+def fetch_dungeon_spec_total_runs(connection, cursor, season):
+    """Total runs per (spec, dungeon): {(str(spec_id), str(dungeon_id)): run_count}."""
+    rows = fetch_with_retry(
+        connection, cursor, FETCH_DUNGEON_SPEC_TOTAL_RUNS_SQL, (season,)
+    )
+    return {(str(sp), str(did)): int(rc) for sp, did, rc in rows}
+
+
+FETCH_SPEC_KEYLEVEL_TOTAL_RUNS_SQL = """
+SELECT spec_id, keystone_level, SUM(run_count) AS total_runs
+FROM Mythistone.aggregated_spec
+GROUP BY spec_id, keystone_level;
+"""
+
+
+def fetch_spec_keylevel_total_runs(connection, cursor):
+    """Total runs per (spec, key level): {(str(spec_id), int(level)): run_count}.
+
+    aggregated_spec has no season column (it holds the current season), so no
+    season filter is applied.
+    """
+    rows = fetch_with_retry(connection, cursor, FETCH_SPEC_KEYLEVEL_TOTAL_RUNS_SQL)
+    return {(str(sp), int(lvl)): int(rc) for sp, lvl, rc in rows}
+
+
+# --- "best in slot" signals for the item page ------------------------------
+
+FETCH_SIMC_BIS_RANK1_SQL = """
+SELECT spec_id, item_id, dps_pct_gain
+FROM Mythistone.simc_bis_items
+WHERE season = %s AND `rank` = 1;
+"""
+
+
+def fetch_simc_bis_rank1(connection, cursor, season):
+    """SimulationCraft rank-1 (BiS) pick per spec+slot for the season.
+
+    Returns rows: (spec_id, item_id, dps_pct_gain). Used to mark which specs an
+    item is the simulated best-in-slot for.
+    """
+    return fetch_with_retry(connection, cursor, FETCH_SIMC_BIS_RANK1_SQL, (season,))
+
+
+FETCH_TOP50_ITEM_COUNTS_SQL = """
+SELECT spec_id, item_id, COUNT(DISTINCT `rank`, map_challenge_mode_id) AS cnt
+FROM Mythistone.top_player_loadout_items
+WHERE season = %s
+GROUP BY spec_id, item_id;
+"""
+
+FETCH_TOP50_LOADOUT_TOTALS_SQL = """
+SELECT spec_id, COUNT(*) AS total
+FROM Mythistone.top_player_loadouts
+WHERE season = %s
+GROUP BY spec_id;
+"""
+
+
+def fetch_top50_item_counts(connection, cursor, season):
+    """How many top-player loadouts equip each (spec, item).
+
+    Returns rows: (spec_id, item_id, cnt) where cnt is distinct loadouts.
+    """
+    return fetch_with_retry(connection, cursor, FETCH_TOP50_ITEM_COUNTS_SQL, (season,))
+
+
+def fetch_top50_loadout_totals(connection, cursor, season):
+    """Total top-player loadouts per spec: {str(spec_id): total}."""
+    rows = fetch_with_retry(connection, cursor, FETCH_TOP50_LOADOUT_TOTALS_SQL, (season,))
+    return {str(sp): int(t) for sp, t in rows}
+
+
+FETCH_ENCHANT_SLOTGROUP_USAGE_SQL = """
+SELECT spec_id, slot_group, enchantment_id, run_count
+FROM Mythistone.global_aggregated_enchantments_slot_group
+WHERE season = %s;
+"""
+
+
+def fetch_enchant_slotgroup_usage(connection, cursor, season):
+    """Enchant usage per (spec, slot_group).
+
+    Returns rows: (spec_id, slot_group, enchantment_id, run_count). The generator
+    picks the most-used enchant per slot group (per spec and globally).
+    """
+    return fetch_with_retry(connection, cursor, FETCH_ENCHANT_SLOTGROUP_USAGE_SQL, (season,))
+
+
 FETCH_TOP_LOADOUT_SQL = """
 WITH summed AS (
   SELECT

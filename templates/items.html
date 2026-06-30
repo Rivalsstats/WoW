@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  {% include "header_imports.html" %}
+  <link rel="stylesheet" href="/assets/css/stat-colors.css" />
+  <link rel="stylesheet" href="/assets/css/items.css" />
+
+  <title>Mythic+ Item Usage in {{ season_info.name }} | MythiStone</title>
+  <meta name="description"
+    content="Browse every item used in Mythic+ in {{ season_info.name }}. Filter by slot and quality to see which specs equip it, dungeon usage, popular gems and item-level variants.">
+  <meta name="keywords" content="MythiStone, Mythic+, items, gear, BIS, WoW meta, {{ season_info.name }}">
+  <link rel="canonical" href="https://mythistone.com/pages/items">
+  <meta name="robots" content="index, follow">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="MythiStone">
+  <meta property="og:url" content="https://mythistone.com/pages/items">
+  <meta property="og:title" content="Mythic+ Item Usage in {{ season_info.name }}">
+  <meta property="og:description"
+    content="Browse every item used in Mythic+ in {{ season_info.name }} and see who equips it.">
+  <meta property="og:locale" content="en_US">
+  <meta name="theme-color" content="#1a202c">
+</head>
+
+<body class="g-sidenav-show g-sidenav-show-right" data-bs-theme="dark">
+  {% include "sidenav.html" %}
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg items-browse item-page">
+    {% include "navbar.html" %}
+    {% include "notifications.html" %}
+
+    <div class="container-fluid py-2">
+
+      <!-- ============ BROWSE VIEW ============ -->
+      <div id="browse-view">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h1 class="h4 mb-1">Mythic+ Items</h1>
+            <p class="text-sm opacity-8 mb-3">
+              {{ item_count }} items seen in {{ season_info.name }} Mythic+ runs. Click an item for full usage details.
+            </p>
+            <div class="row g-2 align-items-end">
+              <div class="col-md-5">
+                <label class="form-label text-xs opacity-7 mb-1">Search</label>
+                <input type="search" id="item-search" class="form-control" placeholder="Search items by name…"
+                  aria-label="Search items by name" autocomplete="off" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label text-xs opacity-7 mb-1">Slot</label>
+                <select id="slot-filter" class="selectpicker form-control" data-style="btn-outline-primary"
+                  data-width="100%" title="All slots" aria-label="Filter by slot">
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label text-xs opacity-7 mb-1">Quality</label>
+                <select id="quality-filter" class="selectpicker form-control" data-style="btn-outline-primary"
+                  data-width="100%" title="All quality" aria-label="Filter by quality">
+                  <option value="">All quality</option>
+                  <option value="4">Epic</option>
+                  <option value="3">Rare</option>
+                  <option value="5">Legendary</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label text-xs opacity-7 mb-1">Sort</label>
+                <select id="sort-by" class="selectpicker form-control" data-style="btn-outline-primary"
+                  data-width="100%" aria-label="Sort">
+                  <option value="runs">Most used</option>
+                  <option value="name">Name (A–Z)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="items-grid" class="row g-2"></div>
+        <p id="items-empty" class="text-center opacity-6 py-4 d-none">No items match your filters.</p>
+        <div class="text-center py-3">
+          <button id="items-more" class="btn btn-outline-primary d-none">Show more</button>
+        </div>
+      </div>
+
+      {% include "footer.html" %}
+    </div>
+  </main>
+  {% include "right_aside.html" %}
+  {% include "fixed_plugin.html" %}
+  {% include "javascript_imports.html" %}
+
+  <!-- Wowhead tooltips (Klaro consent-gated, same as spec pages) -->
+  <script type="text/plain" data-type="application/javascript" data-name="wowhead"
+    data-src='https://wow.zamimg.com/widgets/power.js'></script>
+
+  <script>
+    window.specs_map = {{ specs_map | tojson | safe }};
+    window.dungeons_map = {{ dungeons_map | tojson | safe }};
+  </script>
+  <script src="/assets/js/items.js"></script>
+</body>
+
+</html>

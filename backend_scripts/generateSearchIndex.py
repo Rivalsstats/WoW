@@ -25,6 +25,9 @@ EXCLUDE_DIRS = {
     "backend_scripts",
     "templates",
     "data",
+    # Item pages are added as lightweight entries from the manifest below, so we
+    # skip the full-content walk of items/ (it would bloat the index massively).
+    "items",
 }
 SKIP_FILES = {"404.html", "impressum.html", "privacy.html", "about.html"}
 
@@ -213,6 +216,60 @@ def build_index_for_paths(collected):
     return items
 
 
+QUALITY_NAMES = {0: "poor", 1: "common", 2: "uncommon", 3: "rare", 4: "epic", 5: "legendary", 6: "artifact", 7: "heirloom"}
+
+
+def append_item_entries(items):
+    """Append the dedicated item pages to the search index.
+
+    Individual items have dedicated pages at /items/<slug>, but the items/ dir is
+    excluded from the full-content walk (it would bloat the index). We read the
+    compact manifest produced by generateItemPages.py and inject one lightweight
+    entry per item so the site search can find items by name.
+    """
+    manifest_path = os.path.join("assets", "json", "items_index.json")
+    if not os.path.isfile(manifest_path):
+        print("No items_index.json found; skipping item search entries.")
+        return items
+    try:
+        manifest = load_json(manifest_path)
+    except Exception as e:
+        print(f"Warning: could not read items manifest: {e}")
+        return items
+
+    existing_urls = {it.get("url") for it in items}
+    added = 0
+    for m in manifest:
+        slug = m.get("slug")
+        if not slug:
+            continue
+        url = f"/items/{slug}"
+        if url in existing_urls:
+            continue
+        slot = m.get("slot", "")
+        quality = QUALITY_NAMES.get(m.get("quality"), "")
+        tags = ["item"]
+        if slot:
+            tags.append(slot.lower())
+        if quality:
+            tags.append(quality)
+        entry = {
+            "title": m["name"],
+            "url": url,
+            "path": f"items/{slug}.html",
+            "content": f"{m['name']} {slot} {quality} Mythic+ item usage gear",
+            "excerpt": f"{m['name']} — {slot} item used in {m.get('runs', 0)} Mythic+ runs.",
+            "tags": tags,
+            "last_modified": None,
+        }
+        if m.get("icon"):
+            entry["icon"] = f"/data/icons/{m['icon']}.png"
+        items.append(entry)
+        added += 1
+    print(f"Added {added} item entries to search index.")
+    return items
+
+
 def write_output(items, targets):
     data = items
     json_text = json.dumps(data, ensure_ascii=False, indent=2)
@@ -243,6 +300,7 @@ def main():
     if not collected:
         print("No .html files found in the specified site directories.")
     items = build_index_for_paths(collected)
+    items = append_item_entries(items)
 
     # targets: write into every found site root, and one copy to repo root (cwd)
     write_targets = list(found_dirs) + [os.path.join(os.getcwd(), OUTPUT_FILENAME)]

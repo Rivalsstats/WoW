@@ -1,0 +1,268 @@
+/* Styling for the dedicated item pages (item.html) and the item browse page
+   (items.html). Reuses the quality CSS variables defined in stat-colors.css. */
+
+.item-page .item-hero {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.item-page .item-hero-aside {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+/* clickable key-level bars (filter the dungeon breakdown) */
+.item-page .key-histogram .key-bar { cursor: pointer; transition: opacity .12s; }
+.item-page .key-histogram .key-bar:hover { opacity: .8; }
+.item-page .key-histogram .key-bar.selected { outline: 2px solid var(--quality-4); outline-offset: 1px; }
+
+.item-page .item-hero-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 0.5rem;
+  border: 2px solid var(--quality-1);
+}
+
+.item-quality-0 { color: var(--quality-0) !important; }
+.item-quality-1 { color: #d4d4d4 !important; }
+.item-quality-2 { color: var(--quality-2) !important; }
+.item-quality-3 { color: var(--quality-3) !important; }
+.item-quality-4 { color: var(--quality-4) !important; }
+.item-quality-5 { color: var(--quality-5) !important; }
+.item-quality-6 { color: var(--quality-6) !important; }
+.item-quality-7 { color: var(--quality-7) !important; }
+
+.item-page .scope-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+}
+
+.item-page .spec-switcher .spec-chip,
+.item-page .spec-rank-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.item-page .spec-icon,
+.item-page .gem-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 0.25rem;
+  flex: 0 0 auto;
+}
+
+.item-page .spec-chip {
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.8rem;
+  text-decoration: none;
+  color: inherit;
+}
+.item-page .spec-chip.active {
+  border-color: var(--quality-4);
+  background: rgba(163, 53, 238, 0.15);
+}
+
+/* ----- spec cards (BiS / top picks / spec switcher) ----- */
+.item-page .spec-card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.item-page .spec-card {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+  transition: border-color 0.12s, background 0.12s, transform 0.12s;
+}
+.item-page .spec-card:hover {
+  border-color: var(--quality-4);
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
+}
+.item-page .spec-card.active {
+  border-color: var(--quality-4);
+  background: rgba(163, 53, 238, 0.15);
+}
+.item-page .spec-card .spec-card-meta { min-width: 0; line-height: 1.15; }
+.item-page .spec-card .spec-card-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.item-page .spec-card .spec-card-sub {
+  font-size: 0.68rem;
+  opacity: 0.65;
+  white-space: nowrap;
+}
+.item-page .spec-card-all { padding-left: 0.9rem; padding-right: 0.9rem; }
+
+/* ----- enhancement cards (enchant / embellishment / missive) ----- */
+.item-page .craft-card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.item-page #item-enchant,
+.item-page #item-craft { display: contents; }
+.item-page .craft-card {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  text-decoration: none;
+  color: inherit;
+  min-width: 12rem;
+  flex: 1 1 12rem;
+  max-width: 20rem;
+  transition: border-color 0.12s, background 0.12s, transform 0.12s;
+}
+.item-page .craft-card:hover {
+  border-color: var(--quality-4);
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
+}
+.item-page .craft-card .craft-card-meta { min-width: 0; line-height: 1.2; }
+.item-page .craft-card .craft-card-kind {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.55;
+}
+.item-page .craft-card .craft-card-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.item-page .craft-card .craft-card-sub { font-size: 0.7rem; opacity: 0.65; }
+
+/* ----- BiS group heading ----- */
+.item-page .bis-group:last-child { margin-bottom: 0 !important; }
+
+/* ----- item-level tier badges (variant tracks) ----- */
+.item-page .tier-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.28rem 0.55rem;
+  border-radius: 0.4rem;
+  letter-spacing: 0.02em;
+}
+.item-page .tier-standard   { background: var(--quality-3); color: #fff; }       /* blue   (rare)      */
+.item-page .tier-raidfinder { background: var(--quality-2); color: #11331a; }    /* green  (uncommon)  */
+.item-page .tier-heroic     { background: var(--quality-4); color: #fff; }       /* purple (epic)      */
+.item-page .tier-mythic     { background: var(--quality-5); color: #3a1d00; }    /* orange (legendary) */
+.item-page .tier-other      { background: rgba(255, 255, 255, 0.14); color: #e9e9e9; }
+
+/* horizontal usage bars (spec popularity / gems) */
+.item-page .usage-row {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.3rem 0;
+}
+.item-page .usage-bar {
+  position: relative;
+  height: 18px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+.item-page .usage-bar > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(90deg, #5e72e4, #825ee4);
+  border-radius: 4px;
+}
+.item-page .usage-label {
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+/* dungeon key-level heatmap */
+.item-page .dungeon-block { margin-bottom: 0.75rem; }
+.item-page .key-histogram {
+  display: flex;
+  gap: 3px;
+  align-items: flex-end;
+  height: 60px;
+}
+.item-page .key-bar {
+  flex: 1 1 0;
+  min-width: 8px;
+  background: #5e72e4;
+  border-radius: 3px 3px 0 0;
+  position: relative;
+}
+.item-page .key-bar .key-num {
+  position: absolute;
+  bottom: -1.1rem;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 0.65rem;
+  opacity: 0.7;
+}
+
+/* variant chips */
+.item-page .variant-tag {
+  font-size: 0.7rem;
+  margin-right: 0.25rem;
+}
+
+/* ----- browse page grid ----- */
+.items-browse .item-card {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+}
+.items-browse .item-card:hover {
+  border-color: var(--quality-4);
+  background: rgba(255, 255, 255, 0.05);
+}
+.items-browse .item-card img {
+  width: 40px;
+  height: 40px;
+  border-radius: 0.35rem;
+  flex: 0 0 auto;
+}
+.items-browse .item-card .meta { min-width: 0; }
+.items-browse .item-card .name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.items-browse .item-card .sub {
+  font-size: 0.72rem;
+  opacity: 0.7;
+}
