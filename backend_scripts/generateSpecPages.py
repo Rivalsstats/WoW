@@ -1167,6 +1167,18 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
         try:
             with closing(databaseConnector.get_connection()) as conn:
                 cursor = conn.cursor()
+                # Read-only build: don't hold a long-lived snapshot/transaction (a
+                # hung build under autocommit=0 becomes an MDL holder that blocks the
+                # daily TRUNCATE+rebuild events on the global_aggregated_* tables,
+                # which then blocks every later query -> 1205 lock wait timeout).
+                # READ UNCOMMITTED matches the events' isolation. lock_wait_timeout
+                # bounds how long a query waits on a metadata lock so a contended
+                # table fails fast (fetch_with_retry rides out transient TRUNCATE
+                # windows) instead of hanging for the server default (~1 year).
+                conn.autocommit = True
+                cursor.execute("SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED")
+                cursor.execute("SET SESSION lock_wait_timeout = 120")
+                cursor.execute("SET SESSION innodb_lock_wait_timeout = 30")
 
                 spec_data = spec_lookup.get(spec_id, {})
                 class_data = class_lookup.get(spec_data.get("classID", ""), {})
