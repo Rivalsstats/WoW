@@ -55,117 +55,193 @@
     return "tier-other";
   }
 
-  // A single spec rendered as a re-scoping card (mirrors the spec_card macro).
-  function specCard(specId, sub, active) {
-    var spec = SPECS[String(specId)] || {};
-    var a = scopeLink(specId);
+  // A combined spec chip: re-scopes on click, shows adoption + SIM/TOP badges
+  // (mirrors the spec_overview_card macro).
+  function specOverviewCard(s, active) {
+    var spec = SPECS[String(s.spec_id)] || {};
+    var a = scopeLink(s.spec_id);
     a.className = "spec-card" + (active ? " active" : "");
+    var tip = (spec.name || "Spec " + s.spec_id) + (spec.className ? " " + spec.className : "");
+    if (s.adoption != null) tip += " · " + s.adoption + "% adoption";
+    if (s.is_sim) tip += " · SimulationCraft best-in-slot";
+    if (s.is_top) tip += " · used by " + s.top_pct + "% of top players";
+    a.title = tip;
     var img = document.createElement("img");
     img.className = "spec-icon"; img.src = specIcon(spec); img.alt = "";
     var meta = document.createElement("div");
     meta.className = "spec-card-meta";
     var nm = document.createElement("div");
-    nm.className = "spec-card-name"; nm.textContent = spec.name || ("Spec " + specId);
-    meta.appendChild(nm);
-    if (sub) {
-      var sb = document.createElement("div");
-      sb.className = "spec-card-sub"; sb.textContent = sub;
-      meta.appendChild(sb);
-    }
+    nm.className = "spec-card-name"; nm.textContent = spec.name || ("Spec " + s.spec_id);
+    if (spec.color) nm.style.color = spec.color;
+    var sub = document.createElement("div");
+    sub.className = "spec-card-sub d-flex align-items-center gap-1";
+    if (s.adoption != null) { var pv = document.createElement("span"); pv.textContent = s.adoption + "%"; sub.appendChild(pv); }
+    if (s.is_sim) { var bi = document.createElement("span"); bi.className = "badge rec-badge rec-badge-sim"; bi.textContent = "SIM"; sub.appendChild(bi); }
+    if (s.is_top) { var bt = document.createElement("span"); bt.className = "badge rec-badge rec-badge-top"; bt.textContent = "TOP"; sub.appendChild(bt); }
+    meta.appendChild(nm); meta.appendChild(sub);
     a.appendChild(img); a.appendChild(meta);
     return a;
   }
 
-  // A craft/enchant choice rendered as a card (mirrors the craft_card macro).
-  function craftCard(kind, name, icon, href, sub, wowheadId) {
-    var a = document.createElement("a");
-    a.className = "craft-card"; a.href = href; a.target = "_blank"; a.rel = "noopener";
-    if (wowheadId) a.setAttribute("data-wowhead", "item=" + wowheadId);
-    if (icon) {
-      var im = document.createElement("img");
-      im.className = "gem-icon"; im.src = iconUrl(icon); im.alt = "";
-      a.appendChild(im);
+  // (Re)build a sortable, scrollable DataTable: destroy any existing instance,
+  // rebuild the tbody via buildRows, then re-init. jQuery + DataTables required;
+  // degrades to a plain (scrollable) table when they're unavailable.
+  function mountTable(id, buildRows, order, colDefs) {
+    var $ = window.jQuery;
+    var tableEl = el(id);
+    if (!tableEl) return;
+    var hasDT = $ && $.fn && $.fn.dataTable;
+    if (hasDT && $.fn.dataTable.isDataTable(tableEl)) $(tableEl).DataTable().destroy();
+    var tbody = tableEl.querySelector("tbody");
+    if (!tbody) return;
+    clear(tbody);
+    buildRows(tbody);
+    if (hasDT) {
+      try {
+        $(tableEl).DataTable({
+          paging: false, searching: false, info: false, autoWidth: false,
+          order: order || [], columnDefs: colDefs || [], language: { emptyTable: "—" },
+        });
+      } catch (e) { /* sortable table is optional */ }
     }
-    var meta = document.createElement("div");
-    meta.className = "craft-card-meta";
-    var k = document.createElement("div");
-    k.className = "craft-card-kind"; k.textContent = kind;
-    var nm = document.createElement("div");
-    nm.className = "craft-card-name"; nm.textContent = name || "View item";
-    meta.appendChild(k); meta.appendChild(nm);
-    if (sub) {
-      var sb = document.createElement("div");
-      sb.className = "craft-card-sub"; sb.textContent = sub;
-      meta.appendChild(sb);
-    }
-    a.appendChild(meta);
-    return a;
   }
 
-  // Hide the Enhancements card entirely when this scope has no enchant/craft.
-  function toggleEnhance() {
-    var card = el("enhance-card");
-    if (!card) return;
-    var has = el("item-enchant").childNodes.length || el("item-craft").childNodes.length;
-    card.classList.toggle("d-none", !has);
+  // A right-aligned numeric cell carrying a data-order for DataTables sorting.
+  function numCell(order, text) {
+    var c = document.createElement("td");
+    c.className = "text-center";
+    c.setAttribute("data-order", order == null ? 0 : order);
+    var s = document.createElement("span");
+    s.className = "text-xs font-weight-bold";
+    s.textContent = text == null ? "" : text;
+    c.appendChild(s);
+    return c;
+  }
+
+  // One enhancement / gem option as a DataTable row (mirrors the opt_row macro).
+  function optRow(tbody, o, kind) {
+    var tr = document.createElement("tr");
+    var c1 = document.createElement("td");
+    var a = document.createElement("a");
+    a.className = "dt-name";
+    a.href = (kind === "enchant" && o.spellId)
+      ? "https://www.wowhead.com/spell=" + o.spellId
+      : "https://www.wowhead.com/item=" + o.id;
+    a.target = "_blank"; a.rel = "noopener";
+    if (kind !== "enchant") a.setAttribute("data-wowhead", "item=" + o.id);
+    var img = document.createElement("img");
+    img.className = "gem-icon"; img.src = iconUrl(o.icon); img.alt = "";
+    var nm = document.createElement("span"); nm.textContent = o.name || ("#" + o.id);
+    // Proper text colour: enchant green for enchants, item-quality colour for
+    // gems / embellishments / missives (mirrors opt_name_class in item.html).
+    if (kind === "enchant") nm.className = "enchant-name";
+    else if (o.quality != null) nm.className = "item-quality-" + o.quality;
+    a.appendChild(img); a.appendChild(nm); c1.appendChild(a);
+    tr.appendChild(c1);
+    tr.appendChild(numCell(o.pct || 0, (o.pct != null ? o.pct : 0) + "%"));
+    tr.appendChild(numCell(o.runs || 0, o.runs != null ? fmt(o.runs) : ""));
+    tbody.appendChild(tr);
+  }
+
+  // One spec as a "Used by Specs" DataTable row (mirrors the spec_row macro); the
+  // name cell links to that spec's class/role page (not a re-scope).
+  function specRow(tbody, s, slot) {
+    var spec = SPECS[String(s.spec_id)] || {};
+    var tr = document.createElement("tr");
+    var c1 = document.createElement("td");
+    var a = document.createElement("a");
+    a.href = spec.page || ("?spec=" + s.spec_id);
+    a.className = "dt-name";
+    a.title = s.slot_runs
+      ? fmt(s.runs) + " of " + fmt(s.slot_runs) + " " + (slot || "slot") + " runs"
+      : fmt(s.runs) + " runs";
+    var img = document.createElement("img");
+    img.className = "spec-icon"; img.src = specIcon(spec); img.alt = "";
+    var nm = document.createElement("span");
+    nm.textContent = (spec.name || "Spec " + s.spec_id) + (spec.className ? " " + spec.className : "");
+    if (spec.color) nm.style.color = spec.color;
+    a.appendChild(img); a.appendChild(nm); c1.appendChild(a);
+    tr.appendChild(c1);
+    tr.appendChild(numCell(s.adoption || 0, s.adoption != null ? s.adoption + "%" : "—"));
+    tr.appendChild(numCell(s.runs || 0, fmt(s.runs)));
+    var mk = s.max_timed_key ? "+" + s.max_timed_key
+      : (s.max_depleted_key ? "+" + s.max_depleted_key + " (D)" : "—");
+    tr.appendChild(numCell(s.max_timed_key || s.max_depleted_key || 0, mk));
+    tbody.appendChild(tr);
+  }
+
+  // The Wowhead query string for the item at the current scope. Base item only
+  // (no bonus track — the header shows the canonical item, not a variant); the
+  // spec param just scopes the tooltip when viewing a single spec.
+  function whData(data, specId) {
+    return "item=" + data.id + (specId ? "&spec=" + specId : "");
   }
 
   function renderDetail(data, specId) {
     var scope = specId && data.bySpec && data.bySpec[specId] ? data.bySpec[specId] : data.global;
     var scoped = !!(specId && data.bySpec && data.bySpec[specId]);
 
-    // Wowhead link (rebuild so the spec param tracks the current scope).
-    var wh = el("item-wowhead");
-    if (wh) {
-      wh.href = "https://www.wowhead.com/item=" + data.id +
-        (data.wowheadBonus ? "&bonus=" + data.wowheadBonus : "") +
-        (specId ? "&spec=" + specId : "");
+    // Header links (Wowhead button + tooltip-bearing name & icon) track the scope.
+    var wd = whData(data, specId);
+    ["item-wowhead", "item-name", "item-icon-link"].forEach(function (id) {
+      var e = el(id);
+      if (!e) return;
+      e.href = "https://www.wowhead.com/" + wd;
+      if (id !== "item-wowhead") e.setAttribute("data-wowhead", wd);
+    });
+
+    // Total-runs stat box (number + adoption tooltip) and highest-key box.
+    var scopeEl = el("item-scope");
+    if (scopeEl) scopeEl.textContent = fmt(scope.total_runs);
+    var runsBox = el("item-runs-box");
+    if (runsBox) {
+      runsBox.title = scope.slot_runs
+        ? fmt(scope.total_runs) + " of " + fmt(scope.slot_runs) + " runs with a " + (data.slot || "slot") +
+          " item (" + (scope.adoption != null ? scope.adoption : "?") + "%)"
+        : fmt(scope.total_runs) + " runs";
+    }
+    var hkBox = el("item-highkey-box"), hk = el("item-highkey");
+    if (hkBox && hk) {
+      if (scope.max_timed_key) { hk.textContent = "+" + scope.max_timed_key; hkBox.classList.remove("d-none"); }
+      else if (scope.max_depleted_key) { hk.textContent = "+" + scope.max_depleted_key + " (D)"; hkBox.classList.remove("d-none"); }
+      else { hkBox.classList.add("d-none"); }
     }
 
-    var scopeEl = el("item-scope"); clear(scopeEl);
-    if (scoped) {
-      var spec = SPECS[specId] || {};
-      var allLink = scopeLink(null);
-      allLink.className = "small";
-      allLink.textContent = "View all specs ›";
-      scopeEl.appendChild(document.createTextNode((spec.name || "Spec " + specId) + " " + (spec.className || "") + " · "));
-      scopeEl.appendChild(allLink);
-    } else {
-      scopeEl.textContent = fmt(scope.total_runs) + " runs";
+    // Scope note under the title: which spec we're viewing + a "view all" link.
+    var note = el("item-scope-note");
+    if (note) {
+      clear(note);
+      if (scoped) {
+        var spec = SPECS[specId] || {};
+        note.appendChild(document.createTextNode("Viewing " + (spec.name || "Spec " + specId) +
+          " " + (spec.className || "") + " · "));
+        var allLink = scopeLink(null);
+        allLink.textContent = "View all specs ›";
+        note.appendChild(allLink);
+      }
     }
 
-    renderBis(data);
-    renderEnchant(scope);
-    renderCraft(scope);
     renderSpecSwitcher(data, specId);
+    renderEnhancements(scope);
     // Set pieces are scope-independent; the server-rendered #item-set block is
     // left as-is (no JS rebuild needed).
     renderSpecPopularity(data, scoped);
-    renderGems(scope);
     setupKeyLevelFilter(scope);
     renderKeyLevels(scope);
     renderDungeons(scope, []);
     renderVariants(scope);
-
-    // If one of the top-row cards (spec popularity / gems) is hidden, let the
-    // other span the full width instead of leaving an empty half.
-    var specHidden = el("spec-popularity-col").classList.contains("d-none");
-    var gemsHidden = el("gems-col").classList.contains("d-none");
-    el("spec-popularity-col").classList.toggle("col-lg-12", gemsHidden);
-    el("spec-popularity-col").classList.toggle("col-lg-6", !gemsHidden);
-    el("gems-col").classList.toggle("col-lg-12", specHidden);
-    el("gems-col").classList.toggle("col-lg-6", !specHidden);
 
     if (window.$WowheadPower && typeof window.$WowheadPower.refreshLinks === "function") {
       try { window.$WowheadPower.refreshLinks(); } catch (e) { /* tooltips optional */ }
     }
   }
 
+  // Combined spec section (re-scope switcher + SimC/top-player recommendations).
   function renderSpecSwitcher(data, specId) {
     var wrap = el("spec-switcher"); clear(wrap);
-    var card = el("spec-switch-card");
-    var specs = data.global.specs || [];
-    if (specs.length < 2) { if (card) card.classList.add("d-none"); return; }
+    var card = el("spec-overview-card");
+    var specs = data.spec_overview || [];
+    if (!specs.length) { if (card) card.classList.add("d-none"); return; }
     if (card) card.classList.remove("d-none");
     var all = scopeLink(null);
     all.className = "spec-card spec-card-all" + (specId ? "" : " active");
@@ -175,9 +251,8 @@
     allName.className = "spec-card-name"; allName.textContent = "All specs";
     allMeta.appendChild(allName); all.appendChild(allMeta);
     wrap.appendChild(all);
-    specs.slice(0, 12).forEach(function (s) {
-      var v = s.adoption != null ? s.adoption : s.share_pct;
-      wrap.appendChild(specCard(s.spec_id, v + "%", String(s.spec_id) === String(specId)));
+    specs.forEach(function (s) {
+      wrap.appendChild(specOverviewCard(s, String(s.spec_id) === String(specId)));
     });
   }
 
@@ -205,49 +280,15 @@
     return row;
   }
 
+  // "Used by Specs" sortable/scrollable DataTable (only in the global view).
   function renderSpecPopularity(data, scoped) {
     var col = el("spec-popularity-col");
-    var box = el("spec-popularity"); clear(box);
     if (scoped) { col.classList.add("d-none"); return; }
     col.classList.remove("d-none");
     var specs = data.global.specs || [];
-    if (!specs.length) {
-      box.innerHTML = '<p class="text-sm opacity-6 mb-0">No spec usage recorded.</p>';
-      return;
-    }
-    var top = specs.slice(0, 15);
-    var maxAdopt = Math.max.apply(null, top.map(function (s) { return s.adoption || 0; })) || 1;
-    top.forEach(function (s) {
-      var spec = SPECS[String(s.spec_id)] || {};
-      var img = document.createElement("img");
-      img.className = "spec-icon"; img.src = specIcon(spec); img.alt = "";
-      var link = scopeLink(s.spec_id);
-      var pctText = s.adoption != null ? s.adoption + "% of runs" : fmt(s.runs) + " runs";
-      link.appendChild(usageRow(
-        img, (spec.name || "Spec " + s.spec_id) + " " + (spec.className || ""),
-        (s.adoption || 0) / maxAdopt * 100, pctText));
-      box.appendChild(link);
-    });
-  }
-
-  function renderGems(scope) {
-    var col = el("gems-col");
-    var box = el("item-gems"); clear(box);
-    var gems = scope.gems || [];
-    if (!gems.length) {
-      col.classList.add("d-none");   // hide the whole card for items with no sockets
-      return;
-    }
-    col.classList.remove("d-none");
-    gems.forEach(function (g) {
-      var img = document.createElement("img");
-      img.className = "gem-icon"; img.src = iconUrl(g.icon); img.alt = g.name;
-      var a = document.createElement("a");
-      a.href = "https://www.wowhead.com/item=" + g.id;
-      a.target = "_blank"; a.rel = "noopener";
-      a.appendChild(usageRow(img, g.name, g.pct, g.pct + "% · " + fmt(g.runs)));
-      box.appendChild(a);
-    });
+    mountTable("spec-popularity-table", function (tbody) {
+      specs.forEach(function (s) { specRow(tbody, s, data.slot); });
+    }, [[1, "desc"]], [{ targets: 0, orderable: false }]);
   }
 
   var curScope = null;
@@ -285,16 +326,33 @@
   function setupKeyLevelFilter(scope) {
     curScope = scope;
     var $s = $kl();
-    var html = (scope.keylevels || []).map(function (k) {
+    var sel = el("keylevel-filter");
+    var levels = scope.keylevels || [];
+    var html = levels.map(function (k) {
       return '<option value="' + k.level + '">+' + k.level + "</option>";
     }).join("");
-    if ($s) {
+    if ($s && $s.selectpicker) {
+      // Tear down any previous widget first so options don't duplicate.
       try { $s.selectpicker("destroy"); } catch (e) { /* not yet initialised */ }
       $s.html(html);
-      $s.selectpicker();
-      $s.off("changed.bs.select").on("changed.bs.select", function () { applySelection(); });
-    } else {
-      el("keylevel-filter").innerHTML = html;
+      // Only (re)init the picker when there are options — initialising bootstrap-
+      // select on an empty <select> throws in its liHeight() height measurement.
+      if (levels.length) {
+        // Force width:"fit" (overriding any data-width="auto"): bootstrap-select's
+        // width:"auto" path measures the menu asynchronously on its "loaded" event,
+        // and liHeight() throws "Cannot read properties of null (reading
+        // 'className')" when the menu's parent isn't attached yet at that tick.
+        // "fit" sizes the button to its content synchronously, no async measure.
+        try { $s.selectpicker({ width: "fit" }); } catch (e) { /* picker is optional */ }
+        $s.off("changed.bs.select").on("changed.bs.select", function () { applySelection(); });
+      }
+    } else if (sel) {
+      sel.innerHTML = html;
+    }
+    // Hide the (now empty) filter control when there's nothing to filter.
+    if (sel) {
+      var wrapper = sel.closest(".btn-group") || sel;
+      if (wrapper && wrapper.classList) wrapper.classList.toggle("d-none", !levels.length);
     }
   }
 
@@ -406,6 +464,12 @@
         b.textContent = t;
         left.appendChild(b);
       });
+      if (v.ilvl) {
+        var ib = document.createElement("span");
+        ib.className = "tier-badge tier-ilvl variant-tag";
+        ib.textContent = "ilvl " + v.ilvl;
+        left.appendChild(ib);
+      }
       if (v.sockets) {
         var sb = document.createElement("span");
         sb.className = "badge bg-secondary variant-tag";
@@ -433,64 +497,29 @@
     });
   }
 
-  // Specs the item is best-in-slot (SimC) or a top players' pick for, one card each.
-  function renderBis(data) {
-    var box = el("item-bis"); clear(box);
-    function group(items, badgeText, badgeCls, label, subFn) {
-      if (!items || !items.length) return;
-      var g = document.createElement("div");
-      g.className = "bis-group mb-3";
-      var head = document.createElement("div");
-      head.className = "d-flex align-items-center gap-2 mb-2";
-      var b = document.createElement("span");
-      b.className = "badge " + badgeCls; b.textContent = badgeText;
-      var lbl = document.createElement("span");
-      lbl.className = "text-sm opacity-8"; lbl.textContent = label;
-      head.appendChild(b); head.appendChild(lbl);
-      var grid = document.createElement("div");
-      grid.className = "spec-card-grid";
-      items.slice(0, 12).forEach(function (s) {
-        grid.appendChild(specCard(s.spec_id, subFn(s), false));
-      });
-      g.appendChild(head); g.appendChild(grid);
-      box.appendChild(g);
-    }
-    group(data.simc_bis_specs, "SIM", "bg-info", "Best-in-slot (SimulationCraft) for",
-      function (s) { return (SPECS[String(s.spec_id)] || {}).className || ""; });
-    group(data.top_specs, "TOP", "bg-success", "Top players' pick for",
-      function (s) {
-        var cn = (SPECS[String(s.spec_id)] || {}).className;
-        return (cn ? cn + " · " : "") + s.pct + "%";
-      });
-    var card = el("recommend-card");
-    if (card) card.classList.toggle("d-none", !box.childNodes.length);
-  }
-
-  // Commonly-paired enchant for this slot, as a card.
-  function renderEnchant(scope) {
-    var box = el("item-enchant"); clear(box);
-    var e = scope.enchant;
-    if (e) {
-      box.appendChild(craftCard(
-        "Enchant", e.name, e.icon,
-        e.spellId ? "https://www.wowhead.com/spell=" + e.spellId : "#",
-        e.pct != null ? e.pct + "% of slots" : "", null));
-    }
-    toggleEnhance();
-  }
-
-  // Embellishment / missive on crafted items, as cards.
-  function renderCraft(scope) {
-    var box = el("item-craft"); clear(box);
-    function line(label, c) {
-      if (!c) return;
-      box.appendChild(craftCard(
-        label, c.name, c.icon, "https://www.wowhead.com/item=" + c.id,
-        c.pct != null ? c.pct + "% of copies" : "", c.id));
-    }
-    line("Embellishment", scope.embellishment);
-    line("Missive", scope.missive);
-    toggleEnhance();
+  // Enhancements & gems: one DataTable per type (enchant / gems / embellishment /
+  // missive), each listing every option used, with its share. Gems sit next to
+  // enchants in the same responsive grid. Hides empty cards and the wrapper.
+  function renderEnhancements(scope) {
+    var groups = [
+      { table: "enchant-table", card: "enchant-card", list: scope.enchants, kind: "enchant" },
+      { table: "gems-table", card: "gems-col", list: scope.gems, kind: "item" },
+      { table: "embellishment-table", card: "embellishment-card", list: scope.embellishments, kind: "item" },
+      { table: "missive-table", card: "missive-card", list: scope.missives, kind: "item" },
+    ];
+    var any = false;
+    groups.forEach(function (grp) {
+      var card = el(grp.card);
+      var list = grp.list || [];
+      if (!list.length) { if (card) card.classList.add("d-none"); return; }
+      if (card) card.classList.remove("d-none");
+      mountTable(grp.table, function (tbody) {
+        list.forEach(function (o) { optRow(tbody, o, grp.kind); });
+      }, [[1, "desc"]], [{ targets: 0, orderable: false }]);
+      any = true;
+    });
+    var wrap = el("enhance-wrap");
+    if (wrap) wrap.classList.toggle("d-none", !any);
   }
 
   function init() {

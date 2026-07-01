@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import json
 import argparse
@@ -57,6 +58,12 @@ WEAPON_SUBCLASS = {
 # loadouts equip the item.
 TOP50_THRESHOLD = 50.0
 
+# Slots that occupy two equipment sub-slots per run (Finger 1/2, Trinket 1/2).
+# When turning per-slot item runs into an adoption rate we divide the slot's
+# summed item runs by this so the denominator is "runs" rather than "sub-slots
+# filled", matching the spec page's per-sub-slot slot_count.
+SLOT_MULTIPLICITY = {"FINGER": 2, "TRINKET": 2}
+
 
 def fail(msg):
     print("ERROR:", msg, file=sys.stderr)
@@ -74,12 +81,78 @@ def resolve_enchant(entry, enchant_lookup):
         "icon": e.get("spellIcon", ""),
         "spellId": e.get("spellId"),
         "pct": entry.get("pct"),
+        "runs": entry.get("runs"),
     }
+
+
+def _enchant_base_name(name):
+    """Strip a trailing rank number so the ranks of one enchant collapse together.
+
+    TWW enchants are named "<Name> <rank>" (e.g. "Chant of Winged Grace 3"); the
+    rank is the only difference between otherwise-identical enchants. Stat scrolls
+    like "11 Speed" carry a *leading* number, so a trailing-only strip leaves them
+    untouched.
+    """
+    return re.sub(r"\s+\d+$", "", name or "").strip()
+
+
+def _enchant_rank(name):
+    m = re.search(r"\s+(\d+)$", name or "")
+    return int(m.group(1)) if m else 0
+
+
+def resolve_enchant_list(entries, enchant_lookup):
+    """Resolve a ranked list of enchant picks, merging the ranks of each enchant
+    (same base name) into a single entry: runs/pct are summed and the highest rank
+    supplies the link/icon. Sorted by usage."""
+    merged = {}
+    for entry in entries or []:
+        r = resolve_enchant(entry, enchant_lookup)
+        if not r:
+            continue
+        base = _enchant_base_name(r["name"])
+        rank = _enchant_rank(r["name"])
+        m = merged.get(base)
+        if not m:
+            merged[base] = {**r, "name": base, "runs": r.get("runs") or 0,
+                            "pct": r.get("pct") or 0, "_rank": rank}
+        else:
+            m["runs"] += r.get("runs") or 0
+            m["pct"] = round((m["pct"] or 0) + (r.get("pct") or 0), 1)
+            if rank > m["_rank"]:
+                m.update({"id": r["id"], "spellId": r.get("spellId"),
+                          "icon": r.get("icon"), "_rank": rank})
+    out = sorted(merged.values(), key=lambda x: -(x["runs"] or 0))
+    for m in out:
+        m.pop("_rank", None)
+    return out
 
 
 def slot_for_item(item):
     """Return (label, key) for an item using its inventoryType."""
     return INVENTORY_TYPE_SLOT.get(int(item.get("inventoryType", 0) or 0), ("Other", "OTHER"))
+
+
+def _merge_recommended(simc_bis, top_specs):
+    """Merge the SimC best-in-slot and top-players' pick lists into one chip per
+    spec (a spec can be both), so "Recommended For" renders a single compact row.
+
+    Returns [{spec_id, is_sim, is_top, top_pct, simc_dps_pct}] sorted with SimC
+    picks first, then by top-player adoption.
+    """
+    by_spec = {}
+    for s in simc_bis:
+        e = by_spec.setdefault(s["spec_id"], {"spec_id": s["spec_id"], "is_sim": False,
+                                              "is_top": False, "top_pct": None, "simc_dps_pct": None})
+        e["is_sim"] = True
+        e["simc_dps_pct"] = s.get("dps_pct")
+    for s in top_specs:
+        e = by_spec.setdefault(s["spec_id"], {"spec_id": s["spec_id"], "is_sim": False,
+                                              "is_top": False, "top_pct": None, "simc_dps_pct": None})
+        e["is_top"] = True
+        e["top_pct"] = s.get("pct")
+    return sorted(by_spec.values(),
+                  key=lambda x: (not x["is_sim"], -(x["top_pct"] or 0), x["spec_id"]))
 
 
 def decode_bonus_list(bonus_str, bonus_lookup, embellishment_lookup=None, missive_lookup=None):
@@ -96,6 +169,29 @@ def decode_bonus_list(bonus_str, bonus_lookup, embellishment_lookup=None, missiv
     quality = None
     embellishment = None
     missive = None
+    # Item level, resolved from the bonus static data. Blizzard expresses every
+    # absolute itemLevel.amount in a "squishEra" scale that is reset on each item
+    # squish: TWW gear is era 1 (~640-680), the Midnight squish is era 2
+    # (~250-410, e.g. 13654 "Ascendant Voidforged: Myth" = 298). A single item
+    # can carry itemLevel bonuses from more than one era, so taking the highest
+    # amount across ALL eras lets a stale, higher-numbered era-1 value shadow the
+    # current era-2 track bonus — which is why bonuses like 13654 looked
+    # "ignored". Instead we resolve inside the newest era present: the highest
+    # squishEra carrying an absolute itemLevel wins, then the highest amount
+    # within it, then that era's crafting-quality offsets (levelOffset /
+    # levelOffsetSecondary, the +9/+13/… bumps) are added on top.
+    #
+    # Two other item-level-ish fields are intentionally NOT used as a display
+    # level:
+    #   - upgrade.itemLevel is an internal upgrade-track base/delta, not the
+    #     shown level (e.g. 98 on an item that actually displays 642);
+    #   - previewlevel only exists on pre-squish legacy bonuses whose stored
+    #     value no longer matches the live post-squish tooltip.
+    # We also ignore the legacy "ilevel" @plvl curve strings (player scaling).
+    # When no absolute is present we leave ilvl None and let the track tag carry
+    # the distinction, exactly like non-crafted items.
+    abs_by_era = {}                    # squishEra -> highest absolute amount
+    offset_by_era = defaultdict(int)   # squishEra (or None) -> summed offsets
     raw = [b.strip() for b in (bonus_str or "").split(",") if b.strip()]
     for bid in raw:
         # A crafted item carries its embellishment / missive as a bonus id that
@@ -107,11 +203,33 @@ def decode_bonus_list(bonus_str, bonus_lookup, embellishment_lookup=None, missiv
         b = bonus_lookup.get(str(bid))
         if not b:
             continue
-        # Only keep concise track tags (e.g. "Mythic", "Heroic"); skip the verbose
-        # descriptive names (e.g. "Ascendant Voidforged: Myth") that duplicate them.
         tag = b.get("tag")
-        if tag and ":" not in tag and tag not in tags:
+        if tag and "Crafted" in tag:
+            # The reagent-spellbook name ("Radiance Crafted") is constant across
+            # every copy of a crafted item and carries no value — drop it entirely.
+            pass
+        elif tag and ":" not in tag and tag not in tags:
+            # Only keep concise track tags (e.g. "Mythic", "Heroic"); skip the
+            # verbose descriptive names ("Ascendant Voidforged: Myth").
             tags.append(tag)
+        # --- item level: highest absolute amount within each squish era ---
+        il = b.get("itemLevel")
+        if isinstance(il, dict) and il.get("amount") is not None:
+            try:
+                amt = int(il["amount"])
+            except (TypeError, ValueError):
+                amt = None
+            if amt is not None:
+                era = il.get("squishEra")
+                if era not in abs_by_era or amt > abs_by_era[era]:
+                    abs_by_era[era] = amt
+        for off_key in ("levelOffset", "levelOffsetSecondary"):
+            off = b.get(off_key)
+            if isinstance(off, dict) and off.get("amount") is not None:
+                try:
+                    offset_by_era[off.get("squishEra")] += int(off["amount"])
+                except (TypeError, ValueError):
+                    pass
         if b.get("socket"):
             try:
                 sockets += int(b["socket"])
@@ -123,12 +241,23 @@ def decode_bonus_list(bonus_str, bonus_lookup, embellishment_lookup=None, missiv
             stat_type = BLIZZARD_STAT_MAP.get(stat_id)
             if stat_type and stat_type not in crafted:
                 crafted.append(stat_type)
+
+    # Resolve within the newest era that carries an absolute item level, then
+    # add that era's crafting offsets (offsets with no declared era fall back to
+    # the winning era's bump). Sorting keeps None below any real era number.
+    ilvl = None
+    if abs_by_era:
+        best_era = max(abs_by_era, key=lambda e: (e is not None, e))
+        ilvl = abs_by_era[best_era] + offset_by_era.get(best_era, 0)
+        if best_era is not None:
+            ilvl += offset_by_era.get(None, 0)
     return {
         "bonus": ":".join(raw),
         "tags": tags,
         "sockets": sockets,
         "crafted_stats": crafted,
         "quality": quality,
+        "ilvl": ilvl,
         "embellishment": embellishment,
         "missive": missive,
     }
@@ -174,7 +303,10 @@ def build_scope(total, max_timed, max_depleted, gem_runs, variant_runs,
             emb_runs[dec["embellishment"]] += runs
         if dec["missive"]:
             mis_runs[dec["missive"]] += runs
-        sig = (tuple(dec["tags"]), dec["sockets"], tuple(dec["crafted_stats"]))
+        # Include the resolved ilvl in the signature so genuinely different item
+        # levels stay separate rows while identical copies collapse (crafted items
+        # no longer render a duplicate row per bonus combo).
+        sig = (tuple(dec["tags"]), dec["sockets"], tuple(dec["crafted_stats"]), dec.get("ilvl"))
         m = merged.setdefault(sig, {"runs": 0, "dec": dec})
         m["runs"] += runs
     variant_total = sum(m["runs"] for m in merged.values()) or 1
@@ -185,6 +317,7 @@ def build_scope(total, max_timed, max_depleted, gem_runs, variant_runs,
             "tags": d["tags"],
             "sockets": d["sockets"],
             "crafted_stats": d["crafted_stats"],
+            "ilvl": d.get("ilvl"),
             "bonus": d["bonus"],
             "runs": int(m["runs"]),
             "pct": round(m["runs"] / variant_total * 100, 1),
@@ -230,17 +363,21 @@ def build_scope(total, max_timed, max_depleted, gem_runs, variant_runs,
     # Embellishment / missive: the most common one used on this crafted item.
     # These items live in the crafting reagents table, not equippable-items.
     reagents = reagent_lookup or {}
-    def _top_craft(cmap):
-        if not cmap:
-            return None
-        cid, runs = max(cmap.items(), key=lambda x: x[1])
-        info = reagents.get(int(cid)) or (item_lookup.get(int(cid)) if str(cid).isdigit() else {}) or {}
-        return {
-            "id": int(cid),
-            "name": info.get("name"),
-            "icon": info.get("icon"),
-            "pct": round(min(100.0, runs / (total or 1) * 100), 1),
-        }
+    def _craft_list(cmap):
+        """Every embellishment / missive used on this crafted item, ranked, with
+        each one's share of the item's copies."""
+        out = []
+        for cid, runs in sorted(cmap.items(), key=lambda x: x[1], reverse=True):
+            info = reagents.get(int(cid)) or (item_lookup.get(int(cid)) if str(cid).isdigit() else {}) or {}
+            out.append({
+                "id": int(cid),
+                "name": info.get("name"),
+                "icon": info.get("icon"),
+                "quality": info.get("quality"),
+                "runs": int(runs),
+                "pct": round(min(100.0, runs / (total or 1) * 100), 1),
+            })
+        return out
 
     return {
         "total_runs": int(total),
@@ -250,8 +387,8 @@ def build_scope(total, max_timed, max_depleted, gem_runs, variant_runs,
         "variants": variants,
         "dungeons": dungeons,
         "keylevels": keylevels,
-        "embellishment": _top_craft(emb_runs),
-        "missive": _top_craft(mis_runs),
+        "embellishments": _craft_list(emb_runs),
+        "missives": _craft_list(mis_runs),
     }
 
 
@@ -306,16 +443,37 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
         if sid:
             set_members[sid].append(iid)
 
+    # Role int -> the /classes/<folder>/ page bucket (mirrors ROLE_FOLDERS in
+    # pageGeneration.generateSpecNav so item-page spec links hit the same URLs).
+    ROLE_FOLDERS = {0: "Tank", 1: "Healer", 2: "Dps"}
+
+    def _class_color(color):
+        """Blizzard's per-class RGB -> a #rrggbb hex, or None if unusable."""
+        if not isinstance(color, dict):
+            return None
+        try:
+            return "#{:02x}{:02x}{:02x}".format(
+                int(color["r"]), int(color["g"]), int(color["b"]))
+        except (KeyError, TypeError, ValueError):
+            return None
+
     # Small maps embedded into the template for client-side name/icon resolution.
     specs_map = {}
     for sid, s in spec_lookup.items():
         c = class_lookup.get(s.get("classID", ""), {})
+        role = int(s.get("role", 2))
+        spec_name = s.get("name", "Unknown")
+        class_name = c.get("name", "Unknown")
         specs_map[str(sid)] = {
-            "name": s.get("name", "Unknown"),
-            "className": c.get("name", "Unknown"),
-            "classSlug": (c.get("name", "") or "").replace(" ", ""),
-            "role": int(s.get("role", 2)),
+            "name": spec_name,
+            "className": class_name,
+            "classSlug": (class_name or "").replace(" ", ""),
+            "role": role,
             "icon": s.get("SpellIconFileId"),
+            # Class colour (for spec-name text) + the spec's class/role page URL,
+            # so both the SSR template and item.js can reuse them.
+            "color": _class_color(c.get("color")),
+            "page": f"/classes/{ROLE_FOLDERS.get(role, 'Dps')}/{spec_name}_{class_name}",
         }
     dungeons_map = {}
     for did, d in dungeon_lookup.items():
@@ -348,6 +506,11 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
     # item -> spec -> dungeon -> {runs,timed,depleted,max_key,by_key}
     dungeon_runs = defaultdict(lambda: defaultdict(lambda: defaultdict(
         lambda: {"runs": 0, "timed": 0, "depleted": 0, "max_key": 0, "by_key": defaultdict(int)})))
+    # spec -> slot key -> runs that equipped *some* item in that slot. This is the
+    # correct denominator for per-spec adoption ("% of this spec's runs that could
+    # have used this item"), mirroring the spec page's per-slot slot_count rather
+    # than dividing by the spec's total runs across every slot.
+    slot_spec_total = defaultdict(lambda: defaultdict(int))
 
     # Sweep one spec at a time so every query is index-assisted (each table's PK
     # starts with spec_id) and result sets stay bounded.
@@ -372,6 +535,9 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
                 spec_runs[str(item_id)][sp] += int(rc)
                 spec_maxtimed[str(item_id)][sp] = max(spec_maxtimed[str(item_id)][sp], int(mt or 0))
                 spec_maxdep[str(item_id)][sp] = max(spec_maxdep[str(item_id)][sp], int(md or 0))
+                it_slot = item_lookup.get(int(item_id)) if str(item_id).isdigit() else None
+                if it_slot:
+                    slot_spec_total[sp][slot_for_item(it_slot)[1]] += int(rc)
 
             for item_id, gem, rc in databaseConnector.fetch_item_socket_usage(conn, cursor, season, sp):
                 if gem is None:
@@ -443,15 +609,18 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
             ench_global_sg[sg][eid] += rc
             ench_global_sg_total[sg] += rc
 
-    def _top_enchant(emap, total):
-        if not emap:
-            return None
-        eid, runs = max(emap.items(), key=lambda x: x[1])
-        return {"id": eid, "pct": round(runs / total * 100, 1) if total else None}
+    def _all_enchants(emap, total):
+        """Every enchant used in this slot group, ranked, with each one's share."""
+        return [
+            {"id": eid,
+             "runs": int(runs),
+             "pct": round(runs / total * 100, 1) if total else None}
+            for eid, runs in sorted(emap.items(), key=lambda x: x[1], reverse=True)
+        ]
 
-    enchant_global_top = {sg: _top_enchant(ench_global_sg[sg], ench_global_sg_total[sg])
+    enchant_global_all = {sg: _all_enchants(ench_global_sg[sg], ench_global_sg_total[sg])
                           for sg in ench_global_sg}
-    enchant_spec_top = {key: _top_enchant(ench_spec_sg[key], ench_spec_sg_total[key])
+    enchant_spec_all = {key: _all_enchants(ench_spec_sg[key], ench_spec_sg_total[key])
                         for key in ench_spec_sg}
 
     # Per-spec total maps (built once) for the bySpec scopes.
@@ -473,17 +642,19 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
         label, key = slot_for_item(item)
         total_runs = sum(per_spec.values())
 
-        # Spec ranking by adoption rate = % of that spec's runs that use the item
-        # (share = % of the item's total usage, kept for context). Ranking by
-        # adoption surfaces the specs the item matters most to, rather than just
-        # the most-played specs.
+        # Spec ranking by adoption rate = % of that spec's runs *with an item in
+        # this slot* that use this item (share = % of the item's total usage, kept
+        # for context). Dividing by the per-slot total (not the spec's overall run
+        # count) makes this match the spec page's per-slot popularity %.
+        mult = SLOT_MULTIPLICITY.get(key, 1)
         specs_rank = []
         for sp, runs in per_spec.items():
-            denom = spec_total.get(sp)
-            adoption = round(min(100.0, runs / denom * 100), 1) if denom else None
+            slot_denom = slot_spec_total.get(sp, {}).get(key, 0) / mult
+            adoption = round(min(100.0, runs / slot_denom * 100), 1) if slot_denom else None
             specs_rank.append({
                 "spec_id": int(sp),
                 "runs": int(runs),
+                "slot_runs": int(round(slot_denom)) if slot_denom else None,
                 "adoption": adoption,
                 "share_pct": round(runs / (total_runs or 1) * 100, 1),
                 "max_timed_key": spec_maxtimed[item_id].get(sp, 0),
@@ -525,10 +696,17 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
             dungeon_keylevel_total_global, reagent_lookup,
         )
         global_scope["specs"] = specs_rank
+        # Item-wide slot denominator (runs that equipped any item in this slot,
+        # across every spec) for the header's adoption tooltip.
+        global_slot_denom = sum(slot_spec_total[sp].get(key, 0) for sp in slot_spec_total) / mult
+        global_scope["slot_runs"] = int(round(global_slot_denom)) if global_slot_denom else None
+        global_scope["adoption"] = (
+            round(min(100.0, total_runs / global_slot_denom * 100), 1) if global_slot_denom else None
+        )
 
         by_spec = {}
         for sp in per_spec:
-            by_spec[sp] = build_scope(
+            scope = build_scope(
                 per_spec[sp],
                 spec_maxtimed[item_id].get(sp, 0),
                 spec_maxdep[item_id].get(sp, 0),
@@ -540,12 +718,18 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
                 embellishment_lookup, missive_lookup, item_lookup,
                 None, reagent_lookup,
             )
+            # Per-spec adoption: this spec's runs with the item over its runs with
+            # any item in the slot (the same denominator the switcher shows).
+            sd = slot_spec_total.get(sp, {}).get(key, 0) / mult
+            scope["slot_runs"] = int(round(sd)) if sd else None
+            scope["adoption"] = round(min(100.0, per_spec[sp] / sd * 100), 1) if sd else None
+            by_spec[sp] = scope
 
-        # Commonly-paired enchant for this slot (per scope; only enchantable slots
-        # have data, others resolve to None).
-        global_scope["enchant"] = resolve_enchant(enchant_global_top.get(key), enchant_lookup)
+        # Enchants used in this slot (per scope, ranked; only enchantable slots
+        # have data, others resolve to an empty list).
+        global_scope["enchants"] = resolve_enchant_list(enchant_global_all.get(key, []), enchant_lookup)
         for sp in by_spec:
-            by_spec[sp]["enchant"] = resolve_enchant(enchant_spec_top.get((sp, key)), enchant_lookup)
+            by_spec[sp]["enchants"] = resolve_enchant_list(enchant_spec_all.get((sp, key), []), enchant_lookup)
 
         # set membership (other equipped pieces)
         set_block = None
@@ -563,6 +747,28 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
             set_block = {"id": sid, "pieces": pieces}
 
         top_variant = global_scope["variants"][0]["bonus"] if global_scope["variants"] else ""
+
+        # Unified per-spec overview: adoption (the "view by spec" data) annotated
+        # with SimC-BiS / top-players' flags (the "recommended for" data), so the
+        # page shows one spec section instead of two overlapping button lists.
+        recommended = _merge_recommended(simc_bis_by_item.get(item_id, []),
+                                         top_specs_by_item.get(item_id, []))
+        rec_map = {r["spec_id"]: r for r in recommended}
+        spec_overview = []
+        for s in specs_rank:
+            r = rec_map.get(s["spec_id"], {})
+            spec_overview.append({**s, "is_sim": r.get("is_sim", False),
+                                  "is_top": r.get("is_top", False),
+                                  "top_pct": r.get("top_pct"),
+                                  "simc_dps_pct": r.get("simc_dps_pct")})
+        present = {s["spec_id"] for s in specs_rank}
+        for r in recommended:
+            if r["spec_id"] not in present:
+                spec_overview.append({"spec_id": r["spec_id"], "runs": 0, "slot_runs": None,
+                                      "adoption": None, "share_pct": 0, "max_timed_key": 0,
+                                      "max_depleted_key": 0, "is_sim": r["is_sim"],
+                                      "is_top": r["is_top"], "top_pct": r["top_pct"],
+                                      "simc_dps_pct": r["simc_dps_pct"]})
 
         payload = {
             "id": int(item_id),
@@ -584,6 +790,8 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
             "simc_bis_specs": sorted(simc_bis_by_item.get(item_id, []),
                                      key=lambda x: -(x["dps_pct"] or 0)),
             "top_specs": sorted(top_specs_by_item.get(item_id, []), key=lambda x: -x["pct"]),
+            "recommended": recommended,
+            "spec_overview": spec_overview,
             "global": global_scope,
             "bySpec": by_spec,
         }

@@ -34,6 +34,17 @@
 </a>
 {% endmacro %}
 
+{# A "recommended for" chip: one spec, with SIM and/or TOP markers. Mirrors recChip() in item.js. #}
+{% macro rec_chip(r) %}{% set s = specs_map[r.spec_id|string] %}
+<a class="rec-chip" href="?spec={{ r.spec_id }}"
+  title="{{ s.name if s else 'Spec ' ~ r.spec_id }}{% if s %} {{ s.className }}{% endif %}{% if r.is_sim %} · SimulationCraft best-in-slot{% if r.simc_dps_pct is not none and r.simc_dps_pct >= 0.05 %} (+{{ '%.1f'|format(r.simc_dps_pct) }}% DPS){% endif %}{% endif %}{% if r.is_top %} · Used by {{ r.top_pct }}% of top players{% endif %}">
+  <img class="spec-icon" src="{{ spec_icon(r.spec_id) }}" alt="">
+  <span class="rec-chip-name">{{ s.name if s else "Spec " ~ r.spec_id }}</span>
+  {% if r.is_sim %}<span class="badge rec-badge rec-badge-sim">SIM</span>{% endif %}
+  {% if r.is_top %}<span class="badge rec-badge rec-badge-top">TOP{% if r.top_pct is not none %} {{ r.top_pct|round|int }}%{% endif %}</span>{% endif %}
+</a>
+{% endmacro %}
+
 {# A craft/enchant choice as a card. Mirrors craftCard() in item.js. #}
 {% macro craft_card(kind, name, icon, href, sub, wowhead_id=None) %}
 <a class="craft-card" href="{{ href }}" target="_blank" rel="noopener"{% if wowhead_id %} data-wowhead="item={{ wowhead_id }}"{% endif %}>
@@ -46,13 +57,75 @@
 </a>
 {% endmacro %}
 
+{# A combined spec chip: re-scopes on click and carries adoption + SIM/TOP badges.
+   Mirrors specOverviewCard() in item.js. #}
+{% macro spec_overview_card(s, active=False) %}{% set spec = specs_map[s.spec_id|string] %}
+<a class="spec-card{{ ' active' if active else '' }}" href="?spec={{ s.spec_id }}"
+  title="{{ spec.name if spec else 'Spec ' ~ s.spec_id }}{% if spec %} {{ spec.className }}{% endif %}{% if s.adoption is not none %} · {{ s.adoption }}% adoption{% endif %}{% if s.is_sim %} · SimulationCraft best-in-slot{% endif %}{% if s.is_top %} · used by {{ s.top_pct }}% of top players{% endif %}">
+  <img class="spec-icon" src="{{ spec_icon(s.spec_id) }}" alt="">
+  <div class="spec-card-meta">
+    <div class="spec-card-name"{% if spec and spec.color %} style="color: {{ spec.color }}"{% endif %}>{{ spec.name if spec else "Spec " ~ s.spec_id }}</div>
+    <div class="spec-card-sub d-flex align-items-center gap-1">
+      {% if s.adoption is not none %}<span>{{ s.adoption }}%</span>{% endif %}
+      {% if s.is_sim %}<span class="rec-badge rec-badge-sim">SIM</span>{% endif %}
+      {% if s.is_top %}<span class="rec-badge rec-badge-top">TOP</span>{% endif %}
+    </div>
+  </div>
+</a>
+{% endmacro %}
+
+{# One option row for an enhancement / gem DataTable. Mirrors optRow() in item.js. #}
+{% macro opt_name_class(o, kind) %}{% if kind == 'enchant' %}enchant-name{% elif o.quality is not none %}item-quality-{{ o.quality }}{% endif %}{% endmacro %}
+{% macro opt_row(o, kind) %}
+<tr>
+  <td>
+    <a class="dt-name" href="{{ ('https://www.wowhead.com/spell=' ~ o.spellId) if (kind == 'enchant' and o.spellId) else ('https://www.wowhead.com/item=' ~ o.id) }}"
+      target="_blank" rel="noopener"{% if kind != 'enchant' %} data-wowhead="item={{ o.id }}"{% endif %}>
+      <img class="gem-icon" src="/data/icons/{{ o.icon }}.png" alt=""><span class="{{ opt_name_class(o, kind) | trim }}">{{ o.name or ("#" ~ o.id) }}</span>
+    </a>
+  </td>
+  <td class="text-center" data-order="{{ o.pct or 0 }}"><span class="text-xs font-weight-bold">{{ o.pct if o.pct is not none else 0 }}%</span></td>
+  <td class="text-center" data-order="{{ o.runs or 0 }}"><span class="text-xs font-weight-bold">{{ "{:,}".format(o.runs) if o.runs is not none else "" }}</span></td>
+</tr>
+{% endmacro %}
+
+{# A scrollable, sortable option DataTable (top rows visible, rest scroll). #}
+{% macro opt_table(table_id, options, kind, first_col="Option") %}
+<div class="dt-scroll custom-scrollbar">
+  <table id="{{ table_id }}" class="table align-items-center mb-0 w-100 item-dt">
+    <thead><tr>
+      <th class="text-uppercase text-white text-xxs font-weight-bolder opacity-7">{{ first_col }}</th>
+      <th class="text-center text-uppercase text-white text-xxs font-weight-bolder opacity-7">Used</th>
+      <th class="text-center text-uppercase text-white text-xxs font-weight-bolder opacity-7">Runs</th>
+    </tr></thead>
+    <tbody>{% for o in options %}{{ opt_row(o, kind) }}{% endfor %}</tbody>
+  </table>
+</div>
+{% endmacro %}
+
+{# One spec row for the "Used by Specs" DataTable. Mirrors specRow() in item.js. #}
+{% macro spec_row(s) %}{% set sp = specs_map[s.spec_id|string] %}
+<tr>
+  <td>
+    <a class="dt-name" href="{{ sp.page if sp and sp.page else '?spec=' ~ s.spec_id }}"
+      title="{% if s.slot_runs %}{{ '{:,}'.format(s.runs) }} of {{ '{:,}'.format(s.slot_runs) }} {{ item.slot }} runs{% else %}{{ '{:,}'.format(s.runs) }} runs{% endif %}">
+      <img class="spec-icon" src="{{ spec_icon(s.spec_id) }}" alt=""><span{% if sp and sp.color %} style="color: {{ sp.color }}"{% endif %}>{{ spec_label(s.spec_id) }}</span>
+    </a>
+  </td>
+  <td class="text-center" data-order="{{ s.adoption or 0 }}"><span class="text-xs font-weight-bold">{{ (s.adoption ~ "%") if s.adoption is not none else "—" }}</span></td>
+  <td class="text-center" data-order="{{ s.runs or 0 }}"><span class="text-xs font-weight-bold">{{ "{:,}".format(s.runs) }}</span></td>
+  <td class="text-center" data-order="{{ s.max_timed_key or s.max_depleted_key or 0 }}"><span class="text-xs font-weight-bold">{% if s.max_timed_key %}+{{ s.max_timed_key }}{% elif s.max_depleted_key %}+{{ s.max_depleted_key }} (D){% else %}—{% endif %}</span></td>
+</tr>
+{% endmacro %}
+
 <head>
   {% include "header_imports.html" %}
   <link rel="stylesheet" href="/assets/css/stat-colors.css" />
+  <link rel="stylesheet" href="/assets/css/datatables.min.css" />
   <link rel="stylesheet" href="/assets/css/items.css" />
 
   <!-- Primary SEO -->
-  <title>{{ item.name }} — Mythic+ Usage in {{ season_info.name }} | MythiStone</title>
+  <title>{{ item.name }} Mythic+ Usage in {{ season_info.name }} | MythiStone</title>
   <meta name="description"
     content="See how {{ item.name }} is used in {{ season_info.name }} Mythic+: which specs equip it, adoption by dungeon and key level, popular gems, enchant and item-level variants.">
   <meta name="keywords"
@@ -64,7 +137,7 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="MythiStone">
   <meta property="og:url" content="https://mythistone.com/items/{{ slug }}">
-  <meta property="og:title" content="{{ item.name }} — Mythic+ Usage in {{ season_info.name }}">
+  <meta property="og:title" content="{{ item.name }} Mythic+ Usage in {{ season_info.name }} | MythiStone">
   <meta property="og:description"
     content="Which specs equip {{ item.name }} in {{ season_info.name }} Mythic+, and how it is used by dungeon and key level.">
   <meta property="og:image" content="https://mythistone.com/data/icons/{{ item.icon }}.png">
@@ -73,7 +146,7 @@
   <!-- Twitter -->
   <meta name="twitter:card" content="summary">
   <meta name="twitter:site" content="@MythiStone">
-  <meta name="twitter:title" content="{{ item.name }} — Mythic+ Usage in {{ season_info.name }}">
+  <meta name="twitter:title" content="{{ item.name }} Mythic+ Usage in {{ season_info.name }} | MythiStone">
   <meta name="twitter:description"
     content="Which specs equip {{ item.name }} in {{ season_info.name }} Mythic+, and how it is used by dungeon and key level.">
   <meta name="twitter:image" content="https://mythistone.com/data/icons/{{ item.icon }}.png">
@@ -89,7 +162,7 @@
   "image": "https://mythistone.com/data/icons/{{ item.icon }}.png",
   "url": "https://mythistone.com/items/{{ slug }}",
   "category": {{ item.slot | tojson }},
-  "description": "{{ item.name }} usage in {{ season_info.name }} Mythic+ — specs, dungeons, gems and variants.",
+  "description": "{{ item.name }} Mythic+ Usage in {{ season_info.name }} | MythiStone",
   "brand": { "@type": "Brand", "name": "World of Warcraft" }
 }
   </script>
@@ -119,156 +192,135 @@
 
       <div id="item-content">
         {% set g = item.global %}
+        {# Base item only  no bonus track, so the header link and tooltip show the
+           canonical item rather than the most-used variant's bonus ids. #}
+        {% set wh_url = "https://www.wowhead.com/item=" ~ item.id %}
+        {% set wh_data = "item=" ~ item.id %}
 
-        <!-- Hero / header -->
-        <div class="card mb-3">
-          <div class="card-body">
-            <div class="item-hero">
-              <img id="item-icon" class="item-hero-icon border-quality-{{ item.quality }}"
-                src="/data/icons/{{ item.icon }}.png" alt="{{ item.name }}" />
-              <div class="flex-grow-1">
-                <h1 id="item-name" class="h4 mb-1 item-quality-{{ item.quality }}">{{ item.name }}</h1>
-                <div class="text-sm opacity-8">
-                  <span id="item-slot">{{ item.slot }}</span>
-                  <span id="item-extra">{% if item.weaponType %} · {{ item.weaponType }}{% endif %}{% if item.onUseTrinket %} · On-Use{% elif item.slotKey == "TRINKET" %} · Passive/Proc{% endif %}</span>
-                  <span id="item-ilvl">{% if item.ilvl %} · iLvl {{ item.ilvl }} (base){% endif %}</span>
-                  <span id="item-unique" class="text-warning">{% if item.uniqueEquipped %} · Unique-Equipped{% endif %}</span>
-                </div>
-                <div id="item-stats" class="d-flex flex-wrap gap-1 mt-2">
+        <!-- Page title (icon · name · stats · run/key stat box), mirrors dungeon page -->
+        <div class="row mb-4 mt-2">
+          <div class="col-12 d-flex align-items-center justify-content-between flex-wrap gap-3 px-3 px-md-4">
+            <div class="d-flex align-items-center">
+              <div class="avatar avatar-xl position-relative me-3">
+                <a id="item-icon-link" href="{{ wh_url }}" target="_blank" rel="noopener" data-wowhead="{{ wh_data }}">
+                  <img id="item-icon" src="/data/icons/{{ item.icon }}.png" alt="{{ item.name }}"
+                    class="w-100 rounded border-radius-lg shadow-sm border border-2 border-quality-{{ item.quality }}">
+                </a>
+              </div>
+              <div>
+                <h1 class="h3 mb-0 font-weight-bolder">
+                  <a id="item-name" href="{{ wh_url }}" target="_blank" rel="noopener"
+                    class="item-quality-{{ item.quality }}" data-wowhead="{{ wh_data }}">{{ item.name }}</a>
+                </h1>
+                <p class="mb-1 text-md opacity-8">
+                  {{ item.slot }}{% if item.weaponType %} · {{ item.weaponType }}{% endif %}{% if item.onUseTrinket %} · On-Use{% elif item.slotKey == "TRINKET" %} · Passive/Proc{% endif %}{% if item.uniqueEquipped %} · <span class="text-warning">Unique-Equipped</span>{% endif %}
+                </p>
+                <div id="item-stats" class="d-flex flex-wrap gap-1">
                   {% for s in item.stats %}<span class="badge stat-{{ s.type }}">{{ s.type }}</span>{% endfor %}
-                </div>
-                <div id="item-sockets" class="d-flex flex-wrap gap-2 mt-2">
                   {% for s in item.sockets %}<span class="badge bg-secondary">◆ Socket</span>{% endfor %}
                 </div>
+                <div id="item-scope-note" class="text-xs opacity-7 mt-1"></div>
               </div>
-              <div class="item-hero-aside text-end d-flex flex-column align-items-end gap-2">
-                <div id="item-scope" class="scope-badge">{{ "{:,}".format(g.total_runs) }} runs</div>
-                <a id="item-wowhead"
-                  href="https://www.wowhead.com/item={{ item.id }}{% if item.wowheadBonus %}&bonus={{ item.wowheadBonus }}{% endif %}"
-                  class="btn btn-sm bg-gradient-dark text-white mb-0 d-inline-flex align-items-center gap-1"
+            </div>
+            <div class="d-none d-md-flex bg-dark bg-opacity-50 border border-secondary rounded shadow-sm">
+              <div id="item-runs-box" class="text-center p-3 border-end border-secondary"
+                title="{% if g.slot_runs %}{{ '{:,}'.format(g.total_runs) }} of {{ '{:,}'.format(g.slot_runs) }} runs with a {{ item.slot }} item ({{ g.adoption }}%){% else %}{{ '{:,}'.format(g.total_runs) }} runs{% endif %}">
+                <span class="d-block text-xs text-uppercase text-secondary font-weight-bolder">Total Runs</span>
+                <span class="font-weight-bold" id="item-scope">{{ "{:,}".format(g.total_runs) }}</span>
+              </div>
+              <div id="item-highkey-box" class="text-center p-3 border-end border-secondary {{ 'd-none' if not (g.max_timed_key or g.max_depleted_key) else '' }}">
+                <span class="d-block text-xs text-uppercase text-secondary font-weight-bolder">Highest Key</span>
+                <span class="font-weight-bold text-success" id="item-highkey">{% if g.max_timed_key %}+{{ g.max_timed_key }}{% elif g.max_depleted_key %}+{{ g.max_depleted_key }} (D){% endif %}</span>
+              </div>
+              <div class="text-center p-3 d-flex align-items-center">
+                <a id="item-wowhead" href="{{ wh_url }}"
+                  class="btn btn-sm bg-gradient-primary text-white mb-0 d-inline-flex align-items-center gap-1 shadow"
                   target="_blank" rel="noopener">
                   <i class="material-symbols-rounded text-sm">open_in_new</i> Wowhead
                 </a>
               </div>
             </div>
-
-            <div id="item-set" class="mt-3">
-              {% if item.set and item.set.pieces and item.set.pieces | length >= 2 %}
-              <div class="text-sm opacity-8 mb-1">Set pieces</div>
-              <div class="d-flex flex-wrap gap-2">
-                {% for p in item.set.pieces %}
-                <a href="/items/{{ slug_map[p.id] }}" title="{{ p.name }}" data-wowhead="item={{ p.id }}">
-                  <img src="/data/icons/{{ p.icon }}.png" alt="{{ p.name }}" width="32" height="32"
-                    class="border-quality-{{ p.quality }}" style="border-radius:0.25rem;">
-                </a>
-                {% endfor %}
-              </div>
-              {% endif %}
-            </div>
           </div>
-        </div>
 
-        <!-- Recommended for (SimC best-in-slot + top players' pick), one card per spec -->
-        <div class="card mb-3 {{ 'd-none' if not (item.simc_bis_specs or item.top_specs) else '' }}" id="recommend-card">
-          <div class="card-header pb-0">
-            <h6 class="mb-0">Recommended For</h6>
-            <p class="text-xs opacity-6 mb-0">Specs this item is best-in-slot or a top players' pick for</p>
-          </div>
-          <div class="card-body" id="item-bis">
-            {% if item.simc_bis_specs %}
-            <div class="bis-group mb-3">
-              <div class="d-flex align-items-center gap-2 mb-2">
-                <span class="badge bg-info">SIM</span>
-                <span class="text-sm opacity-8">Best-in-slot (Accoirding to Sims) for</span>
-              </div>
-              <div class="spec-card-grid">
-                {% for s in item.simc_bis_specs[:12] %}{{ spec_card(s.spec_id, specs_map[s.spec_id|string].className if specs_map[s.spec_id|string] else "") }}{% endfor %}
-              </div>
-            </div>
-            {% endif %}
-            {% if item.top_specs %}
-            <div class="bis-group mb-3">
-              <div class="d-flex align-items-center gap-2 mb-2">
-                <span class="badge bg-success">TOP</span>
-                <span class="text-sm opacity-8">Top players' pick for</span>
-              </div>
-              <div class="spec-card-grid">
-                {% for s in item.top_specs[:12] %}{{ spec_card(s.spec_id, ((specs_map[s.spec_id|string].className ~ " · ") if specs_map[s.spec_id|string] else "") ~ s.pct ~ "%") }}{% endfor %}
-              </div>
+          <div class="col-12 px-3 px-md-4" id="item-set">
+            {% if item.set and item.set.pieces and item.set.pieces | length >= 2 %}
+            <div class="d-flex align-items-center flex-wrap gap-2 mt-3">
+              <span class="text-sm opacity-8 me-1">Set pieces</span>
+              {% for p in item.set.pieces %}
+              <a href="/items/{{ slug_map[p.id] }}" title="{{ p.name }}" data-wowhead="item={{ p.id }}">
+                <img src="/data/icons/{{ p.icon }}.png" alt="{{ p.name }}" width="32" height="32"
+                  class="border border-quality-{{ p.quality }}" style="border-radius:0.25rem;">
+              </a>
+              {% endfor %}
             </div>
             {% endif %}
           </div>
         </div>
 
-        <!-- Enhancements (enchant / embellishment / missive), one card each -->
-        <div class="card mb-3 {{ 'd-none' if not (g.enchant or g.embellishment or g.missive) else '' }}" id="enhance-card">
-          <div class="card-header pb-0"><h6 class="mb-0">Enhancements</h6></div>
-          <div class="card-body">
-            <div class="craft-card-grid">
-              <div id="item-enchant">
-                {% if g.enchant %}{{ craft_card("Enchant", g.enchant.name, g.enchant.icon, ("https://www.wowhead.com/spell=" ~ g.enchant.spellId) if g.enchant.spellId else "#", (g.enchant.pct ~ "% of slots") if g.enchant.pct is not none else "") }}{% endif %}
-              </div>
-              <div id="item-craft">
-                {% if g.embellishment %}{{ craft_card("Embellishment", g.embellishment.name, g.embellishment.icon, "https://www.wowhead.com/item=" ~ g.embellishment.id, (g.embellishment.pct ~ "% of copies") if g.embellishment.pct is not none else "", g.embellishment.id) }}{% endif %}
-                {% if g.missive %}{{ craft_card("Missive", g.missive.name, g.missive.icon, "https://www.wowhead.com/item=" ~ g.missive.id, (g.missive.pct ~ "% of copies") if g.missive.pct is not none else "", g.missive.id) }}{% endif %}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- View-by-spec switcher, one card per spec -->
-        <div class="card mb-3 {{ 'd-none' if g.specs | length < 2 else '' }}" id="spec-switch-card">
+        <!-- Specs: combined re-scope switcher + recommendations (SimC BiS / top pick) -->
+        <div class="card mb-3 {{ 'd-none' if not item.spec_overview else '' }}" id="spec-overview-card">
           <div class="card-header pb-0">
-            <h6 class="mb-0">View by Spec</h6>
-            <p class="text-xs opacity-6 mb-0">Re-scope the stats below to a single spec</p>
+            <h6 class="mb-0">Specs</h6>
+            <p class="text-xs opacity-6 mb-0">
+              Adoption per spec, click to re-scope. <span class="badge rec-badge rec-badge-sim">SIM</span> SimulationCraft best-in-slot · <span class="badge rec-badge rec-badge-top">TOP</span> top players' pick
+            </p>
           </div>
           <div class="card-body">
-            <div id="spec-switcher" class="spec-card-grid">
-              {% if g.specs | length >= 2 %}
+            <div id="spec-switcher" class="spec-grid">
               <a href="/items/{{ slug }}" class="spec-card spec-card-all active">
                 <div class="spec-card-meta"><div class="spec-card-name">All specs</div></div>
               </a>
-              {% for s in g.specs[:12] %}{{ spec_card(s.spec_id, (s.adoption if s.adoption is not none else s.share_pct) ~ "%") }}{% endfor %}
-              {% endif %}
+              {% for s in item.spec_overview %}{{ spec_overview_card(s) }}{% endfor %}
             </div>
+          </div>
+        </div>
+
+        <!-- Enhancements & gems: one DataTable per type present (top rows shown, rest
+             scroll). A responsive grid, so a partial set fills the width instead of
+             leaving fixed-width gaps; gems sit next to enchants (same socket/enhance
+             category). Empty cards get d-none and drop out of the grid flow. -->
+        <div class="enhance-grid {{ 'd-none' if not (g.enchants or g.gems or g.embellishments or g.missives) else '' }}" id="enhance-wrap">
+          <div class="card enhance-card {{ 'd-none' if not g.enchants else '' }}" id="enchant-card">
+            <div class="card-header pb-0"><h6 class="mb-0">Enchant</h6>
+              <p class="text-xs opacity-6 mb-0">Enchants used in this slot</p></div>
+            <div class="card-body px-2 pb-2">{{ opt_table("enchant-table", g.enchants, "enchant", "Enchant") }}</div>
+          </div>
+          <div class="card enhance-card {{ 'd-none' if not g.gems else '' }}" id="gems-col">
+            <div class="card-header pb-0"><h6 class="mb-0">Popular Gems</h6>
+              <p class="text-xs opacity-6 mb-0">Gems socketed in this slot</p></div>
+            <div class="card-body px-2 pb-2" id="item-gems">{{ opt_table("gems-table", g.gems, "item", "Gem") }}</div>
+          </div>
+          <div class="card enhance-card {{ 'd-none' if not g.embellishments else '' }}" id="embellishment-card">
+            <div class="card-header pb-0"><h6 class="mb-0">Embellishment</h6>
+              <p class="text-xs opacity-6 mb-0">% of this item's copies</p></div>
+            <div class="card-body px-2 pb-2">{{ opt_table("embellishment-table", g.embellishments, "item", "Embellishment") }}</div>
+          </div>
+          <div class="card enhance-card {{ 'd-none' if not g.missives else '' }}" id="missive-card">
+            <div class="card-header pb-0"><h6 class="mb-0">Missive</h6>
+              <p class="text-xs opacity-6 mb-0">% of this item's copies</p></div>
+            <div class="card-body px-2 pb-2">{{ opt_table("missive-table", g.missives, "item", "Missive") }}</div>
           </div>
         </div>
 
         <div class="row">
-          {% set gems_present = g.gems | length > 0 %}
-          <div class="{{ 'col-lg-12' if not gems_present else 'col-lg-6' }} mb-3" id="spec-popularity-col">
+          <div class="col-12 mb-3" id="spec-popularity-col">
             <div class="card h-100">
               <div class="card-header pb-0">
                 <h6 class="mb-0">Used by Specs</h6>
                 <p class="text-xs opacity-6 mb-0">% of each spec's runs that equip this item</p>
               </div>
-              <div class="card-body" id="spec-popularity">
-                {% set top_pop = g.specs[:15] %}
-                {% if top_pop %}
-                  {% set max_adopt = (top_pop | map(attribute='adoption') | map('default', 0, true) | max) or 1 %}
-                  {% for s in top_pop %}
-                  <a href="?spec={{ s.spec_id }}">
-                    {{ usage_row(spec_icon(s.spec_id), spec_label(s.spec_id),
-                       (s.adoption or 0) / max_adopt * 100,
-                       (s.adoption ~ "% of runs") if s.adoption is not none else ("{:,}".format(s.runs) ~ " runs")) }}
-                  </a>
-                  {% endfor %}
-                {% else %}
-                  <p class="text-sm opacity-6 mb-0">No spec usage recorded.</p>
-                {% endif %}
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-6 mb-3 {{ 'd-none' if not gems_present else '' }}" id="gems-col">
-            <div class="card h-100">
-              <div class="card-header pb-0"><h6 class="mb-0">Popular Gems</h6></div>
-              <div class="card-body" id="item-gems">
-                {% for gem in g.gems %}
-                <a href="https://www.wowhead.com/item={{ gem.id }}" target="_blank" rel="noopener">
-                  {{ usage_row("/data/icons/" ~ gem.icon ~ ".png", gem.name, gem.pct,
-                     gem.pct ~ "% · " ~ "{:,}".format(gem.runs), "gem-icon") }}
-                </a>
-                {% endfor %}
+              <div class="card-body px-2 pb-2" id="spec-popularity">
+                <div class="dt-scroll custom-scrollbar">
+                  <table id="spec-popularity-table" class="table align-items-center mb-0 w-100 item-dt">
+                    <thead><tr>
+                      <th class="text-uppercase text-white text-xxs font-weight-bolder opacity-7">Spec</th>
+                      <th class="text-center text-uppercase text-white text-xxs font-weight-bolder opacity-7">Adoption</th>
+                      <th class="text-center text-uppercase text-white text-xxs font-weight-bolder opacity-7">Runs</th>
+                      <th class="text-center text-uppercase text-white text-xxs font-weight-bolder opacity-7">Max Key</th>
+                    </tr></thead>
+                    <tbody>{% for s in g.specs %}{{ spec_row(s) }}{% endfor %}</tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
@@ -283,7 +335,7 @@
                   <p class="text-xs opacity-6 mb-0">% of each dungeon's / key level's runs that use this item</p>
                 </div>
                 <select id="keylevel-filter" class="selectpicker" data-style="btn-outline-primary"
-                  data-width="auto" multiple data-actions-box="true" data-selected-text-format="count > 2"
+                  data-width="fit" multiple data-actions-box="true" data-selected-text-format="count > 2"
                   data-count-selected-text="{0} key levels" title="All key levels"
                   aria-label="Filter by key level"></select>
               </div>
@@ -296,7 +348,7 @@
                     {% for k in kls %}
                     <div class="key-bar" data-level="{{ k.level }}"
                       style="height: {{ [6, k.adoption / max_kl * 100] | max }}%"
-                      title="+{{ k.level }}: {{ k.adoption }}% of runs ({{ '{:,}'.format(k.runs) }}) — click to filter">
+                      title="+{{ k.level }}: {{ k.adoption }}% of runs ({{ '{:,}'.format(k.runs) }}) click to filter">
                       <span class="key-num">{{ k.level }}</span>
                     </div>
                     {% endfor %}
@@ -333,9 +385,10 @@
                   <div class="d-flex justify-content-between">
                     <div>
                       {% for t in v.tags %}<span class="tier-badge {{ tier_class(t) | trim }} variant-tag">{{ t }}</span>{% endfor %}
+                      {% if v.ilvl %}<span class="tier-badge tier-ilvl variant-tag">ilvl {{ v.ilvl }}</span>{% endif %}
                       {% if v.sockets %}<span class="badge bg-secondary variant-tag">+{{ v.sockets }} socket{{ "s" if v.sockets > 1 else "" }}</span>{% endif %}
                       {% for cs in v.crafted_stats %}<span class="badge stat-{{ cs }} variant-tag">{{ cs }}</span>{% endfor %}
-                      {% if not v.tags and not v.sockets and not v.crafted_stats %}<span class="tier-badge tier-standard variant-tag">Standard</span>{% endif %}
+                      {% if not v.tags and not v.ilvl and not v.sockets and not v.crafted_stats %}<span class="tier-badge tier-standard variant-tag">Standard</span>{% endif %}
                     </div>
                     <span class="usage-label">{{ v.pct }}% · {{ "{:,}".format(v.runs) }}</span>
                   </div>
@@ -387,7 +440,8 @@
     window.specs_map = {{ specs_map | tojson | safe }};
     window.dungeons_map = {{ dungeons_map | tojson | safe }};
   </script>
-  <script src="/assets/js/item.js"></script>
+  <script src="/assets/js/plugins/dataTables.min.js"></script>
+  <script src="/assets/js/item.js?v=6"></script>
 </body>
 
 </html>

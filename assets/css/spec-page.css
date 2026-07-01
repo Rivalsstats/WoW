@@ -314,6 +314,32 @@
   line-height: 1.2;
 }
 
+/* "Item details" link: a small, clearly-visible outline chip that reads as an
+   action (the old bare text link was easy to miss and sat awkwardly). */
+.item-detail-link {
+  align-self: flex-start;
+  margin: 3px 0;
+  padding: 2px 8px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.4;
+  border-radius: 999px;
+  border: 1px solid rgba(94, 114, 228, 0.6);
+  color: #aeb9ff;
+  background: rgba(94, 114, 228, 0.1);
+  text-decoration: none;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.item-detail-link:hover {
+  background: rgba(94, 114, 228, 0.22);
+  border-color: rgba(94, 114, 228, 0.9);
+  color: #d7dcff;
+}
+.item-detail-link .material-symbols-rounded {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
 .item-stats-container {
   min-height: 20px;
   display: flex;
