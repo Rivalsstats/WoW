@@ -232,6 +232,26 @@
   margin-right: 0.25rem;
 }
 
+/* Match the search box to the outline-primary selectpicker toggles beside it
+   (Material Dashboard's default .form-control is a taller, grey-bordered,
+   zero-horizontal-padding underline field, which looked mismatched). */
+.items-browse #item-search.form-control {
+  height: 38px;
+  padding: 0.5rem 1rem;
+  line-height: 1.4;
+  border: 1px solid var(--bs-primary);
+  border-radius: 0.375rem;
+  color: #d4d4d4;
+}
+.items-browse #item-search.form-control:focus {
+  border-color: var(--bs-primary);
+  box-shadow: none;
+}
+.items-browse #item-search.form-control::placeholder {
+  color: #999;
+  opacity: 1;
+}
+
 /* ----- browse page grid ----- */
 .items-browse .item-card {
   display: flex;

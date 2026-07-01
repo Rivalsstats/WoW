@@ -11,6 +11,20 @@
 
   var SPECS = window.specs_map || {};
 
+  // Character-sheet slot order, mirroring the spec page's LEFT/RIGHT panel
+  // layout (HEAD, NECK, SHOULDER, BACK, CHEST, WRIST, HANDS, WAIST, LEGS, FEET,
+  // FINGER, TRINKET, then weapons). Slots not listed sort alphabetically after.
+  var SLOT_ORDER = [
+    "Head", "Neck", "Shoulder", "Back", "Chest", "Wrist",
+    "Hands", "Waist", "Legs", "Feet", "Finger", "Trinket",
+    "Main Hand", "One-Hand", "Two-Hand", "Off Hand", "Held In Off-hand", "Ranged",
+    "Other",
+  ];
+  var QUALITY_NAMES = {
+    0: "Poor", 1: "Common", 2: "Uncommon", 3: "Rare",
+    4: "Epic", 5: "Legendary", 6: "Artifact", 7: "Heirloom",
+  };
+
   function el(id) { return document.getElementById(id); }
   function iconUrl(icon) { return "/data/icons/" + icon + ".png"; }
   function fmt(n) { return (n || 0).toLocaleString(); }
@@ -39,12 +53,32 @@
     var allOpt = document.createElement("option");
     allOpt.value = ""; allOpt.textContent = "All slots";
     sel.appendChild(allOpt);
-    Object.keys(slots).sort().forEach(function (s) {
+    Object.keys(slots).sort(function (a, b) {
+      var ia = SLOT_ORDER.indexOf(a); if (ia === -1) ia = Infinity;
+      var ib = SLOT_ORDER.indexOf(b); if (ib === -1) ib = Infinity;
+      return ia !== ib ? ia - ib : a.localeCompare(b);
+    }).forEach(function (s) {
       var o = document.createElement("option");
       o.value = s; o.textContent = s;
       sel.appendChild(o);
     });
     refreshPicker("slot-filter");
+  }
+
+  function buildQualityOptions() {
+    var qualities = {};
+    all.forEach(function (i) { if (i.quality != null) qualities[i.quality] = true; });
+    var sel = el("quality-filter");
+    var allOpt = document.createElement("option");
+    allOpt.value = ""; allOpt.textContent = "All quality";
+    sel.appendChild(allOpt);
+    // Highest quality first (Legendary → Epic → Rare → …).
+    Object.keys(qualities).map(Number).sort(function (a, b) { return b - a; }).forEach(function (q) {
+      var o = document.createElement("option");
+      o.value = String(q); o.textContent = QUALITY_NAMES[q] || ("Quality " + q);
+      sel.appendChild(o);
+    });
+    refreshPicker("quality-filter");
   }
 
   function applyFilters() {
@@ -111,6 +145,7 @@
       .then(function (data) {
         all = data || [];
         buildSlotOptions();
+        buildQualityOptions();
         applyFilters();
         el("item-search").addEventListener("input", debounce(applyFilters, 200));
         el("slot-filter").addEventListener("change", applyFilters);
