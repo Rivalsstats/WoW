@@ -200,6 +200,7 @@ jobs:
           git add items/
           git add pages/
           git add assets/json/search_index.json
+          git add assets/json/items_index.json
           git add index.html
           git add 404.html
           git add assets/json/compRoutes.json
