@@ -1,0 +1,83 @@
+/* =========================================================
+   dashboard.css — dashboard-page-only styles
+   Loaded from templates/dashboard.html <head>
+   ========================================================= */
+
+/* Heatmap rarity scale — single source of truth, read by the
+   heatmap chart script via getComputedStyle and used by the
+   legend swatches below. */
+:root {
+  --dash-heat-zero: rgba(255, 255, 255, 0.04);
+  --dash-heat-common: rgba(255, 255, 255, 0.20);
+  --dash-heat-uncommon: rgba(30, 255, 0, 0.45);
+  --dash-heat-rare: rgba(0, 112, 221, 0.70);
+  --dash-heat-epic: rgba(163, 53, 238, 0.85);
+  --dash-heat-legendary: rgba(255, 128, 0, 0.95);
+}
+
+/* Featured run cards: static half of the background treatment
+   (the url() itself stays inline — it's data-driven). */
+.dash-card-bg {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-blend-mode: overlay;
+}
+
+/* Party member spec icons in the featured run cards */
+.dash-member-icon {
+  width: 18%;
+  max-width: 80px;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+/* Normalized chart container heights (charts use maintainAspectRatio: false) */
+.dash-chart {
+  height: 320px;
+}
+
+.dash-chart-sm {
+  height: 150px;
+}
+
+.dash-chart-tall {
+  height: 420px;
+}
+
+/* Heatmap legend swatches */
+.dash-heat-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+}
+
+.dash-heat-swatch--common {
+  background: var(--dash-heat-common);
+}
+
+.dash-heat-swatch--uncommon {
+  background: var(--dash-heat-uncommon);
+}
+
+.dash-heat-swatch--rare {
+  background: var(--dash-heat-rare);
+}
+
+.dash-heat-swatch--epic {
+  background: var(--dash-heat-epic);
+}
+
+.dash-heat-swatch--legendary {
+  background: var(--dash-heat-legendary);
+}
+
+/* Mobile rank tables: shared bits not covered by responsive.css */
+.dash-rank-icon-cell {
+  width: 28px;
+}
+
+.dash-rank-bar-primary {
+  background: var(--bs-primary, #e91e63);
+}

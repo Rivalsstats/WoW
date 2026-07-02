@@ -18,6 +18,7 @@
 <head>
   <title>WoW Mythic+ Dashboard - Stats, Spec Popularity & Dungeon Trends for {{ season_info.name }} | MythiStone</title>
   {% include "header_imports.html" %}
+  <link rel="stylesheet" href="/assets/css/dashboard.css" />
 
   <!-- Primary SEO -->
   <meta name="description"
@@ -125,13 +126,30 @@
     {% include "notifications.html" %}
     <!-- End Notifications -->
     <div class="container-fluid py-2">
-      <div class="row">
-        <div class="ms-3">
-          <h1 class="mb-0 h4 font-weight-bolder">WoW Mythic+ Dashboard for {{ season_info.name }}</h1>
-          <p class="mb-4">
-            Overall Mythic+ Statistics for {{ season_info.name }}.
-          </p>
+      {# Shared row shape for the mobile ranked tables #}
+      {% macro dash_rank_row(rank, name, value, sub=None, icon_url=None, bar_pct=None, bar_class='', name_class='') %}
+      <tr>
+        <td class="dash-rank-num">{{ rank }}</td>
+        <td class="dash-rank-icon-cell">{% if icon_url %}<img src="{{ icon_url }}" class="dash-rank-icon" alt="{{ name }}">{% endif %}</td>
+        <td>
+          <div class="dash-rank-name {{ name_class }}">{{ name }}</div>
+          {% if bar_pct is not none %}
+          <div class="dash-rank-bar"><span class="{{ bar_class }}" style="width: {{ bar_pct }}%;"></span></div>
+          {% endif %}
+        </td>
+        <td class="dash-rank-value">
+          <div class="font-weight-bold">{{ value }}</div>
+          {% if sub %}<div class="text-xs text-secondary">{{ sub }}</div>{% endif %}
+        </td>
+      </tr>
+      {% endmacro %}
+      <div class="row mb-5 mt-2">
+        <div class="col-sm-12 px-3 px-md-4">
+          <h1 class="h3 mb-0 font-weight-bolder">WoW Mythic+ Dashboard for {{ season_info.name }}</h1>
+          <p class="mb-0 text-md">Spec popularity, dungeon trends and key activity for {{ season_info.name }}</p>
         </div>
+      </div>
+      <div class="row">
         <!-- Key Throughput card -->
         <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
           <div class="card h-100">
@@ -157,7 +175,7 @@
               </div>
             </div>
             <div class="card-body p-2 pt-0">
-              <div class="chart d-none d-lg-block" style="height: 150px;">
+              <div class="chart dash-chart-sm d-none d-lg-block">
                 <canvas id="chart-key-throughput" class="chart-canvas"></canvas>
               </div>
             </div>
@@ -166,7 +184,7 @@
               <div class="d-flex justify-content-between align-items-center">
                 <p class="mb-0 text-sm timestamp" data-bs-toggle="tooltip" data-bs-placement="top"
                   data-timestamp={{generated_at}}>Last Update: </p>
-                <a id="resetThroughputZoom" class="text-sm" style="cursor:pointer; display:none;">Reset Zoom</a>
+                <a id="resetThroughputZoom" class="text-sm cursor-pointer" style="display:none;">Reset Zoom</a>
               </div>
             </div>
           </div>
@@ -179,19 +197,13 @@
         {% set icon_filename = (dungeon_info.icon if dungeon_info else None) | default('unknown.jpg') %}
         {% set run_img_url = '/data/icons/' ~ icon_filename %}
         <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4">
-          <div class="card h-100" style="
-              background-image: url('{{ run_img_url }}');
-              background-size: cover;
-              background-position: center;
-              background-repeat: no-repeat;
-              background-blend-mode: overlay;
-            ">
+          <div class="card h-100 dash-card-bg" style="background-image: url('{{ run_img_url }}');">
             <div class="card-header p-2 ps-3">
               <div class="d-flex justify-content-between">
                 <div>
                   <p class="text-sm mb-0 text-capitalize">{{ run_entry.name }} Run</p>
                   {% set info = run_data.duration|
-                  upgrade_info(dungeon_lookup[run_data.dungeon_id|string].keystone_upgrades,
+                  upgrade_info(dungeon_info.keystone_upgrades,
                   run_data.keystone_level) %}
                   <div>
                     <span class="font-weight-bolder h4 {{ info.css }}">{{ info.text }}</span>
@@ -216,7 +228,7 @@
                 {% set spec = spec_lookup[ member.spec_id|string ] %}
                 {% if spec.role == role %}
                 <img src="/data/icons/{{ spec_lookup[member.spec_id|string].SpellIconFileId }}.jpg"
-                  alt="{{ spec.name }}" title="{{ spec.name }}" class="rounded-circle border border-dark mb-1" style="width: 18%; max-width: 80px; aspect-ratio: 1; object-fit: cover;" />
+                  alt="{{ spec.name }}" title="{{ spec.name }}" class="rounded-circle border border-dark mb-1 dash-member-icon" />
                 {% endif %}
                 {% endfor %}
                 {% endfor %}
@@ -234,13 +246,17 @@
         {% endfor %}
       </div>
 
-      <div class="row mb-4">
-        <div class="col-lg-12 col-md-6 mt-4 mb-4">
-          <div class="card ">
-            <div class="card-body">
+      <div class="row mt-4">
+        <div class="col-12 mt-4 mb-4">
+          <div class="card h-100">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+              <div class="bg-gradient-primary shadow-primary border-radius-lg pt-3 pb-3 d-flex justify-content-between align-items-center">
+                <h6 class="text-white text-capitalize ps-3 mb-0">Spec Popularity</h6>
+              </div>
+            </div>
+            <div class="card-body p-3">
               <!-- Mobile: compact ranked table instead of the dense spec charts -->
               <div class="d-lg-none">
-                <h6 class="mb-0">Spec popularity</h6>
                 <p class="text-sm mb-2">Most played specs across all key levels</p>
                 {% set top_specs = spec_run_counts | sort(attribute='count', reverse=True) %}
                 {% set spec_total = (spec_run_counts | sum(attribute='count')) or 1 %}
@@ -250,18 +266,12 @@
                     {% for s in top_specs[:15] %}
                     {% set si = spec_lookup[s.id|string] %}
                     {% set ci = class_lookup[si.classID|string] %}
-                    <tr>
-                      <td class="dash-rank-num">{{ loop.index }}</td>
-                      <td style="width:28px;"><img src="/data/icons/{{ si.SpellIconFileId }}.jpg" class="dash-rank-icon" alt="{{ si.name }}"></td>
-                      <td>
-                        <div class="dash-rank-name" style="color: rgb({{ ci.color.r|int }},{{ ci.color.g|int }},{{ ci.color.b|int }});">{{ si.name }}</div>
-                        <div class="dash-rank-bar"><span style="width: {{ (s.count / spec_max * 100)|round(1) }}%; background: rgb({{ ci.color.r|int }},{{ ci.color.g|int }},{{ ci.color.b|int }});"></span></div>
-                      </td>
-                      <td class="dash-rank-value">
-                        <div class="font-weight-bold">{{ "{:,}".format(s.count) }}</div>
-                        <div class="text-xs text-secondary">{{ (s.count / spec_total * 100)|round(1) }}%</div>
-                      </td>
-                    </tr>
+                    {{ dash_rank_row(loop.index, si.name, "{:,}".format(s.count),
+                        sub=((s.count / spec_total * 100)|round(1) ~ '%'),
+                        icon_url='/data/icons/' ~ si.SpellIconFileId ~ '.jpg',
+                        bar_pct=(s.count / spec_max * 100)|round(1),
+                        bar_class='class-' ~ ci.name|replace(' ', '') ~ '-bg',
+                        name_class='class-' ~ ci.name|replace(' ', '') ~ '-text') }}
                     {% endfor %}
                   </tbody>
                 </table>
@@ -287,56 +297,27 @@
               <div class="tab-content" id="specTabsContent">
                 <!-- Tab 1 -->
                 <div class="tab-pane fade show active" id="overall" role="tabpanel" aria-labelledby="overall-tab">
-                  <div class="row">
-                    <div class="col-lg-12 mt-4 mb-4">
-                      <div class="card">
-                        <div class="card-body">
-                          <h6 class="mb-0">Spec popularity</h6>
-                          <p class="text-sm">Across all Keylevels</p>
-                          <div class="pe-2 dash-dense-chart">
-                            <div class="chart">
-                              <canvas id="chart-overall" class="chart-canvas" height="100"></canvas>
-                            </div>
-                          </div>
-                          <hr class="dark horizontal">
-                          <div class="d-flex">
-                            <i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
-                            <p class="mb-0 text-sm timestamp" data-bs-toggle="tooltip" data-bs-placement="top"
-                              data-timestamp={{generated_at}}>Last Update: </p>
-                          </div>
-                        </div>
-                      </div>
+                  <div class="pe-2 dash-dense-chart">
+                    <div class="chart dash-chart-tall">
+                      <canvas id="chart-overall" class="chart-canvas"></canvas>
                     </div>
                   </div>
                 </div>
                 <!-- Tab 2 -->
                 <div class="tab-pane fade" id="keylevel" role="tabpanel" aria-labelledby="keylevel-tab">
-                  <div class="row">
-                    <div class="col-lg-12 col-md-4 mt-4 mb-4">
-                      <div class="card">
-                        <div class="card-body">
-                          <h6 class="mb-0">Spec popularity</h6>
-                          <p class="text-sm">By Keylevel</p>
-                          <div class="pe-2 dash-dense-chart">
-                            <div class="chart">
-                              <canvas id="chart-keylevel" class="chart-canvas" height="80"></canvas>
-                            </div>
-                          </div>
-                          <hr class="dark horizontal">
-                          <div class="d-flex">
-                            <i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
-                            <p class="mb-0 text-sm timestamp" data-bs-toggle="tooltip" data-bs-placement="top"
-                              data-timestamp={{generated_at}}>Last Update: </p>
-                          </div>
-                        </div>
-                      </div>
+                  <div class="pe-2 dash-dense-chart">
+                    <div class="chart dash-chart-tall">
+                      <canvas id="chart-keylevel" class="chart-canvas"></canvas>
                     </div>
                   </div>
                 </div>
-
-
-
               </div>
+              </div>
+              <hr class="dark horizontal">
+              <div class="d-flex">
+                <i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
+                <p class="mb-0 text-sm timestamp" data-bs-toggle="tooltip" data-bs-placement="top"
+                  data-timestamp={{generated_at}}>Last Update: </p>
               </div>
             </div>
           </div>
@@ -344,37 +325,54 @@
       </div>
       <div class="row">
         <div class="col-lg-6 col-md-6 mt-4 mb-4">
-          <div class="card ">
-            <div class="card-body">
-              <h6 class="mb-0 "> Keys per Week</h6>
-              <p class="text-sm "></p>
+          <div class="card h-100">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+              <div class="bg-gradient-info shadow-info border-radius-lg pt-3 pb-3 d-flex justify-content-between align-items-center">
+                <h6 class="text-white text-capitalize ps-3 mb-0">Keys per Week</h6>
+              </div>
+            </div>
+            <div class="card-body p-3">
               <div class="pe-2">
-                <div class="chart d-none d-lg-block">
-                  <canvas id="chart-keys-per-week" class="chart-canvas" height="170"></canvas>
+                <div class="chart dash-chart d-none d-lg-block">
+                  <canvas id="chart-keys-per-week" class="chart-canvas"></canvas>
                 </div>
-                <p class="text-sm text-secondary d-lg-none mb-0 py-3 text-center">
-                  <i class="material-symbols-rounded align-middle me-1">show_chart</i>
-                  The weekly key trend is best viewed on a larger screen.
-                </p>
+                <!-- Mobile: ranked table of the most recent weeks -->
+                <div class="d-lg-none">
+                  <p class="text-sm mb-2">Keys completed in the last 12 weeks</p>
+                  {% set wk_totals = period_datasets[0].data %}
+                  {% set wk_max = (wk_totals | max) or 1 %}
+                  {% set wk_count = wk_totals | length %}
+                  <table class="dash-rank-table text-sm">
+                    <tbody>
+                      {% for i in range(wk_count - 1, ([wk_count - 12, 0] | max) - 1, -1) %}
+                      {{ dash_rank_row(loop.index, period_labels[i], "{:,}".format(wk_totals[i]),
+                          bar_pct=(wk_totals[i] / wk_max * 100)|round(1),
+                          bar_class='dash-rank-bar-primary') }}
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
               </div>
               <hr class="dark horizontal">
-              <div class="d-flex ">
+              <div class="d-flex">
                 <i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
                 <p class="mb-0 text-sm timestamp" data-bs-toggle="tooltip" data-bs-placement="top"
                   data-timestamp={{generated_at}}>Last Update: </p>
-                </p>
               </div>
             </div>
           </div>
         </div>
-        <div class="col-lg-6 mt-4 mb-3">
-          <div class="card">
-            <div class="card-body">
-              <h6 class="mb-0 ">Most Popular Dungeons</h6>
-              <p class="text-sm "></p>
+        <div class="col-lg-6 mt-4 mb-4">
+          <div class="card h-100">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+              <div class="bg-gradient-success shadow-success border-radius-lg pt-3 pb-3 d-flex justify-content-between align-items-center">
+                <h6 class="text-white text-capitalize ps-3 mb-0">Most Popular Dungeons</h6>
+              </div>
+            </div>
+            <div class="card-body p-3">
               <div class="pe-2">
-                <div class="chart d-none d-lg-block">
-                  <canvas id="chart-dungeon-popularity" class="chart-canvas" height="170"></canvas>
+                <div class="chart dash-chart d-none d-lg-block">
+                  <canvas id="chart-dungeon-popularity" class="chart-canvas"></canvas>
                 </div>
                 <!-- Mobile: ranked table -->
                 <div class="d-lg-none">
@@ -383,29 +381,67 @@
                   <table class="dash-rank-table text-sm">
                     <tbody>
                       {% for i in range(dungeon_full_names | length) %}
-                      <tr>
-                        <td class="dash-rank-num">{{ loop.index }}</td>
-                        <td style="width:28px;"><img src="{{ dungeon_icon_urls[i] }}" class="dash-rank-icon" alt="{{ dungeon_full_names[i] }}"></td>
-                        <td>
-                          <div class="dash-rank-name">{{ dungeon_full_names[i] }}</div>
-                          <div class="dash-rank-bar"><span style="width: {{ (dungeon_total_counts[i] / d_max * 100)|round(1) }}%; background: var(--bs-primary, #e91e63);"></span></div>
-                        </td>
-                        <td class="dash-rank-value">
-                          <div class="font-weight-bold">{{ "{:,}".format(dungeon_total_counts[i]) }}</div>
-                          <div class="text-xs text-secondary">{{ (dungeon_total_counts[i] / d_sum * 100)|round(1) }}%</div>
-                        </td>
-                      </tr>
+                      {{ dash_rank_row(loop.index, dungeon_full_names[i], "{:,}".format(dungeon_total_counts[i]),
+                          sub=((dungeon_total_counts[i] / d_sum * 100)|round(1) ~ '%'),
+                          icon_url=dungeon_icon_urls[i],
+                          bar_pct=(dungeon_total_counts[i] / d_max * 100)|round(1),
+                          bar_class='dash-rank-bar-primary') }}
                       {% endfor %}
                     </tbody>
                   </table>
                 </div>
               </div>
               <hr class="dark horizontal">
-              <div class="d-flex ">
+              <div class="d-flex">
                 <i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
                 <p class="mb-0 text-sm timestamp" data-bs-toggle="tooltip" data-bs-placement="top"
                   data-timestamp={{generated_at}}>Last Update: </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-12 mt-4 mb-4">
+          <div class="card h-100">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+              <div class="bg-gradient-dark shadow-dark border-radius-lg pt-3 pb-3 d-flex justify-content-between align-items-center">
+                <h6 class="text-white text-capitalize ps-3 mb-0">When are keys completed?</h6>
+                <div class="btn-group btn-group-sm me-3 d-none d-lg-inline-flex" role="group" id="heatmap-region-toggle"
+                  aria-label="Region">
+                  {% for r in completion_heatmap.regions %}
+                  <button type="button" class="btn btn-outline-light mb-0{{ ' active' if loop.first }}"
+                    data-region="{{ r.key }}">{{ r.label }}</button>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            <div class="card-body p-3">
+              <p class="text-sm mb-0 d-none d-lg-block" id="heatmap-tz-note">Shown in your local time</p>
+              <div class="pe-2">
+                <div class="chart dash-chart d-none d-lg-block">
+                  <canvas id="chart-completion-heatmap" class="chart-canvas"></canvas>
+                </div>
+                <div class="d-none d-lg-flex align-items-center justify-content-end text-xs text-secondary mt-2">
+                  <span class="me-2">Underplayed</span>
+                  <span title="Common" class="dash-heat-swatch dash-heat-swatch--common"></span>
+                  <span title="Uncommon" class="ms-1 dash-heat-swatch dash-heat-swatch--uncommon"></span>
+                  <span title="Rare" class="ms-1 dash-heat-swatch dash-heat-swatch--rare"></span>
+                  <span title="Epic" class="ms-1 dash-heat-swatch dash-heat-swatch--epic"></span>
+                  <span title="Legendary" class="ms-1 dash-heat-swatch dash-heat-swatch--legendary"></span>
+                  <span class="ms-2">Most played</span>
+                </div>
+                <p class="text-sm text-secondary d-lg-none mb-0 py-3 text-center">
+                  <i class="material-symbols-rounded align-middle me-1">calendar_view_week</i>
+                  The completion heatmap is best viewed on a larger screen.
                 </p>
+              </div>
+              <hr class="dark horizontal">
+              <div class="d-flex">
+                <i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
+                <p class="mb-0 text-sm timestamp" data-bs-toggle="tooltip" data-bs-placement="top"
+                  data-timestamp={{generated_at}}>Last Update: </p>
               </div>
             </div>
           </div>
@@ -414,13 +450,18 @@
 
       <div class="row">
         <div class="col-lg-6 col-md-6 mt-4 mb-4">
-          <div class="card ">
-            <div class="card-body">
-              <h6 class="mb-0 ">Spec Popularity vs Performance</h6>
-              <p class="text-sm "></p>
+          <div class="card h-100">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+              <div class="bg-gradient-warning shadow-warning border-radius-lg pt-3 pb-3 d-flex justify-content-between align-items-center">
+                <h6 class="text-white text-capitalize ps-3 mb-0">Spec Popularity vs Performance</h6>
+                <button type="button" class="btn btn-sm btn-outline-light me-3 mb-0" data-bs-toggle="modal"
+                  data-bs-target="#performanceModal">How it&rsquo;s calculated</button>
+              </div>
+            </div>
+            <div class="card-body p-3">
               <div class="pe-2">
-                <div class="chart d-none d-lg-block">
-                  <canvas id="chart-popularity-vs-tier" class="chart-canvas" height="170"></canvas>
+                <div class="chart dash-chart d-none d-lg-block">
+                  <canvas id="chart-popularity-vs-tier" class="chart-canvas"></canvas>
                 </div>
                 <!-- Mobile: ranked table sorted by performance score -->
                 <div class="d-lg-none">
@@ -438,7 +479,7 @@
                       {% for p in perf_sorted[:15] %}
                       <tr>
                         <td class="dash-rank-num">{{ loop.index }}</td>
-                        <td style="width:28px;"><img src="{{ p.iconUrl }}" class="dash-rank-icon" alt="{{ p.label }}"></td>
+                        <td class="dash-rank-icon-cell"><img src="{{ p.iconUrl }}" class="dash-rank-icon" alt="{{ p.label }}"></td>
                         <td><div class="dash-rank-name">{{ p.label }}</div></td>
                         <td class="dash-rank-value font-weight-bold">{{ "%.2f"|format(p.x) }}</td>
                         <td class="dash-rank-value text-secondary">{{ "{:,}".format(p.y) }}</td>
@@ -449,27 +490,25 @@
                 </div>
               </div>
               <hr class="dark horizontal">
-              <div class="d-flex justify-content-between">
-                <div class="d-flex">
-                  <i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
-                  <p class="mb-0 text-sm timestamp" data-bs-toggle="tooltip" data-bs-placement="top"
-                    data-timestamp={{generated_at}}>Last Update: </p>
-                </div>
-                <a class="mb-0 text-sm" style="cursor: pointer;" data-bs-toggle="modal"
-                  data-bs-target="#performanceModal">See How It’s
-                  Calculated</a>
+              <div class="d-flex">
+                <i class="material-symbols-rounded text-sm my-auto me-1">schedule</i>
+                <p class="mb-0 text-sm timestamp" data-bs-toggle="tooltip" data-bs-placement="top"
+                  data-timestamp={{generated_at}}>Last Update: </p>
               </div>
             </div>
           </div>
         </div>
-        <div class="col-lg-6 mt-4 mb-3">
-          <div class="card">
-            <div class="card-body">
-              <h6 class="mb-0 ">Dungeon Popularity across Keylevels</h6>
-              <p class="text-sm "></p>
+        <div class="col-lg-6 mt-4 mb-4">
+          <div class="card h-100">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+              <div class="bg-gradient-danger shadow-danger border-radius-lg pt-3 pb-3 d-flex justify-content-between align-items-center">
+                <h6 class="text-white text-capitalize ps-3 mb-0">Dungeon Popularity across Keylevels</h6>
+              </div>
+            </div>
+            <div class="card-body p-3">
               <div class="pe-2">
-                <div class="chart d-none d-lg-block">
-                  <canvas id="chart-dungeon-popularity-vs-ease" class="chart-canvas" height="170"></canvas>
+                <div class="chart dash-chart d-none d-lg-block">
+                  <canvas id="chart-dungeon-popularity-vs-ease" class="chart-canvas"></canvas>
                 </div>
                 <p class="text-sm text-secondary d-lg-none mb-0 py-3 text-center">
                   <i class="material-symbols-rounded align-middle me-1">bar_chart</i>
@@ -486,380 +525,6 @@
           </div>
         </div>
       </div>
-      <!-- 
-      <div class="row mb-4">
-        <div class="col-lg-8 col-md-6 mb-md-0 mb-4">
-          <div class="card">
-            <div class="card-header pb-0">
-              <div class="row">
-                <div class="col-lg-6 col-7">
-                  <h6>Spec Tierlist</h6>
-                  <p class="text-sm mb-0">
-                    <i class="fa fa-check text-info" aria-hidden="true"></i>
-                    <span class="font-weight-bold ms-1">30 done</span> this month
-                  </p>
-                </div>
-                <div class="col-lg-6 col-5 my-auto text-end">
-                  <div class="dropdown float-lg-end pe-4">
-                    <a class="cursor-pointer" id="dropdownTable" data-bs-toggle="dropdown" aria-expanded="false">
-                      <i class="fa fa-ellipsis-v text-secondary"></i>
-                    </a>
-                    <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5" aria-labelledby="dropdownTable">
-                      <li><a class="dropdown-item border-radius-md" href="javascript:;">Action</a></li>
-                      <li><a class="dropdown-item border-radius-md" href="javascript:;">Another action</a></li>
-                      <li><a class="dropdown-item border-radius-md" href="javascript:;">Something else here</a></li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="card-body px-0 pb-2">
-              <div class="table-responsive">
-                <table class="table align-items-center mb-0">
-                  <thead>
-                    <tr>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Companies</th>
-                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Members</th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Budget
-                      </th>
-                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                        Completion</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>
-                        <div class="d-flex px-2 py-1">
-                          <div>
-                            <img src="../assets/img/small-logos/logo-xd.svg" class="avatar avatar-sm me-3" alt="xd">
-                          </div>
-                          <div class="d-flex flex-column justify-content-center">
-                            <h6 class="mb-0 text-sm">Material XD Version</h6>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="avatar-group mt-2">
-                          <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip"
-                            data-bs-placement="bottom" title="Ryan Tompson">
-                            <img src="../assets/img/team-1.jpg" alt="team1">
-                          </a>
-                          <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip"
-                            data-bs-placement="bottom" title="Romina Hadid">
-                            <img src="../assets/img/team-2.jpg" alt="team2">
-                          </a>
-                          <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip"
-                            data-bs-placement="bottom" title="Alexander Smith">
-                            <img src="../assets/img/team-3.jpg" alt="team3">
-                          </a>
-                          <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip"
-                            data-bs-placement="bottom" title="Jessica Doe">
-                            <img src="../assets/img/team-4.jpg" alt="team4">
-                          </a>
-                        </div>
-                      </td>
-                      <td class="align-middle text-center text-sm">
-                        <span class="text-xs font-weight-bold"> $14,000 </span>
-                      </td>
-                      <td class="align-middle">
-                        <div class="progress-wrapper w-75 mx-auto">
-                          <div class="progress-info">
-                            <div class="progress-percentage">
-                              <span class="text-xs font-weight-bold">60%</span>
-                            </div>
-                          </div>
-                          <div class="progress">
-                            <div class="progress-bar bg-gradient-info w-60" role="progressbar" aria-valuenow="60"
-                              aria-valuemin="0" aria-valuemax="100"></div>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div class="d-flex px-2 py-1">
-                          <div>
-                            <img src="../assets/img/small-logos/logo-atlassian.svg" class="avatar avatar-sm me-3"
-                              alt="atlassian">
-                          </div>
-                          <div class="d-flex flex-column justify-content-center">
-                            <h6 class="mb-0 text-sm">Add Progress Track</h6>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="avatar-group mt-2">
-                          <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip"
-                            data-bs-placement="bottom" title="Romina Hadid">
-                            <img src="../assets/img/team-2.jpg" alt="team5">
-                          </a>
-                          <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip"
-                            data-bs-placement="bottom" title="Jessica Doe">
-                            <img src="../assets/img/team-4.jpg" alt="team6">
-                          </a>
-                        </div>
-                      </td>
-                      <td class="align-middle text-center text-sm">
-                        <span class="text-xs font-weight-bold"> $3,000 </span>
-                      </td>
-                      <td class="align-middle">
-                        <div class="progress-wrapper w-75 mx-auto">
-                          <div class="progress-info">
-                            <div class="progress-percentage">
-                              <span class="text-xs font-weight-bold">10%</span>
-                            </div>
-                          </div>
-                          <div class="progress">
-                            <div class="progress-bar bg-gradient-info w-10" role="progressbar" aria-valuenow="10"
-                              aria-valuemin="0" aria-valuemax="100"></div>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div class="d-flex px-2 py-1">
-                          <div>
-                            <img src="../assets/img/small-logos/logo-slack.svg" class="avatar avatar-sm me-3"
-                              alt="team7">
-                          </div>
-                          <div class="d-flex flex-column justify-content-center">
-                            <h6 class="mb-0 text-sm">Fix Platform Errors</h6>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="avatar-group mt-2">
-                          <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip"
-                            data-bs-placement="bottom" title="Romina Hadid">
-                            <img src="../assets/img/team-3.jpg" alt="team8">
-                          </a>
-                          <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip"
-                            data-bs-placement="bottom" title="Jessica Doe">
-                            <img src="../assets/img/team-1.jpg" alt="team9">
-                          </a>
-                        </div>
-                      </td>
-                      <td class="align-middle text-center text-sm">
-                        <span class="text-xs font-weight-bold"> Not set </span>
-                      </td>
-                      <td class="align-middle">
-                        <div class="progress-wrapper w-75 mx-auto">
-                          <div class="progress-info">
-                            <div class="progress-percentage">
-                              <span class="text-xs font-weight-bold">100%</span>
-                            </div>
-                          </div>
-                          <div class="progress">
-                            <div class="progress-bar bg-gradient-success w-100" role="progressbar" aria-valuenow="100"
-                              aria-valuemin="0" aria-valuemax="100"></div>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div class="d-flex px-2 py-1">
-                          <div>
-                            <img src="../assets/img/small-logos/logo-spotify.svg" class="avatar avatar-sm me-3"
-                              alt="spotify">
-                          </div>
-                          <div class="d-flex flex-column justify-content-center">
-                            <h6 class="mb-0 text-sm">Launch our Mobile App</h6>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="avatar-group mt-2">
-                          <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip"
-                            data-bs-placement="bottom" title="Ryan Tompson">
-                            <img src="../assets/img/team-4.jpg" alt="user1">
-                          </a>
-                          <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip"
-                            data-bs-placement="bottom" title="Romina Hadid">
-                            <img src="../assets/img/team-3.jpg" alt="user2">
-                          </a>
-                          <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip"
-                            data-bs-placement="bottom" title="Alexander Smith">
-                            <img src="../assets/img/team-4.jpg" alt="user3">
-                          </a>
-                          <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip"
-                            data-bs-placement="bottom" title="Jessica Doe">
-                            <img src="../assets/img/team-1.jpg" alt="user4">
-                          </a>
-                        </div>
-                      </td>
-                      <td class="align-middle text-center text-sm">
-                        <span class="text-xs font-weight-bold"> $20,500 </span>
-                      </td>
-                      <td class="align-middle">
-                        <div class="progress-wrapper w-75 mx-auto">
-                          <div class="progress-info">
-                            <div class="progress-percentage">
-                              <span class="text-xs font-weight-bold">100%</span>
-                            </div>
-                          </div>
-                          <div class="progress">
-                            <div class="progress-bar bg-gradient-success w-100" role="progressbar" aria-valuenow="100"
-                              aria-valuemin="0" aria-valuemax="100"></div>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div class="d-flex px-2 py-1">
-                          <div>
-                            <img src="../assets/img/small-logos/logo-jira.svg" class="avatar avatar-sm me-3" alt="jira">
-                          </div>
-                          <div class="d-flex flex-column justify-content-center">
-                            <h6 class="mb-0 text-sm">Add the New Pricing Page</h6>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="avatar-group mt-2">
-                          <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip"
-                            data-bs-placement="bottom" title="Ryan Tompson">
-                            <img src="../assets/img/team-4.jpg" alt="user5">
-                          </a>
-                        </div>
-                      </td>
-                      <td class="align-middle text-center text-sm">
-                        <span class="text-xs font-weight-bold"> $500 </span>
-                      </td>
-                      <td class="align-middle">
-                        <div class="progress-wrapper w-75 mx-auto">
-                          <div class="progress-info">
-                            <div class="progress-percentage">
-                              <span class="text-xs font-weight-bold">25%</span>
-                            </div>
-                          </div>
-                          <div class="progress">
-                            <div class="progress-bar bg-gradient-info w-25" role="progressbar" aria-valuenow="25"
-                              aria-valuemin="0" aria-valuemax="25"></div>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div class="d-flex px-2 py-1">
-                          <div>
-                            <img src="../assets/img/small-logos/logo-invision.svg" class="avatar avatar-sm me-3"
-                              alt="invision">
-                          </div>
-                          <div class="d-flex flex-column justify-content-center">
-                            <h6 class="mb-0 text-sm">Redesign New Online Shop</h6>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="avatar-group mt-2">
-                          <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip"
-                            data-bs-placement="bottom" title="Ryan Tompson">
-                            <img src="../assets/img/team-1.jpg" alt="user6">
-                          </a>
-                          <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip"
-                            data-bs-placement="bottom" title="Jessica Doe">
-                            <img src="../assets/img/team-4.jpg" alt="user7">
-                          </a>
-                        </div>
-                      </td>
-                      <td class="align-middle text-center text-sm">
-                        <span class="text-xs font-weight-bold"> $2,000 </span>
-                      </td>
-                      <td class="align-middle">
-                        <div class="progress-wrapper w-75 mx-auto">
-                          <div class="progress-info">
-                            <div class="progress-percentage">
-                              <span class="text-xs font-weight-bold">40%</span>
-                            </div>
-                          </div>
-                          <div class="progress">
-                            <div class="progress-bar bg-gradient-info w-40" role="progressbar" aria-valuenow="40"
-                              aria-valuemin="0" aria-valuemax="40"></div>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-4 col-md-6">
-          <div class="card h-100">
-            <div class="card-header pb-0">
-              <h6>Orders overview</h6>
-              <p class="text-sm">
-                <i class="fa fa-arrow-up text-success" aria-hidden="true"></i>
-                <span class="font-weight-bold">24%</span> this month
-              </p>
-            </div>
-            <div class="card-body p-3">
-              <div class="timeline timeline-one-side">
-                <div class="timeline-block mb-3">
-                  <span class="timeline-step">
-                    <i class="material-symbols-rounded text-success text-gradient">notifications</i>
-                  </span>
-                  <div class="timeline-content">
-                    <h6 class="text-dark text-sm font-weight-bold mb-0">$2400, Design changes</h6>
-                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">22 DEC 7:20 PM</p>
-                  </div>
-                </div>
-                <div class="timeline-block mb-3">
-                  <span class="timeline-step">
-                    <i class="material-symbols-rounded text-danger text-gradient">code</i>
-                  </span>
-                  <div class="timeline-content">
-                    <h6 class="text-dark text-sm font-weight-bold mb-0">New order #1832412</h6>
-                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">21 DEC 11 PM</p>
-                  </div>
-                </div>
-                <div class="timeline-block mb-3">
-                  <span class="timeline-step">
-                    <i class="material-symbols-rounded text-info text-gradient">shopping_cart</i>
-                  </span>
-                  <div class="timeline-content">
-                    <h6 class="text-dark text-sm font-weight-bold mb-0">Server payments for April</h6>
-                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">21 DEC 9:34 PM</p>
-                  </div>
-                </div>
-                <div class="timeline-block mb-3">
-                  <span class="timeline-step">
-                    <i class="material-symbols-rounded text-warning text-gradient">credit_card</i>
-                  </span>
-                  <div class="timeline-content">
-                    <h6 class="text-dark text-sm font-weight-bold mb-0">New card added for order #4395133</h6>
-                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">20 DEC 2:20 AM</p>
-                  </div>
-                </div>
-                <div class="timeline-block mb-3">
-                  <span class="timeline-step">
-                    <i class="material-symbols-rounded text-primary text-gradient">key</i>
-                  </span>
-                  <div class="timeline-content">
-                    <h6 class="text-dark text-sm font-weight-bold mb-0">Unlock packages for development</h6>
-                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">18 DEC 4:54 AM</p>
-                  </div>
-                </div>
-                <div class="timeline-block">
-                  <span class="timeline-step">
-                    <i class="material-symbols-rounded text-dark text-gradient">payments</i>
-                  </span>
-                  <div class="timeline-content">
-                    <h6 class="text-dark text-sm font-weight-bold mb-0">New order #9583120</h6>
-                    <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">17 DEC</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      -->
 
       <div class="modal fade" id="performanceModal" tabindex="-1" aria-labelledby="performanceModalLabel"
         aria-hidden="true">
@@ -908,6 +573,7 @@
   <script src="/assets/js/plugins/hammer.min.js"></script>
   <script src="/assets/js/plugins/chartjs.min.js"></script>
   <script src="/assets/js/plugins/chartjs-plugin-zoom.min.js"></script>
+  <script src="/assets/js/plugins/chartjs-chart-matrix.min.js"></script>
 
   <!-- initialize charts -->
 
@@ -975,6 +641,7 @@
         },
         options: {
           responsive: true,
+          maintainAspectRatio: false,
           plugins: {
             legend: { display: false },
             iconLabels: {
@@ -1014,6 +681,7 @@
       options: {
         indexAxis: 'y',
         responsive: true,
+        maintainAspectRatio: false,
         scales: {
           x: {
             stacked: true,
@@ -1081,6 +749,7 @@
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         scales: {
           x: {
             display: true,
@@ -1186,6 +855,7 @@
         options: {
           indexAxis: "y",
           responsive: true,
+          maintainAspectRatio: false,
           layout: {
             padding: { left: 120 }
           },
@@ -1283,6 +953,8 @@
           }]
         },
         options: {
+          responsive: true,
+          maintainAspectRatio: false,
           scales: {
             x: {
               title: { display: true, text: 'Performance' },
@@ -1332,6 +1004,7 @@
       options: {
         indexAxis: 'y',
         responsive: true,
+        maintainAspectRatio: false,
         scales: {
           x: {
             stacked: true,
@@ -1461,6 +1134,135 @@
           chart.resetZoom();
           resetBtn.style.display = "none";
         });
+      }
+    })();
+  </script>
+  <!-- Completion Heatmap Chart -->
+  <script>
+    (() => {
+      const el = document.getElementById("chart-completion-heatmap");
+      if (!el || typeof Chart === "undefined") return;
+
+      // grids are UTC, flat 168-cell arrays indexed day * 24 + hour, day 0=Sun..6=Sat
+      const HEAT = {{ completion_heatmap | tojson }};
+
+      // getTimezoneOffset() is minutes *behind* UTC (UTC+2 => -120), so the local
+      // shift in hours is its negation. Math.round approximates half-hour zones
+      // (e.g. India +5:30 -> +6) — acceptable at hour granularity.
+      const shift = Math.round(-new Date().getTimezoneOffset() / 60);
+      // The week is cyclic, so rotating the flat array by shift (mod 168) handles
+      // day wraparound automatically (Sun 23:00 UTC + 2h -> Mon 01:00 local).
+      const rotate = (grid) => {
+        const out = new Array(168);
+        for (let i = 0; i < 168; i++) out[(i + shift + 336) % 168] = grid[i];
+        return out;
+      };
+
+      const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0]; // display Monday-first
+
+      const toCells = (grid) => {
+        const local = rotate(grid);
+        const cells = [];
+        for (const d of DAY_ORDER)
+          for (let h = 0; h < 24; h++)
+            cells.push({ x: h, y: DAYS[d], v: local[d * 24 + h] });
+        return cells;
+      };
+
+      // WoW item-rarity color scale: underplayed hours read as Common, the most
+      // played hours as Legendary. Tiers are percentile-based — each rarity
+      // covers an equal fifth of the non-zero cells — so the spread stays
+      // visible no matter how skewed the distribution is, and re-normalises
+      // when the toggle switches region.
+      // Colors live in /assets/css/dashboard.css so the legend swatches and
+      // the chart can never drift apart.
+      const rootStyle = getComputedStyle(document.documentElement);
+      const heat = (name) => rootStyle.getPropertyValue(`--dash-heat-${name}`).trim();
+      const RARITY_SCALE = ["common", "uncommon", "rare", "epic", "legendary"].map(heat);
+      const ZERO_COLOR = heat("zero");
+      let tierThresholds = []; // 20/40/60/80th percentile values of non-zero cells
+      const setThresholds = (cells) => {
+        const vals = cells.map(c => c.v).filter(v => v > 0).sort((a, b) => a - b);
+        tierThresholds = vals.length
+          ? [0.2, 0.4, 0.6, 0.8].map(q => vals[Math.min(vals.length - 1, Math.floor(q * vals.length))])
+          : [];
+      };
+      const rarityColor = (v) => {
+        if (v <= 0) return ZERO_COLOR;
+        let tier = 0;
+        for (const t of tierThresholds) if (v >= t) tier++;
+        return RARITY_SCALE[Math.min(tier, RARITY_SCALE.length - 1)];
+      };
+
+      const initial = toCells(HEAT.grids["all"]);
+      setThresholds(initial);
+
+      const chart = new Chart(el.getContext("2d"), {
+        type: "matrix",
+        data: {
+          datasets: [{
+            label: "Keys completed",
+            data: initial,
+            backgroundColor: (c) => rarityColor(c.raw ? c.raw.v : 0),
+            borderColor: "rgba(255,255,255,0.06)",
+            borderWidth: 1,
+            width: (c) => ((c.chart.chartArea || {}).width || 0) / 24 - 2,
+            height: (c) => ((c.chart.chartArea || {}).height || 0) / 7 - 2,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              type: "linear", position: "top", min: -0.5, max: 23.5, offset: false,
+              ticks: {
+                stepSize: 3, color: "#9ca3af", font: { size: 10 },
+                callback: v => (v >= 0 && v % 3 === 0) ? `${v}:00` : ""
+              },
+              grid: { display: false }
+            },
+            y: {
+              type: "category", labels: DAY_ORDER.map(d => DAYS[d]),
+              ticks: { color: "#9ca3af", font: { size: 10 } },
+              grid: { display: false }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items) => {
+                  const r = items[0].raw;
+                  const hh = String(r.x).padStart(2, "0");
+                  return `${r.y} ${hh}:00–${hh}:59 (your time)`;
+                },
+                label: (c) => ` ${c.raw.v.toLocaleString()} keys completed`
+              }
+            }
+          }
+        }
+      });
+
+      const toggle = document.getElementById("heatmap-region-toggle");
+      if (toggle) {
+        toggle.addEventListener("click", (ev) => {
+          const btn = ev.target.closest("button[data-region]");
+          if (!btn) return;
+          toggle.querySelectorAll("button").forEach(b => b.classList.toggle("active", b === btn));
+          const cells = toCells(HEAT.grids[btn.dataset.region] || HEAT.grids["all"]);
+          setThresholds(cells);
+          chart.data.datasets[0].data = cells;
+          chart.update();
+        });
+      }
+
+      const note = document.getElementById("heatmap-tz-note");
+      if (note) {
+        try {
+          note.textContent = `Shown in your local time (${Intl.DateTimeFormat().resolvedOptions().timeZone})`;
+        } catch (e) { /* keep the generic label */ }
       }
     })();
   </script>

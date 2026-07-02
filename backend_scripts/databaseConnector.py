@@ -1705,6 +1705,40 @@ def fetch_key_throughput(connection, cursor, season):
     ]
 
 
+FETCH_COMPLETION_HEATMAP_SQL = """
+SELECT region, day_of_week, hour_of_day, run_count
+FROM aggregated_completion_heatmap
+WHERE season = %s
+ORDER BY region, day_of_week, hour_of_day;
+"""
+
+
+def fetch_completion_heatmap(connection, cursor, season):
+    """
+    Per-region day-of-week x hour-of-day completion counts for the dashboard
+    "When are keys completed?" heatmap.
+
+    Reads the pre-aggregated `aggregated_completion_heatmap` table (populated by
+    the ev_update_completion_heatmap event) rather than scanning the full runs
+    table at page-build time. day_of_week is 0=Sunday..6=Saturday and
+    hour_of_day is 0-23, both in UTC — matching JS Date.getUTCDay() so the
+    client can rotate the grid into the viewer's local time.
+    """
+    params = (season,)
+    rows = fetch_with_retry(connection, cursor, FETCH_COMPLETION_HEATMAP_SQL, params)
+    if not rows:
+        return []
+    return [
+        {
+            "region": row[0],
+            "day": int(row[1]),
+            "hour": int(row[2]),
+            "count": int(row[3]) if row[3] is not None else 0,
+        }
+        for row in rows
+    ]
+
+
 DUNGEON_UPGRADES_SQL = """
 SELECT
   r.dungeon_id,

@@ -620,6 +620,37 @@ def compute_key_throughput(rows, period_bounds, now_ts=None):
     }
 
 
+def compute_completion_heatmap(rows):
+    """
+    Build the dashboard "When are keys completed?" heatmap data from the
+    per-(region, day, hour) rows returned by fetch_completion_heatmap.
+
+    Returns {"regions": [{"key", "label", "color"}, ...],
+             "grids": {key: [168 ints]}} where grid index = day * 24 + hour
+    (day 0=Sunday..6=Saturday, hour 0-23, all UTC — client JS rotates the
+    cyclic 168-cell week into the viewer's local time). The "all" grid is the
+    elementwise sum over regions so the client stays a dumb renderer; region
+    entries are derived from the data so new regions appear automatically.
+    """
+    regions = sorted({r["region"] for r in rows}, key=_region_sort_key)
+    grids = {"all": [0] * 168}
+    for region in regions:
+        grids[region] = [0] * 168
+    for r in rows:
+        idx = r["day"] * 24 + r["hour"]
+        grids[r["region"]][idx] += r["count"]
+        grids["all"][idx] += r["count"]
+    region_meta = [{"key": "all", "label": "All", "color": OVERALL_COLOR}] + [
+        {
+            "key": region,
+            "label": region.upper(),
+            "color": REGION_COLORS.get(region, "#9ca3af"),
+        }
+        for region in regions
+    ]
+    return {"regions": region_meta, "grids": grids}
+
+
 def main(template_path, output_dir):
 
     from generateSocialsPost import create_dungeon_popularity_vs_ease_img
@@ -683,6 +714,10 @@ def main(template_path, output_dir):
         key_throughput_rows = databaseConnector.fetch_key_throughput(
             conn, cursor, current_season_id
         )
+        print("fetching completion heatmap...")
+        completion_heatmap_rows = databaseConnector.fetch_completion_heatmap(
+            conn, cursor, current_season_id
+        )
     print("Computing key throughput...")
     generated_at = datetime.now(timezone.utc).timestamp()
     period_bounds = build_period_bounds(
@@ -691,6 +726,8 @@ def main(template_path, output_dir):
     key_throughput = compute_key_throughput(
         key_throughput_rows, period_bounds, now_ts=generated_at * 1000.0
     )
+    print("Computing completion heatmap...")
+    completion_heatmap = compute_completion_heatmap(completion_heatmap_rows)
     print("Assembling Spec Run Counts per Level...")
     key_levels, datasets_json = assemble_spec_level_datasets(
         counts_per_level,
@@ -725,6 +762,7 @@ def main(template_path, output_dir):
         spec_run_counts=spec_run_counts,
         runs=runs,
         key_throughput=key_throughput,
+        completion_heatmap=completion_heatmap,
         runs_per_period=runs_per_period,
         key_levels=key_levels,
         spec_run_counts_per_level=datasets_json,
