@@ -1164,6 +1164,11 @@ def persist(conn, cursor, result, item_lookup):
 
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     try:
+        # The loop connection runs autocommit=1 (see run_simc_bis); group the
+        # delete+meta+items writes into one transaction so readers never see a
+        # spec with its old rows deleted but the new ones not yet inserted.
+        if not conn.in_transaction:
+            conn.start_transaction()
         databaseConnector.delete_simc_bis(conn, cursor, spec_id, season)
         databaseConnector.insert_simc_bis_meta(
             conn, cursor, spec_id, season,
@@ -1270,6 +1275,20 @@ async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, 
         try:
             with closing(databaseConnector.get_connection()) as conn:
                 cursor = conn.cursor()
+                # The pool default is autocommit=0, so the first SELECT of the
+                # read phase (gear popularity from global_aggregated_*) opens a
+                # transaction that holds shared MDL on those tables for the
+                # entire multi-hour simc run (nothing commits until persist).
+                # The daily TRUNCATE+rebuild events then queue an exclusive MDL
+                # request behind us, and every later reader (e.g. the page
+                # build) piles up behind that pending request -> 1205 lock wait
+                # timeouts. autocommit releases MDL per statement; persist()
+                # opens an explicit transaction so its delete+insert stays
+                # atomic. READ UNCOMMITTED matches the events' isolation.
+                conn.autocommit = True
+                cursor.execute("SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED")
+                cursor.execute("SET SESSION lock_wait_timeout = 120")
+                cursor.execute("SET SESSION innodb_lock_wait_timeout = 30")
                 season = None
                 if get_season:
                     season = get_season(conn, cursor)
@@ -1320,6 +1339,8 @@ async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, 
                     # mark an attempt so we don't hammer a broken spec; write empty meta
                     try:
                         now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+                        if not conn.in_transaction:
+                            conn.start_transaction()
                         databaseConnector.delete_simc_bis(conn, cursor, spec_id, season)
                         databaseConnector.insert_simc_bis_meta(
                             conn, cursor, spec_id, season, updated_at=now
