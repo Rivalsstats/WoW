@@ -147,6 +147,7 @@ def main(template_path, output_dir, limit):
         ],
     )
     comp_routes_path = os.path.join("assets", "json", "compRoutes.json")
+    os.makedirs(os.path.dirname(comp_routes_path), exist_ok=True)
     with open(comp_routes_path, "w", encoding="utf-8") as fh:
         # pretty or compact — compact reduces transfer time
         json.dump(comp_routes, fh, separators=(",", ":"), ensure_ascii=False)
