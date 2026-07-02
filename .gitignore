@@ -1,3 +1,18 @@
 ﻿backend_scripts/__pycache__
 .env
 tmp
+
+# Generated site output — built and deployed by .github/workflows/buildPages.yml, never committed
+/pages/
+/classes/
+/dungeons/
+/items/
+assets/img/previews/
+assets/json/search_index.json
+assets/json/items_index.json
+assets/json/compRoutes.json
+assets/json/comps_index.json
+/index.html
+/404.html
+/sitemap.xml
+/llms.txt
