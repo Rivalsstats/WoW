@@ -1300,28 +1300,17 @@ def fetch_max_key_run_per_spec(connection, cursor, spec_id, season):
 
 
 FETCH_MAX_KEY_SQL = """
-WITH maxk AS (
-  SELECT MAX(keystone_level) AS max_keystone
-  FROM aggregated_spec
-),
-chosen_run AS (
-  SELECT r.*
-  FROM runs r
-  JOIN maxk m ON r.keystone_level = m.max_keystone
-  WHERE r.season = %s
-    AND EXISTS (
-    SELECT 1
-    FROM run_members rm
-    JOIN members mm ON mm.member = rm.member
-    WHERE rm.run_id = r.run_id
-  )
-  ORDER BY r.duration ASC, r.timestamp ASC
-  LIMIT 1
-)
 SELECT cr.*, mb.member AS member_id, mb.spec_id AS member_spec_id
-FROM chosen_run cr
-JOIN run_members rm ON rm.run_id = cr.run_id
-JOIN members mb     ON mb.member = rm.member
+FROM runs cr
+LEFT JOIN run_members rm ON rm.run_id = cr.run_id
+LEFT JOIN members mb     ON mb.member = rm.member
+WHERE cr.run_id = (
+    SELECT run_id
+    FROM runs
+    WHERE season = %s
+    ORDER BY keystone_level DESC, duration ASC, run_id ASC
+    LIMIT 1
+)
 ORDER BY mb.member;
 """
 

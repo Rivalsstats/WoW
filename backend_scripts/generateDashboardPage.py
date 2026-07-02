@@ -124,11 +124,17 @@ def create_spec_scatter(spec_upgrades, spec_lookup, class_lookup, highest_key):
        "upgrade_1": int, "depleted": int, "total_runs": int}
     spec_lookup: dict keyed by string spec_id -> spec metadata
     class_lookup: dict keyed by string classID -> class metadata (color etc.)
-    highest_key: one row/dict that contains 'keystone_level' (max level)
+    highest_key: fallback row/dict that contains 'keystone_level' (max level)
     Returns: list of point dicts for scatter plot
     """
-    # get max level from provided highest_key
-    max_level = int(highest_key.get("keystone_level", 0))
+    # Ceiling for the depletion penalty. Use the highest key that actually
+    # appears in the spec data so the penalty scales with the spec-tracked
+    # range (the global "highest run" can exceed this and isn't guaranteed to
+    # have spec data, which would silently inflate every spec's penalty).
+    max_level = max(
+        (int(r["keystone_level"]) for r in spec_upgrades),
+        default=int(highest_key.get("keystone_level", 0)),
+    )
     BASE_EXP = 1.3
 
     # group rows by spec_id
