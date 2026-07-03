@@ -1270,6 +1270,26 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 )
                 total_crafted_items_count = sum(e[1] for e in crafted_items)
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetched {total_crafted_items_count} crafted items")
+                print(
+                    f"[{datetime.now(timezone.utc).isoformat()}] fetching comps..."
+                )
+                try:
+                    embellishment_comps_raw = databaseConnector.fetch_embellishment_comps(
+                        conn, cursor, spec_id, current_season_id
+                    )
+                except Exception as e:
+                    print(f"Warning: fetch_embellishment_comps failed: {e}")
+                    embellishment_comps_raw = []
+                try:
+                    crafted_comps_raw = databaseConnector.fetch_crafted_comps(
+                        conn, cursor, spec_id, current_season_id
+                    )
+                except Exception as e:
+                    print(f"Warning: fetch_crafted_comps failed: {e}")
+                    crafted_comps_raw = []
+                # SUM() comes back as decimal.Decimal from the connector
+                total_embellishment_comps = sum(int(e[1] or 0) for e in embellishment_comps_raw)
+                total_crafted_comps = sum(int(e[1] or 0) for e in crafted_comps_raw)
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching socket limits...")
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching sockets...")
                 sockets = aggregateData.get_sockets(
@@ -1315,6 +1335,39 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                         if count >= embellishment_threshold:
                             filtered_embs.append(e)
                     embellishments = filtered_embs
+
+                # Filter rare comps and parse the comp strings into id lists
+                def build_comps(raw_rows, threshold, limit=10):
+                    comps = []
+                    for row in raw_rows:
+                        count = int(row[1] or 0)
+                        if threshold > 0 and count < threshold:
+                            continue
+                        try:
+                            ids = [int(i) for i in str(row[0]).split(",") if i]
+                        except (ValueError, TypeError):
+                            continue
+                        comps.append(
+                            {
+                                "ids": ids,
+                                "count": count,
+                                "max_timed": row[2],
+                                "max_depleted": row[3],
+                            }
+                        )
+                        if len(comps) >= limit:
+                            break
+                    return comps
+
+                # Comp tables only cover the ~2 weeks of retained gear data, so
+                # threshold against their own totals instead of season-wide
+                # spec run counts (which would filter everything out).
+                embellishment_comps = build_comps(
+                    embellishment_comps_raw, total_embellishment_comps * 0.005
+                )
+                crafted_comps = build_comps(
+                    crafted_comps_raw, total_crafted_comps * 0.005
+                )
 
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching loadout...")
                 loadouts = aggregateData.get_loadout(
@@ -1567,6 +1620,10 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 embellishments=embellishments,
                 crafted_items=crafted_items,
                 total_crafted_items=total_crafted_items_count,
+                embellishment_comps=embellishment_comps,
+                total_embellishment_comps=total_embellishment_comps,
+                crafted_comps=crafted_comps,
+                total_crafted_comps=total_crafted_comps,
                 missives=missives,
                 formatted_price=formatted_price,
                 stat_names=STAT_NAMES,

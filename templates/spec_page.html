@@ -1497,6 +1497,161 @@
                 </div>
               </div>
               {% endif %}
+
+              {% if (embellishment_comps and embellishment_comps|length > 0) or (crafted_comps and crafted_comps|length
+              > 0) %}
+              <div class="d-flex flex-column flex-md-row gap-3 mt-4">
+                {% if embellishment_comps and embellishment_comps|length > 0 %}
+                <!-- Embellishment Combos Overview-->
+                <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
+                  <div class="accordion mx-2" id="embellishmentCompAccordion">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="headingEmbellishmentComp">
+                        <button class="accordion-button collapsed fw-semibold text-center w-100" type="button"
+                          data-bs-toggle="collapse" data-bs-target="#collapseEmbellishmentComp" aria-expanded="false"
+                          aria-controls="collapseEmbellishmentComp">
+                          Embellishment Combos
+                        </button>
+                      </h2>
+                      <div id="collapseEmbellishmentComp" class="accordion-collapse collapse w-100"
+                        aria-labelledby="headingEmbellishmentComp" data-bs-parent="#embellishmentCompAccordion">
+                        <div class="accordion-body">
+                          <div class="row">
+                            <div class="col-12">
+                              <!-- Embellishment combo list -->
+                              {% for comp in embellishment_comps %}
+                              <div class="row align-items-center mb-2">
+                                <!-- Combo icons -->
+                                <div class="col-auto d-flex gap-1">
+                                  {% for id in comp.ids %}
+                                  {% set reagent = reagent_lookup.get(id) or reagent_lookup.get(id|string) %}
+                                  {% if reagent %}
+                                  <a target="_blank" href="https://www.wowhead.com/item={{ id }}&spec={{ spec_id }}"
+                                    class="icon-link position-relative" style="width:24px; height:24px;">
+                                    <img src="/data/icons/{{ reagent.icon }}.png" alt=""
+                                      class="base-icon border {% if reagent.quality %}border-quality-{{reagent.quality}}{% else %}border-grey-100{% endif %}">
+                                    {% if reagent.craftingQuality %}
+                                    <img src="/data/icons/consumable-quality-{{ reagent.craftingQuality }}.png" alt=""
+                                      class="icon-overlay">
+                                    {% endif %}
+                                  </a>
+                                  {% endif %}
+                                  {% endfor %}
+                                </div>
+                                <!-- Combo names -->
+                                <div class="col">
+                                  <p class="mb-1">
+                                    {% for id in comp.ids %}
+                                    {% set reagent = reagent_lookup.get(id) or reagent_lookup.get(id|string) %}
+                                    {% if reagent %}<a target="_blank"
+                                      href="https://www.wowhead.com/item={{ id }}&spec={{ spec_id }}">{{ reagent.name
+                                      }}</a>{% else %}#{{ id }}{% endif %}{% if not loop.last %} + {% endif %}
+                                    {% endfor %}
+                                  </p>
+                                </div>
+                                <!-- Popularity % -->
+                                <div
+                                  class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
+                                  <p data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="{{ comp.count }} seen in {{total_embellishment_comps}} runs" class="mb-0">
+                                    {%if total_embellishment_comps > 0%}
+                                    {%if (comp.count / total_embellishment_comps * 100) < 100%} {{ '%.0f' % (comp.count
+                                      / total_embellishment_comps * 100) }} {%else%} 100 {%endif%}% {%else%} 0%
+                                      {%endif%} </p>
+                                      {% if comp.max_timed or comp.max_depleted %}
+                                      <div class="mt-1 mb-1">
+                                        <span class="badge border border-white text-white bg-transparent py-1 px-2"
+                                          style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
+                                          data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                                          title="{% if comp.max_timed %}Highest Timed: +{{ comp.max_timed }}{% endif %}{% if comp.max_timed and comp.max_depleted %}<br>{% endif %}{% if comp.max_depleted %}Highest Depleted: +{{ comp.max_depleted }}{% endif %}">
+                                          {% if comp.max_timed %}
+                                          +{{ comp.max_timed }}
+                                          {% else %}
+                                          +{{ comp.max_depleted }} (D)
+                                          {% endif %}
+                                        </span>
+                                      </div>
+                                      {% endif %}
+                                </div>
+                              </div>
+                              {% endfor %}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+                {% if crafted_comps and crafted_comps|length > 0 %}
+                <!-- Crafted Item Combos Overview-->
+                <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
+                  <div class="accordion mx-2" id="craftedCompAccordion">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="headingCraftedComp">
+                        <button class="accordion-button collapsed fw-semibold text-center w-100" type="button"
+                          data-bs-toggle="collapse" data-bs-target="#collapseCraftedComp" aria-expanded="false"
+                          aria-controls="collapseCraftedComp">
+                          Crafted Item Combos
+                        </button>
+                      </h2>
+                      <div id="collapseCraftedComp" class="accordion-collapse collapse w-100"
+                        aria-labelledby="headingCraftedComp" data-bs-parent="#craftedCompAccordion">
+                        <div class="accordion-body">
+                          <div class="row">
+                            <div class="col-12">
+                              <!-- Crafted item combo list -->
+                              {% for comp in crafted_comps %}
+                              <div class="row align-items-center mb-2">
+                                <!-- Combo icons (names in tooltips to keep rows compact) -->
+                                <div class="col d-flex flex-wrap gap-1">
+                                  {% for id in comp.ids %}
+                                  {% if item_lookup[id] %}
+                                  <a target="_blank" href="https://www.wowhead.com/item={{ id }}&spec={{ spec_id }}"
+                                    class="icon-link position-relative" style="width:24px; height:24px;"
+                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="{{ item_lookup[id].name }}">
+                                    <img src="/data/icons/{{ item_lookup[id].icon }}.png" alt=""
+                                      class="base-icon border {% if item_lookup[id].quality %}border-quality-{{item_lookup[id].quality}}{% else %}border-grey-100{% endif %}">
+                                  </a>
+                                  {% endif %}
+                                  {% endfor %}
+                                </div>
+                                <!-- Popularity % -->
+                                <div
+                                  class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
+                                  <p data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="{{ comp.count }} seen in {{total_crafted_comps}} runs" class="mb-0">
+                                    {%if total_crafted_comps > 0%}
+                                    {%if (comp.count / total_crafted_comps * 100) < 100%} {{ '%.0f' % (comp.count /
+                                      total_crafted_comps * 100) }} {%else%} 100 {%endif%}% {%else%} 0% {%endif%} </p>
+                                      {% if comp.max_timed or comp.max_depleted %}
+                                      <div class="mt-1 mb-1">
+                                        <span class="badge border border-white text-white bg-transparent py-1 px-2"
+                                          style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
+                                          data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                                          title="{% if comp.max_timed %}Highest Timed: +{{ comp.max_timed }}{% endif %}{% if comp.max_timed and comp.max_depleted %}<br>{% endif %}{% if comp.max_depleted %}Highest Depleted: +{{ comp.max_depleted }}{% endif %}">
+                                          {% if comp.max_timed %}
+                                          +{{ comp.max_timed }}
+                                          {% else %}
+                                          +{{ comp.max_depleted }} (D)
+                                          {% endif %}
+                                        </span>
+                                      </div>
+                                      {% endif %}
+                                </div>
+                              </div>
+                              {% endfor %}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+              </div>
+              {% endif %}
             </div>
           </div>
 

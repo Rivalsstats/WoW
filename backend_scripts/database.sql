@@ -402,6 +402,34 @@ CREATE TABLE `aggregated_crafted_items` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
+-- Mythistone.aggregated_crafted_comps definition
+
+CREATE TABLE `aggregated_crafted_comps` (
+  `spec_id` int NOT NULL,
+  `season` int NOT NULL DEFAULT '0',
+  `hero_talent_id` int NOT NULL DEFAULT '0',
+  `comp` varchar(255) NOT NULL,
+  `run_count` bigint NOT NULL DEFAULT '0',
+  `max_timed_key` tinyint unsigned NOT NULL DEFAULT '0',
+  `max_depleted_key` tinyint unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`spec_id`,`season`,`hero_talent_id`,`comp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- Mythistone.aggregated_embellishment_comps definition
+
+CREATE TABLE `aggregated_embellishment_comps` (
+  `spec_id` int NOT NULL,
+  `season` int NOT NULL DEFAULT '0',
+  `hero_talent_id` int NOT NULL DEFAULT '0',
+  `comp` varchar(255) NOT NULL,
+  `run_count` bigint NOT NULL DEFAULT '0',
+  `max_timed_key` tinyint unsigned NOT NULL DEFAULT '0',
+  `max_depleted_key` tinyint unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`spec_id`,`season`,`hero_talent_id`,`comp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
 -- Mythistone.aggregated_embellishments definition
 
 CREATE TABLE `aggregated_embellishments` (
@@ -1183,6 +1211,147 @@ DO BEGIN
   GROUP BY
     M.spec_id, R.season, R.dungeon_id,
     COALESCE(M.hero_talent_id, 0), CT.talent_id;
+END;
+
+CREATE EVENT ev_update_comps
+ON SCHEDULE EVERY 1 DAY
+STARTS '2026-07-04 03:45:00.000'
+ON COMPLETION NOT PRESERVE
+ENABLE
+COMMENT 'Batched aggregation of embellishment and crafted item combinations per spec'
+DO BEGIN
+  DECLARE v_min_run     INT UNSIGNED DEFAULT 0;
+  DECLARE v_max_run     INT UNSIGNED DEFAULT 0;
+  DECLARE v_cur         INT UNSIGNED DEFAULT 0;
+  DECLARE v_batch_size  INT UNSIGNED DEFAULT 200000; -- tune: 200K runs × 5 members = ~1M rows/pass
+
+  SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+  SET SESSION LOW_PRIORITY_UPDATES = 1;
+  -- Keep each batch's sort in RAM (GROUP_CONCAT + GROUP BY per batch).
+  SET SESSION sort_buffer_size     = 64 * 1024 * 1024;
+  SET SESSION tmp_table_size       = 64 * 1024 * 1024;
+  SET SESSION max_heap_table_size  = 64 * 1024 * 1024;
+
+  -- Both aggregations are full rebuilds: equipped gear data older than 2 weeks
+  -- is discarded, so purged runs must drop out of the aggregates too (a
+  -- watermark-incremental approach would keep their counts forever).
+  -- Batching on run_id is safe because every comp group is scoped to a single
+  -- (run, member) and can never span a batch boundary; the ON DUPLICATE KEY
+  -- UPDATE accumulates the per-batch partial aggregates.
+
+  -- run_id boundaries (NULL-safe: if no runs exist, the WHILE never executes)
+  SELECT COALESCE(MIN(run_id), 1),
+         COALESCE(MAX(run_id), 0)
+    INTO v_min_run, v_max_run
+  FROM Mythistone.runs;
+
+  -- wipe the target tables once, up front
+  TRUNCATE TABLE Mythistone.aggregated_embellishment_comps;
+  TRUNCATE TABLE Mythistone.aggregated_crafted_comps;
+
+  SET v_cur = v_min_run;
+
+  WHILE v_cur <= v_max_run DO
+
+    -- 1. Embellishment comps: canonical sorted list of embellishment item_ids per (run, member)
+    INSERT LOW_PRIORITY INTO Mythistone.aggregated_embellishment_comps
+      (spec_id, season, hero_talent_id, comp, run_count, max_timed_key, max_depleted_key)
+    SELECT
+      c.spec_id,
+      c.season,
+      c.hero_talent_id,
+      c.comp,
+      COUNT(*) AS run_count,
+      MAX(IF(c.timed, c.keystone_level, 0)) AS max_timed_key,
+      MAX(IF(c.timed, 0, c.keystone_level)) AS max_depleted_key
+    FROM (
+      SELECT
+        p.spec_id,
+        p.season,
+        p.hero_talent_id,
+        p.keystone_level,
+        p.timed,
+        GROUP_CONCAT(p.item_id ORDER BY p.item_id SEPARATOR ',') AS comp
+      FROM (
+        SELECT DISTINCT
+          R.run_id,
+          RM.member,
+          M.spec_id,
+          COALESCE(R.season, 0) AS season,
+          COALESCE(M.hero_talent_id, 0) AS hero_talent_id,
+          R.keystone_level,
+          (R.duration <= DD.upgrade_1_duration) AS timed,
+          EQ.equipment_id,
+          EM.item_id
+        FROM Mythistone.runs R
+          JOIN Mythistone.dungeon_data DD   ON R.dungeon_id = DD.dungeon_id
+          JOIN Mythistone.run_members RM    ON R.run_id = RM.run_id
+          JOIN Mythistone.members M         ON RM.member = M.member
+          JOIN Mythistone.equipment EQ      ON M.member = EQ.member
+          JOIN Mythistone.bonus_ids B       ON B.equipment_id = EQ.equipment_id
+          JOIN Mythistone.embellishments EM ON EM.bonus_id = B.bonus_id
+        WHERE R.run_id BETWEEN v_cur AND (v_cur + v_batch_size - 1)
+      ) p
+      GROUP BY p.run_id, p.member, p.spec_id, p.season, p.hero_talent_id,
+               p.keystone_level, p.timed
+    ) c
+    GROUP BY c.spec_id, c.season, c.hero_talent_id, c.comp
+    ON DUPLICATE KEY UPDATE
+      run_count        = run_count + VALUES(run_count),
+      max_timed_key    = GREATEST(max_timed_key, VALUES(max_timed_key)),
+      max_depleted_key = GREATEST(max_depleted_key, VALUES(max_depleted_key));
+
+    -- 2. Crafted item comps: canonical sorted list of crafted item_ids per (run, member)
+    INSERT LOW_PRIORITY INTO Mythistone.aggregated_crafted_comps
+      (spec_id, season, hero_talent_id, comp, run_count, max_timed_key, max_depleted_key)
+    SELECT
+      c.spec_id,
+      c.season,
+      c.hero_talent_id,
+      c.comp,
+      COUNT(*) AS run_count,
+      MAX(IF(c.timed, c.keystone_level, 0)) AS max_timed_key,
+      MAX(IF(c.timed, 0, c.keystone_level)) AS max_depleted_key
+    FROM (
+      SELECT
+        p.spec_id,
+        p.season,
+        p.hero_talent_id,
+        p.keystone_level,
+        p.timed,
+        GROUP_CONCAT(p.item_id ORDER BY p.item_id SEPARATOR ',') AS comp
+      FROM (
+        SELECT
+          R.run_id,
+          RM.member,
+          M.spec_id,
+          COALESCE(R.season, 0) AS season,
+          COALESCE(M.hero_talent_id, 0) AS hero_talent_id,
+          R.keystone_level,
+          (R.duration <= DD.upgrade_1_duration) AS timed,
+          EQ.equipment_id,
+          EQ.item_id
+        FROM Mythistone.runs R
+          JOIN Mythistone.dungeon_data DD    ON R.dungeon_id = DD.dungeon_id
+          JOIN Mythistone.run_members RM     ON R.run_id = RM.run_id
+          JOIN Mythistone.members M          ON RM.member = M.member
+          JOIN Mythistone.equipment EQ       ON M.member = EQ.member
+          JOIN Mythistone.crafted_item_ids CII ON EQ.item_id = CII.item_id
+        WHERE R.run_id BETWEEN v_cur AND (v_cur + v_batch_size - 1)
+      ) p
+      GROUP BY p.run_id, p.member, p.spec_id, p.season, p.hero_talent_id,
+               p.keystone_level, p.timed
+    ) c
+    GROUP BY c.spec_id, c.season, c.hero_talent_id, c.comp
+    ON DUPLICATE KEY UPDATE
+      run_count        = run_count + VALUES(run_count),
+      max_timed_key    = GREATEST(max_timed_key, VALUES(max_timed_key)),
+      max_depleted_key = GREATEST(max_depleted_key, VALUES(max_depleted_key));
+
+    SET v_cur = v_cur + v_batch_size;
+
+  END WHILE;
+
 END;
 
 CREATE EVENT ev_update_crafted_items
