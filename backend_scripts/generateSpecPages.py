@@ -27,6 +27,27 @@ MULTI_SLOT_GROUPS = {
     "FINGER_2": "FINGER",
 }
 
+# Blizzard inventoryType -> display position matching the gear overview slot
+# order (LEFT_ORDER + RIGHT_ORDER + WEAPON_SLOTS + TRINKET_SLOTS, columns
+# flattened). Used to sort combo items the same way the overview lists slots.
+INVTYPE_DISPLAY_ORDER = {
+    1: 0,  # head
+    2: 1,  # neck
+    3: 2,  # shoulder
+    16: 3,  # back
+    5: 4,  # chest
+    20: 4,  # robe (chest)
+    9: 5,  # wrist
+    10: 6,  # hands
+    6: 7,  # waist
+    7: 8,  # legs
+    8: 9,  # feet
+    11: 10,  # finger
+    13: 11, 15: 11, 17: 11, 21: 11, 26: 11,  # main hand / two-hand / ranged
+    14: 12, 22: 12, 23: 12,  # off hand / shield / held in off-hand
+    12: 13,  # trinket
+}
+
 SLOT_GROUPS = [
     "BACK",
     "CHEST",
@@ -791,7 +812,9 @@ def convert_slots(
             if sid:
                 raw_peers = [pid for pid in set_members[sid]]
                 peers = [pid for pid in raw_peers if pid in primary_ids]
-                if peers:
+                # set bonuses start at 2 pieces; a lone piece of a set (e.g. a
+                # single set trinket) shouldn't render as an equipped set
+                if len(peers) >= 2:
                     item["pcs"] = peers
 
             amount = 0
@@ -1287,9 +1310,17 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 except Exception as e:
                     print(f"Warning: fetch_crafted_comps failed: {e}")
                     crafted_comps_raw = []
+                try:
+                    tier_set_comps_raw = databaseConnector.fetch_tier_set_comps(
+                        conn, cursor, spec_id, current_season_id
+                    )
+                except Exception as e:
+                    print(f"Warning: fetch_tier_set_comps failed: {e}")
+                    tier_set_comps_raw = []
                 # SUM() comes back as decimal.Decimal from the connector
                 total_embellishment_comps = sum(int(e[1] or 0) for e in embellishment_comps_raw)
                 total_crafted_comps = sum(int(e[1] or 0) for e in crafted_comps_raw)
+                total_tier_set_comps = sum(int(e[1] or 0) for e in tier_set_comps_raw)
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching socket limits...")
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching sockets...")
                 sockets = aggregateData.get_sockets(
@@ -1347,6 +1378,40 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                             ids = [int(i) for i in str(row[0]).split(",") if i]
                         except (ValueError, TypeError):
                             continue
+                        # comp strings are id-sorted (canonical DB key); show the
+                        # items grouped by set (largest set first, tie broken by
+                        # earliest slot) in gear-overview slot order within each
+                        # group. Setless items (crafted/embellishment comps) all
+                        # land in one group, i.e. plain slot order.
+                        def slot_pos(item_id):
+                            return INVTYPE_DISPLAY_ORDER.get(
+                                item_lookup.get(item_id, {}).get("inventoryType"), 99
+                            )
+
+                        set_counts = {}
+                        set_first_slot = {}
+                        for i in ids:
+                            sid = item_lookup.get(i, {}).get("itemSetId")
+                            set_counts[sid] = set_counts.get(sid, 0) + 1
+                            set_first_slot[sid] = min(
+                                set_first_slot.get(sid, 99), slot_pos(i)
+                            )
+                        group_rank = {
+                            sid: rank
+                            for rank, sid in enumerate(
+                                sorted(
+                                    set_counts,
+                                    key=lambda s: (-set_counts[s], set_first_slot[s]),
+                                )
+                            )
+                        }
+                        ids.sort(
+                            key=lambda i: (
+                                group_rank[item_lookup.get(i, {}).get("itemSetId")],
+                                slot_pos(i),
+                                i,
+                            )
+                        )
                         comps.append(
                             {
                                 "ids": ids,
@@ -1367,6 +1432,9 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 )
                 crafted_comps = build_comps(
                     crafted_comps_raw, total_crafted_comps * 0.005
+                )
+                tier_set_comps = build_comps(
+                    tier_set_comps_raw, total_tier_set_comps * 0.005
                 )
 
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching loadout...")
@@ -1624,6 +1692,8 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 total_embellishment_comps=total_embellishment_comps,
                 crafted_comps=crafted_comps,
                 total_crafted_comps=total_crafted_comps,
+                tier_set_comps=tier_set_comps,
+                total_tier_set_comps=total_tier_set_comps,
                 missives=missives,
                 formatted_price=formatted_price,
                 stat_names=STAT_NAMES,

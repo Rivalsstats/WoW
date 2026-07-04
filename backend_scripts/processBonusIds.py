@@ -164,6 +164,18 @@ def main():
         databaseConnector.commit_changes(conn)
         print(f"Inserted {crafted_count} crafted items into crafted_item_ids table.")
 
+        # Populate tier_set_items table from the same equippable-items.json
+        tier_count = 0
+        for item in equippable_items:
+            if item.get("itemSetId"):
+                databaseConnector.insert_tier_set_item(
+                    conn, cursor, item["id"], item["itemSetId"]
+                )
+                tier_count += 1
+
+        databaseConnector.commit_changes(conn)
+        print(f"Inserted {tier_count} tier set items into tier_set_items table.")
+
 
 if __name__ == "__main__":
     main()

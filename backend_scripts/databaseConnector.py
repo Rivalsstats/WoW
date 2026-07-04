@@ -1117,6 +1117,16 @@ def insert_crafted_item_id(connection, cursor, item_id):
     return execute_with_retry(connection, cursor, INSERT_CRAFTED_ITEM_ID_SQL, params)
 
 
+INSERT_TIER_SET_ITEM_SQL = """
+  INSERT IGNORE INTO tier_set_items (`item_id`, `item_set_id`) VALUES (%s, %s)
+"""
+
+def insert_tier_set_item(connection, cursor, item_id, item_set_id):
+    """Insert a new tier set item into the database."""
+    params = (item_id, item_set_id)
+    return execute_with_retry(connection, cursor, INSERT_TIER_SET_ITEM_SQL, params)
+
+
 INSERT_MISSIVE_SQL = """
 INSERT IGNORE INTO missives (`bonus_id`, `item_id`) VALUES (%s, %s)
 """
@@ -1206,6 +1216,23 @@ def fetch_crafted_comps(connection, cursor, spec_id, season):
     """Fetch the crafted item comp counts for a specific spec and season from the database."""
     params = (spec_id, season)
     return fetch_with_retry(connection, cursor, FETCH_CRAFTED_COMPS_SQL, params)
+
+
+FETCH_TIER_SET_COMPS_SQL = """
+SELECT comp, SUM(run_count) AS total_runs, MAX(max_timed_key), MAX(max_depleted_key)
+FROM Mythistone.aggregated_tier_set_comps
+WHERE spec_id = %s
+  AND season = %s
+GROUP BY comp
+ORDER BY total_runs DESC
+LIMIT 10
+"""
+
+
+def fetch_tier_set_comps(connection, cursor, spec_id, season):
+    """Fetch the tier set comp counts for a specific spec and season from the database."""
+    params = (spec_id, season)
+    return fetch_with_retry(connection, cursor, FETCH_TIER_SET_COMPS_SQL, params)
 
 
 FETCH_TOTAL_SEASON_RUNS_SQL = """

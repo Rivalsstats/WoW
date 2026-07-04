@@ -115,6 +115,16 @@ CREATE TABLE `crafted_item_ids` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
+-- Mythistone.tier_set_items definition
+
+CREATE TABLE `tier_set_items` (
+  `item_id` int NOT NULL,
+  `item_set_id` int NOT NULL,
+  PRIMARY KEY (`item_id`),
+  KEY `idx_tier_set_items_set` (`item_set_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
 -- Mythistone.dungeon_data definition
 
 CREATE TABLE `dungeon_data` (
@@ -405,6 +415,20 @@ CREATE TABLE `aggregated_crafted_items` (
 -- Mythistone.aggregated_crafted_comps definition
 
 CREATE TABLE `aggregated_crafted_comps` (
+  `spec_id` int NOT NULL,
+  `season` int NOT NULL DEFAULT '0',
+  `hero_talent_id` int NOT NULL DEFAULT '0',
+  `comp` varchar(255) NOT NULL,
+  `run_count` bigint NOT NULL DEFAULT '0',
+  `max_timed_key` tinyint unsigned NOT NULL DEFAULT '0',
+  `max_depleted_key` tinyint unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`spec_id`,`season`,`hero_talent_id`,`comp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- Mythistone.aggregated_tier_set_comps definition
+
+CREATE TABLE `aggregated_tier_set_comps` (
   `spec_id` int NOT NULL,
   `season` int NOT NULL DEFAULT '0',
   `hero_talent_id` int NOT NULL DEFAULT '0',
@@ -1213,12 +1237,12 @@ DO BEGIN
     COALESCE(M.hero_talent_id, 0), CT.talent_id;
 END;
 
-CREATE EVENT ev_update_comps
+CREATE EVENT ev_update_eq_comps
 ON SCHEDULE EVERY 1 DAY
 STARTS '2026-07-04 03:45:00.000'
 ON COMPLETION NOT PRESERVE
 ENABLE
-COMMENT 'Batched aggregation of embellishment and crafted item combinations per spec'
+COMMENT 'Batched aggregation of embellishment, crafted item and tier set combinations per spec'
 DO BEGIN
   DECLARE v_min_run     INT UNSIGNED DEFAULT 0;
   DECLARE v_max_run     INT UNSIGNED DEFAULT 0;
@@ -1248,6 +1272,7 @@ DO BEGIN
   -- wipe the target tables once, up front
   TRUNCATE TABLE Mythistone.aggregated_embellishment_comps;
   TRUNCATE TABLE Mythistone.aggregated_crafted_comps;
+  TRUNCATE TABLE Mythistone.aggregated_tier_set_comps;
 
   SET v_cur = v_min_run;
 
@@ -1341,6 +1366,62 @@ DO BEGIN
       ) p
       GROUP BY p.run_id, p.member, p.spec_id, p.season, p.hero_talent_id,
                p.keystone_level, p.timed
+    ) c
+    GROUP BY c.spec_id, c.season, c.hero_talent_id, c.comp
+    ON DUPLICATE KEY UPDATE
+      run_count        = run_count + VALUES(run_count),
+      max_timed_key    = GREATEST(max_timed_key, VALUES(max_timed_key)),
+      max_depleted_key = GREATEST(max_depleted_key, VALUES(max_depleted_key));
+
+    -- 3. Set comps: canonical sorted list of equipped set piece item_ids per (run, member).
+    --    Only sets the member wears at least 2 pieces of count (set bonuses start
+    --    at 2pc); lone pieces of another set would otherwise pollute the comp.
+    INSERT LOW_PRIORITY INTO Mythistone.aggregated_tier_set_comps
+      (spec_id, season, hero_talent_id, comp, run_count, max_timed_key, max_depleted_key)
+    SELECT
+      c.spec_id,
+      c.season,
+      c.hero_talent_id,
+      c.comp,
+      COUNT(*) AS run_count,
+      MAX(IF(c.timed, c.keystone_level, 0)) AS max_timed_key,
+      MAX(IF(c.timed, 0, c.keystone_level)) AS max_depleted_key
+    FROM (
+      SELECT
+        q.spec_id,
+        q.season,
+        q.hero_talent_id,
+        q.keystone_level,
+        q.timed,
+        GROUP_CONCAT(q.item_id ORDER BY q.item_id SEPARATOR ',') AS comp
+      FROM (
+        SELECT
+          p.*,
+          COUNT(*) OVER (PARTITION BY p.run_id, p.member, p.item_set_id) AS set_piece_count
+        FROM (
+          SELECT
+            R.run_id,
+            RM.member,
+            M.spec_id,
+            COALESCE(R.season, 0) AS season,
+            COALESCE(M.hero_talent_id, 0) AS hero_talent_id,
+            R.keystone_level,
+            (R.duration <= DD.upgrade_1_duration) AS timed,
+            EQ.equipment_id,
+            EQ.item_id,
+            TSI.item_set_id
+          FROM Mythistone.runs R
+            JOIN Mythistone.dungeon_data DD    ON R.dungeon_id = DD.dungeon_id
+            JOIN Mythistone.run_members RM     ON R.run_id = RM.run_id
+            JOIN Mythistone.members M          ON RM.member = M.member
+            JOIN Mythistone.equipment EQ       ON M.member = EQ.member
+            JOIN Mythistone.tier_set_items TSI ON EQ.item_id = TSI.item_id
+          WHERE R.run_id BETWEEN v_cur AND (v_cur + v_batch_size - 1)
+        ) p
+      ) q
+      WHERE q.set_piece_count >= 2
+      GROUP BY q.run_id, q.member, q.spec_id, q.season, q.hero_talent_id,
+               q.keystone_level, q.timed
     ) c
     GROUP BY c.spec_id, c.season, c.hero_talent_id, c.comp
     ON DUPLICATE KEY UPDATE
