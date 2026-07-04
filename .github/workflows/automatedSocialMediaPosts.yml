@@ -76,6 +76,27 @@ jobs:
           echo "filename=$filename" >> $GITHUB_OUTPUT
 
 
+      - name: Checkout social-images branch
+        uses: actions/checkout@v4
+        with:
+          ref: social-images
+          path: social-images
+
+      - name: Commit image to social-images branch
+        run: |
+          sudo apt-get update && sudo apt-get install -y pngquant
+          image_path=$(jq -r .out_path "${{ env.OUTPUT_DIR }}/post.json")
+          filename=$(basename "$image_path")
+          pngquant --quality=65-90 --skip-if-larger --force \
+            --output "social-images/$filename" "$image_path" \
+            || cp "$image_path" "social-images/$filename"
+          cd social-images
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "$filename"
+          git commit -m "chore: add social image $filename" || echo "no changes to commit"
+          git push
+
       - name: Commit updated socials.json back to repo
         run: |
           git config user.name "github-actions[bot]"
@@ -111,8 +132,9 @@ jobs:
             echo "post.json not found"
             exit 1
           fi
-          social_text=$(jq -r .post "$post_file")
+          social_text=$(jq -r '.twitter // .post' "$post_file")
           image_path=$(jq -r .out_path "$post_file")
+          alt_text=$(jq -r '.title // "M+ data highlight"' "$post_file")
           filename=$(basename "$image_path")
           echo ">>> debug: social_text=<$social_text>"
           echo ">>> debug: filename=<$filename>"
@@ -120,6 +142,10 @@ jobs:
           # export for later steps in this job
           echo "SOCIAL_TEXT<<EOF" >> $GITHUB_OUTPUT
           printf '%s\n' "$social_text" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "ALT_TEXT<<EOF" >> $GITHUB_OUTPUT
+          printf '%s\n' "$alt_text" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
           echo "FILENAME=${filename}" >> $GITHUB_ENV
@@ -139,7 +165,7 @@ jobs:
           twitter-access-token-secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
           media: |
             uploaded/${{ env.FILENAME }}
-          media-alt-text: "M+ run highlight"
+          media-alt-text: "${{ steps.read_post.outputs.ALT_TEXT }}"
 
 
   # reddit:
@@ -187,17 +213,25 @@ jobs:
             echo "post.json not found"
             exit 1
           fi
-          social_text=$(jq -r .post "$post_file")
+          social_text=$(jq -r '.bluesky // .post' "$post_file")
           image_path=$(jq -r .out_path "$post_file")
+          link=$(jq -r '.link // "https://mythistone.com/pages/dashboard"' "$post_file")
+          alt_text=$(jq -r '.title // "M+ data highlight"' "$post_file")
           filename=$(basename "$image_path")
           echo ">>> debug: social_text=<$social_text>"
           echo ">>> debug: filename=<$filename>"
+          echo ">>> debug: link=<$link>"
 
           # export for later steps in this job
           echo "SOCIAL_TEXT<<EOF" >> $GITHUB_OUTPUT
           printf '%s\n' "$social_text" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
+          echo "ALT_TEXT<<EOF" >> $GITHUB_OUTPUT
+          printf '%s\n' "$alt_text" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "LINK=${link}" >> $GITHUB_OUTPUT
           echo "FILENAME=${filename}" >> $GITHUB_ENV
           echo "POST_JSON_PATH=$post_file" >> $GITHUB_ENV
 
@@ -217,10 +251,10 @@ jobs:
         with:
           text: "${{ steps.read_post.outputs.SOCIAL_TEXT }}"
           media: uploaded/compressed.png
-          media-alt: "M+ run highlight"
+          media-alt: "${{ steps.read_post.outputs.ALT_TEXT }}"
           identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
           password:   ${{ secrets.BLUESKY_PASSWORD }}
-          link-preview-url: "https://mythistone.github.io/pages/dashboard"
+          link-preview-url: "${{ steps.read_post.outputs.LINK }}"
           tags: "WoW,MythicPlus,WorldofWarcraft"
 
   discord-post:
@@ -243,7 +277,7 @@ jobs:
             echo "post.json not found"
             exit 1
           fi
-          social_text=$(jq -r .post "$post_file")
+          social_text=$(jq -r '.discord // .post' "$post_file")
           image_path=$(jq -r .out_path "$post_file")
           filename=$(basename "$image_path")
           echo ">>> debug: social_text=<$social_text>"

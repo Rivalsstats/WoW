@@ -18,14 +18,17 @@ from generateSpecPages import (
     load_json,
 )
 
-databaseConnector.init_connection_pool(
-    os.environ.get("DATABASE_HOST"),
-    os.environ.get("DATABASE_USER"),
-    os.environ.get("DATABASE_PASSWORD"),
-    os.environ.get("DATABASE_NAME"),
-    os.environ.get("DATABASE_PORT"),
-    1,
-)
+try:
+    databaseConnector.init_connection_pool(
+        os.environ.get("DATABASE_HOST"),
+        os.environ.get("DATABASE_USER"),
+        os.environ.get("DATABASE_PASSWORD"),
+        os.environ.get("DATABASE_NAME"),
+        os.environ.get("DATABASE_PORT"),
+        1,
+    )
+except Exception as pool_err:
+    print(f"WARNING: database connection pool unavailable: {pool_err}")
 
 RARITY_COLORS = {
     "Legendary": "#ff8000",

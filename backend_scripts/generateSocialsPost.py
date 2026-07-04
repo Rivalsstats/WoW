@@ -19,9 +19,11 @@ import numpy as np
 import databaseConnector
 import aggregateData
 from collections import defaultdict
+from urllib.parse import quote
 import requests
 import io
 
+from pageGeneration import ROLE_FOLDERS
 from generateSpecPages import (
     LOOKUP_DIR,
     upgrade_info,
@@ -122,22 +124,164 @@ def time_ago(ms_timestamp: int) -> str:
     return "just now"
 
 
-PROMPT_TEMPLATE = """
-You are a witty social-media manager with a dad-joke sense of humor for a World of Warcraft M+ stats site.
-Given these inputs:
+BUNDLE_KEYS = ("title", "twitter", "bluesky", "discord", "blog")
+TITLE_MAX = 120
+TWITTER_TEXT_MAX = 240  # + space + t.co-wrapped URL (23 chars) stays under 280
+BLUESKY_TEXT_MAX = 235  # + space + full URL stays under Bluesky's 300
+TWITTER_URL_LEN = 23  # Twitter wraps every URL in t.co, always 23 chars
+BLOG_TEXT_MIN = 200
+
+ANGLES = [
+    "Angle for this post: celebrate the single most impressive number as a milestone.",
+    "Angle for this post: contrast two of the facts against each other (top vs bottom, popular vs record).",
+    "Angle for this post: ask the audience a question the data makes them want to answer.",
+    "Angle for this post: spotlight the subject as if introducing it to a player who has never tried it.",
+    "Angle for this post: point out the detail a veteran Mythic+ player would find surprising.",
+]
+
+PROMPT_TEMPLATE = """You write social media and blog content for MythiStone (mythistone.com), a World of Warcraft Mythic+ statistics site built on millions of real M+ runs. Today's subject: {post_type}.
+An image visualizing the data accompanies every post, so the text should complement it, not describe it.
+
+FACTS (the only information you may use):
 {data}
 
-Produce one single social-media post (max 210 characters) that:
-- uses no emojis or hidden unicode characters
-- uses no em-dashes (—); use simple hyphens (-) if needed
-- is funny and engaging, includes a dad joke or pun
-- invites people to click or reply
-- includes relevant hashtags like #WoW, #WorldofWarcraft
-- stays under 210 characters total which includes the text and any hashtags
-- the character limit is strict so double check it and skip part of the information if needed to fit
+{angle}
 
-Output only the post text (no explanation, Comments or Quotation marks).
+RULES:
+- Copy names and numbers exactly as they appear in FACTS. Never invent, round, or recalculate a value.
+- Lead with the most interesting insight; no greetings, no filler, no "click here" begging.
+- Humor is welcome only when it arises naturally from the data. Never force a joke or pun.
+- Plain text only: no emojis, no markdown, no em-dashes.
+- Do not include any URL; the link is appended separately.
+
+Respond with ONLY a JSON object (no code fences, no commentary) with exactly these keys:
+  "title": blog headline, at most 90 characters
+  "twitter": post text, at most {twitter_max} characters, ending with 2-3 hashtags such as #WoW #MythicPlus
+  "bluesky": post text, at most {bluesky_max} characters, worded differently from twitter, 1-2 hashtags
+  "discord": 2-4 conversational sentences for a community Discord, no hashtags
+  "blog": 2-3 short paragraphs separated by blank lines, explaining what the data shows and why it is interesting, no hashtags
 """
+
+
+def build_site_link(base_url, path=""):
+    """Join the site base URL with a repo-relative page path, URL-escaping it."""
+    base = (base_url or "https://mythistone.com/").rstrip("/")
+    if not path:
+        return base + "/"
+    return f"{base}/{quote(path)}"
+
+
+def spec_page_link(base_url, spec_id):
+    spec_meta = spec_lookup.get(str(spec_id), {})
+    class_meta = class_lookup.get(str(spec_meta.get("classID", "")), {})
+    if not spec_meta or not class_meta:
+        return build_site_link(base_url, "pages/dashboard")
+    role = ROLE_FOLDERS.get(str(spec_meta.get("role", 2)), "Dps")
+    return build_site_link(
+        base_url, f"classes/{role}/{spec_meta['name']}_{class_meta['name']}"
+    )
+
+
+def find_dungeon_meta(dungeon_id):
+    if isinstance(dungeon_lookup, dict):
+        if str(dungeon_id) in dungeon_lookup:
+            return dungeon_lookup[str(dungeon_id)]
+        for v in dungeon_lookup.values():
+            if str(v.get("id")) == str(dungeon_id):
+                return v
+    elif isinstance(dungeon_lookup, list):
+        for d in dungeon_lookup:
+            if str(d.get("id")) == str(dungeon_id):
+                return d
+    return None
+
+
+def dungeon_page_link(base_url, dungeon_id):
+    meta = find_dungeon_meta(dungeon_id)
+    slug = meta.get("slug") if meta else None
+    if slug:
+        return build_site_link(base_url, f"dungeons/{slug}")
+    return build_site_link(base_url, "pages/dashboard")
+
+
+_UNICODE_REPLACEMENTS = {
+    "—": "-",
+    "–": "-",
+    "‘": "'",
+    "’": "'",
+    "“": '"',
+    "”": '"',
+    "…": "...",
+    " ": " ",
+}
+
+
+def sanitize_text(text):
+    """Normalize fancy punctuation and strip emojis/symbols; keep newlines."""
+    for src, dst in _UNICODE_REPLACEMENTS.items():
+        text = text.replace(src, dst)
+    text = "".join(ch for ch in text if ch == "\n" or 32 <= ord(ch) < 0x2500)
+    text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r" ?\n ?", "\n", text)
+    return text.strip()
+
+
+def extract_json_object(raw):
+    """Pull the first JSON object out of a model response, tolerating fences."""
+    raw = raw.strip()
+    raw = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw)
+    start = raw.find("{")
+    end = raw.rfind("}")
+    if start == -1 or end <= start:
+        return None
+    try:
+        obj = json.loads(raw[start : end + 1])
+    except json.JSONDecodeError:
+        return None
+    return obj if isinstance(obj, dict) else None
+
+
+def _digit_runs(text):
+    return set(re.findall(r"\d+", text))
+
+
+def validate_bundle(bundle, facts_text):
+    """Return a list of problems; empty list means the bundle is usable."""
+    problems = []
+    for key in BUNDLE_KEYS:
+        val = bundle.get(key)
+        if not isinstance(val, str) or not val.strip():
+            return [f"missing or empty '{key}'"]
+    # Every multi-digit number in the output must literally appear in the
+    # facts; this rejects invented/garbled stats. Single digits are allowed
+    # (e.g. "top 5") since they are harmless and often legitimate phrasing.
+    allowed = _digit_runs(facts_text)
+    for key in BUNDLE_KEYS:
+        unknown = {
+            n for n in _digit_runs(bundle[key]) if len(n) > 1 and n not in allowed
+        }
+        if unknown:
+            problems.append(f"'{key}' invents numbers not in the data: {sorted(unknown)}")
+    if len(bundle["title"]) > TITLE_MAX:
+        problems.append(f"title too long ({len(bundle['title'])} > {TITLE_MAX})")
+    if len(bundle["twitter"]) > TWITTER_TEXT_MAX:
+        problems.append(f"twitter too long ({len(bundle['twitter'])} > {TWITTER_TEXT_MAX})")
+    if len(bundle["bluesky"]) > BLUESKY_TEXT_MAX:
+        problems.append(f"bluesky too long ({len(bundle['bluesky'])} > {BLUESKY_TEXT_MAX})")
+    if len(bundle["blog"]) < BLOG_TEXT_MIN:
+        problems.append(f"blog text too short ({len(bundle['blog'])} < {BLOG_TEXT_MIN})")
+    return problems
+
+
+def finalize_bundle(bundle, link):
+    """Append the link to the social variants and return the final record."""
+    return {
+        "title": bundle["title"],
+        "twitter": f"{bundle['twitter']} {link}",
+        "bluesky": f"{bundle['bluesky']} {link}",
+        "discord": f"{bundle['discord']}\n{link}",
+        "blog": bundle["blog"],
+    }
 
 MODELS = [
     "x-ai/grok-4.1-fast",
@@ -156,12 +300,25 @@ MODELS = [
 ]
 
 
-def generate_post_text(client, data, url, max_retries=5):
-    prompt = PROMPT_TEMPLATE.format(data=data).strip()
+def generate_post_bundle(client, data, link, post_type, max_retries=5):
+    """Generate the full text bundle (title + per-platform posts + blog text).
+
+    Tries every model in MODELS per attempt; a model's output only counts if it
+    parses as JSON and survives validate_bundle (no invented numbers, length
+    limits respected).
+    """
+    facts_text = json.dumps(data, ensure_ascii=False)
 
     for attempt in range(1, max_retries + 1):
         any_model_succeeded = False
         any_model_rate_limited = False
+        prompt = PROMPT_TEMPLATE.format(
+            post_type=post_type,
+            data=facts_text,
+            angle=random.choice(ANGLES),
+            twitter_max=TWITTER_TEXT_MAX,
+            bluesky_max=BLUESKY_TEXT_MAX,
+        ).strip()
 
         for model in MODELS:
             try:
@@ -169,22 +326,29 @@ def generate_post_text(client, data, url, max_retries=5):
                     model=model,
                     messages=[{"role": "user", "content": prompt}],
                 )
-
                 any_model_succeeded = True
-                text = resp.choices[0].message.content.strip()
-                cleanText = re.sub(r"^['\"]|['\"]$", "", text)
+                raw = resp.choices[0].message.content or ""
 
-                total_length = len(cleanText) + len(url)
-                if total_length < 250:
-                    return f"{cleanText} {url}"
-                elif len(cleanText) <= 250:
-                    return cleanText
+                bundle = extract_json_object(raw)
+                if bundle is None:
+                    print(
+                        f"[Attempt {attempt}] Model {model} returned unparsable JSON. Trying next model..."
+                    )
+                    continue
 
-                # if too long -> log and break to retry
-                print(
-                    f"[Attempt {attempt}] Model {model} returned too-long post (len {len(cleanText)}). Retrying..."
-                )
-                break
+                bundle = {
+                    k: sanitize_text(v)
+                    for k, v in bundle.items()
+                    if isinstance(v, str)
+                }
+                problems = validate_bundle(bundle, facts_text)
+                if problems:
+                    print(
+                        f"[Attempt {attempt}] Model {model} rejected: {'; '.join(problems)}. Trying next model..."
+                    )
+                    continue
+
+                return finalize_bundle(bundle, link)
 
             except openai.RateLimitError as e:
                 any_model_rate_limited = True
@@ -205,9 +369,8 @@ def generate_post_text(client, data, url, max_retries=5):
             raise RuntimeError("All models are rate-limited upstream")
 
         time.sleep(0.5)  # small backoff and retry
-
     raise RuntimeError(
-        f"Failed to generate a post in {max_retries} attempts (too long / errors / rate limits)."
+        f"Failed to generate a valid post bundle in {max_retries} attempts (parse/validation errors or rate limits)."
     )
 
 
@@ -509,8 +672,14 @@ def create_MplusRun(run, season, donesocials, api_key, url):
         "run_type": f"{run} this season",
     }
     print(post_data)
-    post = generate_post_text(client, post_data, url)
-    return {"out_path": mplus_image["out_path"], "post": post}
+    link = build_site_link(url, "pages/dashboard")
+    bundle = generate_post_bundle(client, post_data, link, run.replace("_", " "))
+    return {
+        "out_path": mplus_image["out_path"],
+        "bundle": bundle,
+        "post_type": run,
+        "link": link,
+    }
 
 
 tier_colors = {
@@ -745,8 +914,14 @@ def create_overall_spec_popularity(
     }
     print(post_data)
     client = get_openai_client(api_key)
-    post = generate_post_text(client, post_data, url)
-    return {"out_path": out_path, "post": post}
+    link = build_site_link(url, "pages/dashboard")
+    bundle = generate_post_bundle(client, post_data, link, "spec popularity tier list")
+    return {
+        "out_path": out_path,
+        "bundle": bundle,
+        "post_type": "spec_popularity_tierlist",
+        "link": link,
+    }
 
 
 def create_spec_popularity_by_level(
@@ -911,8 +1086,16 @@ def create_spec_popularity_by_level(
     }
     print(post_data)
     client = get_openai_client(api_key)
-    post = generate_post_text(client, post_data, url)
-    return {"out_path": out_path, "post": post}
+    link = build_site_link(url, "pages/dashboard")
+    bundle = generate_post_bundle(
+        client, post_data, link, "spec distribution across key levels"
+    )
+    return {
+        "out_path": out_path,
+        "bundle": bundle,
+        "post_type": "spec_distribution_by_level",
+        "link": link,
+    }
 
 def create_dungeon_popularity_vs_ease(output_dir, donesocials, api_key, url, season):
     week = datetime.now().strftime("%Y-%m")
@@ -922,12 +1105,20 @@ def create_dungeon_popularity_vs_ease(output_dir, donesocials, api_key, url, sea
     
     post_data = create_dungeon_popularity_vs_ease_img(
         out_path, season)
+    link = build_site_link(url, "pages/dashboard")
     if api_key is not None:
         print(post_data)
         client = get_openai_client(api_key)
-        post = generate_post_text(client, post_data, url)
-        return {"out_path": out_path, "post": post}
-    return {"out_path": out_path, "post": ""}
+        bundle = generate_post_bundle(
+            client, post_data, link, "dungeon popularity across key levels"
+        )
+        return {
+            "out_path": out_path,
+            "bundle": bundle,
+            "post_type": "dungeon_popularity_by_level",
+            "link": link,
+        }
+    return {"out_path": out_path, "bundle": None, "post_type": "dungeon_popularity_by_level", "link": link}
 
 
 def create_dungeon_popularity_vs_ease_img(out_path, season):
@@ -1026,12 +1217,20 @@ def create_spec_popularity_vs_performance(output_dir, donesocials, api_key, url,
     
     post_data = create_spec_popularity_vs_performance_img(
         out_path, season)
+    link = build_site_link(url, "pages/dashboard")
     if api_key is not None:
         print(post_data)
         client = get_openai_client(api_key)
-        post = generate_post_text(client, post_data, url)
-        return {"out_path": out_path, "post": post}
-    return {"out_path": out_path, "post": ""}
+        bundle = generate_post_bundle(
+            client, post_data, link, "spec popularity vs performance"
+        )
+        return {
+            "out_path": out_path,
+            "bundle": bundle,
+            "post_type": "spec_popularity_vs_performance",
+            "link": link,
+        }
+    return {"out_path": out_path, "bundle": None, "post_type": "spec_popularity_vs_performance", "link": link}
 
 def create_spec_popularity_vs_performance_img(
     out_path, season
@@ -1217,12 +1416,18 @@ def create_dungeon_tierlist(
         return None
     post_data = create_dungeon_tierlist_img(
         out_path, season, icon_size)
+    link = build_site_link(url, "pages/dashboard")
     if api_key is not None:
         print(post_data)
         client = get_openai_client(api_key)
-        post = generate_post_text(client, post_data, url)
-        return {"out_path": out_path, "post": post}
-    return {"out_path": out_path, "post": ""}
+        bundle = generate_post_bundle(client, post_data, link, "dungeon tier list")
+        return {
+            "out_path": out_path,
+            "bundle": bundle,
+            "post_type": "dungeon_tierlist",
+            "link": link,
+        }
+    return {"out_path": out_path, "bundle": None, "post_type": "dungeon_tierlist", "link": link}
 
 def create_dungeon_tierlist_img(
     out_path, season, icon_size=0.4
@@ -1392,14 +1597,22 @@ def createSpecOverview(output_dir, donesocials, api_key, url, spec_id, season):
     
     if out_path in donesocials:
         return None
-    post_data = createSpecOverviewImg(
+    result = createSpecOverviewImg(
         'tmp', out_path, spec_id, season)
-    if api_key is not None:
-        print(post_data)
+    link = spec_page_link(url, spec_id)
+    if api_key is not None and result and result.get("post_data"):
+        print(result["post_data"])
         client = get_openai_client(api_key)
-        post = generate_post_text(client, post_data, url)
-        return {"out_path": out_path, "post": post}
-    return {"out_path": out_path, "post": ""}
+        bundle = generate_post_bundle(
+            client, result["post_data"], link, "spec overview"
+        )
+        return {
+            "out_path": out_path,
+            "bundle": bundle,
+            "post_type": "spec_overview",
+            "link": link,
+        }
+    return {"out_path": out_path, "bundle": None, "post_type": "spec_overview", "link": link}
 
 def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
     """
@@ -2324,14 +2537,22 @@ def createDungeonOverview(output_dir, donesocials, api_key, url, dungeon_id, sea
     if out_path in donesocials:
         return None
     
-    post_data = createDungeonOverviewImg('tmp', out_path, dungeon_id, season)
-    
-    if api_key is not None and post_data and post_data.get("post_data"):
-        print(post_data)
+    result = createDungeonOverviewImg('tmp', out_path, dungeon_id, season)
+
+    link = dungeon_page_link(url, dungeon_id)
+    if api_key is not None and result and result.get("post_data"):
+        print(result["post_data"])
         client = get_openai_client(api_key)
-        post = generate_post_text(client, post_data.get("post_data"), url)
-        return {"out_path": out_path, "post": post}
-    return {"out_path": out_path, "post": ""}
+        bundle = generate_post_bundle(
+            client, result["post_data"], link, "dungeon overview"
+        )
+        return {
+            "out_path": out_path,
+            "bundle": bundle,
+            "post_type": "dungeon_overview",
+            "link": link,
+        }
+    return {"out_path": out_path, "bundle": None, "post_type": "dungeon_overview", "link": link}
 
 
 def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cursor=None):
@@ -2679,14 +2900,22 @@ def createCompOverview(output_dir, donesocials, api_key, url, season):
         print(f"Stats check failed: {e}")
         glue_specs = []
     
-    post_data = createCompOverviewImg('tmp', out_path, season, glue_specs=glue_specs)
-    
-    if api_key is not None and post_data and post_data.get("post_data"):
-        print(post_data["post_data"])
+    result = createCompOverviewImg('tmp', out_path, season, glue_specs=glue_specs)
+
+    link = build_site_link(url, "pages/comps")
+    if api_key is not None and result and result.get("post_data"):
+        print(result["post_data"])
         client = get_openai_client(api_key)
-        post = generate_post_text(client, post_data.get("post_data"), url)
-        return {"out_path": out_path, "post": post}
-    return {"out_path": out_path, "post": ""}
+        bundle = generate_post_bundle(
+            client, result["post_data"], link, "global comp overview"
+        )
+        return {
+            "out_path": out_path,
+            "bundle": bundle,
+            "post_type": "comp_overview",
+            "link": link,
+        }
+    return {"out_path": out_path, "bundle": None, "post_type": "comp_overview", "link": link}
 
 
 def createCompOverviewImg(tmpdir, out_path, season, conn=None, cursor=None, glue_specs=None):
@@ -3134,15 +3363,12 @@ def create_socials_post(donesocials, api_key, url):
         # pick index weighted
         idx = random.choices(available, weights=available_weights, k=1)[0]
         post = generators[idx]()
-        if post:
+        if post and post.get("bundle"):
             out_path = post.get("out_path")
             if out_path not in donesocials:
-                
-                donesocials[out_path] = {
-                    "post": post["post"],
-                    "timestamp": int(time.time() * 1000),
-                }
-                return post
+                record = bundle_to_record(post)
+                donesocials[out_path] = record
+                return {"out_path": out_path, **record}
         # remove tried generator
         rem = available.index(idx)
         available.pop(rem)
@@ -3152,16 +3378,108 @@ def create_socials_post(donesocials, api_key, url):
     return None
 
 
+def bundle_to_record(post):
+    """Flatten a generator result into the record stored in socials.json."""
+    bundle = post["bundle"]
+    return {
+        "title": bundle["title"],
+        "post_type": post.get("post_type", ""),
+        "link": post.get("link", ""),
+        "twitter": bundle["twitter"],
+        "bluesky": bundle["bluesky"],
+        "discord": bundle["discord"],
+        "blog": bundle["blog"],
+        # legacy field kept so older consumers of this file keep working
+        "post": bundle["twitter"],
+        "timestamp": int(time.time() * 1000),
+    }
+
+
+def create_debug_post(url):
+    """Offline test post: no database, no Blizzard API, no OpenRouter.
+
+    Renders a synthetic image and a canned text bundle so the whole
+    socials.json -> blog page pipeline can be exercised locally.
+    """
+    now = datetime.now()
+    stamp = now.strftime("%Y-%m-%d %H:%M:%S")
+    out_path = os.path.join(
+        OUTPUT_DIR, f"debug_test_{now.strftime('%Y-%m-%d_%H-%M-%S')}.png"
+    )
+
+    canvas = Image.new("RGB", (WIDTH, HEIGHT), "#222222")
+    draw = ImageDraw.Draw(canvas)
+    title_font = ImageFont.truetype(FONT_FILE, TITLE_SIZE)
+    small_font = ImageFont.truetype(FONT_FILE, SMALL_SIZE)
+    draw.text(
+        (WIDTH // 2, HEIGHT // 2 - 60),
+        "Blog Display Test",
+        font=title_font,
+        fill=(255, 255, 255),
+        anchor="mm",
+    )
+    draw.text(
+        (WIDTH // 2, HEIGHT // 2 + 40),
+        f"generated {stamp}",
+        font=small_font,
+        fill=(200, 200, 200),
+        anchor="mm",
+    )
+    canvas = apply_watermark_to_canvas(
+        canvas, position="top_right", padding_x=30, padding_y=30
+    )
+    canvas.save(out_path, format="PNG")
+
+    link = build_site_link(url, "pages/dashboard")
+    bundle = finalize_bundle(
+        {
+            "title": f"Debug post from {stamp}",
+            "twitter": f"[DEBUG] Blog display test generated {stamp}. #WoW",
+            "bluesky": f"[DEBUG] Blog display test generated {stamp}.",
+            "discord": f"[DEBUG] Blog display test generated {stamp}.",
+            "blog": (
+                f"This is a debug post generated locally at {stamp} to verify that "
+                "images and text render correctly on the blog page.\n\n"
+                "If you can read this on the blog with the image above, the "
+                "socials.json record, the image pipeline and the card layout all "
+                "work. Delete this entry from data/socials.json (and the PNG from "
+                "data/social) when you are done."
+            ),
+        },
+        link,
+    )
+    return {
+        "out_path": out_path,
+        "bundle": bundle,
+        "post_type": "debug_test",
+        "link": link,
+    }
+
+
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--api-key", required=True)
-    p.add_argument("--url", required=True)
+    p.add_argument("--api-key")
+    p.add_argument("--url", default="https://mythistone.com/")
+    p.add_argument(
+        "--debug",
+        action="store_true",
+        help="generate an offline test post (no DB, no Blizzard API, no OpenRouter) to preview on the blog page",
+    )
     args = p.parse_args()
+    if not args.debug and not args.api_key:
+        p.error("--api-key is required unless --debug is set")
     if os.path.exists(SOCIALS_FILE):
         donesocials = load_json(SOCIALS_FILE)
     else:
         donesocials = {}
-    post = create_socials_post(donesocials, args.api_key, args.url)
+    if args.debug:
+        result = create_debug_post(args.url)
+        record = bundle_to_record(result)
+        donesocials[result["out_path"]] = record
+        post = {"out_path": result["out_path"], **record}
+        print("DEBUG: offline test post created; do NOT commit this socials.json entry")
+    else:
+        post = create_socials_post(donesocials, args.api_key, args.url)
     print(f"Generated post: {post}")
     with open(SOCIALS_FILE, "w") as f:
         json.dump(donesocials, f, indent=4)

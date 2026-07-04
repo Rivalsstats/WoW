@@ -48,6 +48,13 @@ jobs:
           fetch-depth: 1
           ref: main
 
+      - name: Checkout social images
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          ref: social-images
+          path: social-images
+
       - name: Set up Python 3.11
         uses: actions/setup-python@v6
         with:
@@ -120,7 +127,7 @@ jobs:
 
       - name: Generate Blog HTML page
         run: |
-            python backend_scripts/generateBlogPage.py
+            python backend_scripts/generateBlogPage.py --images_dir social-images
 
       - name: Generate Legal HTML page
         run: |
@@ -198,6 +205,10 @@ jobs:
           mkdir -p _site/data
           cp -r pages dungeons items classes assets _site/
           cp -r data/icons data/creature_img _site/data/
+          mkdir -p _site/data/social
+          if compgen -G "social-images/*.png" > /dev/null; then
+            cp social-images/*.png _site/data/social/
+          fi
           cp index.html 404.html ads.txt robots.txt sitemap.xml llms.txt _site/
 
       - name: Upload static files as artifact
