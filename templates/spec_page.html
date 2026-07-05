@@ -305,6 +305,14 @@
 </div>
 {%- endmacro %}
 
+{# Inline "TOP" badge for a talent in a specific dungeon. Flags niche talents a
+   majority of the top-50 players took in THAT dungeon (top_dungeon_talent_pct is
+   keyed "<dungeon_id>:<node_id>"). Used in the per-dungeon talent-difference modal. #}
+{% macro talent_top_badge(tid, dungeon) -%}
+{% set _k = dungeon ~ ':' ~ tid %}
+{% if top_dungeon_talent_pct and _k in top_dungeon_talent_pct %}<span class="badge tt-top-badge tt-top-badge-inline flex-shrink-0 ms-1" data-bs-toggle="tooltip" title="Taken here by {{ '{:.0f}'.format(top_dungeon_talent_pct[_k]) }}% of the top 50 {{ spec.name }} {{ class_info.name }} players in this dungeon.">TOP</span>{% endif %}
+{%- endmacro %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -1740,7 +1748,7 @@
         </div>
         <div class="modal-body">
           <p class="text-sm mb-3">
-            Percentages show the relative difference in a talent's usage within a specific dungeon compared to its average usage across all dungeons. For example, a +100% gain means the talent is used twice as often here.
+            Percentages show how much more or less a talent is used in a specific dungeon compared to its average usage across all dungeons. The ranking is weighted toward what the top 50 players swap per dungeon (70% top players / 30% overall), so the picks shown reflect elite dungeon-specific choices. A <span class="badge tt-top-badge tt-top-badge-inline">TOP</span> badge marks talents a majority of the top 50 players took in that dungeon.
           </p>
           <div class="accordion" id="dungeonAccordion">
             {% for dungeon in hero_tree_difs['dungeons'] %}
@@ -1819,8 +1827,10 @@
                               <span class="flex-grow-1 text-truncate" title="{{ lookup[top.talent_id|string].name }}">
                                 {{ lookup[top.talent_id|string].name }}
                               </span>
+                              {{ talent_top_badge(top.talent_id, dungeon) }}
                               <span class="flex-shrink-0 mx-3 text-success">
-                                {% if top.rel_pct_change_percent is not none %}+{{ top.rel_pct_change_percent |round(2) }}%{% endif %}
+                                {% set top_delta = top.weighted_pct if top.weighted_pct is not none else top.rel_pct_change_percent %}
+                                {% if top_delta is not none %}+{{ top_delta|round(2) }}%{% endif %}
                               </span>
                             </a>
                             {% else %}
@@ -1836,13 +1846,14 @@
                               {% for item in data.gains[1:] %}
                               {% set tid = item.talent_id %}
                               {# prefer pct from item; if you have hero_tree_difs keyed by talent id use it instead #}
-                              {% set delta = item.rel_pct_change_percent %}
+                              {% set delta = item.weighted_pct if item.weighted_pct is not none else item.rel_pct_change_percent %}
                               <a class="d-flex align-items-center mb-2 text-decoration-none text-reset"
                                 href="https://www.wowhead.com{{ url_prefix }}={{ lookup[tid|string][id_attr] }}?spec={{ spec_id }}"
                                 target="_blank">
                                 <img src="/data/icons/{{ lookup[tid|string].icon }}.png" alt=""
                                   style="width:24px;height:24px;" />
                                 <span class="ms-2">{{ lookup[tid|string].name }}</span>
+                                {{ talent_top_badge(tid, dungeon) }}
                                 <span class="ms-auto text-success">
                                   {% if delta is not none %}+{{ delta|round(2) }}%{% endif %}
                                 </span>
@@ -1872,8 +1883,10 @@
                               <span class="flex-grow-1 text-truncate" title="{{ lookup[top.talent_id|string].name }}">
                                 {{ lookup[top.talent_id|string].name }}
                               </span>
+                              {{ talent_top_badge(top.talent_id, dungeon) }}
                               <span class="flex-shrink-0 mx-3 text-danger">
-                                {% if top.rel_pct_change_percent is not none %}{{ top.rel_pct_change_percent|round(2) }}%{% endif %}
+                                {% set top_delta = top.weighted_pct if top.weighted_pct is not none else top.rel_pct_change_percent %}
+                                {% if top_delta is not none %}{{ top_delta|round(2) }}%{% endif %}
                               </span>
                             </a>
                             {% else %}
@@ -1887,13 +1900,14 @@
                             <div class="accordion-body p-2">
                               {% for item in data.losses[1:] %}
                               {% set tid = item.talent_id %}
-                              {% set delta = item.rel_pct_change_percent %}
+                              {% set delta = item.weighted_pct if item.weighted_pct is not none else item.rel_pct_change_percent %}
                               <a class="d-flex align-items-center mb-2 text-decoration-none text-reset"
                                 href="https://www.wowhead.com{{ url_prefix }}={{ lookup[tid|string][id_attr] }}?spec={{ spec_id }}"
                                 target="_blank">
                                 <img src="/data/icons/{{ lookup[tid|string].icon }}.png" alt=""
                                   style="width:24px;height:24px;" />
                                 <span class="ms-2">{{ lookup[tid|string].name }}</span>
+                                {{ talent_top_badge(tid, dungeon) }}
                                 <span class="ms-auto text-danger">
                                   {% if delta is not none %}{{ delta|round(2) }}%{% endif %}
                                 </span>

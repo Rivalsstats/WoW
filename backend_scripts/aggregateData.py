@@ -286,22 +286,36 @@ def get_class_talent_differences_by_hero_tree(
     )
 
 
-def biggest_deviations_per_dungeon(data, top_n=3):
+def biggest_deviations_per_dungeon(
+    data,
+    top_n=3,
+    top_overall=None,
+    top_dungeon_pct=None,
+    top_weight=0.7,
+    normal_weight=0.3,
+):
     """
     Returns for each dungeon the top N gains and top N losses compared to overall distribution.
     Output format:
     {
       "<dungeon_id>": {
-         "gains": [ {talent_id, overall_pct, dungeon_pct, pct_point_diff, rel_pct_change_percent}, ... ],
+         "gains": [ {talent_id, overall_pct, dungeon_pct, pct_point_diff, rel_pct_change_percent, weighted_pct}, ... ],
          "losses": [ { ... }, ... ]
       }, ...
     }
+
+    When `top_overall` (node_id -> overall top-50 adoption %) and `top_dungeon_pct`
+    ({dungeon_str: {node_id: adoption %}}) are supplied, each talent's ranking score
+    (`weighted_pct`) blends the general-population relative change with the top-50
+    players' relative change, weighting the top-50 signal `top_weight` vs
+    `normal_weight`. Without them it falls back to the plain general relative change.
     """
     # build map of overall pct by talent id
     overall_map = {
         int(item["id"]): float(item["pct"])
         for item in data.get("overall_dungeon_talents", [])
     }
+    use_top = top_overall is not None and top_dungeon_pct is not None
 
     results = {}
     for dungeon, talents in data.get("dungeon_talent_counts", {}).items():
@@ -319,6 +333,24 @@ def biggest_deviations_per_dungeon(data, top_n=3):
             rel_change = None
             if overall_pct != 0:
                 rel_change = (pct_point_diff / overall_pct) * 100.0
+
+            # Blend in the top-50 players' per-dungeon relative change so that
+            # talents the elite actually swap for a given dungeon rank higher.
+            weighted = rel_change
+            if use_top:
+                t_over = float(top_overall.get(tid, 0.0) or 0.0)
+                if t_over > 0:
+                    t_dun = float(
+                        (top_dungeon_pct.get(str(dungeon), {}) or {}).get(tid, 0.0)
+                    )
+                    top_rel = ((t_dun - t_over) / t_over) * 100.0
+                    if rel_change is None:
+                        weighted = top_rel
+                    else:
+                        weighted = normal_weight * rel_change + top_weight * top_rel
+                # else: top players never take this node at all -> no top signal,
+                # keep the plain general relative change.
+
             rows.append(
                 {
                     "talent_id": tid,
@@ -326,20 +358,21 @@ def biggest_deviations_per_dungeon(data, top_n=3):
                     "dungeon_pct": dungeon_pct,
                     "pct_point_diff": pct_point_diff,
                     "rel_pct_change_percent": rel_change,
+                    "weighted_pct": weighted,
                     "id": tid,
                     "pct": pct_point_diff, # Keep this for compatibility if it's used elsewhere, though usually rel_change is better
                 }
             )
 
-        # gains: positive pct_point_diff, sorted descending
-        gains = [r for r in rows if r["rel_pct_change_percent"] is not None and r["rel_pct_change_percent"] > 0]
-        gains_sorted = sorted(gains, key=lambda r: r["rel_pct_change_percent"], reverse=True)[
+        # gains: positive weighted score, sorted descending
+        gains = [r for r in rows if r["weighted_pct"] is not None and r["weighted_pct"] > 0]
+        gains_sorted = sorted(gains, key=lambda r: r["weighted_pct"], reverse=True)[
             :top_n
         ]
 
-        # losses: negative pct_point_diff, sorted ascending (most negative first)
-        losses = [r for r in rows if r["rel_pct_change_percent"] is not None and r["rel_pct_change_percent"] < 0]
-        losses_sorted = sorted(losses, key=lambda r: r["rel_pct_change_percent"])[:top_n]
+        # losses: negative weighted score, sorted ascending (most negative first)
+        losses = [r for r in rows if r["weighted_pct"] is not None and r["weighted_pct"] < 0]
+        losses_sorted = sorted(losses, key=lambda r: r["weighted_pct"])[:top_n]
 
         results[str(dungeon)] = {"gains": gains_sorted, "losses": losses_sorted}
 
