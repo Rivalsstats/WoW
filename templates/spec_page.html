@@ -40,8 +40,8 @@
             my-2 mx-2 p-2 flex-nowrap
             {{ extra }}">
   <!-- Item icon & link -->
-  <div class="col-auto px-0">
-    <a target="_blank"
+  <div class="col-auto px-0 item-icon-col">
+    <a target="_blank" class="item-icon-link"
       href="https://www.wowhead.com/item={{entry.id }}?bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}}{% endif %}"
       data-wowhead="bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}}{% endif %}{%- if entry.pcs %}&pcs={{ entry.pcs|join(':') }}{%- endif %}"
       {% if tag=='button' %}onclick="event.preventDefault();" {% endif %}>
@@ -55,7 +55,7 @@
       href="https://www.wowhead.com/item={{ entry.id }}?bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}} {% endif %}"
       data-wowhead="bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}}{% endif %}{%- if entry.pcs %}&pcs={{ entry.pcs|join(':') }}{%- endif %}"
       data-wh-rename-link="true" {% if tag=='button' %}onclick="event.preventDefault();" {% endif %}>
-        <p class="mb-0 text-truncate item-name-text">{{ item_lookup[entry.id].name }}{% if entry.is_bis %} <span class="badge bis-badge" data-bs-toggle="tooltip" title="Used by {{ '%.0f' % (entry.bis_pct) if entry.bis_pct else 'N/A' }}% of the top 50 {{ spec.name }} {{ class_info.name }} players according to Raider.io verified Loadouts.">TOP</span>{% endif %}{% if entry.is_simc_bis %} <span class="badge simc-badge" data-bs-toggle="tooltip" title="Best item for this slot according to SimulationCraft{% if entry.simc_dps_pct is not none and entry.simc_dps_pct >= 0.05 %} (+{{ '%.1f' % entry.simc_dps_pct }}% DPS over the most-equipped item){% endif %}.">SIM</span>{% endif %}</p>
+        <p class="mb-0 item-name-text d-flex align-items-center gap-1"><span class="text-truncate item-name-label">{{ item_lookup[entry.id].name }}</span>{% if entry.is_bis %}<span class="badge bis-badge flex-shrink-0" data-bs-toggle="tooltip" title="Used by {{ '%.0f' % (entry.bis_pct) if entry.bis_pct else 'N/A' }}% of the top 50 {{ spec.name }} {{ class_info.name }} players according to Raider.io verified Loadouts.">TOP</span>{% endif %}{% if entry.is_simc_bis %}<span class="badge simc-badge flex-shrink-0" data-bs-toggle="tooltip" title="Best item for this slot according to SimulationCraft{% if entry.simc_dps_pct is not none and entry.simc_dps_pct >= 0.05 %} (+{{ '%.1f' % entry.simc_dps_pct }}% DPS over the most-equipped item){% endif %}.">SIM</span>{% endif %}</p>
     </a>
     <a class="item-detail-link d-inline-flex align-items-center gap-1"
       href="/items/{{ item_slug_map[entry.id] }}?spec={{ spec_id }}"
@@ -167,9 +167,9 @@
     </div>
   </div>
   <!-- Popularity % -->
-  <div class="col-auto text-end">
+  <div class="col-auto text-end item-pop-col">
     <p data-bs-toggle="tooltip" data-bs-placement="top" title="{{ entry.count }} seen out of {{slot_count}} items"
-      class="mb-0 fs-5">
+      class="mb-0 fs-5 item-pop-pct">
       {%if (entry.count / slot_count * 100) < 100%} {{ '%.0f' % (entry.count / slot_count * 100) }} {%else%} 100
         {%endif%}% </p>
         {% if entry.max_timed_key or entry.max_depleted_key %}
@@ -916,7 +916,7 @@
                                         <div class="flex-shrink-0 me-2">{{ slot_name }}</div>
 
                                         <div class="col-auto d-flex align-items-center me-2">
-                                          <div class="position-relative secondary-icon-wrapper" style="width:32px;height:32px;">
+                                          <div class="position-relative secondary-icon-wrapper detail-row-icon">
                                             <a target="_blank" href="{{ url }}" class="icon-link" aria-hidden="true">
                                               <img
                                                 src="/data/icons/{% if enchant_lookup[enchant].itemIcon %}{{ enchant_lookup[enchant].itemIcon }}.png{% else %}{{ enchant_lookup[enchant].spellIcon }}.png{% endif %}"
@@ -977,7 +977,7 @@
                                       <div class="row align-items-center mb-2">
                                         <!-- Item icon & link -->
                                         <div class="col-auto d-flex align-items-center me-2">
-                                          <div class="position-relative secondary-icon-wrapper" style="width:32px;height:32px;">
+                                          <div class="position-relative secondary-icon-wrapper detail-row-icon">
                                             <a target="_blank" href="{{ url }}" class="icon-link" aria-hidden="true">
                                               <img
                                                 src="/data/icons/{% if enchant_lookup[enchant].itemIcon %}{{ enchant_lookup[enchant].itemIcon }}.png{% else %}{{ enchant_lookup[enchant].spellIcon }}.png{% endif %}"
@@ -1044,9 +1044,8 @@
                                               {% if ench.max_timed_key or ench.max_depleted_key %}
                                               <div class="mt-1 mb-1">
                                                 <span
-                                                  class="badge border border-white text-white bg-transparent py-1 px-2"
-                                                  style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
-                                                  data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                                  class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
+                                                                                                    data-bs-toggle="tooltip" data-bs-placement="bottom"
                                                   data-bs-html="true"
                                                   title="{% if ench.max_timed_key %}Highest Timed: +{{ ench.max_timed_key }}{% endif %}{% if ench.max_timed_key and ench.max_depleted_key %}<br>{% endif %}{% if ench.max_depleted_key %}Highest Depleted: +{{ ench.max_depleted_key }}{% endif %}">
                                                   {% if ench.max_timed_key %}
@@ -1109,7 +1108,7 @@
                               <div class="row align-items-center mb-2">
                                 <!-- Gem icon & link -->
                                 <div class="col-auto">
-                                  <div class="position-relative secondary-icon-wrapper" style="width:24px;height:24px;">
+                                  <div class="position-relative secondary-icon-wrapper detail-row-icon">
                                     <a target="_blank"
                                       href="https://www.wowhead.com/item={{ gem.itemId }}&spec={{ spec_id }}"
                                       class="icon-link" aria-hidden="true">
@@ -1179,9 +1178,8 @@
                                       total_socket_count * 100) }} {%else%} 100 {%endif%}% </p>
                                       {% if s.max_timed_key or s.max_depleted_key %}
                                       <div class="mt-1 mb-1">
-                                        <span class="badge border border-white text-white bg-transparent py-1 px-2"
-                                          style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
-                                          data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                                        <span class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
+                                                                                    data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
                                           title="{% if s.max_timed_key %}Highest Timed: +{{ s.max_timed_key }}{% endif %}{% if s.max_timed_key and s.max_depleted_key %}<br>{% endif %}{% if s.max_depleted_key %}Highest Depleted: +{{ s.max_depleted_key }}{% endif %}">
                                           {% if s.max_timed_key %}
                                           +{{ s.max_timed_key }}
@@ -1229,7 +1227,7 @@
                                 <div class="col-auto">
                                   <a target="_blank"
                                     href="https://www.wowhead.com/item={{ embellishment}}&spec={{ spec_id }}"
-                                    class="icon-link position-relative" style="width:24px; height:24px;">
+                                    class="icon-link position-relative detail-row-icon">
                                     <img src="/data/icons/{{ reagent_lookup[embellishment].icon }}.png" alt=""
                                       class="base-icon border {% if reagent_lookup[embellishment].quality %}border-quality-{{reagent_lookup[embellishment].quality}}{% else %}border-grey-100{% endif %}">
                                     {% if reagent_lookup[embellishment].craftingQuality %}
@@ -1281,9 +1279,8 @@
                                       total_embellishment_count * 100) }} {%else%} 100 {%endif%}% </p>
                                       {% if pair[2] or pair[3] %}
                                       <div class="mt-1 mb-1">
-                                        <span class="badge border border-white text-white bg-transparent py-1 px-2"
-                                          style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
-                                          data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                                        <span class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
+                                                                                    data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
                                           title="{% if pair[2] %}Highest Timed: +{{ pair[2] }}{% endif %}{% if pair[2] and pair[3] %}<br>{% endif %}{% if pair[3] %}Highest Depleted: +{{ pair[3] }}{% endif %}">
                                           {% if pair[2] %}
                                           +{{ pair[2] }}
@@ -1329,7 +1326,7 @@
                                   <div class="col-auto">
                                     <a target="_blank"
                                       href="https://www.wowhead.com/item={{ missive }}&spec={{ spec_id }}"
-                                      class="icon-link position-relative" style="width:24px; height:24px;">
+                                      class="icon-link position-relative detail-row-icon">
                                       <img src="/data/icons/{{ reagent_lookup[missive].icon }}.png" alt=""
                                         class="base-icon border {% if reagent_lookup[missive].quality %}border-quality-{{reagent_lookup[missive].quality}}{% else %}border-grey-100{% endif %}">
                                       {% if reagent_lookup[missive].craftingQuality %}
@@ -1380,9 +1377,8 @@
                                         total_missive_count * 100) }} {%else%} 100 {%endif%}% </p>
                                         {% if pair[2] or pair[3] %}
                                         <div class="mt-1 mb-1">
-                                          <span class="badge border border-white text-white bg-transparent py-1 px-2"
-                                            style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
-                                            data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                                          <span class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
+                                                                                        data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
                                             title="{% if pair[2] %}Highest Timed: +{{ pair[2] }}{% endif %}{% if pair[2] and pair[3] %}<br>{% endif %}{% if pair[3] %}Highest Depleted: +{{ pair[3] }}{% endif %}">
                                             {% if pair[2] %}
                                             +{{ pair[2] }}
@@ -1433,7 +1429,7 @@
                                 <!-- Item icon & link -->
                                 <div class="col-auto">
                                   <a target="_blank" href="https://www.wowhead.com/item={{ item }}&spec={{ spec_id }}"
-                                    class="icon-link position-relative" style="width:24px; height:24px;">
+                                    class="icon-link position-relative detail-row-icon">
                                     <img src="/data/icons/{{ item_lookup[item|int].icon }}.png" alt=""
                                       class="base-icon border {% if item_lookup[item|int].quality %}border-quality-{{item_lookup[item|int].quality}}{% else %}border-grey-100{% endif %}">
                                   </a>
@@ -1473,9 +1469,8 @@
                                       total_crafted_items * 100) }} {%else%} 100 {%endif%}% {%else%} 0% {%endif%} </p>
                                       {% if pair[2] or pair[3] %}
                                       <div class="mt-1 mb-1">
-                                        <span class="badge border border-white text-white bg-transparent py-1 px-2"
-                                          style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
-                                          data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                                        <span class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
+                                                                                    data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
                                           title="{% if pair[2] %}Highest Timed: +{{ pair[2] }}{% endif %}{% if pair[2] and pair[3] %}<br>{% endif %}{% if pair[3] %}Highest Depleted: +{{ pair[3] }}{% endif %}">
                                           {% if pair[2] %}
                                           +{{ pair[2] }}
@@ -1522,7 +1517,7 @@
                                   {% for id in comp.ids %}
                                   {% if item_lookup[id] %}
                                   <a target="_blank" href="https://www.wowhead.com/item={{ id }}&spec={{ spec_id }}"
-                                    class="icon-link position-relative" style="width:24px; height:24px;"
+                                    class="icon-link position-relative detail-row-icon"
                                     data-bs-toggle="tooltip" data-bs-placement="top"
                                     title="{{ item_lookup[id].name }}">
                                     <img src="/data/icons/{{ item_lookup[id].icon }}.png" alt=""
@@ -1541,9 +1536,8 @@
                                       total_tier_set_comps * 100) }} {%else%} 100 {%endif%}% {%else%} 0% {%endif%} </p>
                                       {% if comp.max_timed or comp.max_depleted %}
                                       <div class="mt-1 mb-1">
-                                        <span class="badge border border-white text-white bg-transparent py-1 px-2"
-                                          style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
-                                          data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                                        <span class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
+                                                                                    data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
                                           title="{% if comp.max_timed %}Highest Timed: +{{ comp.max_timed }}{% endif %}{% if comp.max_timed and comp.max_depleted %}<br>{% endif %}{% if comp.max_depleted %}Highest Depleted: +{{ comp.max_depleted }}{% endif %}">
                                           {% if comp.max_timed %}
                                           +{{ comp.max_timed }}
@@ -1596,7 +1590,7 @@
                                   {% set reagent = reagent_lookup.get(id) or reagent_lookup.get(id|string) %}
                                   {% if reagent %}
                                   <a target="_blank" href="https://www.wowhead.com/item={{ id }}&spec={{ spec_id }}"
-                                    class="icon-link position-relative" style="width:24px; height:24px;">
+                                    class="icon-link position-relative detail-row-icon">
                                     <img src="/data/icons/{{ reagent.icon }}.png" alt=""
                                       class="base-icon border {% if reagent.quality %}border-quality-{{reagent.quality}}{% else %}border-grey-100{% endif %}">
                                     {% if reagent.craftingQuality %}
@@ -1629,9 +1623,8 @@
                                       {%endif%} </p>
                                       {% if comp.max_timed or comp.max_depleted %}
                                       <div class="mt-1 mb-1">
-                                        <span class="badge border border-white text-white bg-transparent py-1 px-2"
-                                          style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
-                                          data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                                        <span class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
+                                                                                    data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
                                           title="{% if comp.max_timed %}Highest Timed: +{{ comp.max_timed }}{% endif %}{% if comp.max_timed and comp.max_depleted %}<br>{% endif %}{% if comp.max_depleted %}Highest Depleted: +{{ comp.max_depleted }}{% endif %}">
                                           {% if comp.max_timed %}
                                           +{{ comp.max_timed }}
@@ -1677,7 +1670,7 @@
                                   {% for id in comp.ids %}
                                   {% if item_lookup[id] %}
                                   <a target="_blank" href="https://www.wowhead.com/item={{ id }}&spec={{ spec_id }}"
-                                    class="icon-link position-relative" style="width:24px; height:24px;"
+                                    class="icon-link position-relative detail-row-icon"
                                     data-bs-toggle="tooltip" data-bs-placement="top"
                                     title="{{ item_lookup[id].name }}">
                                     <img src="/data/icons/{{ item_lookup[id].icon }}.png" alt=""
@@ -1696,9 +1689,8 @@
                                       total_crafted_comps * 100) }} {%else%} 100 {%endif%}% {%else%} 0% {%endif%} </p>
                                       {% if comp.max_timed or comp.max_depleted %}
                                       <div class="mt-1 mb-1">
-                                        <span class="badge border border-white text-white bg-transparent py-1 px-2"
-                                          style="opacity: 0.85; font-size: 0.75rem; cursor: help; font-weight: 500;"
-                                          data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                                        <span class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
+                                                                                    data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
                                           title="{% if comp.max_timed %}Highest Timed: +{{ comp.max_timed }}{% endif %}{% if comp.max_timed and comp.max_depleted %}<br>{% endif %}{% if comp.max_depleted %}Highest Depleted: +{{ comp.max_depleted }}{% endif %}">
                                           {% if comp.max_timed %}
                                           +{{ comp.max_timed }}

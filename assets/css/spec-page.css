@@ -296,10 +296,32 @@
 }
 
 /* Item render slot styles */
+/* The icon column has a fixed width but stretches to the row's full height, and
+   the image fills it via object-fit: cover. This makes the icon fill the whole
+   accordion box height without the fragile height:100%/aspect-ratio chain, whose
+   intrinsic width (the PNG's native size) disagreed with the rendered height and
+   caused the image to overflow into the details column. */
+.item-icon-col {
+  flex: 0 0 auto;
+  width: var(--item-icon-size, 72px);
+  align-self: center;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.item-icon-link {
+  display: flex;
+  width: 100%;
+  height: var(--item-icon-size, 72px);
+}
+
 .item-icon-img {
-  width: 56px;
-  height: 56px;
-  border-radius: 4px;
+  width: 100%;
+  height: var(--item-icon-size, 72px);
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
 }
 
 .item-details-col {
@@ -312,6 +334,14 @@
 
 .item-name-text {
   line-height: 1.2;
+  min-width: 0;
+}
+
+/* Only the name text truncates; the TOP / SIM badges sit after it and never
+   get clipped (flex-shrink:0 in markup). min-width:0 lets the label shrink
+   below its content width so the ellipsis kicks in. */
+.item-name-label {
+  min-width: 0;
 }
 
 /* "Item details" link: a small, clearly-visible outline chip that reads as an
@@ -403,6 +433,69 @@
 
 .socket-icons-container {
   line-height: 0;
+}
+
+/* Shared icon size for the detail accordion rows (enchants, gems,
+   embellishments, missives, crafted items, set combos) — replaces the
+   inconsistent 24px/32px inline sizes. Specificity beats .icon-link's 24px. */
+.icon-link.detail-row-icon,
+.secondary-icon-wrapper.detail-row-icon {
+  width: 32px;
+  height: 32px;
+}
+
+/* Compact item rows on phones: rows hug their content, the "Item details"
+   chip collapses to its icon, and badges/popularity tighten so the details
+   column stays close to the (44px min) icon height. */
+@media (max-width: 575.98px) {
+  .item-icon-col {
+    --item-icon-size: 56px;
+  }
+
+  .item-details-col {
+    min-height: 0;
+  }
+
+  .item-detail-link {
+    margin: 2px 0;
+    padding: 2px 6px;
+  }
+
+  .item-detail-link span {
+    display: none;
+  }
+
+  .item-stats-container {
+    min-height: 0;
+  }
+
+  .item-stat-badge {
+    font-size: 0.6rem;
+    padding: 0.25em 0.4em;
+  }
+
+  .item-secondary-icons {
+    row-gap: 2px;
+  }
+
+  .item-pop-pct {
+    font-size: 0.95rem !important;
+  }
+
+  .max-key-badge {
+    font-size: 0.65rem;
+  }
+
+  .accordion-button.row::after {
+    margin-right: 0;
+    margin-left: 0.25rem;
+  }
+
+  .icon-link.detail-row-icon,
+  .secondary-icon-wrapper.detail-row-icon {
+    width: 28px;
+    height: 28px;
+  }
 }
 
 /* Stat bar styles */
