@@ -132,7 +132,7 @@ jobs:
             echo "post.json not found"
             exit 1
           fi
-          social_text=$(jq -r '.twitter // .post' "$post_file")
+          social_text=$(jq -r '.social // .twitter // .post' "$post_file")
           image_path=$(jq -r .out_path "$post_file")
           alt_text=$(jq -r '.title // "M+ data highlight"' "$post_file")
           filename=$(basename "$image_path")
@@ -213,7 +213,7 @@ jobs:
             echo "post.json not found"
             exit 1
           fi
-          social_text=$(jq -r '.bluesky // .post' "$post_file")
+          social_text=$(jq -r '.social // .bluesky // .post' "$post_file")
           image_path=$(jq -r .out_path "$post_file")
           link=$(jq -r '.link // "https://mythistone.com/pages/dashboard"' "$post_file")
           alt_text=$(jq -r '.title // "M+ data highlight"' "$post_file")
@@ -277,7 +277,7 @@ jobs:
             echo "post.json not found"
             exit 1
           fi
-          social_text=$(jq -r '.discord // .post' "$post_file")
+          social_text=$(jq -r '.social // .discord // .post' "$post_file")
           image_path=$(jq -r .out_path "$post_file")
           filename=$(basename "$image_path")
           echo ">>> debug: social_text=<$social_text>"

@@ -7,6 +7,7 @@ from openai import OpenAI
 import openai
 import json
 import time
+import hashlib
 from datetime import datetime, timedelta, timezone
 from PIL import Image, ImageDraw, ImageFont
 import matplotlib.pyplot as plt
@@ -124,12 +125,12 @@ def time_ago(ms_timestamp: int) -> str:
     return "just now"
 
 
-BUNDLE_KEYS = ("title", "twitter", "bluesky", "discord", "blog")
-TITLE_MAX = 120
-TWITTER_TEXT_MAX = 240  # + space + t.co-wrapped URL (23 chars) stays under 280
-BLUESKY_TEXT_MAX = 235  # + space + full URL stays under Bluesky's 300
-TWITTER_URL_LEN = 23  # Twitter wraps every URL in t.co, always 23 chars
-BLOG_TEXT_MIN = 200
+# The blog copy is now produced from static templates (build_static_blog); the
+# language model only writes a single, humorous social post. That one text has
+# to satisfy the tightest platform: Bluesky allows 300 characters and, unlike
+# Twitter's t.co wrapping, counts the full URL, so we cap the text well below
+# 300 once the link (worst case ~60 chars) and a separating space are appended.
+SOCIAL_TEXT_MAX = 230
 
 ANGLES = [
     "Angle for this post: celebrate the single most impressive number as a milestone.",
@@ -139,8 +140,8 @@ ANGLES = [
     "Angle for this post: point out the detail a veteran Mythic+ player would find surprising.",
 ]
 
-PROMPT_TEMPLATE = """You write social media and blog content for MythiStone (mythistone.com), a World of Warcraft Mythic+ statistics site built on millions of real M+ runs. Today's subject: {post_type}.
-An image visualizing the data accompanies every post, so the text should complement it, not describe it.
+SOCIAL_PROMPT_TEMPLATE = """You write a single social media post for MythiStone (mythistone.com), a World of Warcraft Mythic+ statistics site built on millions of real M+ runs. Today's subject: {post_type}.
+An image visualizing the data accompanies the post, so the text should complement it, not describe it.
 
 FACTS (the only information you may use):
 {data}
@@ -150,16 +151,12 @@ FACTS (the only information you may use):
 RULES:
 - Copy names and numbers exactly as they appear in FACTS. Never invent, round, or recalculate a value.
 - Lead with the most interesting insight; no greetings, no filler, no "click here" begging.
-- Humor is welcome only when it arises naturally from the data. Never force a joke or pun.
+- Land some humor: a light pun or playful jab is welcome, but keep it grounded in the data and never force it.
 - Plain text only: no emojis, no markdown, no em-dashes.
+- At most {max_chars} characters, ending with 2-3 hashtags such as #WoW #MythicPlus.
 - Do not include any URL; the link is appended separately.
 
-Respond with ONLY a JSON object (no code fences, no commentary) with exactly these keys:
-  "title": blog headline, at most 90 characters
-  "twitter": post text, at most {twitter_max} characters, ending with 2-3 hashtags such as #WoW #MythicPlus
-  "bluesky": post text, at most {bluesky_max} characters, worded differently from twitter, 1-2 hashtags
-  "discord": 2-4 conversational sentences for a community Discord, no hashtags
-  "blog": 2-3 short paragraphs separated by blank lines, explaining what the data shows and why it is interesting, no hashtags
+Respond with ONLY the post text: no quotes, no JSON, no code fences, no commentary.
 """
 
 
@@ -226,62 +223,35 @@ def sanitize_text(text):
     return text.strip()
 
 
-def extract_json_object(raw):
-    """Pull the first JSON object out of a model response, tolerating fences."""
-    raw = raw.strip()
-    raw = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw)
-    start = raw.find("{")
-    end = raw.rfind("}")
-    if start == -1 or end <= start:
-        return None
-    try:
-        obj = json.loads(raw[start : end + 1])
-    except json.JSONDecodeError:
-        return None
-    return obj if isinstance(obj, dict) else None
+def clean_social_response(raw):
+    """Strip code fences and wrapping quotes from a plain-text model response."""
+    raw = (raw or "").strip()
+    raw = re.sub(r"^```(?:\w+)?\s*|\s*```$", "", raw).strip()
+    # models sometimes wrap the whole post in matching quotes
+    if len(raw) >= 2 and raw[0] in "\"'" and raw[-1] == raw[0]:
+        raw = raw[1:-1].strip()
+    return raw
 
 
 def _digit_runs(text):
     return set(re.findall(r"\d+", text))
 
 
-def validate_bundle(bundle, facts_text):
-    """Return a list of problems; empty list means the bundle is usable."""
+def validate_social_text(text, facts_text):
+    """Return a list of problems; empty list means the social text is usable."""
+    if not isinstance(text, str) or not text.strip():
+        return ["empty social text"]
     problems = []
-    for key in BUNDLE_KEYS:
-        val = bundle.get(key)
-        if not isinstance(val, str) or not val.strip():
-            return [f"missing or empty '{key}'"]
     # Every multi-digit number in the output must literally appear in the
     # facts; this rejects invented/garbled stats. Single digits are allowed
     # (e.g. "top 5") since they are harmless and often legitimate phrasing.
     allowed = _digit_runs(facts_text)
-    for key in BUNDLE_KEYS:
-        unknown = {
-            n for n in _digit_runs(bundle[key]) if len(n) > 1 and n not in allowed
-        }
-        if unknown:
-            problems.append(f"'{key}' invents numbers not in the data: {sorted(unknown)}")
-    if len(bundle["title"]) > TITLE_MAX:
-        problems.append(f"title too long ({len(bundle['title'])} > {TITLE_MAX})")
-    if len(bundle["twitter"]) > TWITTER_TEXT_MAX:
-        problems.append(f"twitter too long ({len(bundle['twitter'])} > {TWITTER_TEXT_MAX})")
-    if len(bundle["bluesky"]) > BLUESKY_TEXT_MAX:
-        problems.append(f"bluesky too long ({len(bundle['bluesky'])} > {BLUESKY_TEXT_MAX})")
-    if len(bundle["blog"]) < BLOG_TEXT_MIN:
-        problems.append(f"blog text too short ({len(bundle['blog'])} < {BLOG_TEXT_MIN})")
+    unknown = {n for n in _digit_runs(text) if len(n) > 1 and n not in allowed}
+    if unknown:
+        problems.append(f"invents numbers not in the data: {sorted(unknown)}")
+    if len(text) > SOCIAL_TEXT_MAX:
+        problems.append(f"too long ({len(text)} > {SOCIAL_TEXT_MAX})")
     return problems
-
-
-def finalize_bundle(bundle, link):
-    """Append the link to the social variants and return the final record."""
-    return {
-        "title": bundle["title"],
-        "twitter": f"{bundle['twitter']} {link}",
-        "bluesky": f"{bundle['bluesky']} {link}",
-        "discord": f"{bundle['discord']}\n{link}",
-        "blog": bundle["blog"],
-    }
 
 MODELS = [
     "x-ai/grok-4.1-fast",
@@ -300,24 +270,23 @@ MODELS = [
 ]
 
 
-def generate_post_bundle(client, data, link, post_type, max_retries=5):
-    """Generate the full text bundle (title + per-platform posts + blog text).
+def generate_social_text(client, data, subject, max_retries=5):
+    """Generate a single humorous social post from the data.
 
     Tries every model in MODELS per attempt; a model's output only counts if it
-    parses as JSON and survives validate_bundle (no invented numbers, length
-    limits respected).
+    survives validate_social_text (no invented numbers, length limit respected).
+    Returns the post text WITHOUT the link; callers append the link themselves.
     """
     facts_text = json.dumps(data, ensure_ascii=False)
 
     for attempt in range(1, max_retries + 1):
         any_model_succeeded = False
         any_model_rate_limited = False
-        prompt = PROMPT_TEMPLATE.format(
-            post_type=post_type,
+        prompt = SOCIAL_PROMPT_TEMPLATE.format(
+            post_type=subject,
             data=facts_text,
             angle=random.choice(ANGLES),
-            twitter_max=TWITTER_TEXT_MAX,
-            bluesky_max=BLUESKY_TEXT_MAX,
+            max_chars=SOCIAL_TEXT_MAX,
         ).strip()
 
         for model in MODELS:
@@ -329,26 +298,15 @@ def generate_post_bundle(client, data, link, post_type, max_retries=5):
                 any_model_succeeded = True
                 raw = resp.choices[0].message.content or ""
 
-                bundle = extract_json_object(raw)
-                if bundle is None:
-                    print(
-                        f"[Attempt {attempt}] Model {model} returned unparsable JSON. Trying next model..."
-                    )
-                    continue
-
-                bundle = {
-                    k: sanitize_text(v)
-                    for k, v in bundle.items()
-                    if isinstance(v, str)
-                }
-                problems = validate_bundle(bundle, facts_text)
+                text = sanitize_text(clean_social_response(raw))
+                problems = validate_social_text(text, facts_text)
                 if problems:
                     print(
                         f"[Attempt {attempt}] Model {model} rejected: {'; '.join(problems)}. Trying next model..."
                     )
                     continue
 
-                return finalize_bundle(bundle, link)
+                return text
 
             except openai.RateLimitError as e:
                 any_model_rate_limited = True
@@ -370,8 +328,338 @@ def generate_post_bundle(client, data, link, post_type, max_retries=5):
 
         time.sleep(0.5)  # small backoff and retry
     raise RuntimeError(
-        f"Failed to generate a valid post bundle in {max_retries} attempts (parse/validation errors or rate limits)."
+        f"Failed to generate a valid social post in {max_retries} attempts (validation errors or rate limits)."
     )
+
+
+# --- Static, LLM-free blog + title generation -------------------------------
+# The blog copy shown on the site is built from fixed templates with the run
+# data dropped into placeholders. This keeps it accurate and consistent; only
+# the social post above is written by a model.
+
+_RUN_KIND = {
+    "highest_run": "highest",
+    "longest_run": "longest",
+    "shortest_run": "fastest",
+}
+
+
+def _join_paragraphs(parts):
+    """Join non-empty paragraphs with a blank line, matching the blog splitter."""
+    return "\n\n".join(p.strip() for p in parts if p and p.strip())
+
+
+def _blog_rng(*parts):
+    """Deterministic RNG seeded from the post's facts.
+
+    Picking phrasing variants through this keeps the blog copy varied across
+    posts while staying stable for a given post: the same facts always render
+    the same text, so rebuilding socials.json never churns existing entries.
+    """
+    key = "|".join("" if p is None else str(p) for p in parts)
+    seed = int(hashlib.md5(key.encode("utf-8")).hexdigest()[:12], 16)
+    return random.Random(seed)
+
+
+def format_comp_names(comp_str):
+    """Turn a comma-separated spec-id comp string into 'Spec Class, ...' ordered
+    by role (tank, healer, dps). Unknown ids are skipped."""
+    if not comp_str:
+        return ""
+    ids = [s for s in str(comp_str).split(",") if s]
+    ids = sorted(
+        ids,
+        key=lambda sid: (
+            int(spec_lookup[sid]["role"]) if sid in spec_lookup else 99,
+            int(sid) if sid.isdigit() else 0,
+        ),
+    )
+    names = []
+    for sid in ids:
+        if sid in spec_lookup:
+            sm = spec_lookup[sid]
+            cm = class_lookup.get(str(sm.get("classID", "")), {})
+            names.append(f"{sm.get('name', '')} {cm.get('name', '')}".strip())
+    return ", ".join(names)
+
+
+def build_static_title(post_type, data):
+    """Deterministic blog headline for a post, derived from its facts."""
+    if post_type in _RUN_KIND:
+        kind = _RUN_KIND[post_type].capitalize()
+        return f"{kind} Run: +{data.get('level')} {data.get('dungeon')}"
+    if post_type == "spec_overview":
+        return f"{data.get('spec', '').strip()} Mythic+ Overview"
+    if post_type == "dungeon_overview":
+        return f"{data.get('dungeon', '').strip()} Dungeon Overview"
+    if post_type == "comp_overview":
+        return "Global Top Comps"
+    if post_type == "dungeon_tierlist":
+        return "Dungeon Tier List"
+    if post_type == "spec_popularity_tierlist":
+        return "Spec Popularity Tier List"
+    if post_type == "spec_distribution_by_level":
+        return "Spec Distribution Across Key Levels"
+    if post_type == "dungeon_popularity_by_level":
+        return "Dungeon Popularity Across Key Levels"
+    if post_type == "spec_popularity_vs_performance":
+        return "Spec Popularity vs Performance"
+    return "Mythic+ Data Spotlight"
+
+
+def build_static_blog(post_type, data):
+    """Deterministic blog copy for a post, built from its facts.
+
+    Two short, fact-carrying paragraphs; no generic call-to-action filler (the
+    card's "View the data" button already covers that). Phrasing variants are
+    chosen through _blog_rng so the copy reads varied across posts but is stable
+    for identical facts. Every number comes straight from `data` and is never
+    recomputed here.
+    """
+    if post_type in _RUN_KIND:
+        kind = _RUN_KIND[post_type]  # highest / longest / fastest
+        level = data.get("level")
+        dungeon = data.get("dungeon")
+        duration = data.get("duration")
+        region = data.get("region")
+        where = f" on the {region} region" if region else ""
+        run_happened = data.get("run_happened")
+        comp = data.get("comp")
+        rng = _blog_rng(post_type, level, dungeon, duration, region)
+
+        leads = {
+            "highest": [
+                f"The highest Mythic+ key MythiStone has tracked this season is a +{level} {dungeon}, timed in {duration}{where}.",
+                f"A +{level} {dungeon} cleared in {duration}{where} stands as the highest key on record this season.",
+            ],
+            "longest": [
+                f"The longest Mythic+ run tracked this season is a +{level} {dungeon} that ground on for {duration}{where}.",
+                f"At {duration}{where}, this +{level} {dungeon} is the longest single key MythiStone has recorded this season.",
+            ],
+            "fastest": [
+                f"The fastest Mythic+ clear tracked this season is a +{level} {dungeon}, done in just {duration}{where}.",
+                f"A +{level} {dungeon} blitzed in {duration}{where} is the quickest clear on record this season.",
+            ],
+        }
+        p1 = rng.choice(leads.get(kind, leads["highest"]))
+
+        tail = []
+        if comp:
+            tail.append(rng.choice([
+                f"The five who pulled it off: {comp}.",
+                f"Credit the group that ran it: {comp}.",
+            ]))
+        if run_happened:
+            tail.append(rng.choice([
+                f"It went down {run_happened}, and records like it only stand until the next group pushes higher.",
+                f"That was {run_happened}. Every record here keeps moving as new keys get pushed.",
+            ]))
+        else:
+            tail.append("Records like it only stand until the next group pushes higher.")
+        return _join_paragraphs([p1, " ".join(tail)])
+
+    if post_type == "spec_overview":
+        spec = (data.get("spec") or "").strip()
+        runs = data.get("amount_data_source_runs")
+        name = data.get("top_hero_tree_name")
+        pct = data.get("top_hero_tree_pct")
+        runner = data.get("runner_up_hero_tree")
+        timed = data.get("timed_pct")
+        three = data.get("three_chest_pct")
+        stats = data.get("stat_priority")
+        highest = data.get("highest_run")
+        rng = _blog_rng("spec_overview", spec, runs)
+
+        p1 = rng.choice([
+            f"{spec} has {runs} Mythic+ runs tracked this season.",
+            f"This season MythiStone has logged {runs} {spec} runs.",
+            f"{runs} {spec} keys are in the books this season.",
+        ])
+        if name and pct:
+            if runner:
+                p1 += rng.choice([
+                    f" The {name} hero tree leads at {pct} of builds, with {runner} trailing.",
+                ])
+            else:
+                p1 += rng.choice([
+                    f" The {name} hero tree is the runaway pick at {pct} of builds.",
+                ])
+
+        facts = []
+        if timed and three:
+            facts.append(rng.choice([
+                f"Groups time keys with the spec {timed} of the time and three-chest {three} of them.",
+                f"{timed} of tracked runs beat the timer, and {three} earn all three chests.",
+            ]))
+        elif timed:
+            facts.append(f"{timed} of tracked runs beat the timer.")
+        if stats:
+            facts.append(rng.choice([
+                f"The stat priority skews toward {stats}.",
+                f"Most builds prioritise {stats}.",
+            ]))
+        if highest:
+            facts.append(rng.choice([
+                f"The best key so far: {highest}.",
+                f"Its top run this season is {highest}.",
+            ]))
+        return _join_paragraphs([p1, " ".join(facts)])
+
+    if post_type == "dungeon_overview":
+        dungeon = (data.get("dungeon") or "").strip()
+        runs = data.get("amount_data_source_runs")
+        route = data.get("top_route")
+        comp = data.get("top_comp")
+        rng = _blog_rng("dungeon_overview", dungeon, runs)
+
+        p1 = rng.choice([
+            f"{dungeon} has {runs} Mythic+ runs tracked this season.",
+            f"This overview of {dungeon} draws on {runs} tracked Mythic+ runs.",
+        ])
+        facts = []
+        if comp:
+            facts.append(rng.choice([
+                f"The most common group through it is {comp}.",
+                f"Groups most often bring {comp}.",
+            ]))
+        if route and route != "Unknown":
+            facts.append(rng.choice([
+                f"The most-used route right now is {route}.",
+                f"Most players follow the {route} route.",
+            ]))
+        if not facts:
+            facts.append("The dungeon page breaks down the comps and routes groups rely on to time it.")
+        return _join_paragraphs([p1, " ".join(facts)])
+
+    if post_type == "comp_overview":
+        runs = data.get("amount_data_source_runs")
+        top = data.get("top_comp")
+        runner = data.get("runner_up_comp")
+        flex = data.get("most_flexible_spec")
+        rng = _blog_rng("comp_overview", runs, top)
+
+        p1 = rng.choice([
+            f"Across {runs} tracked Mythic+ runs, the most popular group composition is {top}.",
+            f"{top} is the most-run Mythic+ composition across {runs} tracked runs.",
+        ])
+        facts = []
+        if runner:
+            facts.append(rng.choice([
+                f"The runner-up is {runner}.",
+                f"{runner} sits just behind it.",
+            ]))
+        if flex:
+            facts.append(rng.choice([
+                f"{flex} is the most flexible spec, fitting into more comps than any other.",
+                f"No spec slots into more comps than {flex}.",
+            ]))
+        if not facts:
+            facts.append("See every top comp and the most flexible specs on the comps page.")
+        return _join_paragraphs([p1, " ".join(facts)])
+
+    if post_type == "dungeon_tierlist":
+        runs = data.get("total_runs")
+        best = data.get("best_dungeon")
+        worst = data.get("worst_dungeon")
+        sb = data.get("second_best_dungeon")
+        sw = data.get("second_worst_dungeon")
+        rng = _blog_rng("dungeon_tierlist", runs, best, worst)
+
+        p1 = rng.choice([
+            f"Based on {runs} tracked Mythic+ runs, {best} tops this season's dungeon tier list while {worst} sits at the bottom.",
+            f"{best} leads the dungeon tier list this season and {worst} anchors the bottom, across {runs} tracked runs.",
+        ])
+        facts = []
+        if sb and sw:
+            facts.append(f"{sb} follows near the top, and {sw} is not far off the bottom.")
+        elif sb:
+            facts.append(f"{sb} follows just behind at the top.")
+        elif sw:
+            facts.append(f"{sw} sits just above the bottom.")
+        facts.append("Tiers reflect how cleanly groups are timing each dungeon at higher keys.")
+        return _join_paragraphs([p1, " ".join(facts)])
+
+    if post_type == "spec_popularity_tierlist":
+        most = data.get("most_popular_spec") or {}
+        least = data.get("least_popular_spec") or {}
+        runs = data.get("total_runs")
+        rng = _blog_rng("spec_popularity_tierlist", runs, most.get("name"))
+
+        p1 = rng.choice([
+            f"Across {runs} tracked Mythic+ runs this season, {most.get('name')} is the most-played spec with {most.get('runs')} runs.",
+            f"{most.get('name')} tops the popularity tier list this season at {most.get('runs')} runs, out of {runs} tracked overall.",
+        ])
+        p2 = rng.choice([
+            f"At the other end, {least.get('name')} is the least represented with {least.get('runs')} runs. Popularity is not the same as power, but it shows what the community is actually bringing.",
+            f"{least.get('name')} brings up the rear at {least.get('runs')} runs. What is popular is not always what is strongest, but it does reflect what players pick.",
+        ])
+        return _join_paragraphs([p1, p2])
+
+    if post_type == "spec_distribution_by_level":
+        specs = data.get("highest_specs") or []
+        lvl = data.get("highest_keylevel")
+        rng = _blog_rng("spec_distribution_by_level", lvl, ",".join(specs))
+
+        if specs and lvl is not None:
+            p1 = rng.choice([
+                f"At the very top of the ladder, level {lvl}, the most common specs are {', '.join(specs)}.",
+                f"Once keys reach level {lvl}, the field narrows to a handful of specs: {', '.join(specs)}.",
+            ])
+        else:
+            p1 = "This breakdown shows how spec representation shifts as Mythic+ keys climb."
+        p2 = rng.choice([
+            "Lower keys stay far more varied; the highest levels concentrate around a few specs.",
+            "The spread is wide at low keys and tightens sharply toward the top.",
+        ])
+        return _join_paragraphs([p1, p2])
+
+    if post_type == "dungeon_popularity_by_level":
+        levels = data.get("levels_covered")
+        top = data.get("top_dungeon")
+        bottom = data.get("bottom_dungeon")
+        rng = _blog_rng("dungeon_popularity_by_level", levels, top, bottom)
+
+        p1 = rng.choice([
+            f"Across {levels} key levels, {top} is the most-run dungeon while {bottom} sees the fewest completions.",
+            f"{top} draws the most runs across {levels} key levels; {bottom} draws the fewest.",
+        ])
+        p2 = rng.choice([
+            "Dungeon popularity tracks route length, difficulty and how punishing the bosses get at high keys.",
+            "Route length, boss difficulty and trash density all steer where groups spend their keys.",
+        ])
+        return _join_paragraphs([p1, p2])
+
+    if post_type == "spec_popularity_vs_performance":
+        over = data.get("most_overperforming_spec")
+        under = data.get("most_underperforming_spec")
+        rng = _blog_rng("spec_popularity_vs_performance", over, under)
+
+        p1 = rng.choice([
+            f"Plotting popularity against performance, {over} is the biggest overperformer, punching above its play rate.",
+            f"{over} stands out as the biggest overperformer, doing more than its popularity would suggest.",
+        ])
+        p2 = rng.choice([
+            f"On the flip side, {under} is played more than its results justify.",
+            f"{under}, meanwhile, is more popular than its performance would predict.",
+        ])
+        return _join_paragraphs([p1, p2])
+
+    # unknown type: no static copy, blog card just shows the title + image
+    return ""
+
+
+def build_bundle(client, data, link, post_type, subject):
+    """Build the stored text bundle: static title + static blog + one social post.
+
+    The social post is written by a model and has the link appended; the title
+    and blog copy are generated from fixed templates (no model involved).
+    """
+    social = generate_social_text(client, data, subject)
+    return {
+        "title": build_static_title(post_type, data),
+        "blog": build_static_blog(post_type, data),
+        "social": f"{social} {link}".strip(),
+    }
 
 
 def fit_font_to_width(
@@ -663,6 +951,9 @@ def create_MplusRun(run, season, donesocials, api_key, url):
 
     client = get_openai_client(api_key)
 
+    comp = format_comp_names(
+        ",".join(str(m["spec_id"]) for m in active_run.get("members", []))
+    )
     post_data = {
         "dungeon": mplus_image["dungeon_name"],
         "level": mplus_image["level"],
@@ -670,10 +961,11 @@ def create_MplusRun(run, season, donesocials, api_key, url):
         "run_happened": time_ago(int(mplus_image["timestamp"])),
         "region": mplus_image["region"],
         "run_type": f"{run} this season",
+        "comp": comp,
     }
     print(post_data)
     link = build_site_link(url, "pages/dashboard")
-    bundle = generate_post_bundle(client, post_data, link, run.replace("_", " "))
+    bundle = build_bundle(client, post_data, link, run, run.replace("_", " "))
     return {
         "out_path": mplus_image["out_path"],
         "bundle": bundle,
@@ -915,7 +1207,9 @@ def create_overall_spec_popularity(
     print(post_data)
     client = get_openai_client(api_key)
     link = build_site_link(url, "pages/dashboard")
-    bundle = generate_post_bundle(client, post_data, link, "spec popularity tier list")
+    bundle = build_bundle(
+        client, post_data, link, "spec_popularity_tierlist", "spec popularity tier list"
+    )
     return {
         "out_path": out_path,
         "bundle": bundle,
@@ -1087,8 +1381,8 @@ def create_spec_popularity_by_level(
     print(post_data)
     client = get_openai_client(api_key)
     link = build_site_link(url, "pages/dashboard")
-    bundle = generate_post_bundle(
-        client, post_data, link, "spec distribution across key levels"
+    bundle = build_bundle(
+        client, post_data, link, "spec_distribution_by_level", "spec distribution across key levels"
     )
     return {
         "out_path": out_path,
@@ -1109,8 +1403,8 @@ def create_dungeon_popularity_vs_ease(output_dir, donesocials, api_key, url, sea
     if api_key is not None:
         print(post_data)
         client = get_openai_client(api_key)
-        bundle = generate_post_bundle(
-            client, post_data, link, "dungeon popularity across key levels"
+        bundle = build_bundle(
+            client, post_data, link, "dungeon_popularity_by_level", "dungeon popularity across key levels"
         )
         return {
             "out_path": out_path,
@@ -1221,8 +1515,8 @@ def create_spec_popularity_vs_performance(output_dir, donesocials, api_key, url,
     if api_key is not None:
         print(post_data)
         client = get_openai_client(api_key)
-        bundle = generate_post_bundle(
-            client, post_data, link, "spec popularity vs performance"
+        bundle = build_bundle(
+            client, post_data, link, "spec_popularity_vs_performance", "spec popularity vs performance"
         )
         return {
             "out_path": out_path,
@@ -1420,7 +1714,9 @@ def create_dungeon_tierlist(
     if api_key is not None:
         print(post_data)
         client = get_openai_client(api_key)
-        bundle = generate_post_bundle(client, post_data, link, "dungeon tier list")
+        bundle = build_bundle(
+            client, post_data, link, "dungeon_tierlist", "dungeon tier list"
+        )
         return {
             "out_path": out_path,
             "bundle": bundle,
@@ -1568,10 +1864,18 @@ def create_dungeon_tierlist_img(
     # generate the social‐media post text
     best = df.iloc[0]
     worst = df.iloc[-1]
+    second_best = (
+        dungeon_lookup[str(df.iloc[1]["id"])]["name"]["en_US"] if len(df) > 1 else ""
+    )
+    second_worst = (
+        dungeon_lookup[str(df.iloc[-2]["id"])]["name"]["en_US"] if len(df) > 2 else ""
+    )
     post_data = {
         "tierlist_type": "Dungeon Tierlist",
         "best_dungeon": dungeon_lookup[str(best["id"])]["name"]["en_US"],
         "worst_dungeon": dungeon_lookup[str(worst["id"])]["name"]["en_US"],
+        "second_best_dungeon": second_best,
+        "second_worst_dungeon": second_worst,
         "total_runs": humanize_number(total_runs),
     }
     return post_data
@@ -1603,8 +1907,8 @@ def createSpecOverview(output_dir, donesocials, api_key, url, spec_id, season):
     if api_key is not None and result and result.get("post_data"):
         print(result["post_data"])
         client = get_openai_client(api_key)
-        bundle = generate_post_bundle(
-            client, result["post_data"], link, "spec overview"
+        bundle = build_bundle(
+            client, result["post_data"], link, "spec_overview", "spec overview"
         )
         return {
             "out_path": out_path,
@@ -2515,17 +2819,53 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
         canvas = canvas.convert("RGB")
     canvas.save(out_path)
 
-    if hero_trees:
-        # find the single subtree with the highest count
-        top = max(hero_trees, key=lambda ht: ht["count"])
-        top_hero_tree = f"{talent_lookup['subTrees'][str(top['tree_id'])]['name']} ({round((top['count'] / sum(ht['count'] for ht in hero_trees)) * 100, 2)}%)"
-    else:
-        top_hero_tree = ""
+    # --- hero tree spread: leader, its share, and the runner-up ---
+    sorted_trees = sorted(hero_trees, key=lambda ht: ht["count"], reverse=True)
+    top_hero_tree = ""
+    top_hero_name = ""
+    top_hero_pct = ""
+    runner_up_hero = ""
+    if sorted_trees and hero_total:
+        top = sorted_trees[0]
+        top_hero_name = talent_lookup["subTrees"][str(top["tree_id"])]["name"]
+        top_hero_pct = f"{round(top['count'] / hero_total * 100)}%"
+        top_hero_tree = (
+            f"{top_hero_name} ({round(top['count'] / hero_total * 100, 2)}%)"
+        )
+        if len(sorted_trees) > 1:
+            ru = sorted_trees[1]
+            ru_name = talent_lookup["subTrees"][str(ru["tree_id"])]["name"]
+            runner_up_hero = f"{ru_name} ({round(ru['count'] / hero_total * 100)}%)"
+
+    # --- how the keys land: timed vs three-chested share ---
+    timed_runs = upgrade_counts["1"] + upgrade_counts["2"] + upgrade_counts["3"]
+    timed_pct = f"{round(timed_runs / total_up * 100)}%"
+    three_chest_pct = f"{round(upgrade_counts['3'] / total_up * 100)}%"
+
+    # --- secondary stat priority (index 0 is the primary stat, so skip it) ---
+    _stat_src = (
+        stat_priority[1:5]
+        if stat_priority and len(stat_priority) > 1
+        else (stat_priority[:4] if stat_priority else [])
+    )
+    stat_priority_str = " > ".join(
+        (s.get("name") or "").replace("_", " ").strip().title()
+        for s in _stat_src
+        if (s.get("name") or "").strip()
+    )
+
     post_data = {
         "spec": f"{spec_meta.get('name', '')} {class_meta.get('name', '')}",
         "amount_data_source_runs": humanize_number(play_count),
         "highest_run": f"+{highest_run['level']} {highest_run['dungeon_name']} Completed in ({highest_run['duration_str']})",
         "top_hero_tree": top_hero_tree,
+        "top_hero_tree_name": top_hero_name,
+        "top_hero_tree_pct": top_hero_pct,
+        "runner_up_hero_tree": runner_up_hero,
+        "hero_tree_count": len(hero_trees),
+        "timed_pct": timed_pct,
+        "three_chest_pct": three_chest_pct,
+        "stat_priority": stat_priority_str,
     }
     return {"out_path": out_path, "post_data": post_data}
 
@@ -2543,8 +2883,8 @@ def createDungeonOverview(output_dir, donesocials, api_key, url, dungeon_id, sea
     if api_key is not None and result and result.get("post_data"):
         print(result["post_data"])
         client = get_openai_client(api_key)
-        bundle = generate_post_bundle(
-            client, result["post_data"], link, "dungeon overview"
+        bundle = build_bundle(
+            client, result["post_data"], link, "dungeon_overview", "dungeon overview"
         )
         return {
             "out_path": out_path,
@@ -2875,9 +3215,16 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
         canvas = canvas.convert("RGB")
     canvas.save(out_path)
 
+    top_comp_str = ""
+    if top_comps_data:
+        first_comp = top_comps_data[0]
+        comp_str = first_comp["comp"] if isinstance(first_comp, dict) else first_comp[0]
+        top_comp_str = format_comp_names(comp_str)
+
     post_data = {
         "dungeon": name_text,
         "amount_data_source_runs": humanize_number(play_count),
+        "top_comp": top_comp_str,
         "top_route": f"keystone.guru/{top_routes_data[0]['route_key'] if isinstance(top_routes_data[0], dict) else top_routes_data[0][0]}" if top_routes_data else "Unknown"
     }
 
@@ -2906,8 +3253,8 @@ def createCompOverview(output_dir, donesocials, api_key, url, season):
     if api_key is not None and result and result.get("post_data"):
         print(result["post_data"])
         client = get_openai_client(api_key)
-        bundle = generate_post_bundle(
-            client, result["post_data"], link, "global comp overview"
+        bundle = build_bundle(
+            client, result["post_data"], link, "comp_overview", "global comp overview"
         )
         return {
             "out_path": out_path,
@@ -3171,10 +3518,19 @@ def createCompOverviewImg(tmpdir, out_path, season, conn=None, cursor=None, glue
         canvas = canvas.convert("RGB")
     canvas.save(out_path)
 
+    runner_up_comp_str = ""
+    if top_comps_data and len(top_comps_data) > 1:
+        second_comp = top_comps_data[1]
+        second_str = (
+            second_comp["comp"] if isinstance(second_comp, dict) else second_comp[0]
+        )
+        runner_up_comp_str = format_comp_names(second_str)
+
     post_data = {
         "title": "Global Top Comps",
         "amount_data_source_runs": humanize_number(play_count),
         "top_comp": top_comp_str,
+        "runner_up_comp": runner_up_comp_str,
         "most_flexible_spec": most_flexible_spec_str
     }
 
@@ -3381,16 +3737,16 @@ def create_socials_post(donesocials, api_key, url):
 def bundle_to_record(post):
     """Flatten a generator result into the record stored in socials.json."""
     bundle = post["bundle"]
+    social = bundle["social"]
     return {
         "title": bundle["title"],
         "post_type": post.get("post_type", ""),
         "link": post.get("link", ""),
-        "twitter": bundle["twitter"],
-        "bluesky": bundle["bluesky"],
-        "discord": bundle["discord"],
+        # one humorous text used across every social platform
+        "social": social,
         "blog": bundle["blog"],
-        # legacy field kept so older consumers of this file keep working
-        "post": bundle["twitter"],
+        # legacy field kept so the workflow (and older consumers) keep working
+        "post": social,
         "timestamp": int(time.time() * 1000),
     }
 
@@ -3431,23 +3787,18 @@ def create_debug_post(url):
     canvas.save(out_path, format="PNG")
 
     link = build_site_link(url, "pages/dashboard")
-    bundle = finalize_bundle(
-        {
-            "title": f"Debug post from {stamp}",
-            "twitter": f"[DEBUG] Blog display test generated {stamp}. #WoW",
-            "bluesky": f"[DEBUG] Blog display test generated {stamp}.",
-            "discord": f"[DEBUG] Blog display test generated {stamp}.",
-            "blog": (
-                f"This is a debug post generated locally at {stamp} to verify that "
-                "images and text render correctly on the blog page.\n\n"
-                "If you can read this on the blog with the image above, the "
-                "socials.json record, the image pipeline and the card layout all "
-                "work. Delete this entry from data/socials.json (and the PNG from "
-                "data/social) when you are done."
-            ),
-        },
-        link,
-    )
+    bundle = {
+        "title": f"Debug post from {stamp}",
+        "social": f"[DEBUG] Blog display test generated {stamp}. #WoW #MythicPlus {link}",
+        "blog": (
+            f"This is a debug post generated locally at {stamp} to verify that "
+            "images and text render correctly on the blog page.\n\n"
+            "If you can read this on the blog with the image above, the "
+            "socials.json record, the image pipeline and the card layout all "
+            "work. Delete this entry from data/socials.json (and the PNG from "
+            "data/social) when you are done."
+        ),
+    }
     return {
         "out_path": out_path,
         "bundle": bundle,
