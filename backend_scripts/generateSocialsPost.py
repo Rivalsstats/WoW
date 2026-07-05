@@ -928,11 +928,11 @@ def get_run_data(run_type, spec, season):
             return databaseConnector.fetch_max_key_run_per_spec(
                 conn, cursor, spec, season
             )
-        if run_type == "longest":
+        if run_type == "longest_run":
             return databaseConnector.fetch_longest_run(conn, cursor, season)
-        if run_type == "highest":
+        if run_type == "highest_run":
             return databaseConnector.fetch_max_key_run(conn, cursor, season)
-        if run_type == "shortest":
+        if run_type == "shortest_run":
             return databaseConnector.fetch_shortest_run(conn, cursor, season)
     return {}
 
@@ -2857,7 +2857,7 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
     post_data = {
         "spec": f"{spec_meta.get('name', '')} {class_meta.get('name', '')}",
         "amount_data_source_runs": humanize_number(play_count),
-        "highest_run": f"+{highest_run['level']} {highest_run['dungeon_name']} Completed in ({highest_run['duration_str']})",
+        "highest_run": f"+{highest_run['level']} {highest_run['dungeon_name']} in {highest_run['duration_str']}",
         "top_hero_tree": top_hero_tree,
         "top_hero_tree_name": top_hero_name,
         "top_hero_tree_pct": top_hero_pct,
