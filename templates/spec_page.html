@@ -310,7 +310,7 @@
    keyed "<dungeon_id>:<node_id>"). Used in the per-dungeon talent-difference modal. #}
 {% macro talent_top_badge(tid, dungeon) -%}
 {% set _k = dungeon ~ ':' ~ tid %}
-{% if top_dungeon_talent_pct and _k in top_dungeon_talent_pct %}<span class="badge tt-top-badge tt-top-badge-inline flex-shrink-0 ms-1" data-bs-toggle="tooltip" title="Taken here by {{ '{:.0f}'.format(top_dungeon_talent_pct[_k]) }}% of the top 50 {{ spec.name }} {{ class_info.name }} players in this dungeon.">TOP</span>{% endif %}
+{% if top_dungeon_talent_pct and _k in top_dungeon_talent_pct %}<span class="badge tt-top-badge tt-top-badge-inline flex-shrink-0 ms-1" data-bs-toggle="tooltip" title="Taken here by {{ '{:.0f}'.format(top_dungeon_talent_pct[_k]) }}% of the top 50 {{ spec.name }} {{ class_info.name }} players in {{dungeon_lookup[dungeon].name['en_US']}}">TOP</span>{% endif %}
 {%- endmacro %}
 
 <!DOCTYPE html>
