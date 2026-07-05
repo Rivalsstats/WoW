@@ -102,6 +102,40 @@
 .tt-badge.high { color: #0f0; border-color: #0f0; }
 .tt-badge.med { color: #ff0; border-color: #ff0; }
 
+/* Talent "TOP" highlight — flags nodes/hero trees where the top-50 verified
+   players diverge from the general population. Gold, matching the gear TOP
+   badge. Sits in the node's top-left corner, clear of the popularity badge
+   (bottom-right) and the max-rank badge (top-right). Single class so the
+   treatment is easy to restyle later. */
+.tt-top-badge {
+  position: absolute;
+  top: -9px;
+  left: -9px;
+  z-index: 7;
+  background: #ffd100;
+  color: #000;
+  font-weight: 800;
+  font-size: 9px;
+  line-height: 1;
+  letter-spacing: 0.3px;
+  padding: 2px 4px;
+  border-radius: 5px;
+  border: 1px solid rgba(0, 0, 0, 0.55);
+  box-shadow: 0 0 6px rgba(255, 209, 0, 0.55);
+  white-space: nowrap;
+  cursor: help;
+}
+/* Inline variant for the hero-tree header (flows next to the name, not pinned
+   to a corner). */
+.tt-top-badge-inline {
+  position: static;
+  top: auto;
+  left: auto;
+  font-size: 10px;
+  padding: 2px 6px;
+  box-shadow: none;
+}
+
 .tt-choice-wrapper:hover .tt-custom-tooltip { display: flex !important; }
 .tt-custom-tooltip a:hover { background: #333 !important; }
 
@@ -244,10 +278,12 @@
   #static-talent-tree .tt-node img { width: 28px; height: 28px; }
   #static-talent-tree .tt-badge,
   #static-talent-tree .tt-maxrank { font-size: 9px; }
+  #static-talent-tree .tt-top-badge { font-size: 8px; top: -7px; left: -7px; padding: 1px 3px; }
 }
 @media (max-width: 575.98px) {
   #static-talent-tree .tt-node { width: 32px; height: 32px; }
   #static-talent-tree .tt-node img { width: 24px; height: 24px; }
+  #static-talent-tree .tt-top-badge { font-size: 7px; top: -6px; left: -6px; padding: 1px 2px; }
   .tt-hero .tt-choice-wrapper { width: 40px !important; height: 40px !important; }
   .tt-hero .tt-hero-choice-inner { width: 40px !important; height: 40px !important; }
 }
@@ -286,6 +322,20 @@
 }
 .tt-hero-switch-label {
   letter-spacing: 0.3px;
+}
+
+/* Shown on the most-popular hero tree when the top-50 players actually favour a
+   different one — nudges the reader to switch to the elite pick. */
+.tt-hero-top-hint {
+  max-width: 220px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.35;
+  color: #ffe58a;
+  cursor: help;
+}
+.tt-hero-top-hint strong {
+  color: #ffd100;
 }
 @keyframes tt-hero-switch-pulse {
   0%, 100% { transform: scale(1); box-shadow: 0 0 8px rgba(255, 176, 0, 0.6); }

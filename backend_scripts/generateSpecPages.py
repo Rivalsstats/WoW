@@ -27,6 +27,13 @@ MULTI_SLOT_GROUPS = {
     "FINGER_2": "FINGER",
 }
 
+# Talent "TOP" highlight thresholds (elite-vs-popular divergence). A talent node
+# is flagged as an elite pick when the top-50 verified players take it far more
+# often than the general Mythic+ population. Tuned by eye on a real spec; kept
+# here so the badge density is a one-line change.
+TALENT_ELITE_MIN_PCT = 50.0      # top-50 usage must be at least this high
+TALENT_DIVERGENCE_DELTA = 20.0   # ...and exceed general popularity by this many points
+
 # Blizzard inventoryType -> display position matching the gear overview slot
 # order (LEFT_ORDER + RIGHT_ORDER + WEAPON_SLOTS + TRINKET_SLOTS, columns
 # flattened). Used to sort combo items the same way the overview lists slots.
@@ -266,7 +273,7 @@ def node_has_valid_spellid(node):
             return True
     return False
 
-def build_ui_tree(nodes, pop_data, is_hero=False, pop_hero_tree_id=None):
+def build_ui_tree(nodes, pop_data, is_hero=False, pop_hero_tree_id=None, top_pct_map=None):
 
     if not nodes:
         return {"nodes": [], "edges": []}
@@ -287,6 +294,16 @@ def build_ui_tree(nodes, pop_data, is_hero=False, pop_hero_tree_id=None):
             pop_map[int(t["id"])] = float(t.get("pct", 0.0))
             pop_avg_ranks[int(t["id"])] = float(t.get("avg_rank", 1.0))
             pop_count_map[int(t["id"])] = int(t.get("count", 0))
+
+    # Top-50 verified-player usage per node (node_id -> pct). Used to flag nodes
+    # where the elite build diverges from the general population.
+    top_pct_lookup = {}
+    if isinstance(top_pct_map, dict):
+        for nid, info in top_pct_map.items():
+            try:
+                top_pct_lookup[int(nid)] = float(info.get("pct", 0.0))
+            except (TypeError, ValueError, AttributeError):
+                continue
 
     if not nodes:
         return {"nodes": [], "edges": []}
@@ -399,12 +416,25 @@ def build_ui_tree(nodes, pop_data, is_hero=False, pop_hero_tree_id=None):
         if avg_rank == 0.0:
             avg_rank = float(max_ranks)
 
+        # Elite-vs-popular divergence: flag nodes the top-50 verified players
+        # take far more often than the general population. Free nodes (forced
+        # to 100%) can never diverge, so they never light up.
+        top_pct_val = top_pct_lookup.get(n["id"], 0.0)
+        is_top = (
+            not n.get("freeNode", False)
+            and top_pct_val >= TALENT_ELITE_MIN_PCT
+            and (top_pct_val - pct) >= TALENT_DIVERGENCE_DELTA
+        )
+
         ui_nodes.append({
             "id": n["id"],
             "left": (n.get("posX", 0) - min_x) / w * 100,
             "top": (n.get("posY", 0) - min_y) / h * 100,
             "pct": "{:.1f}".format(pct),
             "pct_val": pct,
+            "top_pct": "{:.1f}".format(top_pct_val),
+            "top_pct_val": top_pct_val,
+            "is_top": is_top,
             "count": count,
             "total_count": total_data_count,
             "icon": icon,
@@ -662,6 +692,14 @@ def compute_bis_from_top_loadouts(top_loadouts):
     for nid, cnt in sorted(talent_node_counts.items(), key=lambda x: x[1], reverse=True)[:20]:
         talents_summary.append({"node_id": int(nid), "count": int(cnt), "pct": (int(cnt) / (n or 1)) * 100.0})
 
+    # Full per-node top-50 usage map (every node any top player took), so the
+    # talent tree can flag elite-vs-popular divergence for all nodes, not just
+    # the top 20 shown in `talents_summary`.
+    talent_node_pct = {
+        int(nid): {"count": int(cnt), "pct": (int(cnt) / (n or 1)) * 100.0}
+        for nid, cnt in talent_node_counts.items()
+    }
+
     # most common full loadout if present
     full_loadout_top = None
     if full_loadout_counts:
@@ -674,6 +712,7 @@ def compute_bis_from_top_loadouts(top_loadouts):
         "enchants": enchants_summary,
         "gems": gems_summary,
         "talents": talents_summary,
+        "talent_node_pct": talent_node_pct,
         "full_loadout": full_loadout_top,
     }
 
@@ -1576,6 +1615,47 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
             # string so the page can switch the whole overview client-side.
             tree_nodes = tree_by_spec.get(int(spec_id), {})
             sub_trees = talent_lookup.get("subTrees", {})
+
+            # Top-50 verified-player usage, used for the talent "TOP" highlight.
+            # `top_pct_map` drives per-node elite-vs-popular divergence; the hero
+            # counts below pick the hero tree the top players actually run.
+            top_pct_map = bis_summary.get("talent_node_pct", {}) if bis_summary else {}
+            hero_node_subtree = {
+                int(hn["id"]): int(hn["subTreeId"])
+                for hn in tree_nodes.get("heroNodes", [])
+                if "id" in hn and hn.get("subTreeId") is not None
+            }
+            hero_tree_top_counts = defaultdict(int)
+            n_top = len(top50_raw) if top50_raw else 0
+            for lo in (top50_raw or []):
+                subtree_hits = defaultdict(int)
+                for t in lo.get("talents", []) or []:
+                    nid = t.get("node_id") or t.get("id")
+                    if nid is None:
+                        continue
+                    st = hero_node_subtree.get(int(nid))
+                    if st is not None:
+                        subtree_hits[st] += 1
+                if subtree_hits:
+                    chosen = max(subtree_hits.items(), key=lambda x: x[1])[0]
+                    hero_tree_top_counts[chosen] += 1
+            hero_tree_top_pct = {
+                st: (cnt / n_top * 100.0) if n_top else 0.0
+                for st, cnt in hero_tree_top_counts.items()
+            }
+            top_hero_tree = (
+                max(hero_tree_top_counts.items(), key=lambda x: x[1])[0]
+                if hero_tree_top_counts else None
+            )
+            top_hero_tree_name = (
+                sub_trees.get(str(top_hero_tree), {}).get("name")
+                if top_hero_tree is not None else None
+            )
+            top_hero_tree_pct = (
+                hero_tree_top_pct.get(top_hero_tree, 0.0)
+                if top_hero_tree is not None else 0.0
+            )
+
             hero_variants = []
             for ht in sorted(
                 hero_trees, key=lambda t: t.get("count", 0), reverse=True
@@ -1587,18 +1667,23 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     "name": sub.get("name"),
                     "icon": sub.get("icon"),
                     "pct": (ht["count"] / hero_tree_count * 100) if hero_tree_count else 0,
+                    "top_pct": hero_tree_top_pct.get(tid, 0.0),
+                    "is_top": tid == top_hero_tree,
                     "is_default": tid == popular_hero_tree,
                     "ui_class_tree": build_ui_tree(
-                        tree_nodes.get("classNodes", []), class_by_tree.get(tid, {})
+                        tree_nodes.get("classNodes", []), class_by_tree.get(tid, {}),
+                        top_pct_map=top_pct_map,
                     ),
                     "ui_spec_tree": build_ui_tree(
-                        tree_nodes.get("specNodes", []), spec_by_tree.get(tid, {})
+                        tree_nodes.get("specNodes", []), spec_by_tree.get(tid, {}),
+                        top_pct_map=top_pct_map,
                     ),
                     "ui_hero_tree": build_ui_tree(
                         tree_nodes.get("heroNodes", []),
                         hero_by_tree.get(tid, {}),
                         is_hero=True,
                         pop_hero_tree_id=tid,
+                        top_pct_map=top_pct_map,
                     ),
                     "loadout_code": escape_raidbot_code(
                         loadouts.get(tid, {}).get("loadout")
@@ -1700,6 +1785,9 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 trending=spec_runs / total_runs if total_runs > 0 else 0,
                 highest_run=highest_run,
                 hero_variants=hero_variants,
+                top_hero_tree_id=top_hero_tree,
+                top_hero_tree_name=top_hero_tree_name,
+                top_hero_tree_pct=top_hero_tree_pct,
                 tree_data=tree_by_spec.get(int(spec_id)),
                 hero_tree_difs=hero_tree_difs,
                 hero_tree_count=hero_tree_count,

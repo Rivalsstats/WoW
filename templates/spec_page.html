@@ -270,6 +270,7 @@
       {% endif %}
     </div>
   {% endif %}
+  {% if n.is_top %}<div class="tt-top-badge" data-bs-toggle="tooltip" title="Used by {{ '{:.0f}'.format(n.top_pct_val) }}% of the top 50 {{ spec.name }} {{ class_info.name }} players vs {{ '{:.0f}'.format(n.pct_val) }}% of the general population.">TOP</div>{% endif %}
   {% if not n.isFreeNode %}<div class="tt-badge" style="position: absolute; left: auto; bottom: -8px; right: -8px; transform: none; white-space: nowrap; background: #000; color: #fff; font-size: 10px; padding: 1px 4px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; z-index: 5;" title="{{ '{:.1f}'.format(n.pct_val) }}%">{{n.pct_val | round | int}}%</div>{% endif %}
   {% if n.maxRanks > 1 %}
     <div class="tt-maxrank" style="position: absolute; top: -6px; right: -6px; background: #333; border: 1px solid #777; color: #fff; font-size: 10px; padding: 0px 3px; border-radius: 3px; z-index: 5; cursor: default;" title="Average points spent: {{ n.avgRank | round(2) }}/{{ n.maxRanks }}">
@@ -289,6 +290,7 @@
         <img src="/data/icons/{{n.icon}}.png" alt="Icon" class="tt-octagon" style="width: 100%; height: 100%;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
       </div>
       <div class="arrow-right"></div>
+      {% if n.is_top %}<div class="tt-top-badge" data-bs-toggle="tooltip" title="Used by {{ '{:.0f}'.format(n.top_pct_val) }}% of the top 50 {{ spec.name }} {{ class_info.name }} players vs {{ '{:.0f}'.format(n.pct_val) }}% of the general population.">TOP</div>{% endif %}
       <div class="text-center mt-1" style="background: #000; color: #fff; font-size: 11px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; padding: 1px 4px; position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); white-space: nowrap;" title="{{ '{:.1f}'.format(n.pct_val) }}%">{{n.pct_val | round | int}}%</div>
       <div class="tt-custom-tooltip" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px; white-space: nowrap; z-index: 1050; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 5px;">
         {% for c in n.choices %}
@@ -311,7 +313,7 @@
   <!-- Primary SEO -->
   <title>{{ spec.name }} {{ class_info.name }} Mythic+ Build & Gear Guide in {{ season_info.name }} | MythiStone</title>
   <meta name="description"
-    content="Discover the most popular Mythic+ build for {{ spec.name }} {{ class_info.name }} in {{ season_info.name }}, with top talents, gear, enchants, gems, Embelishments & more—based on {{ total_season_runs | humanize }} runs. Updated {{ generated_at|format_ts }}.">
+    content="Discover the most popular Mythic+ build for {{ spec.name }} {{ class_info.name }} in {{ season_info.name }}, with top talents, gear, enchants, gems, Embelishments & more. Based on {{ total_season_runs | humanize }} runs. Updated {{ generated_at|format_ts }}.">
   <link rel="canonical" href="https://mythistone.com/classes/{{ role | urlencode }}/{{ (spec.name ~ '_' ~ class_info.name) | urlencode }}">
   <meta name="keywords"
     content="MythiStone, Mythic+, build, gear, guide, enchantments, gems, talents, embellishment, missive, stats, WoW meta, {{ season_info.name }}">
@@ -340,7 +342,7 @@
   <meta name="twitter:title"
     content="{{ spec.name }} {{ class_info.name }} in {{ season_info.name }} Mythic+ Build & Gear Guide ">
   <meta name="twitter:description"
-    content="Break down the best Mythic+ build for {{ spec.name }} {{ class_info.name }}—talents, gear, enchants, gems—based on real data from {{ total_season_runs | humanize }} runs.">
+    content="Break down the best Mythic+ build for {{ spec.name }} {{ class_info.name }} talents, gear, enchants, gems. Based on real data from {{ total_season_runs | humanize }} runs.">
   <meta name="twitter:image" content="https://mythistone.com/assets/img/previews/{{ (spec.name ~ '_' ~ class_info.name) | urlencode }}.png">
   <meta name="twitter:image:alt" content="{{ spec.name }} {{ class_info.name }} Mythic+ build and gear overview">
 
@@ -604,7 +606,7 @@
                 {% if v.ui_hero_tree and v.ui_hero_tree.nodes %}
                 <div class="tt-column tt-hero d-flex flex-column justify-content-center align-items-center my-5 my-xl-0 tt-hero-column">
                   <div class="mb-4 text-center">
-                    <h5 class="text-uppercase font-weight-bolder" style="letter-spacing: 1px; font-size: 16px;">{{ v.name }}</h5>
+                    <h5 class="text-uppercase font-weight-bolder d-inline-flex align-items-center gap-2" style="letter-spacing: 1px; font-size: 16px;">{{ v.name }}{% if v.is_top %}<span class="badge tt-top-badge tt-top-badge-inline" data-bs-toggle="tooltip" title="Most-used hero tree among the top 50 {{ spec.name }} {{ class_info.name }} players ({{ '{:.0f}'.format(v.top_pct) }}%).">TOP</span>{% endif %}</h5>
                     <div class="position-relative d-inline-block mt-2 tt-hero-switch{% if hero_variants | length > 1 %} tt-hero-switch-active{% endif %}"
                       {% if hero_variants | length > 1 %}role="button" tabindex="0" title="Click to switch hero tree"{% endif %}>
                       <img src="/data/icons/{{ v.icon }}.png" alt="{{ v.name }}" style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid #ffb000; box-shadow: 0 0 15px rgba(255, 176, 0, 0.4);" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
@@ -617,7 +619,15 @@
                       </span>
                       {% endif %}
                     </div>
-                    {% if hero_variants | length > 1 %}
+                    {% if top_hero_tree_name and top_hero_tree_id is not none and top_hero_tree_id != v.id %}
+                    <div class="text-xs mt-4 tt-hero-top-hint" data-bs-toggle="tooltip"
+                      title="This is the most-played hero tree overall, but the top 50 {{ spec.name }} {{ class_info.name }} players most often run {{ top_hero_tree_name }} ({{ '{:.0f}'.format(top_hero_tree_pct) }}%).">
+                      <span class="badge tt-top-badge tt-top-badge-inline me-1">TOP</span>
+                      Top 50 players prefer <strong>{{ top_hero_tree_name }}</strong>
+                      {% if top_hero_tree_pct %} ({{ '{:.0f}'.format(top_hero_tree_pct) }}%){% endif %} <br>
+                      {% if hero_variants | length > 1 %}click the icon to view{% endif %}
+                    </div>
+                    {% elif hero_variants | length > 1 %}
                     <div class="text-xs text-secondary mt-5 tt-hero-switch-label">Click icon to switch hero tree</div>
                     {% endif %}
                   </div>
