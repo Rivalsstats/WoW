@@ -1801,14 +1801,24 @@ DO BEGIN
   FROM Mythistone.aggregated_embellishments
   GROUP BY spec_id, season, item_id;
 
-  -- 6. Hero Talents
+  -- 6. Hero Talents (last 14 days — same window as equipment/talent data;
+  --    aggregated_spec is season-wide, so build directly from runs instead)
   TRUNCATE TABLE Mythistone.global_aggregated_hero_talent_overview;
   INSERT LOW_PRIORITY INTO Mythistone.global_aggregated_hero_talent_overview (spec_id, hero_talent_id, run_count, max_timed_key, max_depleted_key)
-  SELECT spec_id, hero_talent_id, SUM(run_count),
-         MAX(IF(upgrade_tier IN ('1','2','3'), keystone_level, 0)),
-         MAX(IF(upgrade_tier = 'depleted', keystone_level, 0))
-  FROM Mythistone.aggregated_spec
-  GROUP BY spec_id, hero_talent_id;
+  SELECT
+    M.spec_id,
+    COALESCE(M.hero_talent_id, 0) AS hero_talent_id,
+    COUNT(DISTINCT R.run_id) AS run_count,
+    MAX(IF(R.duration <= DD.upgrade_1_duration, R.keystone_level, 0)),
+    MAX(IF(R.duration <= DD.upgrade_1_duration, 0, R.keystone_level))
+  FROM Mythistone.runs R
+    JOIN Mythistone.dungeon_data DD ON R.dungeon_id = DD.dungeon_id
+    JOIN Mythistone.run_members RM  ON R.run_id = RM.run_id
+    JOIN Mythistone.members M       ON RM.member = M.member
+  WHERE R.timestamp > UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 14 DAY)) * 1000
+    AND M.spec_id IS NOT NULL
+    AND R.keystone_level IS NOT NULL
+  GROUP BY M.spec_id, COALESCE(M.hero_talent_id, 0);
 
   -- 7. Loadouts
   TRUNCATE TABLE Mythistone.global_aggregated_loadout_data;
