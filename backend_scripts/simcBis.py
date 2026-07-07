@@ -741,12 +741,13 @@ def gear_line(slot, cand):
     return ",".join(parts)
 
 
-def build_header(class_name, spec_name, primary_stat, talents_code):
+def build_header(class_name, spec_name, primary_stat, talents_code, actor_name=None):
     token = class_token(class_name)
     race = DEFAULT_RACE.get(token, "orc")
     role = "spell" if (primary_stat or "").upper() == "INTELLECT" else "attack"
+    name = actor_name or f"mythistone_{spec_slug(spec_name)}"
     lines = [
-        f'{token}="mythistone_{spec_slug(spec_name)}"',
+        f'{token}="{name}"',
         # `source=default` selects simc's built-in generated APL for the spec —
         # present in every bundled profile; we rely on it for the rotation.
         "source=default",
@@ -759,6 +760,23 @@ def build_header(class_name, spec_name, primary_stat, talents_code):
     if talents_code:
         lines.append(f"talents={talents_code}")
     return lines
+
+
+# Raid-buff overrides applied to every sim so absolute DPS reflects a fully
+# buffed group (and is thus comparable across specs). Shared by sim_options here
+# and the CI tierlist profiles (generateSimcProfiles.py) so the two never drift.
+RAID_BUFF_OVERRIDES = [
+    "override.bloodlust=1",
+    "override.arcane_intellect=1",
+    "override.power_word_fortitude=1",
+    "override.battle_shout=1",
+    "override.mystic_touch=1",
+    "override.chaos_brand=1",
+    "override.skyfury=1",
+    "override.mark_of_the_wild=1",
+    "override.hunters_mark=1",
+    "override.bleeding=1",
+]
 
 
 def sim_options(iterations=None):
@@ -779,16 +797,7 @@ def sim_options(iterations=None):
         "max_time=300",
         "calculate_scale_factors=0",
         "scale_only=strength,intellect,agility,crit,mastery,vers,haste,weapon_dps,weapon_offhand_dps",
-        "override.bloodlust=1",
-        "override.arcane_intellect=1",
-        "override.power_word_fortitude=1",
-        "override.battle_shout=1",
-        "override.mystic_touch=1",
-        "override.chaos_brand=1",
-        "override.skyfury=1",
-        "override.mark_of_the_wild=1",
-        "override.hunters_mark=1",
-        "override.bleeding=1",
+        *RAID_BUFF_OVERRIDES,
         "optimize_expressions=1",
     ]
     if iterations:

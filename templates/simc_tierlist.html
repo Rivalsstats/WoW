@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  {% include "header_imports.html" %}
+
+  <title>Mythic+ Sim DPS Tierlist for {{ season_info.name }} | MythiStone</title>
+  <meta name="description"
+    content="SimulationCraft DPS tierlist for {{ season_info.name }}: every spec simmed at 1, 3, 5 and 8 targets in its most-popular and simc BiS gear sets.">
+  <meta name="keywords"
+    content="MythiStone, Mythic+, tierlist, sim, SimulationCraft, DPS ranking, WoW meta, {{ season_info.name }}">
+  <link rel="canonical" href="https://mythistone.com/pages/tierlist">
+  <meta name="robots" content="index, follow">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="MythiStone">
+  <meta property="og:url" content="https://mythistone.com/pages/tierlist">
+  <meta property="og:title" content="Mythic+ Sim DPS Tierlist for {{ season_info.name }}">
+  <meta property="og:description"
+    content="Every spec simmed at 1/3/5/8 targets — SimulationCraft DPS ranking for {{ season_info.name }}.">
+  <meta property="og:locale" content="en_US">
+  <meta name="theme-color" content="#1a202c">
+
+  <style>
+    .tier-badge {
+      display: inline-block;
+      min-width: 1.9rem;
+      text-align: center;
+      font-weight: 700;
+      border-radius: 0.4rem;
+      padding: 0.15rem 0.35rem;
+    }
+
+    .tier-S { background: #ff7c0a33; color: #ff9d47; border: 1px solid #ff7c0a; }
+    .tier-A { background: #a335ee33; color: #c77dff; border: 1px solid #a335ee; }
+    .tier-B { background: #0070dd33; color: #4da3ff; border: 1px solid #0070dd; }
+    .tier-C { background: #1eff0022; color: #52d769; border: 1px solid #1eff0066; }
+    .tier-D { background: #9d9d9d33; color: #b8b8b8; border: 1px solid #9d9d9d; }
+
+    .dps-bar-track {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 0.35rem;
+      height: 0.85rem;
+      overflow: hidden;
+      min-width: 120px;
+    }
+
+    .dps-bar {
+      height: 100%;
+      border-radius: 0.35rem;
+      opacity: 0.85;
+    }
+
+    .gear-bar-row + .gear-bar-row { margin-top: 0.25rem; }
+
+    .gear-label {
+      min-width: 4.2rem;
+      color: rgba(255, 255, 255, 0.55);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .gear-val {
+      min-width: 4.5rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tierlist-row:hover { background: rgba(255, 255, 255, 0.04); }
+
+    .stale-badge {
+      cursor: help;
+      color: #f5b50e;
+      font-size: 1rem;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+
+<body class="g-sidenav-show g-sidenav-show-right" data-bs-theme="dark">
+  {% include "sidenav.html" %}
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
+    {% include "navbar.html" %}
+    {% include "notifications.html" %}
+
+    <div class="container-fluid py-2">
+      <div class="row">
+        <div class="ms-3 mb-3">
+          <h1 class="mb-0 h4 font-weight-bolder">Mythic+ Sim DPS Tierlist for {{ season_info.name }}</h1>
+          <p class="mb-1">
+            Every spec simulated with SimulationCraft at 1, 3, 5 and 8 targets, in two gear sets:
+            its most-popular Mythic+ set and its simc-optimised BiS set.
+          </p>
+          <p class="text-sm mb-0">
+            {% if simmed_str %}Simmed {{ simmed_str }}{% if simc_version %} on SimulationCraft {{ simc_version }}{% endif %}.{% endif %}
+            {% if is_stale %}
+            <i class="material-symbols-rounded stale-badge"
+              title="These results are more than {{ stale_days }} days old.">warning</i>
+            <span class="text-warning">Results are over {{ stale_days }} days old.</span>
+            {% endif %}
+          </p>
+        </div>
+      </div>
+
+      {% macro tierlist_card(title, rows, expected) %}
+      <div class="col-12 mb-4">
+        <div class="card">
+          <div class="card-header pb-0 p-3">
+            <h6 class="mb-0">{{ title }}</h6>
+            <p class="text-sm mb-0">{{ rows | length }} of {{ expected }} specs simmed.</p>
+          </div>
+          <div class="card-body p-3">
+            <div class="table-responsive">
+              <table class="table align-items-center mb-0">
+                <thead>
+                  <tr>
+                    <th class="text-uppercase text-xxs font-weight-bolder opacity-7">#</th>
+                    <th class="text-uppercase text-xxs font-weight-bolder opacity-7">Tier</th>
+                    <th class="text-uppercase text-xxs font-weight-bolder opacity-7">Spec</th>
+                    <th class="text-uppercase text-xxs font-weight-bolder opacity-7 w-50">Sim DPS by gear set</th>
+                    <th class="text-uppercase text-xxs font-weight-bolder opacity-7 text-end">Behind #1</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in rows %}
+                  <tr class="tierlist-row">
+                    <td class="text-sm font-weight-bold">{{ row.rank }}</td>
+                    <td><span class="tier-badge tier-{{ row.tier }}">{{ row.tier }}</span></td>
+                    <td>
+                      <a href="{{ row.url }}" class="d-flex align-items-center gap-2">
+                        <img src="/data/icons/{{ row.icon }}.jpg" class="avatar avatar-xs border-radius-sm"
+                          alt="{{ row.name }} {{ row.class_name }} icon">
+                        <span class="text-sm font-weight-bolder class-{{ row.clean_class }}-text">
+                          {{ row.name }} {{ row.class_name }}
+                        </span>
+                      </a>
+                    </td>
+                    <td>
+                      {% for bar in row.bars %}
+                      <div class="gear-bar-row d-flex align-items-center gap-2">
+                        <span class="gear-label text-xxs">{{ bar.label }}</span>
+                        <div class="dps-bar-track flex-grow-1">
+                          <div class="dps-bar class-{{ row.clean_class }}-bg"
+                            style="width: {{ '%.1f' | format(bar.bar_pct) }}%"></div>
+                        </div>
+                        <span class="gear-val text-xs text-end">
+                          {% if bar.dps %}{{ "{:,.0f}".format(bar.dps) }}{% else %}&mdash;{% endif %}
+                        </span>
+                      </div>
+                      {% endfor %}
+                    </td>
+                    <td class="text-sm text-end">
+                      {% if row.rank == 1 %}&mdash;{% else %}-{{ '%.1f' | format(row.pct_behind) }}%{% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endmacro %}
+
+      <ul class="nav nav-pills mb-3 ms-3" id="target-tabs" role="tablist">
+        {% for tab in tabs %}
+        <li class="nav-item me-2" role="presentation">
+          <button class="nav-link {% if loop.first %}active{% endif %}" id="tab-btn-{{ tab.targets }}"
+            data-bs-toggle="tab" data-bs-target="#tab-{{ tab.targets }}" type="button" role="tab"
+            aria-controls="tab-{{ tab.targets }}" aria-selected="{{ 'true' if loop.first else 'false' }}">
+            {{ tab.targets }} Target{% if tab.targets != 1 %}s{% endif %}
+          </button>
+        </li>
+        {% endfor %}
+      </ul>
+
+      <div class="tab-content" id="target-tabs-content">
+        {% for tab in tabs %}
+        <div class="tab-pane fade {% if loop.first %}show active{% endif %}" id="tab-{{ tab.targets }}"
+          role="tabpanel" aria-labelledby="tab-btn-{{ tab.targets }}">
+          <div class="row">
+            {% if tab.dps_rows %}{{ tierlist_card("DPS Specs — " + tab.targets|string + " target" + ("s" if tab.targets != 1 else ""), tab.dps_rows, expected_counts["Dps"]) }}{% endif %}
+            {% if tab.tank_rows %}{{ tierlist_card("Tanks (DPS while tanking) — " + tab.targets|string + " target" + ("s" if tab.targets != 1 else ""), tab.tank_rows, expected_counts["Tank"]) }}{% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="row">
+        <div class="col-12 mb-4">
+          <div class="card">
+            <div class="card-header pb-0 p-3">
+              <h6 class="mb-0">Methodology &amp; caveats</h6>
+            </div>
+            <div class="card-body p-3 text-sm">
+              <ul class="mb-0 ps-3">
+                <li>Every spec is simulated in one SimulationCraft batch on a single simc build, so all rows in a tab
+                  are directly comparable. Fights are 5 minutes long in the <b>LightMovement</b> fight style at
+                  <b>1, 3, 5 and 8 targets</b> (switch with the tabs above).</li>
+                <li><b>Popular</b> is the spec's most-popular Mythic+ gear set — the same items, enchants, gems and
+                  talent loadout shown on its spec page.</li>
+                <li><b>SimC BIS</b> is the highest-DPS full gear set our collector finds by evaluating thousands of
+                  legal gear combinations built from items actually equipped in high Mythic+ runs (tier configurations
+                  co-optimised, embellishment and unique-equipped limits enforced), worn with those same popular
+                  talents. A spec shows an em dash for this set until it has been BiS-simmed.</li>
+                <li>Each row is ranked by its <b>better</b> gear set; the two bars share that role's leader as their
+                  100% reference so you can read both the ranking and the gap between the sets.</li>
+                <li>AoE numbers are raw target damage — funnel, priority-target cleave, burst windows and utility, much
+                  of what decides real Mythic+ strength, are not represented. Treat this as throughput potential, not a
+                  meta ranking.</li>
+                <li>Tanks are ranked separately and only by damage output; survivability is not simulated.</li>
+                <li>Within each tab, tier letters group specs by how far they fall behind the leader
+                  ({% for letter, bound in [("S", "2.5"), ("A", "5"), ("B", "10"), ("C", "15")] %}{{ letter }} &le;
+                  {{ bound }}%{% if not loop.last %}, {% endif %}{% endfor %}, D beyond).</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% include "footer.html" %}
+    </div>
+  </main>
+  {% include "right_aside.html" %}
+  {% include "fixed_plugin.html" %}
+  {% include "javascript_imports.html" %}
+</body>
+
+</html>

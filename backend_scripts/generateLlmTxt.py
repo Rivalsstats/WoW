@@ -30,6 +30,7 @@ MAIN_SECTIONS = [
     {"name": "Dashboard", "path": "pages/dashboard.html"},
     {"name": "Routes", "path": "pages/routes.html"},
     {"name": "Composition Analysis", "path": "pages/comps.html"},
+    {"name": "Sim DPS Tierlist", "path": "pages/tierlist.html"},
     {"name": "Blog", "path": "pages/blog.html"},
 ]
 
