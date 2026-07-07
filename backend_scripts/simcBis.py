@@ -17,6 +17,12 @@ Runs continuously inside the collector container (registered alongside
   5. Derives a per-slot ranking from the full-set DPS results and persists it to
      ``simc_bis_meta`` / ``simc_bis_items`` for the page build's "SIM" badge.
 
+Enchants and gems are held constant rather than searched: every candidate
+carries the top-50 players' most popular enchant for its slot group and fills
+its sockets from the spec-wide gem ranking (see apply_enchants_and_gems), so
+they never add profilesets — they only make absolute DPS (and thus the
+cross-spec tierlist built from ``baseline_dps``) more realistic.
+
 SimulationCraft itself is executed as a short-lived sibling Docker container
 (``docker run --rm``) over a shared volume, so watchtower keeps simc patch-current.
 Set ``SIMC_BIN`` to run a local binary instead (used for local debugging).
@@ -285,6 +291,71 @@ EMBELLISH_LIMIT_CATEGORY = 512
 EMBELLISH_LIMIT_QUANTITY = 2
 
 
+_BONUS_SOCKET_COUNTS = None
+
+
+def load_bonus_socket_counts():
+    """bonus_id (str) -> number of sockets that bonus grants (bonuses.json)."""
+    global _BONUS_SOCKET_COUNTS
+    if _BONUS_SOCKET_COUNTS is None:
+        try:
+            data = json.loads((STATIC_DIR / "bonuses.json").read_text(encoding="utf-8"))
+            _BONUS_SOCKET_COUNTS = {
+                str(k): int(v.get("socket", 0))
+                for k, v in data.items()
+                if isinstance(v, dict) and v.get("socket")
+            }
+        except Exception as e:
+            _log(f"could not load bonuses.json: {e}")
+            _BONUS_SOCKET_COUNTS = {}
+    return _BONUS_SOCKET_COUNTS
+
+
+_ENCHANT_STATIC = None
+
+
+def load_enchant_static():
+    """(valid_enchant_ids, gem_lookup) from enchantments.json.
+
+    valid_enchant_ids: set of int enchantment ids the static data knows — used
+    to drop stale/bogus ids the same way the spec page's fetch_enchant_info
+    does. gem_lookup: gem item_id (int) -> {limit_category, limit_quantity}
+    for entries with slot == "socket" (itemLimitCategory caps unique gems).
+    """
+    global _ENCHANT_STATIC
+    if _ENCHANT_STATIC is None:
+        valid, gems = set(), {}
+        try:
+            data = json.loads((STATIC_DIR / "enchantments.json").read_text(encoding="utf-8"))
+            for e in data:
+                if e.get("id") is not None:
+                    valid.add(int(e["id"]))
+                if e.get("slot") == "socket" and e.get("itemId") is not None:
+                    lim = e.get("itemLimitCategory") or {}
+                    gems[int(e["itemId"])] = {
+                        "limit_category": lim.get("id"),
+                        "limit_quantity": lim.get("quantity"),
+                    }
+        except Exception as ex:
+            _log(f"could not load enchantments.json: {ex}")
+        _ENCHANT_STATIC = (valid, gems)
+    return _ENCHANT_STATIC
+
+
+def enchant_group(slot):
+    """Group key for enchant popularity lookups.
+
+    top_player_loadout_enchants stores the raw Blizzard slot the collector saw
+    (FINGER_1, MAIN_HAND, ...) while the aggregated fallback table keys real
+    slot groups (FINGER, WEAPON). Both are normalised to the group form.
+    """
+    if slot in MULTI_SLOT_GROUPS:
+        return MULTI_SLOT_GROUPS[slot]
+    if slot in ("MAIN_HAND", "OFF_HAND"):
+        return "WEAPON"
+    return slot
+
+
 def bonus_to_simc(bonus_list):
     """DB bonus_list (comma string) -> simc bonus_id value (slash-separated)."""
     if not bonus_list:
@@ -343,6 +414,7 @@ def gather_candidates(conn, cursor, spec_id, season, item_lookup):
     (the top item always passes).
     """
     embellish_ids = load_embellishment_bonus_ids()
+    socket_bonus_counts = load_bonus_socket_counts()
     out = {}
     group_cache = {}  # slot_group -> group rows, so each pair's query runs once
     for slot in ALL_SLOTS:
@@ -367,6 +439,12 @@ def gather_candidates(conn, cursor, spec_id, season, item_lookup):
                 if bonus_list else []
             )
             has_embellishment = any(b in embellish_ids for b in bonus_ids)
+            # Socket count: sockets granted by the equipped bonus_ids, raised to
+            # the item's inherent socket count (mirrors the spec page's
+            # convert_slots so the simmed item matches the one shown there).
+            socket_count = sum(socket_bonus_counts.get(b, 0) for b in bonus_ids)
+            inherent = len((meta.get("socketInfo") or {}).get("sockets") or [])
+            socket_count = max(socket_count, inherent)
             cands.append(
                 {
                     "item_id": item_id,
@@ -378,11 +456,142 @@ def gather_candidates(conn, cursor, spec_id, season, item_lookup):
                     "unique_equipped": bool(meta.get("uniqueEquipped")),
                     "item_limit": meta.get("itemLimit"),
                     "has_embellishment": has_embellishment,
+                    "socket_count": socket_count,
                 }
             )
         if cands:
             out[slot] = cands
     return out
+
+
+# --------------------------------------------------------------------------
+# Enchants & gems (held constant, sourced from the top-50 player loadouts)
+# --------------------------------------------------------------------------
+
+def fetch_enchant_map(conn, cursor, spec_id, season):
+    """Enchant group -> most popular valid enchantment_id.
+
+    Primary source is the top-50 player loadouts; groups with no top-50 data
+    fall back to the global aggregation (same source as the spec page's
+    enchant dropdowns). Ids unknown to enchantments.json are dropped, matching
+    the page's fetch_enchant_info filtering.
+    """
+    valid_ids, _ = load_enchant_static()
+    merged = {}  # group -> {enchant_id: count}
+    try:
+        raw = databaseConnector.fetch_top50_enchant_ranking(conn, cursor, spec_id, season)
+    except Exception as e:
+        _log(f"could not fetch top-50 enchants for spec {spec_id}: {e}")
+        raw = {}
+    for sg, pairs in raw.items():
+        grp = enchant_group(sg)
+        for eid, cnt in pairs:
+            if eid in valid_ids:
+                merged.setdefault(grp, {})
+                merged[grp][eid] = merged[grp].get(eid, 0) + cnt
+
+    out = {grp: max(counts.items(), key=lambda x: x[1])[0]
+           for grp, counts in merged.items() if counts}
+
+    needed = {enchant_group(s) for s in ALL_SLOTS}
+    for grp in sorted(needed - set(out)):
+        try:
+            rows = databaseConnector.fetch_top_enchant_for_slot(
+                conn, cursor, spec_id, season, grp, 5
+            )
+        except Exception:
+            rows = []
+        for row in rows or []:
+            eid = row.get("enchantment_id") if isinstance(row, dict) else row[0]
+            if eid is not None and int(eid) in valid_ids:
+                out[grp] = int(eid)
+                break
+    return out
+
+
+def fetch_gem_ranking(conn, cursor, spec_id, season):
+    """Spec-wide gem popularity, most popular first (gem item ids).
+
+    Top-50 loadouts primary, global socket aggregation fallback. Only gems
+    known to enchantments.json survive (simc rejects unknown gem ids).
+    """
+    _, gem_lookup = load_enchant_static()
+    ranked = []
+    try:
+        ranked = databaseConnector.fetch_top50_gem_ranking(conn, cursor, spec_id, season)
+    except Exception as e:
+        _log(f"could not fetch top-50 gems for spec {spec_id}: {e}")
+    if not ranked:
+        try:
+            ranked = databaseConnector.fetch_top_gems_spec_wide(conn, cursor, spec_id, season)
+        except Exception as e:
+            _log(f"could not fetch aggregated gems for spec {spec_id}: {e}")
+    return [gid for gid, _ in ranked if gid in gem_lookup]
+
+
+def apply_enchants_and_gems(candidates, enchant_map, gem_ranking, item_lookup):
+    """Attach a constant enchant_id / gem_ids list to every candidate.
+
+    Enchants and gems are deliberately NOT part of the search space: each
+    candidate carries the same enchant/gems in every profileset it appears in,
+    so they cancel out of the per-slot ranking and only move absolute DPS.
+
+    Weapon enchants only land on actual weapons (itemClass 2), so off-hand
+    shields/frills stay unenchanted like on the spec page.
+
+    Gems respect itemLimitCategory caps (unique gems): slots consume a shared
+    per-category budget in ALL_SLOTS order, sized by the slot's largest socket
+    count. Only one candidate per slot is ever equipped, so per-slot
+    consumption keeps every enumerated combo legal.
+    """
+    _, gem_lookup = load_enchant_static()
+    cat_used = {}
+    for slot in ALL_SLOTS:
+        cands = candidates.get(slot)
+        if not cands:
+            continue
+        grp = enchant_group(slot)
+        ench = enchant_map.get(grp)
+
+        max_sockets = max(c.get("socket_count", 0) for c in cands)
+        slot_gems = []
+        if max_sockets and gem_ranking:
+            for gid in gem_ranking:
+                if len(slot_gems) >= max_sockets:
+                    break
+                info = gem_lookup.get(gid, {})
+                cat, qty = info.get("limit_category"), info.get("limit_quantity")
+                if cat is not None and qty is not None:
+                    take = min(qty - cat_used.get(cat, 0), max_sockets - len(slot_gems))
+                    if take <= 0:
+                        continue
+                    slot_gems.extend([gid] * take)
+                    cat_used[cat] = cat_used.get(cat, 0) + take
+                else:
+                    slot_gems.extend([gid] * (max_sockets - len(slot_gems)))
+            if len(slot_gems) < max_sockets:
+                # A ranking dominated by limit-capped gems can exhaust its
+                # budgets before every socket is filled; a socket must never
+                # stay empty, so pad with the most popular uncapped gem.
+                filler = next(
+                    (gid for gid in gem_ranking
+                     if gem_lookup.get(gid, {}).get("limit_category") is None),
+                    None,
+                )
+                if filler is not None:
+                    slot_gems.extend([filler] * (max_sockets - len(slot_gems)))
+                else:
+                    _log(f"gem ranking for {slot} has no uncapped gem to fill "
+                         f"{max_sockets - len(slot_gems)} remaining socket(s)")
+
+        for cand in cands:
+            if ench is not None:
+                is_weapon = item_lookup.get(cand["item_id"], {}).get("itemClass") == 2
+                if grp != "WEAPON" or is_weapon:
+                    cand["enchant_id"] = ench
+            n = cand.get("socket_count", 0)
+            if n and slot_gems:
+                cand["gem_ids"] = slot_gems[:n]
 
 
 # --------------------------------------------------------------------------
@@ -525,7 +734,10 @@ def gear_line(slot, cand):
     parts = [f"{simc_slot}=,id={cand['item_id']}"]
     if cand.get("simc_bonus"):
         parts.append(f"bonus_id={cand['simc_bonus']}")
-    # NOTE(extension point): hold most-common gem/enchant constant here later.
+    if cand.get("enchant_id"):
+        parts.append(f"enchant_id={cand['enchant_id']}")
+    if cand.get("gem_ids"):
+        parts.append("gem_id=" + "/".join(str(g) for g in cand["gem_ids"]))
     return ",".join(parts)
 
 
@@ -558,6 +770,26 @@ def sim_options(iterations=None):
         f"profileset_work_threads={SIMC_PROFILESET_WORK_THREADS}",
         "profileset_metric=dps",
         "single_actor_batch=1",
+        "collect_action_sequence=0",
+        "buff_stack_uptime_timeline=0",
+        "buff_uptime_timeline=0",
+        "report_details=0",
+        "desired_targets=5",
+        "fight_style=LightMovement",
+        "max_time=300",
+        "calculate_scale_factors=0",
+        "scale_only=strength,intellect,agility,crit,mastery,vers,haste,weapon_dps,weapon_offhand_dps",
+        "override.bloodlust=1",
+        "override.arcane_intellect=1",
+        "override.power_word_fortitude=1",
+        "override.battle_shout=1",
+        "override.mystic_touch=1",
+        "override.chaos_brand=1",
+        "override.skyfury=1",
+        "override.mark_of_the_wild=1",
+        "override.hunters_mark=1",
+        "override.bleeding=1",
+        "optimize_expressions=1",
     ]
     if iterations:
         opts.append(f"iterations={iterations}")
@@ -959,6 +1191,11 @@ def _prepare_spec(spec_id, spec_info, class_info, season, conn, cursor, item_loo
         _stat_log(stats, f"simc: {msg}, skipping")
         return None, msg
 
+    # constant enchants/gems from the top-50 players (see apply_enchants_and_gems)
+    enchant_map = fetch_enchant_map(conn, cursor, spec_id, season)
+    gem_ranking = fetch_gem_ranking(conn, cursor, spec_id, season)
+    apply_enchants_and_gems(candidates, enchant_map, gem_ranking, item_lookup)
+
     # most-popular talent loadout code
     talents_code = None
     try:
@@ -998,6 +1235,8 @@ def _prepare_spec(spec_id, spec_info, class_info, season, conn, cursor, item_loo
         "tier_slots": tier_slots,
         "active_slots": active_slots,
         "talents_code": talents_code,
+        "enchant_map": enchant_map,
+        "gem_ranking": gem_ranking,
     }, None
 
 
@@ -1136,6 +1375,7 @@ def persist(conn, cursor, result, item_lookup):
         for rank, (cand, dps) in enumerate(ranked, start=1):
             pct = ((dps - ref_dps) / ref_dps * 100.0) if (ref_dps and dps is not None) else None
             sid = item_lookup.get(cand["item_id"], {}).get("itemSetId")
+            gem_ids = cand.get("gem_ids")
             item_rows.append(
                 (
                     spec_id,
@@ -1149,6 +1389,8 @@ def persist(conn, cursor, result, item_lookup):
                     float(pct) if pct is not None else None,
                     1 if (sid and sid == tier_set_id) else 0,
                     int(sid) if sid else None,
+                    int(cand["enchant_id"]) if cand.get("enchant_id") else None,
+                    "/".join(str(g) for g in gem_ids) if gem_ids else None,
                 )
             )
 
@@ -1413,8 +1655,14 @@ async def _dry_run_single(spec_id, season):
     print("\n=== candidates per slot (after popularity filter) ===")
     for slot in active_slots:
         cs = candidates.get(slot, [])
-        ids = ", ".join(f"{c['item_id']}(n={c['count']})" for c in cs)
+        ids = ", ".join(f"{c['item_id']}(n={c['count']},sockets={c.get('socket_count', 0)})" for c in cs)
         print(f"  {slot:10} {len(cs):2}: {ids}")
+
+    print("\n=== enchants (group -> enchant_id, constant across profilesets) ===")
+    for grp, eid in sorted((prep.get("enchant_map") or {}).items()):
+        print(f"  {grp:10} {eid}")
+    print("=== gem ranking (most popular first, fills sockets top-down) ===")
+    print(f"  {prep.get('gem_ranking') or []}")
 
     SIMC_IO_DIR.mkdir(parents=True, exist_ok=True)
     written = []

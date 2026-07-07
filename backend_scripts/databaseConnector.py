@@ -3445,12 +3445,12 @@ VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
 
 INSERT_SIMC_BIS_ITEMS_SQL = """
 INSERT INTO `Mythistone`.`simc_bis_items`
-(`spec_id`, `season`, `slot`, `rank`, `item_id`, `bonus_list`, `ilevel`, `dps`, `dps_pct_gain`, `is_set_piece`, `item_set_id`)
-VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+(`spec_id`, `season`, `slot`, `rank`, `item_id`, `bonus_list`, `ilevel`, `dps`, `dps_pct_gain`, `is_set_piece`, `item_set_id`, `enchant_id`, `gem_ids`)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 """
 
 FETCH_SIMC_BIS_ITEMS_SQL = """
-SELECT `slot`, `rank`, `item_id`, `bonus_list`, `ilevel`, `dps`, `dps_pct_gain`, `is_set_piece`, `item_set_id`
+SELECT `slot`, `rank`, `item_id`, `bonus_list`, `ilevel`, `dps`, `dps_pct_gain`, `is_set_piece`, `item_set_id`, `enchant_id`, `gem_ids`
 FROM `Mythistone`.`simc_bis_items`
 WHERE `spec_id` = %s AND `season` = %s
 ORDER BY `slot`, `rank`
@@ -3501,7 +3501,8 @@ def insert_simc_bis_items_batch(connection, cursor, rows):
     """Bulk insert simc BiS per-slot ranked item rows.
 
     Each row must match INSERT_SIMC_BIS_ITEMS_SQL:
-    (spec_id, season, slot, rank, item_id, bonus_list, ilevel, dps, dps_pct_gain, is_set_piece, item_set_id)
+    (spec_id, season, slot, rank, item_id, bonus_list, ilevel, dps, dps_pct_gain,
+     is_set_piece, item_set_id, enchant_id, gem_ids)
     """
     if not rows:
         return 0
@@ -3537,6 +3538,8 @@ def fetch_simc_bis(connection, cursor, spec_id, season):
                 "dps_pct_gain": float(row.get("dps_pct_gain")) if row.get("dps_pct_gain") is not None else None,
                 "is_set_piece": bool(row.get("is_set_piece")),
                 "item_set_id": int(row.get("item_set_id")) if row.get("item_set_id") is not None else None,
+                "enchant_id": int(row.get("enchant_id")) if row.get("enchant_id") is not None else None,
+                "gem_ids": row.get("gem_ids"),
             }
         else:
             slot = row[0]
@@ -3549,6 +3552,138 @@ def fetch_simc_bis(connection, cursor, spec_id, season):
                 "dps_pct_gain": float(row[6]) if row[6] is not None else None,
                 "is_set_piece": bool(row[7]),
                 "item_set_id": int(row[8]) if row[8] is not None else None,
+                "enchant_id": int(row[9]) if row[9] is not None else None,
+                "gem_ids": row[10],
             }
         out.setdefault(slot, []).append(entry)
+    return out
+
+
+FETCH_TOP50_ENCHANT_RANKING_SQL = """
+SELECT `slot_group`, `enchantment_id`, COUNT(*) AS cnt
+FROM `Mythistone`.`top_player_loadout_enchants`
+WHERE `spec_id` = %s AND `season` = %s
+GROUP BY `slot_group`, `enchantment_id`
+ORDER BY `slot_group`, cnt DESC, `enchantment_id`
+"""
+
+
+def fetch_top50_enchant_ranking(connection, cursor, spec_id, season):
+    """Enchant popularity among the top-50 player loadouts.
+
+    Returns {slot_group: [(enchantment_id, count), ...]} most-popular-first.
+    """
+    rows = fetch_with_retry(
+        connection, cursor, FETCH_TOP50_ENCHANT_RANKING_SQL, (spec_id, season)
+    )
+    out = {}
+    for row in rows:
+        if isinstance(row, dict):
+            sg, eid, cnt = row.get("slot_group"), row.get("enchantment_id"), row.get("cnt")
+        else:
+            sg, eid, cnt = row[0], row[1], row[2]
+        out.setdefault(sg, []).append((int(eid), int(cnt)))
+    return out
+
+
+FETCH_TOP50_GEM_RANKING_SQL = """
+SELECT `gem_item_id`, SUM(`usage_count`) AS cnt
+FROM `Mythistone`.`top_player_loadout_gems`
+WHERE `spec_id` = %s AND `season` = %s
+GROUP BY `gem_item_id`
+ORDER BY cnt DESC, `gem_item_id`
+"""
+
+
+def fetch_top50_gem_ranking(connection, cursor, spec_id, season):
+    """Gem popularity among the top-50 player loadouts (spec-wide, not per item).
+
+    Returns [(gem_item_id, count), ...] most-popular-first.
+    """
+    rows = fetch_with_retry(
+        connection, cursor, FETCH_TOP50_GEM_RANKING_SQL, (spec_id, season)
+    )
+    out = []
+    for row in rows:
+        if isinstance(row, dict):
+            gid, cnt = row.get("gem_item_id"), row.get("cnt")
+        else:
+            gid, cnt = row[0], row[1]
+        out.append((int(gid), int(cnt)))
+    return out
+
+
+FETCH_TOP_GEMS_SPEC_WIDE_SQL = """
+SELECT `socket_item_id`, SUM(`run_count`) AS cnt
+FROM `Mythistone`.`global_aggregated_item_sockets`
+WHERE `spec_id` = %s AND `season` = %s
+GROUP BY `socket_item_id`
+ORDER BY cnt DESC, `socket_item_id`
+"""
+
+
+def fetch_top_gems_spec_wide(connection, cursor, spec_id, season):
+    """Spec-wide gem popularity from the global socket aggregation (fallback for
+    fetch_top50_gem_ranking when a spec has no top-50 loadout data yet).
+
+    Returns [(gem_item_id, count), ...] most-popular-first. socket_item_id is
+    stored as a varchar; non-numeric values are skipped.
+    """
+    rows = fetch_with_retry(
+        connection, cursor, FETCH_TOP_GEMS_SPEC_WIDE_SQL, (spec_id, season)
+    )
+    out = []
+    for row in rows:
+        if isinstance(row, dict):
+            gid, cnt = row.get("socket_item_id"), row.get("cnt")
+        else:
+            gid, cnt = row[0], row[1]
+        try:
+            out.append((int(gid), int(cnt)))
+        except (TypeError, ValueError):
+            continue
+    return out
+
+
+FETCH_SIMC_BIS_OVERVIEW_SQL = """
+SELECT `spec_id`, `baseline_dps`, `simc_version`, `tier_config`, `iterations`, `target_error`, `updated_at`
+FROM `Mythistone`.`simc_bis_meta`
+WHERE `season` = %s AND `baseline_dps` IS NOT NULL
+"""
+
+
+def fetch_simc_bis_overview(connection, cursor, season):
+    """All specs' converged BiS-set DPS for a season (tierlist page input).
+
+    Failed runs write meta rows without baseline_dps; those are filtered out.
+    Returns [{spec_id, baseline_dps, simc_version, tier_config, iterations,
+    target_error, updated_at}, ...].
+    """
+    rows = fetch_with_retry(connection, cursor, FETCH_SIMC_BIS_OVERVIEW_SQL, (season,))
+    out = []
+    for row in rows:
+        if isinstance(row, dict):
+            out.append(
+                {
+                    "spec_id": int(row.get("spec_id")),
+                    "baseline_dps": float(row.get("baseline_dps")),
+                    "simc_version": row.get("simc_version"),
+                    "tier_config": row.get("tier_config"),
+                    "iterations": int(row.get("iterations")) if row.get("iterations") is not None else None,
+                    "target_error": float(row.get("target_error")) if row.get("target_error") is not None else None,
+                    "updated_at": row.get("updated_at"),
+                }
+            )
+        else:
+            out.append(
+                {
+                    "spec_id": int(row[0]),
+                    "baseline_dps": float(row[1]),
+                    "simc_version": row[2],
+                    "tier_config": row[3],
+                    "iterations": int(row[4]) if row[4] is not None else None,
+                    "target_error": float(row[5]) if row[5] is not None else None,
+                    "updated_at": row[6],
+                }
+            )
     return out

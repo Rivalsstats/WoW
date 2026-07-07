@@ -683,6 +683,8 @@ CREATE TABLE `simc_bis_items` (
   `dps_pct_gain` double DEFAULT NULL,
   `is_set_piece` tinyint(1) NOT NULL DEFAULT '0',
   `item_set_id` int DEFAULT NULL,
+  `enchant_id` int DEFAULT NULL,
+  `gem_ids` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`spec_id`,`season`,`slot`,`rank`),
   KEY `idx_simc_bis_items_spec_season` (`spec_id`,`season`),
   CONSTRAINT `fk_simc_bis_items_meta` FOREIGN KEY (`spec_id`, `season`) REFERENCES `simc_bis_meta` (`spec_id`, `season`) ON DELETE CASCADE
