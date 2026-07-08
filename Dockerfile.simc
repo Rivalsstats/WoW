@@ -1,0 +1,56 @@
+# Unofficial build of SimulationCraft (https://github.com/simulationcraft/simc),
+# GPL-3.0. We recompile upstream at a pinned commit and republish so the
+# collector's sibling-container sims use current game data instead of the
+# official image (simulationcraftorg/simc:latest), which lags weeks behind.
+#
+# GPL-3.0 compliance: we ship the upstream LICENSE and record the exact source
+# commit via SIMC_REV (also stamped as an OCI revision label in the workflow),
+# which satisfies the "corresponding source" requirement since that commit is
+# publicly available at the upstream repo.
+#
+# amd64 only: the collector host is x86 and compiling simc under QEMU for other
+# arches would be prohibitively slow. Build with `--platform=linux/amd64`.
+
+# ---- build stage -----------------------------------------------------------
+FROM debian:bookworm-slim AS build
+
+# Exact upstream commit to build. The workflow resolves simc HEAD and passes it
+# in so repeat builds of the same commit hit the layer cache and are reproducible.
+ARG SIMC_REV=HEAD
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        git cmake g++ libssl-dev libcurl4-openssl-dev ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+# Shallow-fetch only the pinned commit (the simc repo is large; a full clone is
+# wasteful). GitHub permits fetching an arbitrary SHA directly.
+RUN git init simc \
+    && cd simc \
+    && git remote add origin https://github.com/simulationcraft/simc.git \
+    && git fetch --depth=1 origin "${SIMC_REV}" \
+    && git checkout FETCH_HEAD
+
+RUN cmake -S simc -B simc/build -DCMAKE_BUILD_TYPE=Release -DBUILD_GUI=OFF \
+    && cmake --build simc/build --parallel "$(nproc)" --target simc \
+    && cp "$(find simc/build -name simc -type f -executable | head -1)" /simc \
+    && /simc --version
+
+# ---- runtime stage ---------------------------------------------------------
+FROM debian:bookworm-slim AS runtime
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        libssl3 libcurl4 ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY --from=build /simc /app/simc
+# GPL-3.0: keep the upstream license text in the image.
+COPY --from=build /src/simc/LICENSE /LICENSE
+
+# Match the official image's contract: the binary IS the entrypoint, so the
+# collector (simcBis.py `_run_simc_docker`) can pass only the profile + json2
+# args as the container command, unchanged.
+ENTRYPOINT ["/app/simc"]

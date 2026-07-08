@@ -22,7 +22,11 @@ services:
       # Optional override; when unset, simcBis uses max_character_level from the
       # collected seasonInfo.json (derived from wago.tools ContentTuning).
       - SIMC_LEVEL=${SIMC_LEVEL:-}
-      - SIMC_DOCKER_IMAGE=${SIMC_DOCKER_IMAGE:-simulationcraftorg/simc:latest}
+      # Our own SimulationCraft build (see .github/workflows/buildSimcImage.yml),
+      # recompiled daily from upstream HEAD so sims use current game data. The
+      # official simulationcraftorg/simc:latest image lags weeks behind and skews
+      # DPS. The self-pull above keeps this current between collector restarts.
+      - SIMC_DOCKER_IMAGE=${SIMC_DOCKER_IMAGE:-ghcr.io/mythistone/simc:latest}
       - SIMC_IO_DIR=/app/data/simc_io
       - SIMC_IO_VOLUME=mythistone_simc_io
       # --- Resource isolation (2-core host) -------------------------------
