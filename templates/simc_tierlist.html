@@ -161,9 +161,9 @@
       </div>
       {% endmacro %}
 
-      <ul class="nav nav-pills mb-3 ms-3" id="target-tabs" role="tablist">
+      <ul class="nav nav-tabs mb-3 ms-3" id="target-tabs" role="tablist">
         {% for tab in tabs %}
-        <li class="nav-item me-2" role="presentation">
+        <li class="nav-item" role="presentation">
           <button class="nav-link {% if loop.first %}active{% endif %}" id="tab-btn-{{ tab.targets }}"
             data-bs-toggle="tab" data-bs-target="#tab-{{ tab.targets }}" type="button" role="tab"
             aria-controls="tab-{{ tab.targets }}" aria-selected="{{ 'true' if loop.first else 'false' }}">
