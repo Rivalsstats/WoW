@@ -42,6 +42,7 @@ services:
       # on the host's free memory; unset = no limit.
       - SIMC_MEM_LIMIT=${SIMC_MEM_LIMIT:-}
       - SIMC_TARGET_ERROR=${SIMC_TARGET_ERROR:-0.1}
+      - SIMC_COMBO_ITERATIONS=${SIMC_COMBO_ITERATIONS:-5000}
       - SIMC_PULL_INTERVAL=${SIMC_PULL_INTERVAL:-21600}
     logging:
       options:

@@ -84,7 +84,7 @@ SIMC_BLKIO_WEIGHT = os.environ.get("SIMC_BLKIO_WEIGHT")
 SIMC_PROFILESET_WORK_THREADS = os.environ.get("SIMC_PROFILESET_WORK_THREADS", "1")
 SIMC_ITERATIONS = os.environ.get("SIMC_ITERATIONS")  # e.g. "5000"; if unset, use target_error
 SIMC_TARGET_ERROR = os.environ.get("SIMC_TARGET_ERROR", "0.1")
-SIMC_RUN_TIMEOUT = int(os.environ.get("SIMC_RUN_TIMEOUT", str(6 * 60 * 60)))  # seconds per invocation
+SIMC_RUN_TIMEOUT = int(os.environ.get("SIMC_RUN_TIMEOUT", str(8 * 60 * 60)))  # seconds per invocation
 # Applied to every sibling simc container we launch so it can be found and torn
 # down independently of our own process state (e.g. when watchtower replaces this
 # collector container, these siblings aren't tracked/updated by watchtower at all).
@@ -95,9 +95,10 @@ SIMC_CANDIDATES_PER_SLOT = int(os.environ.get("SIMC_CANDIDATES_PER_SLOT", "10"))
 # first) until its cartesian product fits this cap. One simc invocation handles
 # them all as profilesets.
 SIMC_MAX_COMBINATIONS = int(os.environ.get("SIMC_MAX_COMBINATIONS", "2000"))
-# Fixed iteration count for the combination pass (Raidbots Top Gear uses 5000):
-# a fixed count is generally faster than target_error for large profileset
-# batches. Set to empty/0 to fall back to SIMC_ITERATIONS / SIMC_TARGET_ERROR.
+# Maximum iteration count for the combination pass: every combo converges to
+# SIMC_TARGET_ERROR but is capped here, stopping at whichever comes first. The cap
+# stops a slow-converging (high-variance) combo from running unbounded. Set to
+# empty/0 to fall back to SIMC_ITERATIONS (else: no cap, target_error alone).
 SIMC_COMBO_ITERATIONS = os.environ.get("SIMC_COMBO_ITERATIONS", "5000")
 # Drop slot candidates used by fewer than this fraction of the slot's most-popular
 # item (filters stale/old-expansion items that pollute the aggregated pool).
@@ -786,9 +787,16 @@ RAID_BUFF_OVERRIDES = [
 
 
 def sim_options(iterations=None):
-    """simc-wide options. `iterations`, when given, pins a fixed iteration count
-    for this run (used by the combination pass); otherwise we fall back to the
-    SIMC_ITERATIONS env override or the default target_error."""
+    """simc-wide options.
+
+    Convergence: every sim runs to SIMC_TARGET_ERROR but is capped at a maximum
+    iteration count, and stops at whichever it reaches first. `iterations`, when
+    given, pins that cap for this run (the combination pass passes
+    SIMC_COMBO_ITERATIONS); otherwise the cap comes from SIMC_ITERATIONS if set,
+    else there is no cap and target_error alone governs. In simc, specifying both
+    target_error and iterations makes iterations the ceiling — so this yields
+    "stop at 0.1% error OR N iterations, whichever first".
+    """
     opts = [
         f"threads={SIMC_THREADS}",
         f"profileset_work_threads={SIMC_PROFILESET_WORK_THREADS}",
@@ -806,12 +814,10 @@ def sim_options(iterations=None):
         *RAID_BUFF_OVERRIDES,
         "optimize_expressions=1",
     ]
-    if iterations:
-        opts.append(f"iterations={iterations}")
-    elif SIMC_ITERATIONS:
-        opts.append(f"iterations={SIMC_ITERATIONS}")
-    else:
-        opts.append(f"target_error={SIMC_TARGET_ERROR}")
+    opts.append(f"target_error={SIMC_TARGET_ERROR}")
+    cap = iterations or (int(SIMC_ITERATIONS) if SIMC_ITERATIONS else None)
+    if cap:
+        opts.append(f"iterations={cap}")
     return opts
 
 
@@ -1413,15 +1419,16 @@ def persist(conn, cursor, result, item_lookup):
                 )
             )
 
-    # Effective simc accuracy used for the combination pass: a fixed iteration
-    # count (combo / env override) or the default target_error.
+    # Effective simc accuracy used for the combination pass: it always converges
+    # to target_error, capped at a maximum iteration count (combo / env override),
+    # so we record both — target_error is the stop condition, iterations the cap.
     try:
         effective_iters = int(SIMC_COMBO_ITERATIONS) if SIMC_COMBO_ITERATIONS else None
     except ValueError:
         effective_iters = None
     if not effective_iters or effective_iters <= 0:
         effective_iters = int(SIMC_ITERATIONS) if SIMC_ITERATIONS else None
-    effective_terr = None if effective_iters else float(SIMC_TARGET_ERROR)
+    effective_terr = float(SIMC_TARGET_ERROR)
 
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     try:
