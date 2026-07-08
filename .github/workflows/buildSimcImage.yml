@@ -8,13 +8,12 @@ name: Build and publish simc image
 # See Dockerfile.simc for the GPL-3.0 compliance notes (LICENSE + source commit).
 
 on:
-  # Daily is plenty: the collector self-pulls every 6h and upstream data changes
-  # slowly. Runs at 04:00 UTC, clear of the pages build (08:00) and the
-  # Wednesday full update.
+  # Weekly is plenty: the collector self-pulls every 6h and upstream data changes
+  # slowly. Runs at 04:00 UTC, clear of the Wednesday full update.
   schedule:
-    - cron: '0 4 * * *'
+    - cron: '0 4 * * WED'
   push:
-    paths:
+    paths:  
       - 'Dockerfile.simc'
       - '.github/workflows/buildSimcImage.yml'
   workflow_dispatch: {}
