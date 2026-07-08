@@ -170,6 +170,12 @@ TIER_INVTYPE_TO_SLOT = {1: "HEAD", 3: "SHOULDER", 5: "CHEST", 20: "CHEST", 7: "L
 # off-hand slot does not exist and must be skipped.
 TWO_HAND_INVTYPES = {17, 15, 25, 26}
 
+# Specs that dual-wield two-handers (Titan's Grip Fury). For these the "2H main
+# hand => no off-hand" rule is wrong: they equip a two-hander in BOTH hands, so
+# the off-hand must be kept even though the main hand is a 2H. (Single-Minded
+# Fury uses one-handers, so its main hand isn't a 2H and the rule never fires.)
+DUAL_WIELD_TWOHAND_SPECS = {72}  # Fury Warrior
+
 # simc class assignment keyword (no underscores), keyed by Blizzard class name.
 CLASS_TOKENS = {
     "death knight": "deathknight",
@@ -875,7 +881,9 @@ def build_combinations(candidates, baseline, active_slots, tier_set_id, tier_slo
         tiered_slots = set()
 
     # Non-tier varying slots, with the main hand pinned to the baseline's
-    # handedness so a two-hander is never paired with an off-hand.
+    # handedness. A one-hand baseline never pulls in a two-hander (and vice
+    # versa); the off-hand only rides along when the baseline kept one — i.e.
+    # for 1H specs and Titan's Grip Fury, but not for plain two-hand specs.
     base_mh = baseline.get("MAIN_HAND")
     base_mh_2h = bool(base_mh and item_lookup.get(base_mh["item_id"], {}).get("inventoryType") in TWO_HAND_INVTYPES)
 
@@ -1230,9 +1238,11 @@ def _prepare_spec(spec_id, spec_info, class_info, season, conn, cursor, item_loo
     # ---- initial baseline = most-popular item per slot ----
     baseline = {slot: cands[0] for slot, cands in candidates.items()}
 
-    # drop off_hand if main hand is a two-hander / ranged weapon
+    # drop off_hand if main hand is a two-hander / ranged weapon — but not for
+    # Titan's Grip Fury, which wields a two-hander in the off-hand too.
     mh = baseline.get("MAIN_HAND")
-    if mh and (item_lookup.get(mh["item_id"], {}).get("inventoryType") in TWO_HAND_INVTYPES):
+    if (mh and spec_id not in DUAL_WIELD_TWOHAND_SPECS
+            and item_lookup.get(mh["item_id"], {}).get("inventoryType") in TWO_HAND_INVTYPES):
         baseline.pop("OFF_HAND", None)
     active_slots = [s for s in ALL_SLOTS if s in baseline]
 

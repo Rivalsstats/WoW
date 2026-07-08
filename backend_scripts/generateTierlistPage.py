@@ -72,9 +72,8 @@ def parse_results(sim_results_dir):
     simc_version = None
     simmed_at = None
 
-    # Recursive: the primary download flattens into sim_results/, but the
-    # push-event fallback (dawidd6/action-download-artifact) can nest each
-    # artifact in its own subdirectory.
+    # Recursive so it works whether the artifacts are flattened into
+    # sim_results/ (merge-multiple) or nested one directory per artifact.
     for path in sorted(glob.glob(os.path.join(sim_results_dir, "**", "*.json"), recursive=True)):
         base = os.path.basename(path)
         if base.startswith("meta") or base.startswith("manifest"):

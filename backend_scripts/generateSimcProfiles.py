@@ -34,6 +34,7 @@ import simcBis
 from simcBis import (
     ALL_SLOTS,
     DB_TO_SIMC_SLOT,
+    DUAL_WIELD_TWOHAND_SPECS,
     RAID_BUFF_OVERRIDES,
     TWO_HAND_INVTYPES,
     build_header,
@@ -76,11 +77,12 @@ def _actor_block(header, active_slots, gear):
     return lines
 
 
-def _simcbis_gear(bis_rows, item_lookup):
+def _simcbis_gear(bis_rows, item_lookup, spec_id):
     """Turn fetch_simc_bis() output into slot -> gear-line candidate dicts.
 
     Picks the rank-1 item per slot and drops the off-hand when the main hand is
-    a two-hander. Returns (gear, active_slots) or (None, []) if nothing usable.
+    a two-hander (except for Titan's Grip Fury, which wields a two-hander in
+    both hands). Returns (gear, active_slots) or (None, []) if nothing usable.
     """
     gear = {}
     for slot, entries in bis_rows.items():
@@ -97,7 +99,8 @@ def _simcbis_gear(bis_rows, item_lookup):
     if not gear:
         return None, []
     mh = gear.get("MAIN_HAND")
-    if mh and item_lookup.get(mh["item_id"], {}).get("inventoryType") in TWO_HAND_INVTYPES:
+    if (mh and spec_id not in DUAL_WIELD_TWOHAND_SPECS
+            and item_lookup.get(mh["item_id"], {}).get("inventoryType") in TWO_HAND_INVTYPES):
         gear.pop("OFF_HAND", None)
     active_slots = [s for s in ALL_SLOTS if s in gear]
     return gear, active_slots
@@ -151,7 +154,7 @@ def build_profiles(season, target_error, only_specs=None):
                 bis_rows = None
                 skipped["simcbis"] = f"fetch_simc_bis failed: {e}"
             if bis_rows:
-                bis_gear, bis_slots = _simcbis_gear(bis_rows, item_lookup)
+                bis_gear, bis_slots = _simcbis_gear(bis_rows, item_lookup, spec_id)
             if bis_gear:
                 bis_header = build_header(
                     class_name, spec_name, primary, talents,

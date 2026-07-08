@@ -44,11 +44,10 @@ permissions:
   id-token: write
 jobs:
   # ----------------------------------------------------------------------
-  # SimulationCraft tierlist sims (skipped on push; those runs reuse the
-  # last scheduled run's artifacts in the assemble job).
+  # SimulationCraft tierlist sims (run on every trigger, in parallel with the
+  # page build — they finish well before the pages do).
   # ----------------------------------------------------------------------
   prepare-sims:
-    if: github.event_name != 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -311,10 +310,10 @@ jobs:
   # ----------------------------------------------------------------------
   assemble:
     runs-on: ubuntu-latest
+    # Default needs semantics: only runs if BOTH the pages and every sim leg
+    # succeeded. If any sim fails, assemble + deploy are skipped and the whole
+    # workflow is marked failed — no stale-data fallback, no partial deploy.
     needs: [buildPages, simulate]
-    # Deploy as long as the pages built. Tolerates the sims being skipped
-    # (push events) or partially/fully failed; never runs on a cancelled matrix.
-    if: always() && needs.buildPages.result == 'success' && needs.simulate.result != 'cancelled'
     steps:
       - name: Clone project
         uses: actions/checkout@v7
@@ -346,27 +345,13 @@ jobs:
           path: .
 
       - name: Download sim results
-        if: needs.simulate.result != 'skipped'
-        continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           pattern: sim-result-*
           merge-multiple: true
           path: sim_results
 
-      - name: Fall back to last successful sim results
-        if: hashFiles('sim_results/*.json') == ''
-        uses: dawidd6/action-download-artifact@v6
-        with:
-          workflow: buildPages.yml
-          workflow_conclusion: success
-          name: sim-result-.*
-          name_is_regexp: true
-          path: sim_results
-          if_no_artifact_found: warn
-
       - name: Generate Sim DPS Tierlist page
-        continue-on-error: true
         run: |
           python backend_scripts/generateTierlistPage.py \
             --sim_results_dir sim_results \
