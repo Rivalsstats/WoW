@@ -5,6 +5,7 @@ import traceback
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import databaseConnector
 import aggregateData
+from simcBis import DUAL_WIELD_TWOHAND_SPECS
 from collections import defaultdict
 from datetime import datetime, timezone
 from contextlib import closing
@@ -1589,7 +1590,9 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     # look up its inventoryType; two‑handers are 17 and ranged weapons are 15
                     print(f"Checking MAIN_HAND item {mh_item_id} for two‑hander or ranged type to determine if OFF_HAND slot should be removed")
                     print(f"MAIN_HAND item {mh_item_id} inventoryType: {item_lookup.get(mh_item_id, {}).get('inventoryType')}, itemSubClass: {item_lookup.get(mh_item_id, {}).get('itemSubClass')}")
-                    if (
+                    # Titan's Grip Fury wields a two-hander in the off-hand too,
+                    # so never strip its off-hand (see DUAL_WIELD_TWOHAND_SPECS).
+                    if int(spec_id) not in DUAL_WIELD_TWOHAND_SPECS and (
                         item_lookup.get(mh_item_id, {}).get("inventoryType") == 17
                         or item_lookup.get(mh_item_id, {}).get("itemSubClass") == 3 # guns
                         or item_lookup.get(mh_item_id, {}).get("itemSubClass") == 2 # bows
