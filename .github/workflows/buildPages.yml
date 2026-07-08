@@ -85,8 +85,52 @@ jobs:
           path: simc_profiles
           retention-days: 7
 
+  # Build SimulationCraft from source so the sims use current game data — the
+  # published Docker image lags weeks behind and skews DPS. Runs in parallel
+  # with prepare-sims and buildPages; the binary is compiled ONCE here and
+  # reused by every matrix leg. Cached on the resolved simc HEAD so repeat runs
+  # skip the compile.
+  build-simc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Resolve simc HEAD revision
+        id: rev
+        run: echo "sha=$(git ls-remote https://github.com/simulationcraft/simc.git HEAD | cut -f1)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache simc binary
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: simc-bin
+          key: simc-bin-${{ steps.rev.outputs.sha }}
+
+      - name: Install build dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ libssl-dev libcurl4-openssl-dev
+
+      - name: Build SimulationCraft (CLI, no GUI)
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          set -e
+          git clone --depth=1 https://github.com/simulationcraft/simc.git simc
+          cmake -S simc -B simc/build -DCMAKE_BUILD_TYPE=Release -DBUILD_GUI=OFF
+          cmake --build simc/build --parallel "$(nproc)" --target simc
+          mkdir -p simc-bin
+          cp "$(find simc/build -name simc -type f -executable | head -1)" simc-bin/simc
+          simc-bin/simc --version || true
+
+      - name: Upload simc binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: simc-binary
+          path: simc-bin/simc
+          retention-days: 1
+
   simulate:
-    needs: prepare-sims
+    needs: [prepare-sims, build-simc]
     runs-on: ubuntu-latest
     timeout-minutes: 300
     strategy:
@@ -101,12 +145,19 @@ jobs:
           name: simc-profiles
           path: simc_io
 
+      - name: Download simc binary
+        uses: actions/download-artifact@v4
+        with:
+          name: simc-binary
+          path: simc-bin
+
       - name: Run SimulationCraft (${{ matrix.gearset }}, ${{ matrix.targets }} targets)
         run: |
-          docker run --rm -v "$PWD/simc_io:/data" simulationcraftorg/simc:latest \
-            /data/gearset_${{ matrix.gearset }}.simc \
+          chmod +x simc-bin/simc
+          ./simc-bin/simc \
+            simc_io/gearset_${{ matrix.gearset }}.simc \
             desired_targets=${{ matrix.targets }} \
-            json2=/data/sim_${{ matrix.gearset }}_${{ matrix.targets }}t.json
+            json2=simc_io/sim_${{ matrix.gearset }}_${{ matrix.targets }}t.json
 
       - name: Write sim metadata
         run: |
