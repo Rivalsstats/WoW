@@ -34,8 +34,7 @@ RUN git init simc \
 
 RUN cmake -S simc -B simc/build -DCMAKE_BUILD_TYPE=Release -DBUILD_GUI=OFF \
     && cmake --build simc/build --parallel "$(nproc)" --target simc \
-    && cp "$(find simc/build -name simc -type f -executable | head -1)" /simc \
-    && /simc --version
+    && cp "$(find simc/build -name simc -type f -executable | head -1)" /simc
 
 # ---- runtime stage ---------------------------------------------------------
 FROM debian:bookworm-slim AS runtime
