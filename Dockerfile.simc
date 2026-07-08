@@ -20,7 +20,7 @@ ARG SIMC_REV=HEAD
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        git cmake g++ libssl-dev libcurl4-openssl-dev ca-certificates \
+        git cmake make g++ libssl-dev libcurl4-openssl-dev ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src
