@@ -3,8 +3,9 @@
 Ranks every simulated spec (DPS and tanks separately; healers are never
 simmed) by SimulationCraft DPS produced in the build pipeline's matrix sim jobs
 (see generateSimcProfiles.py + .github/workflows/buildPages.yml). Every spec is
-simmed in one batch on a single simc build at four target counts (1/3/5/8),
-5-minute LightMovement fights, in two gear sets:
+simmed in one batch on a single simc build at four target counts (1/3/5/8) in
+the LightMovement fight style — single-target fights run 3 minutes, multi-target
+fights (3/5/8) run 1 minute — in two gear sets:
 
   * ``popular``  — the spec-page baseline set (most-popular items/enchants/gems
     + most-popular talents).
@@ -25,6 +26,7 @@ import argparse
 from datetime import datetime, timedelta, timezone
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from pageGeneration import generateSpecNav, generateDungeonNav
+from generateTierlistImage import PREVIEW_URL, PREVIEW_TARGETS, generate_preview_image
 
 # Static lookup dir (inlined so this generator needs no DB deps, only jinja2).
 LOOKUP_DIR = "data/static"
@@ -40,14 +42,10 @@ GEAR_SETS = [("popular", "Popular"), ("simcbis", "SimC BIS")]
 
 ACTOR_RE = re.compile(r"^spec(\d+)_([A-Za-z0-9]+)$")
 
-# Tier letter by % behind the role's leader.
-TIER_BOUNDS = [
-    ("S", 2.5),
-    ("A", 5.0),
-    ("B", 10.0),
-    ("C", 15.0),
-    ("D", float("inf")),
-]
+# Tier letters, best -> worst. Specs are grouped into these relative to each
+# other (natural breaks in sim DPS via 1-D k-means), matching the home page's
+# tier lists — not by a fixed gap from the leader.
+TIER_LETTERS = ["S", "A", "B", "C", "D", "F"]
 
 
 def load_json(path):
@@ -55,11 +53,102 @@ def load_json(path):
         return json.load(f)
 
 
-def tier_for_pct_behind(pct):
-    for letter, bound in TIER_BOUNDS:
-        if pct <= bound:
-            return letter
-    return "D"
+def ckmeans_1d(values, k):
+    """Optimal 1-D k-means (Fisher's exact DP) clustering.
+
+    Returns a cluster index (0..k-1) for each value, in input order. This is
+    the same clustering the index page uses to tier dungeons/specs; kept
+    self-contained here so this generator stays free of DB dependencies.
+    """
+    n = len(values)
+    if n == 0:
+        return []
+    if k <= 1:
+        return [0] * n
+
+    sorted_pairs = sorted(enumerate(values), key=lambda iv: iv[1])
+    idx_sorted = [p[0] for p in sorted_pairs]
+    x = [p[1] for p in sorted_pairs]
+
+    # prefix sums (1-based) of x and x^2
+    S1 = [0.0] * (n + 1)
+    S2 = [0.0] * (n + 1)
+    for i in range(1, n + 1):
+        S1[i] = S1[i - 1] + x[i - 1]
+        S2[i] = S2[i - 1] + x[i - 1] * x[i - 1]
+
+    def sq_err(i, j):  # squared error of segment x[i..j] (0-based, inclusive)
+        m = j - i + 1
+        s1 = S1[j + 1] - S1[i]
+        s2 = S2[j + 1] - S2[i]
+        return max(0.0, s2 - (s1 * s1) / m)
+
+    INF = float("inf")
+    dp = [[INF] * (n + 1) for _ in range(k + 1)]
+    back = [[-1] * (n + 1) for _ in range(k + 1)]
+    dp[0][0] = 0.0
+
+    for clusters in range(1, k + 1):
+        for j in range(clusters, n + 1):
+            best_cost = INF
+            best_i = -1
+            for i in range(clusters - 1, j):
+                cost = dp[clusters - 1][i] + sq_err(i, j - 1)
+                if cost < best_cost:
+                    best_cost = cost
+                    best_i = i
+            dp[clusters][j] = best_cost
+            back[clusters][j] = best_i
+
+    # backtrack cluster boundaries in sorted order
+    clusters = k
+    j = n
+    boundaries = []
+    while clusters > 0:
+        i = back[clusters][j]
+        boundaries.append((i, j - 1))
+        j = i
+        clusters -= 1
+    boundaries.reverse()
+
+    labels_sorted = [None] * n
+    label = 0
+    for start, end in boundaries:
+        for t in range(start, end + 1):
+            labels_sorted[t] = label
+        label += 1
+
+    labels = [None] * n
+    for sorted_pos, orig_idx in enumerate(idx_sorted):
+        labels[orig_idx] = labels_sorted[sorted_pos]
+    return labels
+
+
+def assign_tiers(rows):
+    """Assign each row a ``tier`` letter by clustering DPS relative to peers.
+
+    ``rows`` must already be sorted by ``primary`` descending. Clusters are
+    found with 1-D k-means over the primary DPS values and mapped, best cluster
+    first, onto S/A/B/C/D/F (only as many letters as there are clusters), so a
+    tier groups specs of comparable throughput rather than a fixed % gap.
+    """
+    n = len(rows)
+    if n == 0:
+        return
+    values = [row["primary"] for row in rows]
+    labels = ckmeans_1d(values, min(len(TIER_LETTERS), n))
+
+    cluster_sums = {}
+    cluster_counts = {}
+    for lab, v in zip(labels, values):
+        cluster_sums[lab] = cluster_sums.get(lab, 0.0) + v
+        cluster_counts[lab] = cluster_counts.get(lab, 0) + 1
+    ordered = sorted(
+        cluster_sums, key=lambda lab: cluster_sums[lab] / cluster_counts[lab], reverse=True
+    )
+    cluster_to_tier = {lab: TIER_LETTERS[i] for i, lab in enumerate(ordered)}
+    for row, lab in zip(rows, labels):
+        row["tier"] = cluster_to_tier[lab]
 
 
 def parse_results(sim_results_dir):
@@ -163,12 +252,12 @@ def build_tab(spec_dps, spec_lookup, class_lookup):
 
     for role_name, rows in grouped.items():
         rows.sort(key=lambda x: x["primary"], reverse=True)
+        assign_tiers(rows)
         leader = rows[0]["primary"] if rows else 0
         for rank, row in enumerate(rows, start=1):
             pct_behind = ((leader - row["primary"]) / leader * 100.0) if leader else 0.0
             row["rank"] = rank
             row["pct_behind"] = pct_behind
-            row["tier"] = tier_for_pct_behind(pct_behind)
             row["bars"] = [
                 {
                     "gearset": gs,
@@ -218,6 +307,19 @@ def main(template_path, output_dir, sim_results_dir):
         simmed_at and simmed_at < datetime.now(timezone.utc) - timedelta(days=STALE_DAYS)
     )
 
+    # Static og:image preview from a representative tab (prefer PREVIEW_TARGETS).
+    preview_tab = next(
+        (t for t in tabs if t["targets"] == PREVIEW_TARGETS and t["dps_rows"]),
+        next((t for t in tabs if t["dps_rows"]), None),
+    )
+    has_preview = bool(
+        preview_tab
+        and generate_preview_image(
+            preview_tab["dps_rows"], spec_lookup, class_lookup,
+            season_info.get("name", ""), preview_tab["targets"],
+        )
+    )
+
     env = Environment(
         loader=FileSystemLoader(os.path.dirname(template_path)),
         autoescape=select_autoescape(["html", "xml"]),
@@ -231,6 +333,7 @@ def main(template_path, output_dir, sim_results_dir):
         simc_version=simc_version,
         simmed_str=simmed_str,
         is_stale=is_stale,
+        preview_url=PREVIEW_URL if has_preview else None,
         spec_lookup=spec_lookup,
         class_lookup=class_lookup,
         dungeon_lookup=dungeon_lookup,
