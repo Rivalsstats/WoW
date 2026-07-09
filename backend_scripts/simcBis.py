@@ -216,6 +216,12 @@ DEFAULT_RACE = {
 # role int (specs.json) -> we only simulate dps (2) and tank (0); healers (1) are skipped.
 SIMULATED_ROLES = {0, 2}
 
+# Specs excluded from topgear regardless of role. Augmentation (1473) is a DPS
+# spec but a *support* one: simc disables single_actor_batch for it and sims the
+# whole group per profileset, so a full topgear run needs ~30h and never fits the
+# per-spec timeout (see _summarize_simc_progress). Skip it like the healers.
+SKIPPED_SPEC_IDS = {1473}
+
 
 # --------------------------------------------------------------------------
 # Small helpers
@@ -1544,8 +1550,11 @@ def simulated_specs(specs):
             role = int(info.get("role", 2))
         except Exception:
             role = 2
-        if role in SIMULATED_ROLES:
-            out.append((int(spec_id_str), info))
+        if role not in SIMULATED_ROLES:
+            continue
+        if int(spec_id_str) in SKIPPED_SPEC_IDS:
+            continue
+        out.append((int(spec_id_str), info))
     return out
 
 
