@@ -2,7 +2,8 @@ name: Build Jinja Pages
 
 on:
   schedule:
-    - cron: '0 8 * * MON,TUE,THU,FRI,SAT,SUN' #skip wednesday as we run full update on wednesday
+    # TUE, THU, SAT, SUN
+    - cron: '0 8 * * MON,FRI' #skip wednesday as we run full update on wednesday
   push:
     paths:
       - 'templates/**'
