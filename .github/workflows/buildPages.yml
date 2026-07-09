@@ -179,6 +179,7 @@ jobs:
   # Static pages (runs in parallel with the sims).
   # ----------------------------------------------------------------------
   buildPages:
+    needs: [prepare-sims]
     runs-on: ubuntu-latest
     steps:
       - name: Clone project
