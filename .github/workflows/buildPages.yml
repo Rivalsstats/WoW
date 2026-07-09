@@ -354,7 +354,7 @@ jobs:
             sitemap.xml
             llms.txt
             assets/img/previews
-            assets/json/search_index.json
+            assets/json
           include-hidden-files: true
           retention-days: 1
 
