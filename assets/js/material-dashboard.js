@@ -84,7 +84,11 @@ if (document.querySelector('.fixed-plugin')) {
 
 //Set Sidebar Color
 function sidebarColor(a) {
-  var parent = document.querySelector(".nav-link.active");
+  // Scope to the sidenav: this function colors the active *sidebar* link, but an
+  // unscoped ".nav-link.active" would grab the first active nav-link anywhere —
+  // e.g. a content-area Bootstrap tab (#target-tabs) — and pin bg-gradient-* on it
+  // that Bootstrap never clears when switching tabs.
+  var parent = document.querySelector("#sidenav-main .nav-link.active");
   var color = a.getAttribute("data-color");
 
   if(!parent) return;

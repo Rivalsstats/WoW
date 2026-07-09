@@ -77,31 +77,63 @@ def _actor_block(header, active_slots, gear):
     return lines
 
 
-def _simcbis_gear(bis_rows, item_lookup, spec_id):
+def _simcbis_gear(bis_rows, item_lookup, spec_id, enchant_map, gem_ranking):
     """Turn fetch_simc_bis() output into slot -> gear-line candidate dicts.
 
     Picks the rank-1 item per slot and drops the off-hand when the main hand is
     a two-hander (except for Titan's Grip Fury, which wields a two-hander in
-    both hands). Returns (gear, active_slots) or (None, []) if nothing usable.
+    both hands).
+
+    Enchants/gems are hybrid: the collector's persisted values are used when
+    present, otherwise the live popular pipeline (apply_enchants_and_gems)
+    backfills them. The simc_bis_items enchant/gem columns were added after most
+    specs were last collected, so without this a stale spec would sim with no
+    enchants and no gems and lose to the (fully enchanted/gemmed) popular set.
+
+    Returns (gear, active_slots) or (None, []) if nothing usable.
     """
+    socket_bonus_counts = simcBis.load_bonus_socket_counts()
     gear = {}
+    persisted = {}
     for slot, entries in bis_rows.items():
         if slot not in DB_TO_SIMC_SLOT or not entries:
             continue
         best = min(entries, key=lambda e: e.get("rank", 99))
+        bonus_list = best.get("bonus_list")
+        bonus_ids = [b.strip() for b in str(bonus_list).split(",") if b.strip()] if bonus_list else []
+        # Socket count from the equipped bonus_ids, raised to the item's inherent
+        # sockets — mirrors gather_candidates so gems land on the right slots.
+        socket_count = sum(socket_bonus_counts.get(b, 0) for b in bonus_ids)
+        inherent = len((item_lookup.get(best["item_id"], {}).get("socketInfo") or {}).get("sockets") or [])
         gem_ids = best.get("gem_ids")
-        gear[slot] = {
-            "item_id": best["item_id"],
-            "simc_bonus": bonus_to_simc(best.get("bonus_list")),
+        persisted[slot] = {
             "enchant_id": best.get("enchant_id"),
             "gem_ids": [g for g in str(gem_ids).split("/") if g] if gem_ids else None,
         }
+        gear[slot] = {
+            "item_id": best["item_id"],
+            "simc_bonus": bonus_to_simc(bonus_list),
+            "socket_count": max(socket_count, inherent),
+        }
     if not gear:
         return None, []
+
     mh = gear.get("MAIN_HAND")
     if (mh and spec_id not in DUAL_WIELD_TWOHAND_SPECS
             and item_lookup.get(mh["item_id"], {}).get("inventoryType") in TWO_HAND_INVTYPES):
         gear.pop("OFF_HAND", None)
+
+    # Fill live enchants/gems over the equipped set (correct per-category gem
+    # budget), then prefer the collector's persisted values wherever it has them.
+    live_cands = {slot: [cand] for slot, cand in gear.items()}
+    simcBis.apply_enchants_and_gems(live_cands, enchant_map, gem_ranking, item_lookup)
+    for slot, cand in gear.items():
+        p = persisted[slot]
+        if p["enchant_id"] is not None:
+            cand["enchant_id"] = p["enchant_id"]
+        if p["gem_ids"]:
+            cand["gem_ids"] = p["gem_ids"]
+
     active_slots = [s for s in ALL_SLOTS if s in gear]
     return gear, active_slots
 
@@ -154,7 +186,10 @@ def build_profiles(season, target_error, only_specs=None):
                 bis_rows = None
                 skipped["simcbis"] = f"fetch_simc_bis failed: {e}"
             if bis_rows:
-                bis_gear, bis_slots = _simcbis_gear(bis_rows, item_lookup, spec_id)
+                bis_gear, bis_slots = _simcbis_gear(
+                    bis_rows, item_lookup, spec_id,
+                    prep["enchant_map"], prep["gem_ranking"],
+                )
             if bis_gear:
                 bis_header = build_header(
                     class_name, spec_name, primary, talents,

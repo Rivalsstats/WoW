@@ -653,6 +653,36 @@ def set_is_valid(chosen):
     return True
 
 
+def legalize_baseline_embellishments(baseline, candidates):
+    """Demote excess embellished picks so a baseline respects the embellishment cap.
+
+    The popular baseline takes the most-popular item per slot independently, which can
+    equip more than EMBELLISH_LIMIT_QUANTITY embellishments — illegal in-game (only two
+    ever apply), and simc would apply all of them and inflate the set's DPS. Keep the
+    most-popular embellished picks up to the cap and swap every further embellished slot
+    to its most-popular non-embellished candidate. Mutates and returns `baseline`.
+    """
+    emb_slots = [s for s, c in baseline.items() if c and c.get("has_embellishment")]
+    if len(emb_slots) <= EMBELLISH_LIMIT_QUANTITY:
+        return baseline
+    # keep the most-popular embellished picks (highest equip count) up to the cap
+    emb_slots.sort(key=lambda s: baseline[s].get("count", 0), reverse=True)
+    for slot in emb_slots[EMBELLISH_LIMIT_QUANTITY:]:
+        alt = next(
+            (c for c in candidates.get(slot, []) if not c.get("has_embellishment")),
+            None,
+        )
+        if alt is not None:
+            _log(f"baseline: demoting embellished item {baseline[slot]['item_id']} in {slot} "
+                 f"to non-embellished {alt['item_id']} to respect the "
+                 f"{EMBELLISH_LIMIT_QUANTITY}-embellishment cap")
+            baseline[slot] = alt
+        else:
+            _log(f"baseline: {slot} has no non-embellished candidate; keeping embellished "
+                 f"item {baseline[slot]['item_id']} (set may exceed embellishment cap)")
+    return baseline
+
+
 def _combo_count(opts):
     """Cartesian size of a per-slot option bag (slot -> list of candidates)."""
     n = 1
@@ -1334,6 +1364,12 @@ def _prepare_spec(spec_id, spec_info, class_info, season, conn, cursor, item_loo
     if (mh and spec_id not in DUAL_WIELD_TWOHAND_SPECS
             and item_lookup.get(mh["item_id"], {}).get("inventoryType") in TWO_HAND_INVTYPES):
         baseline.pop("OFF_HAND", None)
+
+    # The per-slot popularity picks above ignore cross-slot equip limits; the most
+    # common item in three+ slots can be embellished. Keep the popular set legal
+    # (<=2 embellishments) so it isn't simmed with illegal, DPS-inflating stats.
+    legalize_baseline_embellishments(baseline, candidates)
+
     active_slots = [s for s in ALL_SLOTS if s in baseline]
 
     return {
