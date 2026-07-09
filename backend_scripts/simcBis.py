@@ -34,6 +34,7 @@ One simc invocation evaluates every combination and emits JSON (``json2``) with
 """
 
 import os
+import re
 import json
 import asyncio
 import argparse
@@ -995,7 +996,19 @@ async def _run_simc_local(token, in_path, out_path):
         stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=SIMC_RUN_TIMEOUT)
     except asyncio.TimeoutError:
         proc.kill()
+        # Drain whatever simc buffered before we killed it and distill it, so the
+        # log explains how far it got and why (see _summarize_simc_progress).
+        summary = ""
+        try:
+            stdout, _ = await proc.communicate()
+            summary = _summarize_simc_progress(
+                (stdout or b"").decode("utf-8", "replace"), elapsed_s=SIMC_RUN_TIMEOUT
+            )
+        except Exception:
+            pass
         msg = f"simc timed out after {SIMC_RUN_TIMEOUT}s for {token}"
+        if summary:
+            msg += f" — {summary}"
         _log(msg)
         return False, msg
     if proc.returncode != 0:
@@ -1054,6 +1067,58 @@ def cleanup_orphaned_containers(reason="shutdown"):
             _log(f"simc: removed orphaned container {container.short_id} ({reason})")
         except Exception as e:
             _log(f"simc: failed to remove container {container.short_id} ({reason}): {e}")
+
+
+_PROFILESET_PROGRESS_RE = re.compile(r"Profilesets\s*\((\d+\*\d+)\):\s*(\d+)/(\d+)(.*)")
+
+
+def _summarize_simc_progress(raw, elapsed_s=None):
+    """Best-effort one-line diagnostic of how far a simc run got, from its console
+    output. Used when a run times out so the collector log explains *why* without
+    anyone having to attach to the container.
+
+    simc rewrites a single progress line in place using carriage returns, so the
+    captured logs are one long CR-delimited blob; we split on CR/LF and keep the
+    last frame that reported profileset progress. When we know how long the run
+    ran (elapsed_s) we extrapolate the count to a projected full-run time, which
+    is usually the punchline ("would need ~22h, limit is 8h"). We also surface the
+    single_actor_batch warning that fires for support/pet specs (Augmentation),
+    since that disables simc's batch optimisation and makes every profileset sim
+    the whole group — the most common reason a spec blows the timeout. Returns ''
+    when nothing recognisable is present.
+    """
+    if not raw:
+        return ""
+    last = None
+    warn_batch = False
+    for frame in re.split(r"[\r\n]+", raw):
+        frame = frame.strip()
+        if not frame:
+            continue
+        m = _PROFILESET_PROGRESS_RE.search(frame)
+        if m:
+            last = m
+        elif "single actor batch is not supported" in frame.lower():
+            warn_batch = True
+    parts = []
+    if last:
+        threads, done, total = last.group(1), int(last.group(2)), int(last.group(3))
+        # Drop simc's ASCII progress bar "[====>....]" and collapse whitespace,
+        # leaving the useful "avg=.. done=.." timing tail.
+        tail = " ".join(re.sub(r"\[[.=>< ]*\]", "", last.group(4)).split())
+        pct = (done / total * 100) if total else 0
+        line = f"reached {done}/{total} profilesets ({pct:.0f}%, threads {threads})"
+        if tail:
+            line += f" {tail}"
+        if elapsed_s and done:
+            projected_h = elapsed_s * total / done / 3600
+            line += (f"; at this rate a full run needs ~{projected_h:.1f}h "
+                     f"(limit {SIMC_RUN_TIMEOUT / 3600:.1f}h)")
+        parts.append(line)
+    if warn_batch:
+        parts.append("single_actor_batch disabled for a support/pet spec — every "
+                     "profileset sims the full group (far slower); expect long runtimes")
+    return "; ".join(parts)
 
 
 async def _run_simc_docker(token):
@@ -1137,7 +1202,20 @@ async def _run_simc_docker(token):
             asyncio.to_thread(_wait_and_collect, container), timeout=SIMC_RUN_TIMEOUT
         )
     except asyncio.TimeoutError:
+        # Grab the container's console output *before* we kill it so the log
+        # records how far the sim got and why it was too slow (see
+        # _summarize_simc_progress) instead of just "timed out".
+        summary = ""
+        try:
+            raw = await asyncio.to_thread(
+                lambda: container.logs(stdout=True, stderr=True).decode("utf-8", "replace")
+            )
+            summary = _summarize_simc_progress(raw, elapsed_s=SIMC_RUN_TIMEOUT)
+        except Exception as e:
+            _log(f"simc: could not read logs from timed-out container for {token}: {e}")
         msg = f"simc container timed out after {SIMC_RUN_TIMEOUT}s for {token}"
+        if summary:
+            msg += f" — {summary}"
         _log(msg)
         try:
             await asyncio.to_thread(container.stop, timeout=10)
