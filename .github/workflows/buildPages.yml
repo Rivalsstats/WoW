@@ -155,9 +155,17 @@ jobs:
       - name: Run SimulationCraft (${{ matrix.gearset }}, ${{ matrix.targets }} targets)
         run: |
           chmod +x simc-bin/simc
+          # Single-target sims 3 min (180s); every multi-target sim 1 min (60s).
+          # Overrides the profile's placeholder max_time, like desired_targets.
+          if [ "${{ matrix.targets }}" -eq 1 ]; then
+            max_time=180
+          else
+            max_time=60
+          fi
           ./simc-bin/simc \
             simc_io/gearset_${{ matrix.gearset }}.simc \
             desired_targets=${{ matrix.targets }} \
+            max_time="$max_time" \
             json2=simc_io/sim_${{ matrix.gearset }}_${{ matrix.targets }}t.json
 
       - name: Write sim metadata

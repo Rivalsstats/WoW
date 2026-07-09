@@ -49,9 +49,10 @@ GEAR_SETS = ["popular", "simcbis"]
 def tierlist_sim_options(target_error):
     """simc-wide options shared by every actor in a tierlist profile.
 
-    ``desired_targets`` is a placeholder — each matrix job overrides it on the
-    simc CLI (1/3/5/8). No profileset / scale-factor options: these files sim
-    a single fixed set per actor, not a Top-Gear sweep.
+    ``desired_targets`` and ``max_time`` are placeholders — each matrix job
+    overrides them on the simc CLI (desired_targets 1/3/5/8; max_time 180s for
+    single-target, 60s for multi-target). No profileset / scale-factor options:
+    these files sim a single fixed set per actor, not a Top-Gear sweep.
     """
     return [
         "threads=4",
