@@ -8,7 +8,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 import databaseConnector
 from pageGeneration import generateSpecNav, generateDungeonNav
 from generateSpecPages import LOOKUP_DIR, load_json
-from generateSocialsPost import createCompOverviewImg
+from image_generation.comp_overview import createCompOverviewImg
 
 def avg_top_n_keys(keylevel_timed, n=5):
     """Average key level of a comp's N highest *timed* runs.

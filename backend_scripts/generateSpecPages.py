@@ -12,8 +12,21 @@ from contextlib import closing
 import re
 from urllib.parse import quote_plus
 from pageGeneration import ROLE_FOLDERS, generateSpecNav, generateDungeonNav, build_item_slug_map
+# Re-exported for the many modules that import these from generateSpecPages;
+# the implementations live in commonUtils so image_generation/social_posts can
+# use them without importing this (jinja2-heavy) module.
+from commonUtils import (
+    LOOKUP_DIR,
+    SECONDARY_STATS,
+    TERTIARY_STATS,
+    HEALTH_STATS,
+    load_json,
+    upgrade_info,
+    humanize_number,
+    format_duration,
+    fetch_stat_info,
+)
 
-LOOKUP_DIR = "data/static"  # Default lookup directory, can be overridden by command line argument
 LEFT_ORDER = ["HEAD", "NECK", "SHOULDER", "BACK", "CHEST", "WRIST"]
 RIGHT_ORDER = ["HANDS", "WAIST", "LEGS", "FEET", "FINGER_1", "FINGER_2"]
 
@@ -104,58 +117,6 @@ BLIZZARD_STAT_MAP = {
     63: "avoidance",
 }
 
-SECONDARY_STATS = ["haste", "versatility", "mastery", "crit"]
-TERTIARY_STATS = [
-    "avoidance",
-    "lifesteal",
-    "speed",
-]
-HEALTH_STATS = ["health", "stamina"]
-
-
-def load_json(path):
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-# formatters
-def upgrade_info(duration, upgrade_map, keystone_level):
-    """
-    Given:
-      - duration: an integer (ms) or something castable to int
-      - upgrade_map: a dict whose values are dicts with
-          { 'upgrade_level': int, 'qualifying_duration': int }
-      - keystone_level: int or str (or None)
-    Returns:
-      A dict with:
-        - text: the '+…' or '-' prefix joined to keystone_level
-        - css:  the bootstrap class to use ('text-success' or 'text-danger')
-    """
-    try:
-        dur = int(duration)
-    except (TypeError, ValueError):
-        # fallback to no upgrade
-        return {"text": f"-{keystone_level or ''}", "css": "text-danger"}
-
-    # sort descending by upgrade_level
-    levels = sorted(
-        upgrade_map.values(), key=lambda e: e["upgrade_level"], reverse=True
-    )
-
-    achieved = 0
-    for lvl in levels:
-        if dur <= lvl["qualifying_duration"]:
-            achieved = lvl["upgrade_level"]
-            break
-
-    if achieved > 0:
-        prefix, css = "+" * achieved, "text-success"
-    else:
-        prefix, css = "-", "text-danger"
-
-    return {"text": f"{prefix}{keystone_level or ''}", "css": css}
-
-
 def format_utc_timestamp(ms):
     """
     Convert a UTC timestamp in milliseconds (e.g. 1750986462000)
@@ -219,64 +180,6 @@ def format_buyout(buyout):
         )
 
     return " ".join(parts) or "0 <small>c</small>"
-
-
-def humanize_number(value):
-    """
-    Turn 123 → '123', 1500 → '1.5k', 500000 → '500k', 3000000 → '3m', etc.
-    """
-    try:
-        n = int(value)
-    except (TypeError, ValueError):
-        return value
-
-    if n >= 1_000_000:
-        x = n / 1_000_000.0
-        # one decimal, strip trailing .0
-        s = f"{x:.1f}".rstrip("0").rstrip(".")
-        return f"{s} M"
-    if n >= 1_000:
-        x = n / 1_000.0
-        s = f"{x:.1f}".rstrip("0").rstrip(".")
-        return f"{s} K"
-    return str(n)
-
-
-def format_duration(ms):
-    """
-    Turn a millisecond count into:
-      - "MM:SS.mmm" if under an hour
-      - "HH:MM:SS.mmm" if one hour or more
-
-    Examples:
-      34567    → "00:34.567"
-      1234567  → "20:34.567"
-      3661000  → "01:01:01.000"
-    """
-    try:
-        total_ms = int(ms)
-    except (TypeError, ValueError):
-        return ms
-
-    # Break into components
-    total_seconds = total_ms // 1000
-    milliseconds = total_ms % 1000
-
-    hours = total_seconds // 3600
-    minutes = (total_seconds % 3600) // 60
-    seconds = total_seconds % 60
-
-    # Zero‑pad each piece
-    hh = f"{hours:02d}"
-    mm = f"{minutes:02d}"
-    ss = f"{seconds:02d}"
-    mmm = f"{milliseconds:03d}"
-
-    # Build the string
-    base = f"{mm}:{ss}.{mmm}"
-    if hours > 0:
-        return f"{hh}:{base}"
-    return base
 
 
 # helpers
@@ -1126,29 +1029,10 @@ def convert_slots(
                                     break
 
 
-def fetch_stat_info(conn, cursor, spec_id, current_season_id, spec_lookup):
-    stats = databaseConnector.fetch_stats(conn, cursor, spec_id, current_season_id)
-    stat_priority = []
-    tertiary_priority = []
-    health_priority = []
-    for stat, value in stats.items():
-        if stat == "mainstat":
-            value["name"] = spec_lookup[spec_id].get("primary_stat")
-            stat_priority.append(value)
-        elif stat in SECONDARY_STATS:
-            value["name"] = stat
-            stat_priority.append(value)
-        elif stat in TERTIARY_STATS:
-            value["name"] = stat
-            tertiary_priority.append(value)
-        elif stat in HEALTH_STATS:
-            value["name"] = stat
-            health_priority.append(value)
-    return stat_priority, tertiary_priority, health_priority
-
-
 def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=None):
-    from generateSocialsPost import createSpecOverviewImg # local import so we don't get circular dependency issues
+    # local import: keeps PIL/matplotlib out of the import path for the many
+    # modules that only need this file's helpers
+    from image_generation.spec_overview import createSpecOverviewImg
     # Prepare Jinja2 environment
     env = Environment(
         loader=FileSystemLoader(os.path.dirname(template_path)),
@@ -1927,13 +1811,15 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    # Pool size 2: createSpecOverviewImg holds a connection open while
+    # get_run_data acquires a second one for the spec's highest run.
     databaseConnector.init_connection_pool(
         os.environ.get("DATABASE_HOST"),
         os.environ.get("DATABASE_USER"),
         os.environ.get("DATABASE_PASSWORD"),
         os.environ.get("DATABASE_NAME"),
         os.environ.get("DATABASE_PORT"),
-        1,
+        2,
     )
     main(
         args.template,

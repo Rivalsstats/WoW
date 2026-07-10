@@ -31,7 +31,7 @@ POST_TYPE_META = {
 }
 DEFAULT_TYPE_META = ("Data Spotlight", "bg-gradient-secondary")
 
-# Filename prefixes of images created by generateSocialsPost.py, used to
+# Filename prefixes of images created by social_posts/posts.py, used to
 # classify entries that predate the post_type field in socials.json.
 FILENAME_TYPE_PATTERNS = [
     ("spec_overview_", "spec_overview"),

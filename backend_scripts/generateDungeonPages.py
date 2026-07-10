@@ -6,7 +6,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 import databaseConnector
 from pageGeneration import generateSpecNav, generateDungeonNav, ROLE_FOLDERS
 from generateSpecPages import format_duration, format_utc_timestamp, format_iso_timestamp, load_json, upgrade_info
-from generateSocialsPost import createDungeonOverviewImg
+from image_generation.dungeon_overview import createDungeonOverviewImg
 
 LOOKUP_DIR = "data/static"
 

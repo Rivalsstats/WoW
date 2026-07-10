@@ -26,7 +26,7 @@ import argparse
 from datetime import datetime, timedelta, timezone
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from pageGeneration import generateSpecNav, generateDungeonNav
-from generateTierlistImage import PREVIEW_URL, PREVIEW_TARGETS, generate_preview_image
+from image_generation.tierlist_preview import PREVIEW_URL, PREVIEW_TARGETS, generate_preview_image
 
 # Static lookup dir (inlined so this generator needs no DB deps, only jinja2).
 LOOKUP_DIR = "data/static"

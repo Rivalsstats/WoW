@@ -703,7 +703,8 @@ def build_spec_tiers(spec_lookup, class_lookup, spec_rows, weight_base=1.6, k=6)
 
 
 def main(template_path, output_dir):
-    from generateSocialsPost import create_spec_popularity_vs_performance_img # local import so we don't get circular dependency issues
+    # local import: keeps matplotlib/PIL out of the import path until actually rendering
+    from image_generation.spec_popularity_performance import create_spec_popularity_vs_performance_img
     print("Generating index page...")
     env = Environment(
         loader=FileSystemLoader(os.path.dirname(template_path)),

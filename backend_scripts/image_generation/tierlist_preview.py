@@ -2,12 +2,12 @@
 
 Renders a static 1200x630 link-unfurl thumbnail from a tierlist tab's DPS rows.
 
-Kept separate from generateSocialsPost.py on purpose: that module initialises a
-DB connection pool and imports openai/matplotlib/pandas at import time, whereas
-the tierlist page is built in a decoupled, DB-free CI job that only has jinja2 +
-Pillow available. So this module depends on Pillow alone (imported lazily inside
-the render function) and never touches the social-media posting pipeline — the
-image is purely for SEO / link unfurls.
+Deliberately self-contained: the tierlist page is built in a decoupled, DB-free
+CI job that only has jinja2 + Pillow available, so this module depends on
+Pillow alone (imported lazily inside the render function) and must not import
+the DB/matplotlib-backed siblings in this package. Note its TIER_COLORS
+(outline/text tuples, with a D tier) intentionally differ from
+image_generation.config.tier_colors.
 """
 
 import os
@@ -50,7 +50,7 @@ def generate_preview_image(rows, spec_lookup, class_lookup, season_name, targets
     so a thumbnail problem never blocks the page. Returns True on success.
 
     This produces a static SEO/link-unfurl image only; it deliberately does not
-    touch the social-media posting pipeline in generateSocialsPost.py.
+    touch the social-media posting pipeline in social_posts/.
     """
     try:
         from PIL import Image, ImageDraw, ImageFont
