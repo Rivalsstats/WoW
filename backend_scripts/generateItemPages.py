@@ -517,17 +517,7 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
     spec_ids = [str(s) for s in spec_lookup.keys()]
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()
-        # Read-only build: don't hold a long-lived snapshot/transaction (a hung
-        # build under autocommit=0 becomes an MDL holder that blocks the daily
-        # TRUNCATE+rebuild events, which then blocks every later build). READ
-        # UNCOMMITTED matches the events' isolation. lock_wait_timeout bounds how
-        # long a query waits on a metadata lock so a contended table fails fast
-        # (fetch_with_retry rides out transient TRUNCATE windows) instead of
-        # hanging for the server default (~1 year).
-        conn.autocommit = True
-        cursor.execute("SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED")
-        cursor.execute("SET SESSION lock_wait_timeout = 120")
-        cursor.execute("SET SESSION innodb_lock_wait_timeout = 30")
+        databaseConnector.configure_read_session(conn, cursor)
         for i, sp in enumerate(spec_ids, 1):
             print(f"[{datetime.now(timezone.utc).isoformat()}] sweeping spec {sp} ({i}/{len(spec_ids)})...")
 

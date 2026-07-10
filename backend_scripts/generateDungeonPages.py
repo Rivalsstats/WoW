@@ -96,6 +96,7 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
             raise ValueError("Current season ID not found in seasonInfo.json")
 
         with conn.cursor(dictionary=True) as cursor:
+            databaseConnector.configure_read_session(conn, cursor)
             print("Pre-fetching global spec populations for relative comparison...")
             global_total = databaseConnector.fetch_global_totals(conn, cursor, current_season)
             global_total_count = global_total[0]['total'] if global_total and global_total[0]['total'] else 1

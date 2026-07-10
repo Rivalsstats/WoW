@@ -251,7 +251,11 @@ def generate_llm_txt(output_dir="."):
     try:
         import sys
         sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
-        from databaseConnector import init_connection_pool, get_connection
+        from databaseConnector import (
+            init_connection_pool,
+            get_connection,
+            configure_read_session,
+        )
         import os as os_module
         
         # Get DB config from environment
@@ -272,6 +276,7 @@ def generate_llm_txt(output_dir="."):
             
             conn = get_connection()
             cursor = conn.cursor(dictionary=True)
+            configure_read_session(conn, cursor)
             cursor.execute("SELECT name FROM seasons WHERE current = 1 LIMIT 1")
             result = cursor.fetchone()
             if result:

@@ -731,6 +731,7 @@ def main(template_path, output_dir):
     print(f"Fetching database data {current_season}...")
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()
+        databaseConnector.configure_read_session(conn, cursor)
         dungeon_data = databaseConnector.fetch_runs_per_dungeon_per_level(
             conn, cursor, current_season
         )

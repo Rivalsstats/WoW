@@ -149,6 +149,7 @@ def build_profiles(season, target_error, only_specs=None):
 
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()
+        databaseConnector.configure_read_session(conn, cursor)
         for spec_id, info in simcBis.simulated_specs(specs):
             if only_specs and spec_id not in only_specs:
                 continue

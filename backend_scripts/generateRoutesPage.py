@@ -72,6 +72,7 @@ def main(template_path, output_dir, limit):
     try:
         conn = databaseConnector.get_connection()
         cursor = conn.cursor()
+        databaseConnector.configure_read_session(conn, cursor)
     except Exception as e:
         fail(f"Failed to obtain DB connection: {e}")
 

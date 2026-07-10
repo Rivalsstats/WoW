@@ -37,6 +37,20 @@ def init_connection_pool(host, user, password, database, port, pool_size=30):
     )
 
 
+def configure_read_session(conn, cursor):
+    """Configure a read-only page-build session so it can never wedge the
+    nightly aggregation pipeline: under the pool default autocommit=0 the
+    first SELECT opens a transaction that holds a shared metadata lock on
+    every table it reads until commit, which blocks the pipeline's RENAME
+    swaps and queues all later queries behind them. autocommit releases the
+    MDL after each statement; READ UNCOMMITTED matches the events' isolation;
+    the lock timeouts bound how long a query waits instead of hanging."""
+    conn.autocommit = True
+    cursor.execute("SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED")
+    cursor.execute("SET SESSION lock_wait_timeout = 120")
+    cursor.execute("SET SESSION innodb_lock_wait_timeout = 30")
+
+
 def commit_with_retry(connection):
     """
     Commit; on lock-wait timeout, retry commit itself (rare) same as above.
@@ -1779,9 +1793,9 @@ def fetch_completion_heatmap(connection, cursor, season):
     Per-region day-of-week x hour-of-day completion counts for the dashboard
     "When are keys completed?" heatmap.
 
-    Reads the pre-aggregated `aggregated_completion_heatmap` table (populated by
-    the ev_update_completion_heatmap event) rather than scanning the full runs
-    table at page-build time. day_of_week is 0=Sunday..6=Saturday and
+    Reads the pre-aggregated `aggregated_completion_heatmap` table (rebuilt by
+    the nightly pipeline's sp_agg_completion_heatmap step) rather than scanning
+    the full runs table at page-build time. day_of_week is 0=Sunday..6=Saturday and
     hour_of_day is 0-23, both in UTC — matching JS Date.getUTCDay() so the
     client can rotate the grid into the viewer's local time.
     """

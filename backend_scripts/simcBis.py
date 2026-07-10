@@ -1666,20 +1666,9 @@ async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, 
         try:
             with closing(databaseConnector.get_connection()) as conn:
                 cursor = conn.cursor()
-                # The pool default is autocommit=0, so the first SELECT of the
-                # read phase (gear popularity from global_aggregated_*) opens a
-                # transaction that holds shared MDL on those tables for the
-                # entire multi-hour simc run (nothing commits until persist).
-                # The daily TRUNCATE+rebuild events then queue an exclusive MDL
-                # request behind us, and every later reader (e.g. the page
-                # build) piles up behind that pending request -> 1205 lock wait
-                # timeouts. autocommit releases MDL per statement; persist()
-                # opens an explicit transaction so its delete+insert stays
-                # atomic. READ UNCOMMITTED matches the events' isolation.
-                conn.autocommit = True
-                cursor.execute("SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED")
-                cursor.execute("SET SESSION lock_wait_timeout = 120")
-                cursor.execute("SET SESSION innodb_lock_wait_timeout = 30")
+                # autocommit read phase (see configure_read_session); persist()
+                # opens an explicit transaction so its delete+insert stays atomic.
+                databaseConnector.configure_read_session(conn, cursor)
                 season = None
                 if get_season:
                     season = get_season(conn, cursor)

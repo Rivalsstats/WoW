@@ -394,6 +394,7 @@ def main(template_path, output_dir):
     try:
         conn = databaseConnector.get_connection()
         cursor = conn.cursor()
+        databaseConnector.configure_read_session(conn, cursor)
     except Exception as e:
         print(f"ERROR: Failed to obtain DB connection: {e}", file=sys.stderr)
         sys.exit(2)

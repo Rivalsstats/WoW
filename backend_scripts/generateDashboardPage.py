@@ -506,6 +506,7 @@ def main(template_path, output_dir):
     current_season_id = aggregateData.get_current_season_id(access_token)
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()
+        databaseConnector.configure_read_session(conn, cursor)
         print("fetching runs...")
         longest_run = databaseConnector.fetch_longest_run(
             conn, cursor, current_season_id
