@@ -53,71 +53,53 @@ def fit_font_to_width(
     return ImageFont.load_default()
 
 
-def apply_watermark_to_canvas(canvas, position="top_right", padding_x=30, padding_y=20):
+def apply_watermark_to_canvas(canvas, position="bottom_right", padding_x=30, padding_y=20):
+    """Brand footer matching the tierlist preview: muted "mythistone.com" with
+    the 32px logo to its right — no stroke, no bright white."""
     try:
         canvas = canvas.convert("RGBA")
         draw = ImageDraw.Draw(canvas)
         logo_path = os.path.join("assets", "img", "favicon", "favicon-96x96.png")
         if os.path.exists(logo_path):
-            logo = Image.open(logo_path).convert("RGBA").resize((40, 40), LANCZOS)
+            logo = Image.open(logo_path).convert("RGBA").resize((32, 32), LANCZOS)
             logo_width, logo_height = logo.size
         else:
             logo = None
             logo_width, logo_height = 0, 0
 
-        font = ImageFont.truetype(config.FONT_FILE, 36)
+        font = ImageFont.truetype(config.FONT_FILE, 26)
 
-        text = "Mythistone.com"
+        text = "mythistone.com"
         box = draw.textbbox((0, 0), text, font=font)
         text_width = box[2] - box[0]
         text_height = box[3] - box[1]
 
-        gap = 10 if logo else 0
-        total_width = logo_width + gap + text_width
+        gap = 8 if logo else 0
+        total_width = text_width + gap + logo_width
+        block_h = max(text_height, logo_height)
 
         view_w, view_h = canvas.size
 
-        if position == "top_right":
+        if position in ("top_right", "bottom_right"):
             start_x = view_w - total_width - padding_x
-            start_y = padding_y
         elif position == "top_center":
             start_x = (view_w - total_width) // 2
-            start_y = padding_y
-        elif position == "top_left":
+        else:  # *_left
             start_x = padding_x
-            start_y = padding_y
-        elif position == "bottom_right":
-            start_x = view_w - total_width - padding_x
-            start_y = view_h - max(text_height, logo_height) - padding_y
-        elif position == "bottom_left":
-            start_x = padding_x
-            start_y = view_h - max(text_height, logo_height) - padding_y
+        if position.startswith("bottom"):
+            start_y = view_h - block_h - padding_y
         else:
-            start_x = view_w - total_width - padding_x
             start_y = padding_y
 
         start_x = int(start_x)
         start_y = int(start_y)
 
-        if logo_height > text_height:
-            text_y = int(start_y + (logo_height - text_height) // 2 - box[1])
-            logo_y = start_y
-        else:
-            text_y = int(start_y - box[1])
-            logo_y = int(start_y + (text_height - logo_height) // 2)
+        text_y = int(start_y + (block_h - text_height) // 2 - box[1])
+        logo_y = int(start_y + (block_h - logo_height) // 2)
 
-        # Draw stroke/highlight
-        stroke_color = "black"
-        stroke_width = 2
-        for dx in range(-stroke_width, stroke_width + 1):
-            for dy in range(-stroke_width, stroke_width + 1):
-                draw.text((start_x + logo_width + gap + dx, text_y + dy), text, font=font, fill=stroke_color)
-
-        # Draw real text
-        draw.text((start_x + logo_width + gap, text_y), text, font=font, fill="white")
-
+        draw.text((start_x, text_y), text, font=font, fill=config.MUTED)
         if logo:
-            canvas.paste(logo, (start_x, logo_y), logo)
+            canvas.paste(logo, (start_x + text_width + gap, logo_y), logo)
 
         return canvas
     except Exception as e:
@@ -151,20 +133,76 @@ def cover_crop(img, width, height):
     return resized.crop((left, top, left + width, top + height))
 
 
-def random_background_canvas(width, height, bg_dir=os.path.join("data", "bg_imgs")):
-    """Pick a random background image from bg_dir resized to width×height;
-    flat dark canvas if the directory is empty or missing."""
+def random_background_canvas(width, height, bg_dir=os.path.join("data", "bg_imgs"),
+                             alpha=None, base=None):
+    """Pick a random background image from bg_dir cover-cropped to width×height.
+    With `alpha`/`base` set, blend the image toward the flat `base` color so it
+    reads as a subtle texture (alpha = how visible the image stays, 0..1).
+    Falls back to a flat canvas (base color if given) when bg_dir is empty or
+    missing."""
+    fallback = base if base is not None else "#222222"
     bg_files = [
         os.path.join(bg_dir, f)
         for f in os.listdir(bg_dir)
         if f.lower().endswith((".jpg", ".jpeg", ".png"))
     ] if os.path.exists(bg_dir) else []
     if not bg_files:
-        return Image.new("RGB", (width, height), "#222222")
+        return Image.new("RGB", (width, height), fallback)
     canvas = Image.open(random.choice(bg_files)).convert("RGB")
-    if canvas.size != (width, height):
-        canvas = canvas.resize((width, height), LANCZOS)
+    canvas = cover_crop(canvas, width, height)
+    if alpha is not None and base is not None:
+        canvas = Image.blend(Image.new("RGB", (width, height), base), canvas, alpha)
     return canvas
+
+
+def blend_toward(fg, bg, alpha):
+    """Blend an rgb tuple `fg` toward `bg`; alpha = how much fg remains (0..1)."""
+    return tuple(int(fg[i] * alpha + bg[i] * (1 - alpha)) for i in range(3))
+
+
+def composite_chart_onto_bg(out_path, alpha=config.BG_ALPHA, base=config.BG):
+    """Put a dimmed random background behind a chart PNG that was saved with
+    savefig(..., transparent=True): open it, alpha-composite it over the dimmed
+    canvas and write it back. Call between savefig and watermark_file."""
+    with Image.open(out_path) as tmp:
+        chart = tmp.convert("RGBA")
+    canvas = random_background_canvas(chart.width, chart.height, alpha=alpha, base=base).convert("RGBA")
+    canvas.alpha_composite(chart)
+    canvas.convert("RGB").save(out_path)
+
+
+def dimmed_cover_bg(img, width, height, alpha=config.BG_ALPHA, base=config.BG):
+    """Cover-crop `img` to width×height and blend it toward the flat `base`
+    color so it reads as a subtle texture (alpha = image visibility, 0..1).
+    Used by renderers with a meaningful background (dungeon art) that should
+    still match the dark modern style."""
+    bg = cover_crop(img.convert("RGB"), width, height)
+    return Image.blend(Image.new("RGB", (width, height), base), bg, alpha)
+
+
+def draw_header(draw, title, subtitle, width, margin=56, title_fill=None,
+                title_size=None, subtitle_size=None):
+    """Modern header mirroring the tierlist preview: Bebas title, uppercase
+    muted subtitle, thin divider rule. The title shrinks to fit the available
+    width; the reserved header height stays constant. Returns the y coordinate
+    below the divider where content can start."""
+    title_size = title_size or int(config.HEIGHT * 0.105)
+    subtitle_size = subtitle_size or int(config.HEIGHT * 0.046)
+    max_title_w = width - 2 * margin
+    try:
+        size = title_size
+        title_font = ImageFont.truetype(config.FONT_FILE, size)
+        while size > 16 and draw.textlength(title, font=title_font) > max_title_w:
+            size -= 2
+            title_font = ImageFont.truetype(config.FONT_FILE, size)
+        subtitle_font = ImageFont.truetype(config.FONT_FILE, subtitle_size)
+    except (OSError, IOError):
+        title_font = subtitle_font = ImageFont.load_default()
+    draw.text((margin, 38), title, font=title_font, fill=title_fill or config.TEXT)
+    draw.text((margin, 38 + title_size + 12), subtitle.upper(), font=subtitle_font, fill=config.MUTED)
+    divider_y = 38 + title_size + 12 + subtitle_size + 22
+    draw.line([(margin, divider_y), (width - margin, divider_y)], fill=config.DIVIDER, width=2)
+    return divider_y + 18
 
 
 def rounded_alpha(img, radius):
@@ -188,13 +226,13 @@ def load_spec_icon(spec_meta, size):
     return Image.open(icon_file).convert("RGBA").resize((size, size), LANCZOS)
 
 
-def draw_panel(draw, box, radius=12, fill=(0, 0, 0, 200)):
+def draw_panel(draw, box, radius=12, fill=config.PANEL_FILL, outline=config.PANEL_OUTLINE):
     """Filled rounded-rectangle card with a plain-rectangle fallback for old
     Pillow versions without rounded_rectangle."""
     try:
-        draw.rounded_rectangle(box, radius=radius, fill=fill)
+        draw.rounded_rectangle(box, radius=radius, fill=fill, outline=outline, width=1)
     except Exception:
-        draw.rectangle(box, fill=fill)
+        draw.rectangle(box, fill=fill, outline=outline, width=1)
 
 
 def parse_color(s):
@@ -218,30 +256,18 @@ def compute_panel_width(draw, blocks, font, icon_sz, text_offset, pad):
     return pad * 2 + icon_sz + text_offset + max_w
 
 
-def draw_comp_rows(canvas, draw, rows, spec_lookup, font, x0=50, y0=250,
-                   icon_sz=40, gap=45, text_offset=10, row_h=60):
-    """Draw one comp per row: the spec icons side by side followed by a label.
-
-    rows: iterable of (spec_ids, label) where spec_ids are role-sorted
-    spec-id strings and label is the text drawn after the icons.
-    Returns the y offset after the last row.
-    """
-    y_offset = y0
-    for spec_ids, label in rows:
-        x_offset = x0
-        for sid in spec_ids:
-            if sid in spec_lookup:
-                icon = load_spec_icon(spec_lookup[sid], icon_sz)
-                if icon is not None:
-                    canvas.paste(icon, (x_offset, y_offset), icon)
-            x_offset += gap
-        draw.text(
-            (x_offset + text_offset, y_offset + 5),
-            label,
-            font=font,
-            fill=(255, 255, 255),
-            stroke_width=1,
-            stroke_fill=(0, 0, 0),
-        )
-        y_offset += row_h
-    return y_offset
+def paste_bordered_spec_icon(canvas, draw, sid, x, y, size, spec_lookup, class_lookup):
+    """Spec icon with a thin class-color outline; skips unknown specs."""
+    spec_meta = spec_lookup.get(sid)
+    if spec_meta is None:
+        return
+    icon = load_spec_icon(spec_meta, size)
+    if icon is not None:
+        canvas.paste(icon, (x, y), icon)
+    class_meta = class_lookup.get(str(spec_meta.get("classID", "")), {})
+    col = class_meta.get("color", {})
+    try:
+        cc = (int(col["r"]), int(col["g"]), int(col["b"]))
+    except Exception:
+        cc = (200, 200, 200)
+    draw.rectangle((x, y, x + size, y + size), outline=cc, width=2)

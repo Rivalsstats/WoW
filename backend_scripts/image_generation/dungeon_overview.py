@@ -12,6 +12,7 @@ import databaseConnector
 from commonUtils import (
     find_dungeon_meta,
     format_comp_names,
+    get_class_lookup,
     get_spec_lookup,
     humanize_number,
     sort_spec_ids_by_role,
@@ -20,16 +21,18 @@ from image_generation import config
 from image_generation.pil_helpers import (
     LANCZOS,
     apply_watermark_to_canvas,
-    cover_crop,
-    draw_comp_rows,
+    dimmed_cover_bg,
+    draw_header,
+    draw_panel,
+    paste_bordered_spec_icon,
     random_background_canvas,
     rounded_alpha,
-    spec_icon_path,
 )
 
 
 def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cursor=None):
     spec_lookup = get_spec_lookup()
+    class_lookup = get_class_lookup()
     WIDTH, HEIGHT = config.WIDTH, config.HEIGHT
 
     dungeon_meta = find_dungeon_meta(dungeon_id)
@@ -57,6 +60,12 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
         # Top comps
         top_comps_data = databaseConnector.fetch_dungeon_top_comps(conn, cursor, dungeon_id, season)
 
+        # Per-level rows for this dungeon (timed %, most-run key, highest key)
+        per_level = [
+            r for r in databaseConnector.fetch_runs_per_dungeon_per_level(conn, cursor, season)
+            if str(r.get("dungeon_id")) == str(dungeon_id)
+        ]
+
         # Top routes
         top_routes_data = databaseConnector.fetch_dungeon_top_routes(conn, cursor, dungeon_id)
     finally:
@@ -70,83 +79,55 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
         dungeon_icon_path = os.path.join(config.ICON_DIR, dungeon_meta["icon"])
 
     if dungeon_icon_path and os.path.exists(dungeon_icon_path):
-        bg_img = Image.open(dungeon_icon_path).convert("RGB")
-        canvas = cover_crop(bg_img, WIDTH, HEIGHT)
+        bg_img = Image.open(dungeon_icon_path)
+        canvas = dimmed_cover_bg(bg_img, WIDTH, HEIGHT)
     else:
-        canvas = random_background_canvas(WIDTH, HEIGHT)
+        canvas = random_background_canvas(WIDTH, HEIGHT, alpha=config.BG_ALPHA, base=config.BG)
 
-    draw = ImageDraw.Draw(canvas)
-    font_big = ImageFont.truetype(config.FONT_FILE, config.TITLE_SIZE)
+    draw = ImageDraw.Draw(canvas, "RGBA")
     font_sm = ImageFont.truetype(config.FONT_FILE, config.SMALL_SIZE)
 
-    # Draw Title
-    draw.text(
-        (50, 30),
+    draw_header(
+        draw,
         name_text,
-        font=font_big,
-        fill=(255, 255, 255),
-        stroke_width=2,
-        stroke_fill=(0, 0, 0),
-    )
-
-    # Draw Total Runs
-    draw.text(
-        (50, 130),
         f"{humanize_number(play_count)} total runs tracked",
-        font=font_sm,
-        fill=(200, 200, 200),
-        stroke_width=2,
-        stroke_fill=(0, 0, 0),
+        WIDTH,
+        margin=50,
     )
 
-    # Measure Box Widths to wrap tightly like Spec Page panels
+    # quick stats block, right-aligned in the header zone
+    timed_pct_str = highest_key = ""
+    if per_level:
+        timed = sum(int(r.get("upgrade_1", 0)) + int(r.get("upgrade_2", 0)) + int(r.get("upgrade_3", 0)) for r in per_level)
+        total = sum(int(r.get("total_runs", 0)) for r in per_level)
+        if total:
+            timed_pct_str = f"{timed / total * 100:.0f}%"
+        levels_run = [r for r in per_level if int(r.get("total_runs", 0)) > 0]
+        if levels_run:
+            highest_key = f"+{max(int(r['keystone_level']) for r in levels_run)}"
+        stat_font = ImageFont.truetype(config.FONT_FILE, config.SMALL_SIZE + 4)
+        stats = [(label, value) for label, value in (("Timed", timed_pct_str), ("Highest", highest_key)) if value]
+        # bottom row sits on the header's subtitle line so the block reads as
+        # part of the header instead of floating at the canvas edge
+        for i, (label, value) in enumerate(stats):
+            y = 124 - (len(stats) - 1 - i) * 42
+            draw.text((WIDTH - 50, y), value, font=stat_font, fill=config.TEXT, anchor="ra")
+            draw.text(
+                (WIDTH - 50 - draw.textlength(value, font=stat_font) - 12, y),
+                label.upper(), font=font_sm, fill=config.MUTED, anchor="ra",
+            )
+
+    # the route map's fixed geometry; the comps panel mirrors its vertical
+    # extent so both blocks share top and bottom edges
+    map_w, map_h = 600, 400
+    map_x = WIDTH - map_w - 50
+    map_y = 220
+
     pad = 20
-    icon_sz = 40
-    text_offset = 10
-    v_spacing = 20
+    icon_sz = 48
+    icon_gap = 5
+    text_offset = 14
 
-    top_comps_w = 0
-    # Measure Top Comps heading
-    header_1 = "Top Comps:"
-    box1 = draw.textbbox((0, 0), header_1, font=font_sm)
-    top_comps_w = max(top_comps_w, box1[2] - box1[0])
-
-    for r in top_comps_data[:5]:
-        comp_str = r['comp'] if isinstance(r, dict) else r[0]
-        if not comp_str: continue
-        comp_cnt = int(r['comp_count'] if isinstance(r, dict) else r[1])
-        # calculate row width
-        num_icons = len(comp_str.split(','))
-        runs_txt = f"Runs: {humanize_number(comp_cnt)}"
-        r_box = draw.textbbox((0, 0), runs_txt, font=font_sm)
-        # width = icons + offset + text width
-        row_w = (num_icons * 45) + text_offset + (r_box[2]-r_box[0])
-        top_comps_w = max(top_comps_w, row_w)
-
-    valid_comps_count = sum(1 for r in top_comps_data[:5] if (r['comp'] if isinstance(r, dict) else r[0]))
-
-    panel_x1 = 30
-
-    if valid_comps_count > 0:
-        box_pw = top_comps_w + (pad * 2)
-        # heading at y=200, first row at y=250, each row adds 60
-        box_y1 = 180
-        box_y2 = 250 + (valid_comps_count * 60)
-        draw.rounded_rectangle(
-            [(panel_x1, box_y1), (panel_x1 + box_pw, box_y2)],
-            radius=15,
-            fill=(0, 0, 0, 200)
-        )
-
-    # Top Comps
-    draw.text(
-        (50, 200),
-        "Top Comps:",
-        font=font_sm,
-        fill=(255, 255, 255),
-        stroke_width=2,
-        stroke_fill=(0, 0, 0),
-    )
     comp_rows = []
     for r in top_comps_data[:5]:
         comp_str = r['comp'] if isinstance(r, dict) else r[0]
@@ -155,7 +136,34 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
             continue
         spec_ids = sort_spec_ids_by_role(comp_str.split(','), spec_lookup)
         comp_rows.append((spec_ids, f"Runs: {humanize_number(int(comp_cnt))}"))
-    draw_comp_rows(canvas, draw, comp_rows, spec_lookup, font_sm)
+
+    # panel/content start at the header margin so they align with the divider
+    panel_x1 = 50
+
+    if comp_rows:
+        # Measure Box Widths to wrap tightly like Spec Page panels
+        top_comps_w = 0
+        for spec_ids, runs_txt in comp_rows:
+            r_box = draw.textbbox((0, 0), runs_txt, font=font_sm)
+            icons_w = len(spec_ids) * icon_sz + (len(spec_ids) - 1) * icon_gap
+            top_comps_w = max(top_comps_w, icons_w + text_offset + (r_box[2] - r_box[0]))
+        box_pw = top_comps_w + (pad * 2)
+
+        # heading above the panel, on the same line as the route map's label
+        draw.text((panel_x1, map_y - 40), "Top Comps:", font=font_sm, fill=config.MUTED)
+        draw_panel(draw, [(panel_x1, map_y), (panel_x1 + box_pw, map_y + map_h)], radius=15)
+
+        # rows spread evenly over the panel's inner height
+        avail_h = map_h - pad * 2
+        for i, (spec_ids, runs_txt) in enumerate(comp_rows):
+            row_cy = map_y + pad + (i + 0.5) * avail_h / len(comp_rows)
+            x_offset = panel_x1 + pad
+            for sid in spec_ids:
+                paste_bordered_spec_icon(canvas, draw, sid, x_offset, int(row_cy - icon_sz / 2),
+                                         icon_sz, spec_lookup, class_lookup)
+                x_offset += icon_sz + icon_gap
+            draw.text((x_offset - icon_gap + text_offset, row_cy), runs_txt,
+                      font=font_sm, fill=config.TEXT, anchor="lm")
 
     # Top Route Image Integration
     if top_routes_data:
@@ -226,13 +234,13 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
                                 print("Thumbnail image fetched successfully, processing image...")
                                 route_img = Image.open(io.BytesIO(img_r.content)).convert("RGBA")
                                 # Resize map to fix right side smoothly
-                                target_w = 600
+                                target_w = map_w
                                 target_h = int(target_w * (route_img.height / route_img.width))
                                 route_img = route_img.resize((target_w, target_h), LANCZOS)
 
                                 # Position on the right side
-                                img_x = WIDTH - target_w - 50
-                                img_y = 220
+                                img_x = map_x
+                                img_y = map_y
 
                                 # Add simple rounded mask using Pillow
                                 route_img = rounded_alpha(route_img, 15)
@@ -245,9 +253,7 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
                                     (img_x, img_y - 40),
                                     f"Top Route (keystone.guru/{top_route_key})",
                                     font=font_sm,
-                                    fill=(255, 255, 255),
-                                    stroke_width=2,
-                                    stroke_fill=(0, 0, 0),
+                                    fill=config.MUTED,
                                 )
 
                                 # Add team comp for this route
@@ -262,11 +268,8 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
                                         comp_y = img_y - 45
 
                                         for sid in r_spec_ids:
-                                            if sid in spec_lookup:
-                                                r_icon_file = spec_icon_path(spec_lookup[sid])
-                                                if os.path.exists(r_icon_file):
-                                                    r_img = Image.open(r_icon_file).convert("RGBA").resize((icon_w, icon_w), LANCZOS)
-                                                    canvas.paste(r_img, (int(comp_x), int(comp_y)), r_img)
+                                            paste_bordered_spec_icon(canvas, draw, sid, int(comp_x), int(comp_y),
+                                                                     icon_w, spec_lookup, class_lookup)
                                             comp_x += (icon_w + 5)
                             else:
                                 print(f"Getting image for {top_route_key} failed. Status: {img_r.status_code}")
@@ -277,7 +280,7 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
             except Exception as e:
                 print(f"Error fetching thumbnail for route {top_route_key}: {str(e)}")
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    canvas = apply_watermark_to_canvas(canvas, position="top_right", padding_x=30, padding_y=30)
+    canvas = apply_watermark_to_canvas(canvas, position="bottom_right", padding_x=30, padding_y=20)
 
     if out_path.lower().endswith((".jpg", ".jpeg")):
         canvas = canvas.convert("RGB")
@@ -292,6 +295,8 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
     post_data = {
         "dungeon": name_text,
         "amount_data_source_runs": humanize_number(play_count),
+        "timed_pct": timed_pct_str,
+        "highest_key": highest_key,
         "top_comp": top_comp_str,
         "top_route": f"keystone.guru/{top_routes_data[0]['route_key'] if isinstance(top_routes_data[0], dict) else top_routes_data[0][0]}" if top_routes_data else "Unknown"
     }

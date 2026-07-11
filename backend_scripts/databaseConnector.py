@@ -2086,6 +2086,53 @@ def fetch_runs_per_dungeon_per_level_above_level(
     ]
 
 
+DUNGEON_TIMED_RUNS_LAST_TWO_PERIODS_SQL = """
+-- params: (season, season)
+SELECT
+  sp.period_id,
+  r.dungeon_id,
+  SUM(CASE WHEN r.duration IS NOT NULL
+               AND dd.upgrade_1_duration IS NOT NULL
+               AND r.duration <= dd.upgrade_1_duration THEN 1 ELSE 0 END) AS timed_runs
+FROM (
+  SELECT MAX(period_id) AS cur_period
+  FROM season_periods
+  WHERE season = %s
+    AND start_timestamp <= CAST(UNIX_TIMESTAMP() * 1000 AS UNSIGNED)
+) AS latest
+JOIN season_periods sp
+  ON sp.season = %s
+ AND sp.period_id >= latest.cur_period - 1
+JOIN runs r
+  ON r.region = sp.region
+ AND r.season = sp.season
+ AND r.timestamp >= sp.start_timestamp
+ AND r.timestamp < sp.end_timestamp
+JOIN dungeon_data dd ON dd.dungeon_id = r.dungeon_id
+GROUP BY sp.period_id, r.dungeon_id
+"""
+
+
+def fetch_dungeon_timed_runs_last_two_periods(connection, cursor, season):
+    """Timed-run counts per dungeon for the two most recent weekly periods that
+    have started (per-region reset windows from season_periods). Feeds the
+    week-over-week trend panel on the dungeon popularity image."""
+    params = (season, season)
+    rows = fetch_with_retry(
+        connection, cursor, DUNGEON_TIMED_RUNS_LAST_TWO_PERIODS_SQL, params
+    )
+    if not rows:
+        return []
+    return [
+        {
+            "period_id": int(row[0]),
+            "dungeon_id": row[1],
+            "timed_runs": int(row[2]),
+        }
+        for row in rows
+    ]
+
+
 FETCH_SPEC_TALENT_OVERVIEW_SQL = """
 SELECT talent_id, SUM(run_count) AS count
 FROM Mythistone.aggregated_spec_talent aht 

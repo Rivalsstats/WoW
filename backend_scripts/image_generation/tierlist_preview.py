@@ -3,15 +3,19 @@
 Renders a static 1200x630 link-unfurl thumbnail from a tierlist tab's DPS rows.
 
 Deliberately self-contained: the tierlist page is built in a decoupled, DB-free
-CI job that only has jinja2 + Pillow available, so this module depends on
-Pillow alone (imported lazily inside the render function) and must not import
-the DB/matplotlib-backed siblings in this package. Note its TIER_COLORS
-(outline/text tuples, with a D tier) intentionally differ from
-image_generation.config.tier_colors.
+CI job that only has jinja2 + Pillow available, so this module must not import
+the DB/matplotlib-backed siblings in this package. PIL (and pil_helpers, which
+needs PIL at import time) are imported lazily inside the render function so a
+missing Pillow never breaks the page build. config is os-only and safe to
+import here; the shared palette and TIER_COLORS live there.
 """
 
 import os
 import sys
+
+from image_generation import config
+
+TIER_COLORS = config.TIER_COLORS
 
 # og:image preview paths.
 PREVIEW_REL_PATH = os.path.join("assets", "img", "previews", "sim_dps_tierlist.png")
@@ -21,17 +25,6 @@ PREVIEW_TARGETS = 5  # target-count tab to snapshot for the preview (falls back)
 FONT_FILE = os.path.join("assets", "fonts", "BebasNeue-Regular.ttf")
 LOGO_FILE = os.path.join("assets", "img", "favicon", "web-app-manifest-192x192.png")
 ICON_DIR = os.path.join("data", "icons")
-
-# Tier badge colours (outline, text) mirroring simc_tierlist.html's CSS.
-TIER_COLORS = {
-    "S": ("#ff7c0a", "#ff9d47"),
-    "A": ("#a335ee", "#c77dff"),
-    "B": ("#0070dd", "#4da3ff"),
-    "C": ("#1eff00", "#52d769"),
-    "D": ("#9d9d9d", "#b8b8b8"),
-    "F": ("#ff4141", "#ff7b7b"),
-}
-
 
 def _hex_rgb(h):
     h = h.lstrip("#")
@@ -65,10 +58,10 @@ def generate_preview_image(rows, spec_lookup, class_lookup, season_name, targets
 
     try:
         W, H = 1200, 630
-        BG = (17, 21, 30)
-        MUTED = (150, 158, 172)
-        WHITE = (233, 236, 242)
-        TRACK = (40, 46, 60)
+        BG = config.BG
+        MUTED = config.MUTED
+        WHITE = config.TEXT
+        TRACK = config.TRACK
         margin = 56
 
         font_cache = {}
@@ -86,14 +79,22 @@ def generate_preview_image(rows, spec_lookup, class_lookup, season_name, targets
                 size -= 1
             return font(size)
 
-        img = Image.new("RGB", (W, H), BG)
+        # dimmed random background (pil_helpers is PIL-only, so importing it
+        # here — after the PIL import succeeded — keeps the lazy-Pillow
+        # contract); any failure falls back to the flat dark canvas
+        try:
+            from image_generation.pil_helpers import random_background_canvas
+            img = random_background_canvas(W, H, alpha=config.BG_ALPHA, base=BG)
+        except Exception as e:
+            print(f"WARN: tierlist preview background unavailable, using flat canvas: {e}", file=sys.stderr)
+            img = Image.new("RGB", (W, H), BG)
         draw = ImageDraw.Draw(img)
 
         # header
         draw.text((margin, 38), "Mythic+ Sim DPS Tierlist", font=font(66), fill=WHITE)
         subtitle = f"{season_name}  •  {targets} target" + ("s" if targets != 1 else "") + "  •  SimulationCraft"
         draw.text((margin, 116), subtitle.upper(), font=font(29), fill=MUTED)
-        draw.line([(margin, 168), (W - margin, 168)], fill=(48, 55, 70), width=2)
+        draw.line([(margin, 168), (W - margin, 168)], fill=config.DIVIDER, width=2)
 
         leader = rows[0]["primary"] or 1
         top, floor_y = 186, H - 74

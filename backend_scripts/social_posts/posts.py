@@ -18,7 +18,7 @@ from image_generation.mplus_run import create_MplusImage, get_run_data
 from image_generation.spec_distribution_by_level import create_spec_popularity_by_level_img
 from image_generation.spec_overview import createSpecOverviewImg
 from image_generation.spec_popularity_performance import create_spec_popularity_vs_performance_img
-from image_generation.spec_popularity_tierlist import create_overall_spec_popularity_img
+from image_generation.spec_popularity_tierlist import create_spec_tierlist_img
 from social_posts.links import build_site_link, dungeon_page_link, spec_page_link, time_ago
 from social_posts.llm import build_bundle, get_openai_client
 
@@ -68,16 +68,16 @@ def create_overall_spec_popularity(
     if out_path in donesocials:
         return None
 
-    post_data = create_overall_spec_popularity_img(out_path, season, icon_size)
+    post_data = create_spec_tierlist_img(out_path, season)
     if post_data is None:
         # nothing to do
         return None
 
     print(post_data)
     client = get_openai_client(api_key)
-    link = build_site_link(url, "pages/dashboard")
+    link = build_site_link(url)
     bundle = build_bundle(
-        client, post_data, link, "spec_popularity_tierlist", "spec popularity tier list"
+        client, post_data, link, "spec_popularity_tierlist", "spec performance tier list"
     )
     return {
         "out_path": out_path,
@@ -243,15 +243,18 @@ def createCompOverview(output_dir, donesocials, api_key, url, season):
     try:
         # lazy import: keeps jinja2 (pulled in by generateCompPage) out of the
         # socials pipeline's import path unless a comp post is actually built
-        from generateCompPage import calculate_comp_stats
+        from generateCompPage import calculate_comp_stats, compute_meta_comp, compute_top_comps
         with closing(databaseConnector.get_connection()) as conn:
             cursor = conn.cursor(dictionary=False)
-            _, _, _, glue_specs = calculate_comp_stats(conn, cursor, season, get_spec_lookup())
+            frontend_json = calculate_comp_stats(conn, cursor, season, get_spec_lookup())[0]
+        meta_comp = compute_meta_comp(frontend_json)
+        top_comps = compute_top_comps(frontend_json)
     except Exception as e:
         print(f"Stats check failed: {e}")
-        glue_specs = []
+        meta_comp = None
+        top_comps = None
 
-    result = createCompOverviewImg('tmp', out_path, season, glue_specs=glue_specs)
+    result = createCompOverviewImg('tmp', out_path, season, meta_comp=meta_comp, top_comps=top_comps)
 
     link = build_site_link(url, "pages/comps")
     if api_key is not None and result and result.get("post_data"):

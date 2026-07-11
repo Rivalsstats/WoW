@@ -24,6 +24,7 @@ on:
       - 'backend_scripts/image_generation/**'
       - 'backend_scripts/commonUtils.py'
       - 'backend_scripts/chartData.py'
+      - 'backend_scripts/tierMath.py'
       - 'assets/**'
       - 'data/static/**'
       - 'data/icons/**'

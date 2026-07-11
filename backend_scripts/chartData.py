@@ -175,3 +175,33 @@ def create_dungeon_ease(dungeon_data, dungeon_lookup, top_n=None):
         datasets.append({"label": name, "data": pct_data, "rawCounts": raw_counts})
 
     return {"keyLevels": key_levels, "datasets": datasets}
+
+
+def create_dungeon_week_deltas(period_rows, min_runs=1000):
+    """
+    period_rows: list of dicts from fetch_dungeon_timed_runs_last_two_periods:
+      {"period_id": ..., "dungeon_id": ..., "timed_runs": ...}
+    Returns {str(dungeon_id): delta} where delta is the change in the dungeon's
+    share of timed runs (percentage points, rounded to 0.1) between the two most
+    recent weekly periods, or None when there is no meaningful comparison yet
+    (single period at season start, or either week below min_runs timed runs —
+    e.g. right after a reset).
+    """
+    runs_by_period = defaultdict(lambda: defaultdict(int))
+    for r in period_rows:
+        runs_by_period[int(r["period_id"])][str(r["dungeon_id"])] += int(
+            r["timed_runs"]
+        )
+    if len(runs_by_period) < 2:
+        return None
+
+    prev_id, cur_id = sorted(runs_by_period)[-2:]
+    prev, cur = runs_by_period[prev_id], runs_by_period[cur_id]
+    prev_total, cur_total = sum(prev.values()), sum(cur.values())
+    if prev_total < min_runs or cur_total < min_runs:
+        return None
+
+    return {
+        d: round((cur.get(d, 0) / cur_total - prev.get(d, 0) / prev_total) * 100.0, 1)
+        for d in set(prev) | set(cur)
+    }

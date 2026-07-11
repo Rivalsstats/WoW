@@ -13,7 +13,7 @@ from chartData import create_spec_scatter
 from commonUtils import get_class_lookup, get_spec_lookup
 from image_generation import config
 from image_generation.mpl_setup import init_matplotlib
-from image_generation.pil_helpers import parse_color, watermark_file
+from image_generation.pil_helpers import composite_chart_onto_bg, parse_color, watermark_file
 
 
 def create_spec_popularity_vs_performance_img(
@@ -60,9 +60,6 @@ def create_spec_popularity_vs_performance_img(
     # plotting
 
     fig, ax = plt.subplots(figsize=(config.WIDTH / config.DPI, config.HEIGHT / config.DPI), dpi=config.DPI)
-    dark = (30 / 255, 30 / 255, 30 / 255)
-    ax.set_facecolor(dark)
-    fig.patch.set_facecolor(dark)
 
     # draw each icon marker
     for p in points:
@@ -84,12 +81,12 @@ def create_spec_popularity_vs_performance_img(
         )
         ax.add_artist(ab)
 
-    ax.set_xlabel("Performance", color="white")
-    ax.set_ylabel("Popularity", color="white")
-    ax.set_title("Spec Popularity vs Performance", color="white")
+    ax.set_xlabel("Performance")
+    ax.set_ylabel("Popularity")
+    ax.set_title("Spec Popularity vs Performance")
     ax.set_xticklabels([])
     ax.set_yticklabels([])
-    ax.grid(True, linestyle="--", alpha=0.3)
+    ax.grid(True)
 
     xs = [p["x"] for p in points]
     ys = [p["y"] for p in points]
@@ -112,10 +109,11 @@ def create_spec_popularity_vs_performance_img(
 
     plt.tight_layout(rect=[0, 0.08, 1, 1])
 
-    plt.savefig(out_path)
+    plt.savefig(out_path, transparent=True)
 
     plt.close(fig)
 
+    composite_chart_onto_bg(out_path)
     watermark_file(out_path, position="bottom_right", padding_x=30, padding_y=10)
 
     most_overperforming = max(raw_points, key=lambda p: p["residual"])

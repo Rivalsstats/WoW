@@ -383,6 +383,46 @@ def calculate_comp_stats(connection, cursor, season, spec_lookup):
     return frontend_json, synergy_matrix, hidden_gems_out, glue_specs_list, glue_specs_by_role, top_key_levels
 
 
+def compute_top_comps(frontend_json, n=5):
+    """Top comps by raw runs, reduced to the row dicts createCompOverviewImg
+    renders (specs, runs, timed, max_key) — same ordering as the page's
+    "Most Popular" list."""
+    top = sorted(frontend_json, key=lambda x: x.get('runs', 0), reverse=True)[:n]
+    return [
+        {
+            "specs": c["c"],
+            "runs": c.get("runs", 0),
+            "timed": c.get("t", 0),
+            "max_key": c.get("mk", 0),
+        }
+        for c in top
+    ]
+
+
+def compute_meta_comp(frontend_json, min_runs=20):
+    """The page's "meta" comp — rank 1 of the Best-for-High-Keys ordering
+    (runs >= min_runs, sorted by max key, high-key score, runs) — reduced to the
+    dict createCompOverviewImg expects. popularity_rank is the comp's 1-based
+    position in the by-runs ordering compute_top_comps uses. Returns None when
+    no comp qualifies."""
+    best = sorted(
+        (c for c in frontend_json if c.get('runs', 0) >= min_runs),
+        key=lambda x: (x.get('mk', 0), x.get('highkey_score', 0), x.get('runs', 0)),
+        reverse=True,
+    )
+    if not best:
+        return None
+    c = best[0]
+    runs_order = sorted(frontend_json, key=lambda x: x.get('runs', 0), reverse=True)
+    return {
+        "specs": c["c"],
+        "runs": c.get("runs", 0),
+        "timed": c.get("t", 0),
+        "max_key": c.get("mk", 0),
+        "popularity_rank": runs_order.index(c) + 1,
+    }
+
+
 def main(template_path, output_dir):
     season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
     season = season_info.get('blizzard_season_id')
@@ -521,7 +561,8 @@ def main(template_path, output_dir):
                 season=season,
                 conn=conn,
                 cursor=cursor,
-                glue_specs=glue_specs
+                meta_comp=compute_meta_comp(frontend_json),
+                top_comps=compute_top_comps(frontend_json),
             )
             print(f"Generated preview image at {preview_path}")
         except Exception as e:

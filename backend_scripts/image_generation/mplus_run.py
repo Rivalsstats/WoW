@@ -12,8 +12,8 @@ from commonUtils import format_duration, get_class_lookup, get_dungeon_lookup, g
 from image_generation import config
 from image_generation.pil_helpers import (
     apply_watermark_to_canvas,
-    cover_crop,
-    fit_font_to_width,
+    dimmed_cover_bg,
+    draw_header,
     format_timestamp,
 )
 
@@ -55,24 +55,14 @@ def create_MplusImage(
     if check_socials and out_path in donesocials:
         return None
 
-    # dungeon background scaled to cover the canvas, then center-cropped
-    img = Image.open(dungeon_icon).convert("RGBA")
-    bg_crop = cover_crop(img, config.WIDTH, config.HEIGHT)
-
-    # dark overlay for contrast
-    overlay = Image.new("RGBA", (config.WIDTH, config.HEIGHT), (0, 0, 0, 120))
-    canvas = Image.alpha_composite(bg_crop, overlay).convert("RGB")
+    # dungeon background dimmed toward the dark base for the modern style
+    img = Image.open(dungeon_icon)
+    canvas = dimmed_cover_bg(img, config.WIDTH, config.HEIGHT)
     draw = ImageDraw.Draw(canvas)
 
-    # --- header: dungeon icon + name ---
+    # --- header: dungeon name + upgrade, timer as subtitle ---
     header_text = f"{dungeon_name} {upgrade_info(duration=duration_ms, upgrade_map=dungeon_meta['keystone_upgrades'], keystone_level=level)['text']}"
-    max_header_w = config.WIDTH * 0.8
-    title_font = fit_font_to_width(
-        draw, header_text, max_header_w, start_size=config.TITLE_SIZE, min_size=12, step=2
-    )
-    subtitle_font = ImageFont.truetype(config.FONT_FILE, config.SUBTITLE_SIZE)
-    draw.text((50, 50), header_text, font=title_font, fill=(255, 255, 255))
-    draw.text((50, 130), f"{duration_str}", font=subtitle_font, fill=(200, 200, 200))
+    draw_header(draw, header_text, duration_str, config.WIDTH, margin=50)
 
     # --- footer: region / season / period ---
     footer_text = ""
@@ -89,7 +79,7 @@ def create_MplusImage(
         ((config.WIDTH - w) // 2, config.HEIGHT - h - 20),
         footer_text,
         font=footer_font,
-        fill=(180, 180, 180),
+        fill=config.MUTED,
     )
 
     # --- member row ---
@@ -116,7 +106,7 @@ def create_MplusImage(
             int(class_info["color"]["g"]),
             int(class_info["color"]["b"]),
         )
-        draw.rectangle((cx - 45, cy - 45, cx + 45, cy + 45), outline=color, width=6)
+        draw.rounded_rectangle((cx - 45, cy - 45, cx + 45, cy + 45), radius=10, outline=color, width=3)
 
         # paste spec icon
         canvas.paste(
@@ -134,14 +124,12 @@ def create_MplusImage(
             txt,
             font=small_font,
             fill=color,
-            stroke_width=2,
-            stroke_fill=(0, 0, 0),
         )
 
     # --- save output ---
     os.makedirs(config.OUTPUT_DIR, exist_ok=True)
     if add_watermark:
-        canvas = apply_watermark_to_canvas(canvas, position="top_right", padding_x=30, padding_y=30)
+        canvas = apply_watermark_to_canvas(canvas, position="bottom_right", padding_x=30, padding_y=20)
 
     if out_path.lower().endswith((".jpg", ".jpeg")):
         canvas = canvas.convert("RGB")

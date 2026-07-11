@@ -13,7 +13,8 @@ _initialized = False
 
 
 def init_matplotlib():
-    """Register Bebas Neue and apply the global font sizes (once)."""
+    """Register Bebas Neue and apply the global font sizes and the shared dark
+    theme (once)."""
     global _initialized
     if _initialized:
         return
@@ -28,6 +29,19 @@ def init_matplotlib():
             "xtick.labelsize": config.VERY_SMALL_SIZE,
             "ytick.labelsize": config.VERY_SMALL_SIZE,
             "legend.fontsize": config.VERY_SMALL_SIZE,
+            # dark theme matching the modern PIL renderers (config palette)
+            "figure.facecolor": config.BG_HEX,
+            "axes.facecolor": config.BG_HEX,
+            "savefig.facecolor": config.BG_HEX,
+            "text.color": config.MUTED_HEX,
+            "axes.labelcolor": config.MUTED_HEX,
+            "xtick.color": config.MUTED_HEX,
+            "ytick.color": config.MUTED_HEX,
+            "axes.titlecolor": config.TEXT_HEX,
+            "axes.edgecolor": config.DIVIDER_HEX,
+            "grid.color": config.DIVIDER_HEX,
+            "grid.linestyle": "--",
+            "grid.alpha": 0.5,
         }
     )
     _initialized = True

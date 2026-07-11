@@ -5,29 +5,30 @@ import os
 from contextlib import closing
 from datetime import datetime, timezone
 
-import matplotlib.patheffects as path_effects
-import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw, ImageFont
 
 import aggregateData
 import databaseConnector
-from chartData import RARITY_COLORS
 from commonUtils import (
     LOOKUP_DIR,
     fetch_stat_info,
+    format_duration,
     get_class_lookup,
+    get_dungeon_lookup,
     get_spec_lookup,
     humanize_number,
     load_json,
+    upgrade_info,
 )
 from image_generation import config
-from image_generation.mpl_setup import init_matplotlib
-from image_generation.mplus_run import create_MplusImage, get_run_data
+from image_generation.mplus_run import get_run_data
 from image_generation.pil_helpers import (
     LANCZOS,
     apply_watermark_to_canvas,
     compute_panel_width,
+    dimmed_cover_bg,
     draw_panel,
+    fit_font_to_width,
     format_timestamp,
     random_background_canvas,
     rounded_alpha,
@@ -38,11 +39,10 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
     """
     Creates and saves a spec overview image.
     """
-    init_matplotlib()
     spec_lookup = get_spec_lookup()
     class_lookup = get_class_lookup()
 
-    WIDTH, HEIGHT, DPI = config.WIDTH, config.HEIGHT, config.DPI
+    WIDTH, HEIGHT = config.WIDTH, config.HEIGHT
 
     talent_lookup = load_json(os.path.join(LOOKUP_DIR, "talents", f"{spec_id}.json"))
 
@@ -91,11 +91,8 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
 
         hero_total = sum(tree["count"] for tree in hero_trees)
 
-        # runs
+        # runs (drawn natively into the Highest Key panel below)
         highest = get_run_data(False, spec_id, season)
-        highest_run = create_MplusImage(
-            highest, "highest_run", {}, False, False, False, False
-        )
         spec_talent_overview = databaseConnector.fetch_spec_talent_overview(
             conn, cursor, spec_id, season
         )
@@ -119,8 +116,8 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
             conn, cursor, spec_id, season, spec_lookup
         )
 
-    # canvas: random background image (flat dark fallback)
-    canvas = random_background_canvas(WIDTH, HEIGHT)
+    # canvas: dimmed random background over the dark base
+    canvas = random_background_canvas(WIDTH, HEIGHT, alpha=config.BG_ALPHA, base=config.BG)
 
     draw = ImageDraw.Draw(canvas)
     font_big = ImageFont.truetype(config.FONT_FILE, config.TITLE_SIZE)
@@ -139,64 +136,17 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
         name_text,
         font=font_big,
         fill=class_color,
-        stroke_width=2,
-        stroke_fill=(0, 0, 0),
     )
     icon_file = os.path.join(config.ICON_DIR, f"{spec_meta.get('SpellIconFileId')}.jpg")
     if os.path.exists(icon_file):
         icon = Image.open(icon_file).resize((80, 80))
         canvas.paste(icon, (WIDTH - 130, 20))
 
-    # Panel: upgrades via matplotlib
-    key_upgrades_panel_h = 25
-    fig, ax = plt.subplots(figsize=(WIDTH / DPI, key_upgrades_panel_h / DPI), dpi=DPI)
-    fig.patch.set_facecolor("#222222")
-    ax.set_facecolor("#222222")
-    left = 0
-    upgrade_map = {"depleted": "Depleted", "1": "+1", "2": "+2", "3": "+3"}
-    colors = [
-        RARITY_COLORS["Depleted"],
-        RARITY_COLORS["Uncommon"],
-        RARITY_COLORS["Epic"],
-        RARITY_COLORS["Legendary"],
-    ]
-    for tier, col in zip(upgrade_counts, colors):
-        frac = upgrade_counts[tier] / total_up * 100
-        ax.barh(0, frac, left=left, color=col)
-        if frac > 5:
-            label_text = f"{upgrade_map[tier]} ({round(frac, 2)} %)"
-        else:
-            label_text = f"{upgrade_map[tier]}"
-        txt = ax.text(
-            left + frac / 2,
-            0,  # x, y
-            label_text,  # label text
-            va="center",
-            ha="center",
-            color="white",
-            fontsize=config.VERY_SMALL_SIZE,
-            fontweight="bold",
-        )
-        txt.set_path_effects(
-            [path_effects.withStroke(linewidth=1.5, foreground="black")]
-        )
-        left += frac
-    ax.axis("off")
-    ax.set_position([0, 0, 1, 1])
-    ax.set_xlim(0, 100)
-    buf = os.path.join(tmpdir, "tmp_upgrade.png")
-    os.makedirs(os.path.dirname(buf), exist_ok=True)
-    plt.savefig(buf, facecolor=fig.get_facecolor())
-    plt.close(fig)
-    panel1 = Image.open(buf)
-    canvas.paste(panel1, (0, HEIGHT - key_upgrades_panel_h))
     draw.text(
         (60, 105),
-        f"{humanize_number(play_count)} total runs",
+        f"{humanize_number(play_count)} total runs".upper(),
         font=font_sm,
-        fill=class_color,
-        stroke_width=2,
-        stroke_fill=(0, 0, 0),
+        fill=config.MUTED,
     )
 
     # Panel: hero trees
@@ -235,8 +185,6 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
                 font=font_vsm,
                 anchor="mt",
                 fill=class_color,
-                stroke_width=2,
-                stroke_fill=(0, 0, 0),
             )
 
     # Panel: runs
@@ -269,16 +217,32 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
     x_stat_primary = x_image + image_panel_w + inner_margin
     x_stat_tertiary = x_stat_primary + stat_panel_w + inner_margin
 
-    # ---------- draw image panel (left) with filled background ----------
-    draw_panel(
-        draw,
-        [
-            (x_image, panel_y_offset),
-            (x_image + image_panel_w, panel_y_offset + panel_height),
-        ],
-        radius=corner_radius,
-        fill=(0, 0, 0, 200),
+    # ---------- draw image panel (left): dungeon art background when the
+    # run's dungeon icon is available, flat filled panel otherwise ----------
+    run_dungeon_meta = (
+        get_dungeon_lookup().get(str(highest["dungeon_id"]), {}) if highest else {}
     )
+    run_icon_path = (
+        os.path.join(config.ICON_DIR, run_dungeon_meta["icon"])
+        if run_dungeon_meta.get("icon")
+        else None
+    )
+    panel_box = [
+        (x_image, panel_y_offset),
+        (x_image + image_panel_w, panel_y_offset + panel_height),
+    ]
+    if run_icon_path and os.path.exists(run_icon_path):
+        tile = dimmed_cover_bg(
+            Image.open(run_icon_path),
+            image_panel_w,
+            panel_height,
+            alpha=config.PANEL_ART_ALPHA,
+        ).convert("RGBA")
+        rounded_alpha(tile, corner_radius)
+        canvas.paste(tile, (x_image, panel_y_offset), tile)
+        draw_panel(draw, panel_box, radius=corner_radius, fill=None)
+    else:
+        draw_panel(draw, panel_box, radius=corner_radius)
 
     draw.text(
         (x_image + image_panel_w // 2, panel_y_text_off),
@@ -286,8 +250,6 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
         anchor="mm",
         font=panel_title_font,
         fill=class_color,
-        stroke_width=2,
-        stroke_fill=(0, 0, 0),
     )
 
     content_x = x_image + inset
@@ -295,49 +257,63 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
     content_w = image_panel_w - 2 * inset
     content_h = panel_height - 2 * inset
 
-    if highest_run and isinstance(highest_run, dict) and highest_run.get("out_path"):
+    run_dungeon_name = ""
+    if highest and highest.get("members"):
+        run_dungeon_name = run_dungeon_meta.get("name", {}).get("en_US", "Unknown")
         try:
-            img = Image.open(highest_run["out_path"]).convert("RGBA")
-            img_ratio = img.width / img.height
-            content_ratio = content_w / content_h
-            if img_ratio > content_ratio:
-                scaled_h = content_h
-                scaled_w = int(img_ratio * scaled_h)
-            else:
-                scaled_w = content_w
-                scaled_h = int(scaled_w / img_ratio)
-            img = img.resize((scaled_w, scaled_h), LANCZOS)
-            left = (scaled_w - content_w) // 2
-            top = (scaled_h - content_h) // 2
-            img = img.crop((left, top, left + content_w, top + content_h))
-            img = rounded_alpha(img, corner_radius)
-            canvas.paste(img, (content_x, content_y), img)
+            up_text = upgrade_info(
+                duration=highest["duration"],
+                upgrade_map=run_dungeon_meta["keystone_upgrades"],
+                keystone_level=highest["keystone_level"],
+            )["text"]
         except Exception:
-            draw.rectangle(
-                [
-                    (content_x, content_y),
-                    (content_x + content_w, content_y + content_h),
-                ],
-                fill=(40, 40, 40),
-            )
-            draw.text(
-                (content_x + content_w / 2, content_y + content_h / 2),
-                "Image\nmissing",
-                anchor="mm",
-                font=stat_label_font,
-                fill="white",
-            )
-    else:
-        draw.rectangle(
-            [(content_x, content_y), (content_x + content_w, content_y + content_h)],
-            fill=(40, 40, 40),
+            up_text = f"+{highest['keystone_level']}"
+        run_title = f"{run_dungeon_name} {up_text}"
+        run_title_font = fit_font_to_width(
+            draw, run_title, content_w - 16, start_size=config.SUBTITLE_SIZE, min_size=12, step=1
         )
+        draw.text((content_x + 8, content_y + 10), run_title, font=run_title_font, fill=config.TEXT)
+        run_sub = f"{format_duration(highest['duration'])}  •  {format_timestamp(highest['timestamp'])}"
+        draw.text(
+            (content_x + 8, content_y + 10 + config.SUBTITLE_SIZE + 10),
+            run_sub.upper(),
+            font=stat_label_font,
+            fill=config.MUTED,
+        )
+
+        # member row: spec icons with rounded class-colored outlines
+        members = sorted(
+            highest["members"],
+            key=lambda m: (int(spec_lookup[str(m["spec_id"])]["role"]), int(m["spec_id"])),
+        )
+        m_icon, m_gap = 44, 14
+        total_w = len(members) * m_icon + (len(members) - 1) * m_gap
+        mx = content_x + max(0, (content_w - total_w) // 2)
+        my = content_y + content_h - m_icon - 16
+        for member in members:
+            m_spec = spec_lookup.get(str(member["spec_id"]))
+            if m_spec:
+                icon_path = os.path.join(config.ICON_DIR, f"{m_spec['SpellIconFileId']}.jpg")
+                if os.path.exists(icon_path):
+                    m_img = Image.open(icon_path).convert("RGBA").resize((m_icon, m_icon), LANCZOS)
+                    canvas.paste(m_img, (mx, my), m_img)
+                m_class = class_lookup.get(str(m_spec.get("classID", "")), {})
+                m_col = m_class.get("color", {})
+                try:
+                    m_cc = (int(m_col["r"]), int(m_col["g"]), int(m_col["b"]))
+                except Exception:
+                    m_cc = (200, 200, 200)
+                draw.rounded_rectangle(
+                    (mx, my, mx + m_icon, my + m_icon), radius=8, outline=m_cc, width=2
+                )
+            mx += m_icon + m_gap
+    else:
         draw.text(
             (content_x + content_w / 2, content_y + content_h / 2),
             "No run",
             anchor="mm",
             font=stat_label_font,
-            fill="white",
+            fill=config.MUTED,
         )
 
     # ---------- draw PRIMARY stat panel (middle) filled ----------
@@ -348,7 +324,6 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
             (x_stat_primary + stat_panel_w, panel_y_offset + panel_height),
         ],
         radius=corner_radius,
-        fill=(0, 0, 0, 200),
     )
 
     draw.text(
@@ -357,8 +332,6 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
         anchor="mm",
         font=panel_title_font,
         fill=class_color,
-        stroke_width=2,
-        stroke_fill=(0, 0, 0),
     )
 
     # content region for primary panel
@@ -509,7 +482,6 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
             (x_stat_tertiary + stat_panel_w, panel_y_offset + panel_height),
         ],
         radius=corner_radius,
-        fill=(0, 0, 0, 200),
     )
 
     draw.text(
@@ -518,8 +490,6 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
         anchor="mm",
         font=panel_title_font,
         fill=class_color,
-        stroke_width=2,
-        stroke_fill=(0, 0, 0),
     )
 
     content_x = x_stat_tertiary + inset
@@ -793,12 +763,14 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
             }
         )
 
+    # best/worst accents from the shared tier palette (C-tier green / S-tier orange)
+    best_color, worst_color = config.TIER_COLORS["C"][1], config.TIER_COLORS["S"][1]
     panels = [
-        ("Class Talents", class_best2, class_worst2, "lime", "orange"),
-        ("Spec Talents", spec_best2, spec_worst2, "lime", "orange"),
-        ("Missives", missive_best2, missive_worst2, "lime", "orange"),
-        ("Embellishment", embell_best2, embell_worst2, "lime", "orange"),
-        ("Gems", socket_best2, socket_worst2, "lime", "orange"),
+        ("Class Talents", class_best2, class_worst2, best_color, worst_color),
+        ("Spec Talents", spec_best2, spec_worst2, best_color, worst_color),
+        ("Missives", missive_best2, missive_worst2, best_color, worst_color),
+        ("Embellishment", embell_best2, embell_worst2, best_color, worst_color),
+        ("Gems", socket_best2, socket_worst2, best_color, worst_color),
     ]
 
     panel_sizes = []
@@ -819,15 +791,11 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
 
     for (label, best, worst, bc, wc), (pw, ph) in zip(panels, panel_sizes):
         # background
-        draw.rounded_rectangle(
-            [(x, panel_y), (x + pw, panel_y + ph)],
-            radius=corner_radius,
-            fill=(0, 0, 0, 200),
-        )
+        draw_panel(draw, [(x, panel_y), (x + pw, panel_y + ph)], radius=corner_radius)
         # draw the icon+text blocks
         y = panel_y + pad
         # optional heading
-        draw.text((x + pw / 2, y), label, font=font_sm, fill="white", anchor="ma")
+        draw.text((x + pw / 2, y), label, font=font_sm, fill=config.TEXT, anchor="ma")
         y += icon_sz + v_spacing
 
         # best block
@@ -884,7 +852,7 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
     # footer
     upd = datetime.now().timestamp()
     draw.text(
-        (0, 0), f"Updated: {format_timestamp(upd * 1000)}", font=font_sm, fill="gray"
+        (0, 0), f"Updated: {format_timestamp(upd * 1000)}", font=font_sm, fill=config.MUTED
     )
 
     os.makedirs(tmpdir, exist_ok=True)
@@ -932,7 +900,10 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
     post_data = {
         "spec": f"{spec_meta.get('name', '')} {class_meta.get('name', '')}",
         "amount_data_source_runs": humanize_number(play_count),
-        "highest_run": f"+{highest_run['level']} {highest_run['dungeon_name']} in {highest_run['duration_str']}",
+        "highest_run": (
+            f"+{highest['keystone_level']} {run_dungeon_name} in {format_duration(highest['duration'])}"
+            if highest and highest.get("members") else ""
+        ),
         "top_hero_tree": top_hero_tree,
         "top_hero_tree_name": top_hero_name,
         "top_hero_tree_pct": top_hero_pct,

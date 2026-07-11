@@ -3,7 +3,7 @@ post and the comps page's OG preview."""
 
 import os
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import ImageDraw, ImageFont
 
 import databaseConnector
 from commonUtils import (
@@ -15,15 +15,25 @@ from commonUtils import (
 )
 from image_generation import config
 from image_generation.pil_helpers import (
-    LANCZOS,
     apply_watermark_to_canvas,
-    draw_comp_rows,
+    draw_header,
+    draw_panel,
+    paste_bordered_spec_icon,
     random_background_canvas,
-    spec_icon_path,
 )
 
 
-def createCompOverviewImg(tmpdir, out_path, season, conn=None, cursor=None, glue_specs=None):
+def createCompOverviewImg(tmpdir, out_path, season, conn=None, cursor=None, meta_comp=None,
+                          top_comps=None):
+    """Render the global comps card: top-5 comps left, meta comp spotlight right.
+
+    meta_comp: optional dict from generateCompPage.compute_meta_comp —
+    {"specs": [spec_ids], "runs": int, "timed": int, "max_key": int,
+    "popularity_rank": int}. The spotlight is skipped when None; the
+    popularity row is skipped when popularity_rank is absent.
+    top_comps: optional list from generateCompPage.compute_top_comps (same key
+    shape minus avg_key); when given, rows show Timed % and Max Key columns —
+    otherwise the runs-only fetch_global_top_comps fallback is used."""
     spec_lookup = get_spec_lookup()
     class_lookup = get_class_lookup()
     WIDTH, HEIGHT = config.WIDTH, config.HEIGHT
@@ -39,217 +49,167 @@ def createCompOverviewImg(tmpdir, out_path, season, conn=None, cursor=None, glue
         tot = databaseConnector.fetch_total_season_runs(conn, cursor, season)
         play_count = int(tot) if tot else 0
 
-        # Top comps
-        top_comps_data = databaseConnector.fetch_global_top_comps(conn, cursor, season)
+        # Top comps (runs-only fallback when the caller has no compiled stats)
+        top_comps_data = None
+        if top_comps is None:
+            top_comps_data = databaseConnector.fetch_global_top_comps(conn, cursor, season)
 
     finally:
         if close_conn:
             cursor.close()
             conn.close()
 
-    # canvas
-    canvas = random_background_canvas(WIDTH, HEIGHT)
+    # normalize both sources into row dicts (timed/max_key may be None)
+    rows = []
+    if top_comps is not None:
+        for c in top_comps[:5]:
+            rows.append({
+                "spec_ids": sort_spec_ids_by_role([str(s) for s in c["specs"]], spec_lookup),
+                "runs": int(c.get("runs", 0)),
+                "timed": int(c.get("timed", 0)),
+                "max_key": int(c.get("max_key", 0)),
+            })
+    else:
+        for r in top_comps_data[:5]:
+            comp_str = r['comp'] if isinstance(r, dict) else r[0]
+            comp_cnt = r['comp_count'] if isinstance(r, dict) else r[1]
+            if not comp_str:
+                continue
+            rows.append({
+                "spec_ids": sort_spec_ids_by_role(comp_str.split(','), spec_lookup),
+                "runs": int(comp_cnt),
+                "timed": None,
+                "max_key": None,
+            })
+
+    # canvas: dimmed random background over the dark base
+    canvas = random_background_canvas(WIDTH, HEIGHT, alpha=config.BG_ALPHA, base=config.BG)
 
     draw = ImageDraw.Draw(canvas, "RGBA")
-    font_big = ImageFont.truetype(config.FONT_FILE, config.TITLE_SIZE)
     font_sm = ImageFont.truetype(config.FONT_FILE, config.SMALL_SIZE)
 
-    # Draw Title
-    draw.text(
-        (50, 30),
+    draw_header(
+        draw,
         "Global Top Comps",
-        font=font_big,
-        fill=(255, 255, 255),
-        stroke_width=2,
-        stroke_fill=(0, 0, 0),
-    )
-
-    # Draw Total Runs
-    draw.text(
-        (50, 130),
         f"{humanize_number(play_count)} total runs tracked across all dungeons",
-        font=font_sm,
-        fill=(200, 200, 200),
-        stroke_width=2,
-        stroke_fill=(0, 0, 0),
+        WIDTH,
+        margin=50,
     )
 
-    # Measure Box Widths to wrap tightly like Spec Page panels
+    def paste_spec_icon(sid, x, y, size):
+        paste_bordered_spec_icon(canvas, draw, sid, x, y, size, spec_lookup, class_lookup)
+
+    # --- Top comps table (left half) ---
     pad = 20
-    icon_sz = 40
-    text_offset = 10
-    v_spacing = 20
+    panel_x1 = 50  # aligned with the header divider
+    font_row = ImageFont.truetype(config.FONT_FILE, config.SMALL_SIZE + 4)
+    font_col = ImageFont.truetype(config.FONT_FILE, config.VERY_SMALL_SIZE + 2)
 
-    top_comps_w = 0
-    # Measure Top Comps heading
-    header_1 = "Top Comps:"
-    box1 = draw.textbbox((0, 0), header_1, font=font_sm)
-    top_comps_w = max(top_comps_w, box1[2] - box1[0])
+    left_x2 = left_y2 = None  # right/bottom edge of the table panel, mirrored by the meta card
+    if rows:
+        icon_sz, icon_gap = 48, 5
+        icons_w = 5 * icon_sz + 4 * icon_gap
+        has_stats = rows[0]["timed"] is not None
+        # right-aligned value columns after the icons
+        columns = [("Runs", 85)] + ([("Timed", 75), ("Max", 65)] if has_stats else [])
+        col_gap = 16
+        content_w = icons_w + 14 + sum(w for _, w in columns) + col_gap * (len(columns) - 1)
+        box_pw = content_w + pad * 2
 
-    for r in top_comps_data[:5]:
-        comp_str = r['comp'] if isinstance(r, dict) else r[0]
-        if not comp_str: continue
-        comp_cnt = int(r['comp_count'] if isinstance(r, dict) else r[1])
-        # calculate row width
-        num_icons = len(comp_str.split(','))
-        runs_txt = f"Runs: {humanize_number(comp_cnt)}"
-        r_box = draw.textbbox((0, 0), runs_txt, font=font_sm)
-        # width = icons + offset + text width
-        row_w = (num_icons * 45) + text_offset + (r_box[2]-r_box[0])
-        top_comps_w = max(top_comps_w, row_w)
+        heading_y, cols_y, rows_y0, row_h = 200, 242, 268, 64
+        box_y2 = rows_y0 + len(rows) * row_h + pad - 10
+        left_x2, left_y2 = panel_x1 + box_pw, box_y2
+        draw_panel(draw, [(panel_x1, 180), (left_x2, box_y2)], radius=15)
 
-    valid_comps_count = sum(1 for r in top_comps_data[:5] if (r['comp'] if isinstance(r, dict) else r[0]))
+        draw.text((panel_x1 + pad, heading_y), "Top Comps:", font=font_sm, fill=config.MUTED)
 
-    glue_comps_w = 0
-    valid_glue_count = 0
+        # column headers, right-aligned over their value columns
+        col_right = panel_x1 + pad + icons_w + 14
+        col_rights = []
+        for name, w in columns:
+            col_right += w
+            col_rights.append(col_right)
+            draw.text((col_right, cols_y), name.upper(), font=font_col, fill=config.MUTED, anchor="ra")
+            col_right += col_gap
 
-    if glue_specs:
-        header_2 = "Most Flexible Specs:"
-        box2 = draw.textbbox((0, 0), header_2, font=font_sm)
-        glue_comps_w = max(glue_comps_w, box2[2] - box2[0])
+        for i, row in enumerate(rows):
+            ry = rows_y0 + i * row_h
+            x_offset = panel_x1 + pad
+            for sid in row["spec_ids"]:
+                paste_spec_icon(sid, x_offset, ry, icon_sz)
+                x_offset += icon_sz + icon_gap
+            values = [humanize_number(row["runs"])]
+            if has_stats:
+                timed_pct = (row["timed"] / row["runs"] * 100) if row["runs"] else 0
+                values += [f"{timed_pct:.0f}%", f"+{row['max_key']}"]
+            vy = ry + icon_sz // 2
+            for value, right in zip(values, col_rights):
+                draw.text((right, vy), value, font=font_row, fill=config.TEXT, anchor="rm")
 
-        valid_glue_count = min(5, len(glue_specs))
-        for gs in glue_specs[:5]:
-            comps_count = gs.get('comps', 0)
-            sid = str(gs['spec_id'])
-            if sid in spec_lookup:
-                s_meta = spec_lookup[sid]
-                c_meta = class_lookup.get(str(s_meta.get("classID", "")), {})
-                s_name = f"{s_meta.get('name', '')} {c_meta.get('name', '')}"
-                txt = f"{s_name} - {comps_count} Comps"
-                g_box = draw.textbbox((0, 0), txt, font=font_sm)
-                row_w = icon_sz + text_offset + (g_box[2]-g_box[0])
-                glue_comps_w = max(glue_comps_w, row_w)
+    # --- Meta comp spotlight (right, mirrors the table's vertical extent) ---
+    if meta_comp and meta_comp.get("specs"):
+        meta_spec_ids = sort_spec_ids_by_role([str(s) for s in meta_comp["specs"]], spec_lookup)
+        meta_runs = int(meta_comp.get("runs", 0))
+        timed_pct = (meta_comp.get("timed", 0) / meta_runs * 100) if meta_runs else 0
+        stat_lines = [
+            ("Timed", f"{timed_pct:.0f} %"),
+            ("Max Key", f"+{meta_comp.get('max_key', 0)}"),
+        ]
+        if meta_comp.get("popularity_rank"):
+            stat_lines.append(("Popularity", f"#{meta_comp['popularity_rank']}"))
+        stat_lines.append(("Runs", humanize_number(meta_runs)))
 
-    panel_x1 = 30
+        gutter = 40
+        panel_x2 = left_x2 + gutter if left_x2 is not None else panel_x1
+        box_x2 = WIDTH - 50  # mirror the left margin
+        box_pw = box_x2 - panel_x2
+        box_y2 = left_y2 if left_y2 is not None else 560
+        draw_panel(draw, [(panel_x2, 180), (box_x2, box_y2)], radius=15)
 
-    if valid_comps_count > 0:
-        box_pw = top_comps_w + (pad * 2)
-        # heading at y=200, first row at y=250, each row adds 60
-        box_y1 = 180
-        box_y2 = 250 + (valid_comps_count * 60)
-        draw.rounded_rectangle(
-            [(panel_x1, box_y1), (panel_x1 + box_pw, box_y2)],
-            radius=15,
-            fill=(0, 0, 0, 200)
-        )
+        draw.text((panel_x2 + pad, 200), "Meta Comp (best for high keys):",
+                  font=font_sm, fill=config.MUTED)
 
-    if glue_specs and valid_glue_count > 0:
-        box_pw = glue_comps_w + (pad * 2)
-        panel_x2 = WIDTH // 2 + 30
-        box_y1 = 180
-        box_y2 = 250 + (valid_glue_count * 60)
-        draw.rounded_rectangle(
-            [(panel_x2, box_y1), (panel_x2 + box_pw, box_y2)],
-            radius=15,
-            fill=(0, 0, 0, 200)
-        )
+        meta_icon_gap = 10
+        meta_icon_sz = min(72, (box_pw - 2 * pad - 4 * meta_icon_gap) // 5)
+        icons_w = 5 * meta_icon_sz + 4 * meta_icon_gap
+        icons_y = 250
+        x_offset = panel_x2 + (box_pw - icons_w) // 2  # centered icon row
+        for sid in meta_spec_ids:
+            paste_spec_icon(sid, x_offset, icons_y, meta_icon_sz)
+            x_offset += meta_icon_sz + meta_icon_gap
 
-    # Top Comps
-    draw.text(
-        (50, 200),
-        "Top Comps:",
-        font=font_sm,
-        fill=(255, 255, 255),
-        stroke_width=2,
-        stroke_fill=(0, 0, 0),
-    )
-
-    comp_rows = []
-    for r in top_comps_data[:5]:
-        comp_str = r['comp'] if isinstance(r, dict) else r[0]
-        comp_cnt = r['comp_count'] if isinstance(r, dict) else r[1]
-        if not comp_str:
-            continue
-        spec_ids = sort_spec_ids_by_role(comp_str.split(','), spec_lookup)
-        comp_rows.append((spec_ids, f"Runs: {humanize_number(int(comp_cnt))}"))
-    draw_comp_rows(canvas, draw, comp_rows, spec_lookup, font_sm)
-
-    # Draw Most Flexible Specs (Glue Specs) if provided
-    if glue_specs:
-        draw.text(
-            (WIDTH // 2 + 50, 200),
-            "Most Flexible Specs:",
-            font=font_sm,
-            fill=(255, 255, 255),
-            stroke_width=2,
-            stroke_fill=(0, 0, 0),
-        )
-
-        g_y_offset = 250
-        for gs in glue_specs[:5]:
-            sid = str(gs['spec_id'])
-            comps_count = gs.get('comps', 0)
-
-            if sid in spec_lookup:
-                spec_meta = spec_lookup[sid]
-                class_meta = class_lookup.get(str(spec_meta.get("classID", "")), {})
-                spec_name = f"{spec_meta.get('name', '')} {class_meta.get('name', '')}"
-
-                # Draw Icon
-                icon_file = spec_icon_path(spec_meta)
-                if os.path.exists(icon_file):
-                    img = Image.open(icon_file).convert("RGBA").resize((40, 40), LANCZOS)
-                    canvas.paste(img, (WIDTH // 2 + 50, g_y_offset), img)
-
-                # Draw Text
-                class_color_hex = class_meta.get("color", {"r": 255, "g": 255, "b": 255, "a": 1})
-                class_color = (int(class_color_hex["r"]), int(class_color_hex["g"]), int(class_color_hex["b"]))
-
-                draw.text(
-                    (WIDTH // 2 + 100, g_y_offset + 5),
-                    f"{spec_name} - {comps_count} Comps",
-                    font=font_sm,
-                    fill=class_color,
-                    stroke_width=1,
-                    stroke_fill=(0, 0, 0)
-                )
-
-            g_y_offset += 60
-
-    top_comp_str = ""
-    if top_comps_data:
-        first_comp = top_comps_data[0]
-        comp_str = first_comp['comp'] if isinstance(first_comp, dict) else first_comp[0]
-        if comp_str:
-            top_spec_ids = sort_spec_ids_by_role(comp_str.split(','), spec_lookup)
-            spec_names = []
-            for sid in top_spec_ids:
-                if sid in spec_lookup:
-                    spec_meta = spec_lookup[sid]
-                    class_meta = class_lookup.get(str(spec_meta.get("classID", "")), {})
-                    spec_names.append(f"{spec_meta.get('name', '')} {class_meta.get('name', '')}")
-            top_comp_str = ", ".join(spec_names)
-
-    most_flexible_spec_str = ""
-    if glue_specs and len(glue_specs) > 0:
-        sid = str(glue_specs[0].get('spec_id'))
-        if sid in spec_lookup:
-            spec_meta = spec_lookup[sid]
-            class_meta = class_lookup.get(str(spec_meta.get("classID", "")), {})
-            most_flexible_spec_str = f"{spec_meta.get('name', '')} {class_meta.get('name', '')}"
+        # stat rows spread evenly between the icon row and the card bottom
+        stats_y0 = icons_y + meta_icon_sz + 12
+        avail_h = box_y2 - pad - stats_y0
+        for i, (label, value) in enumerate(stat_lines):
+            y = stats_y0 + (i + 0.5) * avail_h / len(stat_lines)
+            draw.text((panel_x2 + pad, y), f"{label}:", font=font_row, fill=config.MUTED, anchor="lm")
+            draw.text((box_x2 - pad, y), value, font=font_row, fill=config.TEXT, anchor="rm")
 
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    canvas = apply_watermark_to_canvas(canvas, position="top_right", padding_x=30, padding_y=30)
+    canvas = apply_watermark_to_canvas(canvas, position="bottom_right", padding_x=30, padding_y=20)
 
     if out_path.lower().endswith((".jpg", ".jpeg")):
         canvas = canvas.convert("RGB")
     canvas.save(out_path)
 
-    runner_up_comp_str = ""
-    if top_comps_data and len(top_comps_data) > 1:
-        second_comp = top_comps_data[1]
-        second_str = (
-            second_comp["comp"] if isinstance(second_comp, dict) else second_comp[0]
-        )
-        runner_up_comp_str = format_comp_names(second_str)
+    top_comp_str = format_comp_names(",".join(rows[0]["spec_ids"])) if rows else ""
+    runner_up_comp_str = format_comp_names(",".join(rows[1]["spec_ids"])) if len(rows) > 1 else ""
 
     post_data = {
         "title": "Global Top Comps",
         "amount_data_source_runs": humanize_number(play_count),
         "top_comp": top_comp_str,
         "runner_up_comp": runner_up_comp_str,
-        "most_flexible_spec": most_flexible_spec_str
     }
+    if meta_comp and meta_comp.get("specs"):
+        meta_runs = int(meta_comp.get("runs", 0))
+        post_data.update({
+            "meta_comp": format_comp_names(",".join(str(s) for s in meta_comp["specs"])),
+            "meta_comp_timed_pct": f"{(meta_comp.get('timed', 0) / meta_runs * 100) if meta_runs else 0:.0f}%",
+            "meta_comp_max_key": f"+{meta_comp.get('max_key', 0)}",
+        })
+        if meta_comp.get("popularity_rank"):
+            post_data["meta_comp_popularity"] = f"#{meta_comp['popularity_rank']} most played"
 
     return {"out_path": out_path, "post_data": post_data}

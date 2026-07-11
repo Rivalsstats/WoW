@@ -12,7 +12,7 @@ from chartData import compute_shades
 from commonUtils import get_class_lookup, get_spec_lookup
 from image_generation import config
 from image_generation.mpl_setup import init_matplotlib
-from image_generation.pil_helpers import watermark_file
+from image_generation.pil_helpers import composite_chart_onto_bg, watermark_file
 
 
 def create_spec_popularity_by_level_img(out_path, season):
@@ -82,9 +82,7 @@ def create_spec_popularity_by_level_img(out_path, season):
     fig, ax = plt.subplots(
         figsize=(config.WIDTH / DPI, config.HEIGHT / DPI),
         dpi=DPI,
-        facecolor=(30 / 255, 30 / 255, 30 / 255),
     )
-    ax.set_facecolor((30 / 255, 30 / 255, 30 / 255))
 
     # build color list for ordered specs (fallback gray if missing)
     colors = [color_map.get(sid, (0.6, 0.6, 0.6)) for sid in ordered]
@@ -99,8 +97,8 @@ def create_spec_popularity_by_level_img(out_path, season):
         ax=ax,
     )
 
-    ax.set_ylabel("Keystone Level", color="white")
-    ax.set_title("Spec Distribution across Keylevels", color="white")
+    ax.set_ylabel("Keystone Level")
+    ax.set_title("Spec Distribution across Keylevels")
     ax.set_xlim(0, 1)
     ax.set_xticklabels([])
 
@@ -126,12 +124,12 @@ def create_spec_popularity_by_level_img(out_path, season):
         )
         ax.add_artist(ab)
 
-    ax.tick_params(axis="y", colors="white")
     plt.tight_layout(rect=[0, 0.08, 1, 1])
 
-    plt.savefig(out_path, facecolor=fig.get_facecolor())
+    plt.savefig(out_path, transparent=True)
     plt.close()
 
+    composite_chart_onto_bg(out_path)
     watermark_file(out_path, position="bottom_right", padding_x=30, padding_y=10)
 
     # prepare social post data: find highest keylevel and top specs at that level
