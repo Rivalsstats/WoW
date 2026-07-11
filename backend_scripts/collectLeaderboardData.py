@@ -1065,8 +1065,21 @@ def parse_loadout_for_db(spec_id, season, rank, loadout_detail):
             node_obj = n.get("node") or n.get("node_id") or {}
             node_id = node_obj.get("id") if isinstance(node_obj, dict) else node_obj
             node_rank = int(n.get("rank") or 1)
+            # Selected choice: entryIndex points into node.entries. Needed so
+            # choice nodes can show which option the top players actually pick.
+            entry_id = None
+            spell_id = None
+            entries = node_obj.get("entries") if isinstance(node_obj, dict) else None
+            entry_index = n.get("entryIndex")
+            if isinstance(entries, list) and isinstance(entry_index, int) and 0 <= entry_index < len(entries):
+                selected = entries[entry_index]
+                if isinstance(selected, dict):
+                    entry_id = selected.get("id")
+                    spell = selected.get("spell")
+                    if isinstance(spell, dict):
+                        spell_id = spell.get("id")
             if node_id:
-                talents_rows.append((spec_id, season, rank, int(node_id), node_rank))
+                talents_rows.append((spec_id, season, rank, int(node_id), node_rank, entry_id, spell_id))
     except Exception:
         pass
     return items_rows, gems_rows, talents_rows, enchants_rows
@@ -1441,8 +1454,10 @@ async def run_raiderio_top_loadouts(session):
                                 talents_to_insert = []
                                 for t in talents:
                                     try:
-                                        # t format: (spec_id, season, rank, node_id, node_rank)
-                                        talents_to_insert.append((t[0], db_season, r, int(map_challenge_mode_id), t[3], t[4]))
+                                        # t format: (spec_id, season, rank, node_id, node_rank, entry_id, spell_id)
+                                        entry_id = t[5] if len(t) > 5 else None
+                                        spell_id = t[6] if len(t) > 6 else None
+                                        talents_to_insert.append((t[0], db_season, r, int(map_challenge_mode_id), t[3], t[4], entry_id, spell_id))
                                     except Exception:
                                         continue
                                 if talents_to_insert:

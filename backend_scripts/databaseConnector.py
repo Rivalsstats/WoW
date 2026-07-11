@@ -3107,8 +3107,8 @@ VALUES (%s, %s, %s, %s, %s, %s)
 
 INSERT_TOP_PLAYER_TALENTS_SQL = """
 INSERT INTO `Mythistone`.`top_player_loadout_talents`
-(`spec_id`, `season`, `rank`, `map_challenge_mode_id`, `node_id`, `node_rank`)
-VALUES (%s, %s, %s, %s, %s, %s)
+(`spec_id`, `season`, `rank`, `map_challenge_mode_id`, `node_id`, `node_rank`, `entry_id`, `spell_id`)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
 """
 
 FETCH_TOP_PLAYER_META_SQL = """
@@ -3264,7 +3264,7 @@ def fetch_top50_loadouts(connection, cursor, spec_id, season, limit=50):
       - items: list of { slot, item_id, item_level }
       - gems: list of { gem_item_id, usage_count }
       - enchants: list of { slot_group, enchantment_id }
-      - talents: list of { node_id, node_rank }
+      - talents: list of { node_id, node_rank, entry_id, spell_id }
 
     This helper performs a small number of queries (1 meta + up to 4 child queries).
     """
@@ -3450,7 +3450,7 @@ def fetch_top50_loadouts(connection, cursor, spec_id, season, limit=50):
 
     # TALENTS
     TALENTS_SQL = f"""
-    SELECT `spec_id`, `season`, `rank`, `map_challenge_mode_id`, `node_id`, `node_rank`
+    SELECT `spec_id`, `season`, `rank`, `map_challenge_mode_id`, `node_id`, `node_rank`, `entry_id`, `spell_id`
     FROM `Mythistone`.`top_player_loadout_talents`
     WHERE `spec_id` = %s AND `season` = %s AND ({pair_or_clause})
     ORDER BY `rank`, `node_id`
@@ -3462,7 +3462,7 @@ def fetch_top50_loadouts(connection, cursor, spec_id, season, limit=50):
     if null_ranks:
         rank_ph = ",".join(["%s" for _ in null_ranks])
         TALENTS_NULL_SQL = f"""
-        SELECT `spec_id`, `season`, `rank`, `map_challenge_mode_id`, `node_id`, `node_rank`
+        SELECT `spec_id`, `season`, `rank`, `map_challenge_mode_id`, `node_id`, `node_rank`, `entry_id`, `spell_id`
         FROM `Mythistone`.`top_player_loadout_talents`
         WHERE `spec_id` = %s AND `season` = %s AND `rank` IN ({rank_ph}) AND `map_challenge_mode_id` IS NULL
         ORDER BY `rank`, `node_id`
@@ -3474,12 +3474,22 @@ def fetch_top50_loadouts(connection, cursor, spec_id, season, limit=50):
             rank = int(row.get("rank"))
             map_id = int(row.get("map_challenge_mode_id"))
             key = f"{rank}|{map_id}"
-            entry = {"node_id": int(row.get("node_id")), "node_rank": int(row.get("node_rank"))}
+            entry = {
+                "node_id": int(row.get("node_id")),
+                "node_rank": int(row.get("node_rank")),
+                "entry_id": int(row["entry_id"]) if row.get("entry_id") is not None else None,
+                "spell_id": int(row["spell_id"]) if row.get("spell_id") is not None else None,
+            }
         else:
             rank = int(row[2])
             map_id = int(row[3])
             key = f"{rank}|{map_id}"
-            entry = {"node_id": int(row[4]), "node_rank": int(row[5])}
+            entry = {
+                "node_id": int(row[4]),
+                "node_rank": int(row[5]),
+                "entry_id": int(row[6]) if len(row) > 6 and row[6] is not None else None,
+                "spell_id": int(row[7]) if len(row) > 7 and row[7] is not None else None,
+            }
         meta_map.get(key, {}).get("talents", []).append(entry)
 
     # Return ordered list corresponding to metas
