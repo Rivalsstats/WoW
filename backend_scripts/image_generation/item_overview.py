@@ -15,10 +15,11 @@ Entrypoints:
 
 import os
 import random
+import re
 
 from PIL import Image, ImageDraw, ImageFont
 
-from commonUtils import get_class_lookup, get_spec_lookup, humanize_number
+from commonUtils import get_class_lookup, get_spec_lookup, humanize_number, stat_display_name
 from image_generation import config
 from image_generation.pil_helpers import (
     LANCZOS,
@@ -84,6 +85,10 @@ def _get_background():
     return canvas.copy()
 
 
+# The only two-word class names; abbreviated so "<Spec> <Class>" rows fit.
+CLASS_ABBR = {"Death Knight": "DK", "Demon Hunter": "DH"}
+
+
 def _spec_visual(spec_id):
     """(display name, class-colour rgb, icon path) for a spec id."""
     sm = _SPEC_LOOKUP.get(str(spec_id), {})
@@ -94,21 +99,67 @@ def _spec_visual(spec_id):
     except (KeyError, TypeError, ValueError):
         cc = (200, 200, 200)
     icon = os.path.join(config.ICON_DIR, f"{sm.get('SpellIconFileId')}.jpg")
-    name = f"{sm.get('name', '')} {cm.get('name', '')}".strip() or f"Spec {spec_id}"
+    class_name = cm.get("name", "")
+    class_name = CLASS_ABBR.get(class_name, class_name)
+    name = f"{sm.get('name', '')} {class_name}".strip() or f"Spec {spec_id}"
     return name, cc, icon
 
 
+# WoW gives most enchants a redundant "Enchant <Slot> - " display prefix
+# (e.g. "Enchant Ring - Radiant Critical Strike"). The slot word is always a
+# single token followed by " - "; runes ("Rune of ...") and stat scrolls
+# ("9 Crit") carry no prefix and must stay intact. Matched off the enchantments
+# static table (86 prefixed / 190 unprefixed names).
+_ENCHANT_PREFIX_RE = re.compile(r"^Enchant\b[^-]*-\s*")
+
+# Missives are named "<Expansion> Missive of the <Suffix>" (e.g. "Algari Missive
+# of the Quickblade"); only the suffix distinguishes them, so drop the shared
+# "... Missive of the " lead-in (matches all 18 missive reagents, leaves other
+# reagents untouched).
+_MISSIVE_PREFIX_RE = re.compile(r"^.*?\bMissive\s+of\s+the\s+", re.IGNORECASE)
+
+
+def _clean_enchant_name(name):
+    """Strip the "Enchant <Slot> - " prefix from an enchant display name."""
+    cleaned = _ENCHANT_PREFIX_RE.sub("", name or "").strip()
+    return cleaned or (name or "")
+
+
+def _clean_missive_name(name):
+    """Strip the "<Expansion> Missive of the " prefix from a missive name."""
+    cleaned = _MISSIVE_PREFIX_RE.sub("", name or "").strip()
+    return cleaned or (name or "")
+
+
+# Compact labels for crafted secondary stats (kept short so the row fits).
+STAT_ABBR = {
+    "crit": "Crit", "haste": "Haste", "mastery": "Mastery", "versatility": "Vers",
+    "avoidance": "Avoid", "leech": "Leech", "speed": "Speed",
+}
+
+# Stat text colours, matching assets/css/stat-colors.css so gem stat rows read
+# like the spec page's stat badges. Keyed on the socket-stat tokens
+# (vers/sta/stragiint) used in the gem data.
+STAT_COLORS = {
+    "crit": (224, 28, 28), "haste": (14, 213, 155), "mastery": (146, 86, 255),
+    "vers": (191, 191, 191), "versatility": (191, 191, 191),
+    "sta": (255, 139, 45), "stragiint": (255, 209, 0),
+    "avoidance": (30, 144, 255), "leech": (255, 90, 108), "speed": (0, 194, 255),
+}
+
+
 def _variant_label(v):
-    """Short human label for an item-level / bonus variant row. Track tags
-    ("Mythic"/"Hero"/…) are intentionally dropped: they add no signal and push
-    the useful item level off the end of the row."""
+    """Short label for an item-level / crafted variant row. Track tags
+    ("Mythic"/"Hero"/…) are dropped (no signal). For crafted gear the chosen
+    secondary stats are the meaningful distinction, so they lead the row."""
+    stats = "/".join(STAT_ABBR.get(s, s.title()) for s in (v.get("crafted_stats") or [])[:2])
     parts = []
+    if stats:
+        parts.append(stats)
     if v.get("ilvl"):
-        parts.append(f"{v['ilvl']} ilvl")
+        parts.append(str(v["ilvl"]) if stats else f"{v['ilvl']} ilvl")
     if v.get("sockets"):
         parts.append(f"+{v['sockets']} gem")
-    if not parts and v.get("crafted_stats"):
-        parts.append("/".join(v["crafted_stats"][:2]))
     return " · ".join(parts) if parts else "Base"
 
 
@@ -133,10 +184,10 @@ def _draw_list_panel(canvas, draw, box, title, rows, fonts):
     x0, y0, x1, y1 = box
     draw_panel(draw, [(x0, y0), (x1, y1)], radius=12)
     pad = 14
-    icon_sz = 30
+    icon_sz = 28
     draw.text((x0 + pad, y0 + pad), title, font=font_title, fill=config.TEXT)
-    ry = y0 + pad + font_title.size + 12
-    row_h = icon_sz + 12
+    ry = y0 + pad + font_title.size + 10
+    row_h = icon_sz + 10
     avail = y1 - pad - ry
     max_rows = max(0, int(avail // row_h))
     for row in rows[:max_rows]:
@@ -204,10 +255,9 @@ def render_item_card(payload, slug, out_path):
     name_y = 32
     draw.text((name_x, name_y), name, font=title_font, fill=q_color)
 
-    sub_bits = [payload.get("slot") or ""]
-    if payload.get("ilvl"):
-        sub_bits.append(f"ilvl {payload['ilvl']}")
-    sub_bits.append(payload.get("weaponType") or "")
+    # Base item level is intentionally omitted here (it's a fixed catalog value,
+    # not usage signal); the Item Level panel covers the meaningful variants.
+    sub_bits = [payload.get("slot") or "", payload.get("weaponType") or ""]
     subtitle = "  •  ".join(b for b in sub_bits if b)
     sub_y = name_y + title_font.size + 4
     draw.text((name_x, sub_y), subtitle.upper(), font=font_sub, fill=config.MUTED)
@@ -249,47 +299,103 @@ def render_item_card(payload, slug, out_path):
     # Only worth a panel when there's real item-level/track signal (not a lone "Base").
     if var_rows and any(v.get("ilvl") or v.get("sockets") or v.get("crafted_stats")
                         for v in variants[:6]):
-        panels.append(("Item Level", var_rows))
+        panels.append(("Variants", var_rows))
 
-    gems = g.get("gems") or []
-    gem_rows = []
-    for gm in gems[:6]:
+    def _icon_rows(entries, fallback, limit):
+        rows = []
+        for c in (entries or [])[:limit]:
+            icon = os.path.join(config.ICON_DIR, f"{c['icon']}.png") if c.get("icon") else None
+            rows.append({
+                "icon": icon,
+                "label": c.get("name") or fallback,
+                "value": f"{c['pct']}%" if c.get("pct") is not None else "",
+                "color": QUALITY_COLORS.get(int(c.get("quality", 0) or 0), config.TEXT),
+            })
+        return rows
+
+    # Gems are shown by the secondary stats they grant (spec-page badge style);
+    # effect gems without stats fall back to their name. Gems that render to the
+    # same stat label (e.g. the same cut at different crafting qualities) are
+    # merged so the panel shows each stat combo once, with summed usage.
+    gem_agg = {}
+    for gm in (g.get("gems") or []):
         icon = os.path.join(config.ICON_DIR, f"{gm['icon']}.png") if gm.get("icon") else None
-        gem_rows.append({
-            "icon": icon,
-            "label": gm.get("name", "Gem"),
-            "value": f"{gm['pct']}%" if gm.get("pct") is not None else "",
-            "color": QUALITY_COLORS.get(int(gm.get("quality", 0) or 0), config.TEXT),
-        })
-    if gem_rows:
-        panels.append(("Popular Gems", gem_rows))
+        stats = gm.get("stats") or []
+        if stats:
+            label = " / ".join(stat_display_name(s) for s in stats)
+            color = STAT_COLORS.get(stats[0], config.TEXT)
+        else:
+            label = gm.get("name", "Gem")
+            color = QUALITY_COLORS.get(int(gm.get("quality", 0) or 0), config.TEXT)
+        e = gem_agg.get(label)
+        if e:
+            e["pct"] += gm.get("pct") or 0
+        else:
+            gem_agg[label] = {"icon": icon, "label": label, "color": color,
+                              "pct": gm.get("pct") or 0}
+    gem_rows = [{"icon": e["icon"], "label": e["label"], "color": e["color"],
+                 "value": f"{round(e['pct'], 1)}%" if e["pct"] else ""}
+                for e in sorted(gem_agg.values(), key=lambda x: -x["pct"])[:6]]
 
-    enchants = g.get("enchants") or []
-    ench_rows = []
-    for e in enchants[:6]:
-        icon = os.path.join(config.ICON_DIR, f"{e['icon']}.png") if e.get("icon") else None
-        ench_rows.append({"icon": icon, "label": e.get("name", "Enchant"),
-                          "value": f"{e['pct']}%" if e.get("pct") is not None else ""})
-    if ench_rows:
-        panels.append(("Enchants", ench_rows))
+    ench_rows = _icon_rows(g.get("enchants"), "Enchant", 6)
+    for r in ench_rows:
+        r["label"] = _clean_enchant_name(r["label"])
 
-    panels = panels[:4]
+    # Crafted items also carry an embellishment and/or a missive; when present we
+    # halve the gem/enchant panels and stack these underneath them.
+    is_crafted = bool(g.get("embellishments") or g.get("missives")
+                      or any(v.get("crafted_stats") for v in variants))
+    emb_rows = _icon_rows(g.get("embellishments"), "Embellishment", 3) if is_crafted else []
+    mis_rows = _icon_rows(g.get("missives"), "Missive", 3) if is_crafted else []
+    for r in mis_rows:
+        r["label"] = _clean_missive_name(r["label"])
 
-    # ---- lay the panels out in a single row across the lower area ----
-    if panels:
+    gem_panel = ("Popular Gems", gem_rows) if gem_rows else None
+    ench_panel = ("Enchants", ench_rows) if ench_rows else None
+    emb_panel = ("Embellishment", emb_rows) if emb_rows else None
+    mis_panel = ("Missive", mis_rows) if mis_rows else None
+
+    # Each column holds one full-height panel, or (crafted) an enhancement panel
+    # over its craft panel at half height each. `panels` already has the
+    # full-height Top Specs / Item Level panels built above.
+    columns = [[p] for p in panels]
+    if is_crafted:
+        enh = [p for p in (gem_panel, ench_panel) if p]
+        crafts = [p for p in (emb_panel, mis_panel) if p]
+        for i in range(max(len(enh), len(crafts))):
+            col = []
+            if i < len(enh):
+                col.append(enh[i])
+            if i < len(crafts):
+                col.append(crafts[i])
+            if col:
+                columns.append(col)
+    else:
+        columns.extend([p] for p in (gem_panel, ench_panel) if p)
+
+    columns = columns[:4]
+
+    # ---- lay the columns out across the lower area ----
+    if columns:
         top = divider_y + 18
         bottom = H - 56  # leave room so the cards clear the bottom-right watermark
         gap = 20
-        n = len(panels)
-        panel_w = (W - 2 * margin - (n - 1) * gap) / n
+        n = len(columns)
+        col_w = (W - 2 * margin - (n - 1) * gap) / n
         x = margin
-        for title, rows in panels:
-            _draw_list_panel(
-                canvas, draw,
-                (int(x), top, int(x + panel_w), bottom),
-                title, rows, (font_panel_title, font_row),
-            )
-            x += panel_w + gap
+        for col in columns:
+            k = len(col)
+            col_gap = 14 if k > 1 else 0
+            ph = (bottom - top - (k - 1) * col_gap) / k
+            y = top
+            for title, rows in col:
+                _draw_list_panel(
+                    canvas, draw,
+                    (int(x), int(y), int(x + col_w), int(y + ph)),
+                    title, rows, (font_panel_title, font_row),
+                )
+                y += ph + col_gap
+            x += col_w + gap
 
     canvas = apply_watermark_to_canvas(canvas, position="bottom_right",
                                        padding_x=30, padding_y=10)

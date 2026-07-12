@@ -21,6 +21,28 @@ TERTIARY_STATS = [
 ]
 HEALTH_STATS = ["health", "stamina"]
 
+# Friendly labels for the composite/adaptive stat tokens shown on stat badges
+# across the site. The adaptive "mainstat" token (stragiint) and the
+# multi-primary combos don't title-case cleanly, so they get explicit names;
+# plain secondary stats (crit/haste/...) fall through to a title-cased token.
+# Single source shared by the spec page (exposed as a Jinja global) and the
+# item preview cards, so the mapping is maintained in exactly one place.
+STAT_DISPLAY_NAMES = {
+    "stragiint": "Mainstat",
+    "stragi": "Str/Agi",
+    "agiint": "Agi/Int",
+    "strint": "Str/Int",
+}
+
+
+def stat_display_name(stat_type):
+    """Display label for a stat token, e.g. 'stragiint' -> 'Mainstat',
+    'crit' -> 'Crit'. This is the one conversion used everywhere stat badges are
+    rendered (spec page + item preview cards)."""
+    if not stat_type:
+        return ""
+    return STAT_DISPLAY_NAMES.get(stat_type, str(stat_type).title())
+
 
 def load_json(path):
     with open(path, "r", encoding="utf-8") as f:

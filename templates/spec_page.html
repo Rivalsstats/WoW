@@ -74,7 +74,7 @@
       <div class="d-flex flex-wrap gap-1">
         {% for stat in display_stats %}
         <span class="badge stat-{{ stat.type }} item-stat-badge">
-          {% if stat_names[stat.type] %}{{ stat_names[stat.type] }}{% else %}{{ stat.type | title }}{% endif %}
+          {{ stat_display_name(stat.type) }}
         </span>
         {% endfor %}
       </div>
@@ -192,7 +192,7 @@
 
 {% macro render_stat_bar(s,loop, include_separator) -%}
 {% set stat = s['name'] %}
-{% set label = stat_names.get(stat, stat|title) %}
+{% set label = stat_display_name(stat) %}
 {% set pct = s.avg_percent if s.avg_percent is not none else None %}
 <div class="col-12 col-sm-auto mb-2">
   <div class="stat-chip d-inline-flex align-items-center gap-2 p-2"
@@ -1037,8 +1037,7 @@
                                             {% for stat in enchant_lookup[enchant].stats %}
                                             <span class="badge stat-{{ stat.type }}">
                                               +{{ stat.amount }}
-                                              {% if stat_names[stat.type] %}{{ stat_names[stat.type] }}{% else %}{{
-                                              stat.type }}{% endif %}
+                                              {{ stat_display_name(stat.type) }}
                                             </span>
                                             {% endfor %}
                                           </a>
@@ -1173,11 +1172,7 @@
                                     {% for stat in gem.stats %}
                                     <span class="badge stat-{{ stat.type }}">
                                       +{{ stat.amount }}
-                                      {% if stat_names[stat.type] %}
-                                      {{ stat_names[stat.type] }}
-                                      {% else %}
-                                      {{ stat.type }}
-                                      {% endif %}
+                                      {{ stat_display_name(stat.type) }}
                                     </span>
                                     {% endfor %}
                                   </a>
@@ -1276,7 +1271,7 @@
                                     {% set amt = stat.amount if stat.amount is not none else (stat.alloc if stat.alloc is not none else '') %}
                                     {% if amt != '' %}
                                     <span class="badge stat-{{ stat.type or stat.id }}">
-                                      +{{ amt }} {% if stat_names.get(stat.type) %}{{ stat_names.get(stat.type) }}{% else %}{{ stat.type or stat.id }}{% endif %}
+                                      +{{ amt }} {{ stat_display_name(stat.type) or stat.id }}
                                     </span>
                                     {% endif %}
                                     {% endfor %}
@@ -1372,11 +1367,7 @@
                                       href="https://www.wowhead.com/item={{ reagent_lookup[missive].itemId }}&spec={{ spec_id }}">
                                       {% for stat in reagent_lookup[missive].stats %}
                                       <span class="badge stat-{{ stat.type }}">
-                                        +{{ stat.amount }} {% if stat_names[stat.type] %}{{ stat_names[stat.type] }}{%
-                                        else
-                                        %}{{
-                                        stat.type
-                                        }}{% endif %}
+                                        +{{ stat.amount }} {{ stat_display_name(stat.type) }}
                                       </span>
                                       {% endfor %}
                                     </a>
@@ -1474,8 +1465,7 @@
                                   <div class="d-flex flex-wrap gap-1 mt-1">
                                     {% for stat in display_stats %}
                                     <span class="badge stat-{{ stat.type }}">
-                                      {% if stat_names[stat.type] %}{{ stat_names[stat.type] }}{% else %}{{ stat.type |
-                                      title }}{% endif %}
+                                      {{ stat_display_name(stat.type) }}
                                     </span>
                                     {% endfor %}
                                   </div>

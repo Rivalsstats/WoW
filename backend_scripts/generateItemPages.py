@@ -281,11 +281,18 @@ def build_scope(total, max_timed, max_depleted, gem_runs, variant_runs,
     gems = []
     for gid, runs in sorted(gem_runs.items(), key=lambda x: x[1], reverse=True)[:TOP_GEMS]:
         g = gem_lookup.get(int(gid)) if str(gid).isdigit() else None
+        # Secondary-stat types the gem grants, highest allocation first. Effect
+        # gems (Cyrce's Circlet citrines, tinkers, …) carry no stats and get an
+        # empty list, so consumers fall back to the gem name.
+        gem_stats = [s["type"] for s in sorted((g or {}).get("stats") or [],
+                                               key=lambda x: -(x.get("amount") or 0))
+                     if s.get("type")]
         gems.append({
             "id": int(gid),
             "name": (g or {}).get("itemName") or (g or {}).get("displayName") or f"Gem {gid}",
             "icon": (g or {}).get("itemIcon", ""),
             "quality": (g or {}).get("quality", 0),
+            "stats": gem_stats,
             "runs": int(runs),
             "pct": round(runs / gem_total * 100, 1),
         })

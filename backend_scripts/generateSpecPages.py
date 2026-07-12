@@ -25,6 +25,7 @@ from commonUtils import (
     humanize_number,
     format_duration,
     fetch_stat_info,
+    stat_display_name,
 )
 
 LEFT_ORDER = ["HEAD", "NECK", "SHOULDER", "BACK", "CHEST", "WRIST"]
@@ -99,13 +100,6 @@ SLOT_GROUPS = [
     "WAIST",
     "WRIST",
 ]
-
-STAT_NAMES = {
-    "stragiint": "Mainstat",
-    "stragi": "Str/Agi",
-    "agiint": "Agi/Int",
-    "strint": "Str/Int",
-}
 
 BLIZZARD_STAT_MAP = {
     32: "crit",
@@ -1129,6 +1123,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
     env.filters["format_ts"] = format_utc_timestamp
     env.filters["iso_ts"] = format_iso_timestamp
     env.filters["upgrade_info"] = upgrade_info
+    env.globals["stat_display_name"] = stat_display_name
     template = env.get_template(os.path.basename(template_path))
 
     # Load lookup tables
@@ -1817,7 +1812,6 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 total_tier_set_comps=total_tier_set_comps,
                 missives=missives,
                 formatted_price=formatted_price,
-                stat_names=STAT_NAMES,
                 trending=spec_runs / total_runs if total_runs > 0 else 0,
                 highest_run=highest_run,
                 hero_variants=hero_variants,
