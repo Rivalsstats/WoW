@@ -140,16 +140,22 @@
   <meta property="og:title" content="{{ item.name }} Mythic+ Usage in {{ season_info.name }} | MythiStone">
   <meta property="og:description"
     content="Which specs equip {{ item.name }} in {{ season_info.name }} Mythic+, and how it is used by dungeon and key level.">
+  {% if has_preview %}
+  <meta property="og:image" content="https://mythistone.com/assets/img/previews/items/{{ slug }}.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="675">
+  {% else %}
   <meta property="og:image" content="https://mythistone.com/data/icons/{{ item.icon }}.png">
+  {% endif %}
   <meta property="og:locale" content="en_US">
 
   <!-- Twitter -->
-  <meta name="twitter:card" content="summary">
+  <meta name="twitter:card" content="{{ 'summary_large_image' if has_preview else 'summary' }}">
   <meta name="twitter:site" content="@MythiStone">
   <meta name="twitter:title" content="{{ item.name }} Mythic+ Usage in {{ season_info.name }} | MythiStone">
   <meta name="twitter:description"
     content="Which specs equip {{ item.name }} in {{ season_info.name }} Mythic+, and how it is used by dungeon and key level.">
-  <meta name="twitter:image" content="https://mythistone.com/data/icons/{{ item.icon }}.png">
+  <meta name="twitter:image" content="{% if has_preview %}https://mythistone.com/assets/img/previews/items/{{ slug }}.jpg{% else %}https://mythistone.com/data/icons/{{ item.icon }}.png{% endif %}">
 
   <meta name="theme-color" content="#1a202c">
 

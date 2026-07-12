@@ -392,18 +392,12 @@ def build_scope(total, max_timed, max_depleted, gem_runs, variant_runs,
     }
 
 
-def main(template_path, output_dir, items_dir="items", debug=False, target_item=None):
+def load_static_lookups():
+    """Load every DB-free static lookup the item build needs, returned as a ctx
+    dict shared by the full page build (``main``) and the single-item debug
+    renderer in renderAllSocialImages."""
     season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
     season = season_info.get("blizzard_season_id")
-    if not season:
-        fail("blizzard_season_id missing from seasonInfo.json")
-
-    if (
-        not os.environ.get("DATABASE_HOST")
-        or not os.environ.get("DATABASE_USER")
-        or not os.environ.get("DATABASE_PASSWORD")
-    ):
-        fail("Missing DB credentials (DATABASE_HOST/USER/PASSWORD).")
 
     # ---- static lookups -------------------------------------------------
     spec_lookup = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
@@ -487,15 +481,46 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
             "icon": d.get("icon"),
         }
 
-    # ---- sweep the aggregation tables -----------------------------------
-    databaseConnector.init_connection_pool(
-        os.environ.get("DATABASE_HOST"),
-        os.environ.get("DATABASE_USER"),
-        os.environ.get("DATABASE_PASSWORD"),
-        os.environ.get("DATABASE_NAME", "Mythistone"),
-        os.environ.get("DATABASE_PORT", "3306"),
-        1,
-    )
+    return {
+        "season_info": season_info,
+        "season": season,
+        "spec_lookup": spec_lookup,
+        "class_lookup": class_lookup,
+        "dungeon_lookup": dungeon_lookup,
+        "bonus_lookup": bonus_lookup,
+        "embellishment_lookup": embellishment_lookup,
+        "missive_lookup": missive_lookup,
+        "reagent_lookup": reagent_lookup,
+        "notifications": notifications,
+        "enchant_lookup": enchant_lookup,
+        "gem_lookup": gem_lookup,
+        "item_lookup": item_lookup,
+        "slug_map": slug_map,
+        "set_members": set_members,
+        "specs_map": specs_map,
+        "dungeons_map": dungeons_map,
+    }
+
+
+def build_payloads(season, ctx, only_item=None):
+    """Sweep the aggregation tables once and assemble the per-item payloads +
+    manifest. Opens and closes its own DB connection, so the connection pool must
+    already be initialised. With ``only_item`` set, only that item's payload is
+    assembled (used by the single-item debug renderer); the sweep still reads all
+    rows because the aggregation tables are keyed by spec, not item.
+
+    Returns ``(payloads, manifest)``.
+    """
+    spec_lookup = ctx["spec_lookup"]
+    bonus_lookup = ctx["bonus_lookup"]
+    embellishment_lookup = ctx["embellishment_lookup"]
+    missive_lookup = ctx["missive_lookup"]
+    reagent_lookup = ctx["reagent_lookup"]
+    enchant_lookup = ctx["enchant_lookup"]
+    gem_lookup = ctx["gem_lookup"]
+    item_lookup = ctx["item_lookup"]
+    slug_map = ctx["slug_map"]
+    set_members = ctx["set_members"]
 
     # counters keyed by item_id (str)
     spec_runs = defaultdict(lambda: defaultdict(int))          # item -> spec -> runs
@@ -625,6 +650,8 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
     payloads = {}        # item_id (str) -> full payload dict (rendered + embedded)
     manifest = []
     for item_id, per_spec in spec_runs.items():
+        if only_item is not None and str(item_id) != str(only_item):
+            continue
         item = item_lookup.get(int(item_id)) if item_id.isdigit() else None
         if not item:
             continue  # not an item we can render (no static data)
@@ -800,10 +827,89 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
         })
 
     manifest.sort(key=lambda x: x["runs"], reverse=True)
+    return payloads, manifest
+
+
+def _write_items_index(manifest):
     os.makedirs(os.path.join("assets", "json"), exist_ok=True)
     with open(os.path.join("assets", "json", "items_index.json"), "w", encoding="utf-8") as f:
         json.dump(manifest, f, separators=(",", ":"), ensure_ascii=False)
     print(f"[{datetime.now(timezone.utc).isoformat()}] assembled {len(manifest)} item payloads + manifest")
+
+
+def render_item_previews(payloads, slug_map, order, previews_dir, top_n=None):
+    """Render a 1200x675 OG preview card per item in parallel, entirely from the
+    already-in-memory ``payloads`` (workers never touch the DB). ``order`` is the
+    manifest (sorted by runs desc), so ``top_n`` keeps the most-used items."""
+    import multiprocessing as mp
+
+    from image_generation import item_overview
+
+    os.makedirs(previews_dir, exist_ok=True)
+    selected = order[:top_n] if top_n else order
+    tasks = []
+    for m in selected:
+        pl = payloads.get(str(m["id"]))
+        if not pl:
+            continue
+        slug = slug_map[int(m["id"])]
+        tasks.append((pl, slug, os.path.join(previews_dir, f"{slug}.jpg")))
+    if not tasks:
+        print("no item previews to render")
+        return 0
+
+    workers = max(1, os.cpu_count() or 2)
+    print(f"[{datetime.now(timezone.utc).isoformat()}] rendering {len(tasks)} item preview cards "
+          f"with {workers} workers...")
+    done = failed = 0
+    with mp.Pool(processes=workers, initializer=item_overview.init_worker,
+                 maxtasksperchild=250) as pool:
+        for slug, err in pool.imap_unordered(item_overview._render_task, tasks, chunksize=8):
+            done += 1
+            if err:
+                failed += 1
+                print(f"  preview FAIL {slug}: {err}")
+            elif done % 500 == 0:
+                print(f"  ... {done}/{len(tasks)} previews")
+    print(f"[{datetime.now(timezone.utc).isoformat()}] wrote {done - failed}/{len(tasks)} "
+          f"item preview cards to {previews_dir}/ ({failed} failed)")
+    return done - failed
+
+
+def main(template_path, output_dir, items_dir="items", debug=False, target_item=None,
+         previews_dir=os.path.join("assets", "img", "previews", "items"),
+         previews_top_n=None, want_previews=True):
+    ctx = load_static_lookups()
+    season = ctx["season"]
+    if not season:
+        fail("blizzard_season_id missing from seasonInfo.json")
+    if (
+        not os.environ.get("DATABASE_HOST")
+        or not os.environ.get("DATABASE_USER")
+        or not os.environ.get("DATABASE_PASSWORD")
+    ):
+        fail("Missing DB credentials (DATABASE_HOST/USER/PASSWORD).")
+
+    databaseConnector.init_connection_pool(
+        os.environ.get("DATABASE_HOST"),
+        os.environ.get("DATABASE_USER"),
+        os.environ.get("DATABASE_PASSWORD"),
+        os.environ.get("DATABASE_NAME", "Mythistone"),
+        os.environ.get("DATABASE_PORT", "3306"),
+        1,
+    )
+
+    payloads, manifest = build_payloads(season, ctx)
+    _write_items_index(manifest)
+
+    season_info = ctx["season_info"]
+    spec_lookup = ctx["spec_lookup"]
+    class_lookup = ctx["class_lookup"]
+    dungeon_lookup = ctx["dungeon_lookup"]
+    slug_map = ctx["slug_map"]
+    specs_map = ctx["specs_map"]
+    dungeons_map = ctx["dungeons_map"]
+    notifications = ctx["notifications"]
 
     # Per-slot lists (manifest already sorted by runs desc) for the "other popular
     # items in this slot" card on each item page.
@@ -841,6 +947,17 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
         render_items = [(chosen, payloads[chosen])] if chosen else []
         print(f"[debug] rendering only item {chosen} ({slug_map[int(chosen)] if chosen else 'none'})")
 
+    # Which items will get a rendered OG preview card, so the template can point
+    # og:image at the card (and fall back to the item icon otherwise). Mirrors the
+    # selection used by render_item_previews below.
+    if not want_previews:
+        preview_ids = set()
+    elif debug:
+        preview_ids = {str(iid) for iid, _ in render_items}
+    else:
+        _pv = manifest[:previews_top_n] if previews_top_n else manifest
+        preview_ids = {str(m["id"]) for m in _pv}
+
     item_tmpl = env.get_template("item.html")
     for item_id, payload in render_items:
         slug = slug_map[int(item_id)]
@@ -850,6 +967,7 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
             item=payload,
             slug=slug,
             slug_map=slug_map,
+            has_preview=str(payload["id"]) in preview_ids,
             alternatives=alternatives,
             active_page="items",
             cur_page="items",
@@ -890,6 +1008,16 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
         f.write(page_html)
     print(f"Generated {os.path.join(output_dir, 'items.html')}")
 
+    # ---- item preview cards (OG images) --------------------------------
+    if want_previews:
+        if debug:
+            chosen_ids = {str(iid) for iid, _ in render_items}
+            preview_order = [m for m in manifest if str(m["id"]) in chosen_ids]
+        else:
+            preview_order = manifest
+        render_item_previews(payloads, slug_map, preview_order, previews_dir,
+                             top_n=previews_top_n)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate the items browse page and one static page per item")
@@ -900,5 +1028,13 @@ if __name__ == "__main__":
                         help="Render only the browse page and a single item page")
     parser.add_argument("--item", dest="target_item",
                         help="In --debug, the item id or slug to render (default: most-used item)")
+    parser.add_argument("--previews_dir", default=os.path.join("assets", "img", "previews", "items"),
+                        help="Directory to write per-item OG preview cards")
+    parser.add_argument("--previews_top_n", type=int, default=None,
+                        help="Only render preview cards for the N most-used items (default: all)")
+    parser.add_argument("--no_previews", action="store_true",
+                        help="Skip rendering the per-item OG preview cards")
     args = parser.parse_args()
-    main(args.template, args.output_dir, args.items_dir, args.debug, args.target_item)
+    main(args.template, args.output_dir, args.items_dir, args.debug, args.target_item,
+         previews_dir=args.previews_dir, previews_top_n=args.previews_top_n,
+         want_previews=not args.no_previews)
