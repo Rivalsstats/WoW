@@ -994,6 +994,18 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
             f.write(item_html)
     print(f"[{datetime.now(timezone.utc).isoformat()}] wrote {len(render_items)} item page(s) to {items_dir}/")
 
+    # OG preview card for the browse page itself (grid of the most-used items).
+    # Best-effort: a thumbnail failure must never block the page build.
+    overview_url = None
+    if want_previews:
+        from image_generation.item_overview import (
+            OVERVIEW_REL_PATH, OVERVIEW_URL, render_items_overview)
+        try:
+            render_items_overview(manifest, season_info.get("name", ""), OVERVIEW_REL_PATH)
+            overview_url = OVERVIEW_URL
+        except Exception as e:
+            print(f"WARN: failed to render items overview preview: {e}", file=sys.stderr)
+
     # The browse grid page (filterable list of all items) at pages/items.html.
     page = env.get_template(os.path.basename(template_path))
     page_html = page.render(
@@ -1003,6 +1015,7 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
             {"title": "Pages", "href": "/pages"},
             {"title": "Items", "href": "/pages/items"},
         ],
+        overview_url=overview_url,
         item_count=len(manifest),
         spec_nav=spec_nav,
         dungeon_nav=dungeon_nav,

@@ -29,6 +29,12 @@ from image_generation.pil_helpers import (
     fit_font_to_width,
 )
 
+# og:image preview for the /items browse (overview) page — a sibling of the
+# per-item previews dir so it can never collide with an item's <slug>.jpg card.
+OVERVIEW_REL_PATH = os.path.join("assets", "img", "previews", "items_overview.jpg")
+OVERVIEW_URL = "https://mythistone.com/assets/img/previews/items_overview.jpg"
+OVERVIEW_TOP_N = 15
+
 # WoW item-quality -> name colour (poor/common/uncommon/rare/epic/legendary/artifact).
 QUALITY_COLORS = {
     0: (157, 157, 157),
@@ -405,6 +411,113 @@ def render_item_card(payload, slug, out_path):
         canvas.save(out_path, quality=82, optimize=True)
     else:
         os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
+        canvas.save(out_path)
+    return out_path
+
+
+def render_items_overview(manifest, season_name, out_path, top_n=OVERVIEW_TOP_N):
+    """Render the /items browse-page OG card (1200x675): a grid of the most-used
+    items this season.
+
+    Fed the in-memory ``manifest`` (sorted by runs desc) that ``generateItemPages``
+    already builds, so it needs no DB handle and reuses the same static lookups,
+    palette, panels and watermark as the per-item card. Each cell is
+    ``[rank] [item icon] [name] [top-spec icon] [runs]``.
+    """
+    _ensure_lookups()
+    W, H = config.WIDTH, config.HEIGHT
+    margin = 40
+
+    canvas = _get_background().convert("RGB")
+    draw = ImageDraw.Draw(canvas)
+
+    font_sub = ImageFont.truetype(config.FONT_FILE, config.SMALL_SIZE)
+    font_row = ImageFont.truetype(config.FONT_FILE, max(20, config.SMALL_SIZE))
+    font_rank = ImageFont.truetype(config.FONT_FILE, max(18, config.SMALL_SIZE - 2))
+
+    # ---- header ----
+    title = "Mythic+ Item Usage"
+    title_font = fit_font_to_width(draw, title, W - 2 * margin,
+                                   start_size=config.TITLE_SIZE, min_size=24, step=2)
+    title_y = 30
+    draw.text((margin, title_y), title, font=title_font, fill=config.TEXT)
+    sub_bits = [season_name or "", f"{len(manifest):,} items tracked"]
+    subtitle = "  •  ".join(b for b in sub_bits if b)
+    sub_y = title_y + title_font.size + 6
+    draw.text((margin, sub_y), subtitle.upper(), font=font_sub, fill=config.MUTED)
+    divider_y = sub_y + font_sub.size + 14
+    draw.line([(margin, divider_y), (W - margin, divider_y)], fill=config.DIVIDER, width=2)
+
+    # ---- grid of the most-used items ----
+    entries = manifest[:top_n]
+    cols, rows = 3, 5
+    col_gap, row_gap = 20, 12
+    top = divider_y + 16
+    bottom = H - 56  # clear the bottom-right watermark
+    cell_w = (W - 2 * margin - (cols - 1) * col_gap) / cols
+    cell_h = (bottom - top - (rows - 1) * row_gap) / rows
+    icon_sz = int(min(cell_h - 8, 54))
+    pad = 10
+
+    for idx, m in enumerate(entries):
+        c, r = idx % cols, idx // cols
+        x0 = margin + c * (cell_w + col_gap)
+        y0 = top + r * (cell_h + row_gap)
+        x1 = x0 + cell_w
+        cy = y0 + cell_h / 2
+        draw_panel(draw, [(int(x0), int(y0)), (int(x1), int(y0 + cell_h))], radius=10)
+
+        # rank
+        rank = str(idx + 1)
+        draw.text((x0 + pad, cy), rank, font=font_rank, fill=config.MUTED, anchor="lm")
+        ix = x0 + pad + draw.textlength(rank, font=font_rank) + 8
+
+        # item icon (quality-bordered)
+        q_color = QUALITY_COLORS.get(int(m.get("quality", 0) or 0), config.TEXT)
+        icon_path = os.path.join(config.ICON_DIR, f"{m.get('icon', '')}.png")
+        iy = cy - icon_sz / 2
+        if _paste_icon(canvas, icon_path, (int(ix), int(iy)), icon_sz):
+            draw.rectangle((int(ix), int(iy), int(ix + icon_sz), int(iy + icon_sz)),
+                           outline=q_color, width=2)
+            text_x = ix + icon_sz + 10
+        else:
+            text_x = ix
+
+        # runs value (right-aligned, muted)
+        runs = humanize_number(m.get("runs", 0))
+        val_right = x1 - pad
+        rw = draw.textlength(runs, font=font_row)
+        draw.text((val_right - rw, cy), runs, font=font_row, fill=config.MUTED, anchor="lm")
+        val_right = val_right - rw - 10
+
+        # top-spec icon (class-bordered), just left of the runs value
+        if m.get("top_spec") is not None:
+            _nm, cc, spec_icon = _spec_visual(m["top_spec"])
+            sp_sz = 26
+            sx = val_right - sp_sz
+            sy = cy - sp_sz / 2
+            if _paste_icon(canvas, spec_icon, (int(sx), int(sy)), sp_sz):
+                draw.rectangle((int(sx), int(sy), int(sx + sp_sz), int(sy + sp_sz)),
+                               outline=cc, width=2)
+                val_right = sx - 10
+
+        # item name (quality colour, truncated to fit before the icons/value)
+        name = m.get("name", f"Item {m.get('id', '')}")
+        max_w = val_right - text_x
+        label = name
+        while label and draw.textlength(label, font=font_row) > max_w and len(label) > 1:
+            label = label[:-1]
+        if label != name and label:
+            label = label[:-1] + "…"
+        draw.text((text_x, cy), label, font=font_row, fill=q_color, anchor="lm")
+
+    canvas = apply_watermark_to_canvas(canvas, position="bottom_right",
+                                       padding_x=30, padding_y=10)
+    canvas = canvas.convert("RGB")
+    os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
+    if out_path.lower().endswith((".jpg", ".jpeg")):
+        canvas.save(out_path, quality=82, optimize=True)
+    else:
         canvas.save(out_path)
     return out_path
 
