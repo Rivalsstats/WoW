@@ -192,7 +192,7 @@ def node_has_valid_spellid(node):
             return True
     return False
 
-def build_ui_tree(nodes, pop_data, is_hero=False, pop_hero_tree_id=None, top_pct_map=None):
+def build_ui_tree(nodes, pop_data, is_hero=False, pop_hero_tree_id=None, top_pct_map=None, top_entry_pct_map=None):
 
     if not nodes:
         return {"nodes": [], "edges": []}
@@ -222,6 +222,17 @@ def build_ui_tree(nodes, pop_data, is_hero=False, pop_hero_tree_id=None, top_pct
             try:
                 top_pct_lookup[int(nid)] = float(info.get("pct", 0.0))
             except (TypeError, ValueError, AttributeError):
+                continue
+
+    # Per-choice top-50 usage (node_id -> list of {entry_id, spell_id, pct}).
+    # Empty for rows collected before entry ids were stored; every consumer
+    # below must degrade to node-level behaviour when a node is missing here.
+    top_entry_lookup = {}
+    if isinstance(top_entry_pct_map, dict):
+        for nid, entries_info in top_entry_pct_map.items():
+            try:
+                top_entry_lookup[int(nid)] = list(entries_info or [])
+            except (TypeError, ValueError):
                 continue
 
     if not nodes:
@@ -255,7 +266,8 @@ def build_ui_tree(nodes, pop_data, is_hero=False, pop_hero_tree_id=None, top_pct
         entries = n.get("entries", [])
         node_choices = []
         total_entry_pct = 0.0
-        
+        node_top_entries = top_entry_lookup.get(n["id"], [])
+
         for e in entries:
             e_pct = pop_map.get(e.get("definitionId"), 0.0)
             e_count = pop_count_map.get(e.get("definitionId"), 0)
@@ -265,15 +277,32 @@ def build_ui_tree(nodes, pop_data, is_hero=False, pop_hero_tree_id=None, top_pct
             if e_pct == 0.0 and e.get("spellId"):
                 e_pct = pop_map.get(e["spellId"], 0.0)
                 e_count = pop_count_map.get(e["spellId"], 0)
-            
+
+            # Top-50 usage of this specific choice, matched by entry id or
+            # spell id (whichever the collector managed to capture).
+            e_top_pct = 0.0
+            for te in node_top_entries:
+                if (te.get("entry_id") is not None and te.get("entry_id") == e.get("id")) or (
+                    te.get("spell_id") is not None and te.get("spell_id") == e.get("spellId")
+                ):
+                    e_top_pct = float(te.get("pct", 0.0))
+                    break
+
+            e_pct_capped = min(e_pct, 100.0)
+            e_top_pct = min(e_top_pct, 100.0)
+
             total_entry_pct += e_pct
             node_choices.append({
                 "name": e.get("name", ""),
                 "icon": e.get("icon", ""),
-                "pct": min(e_pct, 100.0),
+                # Raw overall usage; for choice nodes these get normalized below
+                # to the node-conditional split (see the normalization block).
+                "pct": e_pct_capped,
                 "count": e_count,
                 "spellId": e.get("spellId", 0),
-                "maxRanks": e.get("maxRanks", 1)
+                "maxRanks": e.get("maxRanks", 1),
+                "top_pct": e_top_pct,
+                "is_top": False,
             })
             
         if entries and pct == 0.0:
@@ -299,6 +328,23 @@ def build_ui_tree(nodes, pop_data, is_hero=False, pop_hero_tree_id=None, top_pct
 
         if is_hero and n_type != "choice":
             continue
+
+        # Choice-node percentages are shown *conditional on the node being taken*.
+        # Raw usage is measured against the whole population, so a node taken 50%
+        # of the time with picks split 40%/10% understates the actual preference;
+        # normalized against the node total it reads 80%/20%. Do this for both the
+        # general population and the top-50 split so the tooltip and the divergence
+        # flag compare like with like. Passive/tiered nodes keep raw values.
+        if n_type == "choice" and node_choices:
+            total_gen_pct = sum(c["pct"] for c in node_choices)
+            total_top_pct = sum(c["top_pct"] for c in node_choices)
+            for c in node_choices:
+                c["pct"] = (c["pct"] / total_gen_pct * 100.0) if total_gen_pct > 0 else 0.0
+                c["top_pct"] = (c["top_pct"] / total_top_pct * 100.0) if total_top_pct > 0 else 0.0
+                c["is_top"] = (
+                    c["top_pct"] >= TALENT_ELITE_MIN_PCT
+                    and (c["top_pct"] - c["pct"]) >= TALENT_DIVERGENCE_DELTA
+                )
 
         icon = "inv_misc_questionmark"
         spell_id = 0
@@ -345,6 +391,20 @@ def build_ui_tree(nodes, pop_data, is_hero=False, pop_hero_tree_id=None, top_pct
             and (top_pct_val - pct) >= TALENT_DIVERGENCE_DELTA
         )
 
+        # Choice nodes: node-level usage is ~100% for both populations, so the
+        # rule above can never fire. Diverge per choice instead — flag the node
+        # when the elite players' pick differs from the general population's.
+        # Free choice nodes still qualify: the node is forced but the pick isn't.
+        top_choice = None
+        if n_type == "choice":
+            diverging = [c for c in node_choices if c.get("is_top")]
+            if diverging:
+                top_choice = max(diverging, key=lambda c: c["top_pct"])
+                is_top = True
+                top_pct_val = top_choice["top_pct"]
+            else:
+                is_top = False
+
         ui_nodes.append({
             "id": n["id"],
             "left": (n.get("posX", 0) - min_x) / w * 100,
@@ -354,6 +414,8 @@ def build_ui_tree(nodes, pop_data, is_hero=False, pop_hero_tree_id=None, top_pct
             "top_pct": "{:.1f}".format(top_pct_val),
             "top_pct_val": top_pct_val,
             "is_top": is_top,
+            "top_choice_name": top_choice["name"] if top_choice else None,
+            "top_choice_pct_val": top_choice["pct"] if top_choice else None,
             "count": count,
             "total_count": total_data_count,
             "icon": icon,
@@ -522,6 +584,9 @@ def compute_bis_from_top_loadouts(top_loadouts):
     enchant_counts = defaultdict(lambda: defaultdict(int))  # slot_group -> enchant_id -> count
     gem_counts = defaultdict(int)  # gem_item_id -> count (weighted by usage_count)
     talent_node_counts = defaultdict(int)  # node_id -> count
+    # Which choice was picked per node: node_id -> (entry_id, spell_id) -> count.
+    # entry/spell ids are NULL on rows collected before the schema gained them.
+    talent_entry_counts = defaultdict(lambda: defaultdict(int))
     # Per-dungeon talent adoption. top_player_loadouts is keyed per dungeon
     # (map_challenge_mode_id), so each loadout belongs to one dungeon; this lets
     # the Talent Differences modal flag niche talents top players take in a
@@ -577,6 +642,10 @@ def compute_bis_from_top_loadouts(top_loadouts):
             talent_node_counts[int(node)] += 1
             if dungeon is not None:
                 talent_dungeon_counts[int(dungeon)][int(node)] += 1
+            entry_id = t.get("entry_id")
+            spell_id = t.get("spell_id")
+            if entry_id is not None or spell_id is not None:
+                talent_entry_counts[int(node)][(entry_id, spell_id)] += 1
 
     # Build summary
     def _top_n_from_countmap(countmap, n_top=3, total=n):
@@ -630,6 +699,21 @@ def compute_bis_from_top_loadouts(top_loadouts):
         for nid, cnt in talent_node_counts.items()
     }
 
+    # Per-choice top-50 usage: which entry the elite players pick on choice
+    # nodes. Same denominator as talent_node_pct so the pcts are comparable.
+    talent_node_entry_pct = {
+        int(nid): [
+            {
+                "entry_id": eid,
+                "spell_id": sid,
+                "count": int(cnt),
+                "pct": (int(cnt) / (n or 1)) * 100.0,
+            }
+            for (eid, sid), cnt in sorted(emap.items(), key=lambda x: x[1], reverse=True)
+        ]
+        for nid, emap in talent_entry_counts.items()
+    }
+
     # Per-dungeon adoption: {dungeon_id(str): {node_id(int): pct}} where pct is
     # the share of that dungeon's top-player loadouts that took the node.
     talent_pct_by_dungeon = {}
@@ -654,6 +738,7 @@ def compute_bis_from_top_loadouts(top_loadouts):
         "gems": gems_summary,
         "talents": talents_summary,
         "talent_node_pct": talent_node_pct,
+        "talent_node_entry_pct": talent_node_entry_pct,
         "talent_pct_by_dungeon": talent_pct_by_dungeon,
         "full_loadout": full_loadout_top,
     }
@@ -1535,6 +1620,9 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
             # `top_pct_map` drives per-node elite-vs-popular divergence; the hero
             # counts below pick the hero tree the top players actually run.
             top_pct_map = bis_summary.get("talent_node_pct", {}) if bis_summary else {}
+            # Per-choice top-50 usage, so choice nodes can highlight which option
+            # the elite players actually pick (drives the per-choice TOP badge).
+            top_entry_pct_map = bis_summary.get("talent_node_entry_pct", {}) if bis_summary else {}
 
             # Per-dungeon "TOP" set for the Talent Differences modal: flat
             # "<dungeon_id>:<node_id>" -> pct for talents a majority of top
@@ -1597,18 +1685,18 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 sub = sub_trees.get(str(tid), {})
                 ui_class_tree = build_ui_tree(
                     tree_nodes.get("classNodes", []), class_by_tree.get(tid, {}),
-                    top_pct_map=top_pct_map,
+                    top_pct_map=top_pct_map, top_entry_pct_map=top_entry_pct_map,
                 )
                 ui_spec_tree = build_ui_tree(
                     tree_nodes.get("specNodes", []), spec_by_tree.get(tid, {}),
-                    top_pct_map=top_pct_map,
+                    top_pct_map=top_pct_map, top_entry_pct_map=top_entry_pct_map,
                 )
                 ui_hero_tree = build_ui_tree(
                     tree_nodes.get("heroNodes", []),
                     hero_by_tree.get(tid, {}),
                     is_hero=True,
                     pop_hero_tree_id=tid,
-                    top_pct_map=top_pct_map,
+                    top_pct_map=top_pct_map, top_entry_pct_map=top_entry_pct_map,
                 )
                 hero_variants.append({
                     "id": tid,

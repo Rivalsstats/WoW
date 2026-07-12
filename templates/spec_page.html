@@ -233,9 +233,11 @@
         <div class="arrow-right"></div>
         <div class="tt-custom-tooltip" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px; white-space: nowrap; z-index: 1050; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 5px;">
           {% for c in n.choices %}
-          <a href="https://www.wowhead.com/spell={{c.spellId}}" style="color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; font-size: 13px;" target="_blank">
-            <img src="/data/icons/{{c.icon}}.png" width="24" height="24" style="border-radius: 4px;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
-            <span>{{c.name}} : {{ '{:.0f}'.format(c.pct) }}%</span>
+          <a href="https://www.wowhead.com/spell={{c.spellId}}" class="tt-choice-row{% if c.is_top %} is-top{% endif %}" target="_blank">
+            <img src="/data/icons/{{c.icon}}.png" width="24" height="24" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+            <span class="tt-choice-name">{{c.name}}</span>
+            {% if c.is_top %}<span class="badge tt-top-badge tt-top-badge-inline tt-choice-badge js-choice-top-tip" data-bs-title="Picked by {{ '{:.0f}'.format(c.top_pct) }}% of the top 50 {{ spec.name }} {{ class_info.name }} players vs {{ '{:.0f}'.format(c.pct) }}% of the general population.">TOP</span>{% endif %}
+            <span class="tt-choice-pct">{{ '{:.0f}'.format(c.pct) }}%</span>
           </a>
           {% endfor %}
         </div>
@@ -270,7 +272,7 @@
       {% endif %}
     </div>
   {% endif %}
-  {% if n.is_top %}<div class="tt-top-badge" data-bs-toggle="tooltip" title="Used by {{ '{:.0f}'.format(n.top_pct_val) }}% of the top 50 {{ spec.name }} {{ class_info.name }} players vs {{ '{:.0f}'.format(n.pct_val) }}% of the general population.">TOP</div>{% endif %}
+  {% if n.is_top %}<div class="tt-top-badge" data-bs-toggle="tooltip" title="{% if n.top_choice_name %}Top 50 {{ spec.name }} {{ class_info.name }} players pick {{ n.top_choice_name }}: {{ '{:.0f}'.format(n.top_pct_val) }}% vs {{ '{:.0f}'.format(n.top_choice_pct_val) }}% of the general population.{% else %}Used by {{ '{:.0f}'.format(n.top_pct_val) }}% of the top 50 {{ spec.name }} {{ class_info.name }} players vs {{ '{:.0f}'.format(n.pct_val) }}% of the general population.{% endif %}">TOP</div>{% endif %}
   {% if not n.isFreeNode %}<div class="tt-badge" style="position: absolute; left: auto; bottom: -8px; right: -8px; transform: none; white-space: nowrap; background: #000; color: #fff; font-size: 10px; padding: 1px 4px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; z-index: 5;" title="{{ '{:.1f}'.format(n.pct_val) }}%">{{n.pct_val | round | int}}%</div>{% endif %}
   {% if n.maxRanks > 1 %}
     <div class="tt-maxrank" style="position: absolute; top: -6px; right: -6px; background: #333; border: 1px solid #777; color: #fff; font-size: 10px; padding: 0px 3px; border-radius: 3px; z-index: 5; cursor: default;" title="Average points spent: {{ n.avgRank | round(2) }}/{{ n.maxRanks }}">
@@ -290,13 +292,15 @@
         <img src="/data/icons/{{n.icon}}.png" alt="Icon" class="tt-octagon" style="width: 100%; height: 100%;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
       </div>
       <div class="arrow-right"></div>
-      {% if n.is_top %}<div class="tt-top-badge" data-bs-toggle="tooltip" title="Used by {{ '{:.0f}'.format(n.top_pct_val) }}% of the top 50 {{ spec.name }} {{ class_info.name }} players vs {{ '{:.0f}'.format(n.pct_val) }}% of the general population.">TOP</div>{% endif %}
+      {% if n.is_top %}<div class="tt-top-badge" data-bs-toggle="tooltip" title="{% if n.top_choice_name %}Top 50 {{ spec.name }} {{ class_info.name }} players pick {{ n.top_choice_name }}: {{ '{:.0f}'.format(n.top_pct_val) }}% vs {{ '{:.0f}'.format(n.top_choice_pct_val) }}% of the general population.{% else %}Used by {{ '{:.0f}'.format(n.top_pct_val) }}% of the top 50 {{ spec.name }} {{ class_info.name }} players vs {{ '{:.0f}'.format(n.pct_val) }}% of the general population.{% endif %}">TOP</div>{% endif %}
       <div class="text-center mt-1" style="background: #000; color: #fff; font-size: 11px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; padding: 1px 4px; position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); white-space: nowrap;" title="{{ '{:.1f}'.format(n.pct_val) }}%">{{n.pct_val | round | int}}%</div>
       <div class="tt-custom-tooltip" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px; white-space: nowrap; z-index: 1050; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 5px;">
         {% for c in n.choices %}
-        <a href="https://www.wowhead.com/spell={{c.spellId}}" style="color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; font-size: 13px;" target="_blank">
-          <img src="/data/icons/{{c.icon}}.png" width="24" height="24" style="border-radius: 4px;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
-          <span>{{c.name}} : {{ '{:.0f}'.format(c.pct) }}%</span>
+        <a href="https://www.wowhead.com/spell={{c.spellId}}" class="tt-choice-row{% if c.is_top %} is-top{% endif %}" target="_blank">
+          <img src="/data/icons/{{c.icon}}.png" width="24" height="24" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+          <span class="tt-choice-name">{{c.name}}</span>
+          {% if c.is_top %}<span class="badge tt-top-badge tt-top-badge-inline tt-choice-badge js-choice-top-tip" data-bs-title="Picked by {{ '{:.0f}'.format(c.top_pct) }}% of the top 50 {{ spec.name }} {{ class_info.name }} players vs {{ '{:.0f}'.format(c.pct) }}% of the general population.">TOP</span>{% endif %}
+          <span class="tt-choice-pct">{{ '{:.0f}'.format(c.pct) }}%</span>
         </a>
         {% endfor %}
       </div>
@@ -2050,6 +2054,30 @@
   {% include "fixed_plugin.html" %}
   <!--   Core JS Files   -->
   {% include "javascript_imports.html" %}
+
+  <script>
+    // Choice-node "TOP" badges: attach the tooltip above and to the LEFT of the
+    // badge so it clears the Wowhead spell tooltip that fires on the same choice
+    // row. We use Popper's native `top-end` corner placement (tooltip sits above
+    // the badge, right edges aligned, body extending left) via `popperConfig` —
+    // Bootstrap's own `placement` only maps to top/bottom/left/right, but the
+    // popperConfig override reaches Popper directly, and native placement means
+    // Popper flips it (to bottom-end) cleanly near a viewport edge. `customClass`
+    // forces a normal short/wide tooltip shape (see .tt-choice-tip in CSS) so it
+    // doesn't collapse into a tall column that overflows near the tree edges.
+    // These badges are excluded from the global [data-bs-toggle="tooltip"] init;
+    // they carry `js-choice-top-tip` (+ data-bs-title) instead.
+    (function () {
+      if (typeof bootstrap === 'undefined' || !bootstrap.Tooltip) return;
+      document.querySelectorAll('.js-choice-top-tip').forEach(function (el) {
+        new bootstrap.Tooltip(el, {
+          container: 'body',
+          customClass: 'tt-choice-tip',
+          popperConfig: { placement: 'top-end' }
+        });
+      });
+    })();
+  </script>
 
   <script type="text/plain" data-type="application/javascript" data-name="wowhead"
     data-src='https://wow.zamimg.com/widgets/power.js'></script>

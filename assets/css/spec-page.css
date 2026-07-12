@@ -139,6 +139,48 @@
 .tt-choice-wrapper:hover .tt-custom-tooltip { display: flex !important; }
 .tt-custom-tooltip a:hover { background: #333 !important; }
 
+/* Choice-node tooltip rows. The pick the top-50 players favour gets the same
+   gold TOP treatment as a highlighted node: gold-tinted row + gold TOP badge
+   (elite % lives in the badge tooltip, matching the node badges). */
+.tt-choice-row {
+  color: #fff;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px 4px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  border: 1px solid transparent;
+}
+.tt-choice-name { flex: 1 1 auto; }
+.tt-choice-pct {
+  color: #b6b6b6;
+  font-variant-numeric: tabular-nums;
+  min-width: 2.4em;
+  text-align: right;
+}
+.tt-choice-row.is-top,
+.tt-choice-row.is-top:hover {
+  background: rgba(255, 209, 0, 0.13) !important;
+  border-color: rgba(255, 209, 0, 0.45);
+}
+.tt-choice-row.is-top .tt-choice-name { color: #ffd100; font-weight: 700; }
+.tt-choice-row.is-top .tt-choice-pct { color: #ffe27a; }
+/* The name flex-grows and pushes the badge + percentage to the right edge; the
+   badge sits directly left of the percentage. */
+.tt-choice-badge { flex-shrink: 0; cursor: help; }
+
+/* The choice-node "TOP" badge tooltip. Force a normal width so it renders as a
+   short, wide box (Popper otherwise shrinks it to a tall narrow column that
+   overflows the viewport near tree edges). Short + wide lets it sit cleanly
+   above-left of the badge. */
+.tt-choice-tip .tooltip-inner {
+  width: max-content;
+  max-width: 260px;
+  text-align: left;
+}
+
 .tt-custom-tooltip img {
   width: 24px !important;
   height: 24px !important;
