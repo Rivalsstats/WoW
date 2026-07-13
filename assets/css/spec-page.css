@@ -424,6 +424,15 @@
   min-width: 0;
 }
 
+/* The name link must hug its content: as a stretched flex child it would
+   cover the whole details column, so clicks in the empty space next to the
+   name would navigate to the item page instead of toggling the accordion. */
+.item-name-link {
+  align-self: flex-start;
+  max-width: 100%;
+  min-width: 0;
+}
+
 .item-name-text {
   line-height: 1.2;
   min-width: 0;
@@ -434,32 +443,6 @@
    below its content width so the ellipsis kicks in. */
 .item-name-label {
   min-width: 0;
-}
-
-/* "Item details" link: a small, clearly-visible outline chip that reads as an
-   action (the old bare text link was easy to miss and sat awkwardly). */
-.item-detail-link {
-  align-self: flex-start;
-  margin: 3px 0;
-  padding: 2px 8px;
-  font-size: 0.68rem;
-  font-weight: 600;
-  line-height: 1.4;
-  border-radius: 999px;
-  border: 1px solid rgba(94, 114, 228, 0.6);
-  color: #aeb9ff;
-  background: rgba(94, 114, 228, 0.1);
-  text-decoration: none;
-  transition: background 0.12s, border-color 0.12s, color 0.12s;
-}
-.item-detail-link:hover {
-  background: rgba(94, 114, 228, 0.22);
-  border-color: rgba(94, 114, 228, 0.9);
-  color: #d7dcff;
-}
-.item-detail-link .material-symbols-rounded {
-  font-size: 0.85rem;
-  line-height: 1;
 }
 
 .item-stats-container {
@@ -536,9 +519,8 @@
   height: 32px;
 }
 
-/* Compact item rows on phones: rows hug their content, the "Item details"
-   chip collapses to its icon, and badges/popularity tighten so the details
-   column stays close to the (44px min) icon height. */
+/* Compact item rows on phones: rows hug their content and badges/popularity
+   tighten so the details column stays close to the (44px min) icon height. */
 @media (max-width: 575.98px) {
   .item-icon-col {
     --item-icon-size: 56px;
@@ -546,15 +528,6 @@
 
   .item-details-col {
     min-height: 0;
-  }
-
-  .item-detail-link {
-    margin: 2px 0;
-    padding: 2px 6px;
-  }
-
-  .item-detail-link span {
-    display: none;
   }
 
   .item-stats-container {

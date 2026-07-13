@@ -51,17 +51,10 @@
   </div>
   <!-- Name & secondary icons -->
   <div class="col item-details-col">
-    <a target="_blank"
-      href="https://www.wowhead.com/item={{ entry.id }}?bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}} {% endif %}"
-      data-wowhead="bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}}{% endif %}{%- if entry.pcs %}&pcs={{ entry.pcs|join(':') }}{%- endif %}"
-      data-wh-rename-link="true" {% if tag=='button' %}onclick="event.preventDefault();" {% endif %}>
-        <p class="mb-0 item-name-text d-flex align-items-center gap-1"><span class="text-truncate item-name-label">{{ item_lookup[entry.id].name }}</span>{% if entry.is_bis %}<span class="badge bis-badge flex-shrink-0" data-bs-toggle="tooltip" title="Used by {{ '%.0f' % (entry.bis_pct) if entry.bis_pct else 'N/A' }}% of the top 50 {{ spec.name }} {{ class_info.name }} players according to Raider.io verified Loadouts.">TOP</span>{% endif %}{% if entry.is_simc_bis %}<span class="badge simc-badge flex-shrink-0" data-bs-toggle="tooltip" title="Best item for this slot according to SimulationCraft{% if entry.simc_dps_pct is not none and entry.simc_dps_pct >= 0.05 %} (+{{ '%.1f' % entry.simc_dps_pct }}% DPS over the most-equipped item){% endif %}.">SIM</span>{% endif %}</p>
-    </a>
-    <a class="item-detail-link d-inline-flex align-items-center gap-1"
-      href="/items/{{ item_slug_map[entry.id] }}?spec={{ spec_id }}"
-      {% if tag=='button' %}onclick="event.stopPropagation();" {% endif %}
+    <a href="/items/{{ item_slug_map[entry.id] }}?spec={{ spec_id }}" class="item-name-link"
+      data-wowhead="item={{ entry.id }}&bonus={{ entry.bonus.list | join(':') }}&spec={{ spec_id }}{% if entry.enchantment %}&ench={{ entry.enchantment.id }}{% endif %}{% if entry.socket %}&gems={{entry.socket | map(attribute='id') | join(':')}}{% endif %}{%- if entry.pcs %}&pcs={{ entry.pcs|join(':') }}{%- endif %}"
       title="View Mythic+ usage details for {{ item_lookup[entry.id].name }}">
-      <i class="material-symbols-rounded">insights</i><span>Item details</span>
+        <p class="mb-0 item-name-text d-flex align-items-center gap-1"><span class="text-truncate item-name-label{% if entry.quality_override %} item-quality-{{ entry.quality_override }}{% elif item_lookup[entry.id].quality %} item-quality-{{ item_lookup[entry.id].quality }}{% endif %}">{{ item_lookup[entry.id].name }}</span>{% if entry.is_bis %}<span class="badge bis-badge flex-shrink-0" data-bs-toggle="tooltip" title="Used by {{ '%.0f' % (entry.bis_pct) if entry.bis_pct else 'N/A' }}% of the top 50 {{ spec.name }} {{ class_info.name }} players according to Raider.io verified Loadouts.">TOP</span>{% endif %}{% if entry.is_simc_bis %}<span class="badge simc-badge flex-shrink-0" data-bs-toggle="tooltip" title="Best item for this slot according to SimulationCraft{% if entry.simc_dps_pct is not none and entry.simc_dps_pct >= 0.05 %} (+{{ '%.1f' % entry.simc_dps_pct }}% DPS over the most-equipped item){% endif %}.">SIM</span>{% endif %}</p>
     </a>
     {% set reagent = reagent_lookup.get(entry.missive|string) or reagent_lookup.get(entry.missive|int) %}
     {% set display_stats = reagent.stats if entry.missive and reagent and reagent.stats else item_lookup[entry.id].stats
@@ -2044,6 +2037,21 @@
   {% include "fixed_plugin.html" %}
   <!--   Core JS Files   -->
   {% include "javascript_imports.html" %}
+
+  <script>
+    // Item-name links inside accordion header rows: Bootstrap's collapse
+    // data-api listens on document in the CAPTURE phase (its EventHandler
+    // passes the delegation flag as addEventListener's third argument), so it
+    // toggles the accordion and preventDefault()s the click before the anchor
+    // ever sees it — an onclick="event.stopPropagation()" on the link can't
+    // help. A window-capture listener runs before any document listener, so
+    // stopping propagation here keeps Bootstrap out while the link's native
+    // navigation (and ctrl/middle-click behavior) proceeds untouched.
+    window.addEventListener('click', function (e) {
+      var link = e.target.closest && e.target.closest('a.item-name-link');
+      if (link && link.closest('button.accordion-button')) e.stopPropagation();
+    }, true);
+  </script>
 
   <script>
     // Choice-node "TOP" badges: attach the tooltip above and to the LEFT of the

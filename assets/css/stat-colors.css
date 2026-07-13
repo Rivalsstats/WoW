@@ -181,3 +181,13 @@
 .border-quality-8 {
   border-color: var(--quality-8) !important;
 } /* token */
+
+/* === Rarity text classes (shared by item pages and spec-page item names) === */
+.item-quality-0 { color: var(--quality-0) !important; }
+.item-quality-1 { color: #d4d4d4 !important; }
+.item-quality-2 { color: var(--quality-2) !important; }
+.item-quality-3 { color: var(--quality-3) !important; }
+.item-quality-4 { color: var(--quality-4) !important; }
+.item-quality-5 { color: var(--quality-5) !important; }
+.item-quality-6 { color: var(--quality-6) !important; }
+.item-quality-7 { color: var(--quality-7) !important; }
