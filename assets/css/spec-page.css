@@ -438,10 +438,11 @@
   min-width: 0;
 }
 
-/* Only the name text truncates; the TOP / SIM badges sit after it and never
-   get clipped (flex-shrink:0 in markup). min-width:0 lets the label shrink
-   below its content width so the ellipsis kicks in. */
+/* display:block (not the d-block utility) so text-truncate ellipsizes on
+   desktop while the phone media query below can still switch the label to
+   -webkit-box for two-line clamping — d-block's !important would win over it. */
 .item-name-label {
+  display: block;
   min-width: 0;
 }
 
@@ -543,6 +544,21 @@
     row-gap: 2px;
   }
 
+  /* Names wrap to two lines instead of truncating to a handful of chars. */
+  .item-name-label {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .item-icon-top-badge,
+  .item-icon-sim-badge {
+    font-size: 0.55rem;
+  }
+
   .item-pop-pct {
     font-size: 0.95rem !important;
   }
@@ -611,6 +627,34 @@
   padding: 0.02rem 0.28rem;
   font-size: 0.6rem;
   line-height: 1;
+}
+
+/* TOP / SIM badges overlay the item icon's corners (same idiom as the
+   talent tree's .tt-top-badge) so the name line stays badge-free. A dark
+   outline + coloured glow lifts them off the busy icon artwork. */
+.item-icon-top-badge,
+.item-icon-sim-badge {
+  position: absolute;
+  z-index: 5;
+  font-size: 0.6rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.3px;
+  padding: 2px 4px;
+  white-space: nowrap;
+  border: 1px solid rgba(0, 0, 0, 0.55);
+}
+
+.item-icon-top-badge {
+  top: 2px;
+  left: 2px;
+  box-shadow: 0 0 6px rgba(255, 209, 0, 0.55);
+}
+
+.item-icon-sim-badge {
+  bottom: 2px;
+  left: 2px;
+  box-shadow: 0 0 6px rgba(58, 141, 222, 0.6);
 }
 
 .bis-dot {
