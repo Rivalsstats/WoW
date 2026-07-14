@@ -36,6 +36,7 @@ One simc invocation evaluates every combination and emits JSON (``json2``) with
 import os
 import re
 import json
+import hashlib
 import asyncio
 import argparse
 import itertools
@@ -85,7 +86,18 @@ SIMC_BLKIO_WEIGHT = os.environ.get("SIMC_BLKIO_WEIGHT")
 SIMC_PROFILESET_WORK_THREADS = os.environ.get("SIMC_PROFILESET_WORK_THREADS", "1")
 SIMC_ITERATIONS = os.environ.get("SIMC_ITERATIONS")  # e.g. "5000"; if unset, use target_error
 SIMC_TARGET_ERROR = os.environ.get("SIMC_TARGET_ERROR", "0.1")
-SIMC_RUN_TIMEOUT = int(os.environ.get("SIMC_RUN_TIMEOUT", str(8 * 60 * 60)))  # seconds per invocation
+# Ceiling for a single simc invocation, which now sims at most one CHUNK of
+# profilesets (see SIMC_CHUNK_SIZE / run_simc_bis), not a whole spec. Must stay
+# comfortably below the collector's ~daily restart: a chunk killed by the
+# restart is simply re-simmed on resume, but a chunk whose own runtime exceeds
+# this cap can never complete, so keep chunks small enough to finish well within
+# it. 8h leaves wide margin for a 64-profileset chunk on one pinned core.
+SIMC_RUN_TIMEOUT = int(os.environ.get("SIMC_RUN_TIMEOUT", str(8 * 60 * 60)))  # seconds per chunk
+# Profilesets simmed per collector visit. A heavy spec (hundreds of combos) is
+# computed across this many-sized chunks over successive visits, checkpointed to
+# simc_bis_progress after each, so it survives restarts and never blows the
+# per-invocation timeout. Fast specs (fewer combos than this) still run in one.
+SIMC_CHUNK_SIZE = int(os.environ.get("SIMC_CHUNK_SIZE", "64"))
 # Applied to every sibling simc container we launch so it can be found and torn
 # down independently of our own process state (e.g. when watchtower replaces this
 # collector container, these siblings aren't tracked/updated by watchtower at all).
@@ -1394,11 +1406,65 @@ async def optimize_spec(spec_id, spec_info, class_info, season, conn, cursor,
     prep, prep_err = _prepare_spec(spec_id, spec_info, class_info, season, conn, cursor, item_lookup, stats)
     if not prep:
         return None, prep_err
+    return await simulate_prepared(spec_id, season, prep, item_lookup, stats)
+
+
+# The subset of a prep dict that _build_run consumes. Persisted as JSON with an
+# in-progress run so a restart resumes against the run's ORIGINAL inputs: the
+# candidate bags come from popularity aggregations that are rebuilt nightly, so
+# re-preparing after the ~daily container restart would usually change the
+# generated profile, mismatch the run signature, and discard all banked chunks —
+# the heaviest specs (the whole reason for chunking) would then never finish.
+_PREP_SNAPSHOT_KEYS = ("header", "candidates", "baseline", "tier_set_id",
+                       "tier_slots", "active_slots")
+
+
+def _snapshot_prep(prep):
+    """Serialize the build-relevant part of a prep dict to compact JSON."""
+    data = {}
+    for k in _PREP_SNAPSHOT_KEYS:
+        v = prep.get(k)
+        if isinstance(v, set):
+            v = sorted(v)
+        data[k] = v
+    return json.dumps(data, separators=(",", ":"))
+
+
+def _load_prep_snapshot(text):
+    """Parse a stored prep snapshot; None if missing/corrupt/incomplete."""
+    if not text:
+        return None
+    try:
+        data = json.loads(text)
+    except Exception:
+        return None
+    if not all(k in data for k in _PREP_SNAPSHOT_KEYS):
+        return None
+    return data
+
+
+def _build_run(prep, item_lookup):
+    """Build the deterministic combination set for a prepared spec.
+
+    Returns a dict describing the whole run — base actor, profileset list,
+    name->combo index, config labels, iteration cap, and a `signature` (SHA-256
+    of the exact full .simc text). The signature is what lets progress be
+    resumed safely: any change to the candidate set, gear, or iteration settings
+    changes the generated profile and therefore the signature, so stale
+    checkpoints are discarded rather than mixed into a new run. The simc *build*
+    is deliberately not part of the signature, so the 6-hourly image pulls don't
+    invalidate a run mid-flight. Returns None when the spec has no valid combos.
+    """
     header = prep["header"]
     candidates = prep["candidates"]
     baseline = prep["baseline"]
     tier_set_id = prep["tier_set_id"]
-    tier_slots = prep["tier_slots"]
+    # detect_tier returns a SET; its iteration order seeds tier_pieces and thus
+    # the scenario/profileset order in the generated text. Python randomises
+    # string hashing per process, so an unsorted set would change the signature
+    # across restarts even with identical data — sort for determinism (also
+    # normalises the list form a JSON prep snapshot restores).
+    tier_slots = sorted(prep["tier_slots"])
     active_slots = prep["active_slots"]
 
     # ---- Top-Gear-style full-set combinations (tier configs co-optimised) ----
@@ -1420,37 +1486,46 @@ async def optimize_spec(spec_id, spec_info, class_info, season, conn, cursor,
         item_lookup, SIMC_MAX_COMBINATIONS,
     )
     if not all_combos:
-        msg = f"spec {spec_id} produced no valid gear combinations"
-        _stat_log(stats, f"simc: {msg}")
-        return None, msg
-    base_label = all_combos[0][1]
+        return None
 
-    _stat_log(stats, f"simc: spec {spec_id} evaluating {len(all_combos)} full-set combos "
-                     f"across {len(scenarios)} tier scenario(s)")
-    profile_text = build_profile(header, base_full, profilesets, iterations=combo_iters)
-    result, run_err = await run_simc(profile_text, f"spec{spec_id}_topgear")
-    if not result:
-        return None, run_err or "simc produced no result"
-    baseline_dps = parse_baseline_dps(result)
-    if baseline_dps is None:
-        return None, "could not parse baseline dps from simc result"
-    simc_version = parse_simc_version(result)
-    if simc_version and stats is not None:
-        try:
-            stats.set_status("simc_build", simc_version)
-        except Exception:
-            pass
-    means = parse_profileset_means(result)
-    if stats is not None:
-        try:
-            await stats.increment("simc_profilesets_run", len(means))
-        except Exception:
-            pass
+    full_text = build_profile(header, base_full, profilesets, iterations=combo_iters)
+    signature = hashlib.sha256(full_text.encode("utf-8")).hexdigest()
+    return {
+        "header": header,
+        "candidates": candidates,
+        "active_slots": active_slots,
+        "tier_set_id": tier_set_id,
+        "base_full": base_full,
+        "base_label": all_combos[0][1],
+        "profilesets": profilesets,          # [(name, [(slot, cand), ...]), ...]
+        "index": index,                      # name -> (full_set, config_label)
+        "scenarios": scenarios,
+        "combo_iters": combo_iters,
+        "n_combos": len(all_combos),
+        "signature": signature,
+    }
+
+
+def _assemble_result(spec_id, season, build, means, baseline_dps, simc_version):
+    """Turn profileset DPS means into the final per-slot-ranked result dict.
+
+    `means` is name->mean_dps for every profileset (from one monolithic run, or
+    reassembled from checkpoint chunks — the source doesn't matter). Returns
+    (result_dict, None) or (None, error_str)."""
+    base_full = build["base_full"]
+    base_label = build["base_label"]
+    index = build["index"]
+    active_slots = build["active_slots"]
+    candidates = build["candidates"]
+    tier_set_id = build["tier_set_id"]
 
     # Reassemble every simmed combo as (full set, dps, config_label).
     combo_results = [(base_full, baseline_dps, base_label)]
     for name, dps in means.items():
-        full, label = index[name]
+        entry = index.get(name)
+        if entry is None:
+            continue   # name not in the current build (defensive; signature guards this)
+        full, label = entry
         combo_results.append((full, dps, label))
     best_full, best_dps, tier_config = max(combo_results, key=lambda x: x[1])
 
@@ -1499,6 +1574,44 @@ async def optimize_spec(spec_id, spec_info, class_info, season, conn, cursor,
         "per_slot_ranked": per_slot_ranked,
         "combos": len(combo_results),
     }, None
+
+
+async def simulate_prepared(spec_id, season, prep, item_lookup, stats=None):
+    """Run a whole spec in one simc invocation (no checkpointing).
+
+    Used by the debug CLI. The production collector uses the chunked, resumable
+    path in run_simc_bis instead. Touches no DB; all reads happen in
+    _prepare_spec.
+    """
+    build = _build_run(prep, item_lookup)
+    if build is None:
+        msg = f"spec {spec_id} produced no valid gear combinations"
+        _stat_log(stats, f"simc: {msg}")
+        return None, msg
+
+    _stat_log(stats, f"simc: spec {spec_id} evaluating {build['n_combos']} full-set combos "
+                     f"across {len(build['scenarios'])} tier scenario(s)")
+    profile_text = build_profile(build["header"], build["base_full"], build["profilesets"],
+                                 iterations=build["combo_iters"])
+    result, run_err = await run_simc(profile_text, f"spec{spec_id}_topgear")
+    if not result:
+        return None, run_err or "simc produced no result"
+    baseline_dps = parse_baseline_dps(result)
+    if baseline_dps is None:
+        return None, "could not parse baseline dps from simc result"
+    simc_version = parse_simc_version(result)
+    if simc_version and stats is not None:
+        try:
+            stats.set_status("simc_build", simc_version)
+        except Exception:
+            pass
+    means = parse_profileset_means(result)
+    if stats is not None:
+        try:
+            await stats.increment("simc_profilesets_run", len(means))
+        except Exception:
+            pass
+    return _assemble_result(spec_id, season, build, means, baseline_dps, simc_version)
 
 
 # --------------------------------------------------------------------------
@@ -1573,6 +1686,161 @@ def persist(conn, cursor, result, item_lookup):
         conn.rollback()
         _log(f"DB error persisting simc BiS for spec {spec_id}: {e}")
         raise
+
+
+def _write_failure_meta(spec_id, season):
+    """Record a failed/timed-out attempt (empty BiS meta with a fresh timestamp)
+    so pick_next_spec's round-robin doesn't immediately re-pick the broken spec.
+
+    Uses its own short-lived, validated connection: the sim that just failed may
+    have run for hours, so any connection checked out before it would be dead by
+    now (that was the original bug). Best-effort — a failure here must not crash
+    the collector loop."""
+    from contextlib import closing
+    try:
+        with closing(databaseConnector.get_live_connection()) as conn:
+            cursor = conn.cursor()
+            databaseConnector.configure_read_session(conn, cursor)
+            now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+            if not conn.in_transaction:
+                conn.start_transaction()
+            databaseConnector.delete_simc_bis(conn, cursor, spec_id, season)
+            databaseConnector.insert_simc_bis_meta(
+                conn, cursor, spec_id, season, updated_at=now
+            )
+            databaseConnector.commit_with_retry(conn)
+    except Exception as e:
+        _log(f"simc: could not write failure meta for spec {spec_id}: {e}")
+
+
+# --------------------------------------------------------------------------
+# Checkpoint / resume (chunked profileset runs)
+#
+# A spec's profilesets are simmed in chunks of SIMC_CHUNK_SIZE across successive
+# collector visits, each chunk checkpointed to simc_bis_progress[_meta] so a
+# heavy spec survives the container's ~daily restart instead of restarting from
+# zero. Each helper below opens its own short-lived, validated connection so no
+# connection is ever held across the (long) sim — see [[dont-hold-pooled-conn]].
+# --------------------------------------------------------------------------
+
+def _persist_progress_chunk(spec_id, season, signature, total, reset, snapshot,
+                            chunk_means, baseline_dps, simc_version, now):
+    """Write one chunk's profileset means (upsert) and refresh the run header.
+
+    `reset` drops any stale checkpoint (signature changed) first. `snapshot` is
+    the JSON prep snapshot; COALESCE in the upsert keeps the stored one when None
+    is passed. A successful chunk clears the failed flag. baseline_dps /
+    simc_version are captured from whichever chunk ran (every chunk sims the base
+    actor). Its own transaction, own connection."""
+    from contextlib import closing
+    with closing(databaseConnector.get_live_connection()) as conn:
+        cursor = conn.cursor()
+        databaseConnector.configure_read_session(conn, cursor)
+        if not conn.in_transaction:
+            conn.start_transaction()
+        if reset:
+            databaseConnector.delete_simc_progress(conn, cursor, spec_id, season)
+        databaseConnector.upsert_simc_progress_meta(
+            conn, cursor, spec_id, season, signature, total,
+            baseline_dps, simc_version, started_at=now, last_attempt_at=now,
+            failed=False, prep_snapshot=snapshot,
+        )
+        rows = [(spec_id, season, name, float(dps), now) for name, dps in chunk_means.items()]
+        databaseConnector.insert_simc_progress_rows(conn, cursor, rows)
+        databaseConnector.commit_with_retry(conn)
+
+
+def _touch_progress_attempt(spec_id, season, signature, total, reset, snapshot, now):
+    """Mark a FAILED attempt on a run without recording results (chunk sim
+    errored/timed out): sets the failed flag and bumps last_attempt_at so
+    _select_target_spec sends this spec to the back of the queue instead of
+    immediately retrying the same failing chunk. Stores the snapshot too (a
+    first-chunk failure must still leave a resumable header). Preserves any
+    existing baseline/version (COALESCE in the upsert)."""
+    from contextlib import closing
+    try:
+        with closing(databaseConnector.get_live_connection()) as conn:
+            cursor = conn.cursor()
+            databaseConnector.configure_read_session(conn, cursor)
+            if not conn.in_transaction:
+                conn.start_transaction()
+            if reset:
+                databaseConnector.delete_simc_progress(conn, cursor, spec_id, season)
+            databaseConnector.upsert_simc_progress_meta(
+                conn, cursor, spec_id, season, signature, total,
+                None, None, started_at=now, last_attempt_at=now,
+                failed=True, prep_snapshot=snapshot,
+            )
+            databaseConnector.commit_with_retry(conn)
+    except Exception as e:
+        _log(f"simc: could not touch progress attempt for spec {spec_id}: {e}")
+
+
+def _finalize_run(spec_id, season, build, all_means, baseline_dps, simc_version, item_lookup):
+    """Assemble the final BiS from every chunk's means, persist it, and clear the
+    checkpoint. Returns (True, result) or (False, error_str). The persist and the
+    checkpoint-clear run on one connection; if the process dies between them the
+    leftover progress rows just re-finalise (idempotently) on the next visit."""
+    from contextlib import closing
+    result, err = _assemble_result(spec_id, season, build, all_means, baseline_dps, simc_version)
+    if not result:
+        return False, err
+    with closing(databaseConnector.get_live_connection()) as conn:
+        cursor = conn.cursor()
+        databaseConnector.configure_read_session(conn, cursor)
+        persist(conn, cursor, result, item_lookup)   # writes simc_bis_meta + items (own txn)
+        # Clear the checkpoint in its own committed transaction. execute_with_retry
+        # doesn't commit on its own, and persist() left autocommit ambiguous, so be
+        # explicit — otherwise closing the pooled connection rolls the delete back.
+        if not conn.in_transaction:
+            conn.start_transaction()
+        databaseConnector.delete_simc_progress(conn, cursor, spec_id, season)
+        databaseConnector.commit_with_retry(conn)
+    return True, result
+
+
+def _clear_progress(spec_id, season):
+    """Best-effort drop of a spec's checkpoint (e.g. after an unassemblable run)."""
+    from contextlib import closing
+    try:
+        with closing(databaseConnector.get_live_connection()) as conn:
+            cursor = conn.cursor()
+            databaseConnector.configure_read_session(conn, cursor)
+            databaseConnector.delete_simc_progress(conn, cursor, spec_id, season)
+    except Exception as e:
+        _log(f"simc: could not clear progress for spec {spec_id}: {e}")
+
+
+def _select_target_spec(conn, cursor, specs, season):
+    """Pick the spec to work on next (oldest queue position first).
+
+    Queue position per spec:
+      * unfailed in-progress run -> its started_at. The run began when the spec
+        was the stalest of all, so that old timestamp keeps it at the front —
+        a run interrupted by the ~daily container restart is resumed
+        immediately instead of waiting a full rotation.
+      * failed in-progress run   -> its last_attempt_at. A genuinely failing
+        chunk sends the spec to the back of the queue so it can't monopolise
+        the loop; its banked chunks are retried when it comes around again.
+      * no run in progress       -> its completed simc_bis_meta.updated_at.
+    None (never run) sorts first."""
+    activity = databaseConnector.fetch_simc_progress_activity(conn, cursor, season)
+    best = None
+    for spec_id, info in simulated_specs(specs):
+        prog = activity.get(int(spec_id))
+        if prog is not None:
+            ts = prog["last_attempt_at"] if prog["failed"] else prog["started_at"]
+        else:
+            try:
+                ts = databaseConnector.fetch_simc_bis_updated_at(conn, cursor, spec_id, season)
+            except Exception:
+                ts = None
+        key = (ts is not None, ts or datetime.min)
+        if best is None or key < best[0]:
+            best = (key, spec_id, info)
+    if best is None:
+        return None
+    return best[1], best[2]
 
 
 # --------------------------------------------------------------------------
@@ -1664,12 +1932,31 @@ async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, 
             await pull_simc_image(stats)
             last_pull = asyncio.get_event_loop().time()
         try:
-            with closing(databaseConnector.get_connection()) as conn:
+            # --- Read phase: short-lived connection, released BEFORE the sims ---
+            # A spec is simmed in chunks of SIMC_CHUNK_SIZE profilesets, run
+            # BACK-TO-BACK until the spec completes (checkpointing each chunk), so
+            # a heavy spec finishes in ~one continuous stretch, survives the
+            # ~daily container restart losing at most one chunk, and never blows
+            # the per-chunk timeout. An interrupted run resumes from its stored
+            # prep snapshot, NOT from re-prepared data: the candidate bags come
+            # from nightly-rebuilt popularity aggregations, so re-preparing after
+            # a restart would usually change the profile, mismatch the signature,
+            # and throw all banked chunks away. get_live_connection()
+            # pings/reconnects on checkout, reviving stale pooled connections.
+            prep = prep_err = None
+            build = None
+            snapshot = None
+            spec_id = info = class_info = None
+            season = None
+            done = {}
+            reset_progress = False
+            stored_baseline = None
+            stored_version = None
+            with closing(databaseConnector.get_live_connection()) as conn:
                 cursor = conn.cursor()
-                # autocommit read phase (see configure_read_session); persist()
-                # opens an explicit transaction so its delete+insert stays atomic.
+                # autocommit read phase (see configure_read_session); writers open
+                # their own explicit transactions so their writes stay atomic.
                 databaseConnector.configure_read_session(conn, cursor)
-                season = None
                 if get_season:
                     season = get_season(conn, cursor)
                 if season is None:
@@ -1685,7 +1972,7 @@ async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, 
                     await asyncio.sleep(SIMC_SPEC_SLEEP)
                     continue
 
-                picked = pick_next_spec(conn, cursor, specs, season)
+                picked = _select_target_spec(conn, cursor, specs, season)
                 if not picked:
                     await asyncio.sleep(SIMC_SPEC_SLEEP)
                     continue
@@ -1697,37 +1984,173 @@ async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, 
                     except Exception:
                         pass
 
-                result, fail_reason = await optimize_spec(
-                    spec_id, info, class_info, season, conn, cursor, item_lookup, stats
+                # Resume path: rebuild the run from the checkpoint's snapshot. The
+                # signature then only mismatches when the CODE that generates
+                # profiles changed (a legitimate reset), not when popularity data
+                # drifted overnight.
+                pmeta = databaseConnector.fetch_simc_progress_meta(conn, cursor, spec_id, season)
+                if pmeta is not None:
+                    snap_prep = _load_prep_snapshot(pmeta.get("prep_snapshot"))
+                    snap_build = _build_run(snap_prep, item_lookup) if snap_prep else None
+                    if snap_build is not None and snap_build["signature"] == pmeta.get("run_signature"):
+                        build = snap_build
+                        snapshot = pmeta.get("prep_snapshot")
+                        done = databaseConnector.fetch_simc_progress_means(conn, cursor, spec_id, season)
+                        stored_baseline = pmeta.get("baseline_dps")
+                        stored_version = pmeta.get("simc_version")
+                        _stat_log(stats, f"simc: spec {spec_id} resuming from checkpoint "
+                                         f"({len(done)}/{pmeta.get('total_profilesets')} profilesets banked)")
+                    else:
+                        # Unusable checkpoint (corrupt snapshot or profile-gen code
+                        # changed): start a fresh run, dropping the old rows on the
+                        # first write below.
+                        reset_progress = True
+
+                if build is None:
+                    prep, prep_err = _prepare_spec(
+                        spec_id, info, class_info, season, conn, cursor, item_lookup, stats
+                    )
+                    if prep:
+                        build = _build_run(prep, item_lookup)
+                        if build is not None:
+                            snapshot = _snapshot_prep(prep)
+            # connection released here — the sims below hold no DB connection
+
+            spec_label = f"{class_info.get('name')}/{info.get('name')}" if class_info else str(spec_id)
+
+            # --- Prep / build failures: mark an attempt and move on ---
+            if build is None:
+                msg = prep_err if prep_err else f"spec {spec_id} produced no valid gear combinations"
+                await _alert(
+                    reporter, stats, "SimC: spec simulation failed",
+                    f"No result for spec {spec_id} ({spec_label}).\n```\n{(msg or 'unknown error')[-1000:]}\n```",
+                    level="error", throttle_key=f"simc_spec_fail_{spec_id}",
                 )
-                if result:
-                    persist(conn, cursor, result, item_lookup)
-                    if stats is not None:
-                        try:
-                            await stats.increment("simc_specs_completed")
-                        except Exception:
-                            pass
-                    _stat_log(stats, f"simc: completed spec {spec_id} (baseline {result['baseline_dps']:.0f} dps)")
-                else:
-                    reason_tail = (fail_reason or "unknown error")[-1000:]
+                _write_failure_meta(spec_id, season)
+                if reset_progress:
+                    _clear_progress(spec_id, season)
+                await asyncio.sleep(SIMC_SPEC_SLEEP)
+                continue
+
+            total = len(build["profilesets"])
+
+            # --- Sim phase: back-to-back chunks, no DB connection held ---
+            while not _cancelled():
+                now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+                remaining = [ps for ps in build["profilesets"] if ps[0] not in done]
+
+                if not remaining:
+                    # All profilesets banked (or the spec has none). If a previous
+                    # chunk already measured the base actor, finalize directly;
+                    # otherwise (0-profileset spec, or a crash landed exactly
+                    # between the last bank and finalize with no stored baseline)
+                    # run one base-only sim for the reference DPS.
+                    baseline_dps, simc_version = stored_baseline, stored_version
+                    if baseline_dps is None:
+                        profile_text = build_profile(build["header"], build["base_full"], [],
+                                                     iterations=build["combo_iters"])
+                        result_json, run_err = await run_simc(profile_text, f"spec{spec_id}_base")
+                        if not result_json:
+                            if not _cancelled():
+                                await _alert(
+                                    reporter, stats, "SimC: spec simulation failed",
+                                    f"Base sim failed for spec {spec_id} ({spec_label}).\n"
+                                    f"```\n{(run_err or 'unknown error')[-1000:]}\n```",
+                                    level="error", throttle_key=f"simc_spec_fail_{spec_id}",
+                                )
+                                _touch_progress_attempt(spec_id, season, build["signature"],
+                                                        total, reset_progress, snapshot, now)
+                            break
+                        baseline_dps = parse_baseline_dps(result_json)
+                        simc_version = parse_simc_version(result_json)
+                    ok, fin = _finalize_run(spec_id, season, build, done,
+                                            baseline_dps, simc_version, item_lookup)
+                    if ok:
+                        if stats is not None:
+                            try:
+                                await stats.increment("simc_specs_completed")
+                            except Exception:
+                                pass
+                        _stat_log(stats, f"simc: completed spec {spec_id} ({spec_label}) — "
+                                         f"baseline {fin['baseline_dps']:.0f} dps, {total} profilesets")
+                    else:
+                        await _alert(
+                            reporter, stats, "SimC: spec simulation failed",
+                            f"No result for spec {spec_id} ({spec_label}).\n```\n{(fin or 'unknown error')[-1000:]}\n```",
+                            level="error", throttle_key=f"simc_spec_fail_{spec_id}",
+                        )
+                        _write_failure_meta(spec_id, season)
+                        _clear_progress(spec_id, season)
+                    break
+
+                chunk = remaining[:SIMC_CHUNK_SIZE]
+                done_n = len(done)
+                _stat_log(stats, f"simc: spec {spec_id} ({spec_label}) simming profilesets "
+                                 f"{done_n + 1}-{done_n + len(chunk)}/{total}"
+                                 + (" [restarting stale progress]" if reset_progress else ""))
+                profile_text = build_profile(build["header"], build["base_full"], chunk,
+                                             iterations=build["combo_iters"])
+                token = f"spec{spec_id}_chunk{done_n // max(1, SIMC_CHUNK_SIZE)}"
+                result_json, run_err = await run_simc(profile_text, token)
+                now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+
+                if not result_json:
+                    # Distinguish shutdown from genuine failure: on SIGTERM the
+                    # entrypoint force-removes the sibling container, which
+                    # surfaces here as a failed run. Leave the checkpoint
+                    # untouched (failed=0, old started_at) so the run is resumed
+                    # FIRST after the restart; only a real failure flags the spec
+                    # and sends it to the back of the queue.
+                    if _cancelled():
+                        break
                     await _alert(
                         reporter, stats, "SimC: spec simulation failed",
-                        f"No result for spec {spec_id} "
-                        f"({class_info.get('name')}/{info.get('name')}).\n```\n{reason_tail}\n```",
+                        f"Chunk failed for spec {spec_id} ({spec_label}).\n```\n{(run_err or 'unknown error')[-1000:]}\n```",
                         level="error", throttle_key=f"simc_spec_fail_{spec_id}",
                     )
-                    # mark an attempt so we don't hammer a broken spec; write empty meta
+                    _touch_progress_attempt(spec_id, season, build["signature"], total,
+                                            reset_progress, snapshot, now)
+                    break
+
+                baseline_dps = parse_baseline_dps(result_json)
+                simc_version = parse_simc_version(result_json)
+                if simc_version and stats is not None:
                     try:
-                        now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
-                        if not conn.in_transaction:
-                            conn.start_transaction()
-                        databaseConnector.delete_simc_bis(conn, cursor, spec_id, season)
-                        databaseConnector.insert_simc_bis_meta(
-                            conn, cursor, spec_id, season, updated_at=now
-                        )
-                        databaseConnector.commit_with_retry(conn)
+                        stats.set_status("simc_build", simc_version)
                     except Exception:
-                        conn.rollback()
+                        pass
+                chunk_means = parse_profileset_means(result_json)
+                if not chunk_means:
+                    # simc "succeeded" but returned no profileset results — treat
+                    # as a failure rather than looping on the same chunk forever.
+                    await _alert(
+                        reporter, stats, "SimC: spec simulation failed",
+                        f"Chunk returned no profileset results for spec {spec_id} ({spec_label}).",
+                        level="error", throttle_key=f"simc_spec_fail_{spec_id}",
+                    )
+                    _touch_progress_attempt(spec_id, season, build["signature"], total,
+                                            reset_progress, snapshot, now)
+                    break
+                if stats is not None:
+                    try:
+                        await stats.increment("simc_profilesets_run", len(chunk_means))
+                    except Exception:
+                        pass
+
+                # Bank the chunk before anything else so a crash/restart from here
+                # on can only lose work that was never persisted.
+                _persist_progress_chunk(spec_id, season, build["signature"], total,
+                                        reset_progress, snapshot, chunk_means,
+                                        baseline_dps, simc_version, now)
+                reset_progress = False   # stale rows dropped on the first write
+                done.update(chunk_means)
+                stored_baseline, stored_version = baseline_dps, simc_version
+                _stat_log(stats, f"simc: spec {spec_id} ({spec_label}) progress "
+                                 f"{len(done)}/{total} profilesets")
+                # Brief pause between chunks (keeps the loop responsive to
+                # cancellation and lets other tasks breathe); the next loop pass
+                # sims the following chunk or finalizes.
+                await asyncio.sleep(1)
         except Exception as e:
             import traceback
             traceback.print_exc()

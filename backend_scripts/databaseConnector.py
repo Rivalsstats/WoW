@@ -22,6 +22,31 @@ def get_connection():
     return conn
 
 
+def get_live_connection(ping_attempts=3, ping_delay=2):
+    """Check out a pooled connection and guarantee it is actually alive.
+
+    mysql.connector's pool hands connections back without validating them, so a
+    connection that the server closed while it sat idle past ``wait_timeout``
+    (e.g. across a multi-hour simc run that held no DB work) comes back dead and
+    the next statement raises 'MySQL Connection not available'. ``ping`` with
+    ``reconnect=True`` transparently re-opens it; if even that fails we force a
+    reconnect before returning. Session settings (autocommit, isolation, lock
+    timeouts) are reset by a reconnect, so callers must (re)apply
+    ``configure_read_session`` after checkout, which they already do per phase."""
+    conn = get_connection()
+    try:
+        conn.ping(reconnect=True, attempts=ping_attempts, delay=ping_delay)
+    except Exception:
+        try:
+            conn.reconnect(attempts=ping_attempts, delay=ping_delay)
+        except Exception:
+            # Give up on this pooled slot and return a brand-new connection so the
+            # caller never receives a dead handle.
+            conn = get_connection()
+            conn.ping(reconnect=True, attempts=ping_attempts, delay=ping_delay)
+    return conn
+
+
 def init_connection_pool(host, user, password, database, port, pool_size=30):
     global CONNECTION_POOL
     CONNECTION_POOL = pooling.MySQLConnectionPool(
@@ -3628,6 +3653,158 @@ def fetch_simc_bis(connection, cursor, spec_id, season):
             }
         out.setdefault(slot, []).append(entry)
     return out
+
+
+# --------------------------------------------------------------------------
+# simc BiS checkpoint / resume (simc_bis_progress[_meta])
+#
+# A heavy spec's full profileset run outlives one collector lifetime (the
+# container restarts ~daily), so simcBis computes it in chunks and resumes from
+# these tables. See the table comments in database.sql.
+# --------------------------------------------------------------------------
+
+FETCH_SIMC_PROGRESS_META_SQL = """
+SELECT `run_signature`, `total_profilesets`, `baseline_dps`, `simc_version`,
+       `started_at`, `last_attempt_at`, `failed`, `prep_snapshot`
+FROM `Mythistone`.`simc_bis_progress_meta`
+WHERE `spec_id` = %s AND `season` = %s
+"""
+
+FETCH_SIMC_PROGRESS_ACTIVITY_SQL = """
+SELECT `spec_id`, `started_at`, `last_attempt_at`, `failed`
+FROM `Mythistone`.`simc_bis_progress_meta`
+WHERE `season` = %s
+"""
+
+FETCH_SIMC_PROGRESS_MEANS_SQL = """
+SELECT `profileset_name`, `mean_dps`
+FROM `Mythistone`.`simc_bis_progress`
+WHERE `spec_id` = %s AND `season` = %s
+"""
+
+UPSERT_SIMC_PROGRESS_META_SQL = """
+INSERT INTO `Mythistone`.`simc_bis_progress_meta`
+(`spec_id`, `season`, `run_signature`, `total_profilesets`, `baseline_dps`,
+ `simc_version`, `started_at`, `last_attempt_at`, `failed`, `prep_snapshot`)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+ON DUPLICATE KEY UPDATE
+  `run_signature` = VALUES(`run_signature`),
+  `total_profilesets` = VALUES(`total_profilesets`),
+  `baseline_dps` = COALESCE(VALUES(`baseline_dps`), `baseline_dps`),
+  `simc_version` = COALESCE(VALUES(`simc_version`), `simc_version`),
+  `last_attempt_at` = VALUES(`last_attempt_at`),
+  `failed` = VALUES(`failed`),
+  `prep_snapshot` = COALESCE(VALUES(`prep_snapshot`), `prep_snapshot`)
+"""
+
+INSERT_SIMC_PROGRESS_ROW_SQL = """
+INSERT INTO `Mythistone`.`simc_bis_progress`
+(`spec_id`, `season`, `profileset_name`, `mean_dps`, `updated_at`)
+VALUES (%s, %s, %s, %s, %s)
+ON DUPLICATE KEY UPDATE
+  `mean_dps` = VALUES(`mean_dps`),
+  `updated_at` = VALUES(`updated_at`)
+"""
+
+DELETE_SIMC_PROGRESS_META_SQL = """
+DELETE FROM `Mythistone`.`simc_bis_progress_meta`
+WHERE `spec_id` = %s AND `season` = %s
+"""
+
+
+def fetch_simc_progress_meta(connection, cursor, spec_id, season):
+    """Return the in-progress run header for a spec/season, or None if idle.
+
+    Keys: run_signature, total_profilesets, baseline_dps, simc_version,
+    started_at, last_attempt_at, failed, prep_snapshot."""
+    rows = fetch_with_retry(
+        connection, cursor, FETCH_SIMC_PROGRESS_META_SQL, (spec_id, season)
+    )
+    if not rows:
+        return None
+    row = rows[0]
+    if isinstance(row, dict):
+        return dict(row)
+    return {
+        "run_signature": row[0],
+        "total_profilesets": row[1],
+        "baseline_dps": row[2],
+        "simc_version": row[3],
+        "started_at": row[4],
+        "last_attempt_at": row[5],
+        "failed": row[6],
+        "prep_snapshot": row[7],
+    }
+
+
+def fetch_simc_progress_activity(connection, cursor, season):
+    """Return {spec_id: {started_at, last_attempt_at, failed}} for every
+    in-progress run this season.
+
+    Drives the collector's spec selection: an unfailed in-progress run keeps its
+    (old) started_at as its queue position so it is resumed promptly after a
+    restart; a failed one is ordered by last_attempt_at so it rotates to the
+    back of the queue instead of monopolising the loop."""
+    rows = fetch_with_retry(connection, cursor, FETCH_SIMC_PROGRESS_ACTIVITY_SQL, (season,))
+    out = {}
+    for row in rows:
+        if isinstance(row, dict):
+            out[int(row.get("spec_id"))] = {
+                "started_at": row.get("started_at"),
+                "last_attempt_at": row.get("last_attempt_at"),
+                "failed": bool(row.get("failed")),
+            }
+        else:
+            out[int(row[0])] = {
+                "started_at": row[1],
+                "last_attempt_at": row[2],
+                "failed": bool(row[3]),
+            }
+    return out
+
+
+def fetch_simc_progress_means(connection, cursor, spec_id, season):
+    """Return {profileset_name: mean_dps} for all chunks already computed."""
+    rows = fetch_with_retry(
+        connection, cursor, FETCH_SIMC_PROGRESS_MEANS_SQL, (spec_id, season)
+    )
+    out = {}
+    for row in rows:
+        if isinstance(row, dict):
+            out[row.get("profileset_name")] = float(row.get("mean_dps"))
+        else:
+            out[row[0]] = float(row[1])
+    return out
+
+
+def upsert_simc_progress_meta(connection, cursor, spec_id, season, run_signature,
+                              total_profilesets, baseline_dps, simc_version,
+                              started_at, last_attempt_at, failed=False,
+                              prep_snapshot=None):
+    """Insert/refresh the in-progress run header. baseline_dps / simc_version /
+    prep_snapshot are only overwritten when a non-NULL value is supplied
+    (COALESCE), and started_at is never updated on duplicate (it anchors the
+    run's queue position), so a failed chunk attempt can flip
+    last_attempt_at/failed without clobbering the rest."""
+    val = (spec_id, season, run_signature, total_profilesets, baseline_dps,
+           simc_version, started_at, last_attempt_at, 1 if failed else 0,
+           prep_snapshot)
+    execute_with_retry(connection, cursor, UPSERT_SIMC_PROGRESS_META_SQL, val)
+
+
+def insert_simc_progress_rows(connection, cursor, rows):
+    """Upsert computed profileset rows. Each row:
+    (spec_id, season, profileset_name, mean_dps, updated_at)."""
+    if not rows:
+        return 0
+    executemany_with_retry(connection, cursor, INSERT_SIMC_PROGRESS_ROW_SQL, rows)
+    return cursor.rowcount
+
+
+def delete_simc_progress(connection, cursor, spec_id, season):
+    """Drop all checkpoint state for a spec/season (progress rows cascade from
+    the meta delete)."""
+    execute_with_retry(connection, cursor, DELETE_SIMC_PROGRESS_META_SQL, (spec_id, season))
 
 
 FETCH_TOP50_ENCHANT_RANKING_SQL = """
