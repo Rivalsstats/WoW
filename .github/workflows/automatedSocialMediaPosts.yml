@@ -113,59 +113,59 @@ jobs:
             ${{ env.OUTPUT_DIR }}/post.json
             ${{ env.OUTPUT_DIR }}/*.png
 
-  twitter:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download social artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: social-post
-          path: uploaded
+  # twitter:
+  #   needs: setup
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Download social artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: social-post
+  #         path: uploaded
 
-      - name: Read post.json
-        id: read_post
-        run: |
-          set -e
-          post_file="uploaded/post.json"
-          if [ ! -f "$post_file" ]; then
-            echo "post.json not found"
-            exit 1
-          fi
-          social_text=$(jq -r '.social // .twitter // .post' "$post_file")
-          image_path=$(jq -r .out_path "$post_file")
-          alt_text=$(jq -r '.title // "M+ data highlight"' "$post_file")
-          filename=$(basename "$image_path")
-          echo ">>> debug: social_text=<$social_text>"
-          echo ">>> debug: filename=<$filename>"
+  #     - name: Read post.json
+  #       id: read_post
+  #       run: |
+  #         set -e
+  #         post_file="uploaded/post.json"
+  #         if [ ! -f "$post_file" ]; then
+  #           echo "post.json not found"
+  #           exit 1
+  #         fi
+  #         social_text=$(jq -r '.social // .twitter // .post' "$post_file")
+  #         image_path=$(jq -r .out_path "$post_file")
+  #         alt_text=$(jq -r '.title // "M+ data highlight"' "$post_file")
+  #         filename=$(basename "$image_path")
+  #         echo ">>> debug: social_text=<$social_text>"
+  #         echo ">>> debug: filename=<$filename>"
 
-          # export for later steps in this job
-          echo "SOCIAL_TEXT<<EOF" >> $GITHUB_OUTPUT
-          printf '%s\n' "$social_text" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+  #         # export for later steps in this job
+  #         echo "SOCIAL_TEXT<<EOF" >> $GITHUB_OUTPUT
+  #         printf '%s\n' "$social_text" >> $GITHUB_OUTPUT
+  #         echo "EOF" >> $GITHUB_OUTPUT
 
-          echo "ALT_TEXT<<EOF" >> $GITHUB_OUTPUT
-          printf '%s\n' "$alt_text" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+  #         echo "ALT_TEXT<<EOF" >> $GITHUB_OUTPUT
+  #         printf '%s\n' "$alt_text" >> $GITHUB_OUTPUT
+  #         echo "EOF" >> $GITHUB_OUTPUT
 
-          echo "FILENAME=${filename}" >> $GITHUB_ENV
-          echo "POST_JSON_PATH=$post_file" >> $GITHUB_ENV
+  #         echo "FILENAME=${filename}" >> $GITHUB_ENV
+  #         echo "POST_JSON_PATH=$post_file" >> $GITHUB_ENV
 
-      - name: Debug resolved social text
-        run: |
-          echo "MSG:'${{ steps.read_post.outputs.SOCIAL_TEXT }}'"
+  #     - name: Debug resolved social text
+  #       run: |
+  #         echo "MSG:'${{ steps.read_post.outputs.SOCIAL_TEXT }}'"
 
-      - name: Post to Twitter
-        uses: nearform-actions/github-action-notify-twitter@v1.2.3
-        with:
-          message: "${{ steps.read_post.outputs.SOCIAL_TEXT }}"
-          twitter-app-key: ${{ secrets.TWITTER_CONSUMER_API_KEY }}
-          twitter-app-secret: ${{ secrets.TWITTER_CONSUMER_SECRET }}
-          twitter-access-token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
-          twitter-access-token-secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
-          media: |
-            uploaded/${{ env.FILENAME }}
-          media-alt-text: "${{ steps.read_post.outputs.ALT_TEXT }}"
+  #     - name: Post to Twitter
+  #       uses: nearform-actions/github-action-notify-twitter@v1.2.3
+  #       with:
+  #         message: "${{ steps.read_post.outputs.SOCIAL_TEXT }}"
+  #         twitter-app-key: ${{ secrets.TWITTER_CONSUMER_API_KEY }}
+  #         twitter-app-secret: ${{ secrets.TWITTER_CONSUMER_SECRET }}
+  #         twitter-access-token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+  #         twitter-access-token-secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+  #         media: |
+  #           uploaded/${{ env.FILENAME }}
+  #         media-alt-text: "${{ steps.read_post.outputs.ALT_TEXT }}"
 
 
   # reddit:
