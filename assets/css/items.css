@@ -107,11 +107,15 @@
   font-size: 0.8rem;
   font-weight: 600;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .item-page .spec-card .spec-card-sub {
   font-size: 0.68rem;
   opacity: 0.65;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .item-page .spec-card-all { padding-left: 0.9rem; padding-right: 0.9rem; }
 
@@ -182,7 +186,7 @@
    sit next to enchants. */
 .item-page .enhance-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
   gap: 1.5rem;
   margin-bottom: 1rem;
 }
@@ -305,6 +309,71 @@
 .item-page .variant-tag {
   font-size: 0.7rem;
   margin-right: 0.25rem;
+}
+
+/* ----- mobile: spec dropdown (bootstrap-select) replaces the card grid ----- */
+/* Same look as the routes page filter dropdowns (routes.css). */
+.item-page .spec-select-wrap .dropdown-icon-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+.item-page .spec-select-wrap .dropdown-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex: 0 0 auto;
+}
+.item-page .spec-select-wrap .dropdown-icon-label small { opacity: 0.85; }
+.item-page .spec-select-wrap .spec-opt-pct {
+  margin-left: auto;
+  opacity: 0.65;
+}
+.item-page .spec-select-wrap .bootstrap-select .dropdown-menu .text { display: block; }
+/* Single-select: the button already shows the choice, ticks just add noise
+   (and rendered as a stray hollow square on some browsers). */
+.item-page .spec-select-wrap .bootstrap-select .check-mark { display: none !important; }
+.item-page .spec-select-wrap .bootstrap-select .dropdown-menu li.dropdown-header {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+  opacity: 0.7;
+}
+.item-page .spec-select-wrap .bootstrap-select .dropdown-menu .divider {
+  margin: 0.25rem 0;
+  opacity: 0.5;
+}
+
+@media (max-width: 767.98px) {
+  /* The dropdown (d-md-none) takes over below md; 39 stacked cards were ~2.6
+     screens tall before any content. */
+  .item-page .spec-grid { display: none; }
+}
+
+@media (max-width: 575.98px) {
+  /* Runs is column 3 in both the 3-col enhancement tables and the 4-col
+     Used-by-Specs table; Adoption % already carries the signal on phones.
+     DataTables injects a colgroup, so its col must be hidden too or the
+     remaining columns keep the 4-col widths. */
+  .item-page table.item-dt th:nth-child(3),
+  .item-page table.item-dt td:nth-child(3),
+  .item-page table.item-dt colgroup col:nth-child(3) { display: none; }
+  .item-page table.item-dt thead th,
+  .item-page table.item-dt tbody td { padding: 0.3rem 0.35rem; }
+  /* Auto table layout lets nowrap names push the table past 100%; fixed layout
+     caps it at the container and the name spans ellipsize instead. Numeric
+     columns get a compact fixed share, the name column takes the rest. */
+  .item-page table.item-dt { table-layout: fixed; }
+  .item-page table.item-dt th:nth-child(n+2),
+  .item-page table.item-dt td:nth-child(n+2) { width: 26%; }
+  .item-page .dt-scroll { overflow-x: auto; }
+  .item-page .usage-row .usage-label {
+    white-space: normal;
+    font-size: 0.7rem;
+  }
 }
 
 /* Match the search box to the outline-primary selectpicker toggles beside it

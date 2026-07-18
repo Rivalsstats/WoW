@@ -3,6 +3,40 @@
    Loaded globally via header_imports.html
    ========================================================= */
 
+/* ---------- bootstrap-select: neutralize Material Dashboard caret leak ---------- */
+/* bootstrap-select nests a second .dropdown-menu (the inner <ul>), and Material
+   Dashboard's navbar-dropdown styling leaks into it: a 45px margin-top band at
+   the top of every menu plus a FontAwesome caret (::before "\f0d8") that
+   renders as a hollow "tofu" square because FontAwesome isn't loaded on this
+   site. Scoped to bootstrap-select widgets only. */
+.bootstrap-select .dropdown-menu.inner {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+.bootstrap-select .dropdown-menu::before,
+.bootstrap-select .dropdown-menu::after {
+  content: none !important;
+}
+
+/* ---------- bootstrap-select: proper tick on selected options ---------- */
+/* The stock tick is drawn with rotated borders (.bs-ok-default:after) and
+   renders as a broken-looking hollow square on some browsers. Every page
+   already loads Material Symbols Rounded, so use a real check glyph. */
+.bootstrap-select .dropdown-menu .check-mark.bs-ok-default::after {
+  content: "check";
+  font-family: "Material Symbols Rounded";
+  font-weight: 400;
+  font-style: normal;
+  font-size: 1.1rem;
+  line-height: 1;
+  letter-spacing: normal;
+  font-feature-settings: "liga";
+  border: 0;
+  width: auto;
+  height: auto;
+  transform: none;
+}
+
 /* ---------- Notifications: keep the action button from clipping ---------- */
 @media (max-width: 575.98px) {
   #page-notification {

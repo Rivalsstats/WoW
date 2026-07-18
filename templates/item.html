@@ -74,6 +74,12 @@
 </a>
 {% endmacro %}
 
+{# One mobile spec-dropdown option (icon + name + adoption; SIM/TOP live in the
+   surrounding optgroup labels). Same data-content pattern as the routes page
+   filters. Mirrors specSelectOption() in item.js. #}
+{% macro spec_select_option(s) %}{% set spec = specs_map[s.spec_id|string] %}<option value="{{ s.spec_id }}"
+  data-content="<span class='dropdown-icon-item'><img src='{{ spec_icon(s.spec_id) }}' class='dropdown-icon' alt=''><span class='dropdown-icon-label'>{{ spec.name if spec else 'Spec ' ~ s.spec_id }}{% if spec and spec.className %} <small{% if spec.color %} style='color:{{ spec.color }}'{% endif %}>{{ spec.className }}</small>{% endif %}</span>{% if s.adoption is not none %}<small class='spec-opt-pct'>{{ s.adoption }}%</small>{% endif %}</span>">{{ spec.name if spec else "Spec " ~ s.spec_id }}{% if spec and spec.className %} {{ spec.className }}{% endif %}{% if s.adoption is not none %} · {{ s.adoption }}%{% endif %}</option>{% endmacro %}
+
 {# One option row for an enhancement / gem DataTable. Mirrors optRow() in item.js. #}
 {% macro opt_name_class(o, kind) %}{% if kind == 'enchant' %}enchant-name{% elif o.quality is not none %}item-quality-{{ o.quality }}{% endif %}{% endmacro %}
 {% macro opt_row(o, kind) %}
@@ -272,6 +278,26 @@
             </p>
           </div>
           <div class="card-body">
+            {# On phones the card grid is hidden (items.css) and this bootstrap-
+               select re-scopes instead (same widget as the routes page filters).
+               SIM/TOP recommendations become optgroups (an <option> can't carry
+               badges). Mirrors renderSpecSelect() in item.js. #}
+            {% set top_specs = item.spec_overview | selectattr("is_top") | list %}
+            {% set sim_specs = item.spec_overview | rejectattr("is_top") | selectattr("is_sim") | list %}
+            {% set other_specs = item.spec_overview | rejectattr("is_top") | rejectattr("is_sim") | list %}
+            <div class="spec-select-wrap d-md-none mb-2">
+              <select id="spec-select" class="selectpicker form-control" data-style="btn-outline-primary"
+                data-width="100%" data-sanitize="false" aria-label="Select spec">
+                <option value="">All specs</option>
+                {% if sim_specs or top_specs %}
+                {% if top_specs %}<optgroup label="Top players' pick">{% for s in top_specs %}{{ spec_select_option(s) }}{% endfor %}</optgroup>{% endif %}
+                {% if sim_specs %}<optgroup label="SimulationCraft best-in-slot">{% for s in sim_specs %}{{ spec_select_option(s) }}{% endfor %}</optgroup>{% endif %}
+                {% if other_specs %}<optgroup label="By adoption">{% for s in other_specs %}{{ spec_select_option(s) }}{% endfor %}</optgroup>{% endif %}
+                {% else %}
+                {% for s in item.spec_overview %}{{ spec_select_option(s) }}{% endfor %}
+                {% endif %}
+              </select>
+            </div>
             <div id="spec-switcher" class="spec-grid">
               <a href="/items/{{ slug }}" class="spec-card spec-card-all active">
                 <div class="spec-card-meta"><div class="spec-card-name">All specs</div></div>
@@ -447,7 +473,7 @@
     window.dungeons_map = {{ dungeons_map | tojson | safe }};
   </script>
   <script src="/assets/js/plugins/dataTables.min.js"></script>
-  <script src="/assets/js/item.js?v=6"></script>
+  <script src="/assets/js/item.js?v=7"></script>
 </body>
 
 </html>

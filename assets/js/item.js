@@ -237,6 +237,8 @@
   }
 
   // Combined spec section (re-scope switcher + SimC/top-player recommendations).
+  // Below md the card grid is hidden (items.css) and a native single-select
+  // takes over; both are rebuilt here and kept in sync with the current scope.
   function renderSpecSwitcher(data, specId) {
     var wrap = el("spec-switcher"); clear(wrap);
     var card = el("spec-overview-card");
@@ -254,6 +256,88 @@
     specs.forEach(function (s) {
       wrap.appendChild(specOverviewCard(s, String(s.spec_id) === String(specId)));
     });
+    renderSpecSelect(specs, specId);
+  }
+
+  // One mobile spec-dropdown option: icon + name + adoption — SIM/TOP live in
+  // the surrounding optgroup labels (an <option> can't carry badges). Same
+  // data-content pattern as the routes page filters. Mirrors the
+  // spec_select_option macro in item.html.
+  function specSelectOption(s) {
+    var spec = SPECS[String(s.spec_id)] || {};
+    var o = document.createElement("option");
+    o.value = String(s.spec_id);
+    var name = spec.name || "Spec " + s.spec_id;
+    o.textContent = name + (spec.className ? " " + spec.className : "") +
+      (s.adoption != null ? " · " + s.adoption + "%" : "");
+    o.setAttribute("data-content",
+      "<span class='dropdown-icon-item'>" +
+      "<img src='" + specIcon(spec) + "' class='dropdown-icon' alt=''>" +
+      "<span class='dropdown-icon-label'>" + name +
+      (spec.className
+        ? " <small" + (spec.color ? " style='color:" + spec.color + "'" : "") + ">" + spec.className + "</small>"
+        : "") +
+      "</span>" +
+      (s.adoption != null ? "<small class='spec-opt-pct'>" + s.adoption + "%</small>" : "") +
+      "</span>");
+    return o;
+  }
+
+  // Mobile spec dropdown (mirrors the #spec-select markup in item.html). Pages
+  // built before the select was added to the template lack the SSR version, so
+  // it's created on demand. Rebuilt with the same destroy -> init dance as the
+  // key-level filter so options don't duplicate across re-scopes.
+  function renderSpecSelect(specs, specId) {
+    var sel = el("spec-select");
+    if (!sel) {
+      var wrapper = document.createElement("div");
+      wrapper.className = "spec-select-wrap d-md-none mb-2";
+      sel = document.createElement("select");
+      sel.id = "spec-select";
+      sel.className = "selectpicker form-control";
+      sel.setAttribute("data-style", "btn-outline-primary");
+      sel.setAttribute("data-width", "100%");
+      sel.setAttribute("data-sanitize", "false");
+      sel.setAttribute("aria-label", "Select spec");
+      wrapper.appendChild(sel);
+      var grid = el("spec-switcher");
+      grid.parentNode.insertBefore(wrapper, grid);
+    }
+    var $ = window.jQuery;
+    var $s = $ && $.fn && $.fn.selectpicker ? $(sel) : null;
+    if ($s) { try { $s.selectpicker("destroy"); } catch (e) { /* not yet initialised */ } }
+    clear(sel);
+    var optAll = document.createElement("option");
+    optAll.value = ""; optAll.textContent = "All specs";
+    sel.appendChild(optAll);
+    var sim = [], top = [], rest = [];
+    specs.forEach(function (s) {
+      if (s.is_top) top.push(s);
+      else if (s.is_sim) sim.push(s);
+      else rest.push(s);
+    });
+    function addGroup(label, list) {
+      if (!list.length) return;
+      var og = document.createElement("optgroup");
+      og.label = label;
+      list.forEach(function (s) { og.appendChild(specSelectOption(s)); });
+      sel.appendChild(og);
+    }
+    if (sim.length || top.length) {
+      addGroup("Top players' pick", top);
+      addGroup("SimulationCraft best-in-slot", sim);
+      addGroup("By adoption", rest);
+    } else {
+      rest.forEach(function (s) { sel.appendChild(specSelectOption(s)); });
+    }
+    sel.value = specId ? String(specId) : "";
+    // width:"100%" is synchronous (no width:"auto" async-measure crash, see
+    // setupKeyLevelFilter); sanitize:false keeps the data-content icon markup.
+    if ($s) { try { $s.selectpicker({ width: "100%", style: "btn-outline-primary", sanitize: false }); } catch (e) { /* picker is optional */ } }
+    if (!sel.dataset.wired) {
+      sel.dataset.wired = "1";
+      sel.addEventListener("change", function () { setScope(sel.value || null); });
+    }
   }
 
   // barPct is the fill width (0-100, relative to the row group's max so the
