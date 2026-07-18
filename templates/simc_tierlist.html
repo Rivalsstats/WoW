@@ -86,6 +86,26 @@
 
     .tierlist-row:hover { background: rgba(255, 255, 255, 0.04); }
 
+    /* mobile list (d-lg-none) tweaks */
+    .min-width-0 { min-width: 0; }
+    .gear-label-sm { min-width: 3.4rem; }
+    .dash-rank-table .tier-badge { min-width: 1.7rem; padding: 0.05rem 0.25rem; font-size: 0.75rem; }
+    .dash-rank-table a { color: inherit; }
+    /* top-align so rank + tier sit on the icon/name line, not beside the bars */
+    .dash-rank-table td { vertical-align: top; }
+    /* tier badge stretches into a full-row-height stripe */
+    .dash-rank-table .tierlist-m-tier { position: relative; width: 2.2rem; min-width: 2.2rem; }
+    .dash-rank-table .tierlist-m-tier .tier-badge {
+      position: absolute;
+      inset: 0.25rem 0.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* width:100% + max-width:0 lets text-truncate shrink the name inside the
+       auto-layout table cell instead of widening the table past its wrapper */
+    .dash-rank-table .tierlist-m-main { width: 100%; max-width: 0; }
+
     .stale-badge {
       cursor: help;
       color: #f5b50e;
@@ -128,7 +148,7 @@
             <p class="text-sm mb-0">{{ rows | length }} of {{ expected }} specs simmed.</p>
           </div>
           <div class="card-body p-3">
-            <div class="table-responsive">
+            <div class="table-responsive d-none d-lg-block">
               <table class="table align-items-center mb-0">
                 <thead>
                   <tr>
@@ -169,6 +189,43 @@
                     </td>
                     <td class="text-sm text-end">
                       {% if row.rank == 1 %}&mdash;{% else %}-{{ '%.1f' | format(row.pct_behind) }}%{% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <div class="d-lg-none">
+              <table class="dash-rank-table text-sm">
+                <tbody>
+                  {% for row in rows %}
+                  <tr class="tierlist-row">
+                    <td class="dash-rank-num">{{ row.rank }}</td>
+                    <td class="tierlist-m-tier"><span class="tier-badge tier-{{ row.tier }}">{{ row.tier }}</span></td>
+                    <td class="tierlist-m-main">
+                      <div class="d-flex align-items-center gap-2">
+                        <a href="{{ row.url }}" class="d-flex align-items-center gap-2 flex-grow-1 min-width-0">
+                          <img src="/data/icons/{{ row.icon }}.jpg" class="avatar avatar-xs border-radius-sm"
+                            alt="{{ row.name }} {{ row.class_name }} icon">
+                          <span class="dash-rank-name class-{{ row.clean_class }}-text text-truncate">
+                            {{ row.name }} {{ row.class_name }}
+                          </span>
+                        </a>
+                        <span class="text-xs text-secondary text-nowrap">
+                          {% if row.rank == 1 %}&mdash;{% else %}-{{ '%.1f' | format(row.pct_behind) }}%{% endif %}
+                        </span>
+                      </div>
+                      {% for bar in row.bars %}
+                      <div class="d-flex align-items-center gap-2 mt-1">
+                        <span class="gear-label gear-label-sm text-xxs">{{ bar.label }}</span>
+                        <div class="dash-rank-bar flex-grow-1">
+                          <span class="class-{{ row.clean_class }}-bg" style="width: {{ '%.1f' | format(bar.bar_pct) }}%"></span>
+                        </div>
+                        <span class="gear-val text-xs text-end">
+                          {% if bar.dps %}{{ "{:,.0f}".format(bar.dps) }}{% else %}&mdash;{% endif %}
+                        </span>
+                      </div>
+                      {% endfor %}
                     </td>
                   </tr>
                   {% endfor %}

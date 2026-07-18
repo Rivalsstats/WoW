@@ -23,6 +23,7 @@ import re
 import glob
 import json
 import argparse
+import tempfile
 from datetime import datetime, timedelta, timezone
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from pageGeneration import generateSpecNav, generateDungeonNav
@@ -217,6 +218,40 @@ def parse_results(sim_results_dir):
     return data, simc_version, simmed_at
 
 
+def build_mock_results(sim_dir):
+    """--debug helper: fabricate deterministic mock sim results.
+
+    The real page is only built in CI (it needs the sim matrix jobs' json2
+    outputs), so template work on simc_tierlist.html can't be previewed
+    locally otherwise. Writes one mock result file per target count covering
+    every DPS and tank spec in the static lookup, both gear sets; the last
+    spec of each role gets no simcbis actor to exercise the em-dash case.
+    """
+    specs = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
+    dps_ids = sorted(int(k) for k, v in specs.items() if int(v.get("role", 2)) == 2)
+    tank_ids = sorted(int(k) for k, v in specs.items() if int(v.get("role", 2)) == 0)
+    no_bis = {dps_ids[-1], tank_ids[-1]}
+
+    # rough leader DPS per target count; tanks sim at 55% of it, each rank
+    # falls 2.8% of the leader behind the previous one
+    for targets, base in {1: 1_400_000, 3: 2_600_000, 5: 3_500_000, 8: 4_800_000}.items():
+        players = []
+        for role_ids, factor in ((dps_ids, 1.0), (tank_ids, 0.55)):
+            for i, sid in enumerate(role_ids):
+                dps = base * factor * (1.0 - 0.028 * i)
+                players.append({"name": f"spec{sid}_popular",
+                                "collected_data": {"dps": {"mean": dps}}})
+                if sid not in no_bis:
+                    players.append({"name": f"spec{sid}_simcbis",
+                                    "collected_data": {"dps": {"mean": dps * 1.02}}})
+        result = {"version": "1.0.0-mock", "sim": {"players": players}}
+        with open(os.path.join(sim_dir, f"sim_mock_{targets}t.json"), "w", encoding="utf-8") as f:
+            json.dump(result, f)
+
+    with open(os.path.join(sim_dir, "meta_mock.json"), "w", encoding="utf-8") as f:
+        json.dump({"simmed_at": datetime.now(timezone.utc).isoformat()}, f)
+
+
 def build_tab(spec_dps, spec_lookup, class_lookup):
     """Build one target-count tab: {"Dps": [row, ...], "Tank": [row, ...]}.
 
@@ -271,8 +306,14 @@ def build_tab(spec_dps, spec_lookup, class_lookup):
     return grouped
 
 
-def main(template_path, output_dir, sim_results_dir):
+def main(template_path, output_dir, sim_results_dir, debug=False):
     season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
+
+    mock_tmp = None
+    if debug:
+        mock_tmp = tempfile.TemporaryDirectory()
+        sim_results_dir = mock_tmp.name
+        build_mock_results(sim_results_dir)
 
     data, simc_version, simmed_at = parse_results(sim_results_dir)
     if not data:
@@ -313,7 +354,8 @@ def main(template_path, output_dir, sim_results_dir):
         next((t for t in tabs if t["dps_rows"]), None),
     )
     has_preview = bool(
-        preview_tab
+        not debug
+        and preview_tab
         and generate_preview_image(
             preview_tab["dps_rows"], spec_lookup, class_lookup,
             season_info.get("name", ""), preview_tab["targets"],
@@ -358,9 +400,17 @@ def main(template_path, output_dir, sim_results_dir):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate the sim DPS tierlist page")
-    parser.add_argument("--template", required=True, help="Path to HTML template file")
-    parser.add_argument("--output_dir", required=True, help="Directory to write generated HTML pages")
-    parser.add_argument("--sim_results_dir", required=True, help="Directory of matrix sim json2 outputs")
+    parser.add_argument("--template", default="templates/simc_tierlist.html",
+                        help="Path to HTML template file")
+    parser.add_argument("--output_dir", default="pages",
+                        help="Directory to write generated HTML pages")
+    parser.add_argument("--sim_results_dir",
+                        help="Directory of matrix sim json2 outputs (not needed with --debug)")
+    parser.add_argument("--debug", action="store_true",
+                        help="render from generated mock sim results (og image skipped); "
+                             "for previewing template changes locally — don't commit the output")
     args = parser.parse_args()
+    if not args.debug and not args.sim_results_dir:
+        parser.error("--sim_results_dir is required unless --debug is given")
 
-    main(args.template, args.output_dir, args.sim_results_dir)
+    main(args.template, args.output_dir, args.sim_results_dir, debug=args.debug)
