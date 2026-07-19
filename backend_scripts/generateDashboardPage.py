@@ -447,6 +447,40 @@ def compute_key_throughput(rows, period_bounds, now_ts=None):
     }
 
 
+def compute_patch_annotations(patches, period_bounds, region="us"):
+    """
+    Map patch releases (from data/static/patches.json) onto the weekly chart
+    axis shared by "Keys per Week" and "Key Throughput".
+
+    `first_seen_ts` is the CDN push of a patch's earliest retail build, which
+    precedes go-live by a few days; since patches go live at a weekly reset,
+    the go-live week is the first period starting at or after that timestamp.
+    A line is drawn at the boundary before that week (index - 0.5), so
+    everything right of the line is post-patch. Patches outside the season's
+    periods (or landing on the season-start week) are skipped.
+    """
+    periods = sorted(
+        (pid, start)
+        for (r, pid), (start, _end) in period_bounds.items()
+        if r == region
+    )
+    annotations = []
+    for patch in patches:
+        ts = patch.get("first_seen_ts")
+        if ts is None:
+            continue
+        week_index = next(
+            (i for i, (_pid, start) in enumerate(periods) if start >= ts), None
+        )
+        if not week_index:  # None (after season end / not live yet) or week 0
+            continue
+        # drop the expansion-wide major version ("12.0.5" -> "0.5"): it is the
+        # same for every patch in a season and only clutters the small label
+        label = patch["version"].split(".", 1)[1]
+        annotations.append({"label": label, "x": week_index - 0.5})
+    return annotations
+
+
 def compute_completion_heatmap(rows):
     """
     Build the dashboard "When are keys completed?" heatmap data from the
@@ -554,6 +588,9 @@ def main(template_path, output_dir):
     key_throughput = compute_key_throughput(
         key_throughput_rows, period_bounds, now_ts=generated_at * 1000.0
     )
+    print("Computing patch annotations...")
+    patch_list = load_json(os.path.join(LOOKUP_DIR, "patches.json"))
+    patch_annotations = compute_patch_annotations(patch_list, period_bounds)
     print("Computing completion heatmap...")
     completion_heatmap = compute_completion_heatmap(completion_heatmap_rows)
     print("Assembling Spec Run Counts per Level...")
@@ -590,6 +627,7 @@ def main(template_path, output_dir):
         spec_run_counts=spec_run_counts,
         runs=runs,
         key_throughput=key_throughput,
+        patch_annotations=patch_annotations,
         completion_heatmap=completion_heatmap,
         runs_per_period=runs_per_period,
         key_levels=key_levels,

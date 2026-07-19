@@ -574,6 +574,32 @@
   <script src="/assets/js/plugins/chartjs.min.js"></script>
   <script src="/assets/js/plugins/chartjs-plugin-zoom.min.js"></script>
   <script src="/assets/js/plugins/chartjs-chart-matrix.min.js"></script>
+  <script src="/assets/js/plugins/chartjs-plugin-annotation.min.js"></script>
+
+  <!-- WoW patch release lines, shared by the weekly charts -->
+  <script>
+    const patchAnnotations = {{ patch_annotations | tojson }};
+    function buildPatchAnnotations() {
+      return Object.fromEntries(patchAnnotations.map((p, i) => [`patch${i}`, {
+        type: "line",
+        xMin: p.x,
+        xMax: p.x,
+        borderColor: "rgba(255, 255, 255, 0.75)",
+        borderWidth: 2,
+        borderDash: [6, 4],
+        label: {
+          display: true,
+          content: p.label,
+          position: "end",
+          backgroundColor: "rgba(0, 0, 0, 0.75)",
+          borderRadius: 4,
+          color: "#ffffff",
+          font: { size: 12, weight: "bold" },
+          padding: { x: 6, y: 3 }
+        }
+      }]));
+    }
+  </script>
 
   <!-- initialize charts -->
 
@@ -786,6 +812,9 @@
           },
           legend: {
             display: true
+          },
+          annotation: {
+            annotations: buildPatchAnnotations()
           }
         }
       }
@@ -1108,6 +1137,9 @@
               callbacks: {
                 label: c => ` ${c.dataset.label}: ${c.parsed.y == null ? "—" : c.parsed.y.toLocaleString() + " keys/min"}`
               }
+            },
+            annotation: {
+              annotations: buildPatchAnnotations()
             },
             zoom: {
               // weeks are the finest grain in the data, so cap how far you can

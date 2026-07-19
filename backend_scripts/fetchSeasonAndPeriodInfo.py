@@ -6,6 +6,7 @@ import re
 import csv
 import io
 from collections import Counter
+from datetime import datetime, timezone
 import databaseConnector
 
 # List of Blizzard API regions to process
@@ -69,6 +70,47 @@ def fetch_rio_season():
 # handful of >100 scaling outliers). This avoids hardcoding the cap each expansion.
 CONTENT_TUNING_CSV = "https://wago.tools/db2/ContentTuning/csv"
 
+# wago.tools also tracks every client build per product with its CDN push time.
+# The earliest retail ("wow") build per X.Y.Z version lands a few days before
+# the patch goes live, so it pins down the release week of each content patch.
+WAGO_BUILDS_URL = "https://wago.tools/api/builds"
+
+PATCHES_JSON = os.path.join("data", "static", "patches.json")
+
+
+def fetch_patch_list():
+    """Return one entry per retail X.Y.Z patch version with the timestamp of its
+    earliest retail build (epoch ms, UTC), sorted by that timestamp."""
+    resp = requests.get(
+        WAGO_BUILDS_URL,
+        headers={"User-Agent": "Mythistone-static-collector"},
+        timeout=60,
+    )
+    resp.raise_for_status()
+    builds = resp.json().get("wow", [])
+    earliest = {}
+    for build in builds:
+        parts = build.get("version", "").split(".")
+        if len(parts) < 4:
+            continue
+        version = ".".join(parts[:3])
+        created = build.get("created_at")
+        if not created:
+            continue
+        ts = int(
+            datetime.strptime(created, "%Y-%m-%d %H:%M:%S")
+            .replace(tzinfo=timezone.utc)
+            .timestamp()
+            * 1000
+        )
+        if version not in earliest or ts < earliest[version]["first_seen_ts"]:
+            earliest[version] = {
+                "version": version,
+                "first_build": build["version"],
+                "first_seen_ts": ts,
+            }
+    return sorted(earliest.values(), key=lambda p: p["first_seen_ts"])
+
 
 def fetch_max_character_level(min_occurrences=10, ceiling=100):
     """Return the current player max level derived from wago.tools ContentTuning,
@@ -117,6 +159,7 @@ def main():
             token=token,
         )
         periods = season_resp.get("periods", [])
+        season_start = season_resp["start_timestamp"]
 
         # For each period, fetch start and end timestamps
         region_periods = []
@@ -130,6 +173,13 @@ def main():
                     params={"namespace": namespace, "locale": "en_US"},
                     token=token,
                 )
+                # Blizzard lists the period *preceding* the season start too
+                # (e.g. period 1055 ends exactly at the season-17 start). That
+                # pre-season week has no runs and would shift week numbering
+                # off by one, so drop it here and from season_periods.
+                if per_resp["end_timestamp"] <= season_start:
+                    print(f"Skipping pre-season period {pid} for {region}")
+                    continue
                 region_periods.append(
                     {
                         "id": per_resp["id"],
@@ -216,6 +266,13 @@ def main():
         json.dump(all_regions_data, f, indent=2)
 
     print(f"Generated periods.json for regions: {', '.join(regions)}")
+
+    # patch release list for the dashboard's patch annotations; written last so
+    # a wago.tools failure fails the job without touching the files above
+    patches = fetch_patch_list()
+    with open(PATCHES_JSON, "w", encoding="utf-8") as f:
+        json.dump(patches, f, indent=2)
+    print(f"Generated patches.json with {len(patches)} patch versions")
 
 
 if __name__ == "__main__":
