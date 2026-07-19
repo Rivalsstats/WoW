@@ -114,7 +114,10 @@ def main(template_path, output_dir):
     print("Generating spec popularity vs performance image...")
     preview_path = os.path.join("assets", "img", "previews", "spec_popularity_vs_performance.png")
     os.makedirs(os.path.dirname(preview_path), exist_ok=True)
-    create_spec_popularity_vs_performance_img(preview_path, current_season)
+    # spec_data (fetch_spec_upgrades) was already fetched for the page above
+    create_spec_popularity_vs_performance_img(
+        preview_path, current_season, spec_upgrades=spec_data
+    )
     print("Done.")
 
 

@@ -3,6 +3,7 @@ map) used for dungeon social posts and the dungeon pages' OG previews."""
 
 import io
 import os
+import threading
 import time
 
 import requests
@@ -30,7 +31,153 @@ from image_generation.pil_helpers import (
 )
 
 
-def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cursor=None):
+# distinguishes "no thumbnail passed in, fetch it here" (default) from an
+# explicitly passed pre-fetched result, which may legitimately be None (failed)
+_THUMBNAIL_FETCH = object()
+
+THUMBNAIL_POLL_INTERVAL = 10  # seconds between status polls
+# Must cover the drain of keystone.guru's shared render queue with every
+# dungeon's job submitted at once (8 dungeons x up to ~2.5 min each), not just
+# one render — a too-short budget strands later jobs still in "queued".
+THUMBNAIL_POLL_TIMEOUT = 25 * 60  # seconds
+
+_keystone_dungeons_lock = threading.Lock()
+_keystone_dungeons_cache = None
+
+
+def _get_keystone_dungeon_list(auth):
+    """Fetch keystone.guru's dungeon list once per process (thread-safe); the
+    list is static within a build and was previously re-fetched per dungeon."""
+    global _keystone_dungeons_cache
+    with _keystone_dungeons_lock:
+        if _keystone_dungeons_cache is None:
+            try:
+                r = requests.get(
+                    "https://keystone.guru/api/v1/dungeon", timeout=60, auth=auth
+                )
+                if r.status_code == 200:
+                    _keystone_dungeons_cache = r.json().get("data", [])
+                else:
+                    print(
+                        f"Failed to fetch dungeons from keystone.guru, "
+                        f"status code: {r.status_code}"
+                    )
+                    _keystone_dungeons_cache = []
+            except Exception as e:
+                print(f"Error fetching dungeons from keystone.guru: {e}")
+                _keystone_dungeons_cache = []
+        return _keystone_dungeons_cache
+
+
+def fetch_route_thumbnail(dungeon_id, top_route_key):
+    """Request, poll, and download the keystone.guru thumbnail for a route.
+
+    Pure HTTP (no DB), so it can run in a background thread while the caller
+    does per-dungeon DB work; most of its wall time is waiting on the remote
+    render job. Returns an RGBA PIL image, or None on any failure.
+    """
+    dungeon_meta = find_dungeon_meta(dungeon_id) or {}
+    name_text = dungeon_meta.get("name", {}).get("en_US", "")
+
+    auth = requests.auth.HTTPBasicAuth(
+        os.environ.get("KEYSTONE_GURU_USER", ""),
+        os.environ.get("KEYSTONE_GURU_PW", ""),
+    )
+
+    # Step 1: Check if this dungeon has combined view enabled
+    combined_view_enabled = False
+    for d in _get_keystone_dungeon_list(auth):
+        d_name = d.get("name", "")
+        d_key = d.get("key", d.get("slug", ""))
+        if str(d.get("gameVersionId")) == str(dungeon_id) or str(d.get("id")) == str(dungeon_id) or d_name == name_text or d_key == dungeon_meta.get("slug"):
+            combined_view_enabled = d.get("combinedViewEnabled", False)
+            break
+
+    url = f'https://keystone.guru/api/v1/route/{top_route_key}/thumbnail'
+    payload = {
+      "viewportWidth": 900,
+      "viewportHeight": 600,
+      "imageWidth": 900,
+      "imageHeight": 600,
+      "zoomLevel": 2.2,
+      "quality": 90
+    }
+    try:
+        r = requests.post(url, json=payload, timeout=60, auth=auth)
+        if r.status_code != 200:
+            print(f"Failed to fetch thumbnail for route {top_route_key}, status code: {r.status_code}")
+            return None
+        resp_data = r.json()
+        jobs = resp_data.get("data", [])
+        if not jobs:
+            return None
+        # Important: If combined view exists use the thumbnail of the last floor otherwise use the first floor
+        if combined_view_enabled:
+            job = max(jobs, key=lambda x: x.get("floorIndex", 0))
+        else:
+            job = min(jobs, key=lambda x: x.get("floorIndex", 0))
+
+        status = job.get("status")
+
+        if status in ["queued", "processing", "error"]:
+            status_url = job["links"]["status"]
+            # All of the build's jobs are submitted up front and share
+            # keystone.guru's render queue, so the last one can sit "queued"
+            # for the whole queue drain (~N dungeons x render time) — the
+            # deadline must cover that, not a single render. The wait runs in
+            # a background thread overlapping the page builds' DB work.
+            deadline = time.monotonic() + THUMBNAIL_POLL_TIMEOUT
+            while time.monotonic() < deadline:
+                time.sleep(THUMBNAIL_POLL_INTERVAL)
+                poll_r = requests.get(status_url, auth=auth, timeout=20)
+                if poll_r.status_code == 200:
+                    poll_data = poll_r.json()
+                    poll_job = poll_data.get("data", {})
+                    status = poll_job.get("status")
+                    if status == "completed":
+                        job = poll_job
+                        break
+                    if status not in ("queued", "processing", "error"):
+                        break  # terminal failure state, stop waiting
+
+        if status == "completed" and job.get("links", {}).get("result"):
+            img_url = job["links"]["result"]
+            print(f"Thumbnail ready, fetching image from {img_url}...")
+            img_r = requests.get(img_url, timeout=60)
+            if img_r.status_code == 200:
+                print("Thumbnail image fetched successfully, processing image...")
+                return Image.open(io.BytesIO(img_r.content)).convert("RGBA")
+            print(f"Getting image for {top_route_key} failed. Status: {img_r.status_code}")
+            return None
+        print(f"Thumbnail job for {top_route_key} failed or missing result. Status: {status}")
+        return None
+    except Exception as e:
+        print(f"Error fetching thumbnail for route {top_route_key}: {str(e)}")
+        return None
+
+
+def createDungeonOverviewImg(
+    tmpdir,
+    out_path,
+    dungeon_id,
+    season,
+    conn=None,
+    cursor=None,
+    dungeon_totals=None,
+    top_comps_data=None,
+    per_level=None,
+    top_routes_data=None,
+    route_thumbnail=_THUMBNAIL_FETCH,
+):
+    """Render the dungeon overview image.
+
+    The dungeon_totals / top_comps_data / per_level / top_routes_data keyword
+    arguments accept data the caller already fetched for the dungeon page;
+    anything left as None is fetched here, so standalone callers (social
+    posts) keep working unchanged. `per_level` must already be filtered to
+    this dungeon. `route_thumbnail` accepts a pre-fetched PIL image (or None
+    for a failed pre-fetch); by default the thumbnail is fetched here.
+    """
     spec_lookup = get_spec_lookup()
     class_lookup = get_class_lookup()
     WIDTH, HEIGHT = config.WIDTH, config.HEIGHT
@@ -42,36 +189,51 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
 
     name_text = dungeon_meta["name"]["en_US"]
 
-    close_conn = False
-    if conn is None or cursor is None:
-        conn = databaseConnector.get_connection()
-        cursor = conn.cursor(dictionary=True)
-        close_conn = True
+    need_fetch = (
+        dungeon_totals is None
+        or top_comps_data is None
+        or per_level is None
+        or top_routes_data is None
+    )
+    if need_fetch:
+        close_conn = False
+        if conn is None or cursor is None:
+            conn = databaseConnector.get_connection()
+            cursor = conn.cursor(dictionary=True)
+            close_conn = True
 
-    try:
-        # Fetch stats
-        # Total Runs
-        tot = databaseConnector.fetch_dungeon_totals(conn, cursor, dungeon_id, season)
-        play_count = 0
-        if tot:
-            val = list(tot[0].values())[0] if isinstance(tot[0], dict) else tot[0][0]
-            play_count = int(val) if val else 0
+        try:
+            # Fetch stats
+            # Total Runs
+            if dungeon_totals is None:
+                dungeon_totals = databaseConnector.fetch_dungeon_totals(
+                    conn, cursor, dungeon_id, season
+                )
 
-        # Top comps
-        top_comps_data = databaseConnector.fetch_dungeon_top_comps(conn, cursor, dungeon_id, season)
+            # Top comps
+            if top_comps_data is None:
+                top_comps_data = databaseConnector.fetch_dungeon_top_comps(conn, cursor, dungeon_id, season)
 
-        # Per-level rows for this dungeon (timed %, most-run key, highest key)
-        per_level = [
-            r for r in databaseConnector.fetch_runs_per_dungeon_per_level(conn, cursor, season)
-            if str(r.get("dungeon_id")) == str(dungeon_id)
-        ]
+            # Per-level rows for this dungeon (timed %, most-run key, highest key)
+            if per_level is None:
+                per_level = [
+                    r for r in databaseConnector.fetch_runs_per_dungeon_per_level(conn, cursor, season)
+                    if str(r.get("dungeon_id")) == str(dungeon_id)
+                ]
 
-        # Top routes
-        top_routes_data = databaseConnector.fetch_dungeon_top_routes(conn, cursor, dungeon_id)
-    finally:
-        if close_conn:
-            cursor.close()
-            conn.close()
+            # Top routes
+            if top_routes_data is None:
+                top_routes_data = databaseConnector.fetch_dungeon_top_routes(conn, cursor, dungeon_id)
+        finally:
+            if close_conn:
+                cursor.close()
+                conn.close()
+
+    tot = dungeon_totals
+    play_count = 0
+    if tot:
+        val = list(tot[0].values())[0] if isinstance(tot[0], dict) else tot[0][0]
+        play_count = int(val) if val else 0
 
     # canvas: dungeon art scaled to cover, random background as fallback
     dungeon_icon_path = None
@@ -171,114 +333,51 @@ def createDungeonOverviewImg(tmpdir, out_path, dungeon_id, season, conn=None, cu
         if not top_route_key:
             print("Top route key is missing or empty, cannot fetch thumbnail.")
         if top_route_key:
-            print(f"Fetching thumbnail for top route: {top_route_key}")
+            if route_thumbnail is _THUMBNAIL_FETCH:
+                print(f"Fetching thumbnail for top route: {top_route_key}")
+                route_img = fetch_route_thumbnail(dungeon_id, top_route_key)
+            else:
+                route_img = route_thumbnail
 
-            auth = requests.auth.HTTPBasicAuth(os.environ.get("KEYSTONE_GURU_USER", ""), os.environ.get("KEYSTONE_GURU_PW", ""))
+            if route_img is not None:
+                # Resize map to fix right side smoothly
+                target_w = map_w
+                target_h = int(target_w * (route_img.height / route_img.width))
+                route_img = route_img.resize((target_w, target_h), LANCZOS)
 
-            # Step 1: Check if this dungeon has combined view enabled
-            combined_view_enabled = False
-            try:
-                dungeon_r = requests.get('https://keystone.guru/api/v1/dungeon', timeout=60, auth=auth)
-                if dungeon_r.status_code == 200:
-                    dungeons_data = dungeon_r.json().get('data', [])
-                    for d in dungeons_data:
-                        d_name = d.get("name", "")
-                        d_key = d.get("key", d.get("slug", ""))
-                        if str(d.get("gameVersionId")) == str(dungeon_id) or str(d.get("id")) == str(dungeon_id) or d_name == name_text or d_key == dungeon_meta.get("slug"):
-                            combined_view_enabled = d.get("combinedViewEnabled", False)
-                            break
-            except Exception as e:
-                print(f"Error fetching dungeons from keystone.guru: {e}")
+                # Position on the right side
+                img_x = map_x
+                img_y = map_y
 
-            url = f'https://keystone.guru/api/v1/route/{top_route_key}/thumbnail'
-            payload = {
-              "viewportWidth": 900,
-              "viewportHeight": 600,
-              "imageWidth": 900,
-              "imageHeight": 600,
-              "zoomLevel": 2.2,
-              "quality": 90
-            }
-            try:
-                r = requests.post(url, json=payload, timeout=60, auth=auth)
-                if r.status_code == 200:
-                    resp_data = r.json()
-                    jobs = resp_data.get("data", [])
-                    if jobs:
-                        # Important: If combined view exists use the thumbnail of the last floor otherwise use the first floor
-                        if combined_view_enabled:
-                            job = max(jobs, key=lambda x: x.get("floorIndex", 0))
-                        else:
-                            job = min(jobs, key=lambda x: x.get("floorIndex", 0))
+                # Add simple rounded mask using Pillow
+                route_img = rounded_alpha(route_img, 15)
 
-                        status = job.get("status")
+                # Paste map
+                canvas.paste(route_img, (img_x, img_y), route_img)
 
-                        if status in ["queued", "processing", "error"]:
-                            status_url = job["links"]["status"]
-                            for _ in range(15): # wait up to 2 minutes
-                                time.sleep(10)
-                                poll_r = requests.get(status_url, auth=auth, timeout=20)
-                                if poll_r.status_code == 200:
-                                    poll_data = poll_r.json()
-                                    poll_job = poll_data.get("data", {})
-                                    status = poll_job.get("status")
-                                    if status == "completed":
-                                        job = poll_job
-                                        break
+                # Add label and route key
+                draw.text(
+                    (img_x, img_y - 40),
+                    f"Top Route (keystone.guru/{top_route_key})",
+                    font=font_sm,
+                    fill=config.MUTED,
+                )
 
-                        if status == "completed" and job.get("links", {}).get("result"):
-                            img_url = job["links"]["result"]
-                            print(f"Thumbnail ready, fetching image from {img_url}...")
-                            img_r = requests.get(img_url, timeout=60)
-                            if img_r.status_code == 200:
-                                print("Thumbnail image fetched successfully, processing image...")
-                                route_img = Image.open(io.BytesIO(img_r.content)).convert("RGBA")
-                                # Resize map to fix right side smoothly
-                                target_w = map_w
-                                target_h = int(target_w * (route_img.height / route_img.width))
-                                route_img = route_img.resize((target_w, target_h), LANCZOS)
+                # Add team comp for this route
+                if isinstance(top_routes_data[0], dict) and top_routes_data[0].get('specs'):
+                    route_specs = top_routes_data[0]['specs']
+                    if route_specs:
+                        r_spec_ids = sort_spec_ids_by_role(
+                            [str(s) for s in route_specs], spec_lookup
+                        )
+                        icon_w = 40
+                        comp_x = img_x + target_w - (len(r_spec_ids) * (icon_w + 5))
+                        comp_y = img_y - 45
 
-                                # Position on the right side
-                                img_x = map_x
-                                img_y = map_y
-
-                                # Add simple rounded mask using Pillow
-                                route_img = rounded_alpha(route_img, 15)
-
-                                # Paste map
-                                canvas.paste(route_img, (img_x, img_y), route_img)
-
-                                # Add label and route key
-                                draw.text(
-                                    (img_x, img_y - 40),
-                                    f"Top Route (keystone.guru/{top_route_key})",
-                                    font=font_sm,
-                                    fill=config.MUTED,
-                                )
-
-                                # Add team comp for this route
-                                if isinstance(top_routes_data[0], dict) and top_routes_data[0].get('specs'):
-                                    route_specs = top_routes_data[0]['specs']
-                                    if route_specs:
-                                        r_spec_ids = sort_spec_ids_by_role(
-                                            [str(s) for s in route_specs], spec_lookup
-                                        )
-                                        icon_w = 40
-                                        comp_x = img_x + target_w - (len(r_spec_ids) * (icon_w + 5))
-                                        comp_y = img_y - 45
-
-                                        for sid in r_spec_ids:
-                                            paste_bordered_spec_icon(canvas, draw, sid, int(comp_x), int(comp_y),
-                                                                     icon_w, spec_lookup, class_lookup)
-                                            comp_x += (icon_w + 5)
-                            else:
-                                print(f"Getting image for {top_route_key} failed. Status: {img_r.status_code}")
-                        else:
-                            print(f"Thumbnail job for {top_route_key} failed or missing result. Status: {status}")
-                else:
-                    print(f"Failed to fetch thumbnail for route {top_route_key}, status code: {r.status_code}")
-            except Exception as e:
-                print(f"Error fetching thumbnail for route {top_route_key}: {str(e)}")
+                        for sid in r_spec_ids:
+                            paste_bordered_spec_icon(canvas, draw, sid, int(comp_x), int(comp_y),
+                                                     icon_w, spec_lookup, class_lookup)
+                            comp_x += (icon_w + 5)
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     canvas = apply_watermark_to_canvas(canvas, position="bottom_right", padding_x=30, padding_y=20)
 

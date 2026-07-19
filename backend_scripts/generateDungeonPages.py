@@ -1,12 +1,13 @@
 import os
 import json
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import databaseConnector
 from pageGeneration import generateSpecNav, generateDungeonNav, ROLE_FOLDERS
 from generateSpecPages import format_duration, format_utc_timestamp, format_iso_timestamp, load_json, upgrade_info
-from image_generation.dungeon_overview import createDungeonOverviewImg
+from image_generation.dungeon_overview import createDungeonOverviewImg, fetch_route_thumbnail
 
 LOOKUP_DIR = "data/static"
 
@@ -90,6 +91,7 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
     os.makedirs(output_dir, exist_ok=True)
 
     conn = databaseConnector.get_connection()
+    thumbnail_executor = ThreadPoolExecutor(max_workers=8)
     try:
         current_season = season_info.get('blizzard_season_id', None)
         if not current_season:
@@ -113,10 +115,29 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                     dungeon_runs_per_level_lookup[d_id] = []
                 dungeon_runs_per_level_lookup[d_id].append(d)
 
+            # Fetch every dungeon's top routes first and kick off its
+            # keystone.guru thumbnail job in a background thread (pure HTTP):
+            # the remote render job's queue/poll wait then overlaps all the
+            # per-dungeon DB work below instead of blocking each page for up
+            # to 2.5 minutes.
+            top_routes_by_dungeon = {}
+            thumbnail_futures = {}
             for dungeon_id, dungeon_data in dungeon_lookup.items():
                 if target_dungeon and str(dungeon_id) != str(target_dungeon):
                     continue
-                
+                print(f"Fetching top routes for {dungeon_data['name']['en_US']} ({dungeon_id})")
+                top_routes = databaseConnector.fetch_dungeon_top_routes(conn, cursor, dungeon_id)
+                top_routes_by_dungeon[dungeon_id] = top_routes
+                if top_routes and top_routes[0].get('route_key'):
+                    print(f"Requesting thumbnail for top route: {top_routes[0]['route_key']}")
+                    thumbnail_futures[dungeon_id] = thumbnail_executor.submit(
+                        fetch_route_thumbnail, dungeon_id, top_routes[0]['route_key']
+                    )
+
+            for dungeon_id, dungeon_data in dungeon_lookup.items():
+                if target_dungeon and str(dungeon_id) != str(target_dungeon):
+                    continue
+
                 print(f"Generating dungeon page for {dungeon_data['name']['en_US']} ({dungeon_id})")
 
                 # Over-represented specs
@@ -178,8 +199,8 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                             'win_rate': r['win_rate']
                         })
 
-                # Fetch top routes for this dungeon
-                top_routes = databaseConnector.fetch_dungeon_top_routes(conn, cursor, dungeon_id)
+                # Top routes were fetched in the thumbnail pre-pass above
+                top_routes = top_routes_by_dungeon.get(dungeon_id, [])
 
                 closest_call_run = parse_run_rows(databaseConnector.fetch_dungeon_closest_call_run(conn, cursor, dungeon_id, current_season))
                 shortest_run = parse_run_rows(databaseConnector.fetch_dungeon_shortest_run(conn, cursor, dungeon_id, current_season))
@@ -190,17 +211,25 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                 lust_timeline = databaseConnector.fetch_dungeon_lust_timeline(conn, cursor, dungeon_id)
                 skip_rates = databaseConnector.fetch_dungeon_skip_rates(conn, cursor, dungeon_id, current_season)
                 
+                # one batched round trip each instead of one query per skip/pull
+                skip_examples = databaseConnector.fetch_example_skip_routes(
+                    conn, cursor, dungeon_id, [skip['npc_id'] for skip in skip_rates[:15]]
+                )
                 for skip in skip_rates[:15]:
-                    example_route = databaseConnector.fetch_example_skip_route(conn, cursor, dungeon_id, skip['npc_id'])
+                    example_route = skip_examples.get(skip['npc_id'])
                     if example_route:
-                        skip['example_route'] = example_route[0]
-                        
+                        skip['example_route'] = example_route
+
+                lust_examples = databaseConnector.fetch_example_lust_routes(
+                    conn, cursor, dungeon_id,
+                    [pull['top_npcs'] for pull in lust_timeline if pull.get('top_npcs')],
+                )
                 for pull in lust_timeline:
                     top_npcs_str = pull.get('top_npcs', '')
                     if top_npcs_str:
-                        example_lust_route = databaseConnector.fetch_example_lust_route(conn, cursor, dungeon_id, top_npcs_str)
+                        example_lust_route = lust_examples.get(top_npcs_str)
                         if example_lust_route:
-                            pull['example_route'] = example_lust_route[0]
+                            pull['example_route'] = example_lust_route
 
                 # Validate lust_timeline contains at least one boss pull
                 dungeon_bosses = bosses_lookup.get(str(dungeon_id), [])
@@ -275,13 +304,25 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                 os.makedirs(preview_dir, exist_ok=True)
                 preview_path = os.path.join(preview_dir, f"{slug}.png")
                 try:
+                    # resolve the background thumbnail job started in the
+                    # pre-pass (None = no top route / job failed → no map)
+                    thumb_future = thumbnail_futures.get(dungeon_id)
+                    route_thumbnail = thumb_future.result() if thumb_future else None
+                    # pass the already-fetched data so the image step doesn't
+                    # re-run the same queries (incl. the season-wide per-level
+                    # rollup, previously re-scanned once per dungeon)
                     createDungeonOverviewImg(
                         tmpdir=os.path.join("tmp", "img"),
                         out_path=preview_path,
                         dungeon_id=dungeon_id,
                         season=current_season,
                         conn=conn,
-                        cursor=cursor
+                        cursor=cursor,
+                        dungeon_totals=local_total_res,
+                        top_comps_data=comps_rows,
+                        per_level=level_stats,
+                        top_routes_data=top_routes,
+                        route_thumbnail=route_thumbnail,
                     )
                 except Exception as e:
                     print(f"Failed to generate preview for {slug}: {e}")
@@ -289,6 +330,7 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                 if debug:
                     break
     finally:
+        thumbnail_executor.shutdown(wait=False)
         conn.close()
 
 if __name__ == "__main__":

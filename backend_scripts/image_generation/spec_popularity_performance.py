@@ -17,21 +17,27 @@ from image_generation.pil_helpers import composite_chart_onto_bg, parse_color, w
 
 
 def create_spec_popularity_vs_performance_img(
-    out_path, season
+    out_path, season, spec_upgrades=None, highest_run=None
 ):
     """
     Generate and save/show a scatter plot of spec performance vs popularity,
     using spec icons as markers, reusing create_spec_scatter.
     If output_path is provided, saves the figure to that path.
+
+    `spec_upgrades` / `highest_run` accept data the caller already fetched;
+    anything left as None is fetched here.
     """
     init_matplotlib()
     spec_lookup = get_spec_lookup()
     class_lookup = get_class_lookup()
 
-    with closing(databaseConnector.get_connection()) as conn:
-        cursor = conn.cursor()
-        spec_upgrades = databaseConnector.fetch_spec_upgrades(conn, cursor)
-        highest_run = databaseConnector.fetch_max_key_run(conn, cursor, season)
+    if spec_upgrades is None or highest_run is None:
+        with closing(databaseConnector.get_connection()) as conn:
+            cursor = conn.cursor()
+            if spec_upgrades is None:
+                spec_upgrades = databaseConnector.fetch_spec_upgrades(conn, cursor)
+            if highest_run is None:
+                highest_run = databaseConnector.fetch_max_key_run(conn, cursor, season)
     # get point data dicts with x, y, iconUrl, borderColor, backgroundColor
     raw_points = create_spec_scatter(
         spec_upgrades, spec_lookup, class_lookup, highest_run

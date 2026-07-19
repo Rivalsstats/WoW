@@ -1221,6 +1221,23 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
     else:
         spec_keys = list(spec_lookup.keys())
 
+    # Season-constant data, identical for every spec: fetch once instead of
+    # once per spec (the per-spec top-comps query alone is a full table scan
+    # because FIND_IN_SET can't use an index).
+    with closing(databaseConnector.get_connection()) as conn:
+        cursor = conn.cursor()
+        databaseConnector.configure_read_session(conn, cursor)
+        print(f"[{datetime.now(timezone.utc).isoformat()}] fetching total season runs...")
+        total_runs = databaseConnector.fetch_total_season_runs(
+            conn, cursor, current_season_id
+        )
+        print(f"[{datetime.now(timezone.utc).isoformat()}] fetching per-spec upgrade distributions...")
+        spec_upgrades_all = databaseConnector.fetch_spec_upgrades(conn, cursor)
+        print(f"[{datetime.now(timezone.utc).isoformat()}] fetching season-wide top comps...")
+        top_comps_by_spec = databaseConnector.fetch_spec_top_comps_all(
+            conn, cursor, current_season_id
+        )
+
     # Iterate over each spec folder
     for spec_id in spec_keys:
         print(
@@ -1243,9 +1260,15 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 valid_talents = {int(tid) for tid in talent_lookup.get("talents", {})}
                 valid_subtrees = {int(tid) for tid in talent_lookup.get("subTrees", {})}
                 print(f"[{datetime.now(timezone.utc).isoformat()}] Fetching talents...")
+                # One fetch feeds both the overall and the per-hero-tree
+                # spec-talent breakdowns (they run the identical query).
+                spec_talent_rows = databaseConnector.fetch_spec_talents_differences(
+                    conn, cursor, spec_id, current_season_id
+                )
                 # spec_talents_difs is still threaded into convert_slots below.
                 spec_talents_full = aggregateData.get_spec_talent_differences(
-                    conn, cursor, spec_id, current_season_id, valid_talents
+                    conn, cursor, spec_id, current_season_id, valid_talents,
+                    rows=spec_talent_rows,
                 )
                 spec_talents_difs = aggregateData.biggest_deviations_per_dungeon(spec_talents_full)
                 # Per-hero-tree breakdowns so the talent overview can be shown
@@ -1254,7 +1277,8 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     conn, cursor, spec_id, current_season_id, valid_talents
                 )
                 spec_by_tree = aggregateData.get_spec_talent_differences_by_hero_tree(
-                    conn, cursor, spec_id, current_season_id, valid_talents
+                    conn, cursor, spec_id, current_season_id, valid_talents,
+                    rows=spec_talent_rows,
                 )
                 hero_by_tree = aggregateData.get_hero_talent_differences_by_hero_tree(
                     conn, cursor, spec_id, current_season_id, valid_talents
@@ -1366,12 +1390,6 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     conn, cursor, spec_id
                 )
                 print(
-                    f"[{datetime.now(timezone.utc).isoformat()}] fetching total runs..."
-                )
-                total_runs = databaseConnector.fetch_total_season_runs(
-                    conn, cursor, current_season_id
-                )
-                print(
                     f"[{datetime.now(timezone.utc).isoformat()}] fetching spec runs..."
                 )
                 spec_runs = databaseConnector.fetch_runs_per_spec(
@@ -1389,6 +1407,9 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 except Exception:
                     spec_runs_count = int(spec_runs) if spec_runs else 0
 
+                # the overview image ranks best/worst against the unfiltered
+                # list (its totals predate the rarity filter below)
+                embellishments_unfiltered = embellishments
                 embellishment_threshold = (spec_runs_count * 0.001) if spec_runs_count else 0
                 if embellishments and embellishment_threshold > 0:
                     filtered_embs = []
@@ -1594,12 +1615,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 stat_priority, tertiary_priority, health_priority = fetch_stat_info(
                     conn, cursor, spec_id, current_season_id, spec_lookup
                 )
-                print(
-                    f"[{datetime.now(timezone.utc).isoformat()}] fetching top comps..."
-                )
-                top_comps_data = databaseConnector.fetch_spec_top_comps(
-                    conn, cursor, spec_id, current_season_id
-                )
+                top_comps_data = top_comps_by_spec.get(str(spec_id), [])
 
             if not tree_by_spec.get(int(spec_id)):
                 raise ValueError(f"No talent tree data for spec {spec_id}")
@@ -1734,8 +1750,8 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
 
             print(f"[{datetime.now(timezone.utc).isoformat()}] generating page...")
             # Build per-key-level stats for this spec to render stacked success chart
+            # (spec_upgrades_all is season-constant, fetched once before the loop)
             try:
-                spec_upgrades_all = databaseConnector.fetch_spec_upgrades(conn, cursor)
                 level_stats = [
                     {
                         "keystone_level": int(r["keystone_level"]),
@@ -1856,7 +1872,21 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
             spec_slug = f"{spec_data.get('name')}_{class_data.get('name')}"
             preview_path = os.path.join("assets", "img", "previews",  f"{spec_slug}.png")
             os.makedirs(os.path.dirname(preview_path), exist_ok=True)
-            createSpecOverviewImg('tmp',preview_path, spec_id, current_season_id)
+            # pass the already-fetched data so the image step doesn't re-run
+            # the same queries (incl. the expensive max-key-run join) on a
+            # second connection
+            createSpecOverviewImg(
+                'tmp', preview_path, spec_id, current_season_id,
+                spec_upgrade_counts=upgrade_counts,
+                hero_trees=[
+                    {"tree_id": h["id"], "count": h["count"]} for h in hero_trees
+                ],
+                highest=highest_run,
+                missives=missives,
+                embellishments=embellishments_unfiltered,
+                sockets=sockets,
+                stat_info=(stat_priority, tertiary_priority, health_priority),
+            )
             print(f"[{datetime.now(timezone.utc).isoformat()}] Finished {spec_id}.")
             if debug:
                 raise ValueError("Debug mode: stopping after first spec")

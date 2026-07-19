@@ -625,7 +625,11 @@ def main(template_path, output_dir):
     print("Generating dungeon popularity vs ease image...")
     preview_path = os.path.join("assets", "img", "previews", "dungeon_popularity_across_keylevels.png")
     os.makedirs(os.path.dirname(preview_path), exist_ok=True)
-    create_dungeon_popularity_vs_ease_img(preview_path, current_season_id)
+    # dungeon_runs_per_level was already fetched for the page above
+    create_dungeon_popularity_vs_ease_img(
+        preview_path, current_season_id,
+        dungeon_runs_per_level=dungeon_runs_per_level,
+    )
     print("Done.")
 
 

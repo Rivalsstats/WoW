@@ -116,23 +116,31 @@ def _draw_week_trend_panel(fig, legend, dungeon_names, deltas_by_name, cmap):
         )
 
 
-def create_dungeon_popularity_vs_ease_img(out_path, season):
+def create_dungeon_popularity_vs_ease_img(
+    out_path, season, dungeon_runs_per_level=None, period_rows=None
+):
     """
     Creates and saves a stacked horizontal bar chart showing, for each Mythic+ level,
     the share of total runs completed in each dungeon (i.e. “ease”).
+
+    `dungeon_runs_per_level` / `period_rows` accept data the caller already
+    fetched; anything left as None is fetched here.
     """
     init_matplotlib()
     dungeon_lookup = get_dungeon_lookup()
 
     # --- prepare data ---
-    with closing(databaseConnector.get_connection()) as conn:
-        cursor = conn.cursor()
-        dungeon_runs_per_level = databaseConnector.fetch_runs_per_dungeon_per_level(
-            conn, cursor, season
-        )
-        period_rows = databaseConnector.fetch_dungeon_timed_runs_last_two_periods(
-            conn, cursor, season
-        )
+    if dungeon_runs_per_level is None or period_rows is None:
+        with closing(databaseConnector.get_connection()) as conn:
+            cursor = conn.cursor()
+            if dungeon_runs_per_level is None:
+                dungeon_runs_per_level = databaseConnector.fetch_runs_per_dungeon_per_level(
+                    conn, cursor, season
+                )
+            if period_rows is None:
+                period_rows = databaseConnector.fetch_dungeon_timed_runs_last_two_periods(
+                    conn, cursor, season
+                )
 
     # week-over-week share change per dungeon; None when there aren't two
     # comparable weeks yet, in which case the trend panel is skipped

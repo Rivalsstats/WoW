@@ -35,9 +35,28 @@ from image_generation.pil_helpers import (
 )
 
 
-def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
+def createSpecOverviewImg(
+    tmpdir,
+    out_path,
+    spec_id,
+    season,
+    spec_upgrade_counts=None,
+    hero_trees=None,
+    highest=None,
+    missives=None,
+    embellishments=None,
+    sockets=None,
+    stat_info=None,
+):
     """
     Creates and saves a spec overview image.
+
+    The keyword arguments accept data the caller already fetched (the spec page
+    generator queries all of it for the page itself); anything left as None is
+    fetched here, so standalone callers (social posts) keep working unchanged.
+    `hero_trees` is a list of {"tree_id", "count"} already filtered to the
+    spec's own subtrees; `stat_info` is the (stat_priority, tertiary_priority,
+    health_priority) tuple from fetch_stat_info.
     """
     spec_lookup = get_spec_lookup()
     class_lookup = get_class_lookup()
@@ -56,9 +75,10 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
     upgrade_counts = {tier: 0 for tier in tiers}
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()
-        spec_upgrade_counts = databaseConnector.fetch_spec_upgrade(
-            conn, cursor, spec_id
-        )
+        if spec_upgrade_counts is None:
+            spec_upgrade_counts = databaseConnector.fetch_spec_upgrade(
+                conn, cursor, spec_id
+            )
         play_count = 0
         for u in spec_upgrade_counts:
             upgrade_counts[u["upgrade_tier"]] += int(u["run_count"])
@@ -68,53 +88,60 @@ def createSpecOverviewImg(tmpdir, out_path, spec_id, season):
         total_up = sum(counts_list) or 1
 
         # hero tree picks
-        hero_trees_raw = databaseConnector.fetch_hero_tree_overview(
-            conn, cursor, spec_id
-        )
-        valid_subtrees = set(talent_lookup.get("subTrees", {}).keys())
-        hero_trees = []
-        for row in hero_trees_raw:
-            tree_id = row[0]
-            tree_count = row[1]
-            # Drop hero trees that don't belong to this spec (e.g. cross-spec
-            # contaminated loadouts). Without this the subTrees lookup below
-            # KeyErrors and the whole overview image fails to render.
-            if str(tree_id) not in valid_subtrees:
-                print(
-                    f"[{datetime.now(timezone.utc).isoformat()}] "
-                    f"WARNING: spec {spec_id} returned hero tree {tree_id} "
-                    f"(count={tree_count}) which is not in its subTrees "
-                    f"{sorted(valid_subtrees)}; skipping contaminated loadout."
-                )
-                continue
-            hero_trees.append({"tree_id": tree_id, "count": tree_count})
+        if hero_trees is None:
+            hero_trees_raw = databaseConnector.fetch_hero_tree_overview(
+                conn, cursor, spec_id
+            )
+            valid_subtrees = set(talent_lookup.get("subTrees", {}).keys())
+            hero_trees = []
+            for row in hero_trees_raw:
+                tree_id = row[0]
+                tree_count = row[1]
+                # Drop hero trees that don't belong to this spec (e.g. cross-spec
+                # contaminated loadouts). Without this the subTrees lookup below
+                # KeyErrors and the whole overview image fails to render.
+                if str(tree_id) not in valid_subtrees:
+                    print(
+                        f"[{datetime.now(timezone.utc).isoformat()}] "
+                        f"WARNING: spec {spec_id} returned hero tree {tree_id} "
+                        f"(count={tree_count}) which is not in its subTrees "
+                        f"{sorted(valid_subtrees)}; skipping contaminated loadout."
+                    )
+                    continue
+                hero_trees.append({"tree_id": tree_id, "count": tree_count})
 
         hero_total = sum(tree["count"] for tree in hero_trees)
 
         # runs (drawn natively into the Highest Key panel below)
-        highest = get_run_data(False, spec_id, season)
+        if highest is None:
+            highest = get_run_data(False, spec_id, season)
         spec_talent_overview = databaseConnector.fetch_spec_talent_overview(
             conn, cursor, spec_id, season
         )
         class_talent_overview = databaseConnector.fetch_class_talent_overview(
             conn, cursor, spec_id, season
         )
-        missives = databaseConnector.fetch_missive_count(conn, cursor, spec_id, season)
+        if missives is None:
+            missives = databaseConnector.fetch_missive_count(
+                conn, cursor, spec_id, season
+            )
         total_missive_count = sum(e[1] for e in missives)
 
-        embellishments = databaseConnector.fetch_embellishment_count(
-            conn, cursor, spec_id, season
-        )
+        if embellishments is None:
+            embellishments = databaseConnector.fetch_embellishment_count(
+                conn, cursor, spec_id, season
+            )
 
         total_embellishment_count = sum(e[1] for e in embellishments)
 
-        sockets = aggregateData.get_sockets(conn, cursor, spec_id, season)
+        if sockets is None:
+            sockets = aggregateData.get_sockets(conn, cursor, spec_id, season)
 
         total_socket_count = sum(s.get("count", 0) for s in sockets)
 
-        stat_priority, tertiary_priority, health_priority = fetch_stat_info(
-            conn, cursor, spec_id, season, spec_lookup
-        )
+        if stat_info is None:
+            stat_info = fetch_stat_info(conn, cursor, spec_id, season, spec_lookup)
+        stat_priority, tertiary_priority, health_priority = stat_info
 
     # canvas: dimmed random background over the dark base
     canvas = random_background_canvas(WIDTH, HEIGHT, alpha=config.BG_ALPHA, base=config.BG)

@@ -208,16 +208,17 @@ def get_hero_talent_differences(
 
 
 def get_spec_talent_differences(
-    conn, cursor, spec_id, current_season_id, valid_talents
+    conn, cursor, spec_id, current_season_id, valid_talents, rows=None
 ):
     spendable_talents = load_existing_json(TALENT_POINTS_PATH)
-    top_spec_talent_diffs = databaseConnector.fetch_spec_talents_differences(
-        conn, cursor, spec_id, current_season_id
-    )
+    if rows is None:
+        rows = databaseConnector.fetch_spec_talents_differences(
+            conn, cursor, spec_id, current_season_id
+        )
     spec_talent_points_available = spendable_talents.get("spec", 0)
 
     return get_talent_differences(
-        top_spec_talent_diffs, spec_talent_points_available, valid_talents
+        rows, spec_talent_points_available, valid_talents
     )
 
 
@@ -265,14 +266,13 @@ def get_hero_talent_differences_by_hero_tree(
 
 
 def get_spec_talent_differences_by_hero_tree(
-    conn, cursor, spec_id, current_season_id, valid_talents
+    conn, cursor, spec_id, current_season_id, valid_talents, rows=None
 ):
-    return _by_hero_tree(
-        databaseConnector.fetch_spec_talents_differences(
+    if rows is None:
+        rows = databaseConnector.fetch_spec_talents_differences(
             conn, cursor, spec_id, current_season_id
-        ),
-        valid_talents,
-    )
+        )
+    return _by_hero_tree(rows, valid_talents)
 
 
 def get_class_talent_differences_by_hero_tree(

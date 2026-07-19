@@ -1280,10 +1280,40 @@ FROM runs
 WHERE season = %s
 """
 
+PREAGG_TOTAL_SEASON_RUNS_SQL = """
+SELECT SUM(total_runs) AS total_runs
+FROM aggregated_runs_per_dungeon_per_level
+WHERE season = %s
+"""
+
+
+def _fetch_runs_rollup_with_fallback(connection, cursor, preagg_sql, fallback_sql, params):
+    """Read the nightly aggregated_runs_per_dungeon_per_level rollup; fall back
+    to the live full-season runs scan when the rollup is missing (migration not
+    applied yet) or holds nothing for the requested season (e.g. the season
+    flipped before the nightly pipeline ran)."""
+    try:
+        rows = fetch_with_retry(connection, cursor, preagg_sql, params)
+    except mysql.connector.DatabaseError as err:
+        if err.errno != errorcode.ER_NO_SUCH_TABLE:
+            raise
+        rows = None
+    # A SUM over zero rows yields a single all-NULL row, not an empty set
+    if rows and any(
+        v is not None for row in rows
+        for v in (row.values() if isinstance(row, dict) else row)
+    ):
+        return rows
+    print("aggregated_runs_per_dungeon_per_level unavailable or empty, falling back to live runs scan")
+    return fetch_with_retry(connection, cursor, fallback_sql, params)
+
 
 def fetch_total_season_runs(connection, cursor, season):
     """Fetch the total season runs for a specific season from the database."""
-    rows = fetch_with_retry(connection, cursor, FETCH_TOTAL_SEASON_RUNS_SQL, (season,))
+    rows = _fetch_runs_rollup_with_fallback(
+        connection, cursor,
+        PREAGG_TOTAL_SEASON_RUNS_SQL, FETCH_TOTAL_SEASON_RUNS_SQL, (season,),
+    )
     amount_row = rows[0] if rows else None
     # amount_row might be tuple or dict depending on cursor type
     if not amount_row:
@@ -1864,10 +1894,26 @@ GROUP BY r.dungeon_id
 ORDER BY total_runs DESC;
 """
 
+PREAGG_RUNS_PER_DUNGEON_SQL = """
+SELECT
+  dungeon_id,
+  SUM(tier_3)     AS tier_3,
+  SUM(tier_2)     AS tier_2,
+  SUM(tier_1)     AS tier_1,
+  SUM(depleted)   AS depleted,
+  SUM(total_runs) AS total_runs
+FROM aggregated_runs_per_dungeon_per_level
+WHERE season = %s
+GROUP BY dungeon_id
+ORDER BY total_runs DESC;
+"""
+
 
 def fetch_runs_per_dungeon(connection, cursor, season):
     params = (season,)
-    rows = fetch_with_retry(connection, cursor, DUNGEON_UPGRADES_SQL, params)
+    rows = _fetch_runs_rollup_with_fallback(
+        connection, cursor, PREAGG_RUNS_PER_DUNGEON_SQL, DUNGEON_UPGRADES_SQL, params
+    )
     if not rows:
         return []
         
@@ -2025,14 +2071,21 @@ SELECT
 FROM runs r
 JOIN dungeon_data dd ON dd.dungeon_id = r.dungeon_id
 WHERE r.season = %s
-GROUP BY r.dungeon_id, r.keystone_level 
+GROUP BY r.dungeon_id, r.keystone_level
+"""
+
+PREAGG_RUNS_PER_DUNGEON_PER_LEVEL_SQL = """
+SELECT dungeon_id, keystone_level, tier_3, tier_2, tier_1, depleted, total_runs
+FROM aggregated_runs_per_dungeon_per_level
+WHERE season = %s
 """
 
 
 def fetch_runs_per_dungeon_per_level(connection, cursor, season):
     params = (season,)
-    rows = fetch_with_retry(
-        connection, cursor, DUNGEON_UPGRADES_PER_KEYLEVEL_SQL, params
+    rows = _fetch_runs_rollup_with_fallback(
+        connection, cursor,
+        PREAGG_RUNS_PER_DUNGEON_PER_LEVEL_SQL, DUNGEON_UPGRADES_PER_KEYLEVEL_SQL, params,
     )
     if not rows:
         return []
@@ -2084,7 +2137,13 @@ SELECT
 FROM runs r
 JOIN dungeon_data dd ON dd.dungeon_id = r.dungeon_id
 WHERE r.season = %s AND r.keystone_level > %s
-GROUP BY r.dungeon_id, r.keystone_level 
+GROUP BY r.dungeon_id, r.keystone_level
+"""
+
+PREAGG_RUNS_PER_DUNGEON_PER_LEVEL_ABOVE_LEVEL_SQL = """
+SELECT dungeon_id, keystone_level, tier_3, tier_2, tier_1, depleted, total_runs
+FROM aggregated_runs_per_dungeon_per_level
+WHERE season = %s AND keystone_level > %s
 """
 
 
@@ -2092,8 +2151,10 @@ def fetch_runs_per_dungeon_per_level_above_level(
     connection, cursor, season, min_keylevel=15
 ):
     params = (season, min_keylevel)
-    rows = fetch_with_retry(
-        connection, cursor, DUNGEON_UPGRADES_PER_KEYLEVEL_ABOVE_LEVEL_SQL, params
+    rows = _fetch_runs_rollup_with_fallback(
+        connection, cursor,
+        PREAGG_RUNS_PER_DUNGEON_PER_LEVEL_ABOVE_LEVEL_SQL,
+        DUNGEON_UPGRADES_PER_KEYLEVEL_ABOVE_LEVEL_SQL, params,
     )
     if not rows:
         return []
@@ -2813,6 +2874,51 @@ def fetch_all_comps(connection, cursor, season: int):
         (season,)
     )
 
+
+def fetch_spec_top_comps_all(connection, cursor, season: int):
+    """Season-wide replacement for calling fetch_spec_top_comps once per spec:
+    the per-spec query's FIND_IN_SET filter can't use an index, so 40 calls
+    mean 40 full scans of aggregated_dungeon_comps. One scan + Python
+    aggregation yields every spec's top 5 at once.
+
+    Returns {spec_id (str): [(comp, comp_count, highest_key, win_rate), ...]}
+    with rows shaped exactly like FETCH_SPEC_TOP_COMPS_SQL's output.
+    """
+    rows = fetch_all_comps(connection, cursor, season)
+    per_comp = {}  # comp -> [timed, total, highest_key]
+    for row in rows:
+        if isinstance(row, dict):
+            comp = row["comp"]
+            level = int(row["keystone_level"])
+            timed = int(row["timed_runs"] or 0)
+            depleted = int(row["depleted_runs"] or 0)
+        else:
+            comp = row[2]
+            level = int(row[1])
+            timed = int(row[3] or 0)
+            depleted = int(row[4] or 0)
+        agg = per_comp.get(comp)
+        if agg is None:
+            per_comp[comp] = [timed, timed + depleted, level]
+        else:
+            agg[0] += timed
+            agg[1] += timed + depleted
+            agg[2] = max(agg[2], level)
+
+    by_spec = {}
+    for comp, (timed, total, highest_key) in per_comp.items():
+        # matches SQL ROUND() (half away from zero) rather than Python's
+        # banker's rounding
+        win_rate = int(timed / total * 100 + 0.5) if total else 0
+        entry = (comp, total, highest_key, win_rate)
+        for spec in comp.split(","):
+            by_spec.setdefault(spec.strip(), []).append(entry)
+
+    for spec, comps in by_spec.items():
+        comps.sort(key=lambda c: c[1], reverse=True)
+        del comps[5:]
+    return by_spec
+
 FETCH_DUNGEON_TOP_ROUTES_SQL = """
 WITH PullEnemies AS (
     SELECT 
@@ -2887,25 +2993,23 @@ def fetch_dungeon_top_routes(connection, cursor, dungeon_id: str):
     if not routes_rows:
         return []
 
-    top_routes = []
-    for r in routes_rows:
-        specs_rows = fetch_with_retry(
-            connection,
-            cursor,
-            FETCH_ROUTE_SPECS_SQL,
-            (r['route_key'],)
-        )
-        r_dict = dict(r)
-        if specs_rows:
-            if isinstance(specs_rows[0], dict):
-                r_dict['specs'] = [s['spec_id'] for s in specs_rows]
-            else:
-                r_dict['specs'] = [s[0] for s in specs_rows]
-        else:
-            r_dict['specs'] = []
-            
-        top_routes.append(r_dict)
-    
+    # one IN() round trip for all routes' specs instead of one query per route
+    top_routes = [dict(r) for r in routes_rows]
+    route_keys = [r['route_key'] for r in top_routes]
+    placeholders = ", ".join(["%s"] * len(route_keys))
+    specs_rows = fetch_with_retry(
+        connection,
+        cursor,
+        f"SELECT route_key, spec_id FROM Mythistone.route_specs WHERE route_key IN ({placeholders});",
+        tuple(route_keys),
+    )
+    specs_by_route = {}
+    for s in specs_rows or []:
+        key, spec = (s['route_key'], s['spec_id']) if isinstance(s, dict) else (s[0], s[1])
+        specs_by_route.setdefault(key, []).append(spec)
+    for r_dict in top_routes:
+        r_dict['specs'] = specs_by_route.get(r_dict['route_key'], [])
+
     return top_routes
 
 FETCH_DUNGEON_SHORTEST_KEY_RUN_SQL = """
@@ -3068,6 +3172,42 @@ def fetch_example_skip_route(connection, cursor, dungeon_id: str, npc_id: int):
     return fetch_with_retry(connection, cursor, FETCH_EXAMPLE_SKIP_ROUTE_SQL, (dungeon_id, npc_id))
 
 
+# same statement as FETCH_EXAMPLE_SKIP_ROUTE_SQL plus an npc marker column, so
+# one UNION ALL round trip can answer for every skipped NPC at once
+FETCH_EXAMPLE_SKIP_ROUTE_ARM_SQL = """(
+SELECT %s AS skip_npc_id, rd.rio_run_id, rd.route_key, rd.keystone_level
+FROM route_data rd
+WHERE rd.dungeon_id = %s
+  AND rd.route_key NOT IN (
+      SELECT route_key FROM pull_enemies WHERE npc_id = %s
+  )
+ORDER BY rd.keystone_level DESC, rd.timestamp DESC
+LIMIT 1
+)"""
+
+
+def fetch_example_skip_routes(connection, cursor, dungeon_id: str, npc_ids):
+    """Batched fetch_example_skip_route: one round trip for all NPCs.
+    Returns {npc_id: row} with rows shaped like the single-NPC query's."""
+    npc_ids = list(npc_ids)
+    if not npc_ids:
+        return {}
+    sql = "\nUNION ALL\n".join([FETCH_EXAMPLE_SKIP_ROUTE_ARM_SQL] * len(npc_ids))
+    params = []
+    for npc_id in npc_ids:
+        params.extend((npc_id, dungeon_id, npc_id))
+    rows = fetch_with_retry(connection, cursor, sql, tuple(params))
+    out = {}
+    for row in rows or []:
+        if isinstance(row, dict):
+            out[row["skip_npc_id"]] = {
+                k: v for k, v in row.items() if k != "skip_npc_id"
+            }
+        else:
+            out[row[0]] = row[1:]
+    return out
+
+
 FETCH_EXAMPLE_LUST_ROUTE_SQL = """
 WITH target_pull AS (
     SELECT 
@@ -3096,6 +3236,57 @@ JOIN route_data rd ON rd.route_key = tp.route_key;
 
 def fetch_example_lust_route(connection, cursor, dungeon_id: str, pull_sig: str):
     return fetch_with_retry(connection, cursor, FETCH_EXAMPLE_LUST_ROUTE_SQL, (dungeon_id, pull_sig))
+
+
+# FETCH_EXAMPLE_LUST_ROUTE_SQL with the CTE inlined as a derived table (WITH
+# isn't allowed inside a parenthesized UNION ALL arm) plus a signature marker
+# column, so one round trip can answer for every lust pull at once
+FETCH_EXAMPLE_LUST_ROUTE_ARM_SQL = """(
+SELECT
+    %s AS lust_sig,
+    rd.rio_run_id,
+    rd.route_key,
+    rd.keystone_level,
+    (SELECT COUNT(*) FROM route_pulls rp2 WHERE rp2.route_key = tp.route_key AND rp2.pull_id <= tp.pull_id) as pull_number
+FROM (
+    SELECT
+        rp.route_key,
+        rp.pull_id,
+        rd.keystone_level
+    FROM route_data rd
+    JOIN route_pulls rp ON rd.route_key = rp.route_key
+    JOIN pull_enemies pe ON rp.pull_id = pe.pull_id AND rp.route_key = pe.route_key
+    JOIN pull_spells ps ON rp.pull_id = ps.pull_id AND rp.route_key = ps.route_key
+        AND ps.spell_id IN (SELECT spell_id FROM bloodlust_spells)
+    WHERE rd.dungeon_id = %s
+    GROUP BY rp.route_key, rp.pull_id, rd.keystone_level
+    HAVING GROUP_CONCAT(DISTINCT pe.npc_id ORDER BY pe.npc_id ASC SEPARATOR ',') = %s
+    ORDER BY rd.keystone_level DESC
+    LIMIT 1
+) tp
+JOIN route_data rd ON rd.route_key = tp.route_key
+)"""
+
+
+def fetch_example_lust_routes(connection, cursor, dungeon_id: str, pull_sigs):
+    """Batched fetch_example_lust_route: one round trip for all pull
+    signatures. Returns {pull_sig: row} with rows shaped like the
+    single-signature query's."""
+    pull_sigs = list(pull_sigs)
+    if not pull_sigs:
+        return {}
+    sql = "\nUNION ALL\n".join([FETCH_EXAMPLE_LUST_ROUTE_ARM_SQL] * len(pull_sigs))
+    params = []
+    for sig in pull_sigs:
+        params.extend((sig, dungeon_id, sig))
+    rows = fetch_with_retry(connection, cursor, sql, tuple(params))
+    out = {}
+    for row in rows or []:
+        if isinstance(row, dict):
+            out[row["lust_sig"]] = {k: v for k, v in row.items() if k != "lust_sig"}
+        else:
+            out[row[0]] = row[1:]
+    return out
 
 
 
