@@ -1346,6 +1346,34 @@ def fetch_runs_per_spec(connection, cursor, spec_id):
     return int(total_runs)
 
 
+FETCH_SPEC_SAMPLE_SIZE_SQL = """
+SELECT MAX(slot_total) AS sample_size FROM (
+  SELECT SUM(run_count) AS slot_total
+  FROM Mythistone.global_aggregated_equipment
+  WHERE spec_id = %s AND season = %s
+  GROUP BY slot
+) t
+"""
+
+
+def fetch_spec_sample_size(connection, cursor, spec_id, season):
+    """Fetch the number of sampled characters for a spec within the ~14-day
+    gear-retention window: the busiest slot's total in
+    global_aggregated_equipment (every character has e.g. a chest equipped).
+    Unlike season-wide run counts, this matches the window the
+    enchant/embellishment aggregations cover. Returns an int."""
+    params = (spec_id, season)
+    rows = fetch_with_retry(connection, cursor, FETCH_SPEC_SAMPLE_SIZE_SQL, params)
+    if not rows:
+        return 0
+    row = rows[0]
+    if isinstance(row, dict):
+        sample_size = row.get("sample_size", 0)
+    else:
+        sample_size = row[0] if row[0] is not None else 0
+    return int(sample_size)
+
+
 FETCH_MAX_KEY_SPEC_SQL = """
 WITH maxk AS (
   SELECT spec_id, MAX(keystone_level) AS max_keystone

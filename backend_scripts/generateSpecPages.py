@@ -809,7 +809,9 @@ def fetch_hero_tree_info(conn, cursor, spec_id, current_season_id, valid_subtree
     return hero_trees, popular_hero_tree, popular_hero_tree_count, hero_tree_count
 
 
-def fetch_enchant_info(conn, cursor, spec_id, current_season_id, enchant_lookup):
+def fetch_enchant_info(
+    conn, cursor, spec_id, current_season_id, enchant_lookup, spec_sample_size
+):
     enchant_slots_raw = {
         slot_group: aggregateData.get_enchants_for_slot(
             conn, cursor, spec_id, current_season_id, slot_group
@@ -826,7 +828,21 @@ def fetch_enchant_info(conn, cursor, spec_id, current_season_id, enchant_lookup)
                 if enchant_id and enchant_lookup.get(enchant_id):
                     valid_enchants.append(enchant)
                     total_enchant_counts[slot_group] += enchant.get("count")
+                else:
+                    print(
+                        f"Warning: enchant {enchant_id} (slot {slot_group}, count {enchant.get('count')}) not in enchantments.json for spec {spec_id} - skipping"
+                    )
             enchant_slots[slot_group] = valid_enchants
+    # Hide slot groups enchanted by <1% of sampled characters. The denominator
+    # must be the ~14-day gear-retention sample, not season-wide run counts —
+    # those keep growing while the sample stays fixed-size, which filtered out
+    # every slot but FINGER for popular specs late in the season.
+    threshold = spec_sample_size * 0.01
+    enchant_slots = {
+        sg: lst
+        for sg, lst in enchant_slots.items()
+        if total_enchant_counts.get(sg, 0) >= threshold
+    }
     return enchant_slots, total_enchant_counts
 
 
@@ -848,8 +864,6 @@ def convert_slots(
     spec_talents_difs=None,
     missives=None,
     embellishments=None,
-    total_enchant_counts=None,
-    spec_runs=0,
     bis_summary=None,
     simc_bis=None,
 ):
@@ -932,30 +946,25 @@ def convert_slots(
                 item["socket"] = sockets_data
 
             enchantment_data = {}
-            # Apply the same low-usage filtering used by the template dropdowns
-            # Template uses: total_enchant_counts[slot_name] >= (summary_data.count * 0.01)
-            threshold = (spec_runs * 0.01) if spec_runs else 0
+            # Low-usage slot groups are already filtered out of enchant_slots
+            # (fetch_enchant_info), so presence alone decides here.
             if slot in WEAPON_SLOTS:
                 weapon_ok = (
                     enchant_slots.get("WEAPON")
                     and len(enchant_slots["WEAPON"]) > 0
-                    and (total_enchant_counts.get("WEAPON", 0) >= threshold if total_enchant_counts else True)
                 )
                 if item_lookup[int(item["item"])].get("itemClass") == 2 and weapon_ok:
                     enchantment_data = enchant_slots["WEAPON"][0]
             # direct slot-specific enchants
             elif enchant_slots.get(slot) and len(enchant_slots[slot]) > 0:
-                if total_enchant_counts is None or total_enchant_counts.get(slot, 0) >= threshold:
-                    enchantment_data = enchant_slots[slot][0]
+                enchantment_data = enchant_slots[slot][0]
             # multi-slot groups (FINGER/TRINKET)
             elif (
                 MULTI_SLOT_GROUPS.get(slot)
                 and enchant_slots.get(MULTI_SLOT_GROUPS[slot])
                 and len(enchant_slots[MULTI_SLOT_GROUPS[slot]]) > 0
             ):
-                group = MULTI_SLOT_GROUPS[slot]
-                if total_enchant_counts is None or total_enchant_counts.get(group, 0) >= threshold:
-                    enchantment_data = enchant_slots.get(group, [])[0]
+                enchantment_data = enchant_slots[MULTI_SLOT_GROUPS[slot]][0]
             item["enchantment"] = enchantment_data
 
             # SimulationCraft BiS annotation: mark the item if it is the rank-1
@@ -1322,10 +1331,16 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     conn, cursor, spec_id, current_season_id, valid_subtrees
                 )
                 print(
+                    f"[{datetime.now(timezone.utc).isoformat()}] fetching spec sample size..."
+                )
+                spec_sample_size = databaseConnector.fetch_spec_sample_size(
+                    conn, cursor, spec_id, current_season_id
+                )
+                print(
                     f"[{datetime.now(timezone.utc).isoformat()}] fetching enchants..."
                 )
                 enchant_slots, total_enchant_counts = fetch_enchant_info(
-                    conn, cursor, spec_id, current_season_id, enchant_lookup
+                    conn, cursor, spec_id, current_season_id, enchant_lookup, spec_sample_size
                 )
                 print(
                     f"[{datetime.now(timezone.utc).isoformat()}] fetching missives..."
@@ -1396,21 +1411,14 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     conn, cursor, spec_id
                 )
 
-                # Filter embellishments to remove very rarely used entries
-                try:
-                    if isinstance(spec_runs, int):
-                        spec_runs_count = spec_runs
-                    elif isinstance(spec_runs, (list, tuple)):
-                        spec_runs_count = len(spec_runs)
-                    else:
-                        spec_runs_count = int(spec_runs) if spec_runs else 0
-                except Exception:
-                    spec_runs_count = int(spec_runs) if spec_runs else 0
-
+                # Filter embellishments to remove very rarely used entries.
+                # Threshold against the 14-day gear sample, not season-wide
+                # run counts (those outgrow the fixed-size sample and would
+                # filter out everything for popular specs).
                 # the overview image ranks best/worst against the unfiltered
                 # list (its totals predate the rarity filter below)
                 embellishments_unfiltered = embellishments
-                embellishment_threshold = (spec_runs_count * 0.001) if spec_runs_count else 0
+                embellishment_threshold = spec_sample_size * 0.001
                 if embellishments and embellishment_threshold > 0:
                     filtered_embs = []
                     for e in embellishments:
@@ -1541,8 +1549,6 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     spec_talents_difs,
                     missives,
                     embellishments,
-                    total_enchant_counts,
-                    spec_runs,
                     bis_summary=bis_summary,
                     simc_bis=simc_bis,
                 )
