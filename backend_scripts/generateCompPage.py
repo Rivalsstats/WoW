@@ -445,6 +445,10 @@ def main(template_path, output_dir):
         spec_lookup = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
         class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
         notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
+        # Raid-buff / utility coverage map (buff -> providing specIDs) for the
+        # Perfect Fit widget. Small static file (~a dozen entries); passed to the
+        # template as-is so the client can compute covered/missing buffs.
+        group_buffs = load_json(os.path.join(LOOKUP_DIR, "groupbuffs.json")) or []
         
         # Map specs easily for UI
         specs_ui = []
@@ -542,6 +546,7 @@ def main(template_path, output_dir):
             meta_comp_key=meta_comp_key,
             dungeon_lookup_js=dungeon_lookup_js,
             specs_ui_map=specs_ui_map,
+            group_buffs=group_buffs,
         )
         
         out_path = os.path.join(output_dir, "comps.html")

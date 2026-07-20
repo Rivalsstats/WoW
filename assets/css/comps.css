@@ -73,3 +73,66 @@
   .spec-icon { width: 34px; height: 34px; }
   .spec-picker-grid { grid-template-columns: repeat(auto-fill, 34px); }
 }
+
+/* --- Perfect Fit: group buff / utility coverage --- */
+.buff-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.buff-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  transition: opacity 0.15s ease, box-shadow 0.15s ease;
+}
+.buff-chip img {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+}
+/* Covered buffs read at full strength; missing ones are dimmed + desaturated. */
+.buff-chip--on {
+  border-color: rgba(76, 175, 80, 0.65);
+  box-shadow: 0 0 0 1px rgba(76, 175, 80, 0.35) inset;
+}
+.buff-chip--off {
+  opacity: 0.85;
+}
+.buff-chip--off img {
+  filter: grayscale(1) brightness(0.65);
+}
+/* A missing Bloodlust / Battle Rez is the loudest state — outline it in red. */
+.buff-chip--critical {
+  border-color: rgba(244, 67, 54, 0.8);
+  box-shadow: 0 0 0 1px rgba(244, 67, 54, 0.4) inset;
+}
+
+/* Coverage-gain badges on suggested fillers. */
+.buff-gain-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.buff-gain-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  line-height: 1;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: rgba(76, 175, 80, 0.18);
+  color: #a5d6a7;
+  border: 1px solid rgba(76, 175, 80, 0.35);
+  white-space: nowrap;
+}
+.buff-gain-badge--critical {
+  background: rgba(255, 193, 7, 0.18);
+  color: #ffe082;
+  border-color: rgba(255, 193, 7, 0.45);
+  font-weight: 600;
+}

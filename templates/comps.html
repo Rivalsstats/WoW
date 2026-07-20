@@ -121,6 +121,12 @@
                 </div>
 
                 <div class="col-lg-6 col-md-12">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="text-uppercase text-white text-xs font-weight-bolder mb-0">Group Buff &amp; Utility Coverage</h6>
+                  </div>
+                  <div id="buff-coverage" class="buff-coverage mt-2 mb-3">
+                    <p class="text-sm text-secondary mb-0">Select specs to see which raid buffs, Bloodlust and Battle Rez your group covers.</p>
+                  </div>
                   <h6 class="text-uppercase text-white text-xs font-weight-bolder">Suggested Additions</h6>
                   <div id="suggestions-container" class="mt-3 custom-scrollbar"
                     style="max-height: 375px; overflow-y: auto; overflow-x: hidden; margin-right: -1rem; padding-right: 1rem;">
@@ -365,6 +371,82 @@
     const TOP_KEY_LEVELS = {{ top_key_levels | default ([]) | tojson }};
     const synergyMatrix = {{ synergy_matrix | default ('{}') | safe }};
 
+    // --- Group buff / utility coverage (Perfect Fit) ---
+    // Each entry: {id, icon, name, specIDs:[...]}. Bloodlust (2825) and
+    // Battlerez (20484) are group-critical utility and are flagged so a missing
+    // one is called out more prominently than a missing class raid buff.
+    const GROUP_BUFFS = {{ group_buffs | default([]) | tojson | safe }};
+    const CRITICAL_BUFF_IDS = new Set([2825, 20484]);
+    // buff id -> Set of specIDs that provide it (for fast covered/missing checks)
+    const buffProviders = new Map(
+      GROUP_BUFFS.map(b => [b.id, new Set((b.specIDs || []).map(Number))])
+    );
+
+    // Which buffs the given set of specIDs covers vs. still misses.
+    function computeBuffCoverage(specSet) {
+      const ids = Array.from(specSet).map(Number);
+      const covered = [], missing = [];
+      GROUP_BUFFS.forEach(b => {
+        const providers = buffProviders.get(b.id);
+        (ids.some(s => providers.has(s)) ? covered : missing).push(b);
+      });
+      return { covered, missing };
+    }
+
+    // Buffs a candidate spec would newly add on top of the current selection.
+    function buffGainForSpec(specId, specSet) {
+      const sid = Number(specId);
+      const gains = [];
+      GROUP_BUFFS.forEach(b => {
+        const providers = buffProviders.get(b.id);
+        if (!providers.has(sid)) return;
+        const alreadyCovered = Array.from(specSet).some(s => providers.has(Number(s)));
+        if (!alreadyCovered) gains.push(b);
+      });
+      return gains;
+    }
+
+    function buffChip(b, covered) {
+      const critical = CRITICAL_BUFF_IDS.has(b.id);
+      const cls = covered ? 'buff-chip buff-chip--on' : `buff-chip buff-chip--off${critical ? ' buff-chip--critical' : ''}`;
+      const status = covered ? 'covered' : 'missing';
+      return `<span class="${cls}" title="${b.name} — ${status}">
+        <img src="/data/icons/${b.icon.replace(/\.(jpg|png)$/i, '')}.${/\.png$/i.test(b.icon) ? 'png' : 'jpg'}" alt="${b.name}" loading="lazy">
+      </span>`;
+    }
+
+    function renderBuffCoverage() {
+      const el = document.getElementById('buff-coverage');
+      if (!el) return;
+      if (selectedSpecs.size === 0) {
+        el.innerHTML = '<p class="text-sm text-secondary mb-0">Select specs to see which raid buffs, Bloodlust and Battle Rez your group covers.</p>';
+        return;
+      }
+      const { covered, missing } = computeBuffCoverage(selectedSpecs);
+      const criticalMissing = missing.filter(b => CRITICAL_BUFF_IDS.has(b.id));
+      const chips = GROUP_BUFFS
+        .map(b => buffChip(b, covered.includes(b)))
+        .join('');
+      let summary;
+      if (missing.length === 0) {
+        summary = '<span class="text-success"><i class="material-symbols-rounded align-middle text-sm me-1">check_circle</i>Full buff coverage</span>';
+      } else {
+        const parts = [];
+        if (criticalMissing.length) {
+          parts.push(`<span class="text-danger font-weight-bold">Missing ${criticalMissing.map(b => b.name).join(' &amp; ')}</span>`);
+        }
+        const otherMissing = missing.filter(b => !CRITICAL_BUFF_IDS.has(b.id));
+        if (otherMissing.length) {
+          parts.push(`<span class="text-warning">${otherMissing.length} raid buff${otherMissing.length > 1 ? 's' : ''} missing</span>`);
+        }
+        summary = parts.join(' &middot; ');
+      }
+      el.innerHTML = `
+        <div class="buff-chip-row">${chips}</div>
+        <div class="text-xs mt-2">${summary}</div>
+      `;
+    }
+
     // The "meta" comp (strongest in the highest keys) is highlighted everywhere.
     const META_COMP_KEY = {{ meta_comp_key | default('') | tojson }};
     const META_COMP_SPECS = META_COMP_KEY ? META_COMP_KEY.split(',').map(Number) : [];
@@ -463,6 +545,7 @@
     });
 
     function updateSuggestions() {
+      renderBuffCoverage();
       const headerTitle = document.querySelector('.card-header h6');
       if (selectedSpecs.size === 0) {
         suggestionsContainer.innerHTML = '<p class="text-sm text-secondary">Select 1 to 5 specs to see suggestions.</p>';
@@ -619,6 +702,13 @@
         const winRate = total > 0 ? Math.round((stats.t / total) * 100) : 0;
         const isMetaSpec = metaPath && META_COMP_SPECS.includes(Number(specId));
 
+        // Buffs this suggestion would newly bring to the current group.
+        const buffGains = buffGainForSpec(specId, selectedSpecs);
+        const buffGainBadges = buffGains.map(b => {
+          const critical = CRITICAL_BUFF_IDS.has(b.id);
+          return `<span class="buff-gain-badge${critical ? ' buff-gain-badge--critical' : ''}" title="Adds ${b.name}">+${b.name}</span>`;
+        }).join('');
+
         html += `
           <li class="list-group-item border-0 d-flex justify-content-between px-3 mb-2 border-radius-lg cursor-pointer flex-column flex-md-row${isMetaSpec ? ' meta-comp' : ''}" onclick="addSuggestedSpec(${specId})">
             <div class="d-flex align-items-center">
@@ -630,6 +720,7 @@
                   Success %: <span class="${winRate >= 70 ? 'text-success' : 'text-warning'} pe-2">${winRate}%</span>
                   Max Key: <span class="text-white">${stats.mk}</span>
                 </span>
+                ${buffGainBadges ? `<span class="buff-gain-row mt-1">${buffGainBadges}</span>` : ''}
               </div>
             </div>
             <div class="mt-3 mt-md-0 w-100 w-md-auto d-flex">
