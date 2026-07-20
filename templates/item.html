@@ -133,7 +133,7 @@
   <!-- Primary SEO -->
   <title>{{ item.name }} Mythic+ Usage in {{ season_info.name }} | MythiStone</title>
   <meta name="description"
-    content="See how {{ item.name }} is used in {{ season_info.name }} Mythic+: which specs equip it, adoption by dungeon and key level, popular gems, enchant and item-level variants.">
+    content="{% if meta_description %}{{ meta_description }}{% else %}See how {{ item.name }} is used in {{ season_info.name }} Mythic+: which specs equip it, adoption by dungeon and key level, popular gems, enchant and item-level variants.{% endif %}">
   <meta name="keywords"
     content="MythiStone, Mythic+, {{ item.name }}, {{ item.slot }}, BIS, WoW gear, item usage, {{ season_info.name }}">
   <link rel="canonical" href="https://mythistone.com/items/{{ slug }}">
@@ -259,14 +259,31 @@
             <div class="d-flex align-items-center flex-wrap gap-2 mt-3">
               <span class="text-sm opacity-8 me-1">Set pieces</span>
               {% for p in item.set.pieces %}
-              <a href="/items/{{ slug_map[p.id] }}" title="{{ p.name }}" data-wowhead="item={{ p.id }}">
+              {# Pieces below the render threshold have no page of their own;
+                 they still show as icons (with Wowhead tooltip) but don't link. #}
+              {% if p.slug %}
+              <a href="/items/{{ p.slug }}" title="{{ p.name }}" data-wowhead="item={{ p.id }}">
                 <img src="/data/icons/{{ p.icon }}.png" alt="{{ p.name }}" width="32" height="32"
                   class="border border-quality-{{ p.quality }}" style="border-radius:0.25rem;">
               </a>
+              {% else %}
+              <span title="{{ p.name }}" data-wowhead="item={{ p.id }}">
+                <img src="/data/icons/{{ p.icon }}.png" alt="{{ p.name }}" width="32" height="32"
+                  class="border border-quality-{{ p.quality }}" style="border-radius:0.25rem;">
+              </span>
+              {% endif %}
               {% endfor %}
             </div>
             {% endif %}
           </div>
+
+          {% if intro_paragraphs %}
+          <div class="col-12 px-3 px-md-4" id="item-intro">
+            {% for p in intro_paragraphs %}
+            <p class="text-sm opacity-9 mb-1 mt-2">{{ p }}</p>
+            {% endfor %}
+          </div>
+          {% endif %}
         </div>
 
         <!-- Specs: combined re-scope switcher + recommendations (SimC BiS / top pick) -->

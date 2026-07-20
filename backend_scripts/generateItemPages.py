@@ -2,6 +2,8 @@ import os
 import re
 import sys
 import json
+import random
+import hashlib
 import argparse
 from contextlib import closing
 from collections import defaultdict
@@ -11,7 +13,11 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 import databaseConnector
 from pageGeneration import generateSpecNav, generateDungeonNav, build_item_slug_map
-from generateSpecPages import LOOKUP_DIR, load_json, BLIZZARD_STAT_MAP
+from generateSpecPages import (
+    LOOKUP_DIR, load_json, BLIZZARD_STAT_MAP,
+    LEFT_ORDER, RIGHT_ORDER, WEAPON_SLOTS, TRINKET_SLOTS, MULTI_SLOT_GROUPS,
+    GEAR_LIST_MIN_KEEP, GEAR_LIST_MIN_SLOT_SHARE,
+)
 
 # How many entries to keep per item in each list (keeps per-item JSON small).
 TOP_GEMS = 10
@@ -57,6 +63,19 @@ WEAPON_SUBCLASS = {
 # A spec is shown as a "top players' pick" when this share of its top-player
 # loadouts equip the item.
 TOP50_THRESHOLD = 50.0
+
+# An item only gets a rendered page when it carries enough data to say
+# something meaningful. The cutoff is a share of the item's slot's tracked
+# runs, not a fixed run count, so it scales with how much data exists: a slot
+# with 50k tracked runs needs ~1k runs on an item, while an early-season slot
+# with 500 tracked runs only needs ~10.
+ITEM_RENDER_MIN_SLOT_SHARE = 2.0  # % of the slot's tracked runs
+
+# Spec pages link the top-10 items per (spec, slot) — the LIMIT 10 in
+# fetch_top_items_for_slot*_with_bonus — so those items must always get a page
+# regardless of their global slot share, or spec pages would link to 404s.
+# fetch_spec_page_linked_items computes exactly that set from the same
+# aggregation table.
 
 # Slots that occupy two equipment sub-slots per run (Finger 1/2, Trinket 1/2).
 # When turning per-slot item runs into an adoption rate we divide the slot's
@@ -607,6 +626,18 @@ def build_payloads(season, ctx, only_item=None):
                 "dps_pct": round(float(dps), 1) if dps is not None else None,
             })
 
+        # Items linked from spec pages' gear lists — those must always keep a
+        # page (same table, cutoff, tiebreak AND noise filter as the spec-page
+        # fetch), restricted to the spec ids and slots the pages actually
+        # render. Weapons are passed separately: they filter against the
+        # combined MAIN_HAND+OFF_HAND total, not per-slot.
+        rendered_slots = [s for s in LEFT_ORDER + RIGHT_ORDER + TRINKET_SLOTS
+                          if s not in MULTI_SLOT_GROUPS]
+        rendered_groups = sorted(set(MULTI_SLOT_GROUPS.values()))
+        spec_page_linked = databaseConnector.fetch_spec_page_linked_items(
+            conn, cursor, season, spec_ids, rendered_slots, rendered_groups,
+            WEAPON_SLOTS, GEAR_LIST_MIN_KEEP, GEAR_LIST_MIN_SLOT_SHARE)
+
         top50_totals = databaseConnector.fetch_top50_loadout_totals(conn, cursor, season)
         top_specs_by_item = defaultdict(list)
         for sp, iid, cnt in databaseConnector.fetch_top50_item_counts(conn, cursor, season):
@@ -653,12 +684,50 @@ def build_payloads(season, ctx, only_item=None):
     for (sp, lvl), v in keylevel_spec_total.items():
         keylevel_totals_by_spec[sp][lvl] = v
 
+    # ---- decide which items get a page ----------------------------------
+    # Denominator per slot: runs that equipped *any* item in that slot (the
+    # same figure the adoption percentages divide by).
+    slot_total_runs = defaultdict(float)
+    for sp, slots in slot_spec_total.items():
+        for key, rc in slots.items():
+            slot_total_runs[key] += rc / SLOT_MULTIPLICITY.get(key, 1)
+
+    item_slot_key = {}
+    for item_id in spec_runs:
+        it = item_lookup.get(int(item_id)) if item_id.isdigit() else None
+        if it:
+            item_slot_key[item_id] = slot_for_item(it)[1]
+
+    keep_ids = set()
+    for item_id, key in item_slot_key.items():
+        linked = item_id in spec_page_linked
+        # Slots the spec pages never render (shirts, tabards, anything bucketed
+        # "Other") don't get pages: their tiny slot totals would otherwise let
+        # every stray item through the share rule. Linked items are exempt so a
+        # spec-page link can never 404, whatever slot the static data claims.
+        if key == "OTHER" and not linked:
+            continue
+        total = sum(spec_runs[item_id].values())
+        min_runs = slot_total_runs.get(key, 0) * ITEM_RENDER_MIN_SLOT_SHARE / 100.0
+        if (
+            total >= min_runs
+            or linked
+            or simc_bis_by_item.get(item_id)
+            or top_specs_by_item.get(item_id)
+        ):
+            keep_ids.add(item_id)
+    print(f"[{datetime.now(timezone.utc).isoformat()}] rendering {len(keep_ids)}/{len(item_slot_key)} items "
+          f"(>= {ITEM_RENDER_MIN_SLOT_SHARE}% of slot runs, spec-page linked, or recommended)")
+
     # ---- assemble per-item payloads -------------------------------------
     payloads = {}        # item_id (str) -> full payload dict (rendered + embedded)
     manifest = []
     for item_id, per_spec in spec_runs.items():
-        if only_item is not None and str(item_id) != str(only_item):
-            continue
+        if only_item is not None:
+            if str(item_id) != str(only_item):
+                continue
+        elif item_id not in keep_ids:
+            continue  # below the thin-page threshold; no page, no manifest entry
         item = item_lookup.get(int(item_id)) if item_id.isdigit() else None
         if not item:
             continue  # not an item we can render (no static data)
@@ -767,6 +836,10 @@ def build_payloads(season, ctx, only_item=None):
                     "name": p.get("name", f"Item {pid}"),
                     "icon": p.get("icon", ""),
                     "quality": p.get("quality", 0),
+                    # Only pieces that get their own page are linked; the rest
+                    # render as plain icons (a piece with no or too little usage
+                    # has no page to link to).
+                    "slug": slug_map[pid] if str(pid) in keep_ids else None,
                 })
             set_block = {"id": sid, "pieces": pieces}
 
@@ -835,6 +908,132 @@ def build_payloads(season, ctx, only_item=None):
 
     manifest.sort(key=lambda x: x["runs"], reverse=True)
     return payloads, manifest
+
+
+# Readable nouns for the intro copy; slots missing here fall back to
+# "<label> item" (e.g. "Other item").
+SLOT_NOUN = {
+    "Head": "helmet", "Neck": "neck piece", "Shoulder": "shoulder armor",
+    "Chest": "chest armor", "Waist": "belt", "Legs": "leg armor",
+    "Feet": "boots", "Wrist": "bracers", "Hands": "gloves",
+    "Finger": "ring", "Trinket": "trinket", "Back": "cloak",
+    "One-Hand": "one-handed weapon", "Off Hand": "off-hand",
+    "Held In Off-hand": "off-hand", "Ranged": "ranged weapon",
+    "Two-Hand": "two-handed weapon", "Main Hand": "main-hand weapon",
+}
+
+QUALITY_ADJ = {2: "uncommon", 3: "rare", 4: "epic", 5: "legendary"}
+
+
+def _intro_rng(item_id):
+    """Deterministic RNG per item (same idea as social_posts.static_copy):
+    phrasing varies across items but never churns on rebuilds."""
+    seed = int(hashlib.md5(str(item_id).encode("utf-8")).hexdigest()[:12], 16)
+    return random.Random(seed)
+
+
+def _spec_display(specs_map, spec_id):
+    s = specs_map.get(str(spec_id))
+    return f"{s['name']} {s['className']}".strip() if s else None
+
+
+def build_item_intro(payload, specs_map, dungeons_map, season_name):
+    """Two short paragraphs of prose summarizing the item's tracked data.
+
+    Every number is lifted straight from the payload the page already renders;
+    clauses whose data is missing are simply dropped. Returns a list of
+    paragraph strings (possibly length 1 for very sparse items)."""
+    g = payload["global"]
+    rng = _intro_rng(payload["id"])
+    name = payload["name"]
+
+    noun = payload.get("weaponType") or SLOT_NOUN.get(
+        payload["slot"], f"{payload['slot']} item")
+    quality = QUALITY_ADJ.get(payload.get("quality"))
+    kind = f"{quality} {noun}" if quality else noun
+    article = "an" if kind[0].lower() in "aeiou" else "a"
+    stats = [s["type"] for s in payload.get("stats", []) if s.get("type")]
+    stats_clause = ""
+    if len(stats) >= 2:
+        stats_clause = f" carrying {stats[0]} and {stats[1]}"
+    elif stats:
+        stats_clause = f" carrying {stats[0]}"
+
+    p1 = [rng.choice([
+        f"{name} is {article} {kind}{stats_clause}, tracked by MythiStone across {season_name} Mythic+ runs.",
+        f"{name} is {article} {kind}{stats_clause} seen in {season_name} Mythic+.",
+    ])]
+
+    total = g.get("total_runs") or 0
+    if g.get("adoption") is not None and g.get("slot_runs"):
+        p1.append(rng.choice([
+            f"It was equipped in {total:,} tracked runs this season — {g['adoption']}% of the "
+            f"{g['slot_runs']:,} runs that filled the {payload['slot'].lower()} slot.",
+            f"So far it shows up in {total:,} of the {g['slot_runs']:,} tracked runs with this slot "
+            f"filled, an adoption rate of {g['adoption']}%.",
+        ]))
+    elif total:
+        p1.append(f"It was equipped in {total:,} tracked runs this season.")
+
+    specs = [s for s in g.get("specs", []) if s.get("adoption") is not None]
+    if specs:
+        top = specs[0]
+        spec_name = _spec_display(specs_map, top["spec_id"])
+        if spec_name:
+            p1.append(rng.choice([
+                f"Its biggest audience is {spec_name} players, who use it in {top['adoption']}% of their runs.",
+                f"{spec_name} players lean on it the most, equipping it in {top['adoption']}% of their runs.",
+            ]))
+
+    p2 = []
+    sim = payload.get("simc_bis_specs") or []
+    top_picks = payload.get("top_specs") or []
+    sim_names = [n for n in (_spec_display(specs_map, s["spec_id"]) for s in sim[:3]) if n]
+    if sim_names:
+        p2.append(rng.choice([
+            f"SimulationCraft rates it best-in-slot for {', '.join(sim_names)}.",
+            f"For {', '.join(sim_names)}, SimulationCraft currently sims it as the best pick in this slot.",
+        ]))
+    elif top_picks:
+        pick_names = [n for n in (_spec_display(specs_map, s["spec_id"]) for s in top_picks[:3]) if n]
+        if pick_names:
+            p2.append(f"Among the top-rated players it is a staple for {', '.join(pick_names)}.")
+
+    if g.get("max_timed_key"):
+        p2.append(rng.choice([
+            f"The highest key timed with it so far is a +{g['max_timed_key']}.",
+            f"It has been part of timed clears up to key level +{g['max_timed_key']}.",
+        ]))
+
+    ench = (g.get("enchants") or [None])[0]
+    if ench and ench.get("name") and ench.get("pct"):
+        p2.append(f"In this slot, {ench['name']} is the most common enchant "
+                  f"({ench['pct']}% of enchanted runs).")
+    gem = (g.get("gems") or [None])[0]
+    if gem and gem.get("name") and gem.get("pct"):
+        p2.append(f"When socketed, players most often slot {gem['name']} ({gem['pct']}%).")
+
+    dungeons = [d for d in g.get("dungeons", []) if d.get("adoption") is not None]
+    if dungeons:
+        dmeta = dungeons_map.get(str(dungeons[0]["id"]))
+        if dmeta and dmeta.get("name"):
+            p2.append(rng.choice([
+                f"By dungeon, its usage peaks in {dmeta['name']} at {dungeons[0]['adoption']}% of runs.",
+                f"It sees the most play in {dmeta['name']}, where {dungeons[0]['adoption']}% of runs bring it.",
+            ]))
+
+    paragraphs = [" ".join(p1)]
+    if p2:
+        paragraphs.append(" ".join(p2))
+    return paragraphs
+
+
+def build_item_meta_description(paragraphs):
+    """Meta description from the intro copy, cut at a word boundary."""
+    text = " ".join(paragraphs)
+    if len(text) <= 160:
+        return text
+    return text[:157].rsplit(" ", 1)[0].rstrip(",.;:") + "…"
 
 
 def _write_items_index(manifest):
@@ -970,10 +1169,14 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
         slug = slug_map[int(item_id)]
         alternatives = [a for a in by_slot.get(payload["slotKey"], [])
                         if a["id"] != payload["id"]][:12]
+        intro_paragraphs = build_item_intro(
+            payload, specs_map, dungeons_map, season_info.get("name", ""))
         item_html = item_tmpl.render(
             item=payload,
             slug=slug,
             slug_map=slug_map,
+            intro_paragraphs=intro_paragraphs,
+            meta_description=build_item_meta_description(intro_paragraphs),
             has_preview=str(payload["id"]) in preview_ids,
             alternatives=alternatives,
             active_page="items",
@@ -993,6 +1196,19 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
         with open(os.path.join(items_dir, f"{slug}.html"), "w", encoding="utf-8") as f:
             f.write(item_html)
     print(f"[{datetime.now(timezone.utc).isoformat()}] wrote {len(render_items)} item page(s) to {items_dir}/")
+
+    # Remove pages for items that no longer make the cut (below the threshold
+    # or gone from the data), so stale files from an earlier build can't linger
+    # in the deploy or the sitemap. Skipped in debug, which renders one page.
+    if not debug:
+        kept_files = {f"{slug_map[int(iid)]}.html" for iid, _ in render_items}
+        removed = 0
+        for fn in os.listdir(items_dir):
+            if fn.endswith(".html") and fn not in kept_files:
+                os.remove(os.path.join(items_dir, fn))
+                removed += 1
+        if removed:
+            print(f"[{datetime.now(timezone.utc).isoformat()}] removed {removed} stale item page(s) from {items_dir}/")
 
     # OG preview card for the browse page itself (grid of the most-used items).
     # Best-effort: a thumbnail failure must never block the page build.

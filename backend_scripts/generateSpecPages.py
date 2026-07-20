@@ -42,6 +42,17 @@ MULTI_SLOT_GROUPS = {
     "FINGER_2": "FINGER",
 }
 
+# Gear-list noise filter: an entry must hold at least this share of the spec's
+# tracked runs for the slot (summed over every item in the slot, not just the
+# shown ones) to be rendered; the first GEAR_LIST_MIN_KEEP entries always stay
+# so sparse early-season slots still show a list. The threshold scales with the
+# data volume, so a 1-run old legendary is dropped from a 10k-run slot while an
+# early-season 50-run slot keeps its handful of picks. generateItemPages passes
+# these same values to fetch_spec_page_linked_items so an item page exists for
+# exactly the entries that survive this filter.
+GEAR_LIST_MIN_SLOT_SHARE = 1.0  # % of the spec's slot runs
+GEAR_LIST_MIN_KEEP = 3
+
 # Talent "TOP" highlight thresholds (elite-vs-popular divergence). A talent node
 # is flagged as an elite pick when the top-50 verified players take it far more
 # often than the general Mythic+ population. Tuned by eye on a real spec; kept
@@ -776,20 +787,71 @@ def handleSocketsForItem(
     return sockets_data
 
 
-def fetch_slot_info(conn, cursor, spec_id, current_season_id, slot):
+def filter_gear_entries(entries, slot_total):
+    """Drop the noise tail of a top-10 gear list.
+
+    ``entries`` are sorted by count desc; anything past the first
+    GEAR_LIST_MIN_KEEP entries must hold at least GEAR_LIST_MIN_SLOT_SHARE% of
+    the slot's total runs. Mirrored in SQL by
+    databaseConnector.FETCH_SPEC_PAGE_LINKED_ITEMS_SQL — keep the two in sync.
+    """
+    if not slot_total:
+        return entries
+    min_count = slot_total * GEAR_LIST_MIN_SLOT_SHARE / 100.0
+    return [e for i, e in enumerate(entries)
+            if i < GEAR_LIST_MIN_KEEP or e["count"] >= min_count]
+
+
+def filter_weapon_gear_entries(weapon_lists, slot_totals):
+    """Noise-filter the MAIN_HAND/OFF_HAND lists jointly.
+
+    Weapons share one denominator (the combined weapon-slot total) and one
+    min-keep floor (over the combined ranking): if 99% of a spec runs
+    two-handers, the handful of loadouts that equip an off-hand anyway are a
+    fraction of the *weapon* runs, so no off-hand list is rendered — a per-slot
+    floor would instead promote that junk to a top-3. ``weapon_lists`` is the
+    fetched entry lists in WEAPON_SLOTS order. Mirrored in SQL by the
+    weapon_ranked CTE of FETCH_SPEC_PAGE_LINKED_ITEMS_SQL — keep in sync.
+    """
+    weapon_total = sum(slot_totals.get(s, 0) for s in WEAPON_SLOTS)
+    if not weapon_total:
+        return weapon_lists
+    # Combined ranking with the SQL mirror's exact tiebreak (count desc, then
+    # item id as string, then slot) — a dual-wield one-hander can appear in
+    # both lists, so entries are tracked by identity, not item id.
+    tagged = [(e, s) for lst, s in zip(weapon_lists, WEAPON_SLOTS) for e in lst]
+    tagged.sort(key=lambda t: (-t[0]["count"], str(t[0]["item"]), t[1]))
+    floor = {id(t[0]) for t in tagged[:GEAR_LIST_MIN_KEEP]}
+    min_count = weapon_total * GEAR_LIST_MIN_SLOT_SHARE / 100.0
+    return [[e for e in lst if id(e) in floor or e["count"] >= min_count]
+            for lst in weapon_lists]
+
+
+def fetch_slot_info(conn, cursor, spec_id, current_season_id, slot, slot_totals):
     if MULTI_SLOT_GROUPS.get(slot):
+        group = MULTI_SLOT_GROUPS[slot]
         num = re.search(r"\d+", slot)
         data = databaseConnector.fetch_top_items_for_slot_group_with_bonus(
-            conn, cursor, spec_id, current_season_id, MULTI_SLOT_GROUPS.get(slot)
+            conn, cursor, spec_id, current_season_id, group
         )
+        # Filter on the intact group list (before the positional removal below)
+        # so FINGER_1/FINGER_2 both derive from the same filtered ranking — the
+        # same list the SQL mirror models.
+        group_total = sum(t for s, t in slot_totals.items()
+                          if MULTI_SLOT_GROUPS.get(s) == group)
+        data = filter_gear_entries(data, group_total)
         index_to_remove = int(num.group()) - 1
         if 0 <= index_to_remove < len(data):
             del data[index_to_remove]
         return data
-    else:
-        return databaseConnector.fetch_top_items_for_slot_with_bonus(
-            conn, cursor, spec_id, current_season_id, slot
-        )
+    data = databaseConnector.fetch_top_items_for_slot_with_bonus(
+        conn, cursor, spec_id, current_season_id, slot
+    )
+    if slot in WEAPON_SLOTS:
+        # Returned unfiltered: MAIN_HAND/OFF_HAND are filtered together by
+        # filter_weapon_gear_entries at the call site.
+        return data
+    return filter_gear_entries(data, slot_totals.get(slot))
 
 
 def fetch_hero_tree_info(conn, cursor, spec_id, current_season_id, valid_subtrees=None):
@@ -1297,21 +1359,28 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 )
 
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching slots...")
+                # Per-slot run totals: denominators for the gear-list noise filter.
+                slot_totals = databaseConnector.fetch_slot_totals(
+                    conn, cursor, spec_id, current_season_id
+                )
                 # Split slots into left/right/weapon/trinket
                 left_slots = [
-                    fetch_slot_info(conn, cursor, spec_id, current_season_id, s)
+                    fetch_slot_info(conn, cursor, spec_id, current_season_id, s, slot_totals)
                     for s in LEFT_ORDER
                 ]
                 right_slots = [
-                    fetch_slot_info(conn, cursor, spec_id, current_season_id, s)
+                    fetch_slot_info(conn, cursor, spec_id, current_season_id, s, slot_totals)
                     for s in RIGHT_ORDER
                 ]
-                weapon_slots = [
-                    fetch_slot_info(conn, cursor, spec_id, current_season_id, s)
-                    for s in WEAPON_SLOTS
-                ]
+                weapon_slots = filter_weapon_gear_entries(
+                    [
+                        fetch_slot_info(conn, cursor, spec_id, current_season_id, s, slot_totals)
+                        for s in WEAPON_SLOTS
+                    ],
+                    slot_totals,
+                )
                 trinket_slots = [
-                    fetch_slot_info(conn, cursor, spec_id, current_season_id, s)
+                    fetch_slot_info(conn, cursor, spec_id, current_season_id, s, slot_totals)
                     for s in TRINKET_SLOTS
                 ]
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching routes...")

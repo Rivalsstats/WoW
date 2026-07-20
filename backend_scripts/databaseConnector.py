@@ -459,7 +459,7 @@ FROM Mythistone.global_aggregated_equipment
 WHERE spec_id = %s
   AND season  = %s
   AND slot    = %s
-ORDER BY equip_count DESC
+ORDER BY equip_count DESC, item_id
 LIMIT 10;
 """
 
@@ -480,7 +480,7 @@ WHERE spec_id = %s
   AND season  = %s
   AND slot_group = %s
 GROUP BY item_id
-ORDER BY equip_count DESC
+ORDER BY equip_count DESC, item_id
 LIMIT 10;
 """
 
@@ -504,7 +504,7 @@ WITH top_items AS (
     AND season  = %s
     AND slot    = %s
   GROUP BY item_id
-  ORDER BY equip_count DESC
+  ORDER BY equip_count DESC, item_id
   LIMIT 10
 ),
 bonus_sums AS (
@@ -583,7 +583,7 @@ WITH top_items AS (
     AND ae.season  = %s
     AND sgm.slot_group = %s
   GROUP BY ae.item_id
-  ORDER BY equip_count DESC
+  ORDER BY equip_count DESC, ae.item_id
   LIMIT 10
 ),
 bonus_sums AS (
@@ -651,6 +651,130 @@ def fetch_top_items_for_slot_group_with_bonus(
             }
         )
     return data
+
+
+# Per-slot totals (runs with any item in the slot) for one spec — the
+# denominators for the spec page's gear-list noise filter
+# (generateSpecPages.filter_gear_entries).
+FETCH_SLOT_TOTALS_SQL = """
+SELECT slot, SUM(run_count)
+  FROM Mythistone.global_aggregated_equipment
+ WHERE spec_id = %s
+   AND season  = %s
+ GROUP BY slot;
+"""
+
+
+def fetch_slot_totals(connection, cursor, spec_id, season):
+    """Total runs per slot (any item equipped) for one spec, as {slot: runs}."""
+    rows = fetch_with_retry(connection, cursor, FETCH_SLOT_TOTALS_SQL, (spec_id, season))
+    return {r[0]: int(r[1]) for r in rows}
+
+
+# Every item id that appears in some spec page's top-10 gear list, computed in
+# one sweep. Must stay in lockstep with the top_items CTEs of
+# FETCH_TOP_ITEMS_BY_SLOT[_GROUP]_WITH_BONUS_SQL above: same table, same
+# grouping (per slot and per slot_group), same top-10 cutoff and the same
+# deterministic item_id tiebreak — generateItemPages uses this to guarantee a
+# page exists for every item the spec pages link. Crucially it is restricted
+# to the spec ids and slots/slot groups the spec pages actually render:
+# without that, sparse partitions the pages never show (SHIRT/TABARD rows,
+# unknown spec ids, per-slot FINGER_1/TRINKET_1 instead of the grouped lists)
+# each "protect" up to 10 junk items apiece.
+FETCH_SPEC_PAGE_LINKED_ITEMS_SQL = """
+WITH slot_sums AS (
+  SELECT spec_id, slot, item_id, SUM(run_count) AS equip_count
+    FROM Mythistone.global_aggregated_equipment
+   WHERE season = %s
+     AND spec_id IN ({spec_ph})
+     AND slot IN ({slot_ph})
+   GROUP BY spec_id, slot, item_id
+),
+slot_ranked AS (
+  SELECT item_id,
+         equip_count,
+         ROW_NUMBER() OVER (PARTITION BY spec_id, slot
+                            ORDER BY equip_count DESC, item_id) AS rn,
+         SUM(equip_count) OVER (PARTITION BY spec_id, slot) AS slot_total
+    FROM slot_sums
+),
+group_sums AS (
+  SELECT ae.spec_id, sgm.slot_group, ae.item_id, SUM(ae.run_count) AS equip_count
+    FROM Mythistone.global_aggregated_equipment ae
+    JOIN Mythistone.slot_group_map sgm ON sgm.slot = ae.slot
+   WHERE ae.season = %s
+     AND ae.spec_id IN ({spec_ph})
+     AND sgm.slot_group IN ({group_ph})
+   GROUP BY ae.spec_id, sgm.slot_group, ae.item_id
+),
+group_ranked AS (
+  SELECT item_id,
+         equip_count,
+         ROW_NUMBER() OVER (PARTITION BY spec_id, slot_group
+                            ORDER BY equip_count DESC, item_id) AS rn,
+         SUM(equip_count) OVER (PARTITION BY spec_id, slot_group) AS slot_total
+    FROM group_sums
+),
+weapon_sums AS (
+  SELECT spec_id, slot, item_id, SUM(run_count) AS equip_count
+    FROM Mythistone.global_aggregated_equipment
+   WHERE season = %s
+     AND spec_id IN ({spec_ph})
+     AND slot IN ({weapon_ph})
+   GROUP BY spec_id, slot, item_id
+),
+weapon_ranked AS (
+  SELECT item_id,
+         equip_count,
+         ROW_NUMBER() OVER (PARTITION BY spec_id, slot
+                            ORDER BY equip_count DESC, item_id) AS rn,
+         ROW_NUMBER() OVER (PARTITION BY spec_id
+                            ORDER BY equip_count DESC, item_id, slot) AS rn_comb,
+         SUM(equip_count) OVER (PARTITION BY spec_id) AS weapon_total
+    FROM weapon_sums
+)
+SELECT item_id FROM slot_ranked
+ WHERE rn <= 10 AND (rn <= %s OR equip_count >= slot_total * %s)
+UNION
+SELECT item_id FROM group_ranked
+ WHERE rn <= 10 AND (rn <= %s OR equip_count >= slot_total * %s)
+UNION
+SELECT item_id FROM weapon_ranked
+ WHERE rn <= 10 AND (rn_comb <= %s OR equip_count >= weapon_total * %s);
+"""
+
+
+def fetch_spec_page_linked_items(connection, cursor, season, spec_ids, slots,
+                                 slot_groups, weapon_slots, min_keep, min_share_pct):
+    """Item ids linked from any spec page's per-slot top-10 gear lists, after
+    the gear-list noise filter.
+
+    ``spec_ids`` are the specs that actually get a page, ``slots`` the
+    individually-rendered armor slot names, ``slot_groups`` the grouped ones
+    (FINGER/TRINKET) and ``weapon_slots`` MAIN_HAND/OFF_HAND — weapons keep
+    per-slot top-10 lists but share one denominator and one min-keep floor
+    across both slots (generateSpecPages.filter_weapon_gear_entries), so a
+    two-hander spec's stray off-hand loadouts never surface. ``min_keep`` /
+    ``min_share_pct`` are generateSpecPages.GEAR_LIST_MIN_KEEP /
+    GEAR_LIST_MIN_SLOT_SHARE: past the floor a list entry must hold
+    ``min_share_pct``% of its denominator. Returns a set of str item ids."""
+    if not (spec_ids and slots and slot_groups and weapon_slots):
+        raise ValueError("spec_ids, slots, slot_groups and weapon_slots must all be non-empty")
+    sql = FETCH_SPEC_PAGE_LINKED_ITEMS_SQL.format(
+        spec_ph=", ".join(["%s"] * len(spec_ids)),
+        slot_ph=", ".join(["%s"] * len(slots)),
+        group_ph=", ".join(["%s"] * len(slot_groups)),
+        weapon_ph=", ".join(["%s"] * len(weapon_slots)),
+    )
+    share = float(min_share_pct) / 100.0
+    params = (
+        (season,) + tuple(spec_ids) + tuple(slots)
+        + (season,) + tuple(spec_ids) + tuple(slot_groups)
+        + (season,) + tuple(spec_ids) + tuple(weapon_slots)
+        + (min_keep, share, min_keep, share, min_keep, share)
+    )
+    rows = fetch_with_retry(connection, cursor, sql, params)
+    return {str(r[0]) for r in rows}
 
 
 FETCH_TOP_ENCHANT_FOR_SLOT_SQL = """

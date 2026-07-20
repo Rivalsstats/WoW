@@ -1,6 +1,6 @@
 import os
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 
 DOMAIN = "https://mythistone.com"
 SITEMAP_FILE = "sitemap.xml"
@@ -12,10 +12,6 @@ ROOT_FILES = ["index.html"]
 def generate_sitemap():
     print("Generating sitemap.xml...")
     urls = []
-    # format required by sitemap standard
-    from datetime import timezone
-    current_time = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S+00:00")
-    
     files_to_check = []
     
     # Add root files
@@ -44,7 +40,14 @@ def generate_sitemap():
             if '404.html' in file_path or noindex_pattern.search(content):
                 print(f"Skipping {file_path} (noindex found)")
                 continue
-                
+
+            # Real per-file modification time (format required by the sitemap
+            # standard). Pages rebuilt in this run carry this run's timestamp;
+            # anything not rewritten keeps its older date.
+            lastmod = datetime.fromtimestamp(
+                os.path.getmtime(file_path), timezone.utc
+            ).strftime("%Y-%m-%dT%H:%M:%S+00:00")
+
             # Convert path to url
             url_path = file_path.replace("\\", "/") # Normalize for windows/linux
             
@@ -71,7 +74,7 @@ def generate_sitemap():
                     
             urls.append({
                 "loc": loc.replace(" ", "%20"), # Escape URL spaces
-                "lastmod": current_time,
+                "lastmod": lastmod,
                 "priority": priority
             })
         except Exception as e:
