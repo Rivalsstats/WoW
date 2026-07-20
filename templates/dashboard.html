@@ -579,25 +579,10 @@
   <!-- WoW patch release lines, shared by the weekly charts -->
   <script>
     const patchAnnotations = {{ patch_annotations | tojson }};
+    // Delegates to the shared MythiChart helper (assets/js/chart-theme.js) so the
+    // patch-line styling stays consistent with any other chart that adds them.
     function buildPatchAnnotations() {
-      return Object.fromEntries(patchAnnotations.map((p, i) => [`patch${i}`, {
-        type: "line",
-        xMin: p.x,
-        xMax: p.x,
-        borderColor: "rgba(255, 255, 255, 0.75)",
-        borderWidth: 2,
-        borderDash: [6, 4],
-        label: {
-          display: true,
-          content: p.label,
-          position: "end",
-          backgroundColor: "rgba(0, 0, 0, 0.75)",
-          borderRadius: 4,
-          color: "#ffffff",
-          font: { size: 12, weight: "bold" },
-          padding: { x: 6, y: 3 }
-        }
-      }]));
+      return MythiChart.buildPatchAnnotations(patchAnnotations);
     }
   </script>
 
