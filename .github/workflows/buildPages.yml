@@ -282,6 +282,12 @@ jobs:
         run: |
             python backend_scripts/generateBlogPage.py --images_dir social-images
 
+      - name: Generate Analyzer HTML page
+        run: |
+          python backend_scripts/generateAnalyzerPage.py \
+            --template templates/analyzer.html \
+            --output_dir pages
+
       - name: Generate Legal HTML page
         run: |
           python backend_scripts/generateLegalPages.py \

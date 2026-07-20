@@ -1,0 +1,51 @@
+.analyzer-input {
+  width: 100%;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  background: rgba(0, 0, 0, 0.25);
+  color: #e8e8e8;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  resize: vertical;
+}
+.analyzer-input:focus {
+  outline: none;
+  border-color: rgba(33, 150, 243, 0.6);
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}
+
+.an-spec-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+}
+
+.an-score {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.an-score-hi { color: #66bb6a; }
+.an-score-mid { color: #ffca28; }
+.an-score-lo { color: #ef5350; }
+
+.text-xxs { font-size: 0.6rem; }
+
+.an-table td {
+  padding: 0.5rem 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  vertical-align: middle;
+}
+.an-table .an-slot { min-width: 5.5rem; letter-spacing: 0.04em; }
+
+.badge.an-bis { background: rgba(156, 39, 176, 0.22); color: #ce93d8; border: 1px solid rgba(156, 39, 176, 0.4); }
+.badge.an-meta { background: rgba(76, 175, 80, 0.2); color: #a5d6a7; border: 1px solid rgba(76, 175, 80, 0.4); }
+.badge.an-off { background: rgba(255, 255, 255, 0.06); color: #b0bec5; border: 1px solid rgba(255, 255, 255, 0.14); }
+.badge.an-stat { background: rgba(33, 150, 243, 0.16); color: #90caf9; border: 1px solid rgba(33, 150, 243, 0.32); text-transform: capitalize; }
+
+.an-flag { font-size: 0.62rem; padding: 2px 5px; border-radius: 4px; margin-left: 0.25rem; white-space: nowrap; }
+.an-flag-ok { color: #a5d6a7; }
+.an-flag-warn { color: #ffca28; }
+.an-flag-bad { color: #ef5350; }

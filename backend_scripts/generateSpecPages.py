@@ -552,6 +552,63 @@ def normalize_slot_collections(list_of_lists, slot_names):
     return normalized
 
 
+
+
+def build_spec_meta_json(
+    spec_id, spec_data, class_data, stat_priority,
+    left_slots, right_slots, weapon_slots, trinket_slots,
+    enchant_slots, enchant_lookup, item_lookup,
+):
+    """Compact, machine-readable meta snapshot for one spec, consumed by the
+    client-side "Am I meta?" analyzer (assets/js/analyzer.js). Built entirely
+    from data the spec page already computed — no extra queries. Kept small:
+    only the single most-popular item per slot, the SimulationCraft rank-1 pick
+    per slot when known, the top enchant per slot group, and the stat priority.
+    """
+    def _name(item_id):
+        it = item_lookup.get(item_id) or {}
+        return it.get("name")
+
+    slots = {}
+    for collection in (left_slots, right_slots, weapon_slots, trinket_slots):
+        for slot_dict in collection:
+            entries = slot_dict.get("entries") or []
+            if not entries:
+                continue
+            slot_name = slot_dict.get("slot")
+            slot_count = slot_dict.get("slot_count") or 0
+            top = entries[0]
+            top_id = top.get("id")
+            top_pct = round(top.get("count", 0) / slot_count * 100, 1) if slot_count else None
+            simc_bis = next((e for e in entries if e.get("is_simc_bis")), None)
+            slots[slot_name] = {
+                "top_id": top_id,
+                "top_name": _name(top_id),
+                "top_pct": top_pct,
+                "bis_id": simc_bis.get("id") if simc_bis else None,
+                "bis_name": _name(simc_bis.get("id")) if simc_bis else None,
+            }
+
+    enchants = {}
+    for slot_group, lst in (enchant_slots or {}).items():
+        if not lst:
+            continue
+        top = lst[0]
+        eid = top.get("id")
+        ench = enchant_lookup.get(eid) or {}
+        enchants[slot_group] = {"id": eid, "name": ench.get("name")}
+
+    return {
+        "spec_id": int(spec_id),
+        "spec": spec_data.get("name"),
+        "class": class_data.get("name"),
+        # secondary stat names in the same priority order the page displays.
+        "stat_priority": [s.get("name") for s in (stat_priority or []) if s.get("name")],
+        "slots": slots,
+        "enchants": enchants,
+    }
+
+
 def checkItemLimits(sockets, socket_lookup, socket_limits):
     for socket in sockets:
         if not socket_lookup.get(int(socket["id"])):
@@ -1853,6 +1910,21 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
             except Exception:
                 level_stats = []
                 overall_stats = None
+
+
+            # Machine-readable meta snapshot for the client-side "Am I meta?"
+            # analyzer. Reuses data already assembled above; writes one small
+            # JSON per spec that analyzer.js fetches by spec_id.
+            spec_meta = build_spec_meta_json(
+                spec_id, spec_data, class_data, stat_priority,
+                left_slots, right_slots, weapon_slots, trinket_slots,
+                enchant_slots, enchant_lookup, item_lookup,
+            )
+            spec_meta_dir = os.path.join("assets", "json", "spec_meta")
+            os.makedirs(spec_meta_dir, exist_ok=True)
+            with open(os.path.join(spec_meta_dir, f"{spec_id}.json"), "w", encoding="utf-8") as f:
+                json.dump(spec_meta, f, separators=(",", ":"))
+
             output_html = template.render(
                 generated_at=datetime.now(timezone.utc).timestamp(),
                 spec_id=spec_id,

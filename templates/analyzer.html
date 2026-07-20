@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Am I Meta? — Compare Your Gear to the Mythic+ Meta {{ season_info.name }} | MythiStone</title>
+  <meta name="description"
+    content="Paste your SimulationCraft addon export and instantly see how your gear, enchants and stats compare to the current Mythic+ meta build for your spec. Runs entirely in your browser.">
+  <link rel="canonical" href="https://mythistone.com/pages/analyzer">
+  <meta name="keywords"
+    content="MythiStone, Mythic+, am I meta, gear check, BiS check, SimC import, WoW meta, {{ season_info.name }}">
+
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="MythiStone">
+  <meta property="og:url" content="https://mythistone.com/pages/analyzer">
+  <meta property="og:title" content="Am I Meta? — Mythic+ Gear Check | MythiStone">
+  <meta property="og:description"
+    content="Paste your SimC export and see how your gear, enchants and stats stack up against the Mythic+ meta for {{ season_info.name }}.">
+  <meta property="og:locale" content="en_US">
+
+  <meta name="theme-color" content="#1a202c">
+  <meta name="apple-mobile-web-app-title" content="MythiStone" />
+  {% include "header_imports.html" %}
+  <link rel="stylesheet" href="/assets/css/analyzer.css">
+</head>
+
+<body class="g-sidenav-show g-sidenav-show-right" data-bs-theme="dark">
+  {% include "sidenav.html" %}
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
+    {% include "navbar.html" %}
+    {% include "notifications.html" %}
+
+    <div class="container-fluid py-2">
+      <div class="row">
+        <div class="ms-3 mb-4">
+          <h1 class="mb-0 h4 font-weight-bolder">Am I Meta? — Mythic+ Gear Check</h1>
+          <p class="mb-0">
+            Paste your <strong>SimulationCraft</strong> addon export to see how your gear, enchants and stat priority
+            compare to the current meta build for your spec.
+          </p>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-5 col-md-12 mb-4">
+          <div class="card h-100">
+            <div class="card-header pb-0 p-3">
+              <h6 class="mb-0">Your character</h6>
+              <p class="text-sm mb-0">
+                In-game, install the SimulationCraft addon, type <code>/simc</code>, copy the text and paste it below.
+              </p>
+            </div>
+            <div class="card-body p-3">
+              <label class="form-label text-xs text-uppercase text-secondary" for="simc-input">SimC export</label>
+              <textarea id="simc-input" class="form-control analyzer-input" rows="10" spellcheck="false"
+                placeholder="# Fire Mage&#10;mage=&quot;Yourname&quot;&#10;level=80&#10;spec=fire&#10;head=,id=212018,bonus_id=...,enchant_id=...&#10;..."></textarea>
+              <div class="d-flex gap-2 mt-3">
+                <button id="analyze-btn" class="btn btn-primary mb-0">Analyze</button>
+                <button id="clear-btn" class="btn btn-outline-secondary mb-0">Clear</button>
+              </div>
+              <p class="text-xs text-secondary mt-3 mb-0">
+                <i class="material-symbols-rounded align-middle text-sm me-1">lock</i>
+                Everything is parsed locally in your browser — your character data is never uploaded or stored.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-7 col-md-12 mb-4">
+          <div class="card h-100">
+            <div class="card-header pb-0 p-3">
+              <h6 class="mb-0">Results</h6>
+              <p class="text-sm mb-0">Slot-by-slot comparison against the meta and SimulationCraft BiS.</p>
+            </div>
+            <div class="card-body p-3">
+              <div id="analyzer-results">
+                <p class="text-sm text-secondary mb-0">Paste your export and press <strong>Analyze</strong> to see your report.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% include "footer.html" %}
+    </div>
+  </main>
+  {% include "right_aside.html" %}
+  {% include "fixed_plugin.html" %}
+  {% include "javascript_imports.html" %}
+
+  <script>
+    // Baked lookup tables so analyzer.js can resolve a SimC export's class/spec
+    // tokens to a spec_id and then fetch /assets/json/spec_meta/<spec_id>.json.
+    window.SIMC_CLASS_TOKENS = {{ simc_class_tokens | tojson | safe }};
+    window.SPEC_INDEX = {{ spec_index | tojson | safe }};
+    window.SPEC_DISPLAY = {{ spec_display | tojson | safe }};
+  </script>
+  <script src="/assets/js/analyzer.js"></script>
+</body>
+
+</html>
