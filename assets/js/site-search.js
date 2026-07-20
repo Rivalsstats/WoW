@@ -36,8 +36,12 @@
 
   async function loadIndex() {
     try {
+      // The index only changes on a site rebuild (Mon/Fri), so use the normal
+      // HTTP cache with revalidation instead of forcing a full re-download on
+      // every page load. The browser sends a conditional request and gets a
+      // 304 (no payload) when the static file is unchanged.
       const res = await fetch("/assets/json/search_index.json", {
-        cache: "no-store",
+        cache: "default",
       });
       if (!res.ok) {
         console.warn("[site-search] index fetch status", res.status);
