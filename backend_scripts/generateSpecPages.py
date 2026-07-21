@@ -67,6 +67,12 @@ TALENT_DIVERGENCE_DELTA = 20.0   # ...and exceed general popularity by this many
 # players took it IN THAT DUNGEON (per-dungeon adoption).
 TALENT_DUNGEON_ELITE_MIN_PCT = 50.0
 
+# Minimum top-50 usage share (%) for an item/gem/enchant/missive/embellishment or
+# a combo to earn the gold "TOP" badge. Shared by the gear-slot BIS annotations
+# and the combo/detail sections so every TOP badge on the page means the same
+# thing: the top-50 players run it in more than this share of their loadouts.
+BIS_PCT_THRESHOLD = 80.0
+
 # Ranking blend for the Talent Differences modal: the score that decides which
 # talents surface as the biggest per-dungeon gains/losses mixes the general
 # population's relative change with the top-50 players' relative change. Top
@@ -1299,7 +1305,7 @@ def convert_slots(
 
             # BIS annotations: items, enchants, gems (respect multi-slot groups)
             if bis_summary and isinstance(bis_summary, dict):
-                bis_threshold = 80.0
+                bis_threshold = BIS_PCT_THRESHOLD
                 # Items: support group mapping for TRINKET/FINGER
                 items_map = bis_summary.get("items", {})
                 # prefer group summary (e.g., TRINKET, FINGER) for multi-slot
@@ -1929,7 +1935,9 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
 
                 # Annotate the general combo lists with the top-50 ("TOP") signal:
                 # a comp gets is_bis/bis_pct when the top-50 players run the same
-                # canonical id-set (same key the DB builds).
+                # canonical id-set (same key the DB builds) in more than
+                # BIS_PCT_THRESHOLD% of their loadouts -- the same gate the
+                # gear-slot BIS badges use, so combo badges aren't more liberal.
                 def _annotate_comps(comps, summary_section, multiset=False):
                     by_key = (summary_section or {}).get("by_key", {})
                     if not by_key:
@@ -1942,7 +1950,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                         else:
                             ids = [int(i) for i in comp.get("ids", [])]
                         hit = by_key.get(",".join(str(i) for i in sorted(ids)))
-                        if hit:
+                        if hit and hit["pct"] > BIS_PCT_THRESHOLD:
                             comp["is_bis"] = True
                             comp["bis_pct"] = hit["pct"]
 
@@ -1959,6 +1967,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     return {
                         int(k): v["pct"]
                         for k, v in (summary_section or {}).get("by_key", {}).items()
+                        if v["pct"] > BIS_PCT_THRESHOLD
                     }
 
                 missive_bis = _bis_map(bis_summary.get("missives"))
