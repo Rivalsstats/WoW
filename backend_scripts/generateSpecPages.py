@@ -203,6 +203,40 @@ def node_has_valid_spellid(node):
             return True
     return False
 
+
+def strip_empty_talent_entries(talents_tree_data):
+    """Drop empty/identity-less entry objects from every talent node.
+
+    The vendored raidbots talents.json pads some single nodes with a stray
+    `{}` entry (node name ends in " / "). Left in place, len(entries) > 1
+    makes build_ui_tree misdetect the node as a choice node. Strip them so
+    the node keeps its true type. Warns per dropped entry so upstream data
+    changes stay visible (fail-loudly).
+    """
+    NODE_KEYS = ("classNodes", "specNodes", "heroNodes")
+    dropped = 0
+    for spec in talents_tree_data:
+        spec_id = spec.get("specId")
+        for key in NODE_KEYS:
+            for node in spec.get(key, []):
+                entries = node.get("entries")
+                if not entries:
+                    continue
+                # keep only entries carrying an identity; drops `{}`
+                clean = [e for e in entries
+                         if e.get("id") or e.get("definitionId") or e.get("spellId")]
+                if len(clean) != len(entries):
+                    n_dropped = len(entries) - len(clean)
+                    dropped += n_dropped
+                    print(f"[talents] WARN spec {spec_id} node {node.get('id')} "
+                          f"'{node.get('name','')}' dropped {n_dropped} empty "
+                          f"entry object(s)")
+                    node["entries"] = clean
+    if dropped:
+        print(f"[talents] WARN stripped {dropped} empty entry object(s) total "
+              f"from talents.json")
+    return talents_tree_data
+
 def build_ui_tree(nodes, pop_data, is_hero=False, pop_hero_tree_id=None, top_pct_map=None, top_entry_pct_map=None):
 
     if not nodes:
@@ -1462,6 +1496,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
     # Load lookup tables
     enchant_lookup_all = load_json(os.path.join(LOOKUP_DIR, "enchantments.json"))
     talents_tree_data = load_json(os.path.join(LOOKUP_DIR, "talents.json"))
+    talents_tree_data = strip_empty_talent_entries(talents_tree_data)
     tree_by_spec = {t.get("specId"): t for t in talents_tree_data if t.get("specId")}
     embellishment_lookup = load_json(os.path.join(LOOKUP_DIR, "embellishments.json"))
     missive_lookup = load_json(os.path.join(LOOKUP_DIR, "missives.json"))
