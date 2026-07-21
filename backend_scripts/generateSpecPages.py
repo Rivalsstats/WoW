@@ -557,17 +557,57 @@ def normalize_slot_collections(list_of_lists, slot_names):
 def build_spec_meta_json(
     spec_id, spec_data, class_data, stat_priority,
     left_slots, right_slots, weapon_slots, trinket_slots,
-    enchant_slots, enchant_lookup, item_lookup,
+    enchant_slots, enchant_lookup, item_lookup, item_slug_map,
+    bis_summary, socket_lookup,
 ):
     """Compact, machine-readable meta snapshot for one spec, consumed by the
     client-side "Am I meta?" analyzer (assets/js/analyzer.js). Built entirely
-    from data the spec page already computed — no extra queries. Kept small:
-    only the single most-popular item per slot, the SimulationCraft rank-1 pick
-    per slot when known, the top enchant per slot group, and the stat priority.
+    from data the spec page already computed — no extra queries.
+
+    Per slot it records the two meta *targets* the spec page badges:
+    ``top`` (the Raider.io top-50 loadout picks — the page's ``is_bis``/TOP
+    badge, up to two for the FINGER/TRINKET groups) and ``sim`` (the
+    SimulationCraft rank-1 pick — the ``is_simc_bis``/SIM badge). The analyzer
+    scores a slot as a match only when the equipped item is one of these. The
+    single most-equipped item is kept as ``common`` for neutral display on slots
+    that have neither target (sparse Raider.io/SimC data) — it never counts
+    toward the score. Also carries the top enchant per slot group and the stat
+    priority. Icons/quality are baked so the client can render item tiles.
     """
     def _name(item_id):
         it = item_lookup.get(item_id) or {}
         return it.get("name")
+
+    def _icon(item_id):
+        it = item_lookup.get(item_id) or {}
+        return it.get("icon")
+
+    def _quality(entry):
+        it = item_lookup.get(entry.get("id")) or {}
+        return entry.get("quality_override") or it.get("quality")
+
+    def _pick(entry, **extra):
+        item_id = entry.get("id")
+        # Link/tooltip fields, mirroring the spec page's render_slot markup
+        # (spec_page.html:44-58) so the analyzer can build the same Wowhead
+        # tooltips and internal /items links.
+        bonus = ((entry.get("bonus") or {}).get("list")) or []
+        ench = (entry.get("enchantment") or {}).get("id")
+        gems = [s.get("id") for s in (entry.get("socket") or []) if s.get("id")]
+        pcs = entry.get("pcs") or None
+        pick = {
+            "id": item_id,
+            "name": _name(item_id),
+            "icon": _icon(item_id),
+            "quality": _quality(entry),
+            "slug": item_slug_map.get(item_id),
+            "bonus": bonus,
+            "ench": ench,
+            "gems": gems,
+            "pcs": pcs,
+        }
+        pick.update(extra)
+        return pick
 
     slots = {}
     for collection in (left_slots, right_slots, weapon_slots, trinket_slots):
@@ -577,16 +617,14 @@ def build_spec_meta_json(
                 continue
             slot_name = slot_dict.get("slot")
             slot_count = slot_dict.get("slot_count") or 0
-            top = entries[0]
-            top_id = top.get("id")
-            top_pct = round(top.get("count", 0) / slot_count * 100, 1) if slot_count else None
-            simc_bis = next((e for e in entries if e.get("is_simc_bis")), None)
+            top = [_pick(e, pct=e.get("bis_pct")) for e in entries if e.get("is_bis")]
+            simc = next((e for e in entries if e.get("is_simc_bis")), None)
+            common = entries[0]
+            common_pct = round(common.get("count", 0) / slot_count * 100, 1) if slot_count else None
             slots[slot_name] = {
-                "top_id": top_id,
-                "top_name": _name(top_id),
-                "top_pct": top_pct,
-                "bis_id": simc_bis.get("id") if simc_bis else None,
-                "bis_name": _name(simc_bis.get("id")) if simc_bis else None,
+                "top": top,
+                "sim": _pick(simc, dps_pct=simc.get("simc_dps_pct")) if simc else None,
+                "common": _pick(common, pct=common_pct),
             }
 
     enchants = {}
@@ -596,7 +634,35 @@ def build_spec_meta_json(
         top = lst[0]
         eid = top.get("id")
         ench = enchant_lookup.get(eid) or {}
-        enchants[slot_group] = {"id": eid, "name": ench.get("name")}
+        enchants[slot_group] = {
+            "id": eid,
+            # enchants store the readable label under itemName/displayName;
+            # `name` is usually null for them. Tooltip links via the scroll itemId.
+            "name": ench.get("itemName") or ench.get("displayName") or ench.get("name"),
+            "icon": ench.get("itemIcon") or ench.get("icon") or ench.get("spellIcon"),
+            "itemId": ench.get("itemId"),
+            "quality": ench.get("quality"),
+        }
+
+    # Spec-wide top gems (Raider.io top-50 loadouts), enriched with display data
+    # from socket_lookup (gems keyed by their item id). Gems aren't slot-specific
+    # in the meta, so the analyzer scores them as one set for the whole build.
+    gems = []
+    for g in (bis_summary or {}).get("gems", []):
+        gid = g.get("id")
+        pct = g.get("pct") or 0
+        if gid is None or pct < 5.0:  # drop the long noise tail
+            continue
+        sk = socket_lookup.get(gid) or socket_lookup.get(int(gid)) or {}
+        gems.append({
+            "id": gid,
+            "name": sk.get("itemName"),
+            "icon": sk.get("itemIcon"),
+            "quality": sk.get("quality"),
+            "pct": round(pct, 1),
+        })
+        if len(gems) >= 6:
+            break
 
     return {
         "spec_id": int(spec_id),
@@ -606,6 +672,7 @@ def build_spec_meta_json(
         "stat_priority": [s.get("name") for s in (stat_priority or []) if s.get("name")],
         "slots": slots,
         "enchants": enchants,
+        "gems": gems,
     }
 
 
@@ -629,16 +696,39 @@ def checkItemLimits(sockets, socket_lookup, socket_limits):
     return
 
 
-def compute_bis_from_top_loadouts(top_loadouts):
+def compute_bis_from_top_loadouts(
+    top_loadouts,
+    item_lookup=None,
+    missive_lookup=None,
+    embellishment_lookup=None,
+    crafted_item_ids=None,
+):
     """Compute BIS summary from a list of top-player loadouts.
 
     Input: list of loadout dicts as returned by `databaseConnector.fetch_top50_loadouts`.
     Returns a dict with `items`, `enchants`, `gems`, `talents`, `full_loadout` summary.
+
+    When the optional lookups are supplied it additionally derives the top-50
+    versions of the combo/detail sections (mirroring the DB aggregation logic so
+    the canonical id keys line up with the general-population lists):
+      - ``crafted_items`` / ``crafted_comps`` (item ids in ``crafted_item_ids``)
+      - ``tier_set_comps`` (items sharing an ``itemSetId``, >=2 pieces)
+      - ``gem_comps`` / ``enchant_comps`` (multisets of gem / enchant ids)
+      - ``missives`` / ``embellishments`` / ``embellishment_comps`` (resolved from
+        each item's ``bonus_ids`` via ``missive_lookup`` / ``embellishment_lookup``)
+    Each of these is a dict ``{canonical_key: {"count", "pct"}}`` plus a ``best``
+    entry, where ``canonical_key`` is the ascending-id, comma-joined string the DB
+    uses (a single item id for the detail lists).
     """
 
     n = len(top_loadouts)
     if n == 0:
         return {}
+
+    item_lookup = item_lookup or {}
+    missive_lookup = missive_lookup or {}
+    embellishment_lookup = embellishment_lookup or {}
+    crafted_item_ids = {int(i) for i in (crafted_item_ids or [])}
 
     # Counts
     items_counts = defaultdict(lambda: defaultdict(int))  # slot -> item_id -> count
@@ -793,6 +883,107 @@ def compute_bis_from_top_loadouts(top_loadouts):
         fk, fc = max(full_loadout_counts.items(), key=lambda x: x[1])
         full_loadout_top = {"loadout_key": fk, "count": int(fc), "pct": (int(fc) / n) * 100.0}
 
+    # ---- Combo / detail sections (top-50 versions) -------------------------
+    # Second pass over the loadouts, mirroring the per-(run, member) DB
+    # aggregation so the canonical keys match the general-population lists.
+    # Counts are per-loadout presence (a loadout that runs a comp counts once),
+    # denominator n = number of top-50 loadouts, so pct is comparable to the
+    # gem/enchant TOP badges already on the page.
+    crafted_item_counts = defaultdict(int)     # item_id -> loadouts
+    crafted_comp_counts = defaultdict(int)      # "id,id" -> loadouts
+    tier_set_comp_counts = defaultdict(int)
+    gem_comp_counts = defaultdict(int)
+    enchant_comp_counts = defaultdict(int)
+    missive_counts = defaultdict(int)           # reagent item_id -> loadouts
+    embellishment_counts = defaultdict(int)
+    embellishment_comp_counts = defaultdict(int)
+
+    def _comp_key(ids):
+        # canonical DB key: ascending ids (repeats kept), comma-joined
+        return ",".join(str(i) for i in sorted(ids))
+
+    for lo in top_loadouts:
+        items = lo.get("items", []) or []
+
+        # crafted items + crafted comp
+        crafted_ids = [
+            int(it.get("item_id"))
+            for it in items
+            if it.get("item_id") and int(it.get("item_id")) in crafted_item_ids
+        ]
+        for iid in set(crafted_ids):
+            crafted_item_counts[iid] += 1
+        if crafted_ids:
+            crafted_comp_counts[_comp_key(crafted_ids)] += 1
+
+        # tier set comp: items sharing an itemSetId, only sets worn >=2 pieces
+        set_members = defaultdict(list)
+        for it in items:
+            iid = it.get("item_id")
+            if not iid:
+                continue
+            sid = item_lookup.get(int(iid), {}).get("itemSetId")
+            if sid:
+                set_members[sid].append(int(iid))
+        set_ids = [iid for members in set_members.values() if len(members) >= 2 for iid in members]
+        if set_ids:
+            tier_set_comp_counts[_comp_key(set_ids)] += 1
+
+        # gem comp: multiset of gem item ids (usage_count = repeats)
+        gem_ids = []
+        for g in lo.get("gems", []) or []:
+            gid = g.get("gem_item_id") or g.get("id")
+            if not gid:
+                continue
+            gem_ids.extend([int(gid)] * int(g.get("usage_count", 1) or 1))
+        if gem_ids:
+            gem_comp_counts[_comp_key(gem_ids)] += 1
+
+        # enchant comp: multiset of enchantment ids
+        ench_ids = []
+        for e in lo.get("enchants", []) or []:
+            eid = e.get("enchantment_id") or e.get("id")
+            if eid:
+                ench_ids.append(int(eid))
+        if ench_ids:
+            enchant_comp_counts[_comp_key(ench_ids)] += 1
+
+        # missives + embellishments (+ embellishment comp) from bonus ids
+        missive_ids = set()
+        embellishment_ids = []
+        for it in items:
+            raw = it.get("bonus_ids")
+            if not raw:
+                continue
+            for b in str(raw).split(","):
+                b = b.strip()
+                if not b:
+                    continue
+                m = missive_lookup.get(b)
+                if m is not None:
+                    missive_ids.add(int(m))
+                em = embellishment_lookup.get(b)
+                if em is not None:
+                    embellishment_ids.append(int(em))
+        for mid in missive_ids:
+            missive_counts[mid] += 1
+        for emid in set(embellishment_ids):
+            embellishment_counts[emid] += 1
+        if embellishment_ids:
+            embellishment_comp_counts[_comp_key(embellishment_ids)] += 1
+
+    def _summarize(countmap):
+        """Turn a {key: count} map into {'by_key': {key: {count, pct}}, 'best': {...}}."""
+        by_key = {
+            k: {"count": int(c), "pct": (int(c) / n) * 100.0}
+            for k, c in countmap.items()
+        }
+        best = None
+        if countmap:
+            bk, bc = max(countmap.items(), key=lambda x: x[1])
+            best = {"key": bk, "count": int(bc), "pct": (int(bc) / n) * 100.0}
+        return {"by_key": by_key, "best": best}
+
     return {
         "num_loadouts": n,
         "items": items_summary,
@@ -803,6 +994,14 @@ def compute_bis_from_top_loadouts(top_loadouts):
         "talent_node_entry_pct": talent_node_entry_pct,
         "talent_pct_by_dungeon": talent_pct_by_dungeon,
         "full_loadout": full_loadout_top,
+        "crafted_items": _summarize(crafted_item_counts),
+        "crafted_comps": _summarize(crafted_comp_counts),
+        "tier_set_comps": _summarize(tier_set_comp_counts),
+        "gem_comps": _summarize(gem_comp_counts),
+        "enchant_comps": _summarize(enchant_comp_counts),
+        "missives": _summarize(missive_counts),
+        "embellishments": _summarize(embellishment_counts),
+        "embellishment_comps": _summarize(embellishment_comp_counts),
     }
 
 
@@ -1514,10 +1713,26 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 except Exception as e:
                     print(f"Warning: fetch_tier_set_comps failed: {e}")
                     tier_set_comps_raw = []
+                try:
+                    gem_comps_raw = databaseConnector.fetch_gem_comps(
+                        conn, cursor, spec_id, current_season_id
+                    )
+                except Exception as e:
+                    print(f"Warning: fetch_gem_comps failed: {e}")
+                    gem_comps_raw = []
+                try:
+                    enchant_comps_raw = databaseConnector.fetch_enchant_comps(
+                        conn, cursor, spec_id, current_season_id
+                    )
+                except Exception as e:
+                    print(f"Warning: fetch_enchant_comps failed: {e}")
+                    enchant_comps_raw = []
                 # SUM() comes back as decimal.Decimal from the connector
                 total_embellishment_comps = sum(int(e[1] or 0) for e in embellishment_comps_raw)
                 total_crafted_comps = sum(int(e[1] or 0) for e in crafted_comps_raw)
                 total_tier_set_comps = sum(int(e[1] or 0) for e in tier_set_comps_raw)
+                total_gem_comps = sum(int(e[1] or 0) for e in gem_comps_raw)
+                total_enchant_comps = sum(int(e[1] or 0) for e in enchant_comps_raw)
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching socket limits...")
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching sockets...")
                 sockets = aggregateData.get_sockets(
@@ -1611,6 +1826,60 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                             break
                     return comps
 
+                # Gem/enchant combos are multisets (the DB comp string keeps
+                # repeats, e.g. two of the same gem). This collapses those repeats
+                # into {id, qty} for a compact "x2" display, drops ids the render
+                # lookup doesn't know (cosmetic gems / filtered old enchants), and
+                # re-merges any rows that become identical once those ids are gone
+                # so their counts sum instead of showing as duplicate rows.
+                def build_multiset_comps(raw_rows, lookup, threshold, limit=10):
+                    merged = {}
+                    for row in raw_rows:
+                        count = int(row[1] or 0)
+                        if threshold > 0 and count < threshold:
+                            continue
+                        try:
+                            ids = [int(i) for i in str(row[0]).split(",") if i]
+                        except (ValueError, TypeError):
+                            continue
+                        # keep only ids the template can render (has an icon/name)
+                        ids = [
+                            i for i in ids
+                            if lookup.get(i) is not None or lookup.get(str(i)) is not None
+                        ]
+                        if not ids:
+                            continue
+                        # ids arrive id-sorted (canonical DB key); collapse runs of
+                        # the same id into {id, qty} preserving that canonical order.
+                        entries = []
+                        for i in ids:
+                            if entries and entries[-1]["id"] == i:
+                                entries[-1]["qty"] += 1
+                            else:
+                                entries.append({"id": i, "qty": 1})
+                        key = tuple((e["id"], e["qty"]) for e in entries)
+                        existing = merged.get(key)
+                        if existing:
+                            existing["count"] += count
+                            existing["max_timed"] = max(
+                                existing["max_timed"] or 0, row[2] or 0
+                            )
+                            existing["max_depleted"] = max(
+                                existing["max_depleted"] or 0, row[3] or 0
+                            )
+                        else:
+                            merged[key] = {
+                                "entries": entries,
+                                "count": count,
+                                "max_timed": row[2],
+                                "max_depleted": row[3],
+                            }
+                    # merging can reorder, so re-sort by the summed count.
+                    ranked = sorted(
+                        merged.values(), key=lambda m: m["count"], reverse=True
+                    )
+                    return ranked[:limit]
+
                 # Comp tables only cover the ~2 weeks of retained gear data, so
                 # threshold against their own totals instead of season-wide
                 # spec run counts (which would filter everything out).
@@ -1622,6 +1891,12 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 )
                 tier_set_comps = build_comps(
                     tier_set_comps_raw, total_tier_set_comps * 0.005
+                )
+                gem_comps = build_multiset_comps(
+                    gem_comps_raw, socket_lookup, total_gem_comps * 0.005
+                )
+                enchant_comps = build_multiset_comps(
+                    enchant_comps_raw, enchant_lookup, total_enchant_comps * 0.005
                 )
 
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching loadout...")
@@ -1637,8 +1912,58 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     print(f"Warning: fetch_top50_loadouts failed: {e}")
                     top50_raw = []
 
-                bis_summary = compute_bis_from_top_loadouts(top50_raw)
+                # Universe of crafted item ids for this spec (build-time stand-in
+                # for the DB crafted_item_ids registry): the item ids the general
+                # crafted-items aggregation surfaced.
+                crafted_item_id_set = {
+                    int(e[0]) for e in (crafted_items or []) if e and e[0] is not None
+                }
+                bis_summary = compute_bis_from_top_loadouts(
+                    top50_raw,
+                    item_lookup=item_lookup,
+                    missive_lookup=missive_lookup,
+                    embellishment_lookup=embellishment_lookup,
+                    crafted_item_ids=crafted_item_id_set,
+                )
                 print(f"[{datetime.now(timezone.utc).isoformat()}] BIS summary from top loadouts: {bis_summary}")
+
+                # Annotate the general combo lists with the top-50 ("TOP") signal:
+                # a comp gets is_bis/bis_pct when the top-50 players run the same
+                # canonical id-set (same key the DB builds).
+                def _annotate_comps(comps, summary_section, multiset=False):
+                    by_key = (summary_section or {}).get("by_key", {})
+                    if not by_key:
+                        return
+                    for comp in comps or []:
+                        if multiset:
+                            ids = []
+                            for e in comp.get("entries", []):
+                                ids.extend([int(e["id"])] * int(e.get("qty", 1)))
+                        else:
+                            ids = [int(i) for i in comp.get("ids", [])]
+                        hit = by_key.get(",".join(str(i) for i in sorted(ids)))
+                        if hit:
+                            comp["is_bis"] = True
+                            comp["bis_pct"] = hit["pct"]
+
+                _annotate_comps(embellishment_comps, bis_summary.get("embellishment_comps"))
+                _annotate_comps(crafted_comps, bis_summary.get("crafted_comps"))
+                _annotate_comps(tier_set_comps, bis_summary.get("tier_set_comps"))
+                _annotate_comps(gem_comps, bis_summary.get("gem_comps"), multiset=True)
+                _annotate_comps(enchant_comps, bis_summary.get("enchant_comps"), multiset=True)
+
+                # Detail-list TOP maps (item_id -> top-50 pct). The missive /
+                # embellishment / crafted single-item rows are tuples, so the
+                # template receives side maps instead of an annotation.
+                def _bis_map(summary_section):
+                    return {
+                        int(k): v["pct"]
+                        for k, v in (summary_section or {}).get("by_key", {}).items()
+                    }
+
+                missive_bis = _bis_map(bis_summary.get("missives"))
+                embellishment_bis = _bis_map(bis_summary.get("embellishments"))
+                crafted_bis = _bis_map(bis_summary.get("crafted_items"))
 
                 # SimulationCraft per-slot BiS (sim-derived highlight, parallel to the
                 # frequency-based "TOP" highlight above). slot -> ranked candidate list.
@@ -1918,7 +2243,8 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
             spec_meta = build_spec_meta_json(
                 spec_id, spec_data, class_data, stat_priority,
                 left_slots, right_slots, weapon_slots, trinket_slots,
-                enchant_slots, enchant_lookup, item_lookup,
+                enchant_slots, enchant_lookup, item_lookup, item_slug_map,
+                bis_summary, socket_lookup,
             )
             spec_meta_dir = os.path.join("assets", "json", "spec_meta")
             os.makedirs(spec_meta_dir, exist_ok=True)
@@ -1973,7 +2299,14 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 total_crafted_comps=total_crafted_comps,
                 tier_set_comps=tier_set_comps,
                 total_tier_set_comps=total_tier_set_comps,
+                gem_comps=gem_comps,
+                total_gem_comps=total_gem_comps,
+                enchant_comps=enchant_comps,
+                total_enchant_comps=total_enchant_comps,
                 missives=missives,
+                missive_bis=missive_bis,
+                embellishment_bis=embellishment_bis,
+                crafted_bis=crafted_bis,
                 formatted_price=formatted_price,
                 trending=spec_runs / total_runs if total_runs > 0 else 0,
                 highest_run=highest_run,

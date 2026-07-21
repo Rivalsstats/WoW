@@ -1381,6 +1381,40 @@ def fetch_crafted_comps(connection, cursor, spec_id, season):
     return fetch_with_retry(connection, cursor, FETCH_CRAFTED_COMPS_SQL, params)
 
 
+FETCH_GEM_COMPS_SQL = """
+SELECT comp, SUM(run_count) AS total_runs, MAX(max_timed_key), MAX(max_depleted_key)
+FROM Mythistone.aggregated_gem_comps
+WHERE spec_id = %s
+  AND season = %s
+GROUP BY comp
+ORDER BY total_runs DESC
+LIMIT 15
+"""
+
+
+def fetch_gem_comps(connection, cursor, spec_id, season):
+    """Fetch the gem comp counts for a specific spec and season from the database."""
+    params = (spec_id, season)
+    return fetch_with_retry(connection, cursor, FETCH_GEM_COMPS_SQL, params)
+
+
+FETCH_ENCHANT_COMPS_SQL = """
+SELECT comp, SUM(run_count) AS total_runs, MAX(max_timed_key), MAX(max_depleted_key)
+FROM Mythistone.aggregated_enchant_comps
+WHERE spec_id = %s
+  AND season = %s
+GROUP BY comp
+ORDER BY total_runs DESC
+LIMIT 15
+"""
+
+
+def fetch_enchant_comps(connection, cursor, spec_id, season):
+    """Fetch the enchantment comp counts for a specific spec and season from the database."""
+    params = (spec_id, season)
+    return fetch_with_retry(connection, cursor, FETCH_ENCHANT_COMPS_SQL, params)
+
+
 FETCH_TIER_SET_COMPS_SQL = """
 SELECT comp, SUM(run_count) AS total_runs, MAX(max_timed_key), MAX(max_depleted_key)
 FROM Mythistone.aggregated_tier_set_comps

@@ -520,6 +520,24 @@
   height: 32px;
 }
 
+/* "x2" quantity marker for gem/enchant combos where a member wears the same
+   gem/enchant more than once. Bottom-right corner so it never overlaps the
+   bottom-left crafting-quality overlay. */
+.combo-qty-badge {
+  position: absolute;
+  bottom: -3px;
+  right: -3px;
+  z-index: 11;
+  font-size: 0.6rem;
+  line-height: 1;
+  padding: 1px 3px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+}
+
 /* Compact item rows on phones: rows hug their content and badges/popularity
    tighten so the details column stays close to the (44px min) icon height. */
 @media (max-width: 575.98px) {

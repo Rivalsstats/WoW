@@ -223,13 +223,13 @@
       <div class="tt-choice-wrapper" style="position: relative; display: inline-flex; --border-color: #ffb000; width: 100%; height: 100%;">
         <div class="arrow-left"></div>
         <div class="tt-octagon-border" style="width: 100%; height: 100%; filter: grayscale({{ 100 - n.pct_val }}%);">
-          <img src="/data/icons/{{n.icon}}.png" alt="Icon" class="tt-octagon" style="width: 100%; height: 100%;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+          <img src="/data/icons/{{n.icon}}.png" alt="Icon" class="tt-octagon" style="width: 100%; height: 100%;" onerror="this.src='/data/icons/inv_misc_questionmark.png'">
         </div>
         <div class="arrow-right"></div>
         <div class="tt-custom-tooltip" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px; white-space: nowrap; z-index: 1050; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 5px;">
           {% for c in n.choices %}
           <a href="https://www.wowhead.com/spell={{c.spellId}}" class="tt-choice-row{% if c.is_top %} is-top{% endif %}" target="_blank">
-            <img src="/data/icons/{{c.icon}}.png" width="24" height="24" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+            <img src="/data/icons/{{c.icon}}.png" width="24" height="24" onerror="this.src='/data/icons/inv_misc_questionmark.png'">
             <span class="tt-choice-name">{{c.name}}</span>
             {% if c.is_top %}<span class="badge tt-top-badge tt-top-badge-inline tt-choice-badge js-choice-top-tip" data-bs-title="Picked by {{ '{:.0f}'.format(c.top_pct) }}% of the top 50 {{ spec.name }} {{ class_info.name }} players vs {{ '{:.0f}'.format(c.pct) }}% of the general population.">TOP</span>{% endif %}
             <span class="tt-choice-pct">{{ '{:.0f}'.format(c.pct) }}%</span>
@@ -240,7 +240,7 @@
     {% else %}
     <div class="tt-icon-container {% if n.type == 'tiered' %}tt-choice-wrapper{% endif %}" style="position: relative; display: inline-flex;">
       {% if n.type == 'tiered' %}<span style="cursor:default;">{% else %}<a href="https://www.wowhead.com/spell={{n.spellId}}" target="_blank">{% endif %}
-        <img src="/data/icons/{{n.icon}}.png" alt="Icon" width="32" height="32" style="border-radius: {% if n.type == 'passive' or n.type == 'tiered' %}50%{% else %}10%{% endif %}; border: 1px solid #ffb000; filter: grayscale({{ 100 - n.pct_val }}%);" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+        <img src="/data/icons/{{n.icon}}.png" alt="Icon" width="32" height="32" style="border-radius: {% if n.type == 'passive' or n.type == 'tiered' %}50%{% else %}10%{% endif %}; border: 1px solid #ffb000; filter: grayscale({{ 100 - n.pct_val }}%);" onerror="this.src='/data/icons/inv_misc_questionmark.png'">
       {% if n.type == 'tiered' %}</span>{% else %}</a>{% endif %}
       {% if n.type == 'tiered' %}
       <div class="tt-custom-tooltip" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px; white-space: nowrap; z-index: 1050; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 5px;">
@@ -259,7 +259,7 @@
           {% endif %}
           {% set is_active = spent > 0 %}
         <a href="https://www.wowhead.com/spell={{c.spellId}}" target="_blank" style="color: {% if is_active %}#fff{% else %}#777{% endif %}; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; font-size: 13px;">
-          <img src="/data/icons/{{c.icon}}.png" width="24" height="24" style="border-radius: 4px; filter: {% if is_active %}none{% else %}grayscale(100%){% endif %};" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+          <img src="/data/icons/{{c.icon}}.png" width="24" height="24" style="border-radius: 4px; filter: {% if is_active %}none{% else %}grayscale(100%){% endif %};" onerror="this.src='/data/icons/inv_misc_questionmark.png'">
           <span>{{c.name}}{% if c.maxRanks > 1 %} ({{ spent }}/{{ c.maxRanks }} points){% endif %}</span>
         </a>
         {% endfor %}
@@ -284,7 +284,7 @@
     <div class="tt-choice-wrapper" style="position: relative; display: inline-flex; --border-color: #ffb000; width: 46px; height: 46px;">
       <div class="arrow-left"></div>
       <div class="tt-octagon-border" style="width: 100%; height: 100%; filter: grayscale({{ 100 - n.pct_val }}%);">
-        <img src="/data/icons/{{n.icon}}.png" alt="Icon" class="tt-octagon" style="width: 100%; height: 100%;" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+        <img src="/data/icons/{{n.icon}}.png" alt="Icon" class="tt-octagon" style="width: 100%; height: 100%;" onerror="this.src='/data/icons/inv_misc_questionmark.png'">
       </div>
       <div class="arrow-right"></div>
       {% if n.is_top %}<div class="tt-top-badge" data-bs-toggle="tooltip" title="{% if n.top_choice_name %}Top 50 {{ spec.name }} {{ class_info.name }} players pick {{ n.top_choice_name }}: {{ '{:.0f}'.format(n.top_pct_val) }}% vs {{ '{:.0f}'.format(n.top_choice_pct_val) }}% of the general population.{% else %}Used by {{ '{:.0f}'.format(n.top_pct_val) }}% of the top 50 {{ spec.name }} {{ class_info.name }} players vs {{ '{:.0f}'.format(n.pct_val) }}% of the general population.{% endif %}">TOP</div>{% endif %}
@@ -292,7 +292,7 @@
       <div class="tt-custom-tooltip" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px; white-space: nowrap; z-index: 1050; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 5px;">
         {% for c in n.choices %}
         <a href="https://www.wowhead.com/spell={{c.spellId}}" class="tt-choice-row{% if c.is_top %} is-top{% endif %}" target="_blank">
-          <img src="/data/icons/{{c.icon}}.png" width="24" height="24" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+          <img src="/data/icons/{{c.icon}}.png" width="24" height="24" onerror="this.src='/data/icons/inv_misc_questionmark.png'">
           <span class="tt-choice-name">{{c.name}}</span>
           {% if c.is_top %}<span class="badge tt-top-badge tt-top-badge-inline tt-choice-badge js-choice-top-tip" data-bs-title="Picked by {{ '{:.0f}'.format(c.top_pct) }}% of the top 50 {{ spec.name }} {{ class_info.name }} players vs {{ '{:.0f}'.format(c.pct) }}% of the general population.">TOP</span>{% endif %}
           <span class="tt-choice-pct">{{ '{:.0f}'.format(c.pct) }}%</span>
@@ -616,7 +616,7 @@
                     <h5 class="text-uppercase font-weight-bolder d-inline-flex align-items-center gap-2" style="letter-spacing: 1px; font-size: 16px;">{{ v.name }}{% if v.is_top %}<span class="badge tt-top-badge tt-top-badge-inline" data-bs-toggle="tooltip" title="Most-used hero tree among the top 50 {{ spec.name }} {{ class_info.name }} players ({{ '{:.0f}'.format(v.top_pct) }}%).">TOP</span>{% endif %}</h5>
                     <div class="position-relative d-inline-block mt-2 tt-hero-switch{% if hero_variants | length > 1 %} tt-hero-switch-active{% endif %}"
                       {% if hero_variants | length > 1 %}role="button" tabindex="0" title="Click to switch hero tree"{% endif %}>
-                      <img src="/data/icons/{{ v.icon }}.png" alt="{{ v.name }}" style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid #ffb000; box-shadow: 0 0 15px rgba(255, 176, 0, 0.4);" onerror="this.src='/data/icons/inv_misc_questionmark.jpg'">
+                      <img src="/data/icons/{{ v.icon }}.png" alt="{{ v.name }}" style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid #ffb000; box-shadow: 0 0 15px rgba(255, 176, 0, 0.4);" onerror="this.src='/data/icons/inv_misc_questionmark.png'">
                       <div style="position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); background: #000; color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; border: 1px solid #ffb000; white-space: nowrap;" title="{{ '{:.1f}'.format(v.pct) }}%">
                         {{ v.pct | round | int }}%
                       </div>
@@ -1284,6 +1284,10 @@
                                 <!-- Popularity % -->
                                 <div
                                   class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
+                                  {% if embellishment_bis and embellishment_bis.get(embellishment|int) %}
+                                  <span class="badge tt-top-badge tt-top-badge-inline mb-1" data-bs-toggle="tooltip" data-bs-container="body"
+                                    title="Used by {{ '%.0f' % embellishment_bis[embellishment|int] }}% of the top 50 {{ spec.name }} {{ class_info.name }} players according to Raider.io verified Loadouts.">TOP</span>
+                                  {% endif %}
                                   <p data-bs-toggle="tooltip" data-bs-placement="top"
                                     title="{{ total }} seen in {{total_embellishment_count}} runs" class="mb-0">
                                     {%if (total / total_embellishment_count * 100) < 100%} {{ '%.0f' % (total /
@@ -1378,6 +1382,10 @@
                                   <!-- Popularity % -->
                                   <div
                                     class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
+                                    {% if missive_bis and missive_bis.get(missive|int) %}
+                                    <span class="badge tt-top-badge tt-top-badge-inline mb-1" data-bs-toggle="tooltip" data-bs-container="body"
+                                      title="Used by {{ '%.0f' % missive_bis[missive|int] }}% of the top 50 {{ spec.name }} {{ class_info.name }} players according to Raider.io verified Loadouts.">TOP</span>
+                                    {% endif %}
                                     <p data-bs-toggle="tooltip" data-bs-placement="top"
                                       title="{{ total }} seen in {{total_missive_count}} runs" class="mb-0">
                                       {%if (total / total_missive_count * 100) < 100%} {{ '%.0f' % (total /
@@ -1468,6 +1476,10 @@
                                 <!-- Popularity % -->
                                 <div
                                   class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
+                                  {% if crafted_bis and crafted_bis.get(item|int) %}
+                                  <span class="badge tt-top-badge tt-top-badge-inline mb-1" data-bs-toggle="tooltip" data-bs-container="body"
+                                    title="Used by {{ '%.0f' % crafted_bis[item|int] }}% of the top 50 {{ spec.name }} {{ class_info.name }} players according to Raider.io verified Loadouts.">TOP</span>
+                                  {% endif %}
                                   <p data-bs-toggle="tooltip" data-bs-placement="top"
                                     title="{{ total }} seen in {{total_crafted_items}} runs" class="mb-0">
                                     {%if total_crafted_items > 0%}
@@ -1535,6 +1547,10 @@
                                 <!-- Popularity % -->
                                 <div
                                   class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
+                                  {% if comp.is_bis %}
+                                  <span class="badge tt-top-badge tt-top-badge-inline mb-1" data-bs-toggle="tooltip" data-bs-container="body"
+                                    title="Used by {{ '%.0f' % comp.bis_pct }}% of the top 50 {{ spec.name }} {{ class_info.name }} players according to Raider.io verified Loadouts.">TOP</span>
+                                  {% endif %}
                                   <p data-bs-toggle="tooltip" data-bs-placement="top"
                                     title="{{ comp.count }} seen in {{total_tier_set_comps}} runs" class="mb-0">
                                     {%if total_tier_set_comps > 0%}
@@ -1621,6 +1637,10 @@
                                 <!-- Popularity % -->
                                 <div
                                   class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
+                                  {% if comp.is_bis %}
+                                  <span class="badge tt-top-badge tt-top-badge-inline mb-1" data-bs-toggle="tooltip" data-bs-container="body"
+                                    title="Used by {{ '%.0f' % comp.bis_pct }}% of the top 50 {{ spec.name }} {{ class_info.name }} players according to Raider.io verified Loadouts.">TOP</span>
+                                  {% endif %}
                                   <p data-bs-toggle="tooltip" data-bs-placement="top"
                                     title="{{ comp.count }} seen in {{total_embellishment_comps}} runs" class="mb-0">
                                     {%if total_embellishment_comps > 0%}
@@ -1688,11 +1708,177 @@
                                 <!-- Popularity % -->
                                 <div
                                   class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
+                                  {% if comp.is_bis %}
+                                  <span class="badge tt-top-badge tt-top-badge-inline mb-1" data-bs-toggle="tooltip" data-bs-container="body"
+                                    title="Used by {{ '%.0f' % comp.bis_pct }}% of the top 50 {{ spec.name }} {{ class_info.name }} players according to Raider.io verified Loadouts.">TOP</span>
+                                  {% endif %}
                                   <p data-bs-toggle="tooltip" data-bs-placement="top"
                                     title="{{ comp.count }} seen in {{total_crafted_comps}} runs" class="mb-0">
                                     {%if total_crafted_comps > 0%}
                                     {%if (comp.count / total_crafted_comps * 100) < 100%} {{ '%.0f' % (comp.count /
                                       total_crafted_comps * 100) }} {%else%} 100 {%endif%}% {%else%} 0% {%endif%} </p>
+                                      {% if comp.max_timed or comp.max_depleted %}
+                                      <div class="mt-1 mb-1">
+                                        <span class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
+                                                                                    data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                                          title="{% if comp.max_timed %}Highest Timed: +{{ comp.max_timed }}{% endif %}{% if comp.max_timed and comp.max_depleted %}<br>{% endif %}{% if comp.max_depleted %}Highest Depleted: +{{ comp.max_depleted }}{% endif %}">
+                                          {% if comp.max_timed %}
+                                          +{{ comp.max_timed }}
+                                          {% else %}
+                                          +{{ comp.max_depleted }} (D)
+                                          {% endif %}
+                                        </span>
+                                      </div>
+                                      {% endif %}
+                                </div>
+                              </div>
+                              {% endfor %}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+              </div>
+              {% endif %}
+
+              {% if (gem_comps and gem_comps|length > 0) or (enchant_comps and enchant_comps|length > 0) %}
+              <div class="d-flex flex-column flex-md-row gap-3 mt-4">
+                {% if gem_comps and gem_comps|length > 0 %}
+                <!-- Gem Combos Overview-->
+                <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
+                  <div class="accordion mx-2" id="gemCompAccordion">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="headingGemComp">
+                        <button class="accordion-button collapsed fw-semibold text-center w-100" type="button"
+                          data-bs-toggle="collapse" data-bs-target="#collapseGemComp" aria-expanded="false"
+                          aria-controls="collapseGemComp">
+                          Gem Combos
+                        </button>
+                      </h2>
+                      <div id="collapseGemComp" class="accordion-collapse collapse w-100"
+                        aria-labelledby="headingGemComp" data-bs-parent="#gemCompAccordion">
+                        <div class="accordion-body">
+                          <div class="row">
+                            <div class="col-12">
+                              <!-- Gem combo list -->
+                              {% for comp in gem_comps %}
+                              <div class="row align-items-center mb-2">
+                                <!-- Combo icons (x-quantity shown when a gem repeats) -->
+                                <div class="col d-flex flex-wrap gap-1">
+                                  {% for e in comp.entries %}
+                                  {% set gem = socket_lookup.get(e.id) or socket_lookup.get(e.id|string) %}
+                                  {% if gem %}
+                                  <a target="_blank" href="https://www.wowhead.com/item={{ e.id }}&spec={{ spec_id }}"
+                                    class="icon-link position-relative detail-row-icon"
+                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="{% if e.qty > 1 %}{{ e.qty }}&times; {% endif %}{{ gem.itemName or gem.displayName }}">
+                                    <img src="/data/icons/{{ gem.itemIcon or gem.icon }}.png" alt=""
+                                      class="base-icon border {% if gem.quality %}border-quality-{{gem.quality}}{% else %}border-grey-100{% endif %}">
+                                    {% if gem.craftingQuality %}
+                                    <img src="/data/icons/consumable-quality-{{ gem.craftingQuality }}.png" alt=""
+                                      class="icon-overlay">
+                                    {% endif %}
+                                    {% if e.qty > 1 %}
+                                    <span class="combo-qty-badge">&times;{{ e.qty }}</span>
+                                    {% endif %}
+                                  </a>
+                                  {% endif %}
+                                  {% endfor %}
+                                </div>
+                                <!-- Popularity % -->
+                                <div
+                                  class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
+                                  {% if comp.is_bis %}
+                                  <span class="badge tt-top-badge tt-top-badge-inline mb-1" data-bs-toggle="tooltip" data-bs-container="body"
+                                    title="Used by {{ '%.0f' % comp.bis_pct }}% of the top 50 {{ spec.name }} {{ class_info.name }} players according to Raider.io verified Loadouts.">TOP</span>
+                                  {% endif %}
+                                  <p data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="{{ comp.count }} seen in {{total_gem_comps}} runs" class="mb-0">
+                                    {%if total_gem_comps > 0%}
+                                    {%if (comp.count / total_gem_comps * 100) < 100%} {{ '%.0f' % (comp.count /
+                                      total_gem_comps * 100) }} {%else%} 100 {%endif%}% {%else%} 0% {%endif%} </p>
+                                      {% if comp.max_timed or comp.max_depleted %}
+                                      <div class="mt-1 mb-1">
+                                        <span class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
+                                                                                    data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                                          title="{% if comp.max_timed %}Highest Timed: +{{ comp.max_timed }}{% endif %}{% if comp.max_timed and comp.max_depleted %}<br>{% endif %}{% if comp.max_depleted %}Highest Depleted: +{{ comp.max_depleted }}{% endif %}">
+                                          {% if comp.max_timed %}
+                                          +{{ comp.max_timed }}
+                                          {% else %}
+                                          +{{ comp.max_depleted }} (D)
+                                          {% endif %}
+                                        </span>
+                                      </div>
+                                      {% endif %}
+                                </div>
+                              </div>
+                              {% endfor %}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+                {% if enchant_comps and enchant_comps|length > 0 %}
+                <!-- Enchant Combos Overview-->
+                <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
+                  <div class="accordion mx-2" id="enchantCompAccordion">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="headingEnchantComp">
+                        <button class="accordion-button collapsed fw-semibold text-center w-100" type="button"
+                          data-bs-toggle="collapse" data-bs-target="#collapseEnchantComp" aria-expanded="false"
+                          aria-controls="collapseEnchantComp">
+                          Enchant Combos
+                        </button>
+                      </h2>
+                      <div id="collapseEnchantComp" class="accordion-collapse collapse w-100"
+                        aria-labelledby="headingEnchantComp" data-bs-parent="#enchantCompAccordion">
+                        <div class="accordion-body">
+                          <div class="row">
+                            <div class="col-12">
+                              <!-- Enchant combo list -->
+                              {% for comp in enchant_comps %}
+                              <div class="row align-items-center mb-2">
+                                <!-- Combo icons (x-quantity shown when an enchant repeats) -->
+                                <div class="col d-flex flex-wrap gap-1">
+                                  {% for e in comp.entries %}
+                                  {% set ench = enchant_lookup.get(e.id) or enchant_lookup.get(e.id|string) %}
+                                  {% if ench %}
+                                  {% set ench_url = ("https://www.wowhead.com/item=" ~ ench.itemId) if ench.itemId else ("https://www.wowhead.com/spell=" ~ ench.spellId) %}
+                                  <a target="_blank" href="{{ ench_url }}&spec={{ spec_id }}"
+                                    class="icon-link position-relative detail-row-icon"
+                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="{% if e.qty > 1 %}{{ e.qty }}&times; {% endif %}{{ ench.itemName or ench.displayName }}">
+                                    <img src="/data/icons/{% if ench.itemIcon %}{{ ench.itemIcon }}{% else %}{{ ench.spellIcon }}{% endif %}.png" alt=""
+                                      class="base-icon border {% if ench.quality %}border-quality-{{ench.quality}}{% else %}border-grey-100{% endif %}">
+                                    {% if ench.craftingQuality %}
+                                    <img src="/data/icons/consumable-quality-{{ ench.craftingQuality }}.png" alt=""
+                                      class="icon-overlay">
+                                    {% endif %}
+                                    {% if e.qty > 1 %}
+                                    <span class="combo-qty-badge">&times;{{ e.qty }}</span>
+                                    {% endif %}
+                                  </a>
+                                  {% endif %}
+                                  {% endfor %}
+                                </div>
+                                <!-- Popularity % -->
+                                <div
+                                  class="col-auto ms-auto text-end d-flex flex-column justify-content-center align-items-end">
+                                  {% if comp.is_bis %}
+                                  <span class="badge tt-top-badge tt-top-badge-inline mb-1" data-bs-toggle="tooltip" data-bs-container="body"
+                                    title="Used by {{ '%.0f' % comp.bis_pct }}% of the top 50 {{ spec.name }} {{ class_info.name }} players according to Raider.io verified Loadouts.">TOP</span>
+                                  {% endif %}
+                                  <p data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="{{ comp.count }} seen in {{total_enchant_comps}} runs" class="mb-0">
+                                    {%if total_enchant_comps > 0%}
+                                    {%if (comp.count / total_enchant_comps * 100) < 100%} {{ '%.0f' % (comp.count /
+                                      total_enchant_comps * 100) }} {%else%} 100 {%endif%}% {%else%} 0% {%endif%} </p>
                                       {% if comp.max_timed or comp.max_depleted %}
                                       <div class="mt-1 mb-1">
                                         <span class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
