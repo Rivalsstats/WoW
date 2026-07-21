@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import asyncio
 import hashlib
@@ -1002,6 +1003,35 @@ RAIDERIO_SLOT_MAP = {
     "waist": "WAIST",
     "wrist": "WRIST",
 }
+def _normalize_bonus_ids(raw):
+    """Normalise a Raider.IO item bonus field to a comma-joined string of ids.
+
+    Accepts a list of ints/strs/dicts, a comma/space-separated string, or None.
+    Returns None when there is nothing usable so the DB column stays NULL.
+    """
+    if not raw:
+        return None
+    ids = []
+    if isinstance(raw, (list, tuple)):
+        items = raw
+    elif isinstance(raw, str):
+        items = re.split(r"[,\s]+", raw.strip())
+    else:
+        items = [raw]
+    for b in items:
+        if isinstance(b, dict):
+            b = b.get("id") or b.get("bonus_id") or b.get("bonusId")
+        if b is None or b == "":
+            continue
+        try:
+            ids.append(int(b))
+        except (ValueError, TypeError):
+            continue
+    if not ids:
+        return None
+    return ",".join(str(i) for i in ids)
+
+
 def parse_loadout_for_db(spec_id, season, rank, loadout_detail):
     items_rows = []
     gems_rows = []
@@ -1031,8 +1061,20 @@ def parse_loadout_for_db(spec_id, season, rank, loadout_detail):
                     continue
                 item_level = obj.get("item_level") or obj.get("item_level_equipped") or None
                 enchant = obj.get("enchant") or obj.get("enchantment") or obj.get("enchantment_id") or None
+                # Bonus ids drive missive/embellishment identification (same as the
+                # general equipment path). Raider.IO itemDetails may expose these
+                # under a few different keys; parse tolerantly and normalise to a
+                # comma-joined string of ids (NULL when absent).
+                raw_bonuses = (
+                    obj.get("bonuses")
+                    or obj.get("bonus_id")
+                    or obj.get("bonusIds")
+                    or obj.get("bonus_list")
+                    or None
+                )
+                bonus_ids = _normalize_bonus_ids(raw_bonuses)
                 # don't include enchant in items_rows; store separately
-                items_rows.append((spec_id, season, rank, bliz_slot, int(item_id), int(item_level) if item_level else None))
+                items_rows.append((spec_id, season, rank, bliz_slot, int(item_id), int(item_level) if item_level else None, bonus_ids))
                 # normalize enchant id if present
                 try:
                     if enchant:
@@ -1415,8 +1457,9 @@ async def run_raiderio_top_loadouts(session):
                                 items_to_insert = []
                                 for it in items:
                                     try:
-                                        # it format: (spec_id, season, rank, slot, item_id, item_level)
-                                        items_to_insert.append((it[0], db_season, r, int(map_challenge_mode_id), it[3], it[4], it[5]))
+                                        # it format: (spec_id, season, rank, slot, item_id, item_level, bonus_ids)
+                                        bonus_ids = it[6] if len(it) > 6 else None
+                                        items_to_insert.append((it[0], db_season, r, int(map_challenge_mode_id), it[3], it[4], it[5], bonus_ids))
                                     except Exception:
                                         continue
                                 if items_to_insert:

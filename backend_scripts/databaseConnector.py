@@ -3457,8 +3457,8 @@ VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 
 INSERT_TOP_PLAYER_ITEMS_SQL = """
 INSERT INTO `Mythistone`.`top_player_loadout_items`
-(`spec_id`, `season`, `rank`, `map_challenge_mode_id`, `slot`, `item_id`, `item_level`)
-VALUES (%s, %s, %s, %s, %s, %s, %s)
+(`spec_id`, `season`, `rank`, `map_challenge_mode_id`, `slot`, `item_id`, `item_level`, `bonus_ids`)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
 """
 
 INSERT_TOP_PLAYER_GEMS_SQL = """
@@ -3629,7 +3629,7 @@ def fetch_top50_loadouts(connection, cursor, spec_id, season, limit=50):
 
     Each returned entry is a dict with keys:
       - meta: dict (spec_id, season, rank, map_challenge_mode_id, region, character_id, character_name, realm, loadout_key, loadout_updated_at, keystone_level)
-      - items: list of { slot, item_id, item_level }
+      - items: list of { slot, item_id, item_level, bonus_ids }
       - gems: list of { gem_item_id, usage_count }
       - enchants: list of { slot_group, enchantment_id }
       - talents: list of { node_id, node_rank, entry_id, spell_id }
@@ -3716,7 +3716,7 @@ def fetch_top50_loadouts(connection, cursor, spec_id, season, limit=50):
     item_rows = []
     if non_null_pairs:
         ITEMS_SQL = f"""
-        SELECT `spec_id`, `season`, `rank`, `map_challenge_mode_id`, `slot`, `item_id`, `item_level`
+        SELECT `spec_id`, `season`, `rank`, `map_challenge_mode_id`, `slot`, `item_id`, `item_level`, `bonus_ids`
         FROM `Mythistone`.`top_player_loadout_items`
         WHERE `spec_id` = %s AND `season` = %s AND ({pair_or_clause})
         ORDER BY `rank`, `slot`
@@ -3728,7 +3728,7 @@ def fetch_top50_loadouts(connection, cursor, spec_id, season, limit=50):
         # fetch rows where map_challenge_mode_id IS NULL and rank in (..)
         rank_ph = ",".join(["%s" for _ in null_ranks])
         ITEMS_NULL_SQL = f"""
-        SELECT `spec_id`, `season`, `rank`, `map_challenge_mode_id`, `slot`, `item_id`, `item_level`
+        SELECT `spec_id`, `season`, `rank`, `map_challenge_mode_id`, `slot`, `item_id`, `item_level`, `bonus_ids`
         FROM `Mythistone`.`top_player_loadout_items`
         WHERE `spec_id` = %s AND `season` = %s AND `rank` IN ({rank_ph}) AND `map_challenge_mode_id` IS NULL
         ORDER BY `rank`, `slot`
@@ -3740,12 +3740,12 @@ def fetch_top50_loadouts(connection, cursor, spec_id, season, limit=50):
             rank = int(row.get("rank"))
             map_id = int(row.get("map_challenge_mode_id"))
             key = f"{rank}|{map_id}"
-            entry = {"slot": row.get("slot"), "item_id": int(row.get("item_id")), "item_level": int(row.get("item_level")) if row.get("item_level") else None}
+            entry = {"slot": row.get("slot"), "item_id": int(row.get("item_id")), "item_level": int(row.get("item_level")) if row.get("item_level") else None, "bonus_ids": row.get("bonus_ids")}
         else:
             rank = int(row[2])
             map_id = int(row[3])
             key = f"{rank}|{map_id}"
-            entry = {"slot": row[4], "item_id": int(row[5]), "item_level": int(row[6]) if row[6] is not None else None}
+            entry = {"slot": row[4], "item_id": int(row[5]), "item_level": int(row[6]) if row[6] is not None else None, "bonus_ids": row[7] if len(row) > 7 else None}
         meta_map.get(key, {}).get("items", []).append(entry)
 
     # GEMS
