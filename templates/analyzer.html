@@ -23,7 +23,7 @@
   <meta name="theme-color" content="#1a202c">
   <meta name="apple-mobile-web-app-title" content="MythiStone" />
   {% include "header_imports.html" %}
-  <link rel="stylesheet" href="/assets/css/analyzer.css">
+  <link rel="stylesheet" href="/assets/css/analyzer.css?v={{ generated_at | int }}">
 </head>
 
 <body class="g-sidenav-show g-sidenav-show-right" data-bs-theme="dark">
@@ -90,6 +90,10 @@
   {% include "fixed_plugin.html" %}
   {% include "javascript_imports.html" %}
 
+  <!-- Wowhead tooltips (Klaro consent-gated, same as spec/item pages) -->
+  <script type="text/plain" data-type="application/javascript" data-name="wowhead"
+    data-src='https://wow.zamimg.com/widgets/power.js'></script>
+
   <script>
     // Baked lookup tables so analyzer.js can resolve a SimC export's class/spec
     // tokens to a spec_id and then fetch /assets/json/spec_meta/<spec_id>.json.
@@ -97,7 +101,7 @@
     window.SPEC_INDEX = {{ spec_index | tojson | safe }};
     window.SPEC_DISPLAY = {{ spec_display | tojson | safe }};
   </script>
-  <script src="/assets/js/analyzer.js"></script>
+  <script src="/assets/js/analyzer.js?v={{ generated_at | int }}"></script>
 </body>
 
 </html>

@@ -33,19 +33,284 @@
 
 .text-xxs { font-size: 0.6rem; }
 
-.an-table td {
-  padding: 0.5rem 0.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  vertical-align: middle;
-}
-.an-table .an-slot { min-width: 5.5rem; letter-spacing: 0.04em; }
-
-.badge.an-bis { background: rgba(156, 39, 176, 0.22); color: #ce93d8; border: 1px solid rgba(156, 39, 176, 0.4); }
-.badge.an-meta { background: rgba(76, 175, 80, 0.2); color: #a5d6a7; border: 1px solid rgba(76, 175, 80, 0.4); }
-.badge.an-off { background: rgba(255, 255, 255, 0.06); color: #b0bec5; border: 1px solid rgba(255, 255, 255, 0.14); }
 .badge.an-stat { background: rgba(33, 150, 243, 0.16); color: #90caf9; border: 1px solid rgba(33, 150, 243, 0.32); text-transform: capitalize; }
 
-.an-flag { font-size: 0.62rem; padding: 2px 5px; border-radius: 4px; margin-left: 0.25rem; white-space: nowrap; }
-.an-flag-ok { color: #a5d6a7; }
-.an-flag-warn { color: #ffca28; }
-.an-flag-bad { color: #ef5350; }
+/* === Compact slot grid === */
+.an-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.55rem;
+}
+
+.an-tile {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left-width: 3px;
+  border-radius: 8px;
+  padding: 0.4rem 0.5rem 0.45rem;
+}
+/* left accent = slot status */
+.an-tile.an-sim { border-left-color: #ce93d8; }
+.an-tile.an-top { border-left-color: #66bb6a; }
+.an-tile.an-meta { border-left-color: #4dd0e1; }
+.an-tile.an-off { border-left-color: #ef5350; }
+.an-tile.an-none { border-left-color: rgba(255, 255, 255, 0.18); }
+
+.an-slot-label {
+  font-size: 0.58rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #90a4ae;
+  margin-bottom: 0.3rem;
+}
+
+.an-tile-body {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Icons match the spec page: rounded, object-fit cover, no quality border. */
+.an-icon {
+  position: relative;
+  display: inline-block;
+  box-sizing: border-box;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  overflow: visible;
+  flex: 0 0 auto;
+}
+.an-icon img {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  object-fit: cover;
+  display: block;
+}
+.an-targets .an-icon { width: 34px; height: 34px; }
+
+.an-arrow {
+  color: #607d8b;
+  font-size: 1.05rem;
+  flex: 0 0 auto;
+}
+
+.an-targets {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+.an-targets-muted { opacity: 0.55; }
+.an-common-note {
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #78909c;
+}
+
+/* status glyph on the user's item */
+.an-mark {
+  position: absolute;
+  bottom: -6px;
+  right: -6px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-size: 0.62rem;
+  line-height: 16px;
+  text-align: center;
+  font-weight: 700;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+}
+.an-mark-ok { background: #66bb6a; color: #10240f; }
+.an-mark-warn { background: #ffca28; color: #3a2c00; }
+.an-mark-bad { background: #ef5350; color: #2a0b0a; }
+
+/* SIM / TOP badges on the meta target icons — same styling and colours as the
+   spec page (spec-page.css .simc-badge / .bis-badge / .item-icon-*-badge), so
+   the same signal reads the same everywhere. spec-page.css isn't loaded here,
+   so the rules are mirrored (same idiom as items.css). */
+.simc-badge,
+.bis-badge {
+  font-weight: 700;
+  padding: 0.08rem 0.4rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
+}
+.bis-badge { background: #ffd100; color: #000; }
+.simc-badge { background: #3a8dde; color: #fff; }
+
+.item-icon-top-badge,
+.item-icon-sim-badge {
+  position: absolute;
+  z-index: 5;
+  font-size: 0.5rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.3px;
+  padding: 2px 4px;
+  white-space: nowrap;
+  border: 1px solid rgba(0, 0, 0, 0.55);
+}
+.item-icon-top-badge {
+  top: -6px;
+  left: -5px;
+  box-shadow: 0 0 6px rgba(255, 209, 0, 0.55);
+}
+.item-icon-sim-badge {
+  bottom: -6px;
+  left: -5px;
+  box-shadow: 0 0 6px rgba(58, 141, 222, 0.6);
+}
+
+/* inline badges in the legend line */
+.an-legend-badge {
+  font-size: 0.55rem;
+  padding: 1px 4px;
+  margin-right: 2px;
+  vertical-align: middle;
+}
+
+.an-icon { cursor: pointer; }
+.an-icon.an-icon-sm { width: 22px; height: 22px; }
+
+/* the corner status glyph shrinks on the small combo/footer icons so it frames
+   the icon instead of swallowing it */
+.an-icon-sm .an-mark {
+  width: 13px;
+  height: 13px;
+  line-height: 13px;
+  font-size: 0.5rem;
+  bottom: -4px;
+  right: -4px;
+}
+
+/* "in your bags" owned-upgrade badge inside a tile */
+.an-inbags {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.35rem;
+  padding: 0.25rem 0.35rem;
+  border-radius: 6px;
+  background: rgba(77, 208, 225, 0.1);
+  border: 1px solid rgba(77, 208, 225, 0.28);
+  font-size: 0.58rem;
+  color: #b2ebf2;
+}
+.an-inbags .material-symbols-rounded { font-size: 0.8rem; color: #4dd0e1; }
+
+/* per-slot footers (socketed gems + enchant) share a compact, tinted strip that
+   separates them from the item row above */
+.an-slot-extras {
+  margin-top: 0.45rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+/* enchant footer — enchant icon + status label */
+.an-ench {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.6rem;
+  font-weight: 600;
+}
+.an-ench .an-icon-sm { width: 22px; height: 22px; }
+.an-ench-ok { color: #a5d6a7; }
+.an-ench-warn { color: #ffca28; }
+.an-ench-bad { color: #ef5350; }
+
+/* per-slot socketed-gem footer — small gem icons with a match/warn/bad glyph */
+.an-gems-slot {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+.an-gems-slot .an-gem-slot.an-icon-sm { width: 24px; height: 24px; }
+
+/* combo reference row (gem / enchant combo the top players run) */
+.an-gems {
+  margin-top: 0.9rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+}
+.an-gems-head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+}
+.an-gems-head .text-uppercase {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #cfd8dc;
+}
+.an-gems-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.an-gems-row .an-icon { width: 34px; height: 34px; }
+.an-gem-unused { opacity: 0.3; filter: grayscale(0.75); }
+.an-gem-used { opacity: 1; }
+
+/* in the combo row the matched-tick / partial-count sit top-right so they clear
+   the bottom-right quantity badge */
+.an-gems-row .an-mark {
+  top: -5px;
+  right: -6px;
+  bottom: auto;
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+  font-size: 0.5rem;
+}
+
+/* have/need count on a partially-matched combo entry (own some, not all) —
+   top-right, amber, so it reads as "you're short" without greying the icon */
+.an-count-badge {
+  position: absolute;
+  top: -5px;
+  right: -6px;
+  z-index: 6;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 8px;
+  font-size: 0.5rem;
+  line-height: 15px;
+  text-align: center;
+  font-weight: 700;
+  background: #ffca28;
+  color: #3a2c00;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+/* ×N quantity badge on a combo entry (bottom-right, dark — matches the spec
+   page's .combo-qty-badge) */
+.combo-qty-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  z-index: 5;
+  font-size: 0.52rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 1px 3px;
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+}

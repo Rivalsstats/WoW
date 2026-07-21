@@ -611,8 +611,13 @@ def build_spec_meta_json(
     scores a slot as a match only when the equipped item is one of these. The
     single most-equipped item is kept as ``common`` for neutral display on slots
     that have neither target (sparse Raider.io/SimC data) — it never counts
-    toward the score. Also carries the top enchant per slot group and the stat
-    priority. Icons/quality are baked so the client can render item tiles.
+    toward the score. Also carries the single most-popular top-50 gem combo and
+    enchant combo (multisets, ``gem_combo``/``enchant_combo``) that the analyzer
+    scores the player's sockets/enchants against as a per-id quantity budget, how
+    many enchanted slots top players run per slot group
+    (``enchant_group_expected``, so the client only flags a bare slot "missing"
+    while under that count), and the stat priority. Icons/quality are baked so the
+    client can render item tiles.
     """
     def _name(item_id):
         it = item_lookup.get(item_id) or {}
@@ -667,42 +672,75 @@ def build_spec_meta_json(
                 "common": _pick(common, pct=common_pct),
             }
 
-    enchants = {}
-    for slot_group, lst in (enchant_slots or {}).items():
-        if not lst:
-            continue
-        top = lst[0]
-        eid = top.get("id")
-        ench = enchant_lookup.get(eid) or {}
-        enchants[slot_group] = {
-            "id": eid,
-            # enchants store the readable label under itemName/displayName;
-            # `name` is usually null for them. Tooltip links via the scroll itemId.
-            "name": ench.get("itemName") or ench.get("displayName") or ench.get("name"),
-            "icon": ench.get("itemIcon") or ench.get("icon") or ench.get("spellIcon"),
-            "itemId": ench.get("itemId"),
-            "quality": ench.get("quality"),
+    # The single most-popular gem/enchant combo among the top-50 verified
+    # loadouts (the same `best` combos the spec page's "TOP" badge is built from,
+    # `compute_bis_from_top_loadouts`). The analyzer treats each as a per-id
+    # quantity budget and flags sockets/enchants that fall outside it. The canonical
+    # `key` is an ascending, comma-joined multiset (repeats kept); collapse it back
+    # into `{id, qty}` display entries, dropping ids the lookup can't resolve
+    # (cosmetic/filtered noise, mirroring the spec page's combo rendering).
+    def _combo_from_best(best, lookup, is_enchant):
+        if not best or not best.get("key"):
+            return None
+        counts = {}
+        for tok in str(best["key"]).split(","):
+            tok = tok.strip()
+            if not tok:
+                continue
+            try:
+                cid = int(tok)
+            except ValueError:
+                continue
+            counts[cid] = counts.get(cid, 0) + 1
+        entries = []
+        for cid, qty in counts.items():
+            info = lookup.get(cid) or lookup.get(int(cid)) or {}
+            if not info:
+                continue  # unresolved id -> drop from the display combo
+            entry = {
+                "id": cid,
+                "qty": qty,
+                "name": info.get("itemName") or info.get("displayName") or info.get("name"),
+                "icon": info.get("itemIcon") or info.get("icon") or info.get("spellIcon"),
+                "quality": info.get("quality"),
+            }
+            if is_enchant:
+                # Wowhead tooltip/link for the enchant is via its scroll itemId.
+                entry["itemId"] = info.get("itemId")
+            entries.append(entry)
+        if not entries:
+            return None
+        # Most-repeated ids first for a stable, popularity-ish ordering.
+        entries.sort(key=lambda e: (-e["qty"], e["id"]))
+        return {
+            "entries": entries,
+            "pct": round(best.get("pct") or 0, 1),
+            "count": int(best.get("count") or 0),
         }
 
-    # Spec-wide top gems (Raider.io top-50 loadouts), enriched with display data
-    # from socket_lookup (gems keyed by their item id). Gems aren't slot-specific
-    # in the meta, so the analyzer scores them as one set for the whole build.
-    gems = []
-    for g in (bis_summary or {}).get("gems", []):
-        gid = g.get("id")
-        pct = g.get("pct") or 0
-        if gid is None or pct < 5.0:  # drop the long noise tail
-            continue
-        sk = socket_lookup.get(gid) or socket_lookup.get(int(gid)) or {}
-        gems.append({
-            "id": gid,
-            "name": sk.get("itemName"),
-            "icon": sk.get("itemIcon"),
-            "quality": sk.get("quality"),
-            "pct": round(pct, 1),
-        })
-        if len(gems) >= 6:
-            break
+    bis = bis_summary or {}
+    gem_combo = _combo_from_best((bis.get("gem_comps") or {}).get("best"), socket_lookup, False)
+    enchant_combo = _combo_from_best((bis.get("enchant_comps") or {}).get("best"), enchant_lookup, True)
+
+    # enchant id -> its normalized slot group (FINGER/WEAPON/...), from the
+    # popular valid enchants per group. enchant_slots is keyed by the same
+    # SLOT_GROUPS names the client's ENCHANT_GROUP map targets.
+    ench_id_group = {}
+    for grp, lst in (enchant_slots or {}).items():
+        for e in (lst or []):
+            eid = e.get("id")
+            if eid is not None:
+                ench_id_group[int(eid)] = grp
+    # How many enchanted slots top players run per group, read off the combo, so
+    # the client flags a bare slot "missing" only while under that count: a
+    # caster's WEAPON expected == 1 won't flag the un-enchantable off-hand, while
+    # a dual-wielder's WEAPON == 2 still flags a bare second weapon. FINGER == 2
+    # means both rings are expected to be enchanted.
+    enchant_group_expected = {}
+    for e in (enchant_combo or {}).get("entries", []):
+        grp = ench_id_group.get(int(e["id"]))
+        if grp:
+            enchant_group_expected[grp] = enchant_group_expected.get(grp, 0) + e["qty"]
 
     return {
         "spec_id": int(spec_id),
@@ -711,8 +749,9 @@ def build_spec_meta_json(
         # secondary stat names in the same priority order the page displays.
         "stat_priority": [s.get("name") for s in (stat_priority or []) if s.get("name")],
         "slots": slots,
-        "enchants": enchants,
-        "gems": gems,
+        "gem_combo": gem_combo,
+        "enchant_combo": enchant_combo,
+        "enchant_group_expected": enchant_group_expected,
     }
 
 
