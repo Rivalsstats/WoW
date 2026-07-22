@@ -3,6 +3,11 @@
     "season_id": 17,
     "periods": [
       {
+        "id": 1055,
+        "start_timestamp": 1773759600000,
+        "end_timestamp": 1774364399000
+      },
+      {
         "id": 1056,
         "start_timestamp": 1774364400000,
         "end_timestamp": 1774969199000
@@ -86,12 +91,22 @@
         "id": 1072,
         "start_timestamp": 1784041200000,
         "end_timestamp": 1784645999000
+      },
+      {
+        "id": 1073,
+        "start_timestamp": 1784646000000,
+        "end_timestamp": 1785250799000
       }
     ]
   },
   "eu": {
     "season_id": 17,
     "periods": [
+      {
+        "id": 1055,
+        "start_timestamp": 1773806400000,
+        "end_timestamp": 1774411199000
+      },
       {
         "id": 1056,
         "start_timestamp": 1774411200000,
@@ -176,12 +191,22 @@
         "id": 1072,
         "start_timestamp": 1784088000000,
         "end_timestamp": 1784692799000
+      },
+      {
+        "id": 1073,
+        "start_timestamp": 1784692800000,
+        "end_timestamp": 1785297599000
       }
     ]
   },
   "kr": {
     "season_id": 17,
     "periods": [
+      {
+        "id": 1055,
+        "start_timestamp": 1773874800000,
+        "end_timestamp": 1774479599000
+      },
       {
         "id": 1056,
         "start_timestamp": 1774479600000,
@@ -272,6 +297,11 @@
   "tw": {
     "season_id": 17,
     "periods": [
+      {
+        "id": 1055,
+        "start_timestamp": 1773874800000,
+        "end_timestamp": 1774479599000
+      },
       {
         "id": 1056,
         "start_timestamp": 1774479600000,
