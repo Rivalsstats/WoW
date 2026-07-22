@@ -293,6 +293,11 @@
   var MARK = { ok: "an-mark-ok", warn: "an-mark-warn", bad: "an-mark-bad" };
   var GLYPH = { ok: "✓", warn: "⚠", bad: "✕" };
 
+  // Corner status glyph (✓ / ⚠ / ✕) overlaid on a small gem/enchant icon.
+  function statusMark(st, tip) {
+    return '<span class="an-mark ' + MARK[st] + '" title="' + esc(tip) + '">' + GLYPH[st] + "</span>";
+  }
+
   // Count every gem id (across all sockets) and enchant id the player runs, so
   // the over-quantity check can see the whole build at once.
   function tallyPlayer(parsed) {
@@ -436,47 +441,43 @@
         }
       }
 
-      // Per-slot gem check against the top gem combo (a build-wide quantity
-      // budget). Off-combo gems and over-used gems are flagged on the slot(s)
-      // that carry them; a gem the top combo knows is drawn with its own icon,
-      // an off-combo gem falls back to a questionmark + Wowhead tooltip.
-      var gemFooter = "";
+      // GEM cell (fixed left of the footer): each socketed gem drawn as a small
+      // gem-style icon with a ✓ / ⚠ / ✕ corner glyph. Off-combo and over-used
+      // gems are flagged; a gem the top combo knows uses its own icon, an
+      // off-combo gem falls back to a questionmark + Wowhead tooltip.
+      var gemCell = "";
       if (meta.gem_combo && user.gems && user.gems.length) {
-        var gtiles = user.gems.map(function (gid) {
+        gemCell = user.gems.map(function (gid) {
           var st = classifyAgainstCombo(gid, counts.gems, gemBudget);
           var info = gemInfo[gid] || { id: gid };
           var tip = st === "warn"
               ? "Top players use only " + (gemBudget[gid] || 0) + "× this gem — you have " + (counts.gems[gid] || 0) + "."
             : st === "bad" ? "Not in the top gem combo."
-            : (info.name || "Gem") + " — matches the top combo.";
-          var m = '<span class="an-mark ' + MARK[st] + '" title="' + esc(tip) + '">' + GLYPH[st] + "</span>";
-          return auxIconEl(info, "item=" + gid, "an-gem-slot", m);
+            : (info.name || "Gem") + " matches the top combo.";
+          return auxIconEl(info, "item=" + gid, "an-gem-slot", statusMark(st, tip));
         }).join("");
-        gemFooter = '<div class="an-gems-slot">' + gtiles + "</div>";
       }
 
-      // Enchant check: an enchant the player has is scored against the top
-      // enchant combo (over-using an enchant id across slots flags every
-      // occurrence); a bare slot is flagged only when top players enchant more
-      // slots in this group than the player has (see missingSlots above).
-      var enchFooter = "";
+      // ENCHANT cell (fixed right of the footer): the applied enchant drawn the
+      // same way as a gem — a small icon with a status glyph. A bare slot the top
+      // players enchant shows a placeholder ✕; a slot they don't enchant (or one
+      // already covered by another slot in the group) shows nothing.
+      var enchCell = "";
       var eg = ENCHANT_GROUP[slotName];
       if (meta.enchant_combo && eg && (enchExpected[eg] || 0) > 0) {
-        var ecls, etxt, enchIcon = "";
         if (!user.enchant) {
-          if (!missingSlots[slotName]) { ecls = null; }  // this slot isn't expected to carry one
-          else { ecls = "bad"; etxt = "Missing enchant"; }
+          if (missingSlots[slotName]) {
+            enchCell = '<span class="an-icon an-icon-sm an-gem-slot an-ench-missing">' +
+              '<img src="' + QUESTION + '" alt="">' + statusMark("bad", "Missing enchant") + "</span>";
+          }
         } else {
           var est = classifyAgainstCombo(user.enchant, counts.enchants, enchBudget);
-          var einfo = enchInfo[user.enchant];
-          if (einfo && einfo.itemId) enchIcon = auxIconEl(einfo, "item=" + einfo.itemId, "", "");
-          if (est === "ok") { ecls = "ok"; etxt = "Enchant ✓"; }
-          else if (est === "warn") { ecls = "warn"; etxt = "Too many of this enchant"; }
-          else { ecls = "bad"; etxt = "Off-combo enchant"; }
-        }
-        if (ecls) {
-          enchFooter = '<div class="an-ench an-ench-' + ecls + '">' + enchIcon +
-            '<span class="an-ench-label">' + esc(etxt) + "</span></div>";
+          var einfo = enchInfo[user.enchant] || { id: user.enchant };
+          var whRef = einfo.itemId ? "item=" + einfo.itemId : "item=" + user.enchant;
+          var etip = est === "ok" ? ((einfo.name || "Enchant") + " matches the top combo.")
+            : est === "warn" ? "You use this enchant more times than the top players do."
+            : "Off-combo enchant — not in the top players' set.";
+          enchCell = auxIconEl(einfo, whRef, "an-gem-slot", statusMark(est, etip));
         }
       }
 
@@ -488,12 +489,22 @@
       }
       body += "</div>";
 
+      // Footer band right under the item: gems then enchant, grouped tightly.
+      // "In your bags" is pinned to the very bottom (see .an-inbags) instead of
+      // floating mid-tile.
+      var foot = (gemCell || enchCell)
+        ? '<div class="an-foot">' +
+          (gemCell ? '<div class="an-foot-gems">' + gemCell + "</div>" : "") +
+          (enchCell ? '<div class="an-foot-ench">' + enchCell + "</div>" : "") +
+          "</div>"
+        : "";
+
       tiles.push(
         '<div class="an-tile an-' + status + '">' +
           '<div class="an-slot-label">' + esc(slotName.replace(/_/g, " ")) + "</div>" +
           body +
+          foot +
           inBagsHtml +
-          '<div class="an-foot">' + gemFooter + enchFooter + "</div>" +
         "</div>"
       );
     });

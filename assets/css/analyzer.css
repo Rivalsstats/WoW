@@ -40,6 +40,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 0.55rem;
+  align-items: stretch;
 }
 
 .an-tile {
@@ -48,6 +49,8 @@
   border-left-width: 3px;
   border-radius: 8px;
   padding: 0.4rem 0.5rem 0.45rem;
+  display: flex;
+  flex-direction: column;
 }
 /* left accent = slot status */
 .an-tile.an-sim { border-left-color: #ce93d8; }
@@ -187,12 +190,13 @@
   right: -4px;
 }
 
-/* "in your bags" owned-upgrade badge inside a tile */
+/* "in your bags" owned-upgrade badge — pinned to the very bottom of the
+   (equal-height) tile so it never floats mid-tile. */
 .an-inbags {
   display: flex;
   align-items: center;
   gap: 0.3rem;
-  margin-top: 0.35rem;
+  margin-top: auto;
   padding: 0.25rem 0.35rem;
   border-radius: 6px;
   background: rgba(77, 208, 225, 0.1);
@@ -202,38 +206,38 @@
 }
 .an-inbags .material-symbols-rounded { font-size: 0.8rem; color: #4dd0e1; }
 
-/* per-slot footers (socketed gems + enchant) share a compact, tinted strip that
-   separates them from the item row above */
-.an-slot-extras {
-  margin-top: 0.45rem;
-  padding-top: 0.4rem;
+/* Footer band directly under the item icon: gems then enchant, left-aligned and
+   grouped closely (with a thin divider between them when a slot has both). The
+   bottom margin keeps the icons' corner glyphs clear of the "In your bags" chip.
+   Only rendered when the slot has gems and/or an enchant. */
+.an-foot {
+  margin-top: 0.5rem;
+  margin-bottom: 0.6rem;
+  padding-top: 0.45rem;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+  align-items: center;
+  gap: 0.5rem;
 }
-
-/* enchant footer — enchant icon + status label */
-.an-ench {
+.an-foot-gems {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.6rem;
-  font-weight: 600;
-}
-.an-ench .an-icon-sm { width: 22px; height: 22px; }
-.an-ench-ok { color: #a5d6a7; }
-.an-ench-warn { color: #ffca28; }
-.an-ench-bad { color: #ef5350; }
-
-/* per-slot socketed-gem footer — small gem icons with a match/warn/bad glyph */
-.an-gems-slot {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
   flex-wrap: wrap;
 }
-.an-gems-slot .an-gem-slot.an-icon-sm { width: 24px; height: 24px; }
+.an-foot-ench {
+  display: flex;
+  align-items: center;
+}
+/* gem + enchant icons in the footer share one size (the enchant is drawn like a
+   gem: a small rounded icon with the same corner glyph). */
+.an-foot .an-gem-slot.an-icon-sm { width: 28px; height: 28px; }
+/* bare-but-expected enchant: a muted questionmark placeholder carrying the ✕ */
+.an-ench-missing {
+  cursor: default;
+  opacity: 0.55;
+  filter: grayscale(0.5);
+}
 
 /* combo reference row (gem / enchant combo the top players run) */
 .an-gems {
