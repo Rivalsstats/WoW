@@ -12,6 +12,10 @@
  * (neck, trinkets, weapons), it falls back to the single most-popular item
  * (`common`). The equipped item passes if it matches a target. If the meta
  * item is sitting in the player's bags, the tile flags it as an owned upgrade.
+ *
+ * The player's own items are drawn from items_index.json (the ~500 items with an
+ * /items page) and, for everything else they can equip, the sharded icon index
+ * at /assets/json/item_icons/ (baked by generateAnalyzerPage.py).
  */
 (function () {
   "use strict";
@@ -51,11 +55,52 @@
 
   // id -> {icon, quality, slug} for the site's popular items, so we can draw the
   // user's own equipped icons and link them to /items. Populated once from
-  // /assets/json/items_index.json. Items not in this ~500-item index (rare/PvP
-  // gear) fall back to a questionmark tile with a Wowhead tooltip — a
-  // legitimately-unknown user item, not a data error.
+  // /assets/json/items_index.json. Items outside this ~500-item index (rare/PvP
+  // gear) still get their real icon from the sharded icon index below — they
+  // just have no /items page to link to.
   var itemsIndex = null;
   var itemsIndexPromise = null;
+
+  // Fallback icon lookup for everything else a player can equip: the full
+  // catalog is baked by generateAnalyzerPage.py into
+  // /assets/json/item_icons/<id//ICON_SHARD_SIZE>.json as {id: [icon, quality]}.
+  // We know the equipped ids before we need their icons, so only the few buckets
+  // they land in are ever fetched.
+  var ICON_SHARD_SIZE = 1000;
+  var iconIndex = {};          // merged id -> [icon, quality] of loaded shards
+  var iconShardPromises = {};  // bucket -> in-flight/settled fetch
+
+  function loadIconShards(ids) {
+    var known = window.ITEM_ICON_BUCKETS || [];
+    var exists = {};
+    known.forEach(function (b) { exists[b] = true; });
+    var wanted = {};
+    ids.forEach(function (id) {
+      var b = Math.floor(id / ICON_SHARD_SIZE);
+      // A bucket the build never wrote means "no equippable items in that id
+      // range" — an unknown item, which legitimately stays a questionmark.
+      if (exists[b]) wanted[b] = true;
+    });
+    return Promise.all(Object.keys(wanted).map(function (b) {
+      if (!iconShardPromises[b]) {
+        // A bucket that IS baked but won't load is a broken deploy, not an
+        // unknown item: let it reject so the caller surfaces an error.
+        iconShardPromises[b] = fetch("/assets/json/item_icons/" + b + ".json")
+          .then(function (r) {
+            if (!r.ok) {
+              var err = new Error("item icon shard " + b + " failed: HTTP " + r.status);
+              err.dataError = true;
+              throw err;
+            }
+            return r.json();
+          })
+          .then(function (o) {
+            Object.keys(o).forEach(function (id) { iconIndex[id] = o[id]; });
+          });
+      }
+      return iconShardPromises[b];
+    }));
+  }
 
   function loadItemsIndex() {
     if (itemsIndexPromise) return itemsIndexPromise;
@@ -218,7 +263,15 @@
     return out;
   }
 
-  function userMeta(id) { return (itemsIndex && itemsIndex[id]) || null; }
+  // Icon/quality (and slug, when the item has its own page) for one of the
+  // player's items: the popular-items manifest first, then the full catalog
+  // shard. Only an item in neither is drawn as a questionmark.
+  function userMeta(id) {
+    var hit = itemsIndex && itemsIndex[id];
+    if (hit) return hit;
+    var shard = iconIndex[id];
+    return shard ? { icon: shard[0], quality: shard[1], slug: null } : null;
+  }
 
   // Build the &bonus=..&spec=..&ench=..&gems=..&pcs=.. tail shared by the tooltip
   // and the Wowhead link, from either a meta pick or a parsed user item.
@@ -380,11 +433,58 @@
       '<div class="an-gems-row">' + tiles + "</div></div>";
   }
 
+  // Does this meta pick occupy both hands? Baked as `two_handed` on the pick
+  // itself (spec_meta) and as the third element of an icon shard entry; either
+  // answer is derived from the same commonUtils.occupies_both_hands, so the
+  // shard covers specs whose meta JSON predates the flag. The shard mark knows
+  // nothing about Titan's Grip — safe here because only twoHandPicks() reads it,
+  // and that runs only for a spec with no OFF_HAND slot of its own.
+  function isTwoHanded(pick) {
+    if (!pick) return false;
+    if (pick.two_handed) return true;
+    var shard = iconIndex[pick.id];
+    return !!(shard && shard[2]);
+  }
+
+  // A spec whose top main hand is a two-hander has no OFF_HAND slot in its meta
+  // JSON at all — generateSpecPages drops it. Keep only the two-handed picks of
+  // the MAIN_HAND slot so the off-hand can be scored against them.
+  function twoHandPicks(mhSlot) {
+    if (!mhSlot) return null;
+    var sim = isTwoHanded(mhSlot.sim) ? mhSlot.sim : null;
+    var top = (mhSlot.top || []).filter(isTwoHanded);
+    var common = isTwoHanded(mhSlot.common) ? mhSlot.common : null;
+    if (!sim && !top.length && !common) return null;
+    return { sim: sim, top: top, common: common };
+  }
+
   function render(meta, parsed) {
     var specId = meta.spec_id;
     var disp = (window.SPEC_DISPLAY || {})[specId] || { name: meta.spec, class: meta.class, icon: null };
     var tiles = [];
     var comparable = 0, good = 0;
+
+    // Equipping the meta two-hander costs the player BOTH weapons, so a
+    // one-hand + off-hand player has to be told about both slots, not just the
+    // main hand. The spec has no OFF_HAND meta slot in that case, so we score
+    // the off-hand against the two-handed MAIN_HAND picks through a virtual
+    // slot — every tile behind it (gems, enchants, badges) then falls out of the
+    // normal per-slot path. Specs that really do use an off-hand keep their own
+    // OFF_HAND slot and never reach this.
+    var metaSlots = meta.slots;
+    var twoHandSwap = false;
+    if (!metaSlots.OFF_HAND && parsed.slots.OFF_HAND && parsed.slots.MAIN_HAND) {
+      var th = twoHandPicks(metaSlots.MAIN_HAND);
+      var already = th && (
+        (th.sim && th.sim.id === parsed.slots.MAIN_HAND.id) ||
+        (th.common && th.common.id === parsed.slots.MAIN_HAND.id) ||
+        th.top.some(function (t) { return t.id === parsed.slots.MAIN_HAND.id; })
+      );
+      if (th && !already) {
+        metaSlots = Object.assign({}, metaSlots, { OFF_HAND: th });
+        twoHandSwap = true;
+      }
+    }
 
     // Top-combo budgets + the player's full id counts, built once so the
     // per-slot gem/enchant checks (and the over-quantity flag) see every socket.
@@ -424,11 +524,11 @@
     var groupSuggested = {};
 
     SLOT_ORDER.forEach(function (slotName) {
-      var metaSlot = meta.slots[slotName];
+      var metaSlot = metaSlots[slotName];
       var user = parsed.slots[slotName];
       if (!metaSlot || !user) return; // only compare slots both sides have
 
-      var acc = acceptableIds(meta.slots, slotName);
+      var acc = acceptableIds(metaSlots, slotName);
       var hasIdeal = acc.sim.size > 0 || acc.top.size > 0;
       var hasAny = hasIdeal || acc.common.size > 0;
       if (!hasAny) return; // truly no meta data for this slot
@@ -470,7 +570,7 @@
       // displayTargets falls back to the most-popular `common` pick so the slot
       // still shows a distinct suggestion. Record what we suggest so the paired
       // slot skips it.
-      var picks = displayTargets(meta.slots, slotName, excludeIds);
+      var picks = displayTargets(metaSlots, slotName, excludeIds);
       // Only a slot that actually shows a swap (off-meta) reserves its pick; a
       // matched slot shows no target, so recording its picks would wrongly starve
       // an off-meta sibling of the very item it should be told to equip.
@@ -483,7 +583,11 @@
       // Owned-upgrade: is an acceptable meta item sitting in the player's bags?
       var inBagsHtml = "";
       if (!matched) {
-        var bagGroup = parsed.bags[groupKey(slotName)] || {};
+        // A two-hander suggested for the OFF_HAND tile is a main-hand item, so
+        // it sits under the export's main_hand bag group.
+        var bagGroup = parsed.bags[
+          twoHandSwap && slotName === "OFF_HAND" ? "MAIN_HAND" : groupKey(slotName)
+        ] || {};
         var wantIds = [];
         acc.sim.forEach(function (i) { if (!excludeIds[i]) wantIds.push(i); });
         acc.top.forEach(function (i) { if (!excludeIds[i]) wantIds.push(i); });
@@ -656,9 +760,29 @@
       loadItemsIndex(),
       loadGemEnchantIndex(),
     ])
-      .then(function (out) { render(out[0], parsed); })
-      .catch(function () {
-        showError("No meta data available for this spec yet. Check back after the next update.");
+      .then(function (out) {
+        var meta = out[0];
+        // Second hop, now that we know which equipped items the popular-items
+        // manifest doesn't cover: pull just those items' icon shards. Bag items
+        // are never drawn, so they need no icons.
+        var wanted = Object.keys(parsed.slots)
+          .map(function (s) { return parsed.slots[s].id; })
+          .filter(function (id) { return !(itemsIndex && itemsIndex[id]); });
+        // A player wearing an off-hand on a spec with no OFF_HAND meta slot also
+        // needs the main-hand picks' shards, since that is where the "occupies
+        // both hands" mark lives — items_index carries no such flag.
+        if (!meta.slots.OFF_HAND && parsed.slots.OFF_HAND && meta.slots.MAIN_HAND) {
+          var mh = meta.slots.MAIN_HAND;
+          [mh.sim, mh.common].concat(mh.top || []).forEach(function (p) {
+            if (p && p.id != null) wanted.push(p.id);
+          });
+        }
+        return loadIconShards(wanted).then(function () { render(meta, parsed); });
+      })
+      .catch(function (err) {
+        showError(err && err.dataError
+          ? "Couldn't load the item icon data. Reload the page and try again."
+          : "No meta data available for this spec yet. Check back after the next update.");
       });
   }
 

@@ -100,6 +100,10 @@
     window.SIMC_CLASS_TOKENS = {{ simc_class_tokens | tojson | safe }};
     window.SPEC_INDEX = {{ spec_index | tojson | safe }};
     window.SPEC_DISPLAY = {{ spec_display | tojson | safe }};
+    // Which /assets/json/item_icons/<bucket>.json shards exist, so the analyzer
+    // can tell an empty item-id range (no shard, unknown item) apart from a
+    // shard that should be there but failed to load (a real error).
+    window.ITEM_ICON_BUCKETS = {{ item_icon_buckets | tojson | safe }};
   </script>
   <script src="/assets/js/analyzer.js?v={{ generated_at | int }}"></script>
 </body>

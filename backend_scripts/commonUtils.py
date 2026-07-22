@@ -49,6 +49,42 @@ def load_json(path):
         return json.load(f)
 
 
+# Weapon itemSubClass values that occupy both hands the way inventoryType 17
+# (two-hand) does: bows, guns and crossbows are ranged mainhands with no
+# off-hand.
+TWO_HAND_SUBCLASSES = {2, 3, 18}
+
+# Specs that dual-wield two-handers (Titan's Grip Fury). For these the "2H main
+# hand => no off-hand" rule is wrong: they equip a two-hander in BOTH hands, so
+# the off-hand must be kept even though the main hand is a 2H. (Single-Minded
+# Fury uses one-handers, so its main hand isn't a 2H and the rule never fires.)
+DUAL_WIELD_TWOHAND_SPECS = {72}  # Fury Warrior
+
+
+def occupies_both_hands(item, spec_id=None):
+    """Does this main-hand item leave the given spec no off-hand slot?
+
+    Single source of truth for the "2H main hand => drop the OFF_HAND slot" rule
+    the spec page's gear overview applies, so the two-hand marks the analyzer
+    reads (baked into both spec_meta picks and the item icon shards) can never
+    disagree with the slot list they are rendered against.
+
+    ``spec_id`` carries the Titan's Grip exception: a two-hander occupies both
+    hands for every spec *except* the ones in DUAL_WIELD_TWOHAND_SPECS, which
+    wield one in each hand. Omit it only where the answer is a property of the
+    item alone and no spec is in play (the analyzer's spec-independent icon
+    shards) — every spec-scoped call must pass it.
+    """
+    if spec_id is not None and int(spec_id) in DUAL_WIELD_TWOHAND_SPECS:
+        return False
+    item = item or {}
+    if item.get("inventoryType") == 17:
+        return True
+    # itemSubClass is only a weapon type on itemClass 2 — on armor the same
+    # numbers mean leather/mail, which must not be mistaken for a two-hander.
+    return item.get("itemClass") == 2 and item.get("itemSubClass") in TWO_HAND_SUBCLASSES
+
+
 # --- lazily loaded lookup tables --------------------------------------------
 # These replace the old import-time loads in generateSocialsPost.py so that
 # importing any module is side-effect free; the JSON is read on first use.

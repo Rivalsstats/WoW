@@ -44,6 +44,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import databaseConnector
+# Shared with the page generators so the Titan's Grip exception is defined once
+# (re-exported here: generateSimcProfiles imports it from this module).
+from commonUtils import DUAL_WIELD_TWOHAND_SPECS
 
 
 # --------------------------------------------------------------------------
@@ -183,12 +186,6 @@ TIER_INVTYPE_TO_SLOT = {1: "HEAD", 3: "SHOULDER", 5: "CHEST", 20: "CHEST", 7: "L
 # Two-hand / ranged inventory types: when the main hand is one of these the
 # off-hand slot does not exist and must be skipped.
 TWO_HAND_INVTYPES = {17, 15, 25, 26}
-
-# Specs that dual-wield two-handers (Titan's Grip Fury). For these the "2H main
-# hand => no off-hand" rule is wrong: they equip a two-hander in BOTH hands, so
-# the off-hand must be kept even though the main hand is a 2H. (Single-Minded
-# Fury uses one-handers, so its main hand isn't a 2H and the rule never fires.)
-DUAL_WIELD_TWOHAND_SPECS = {72}  # Fury Warrior
 
 # simc class assignment keyword (no underscores), keyed by Blizzard class name.
 CLASS_TOKENS = {

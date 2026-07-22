@@ -5,7 +5,6 @@ import traceback
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import databaseConnector
 import aggregateData
-from simcBis import DUAL_WIELD_TWOHAND_SPECS
 from collections import defaultdict
 from datetime import datetime, timezone
 from contextlib import closing
@@ -21,6 +20,7 @@ from commonUtils import (
     TERTIARY_STATS,
     HEALTH_STATS,
     load_json,
+    occupies_both_hands,
     upgrade_info,
     humanize_number,
     format_duration,
@@ -651,6 +651,12 @@ def build_spec_meta_json(
             "gems": gems,
             "pcs": pcs,
         }
+        # Only set when true, so the flag stays absent on the 15 slots it can't
+        # apply to. The analyzer uses it to tell a 1H+off-hand player that the
+        # meta two-hander replaces BOTH of their weapons — which is never the
+        # case for a Titan's Grip spec, hence the spec_id.
+        if occupies_both_hands(item_lookup.get(item_id), spec_id):
+            pick["two_handed"] = True
         pick.update(extra)
         return pick
 
@@ -2160,14 +2166,9 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     # look up its inventoryType; two‑handers are 17 and ranged weapons are 15
                     print(f"Checking MAIN_HAND item {mh_item_id} for two‑hander or ranged type to determine if OFF_HAND slot should be removed")
                     print(f"MAIN_HAND item {mh_item_id} inventoryType: {item_lookup.get(mh_item_id, {}).get('inventoryType')}, itemSubClass: {item_lookup.get(mh_item_id, {}).get('itemSubClass')}")
-                    # Titan's Grip Fury wields a two-hander in the off-hand too,
-                    # so never strip its off-hand (see DUAL_WIELD_TWOHAND_SPECS).
-                    if int(spec_id) not in DUAL_WIELD_TWOHAND_SPECS and (
-                        item_lookup.get(mh_item_id, {}).get("inventoryType") == 17
-                        or item_lookup.get(mh_item_id, {}).get("itemSubClass") == 3 # guns
-                        or item_lookup.get(mh_item_id, {}).get("itemSubClass") == 2 # bows
-                        or item_lookup.get(mh_item_id, {}).get("itemSubClass") == 18 # Crossbows
-                    ):
+                    # Passing spec_id keeps Titan's Grip Fury's off-hand: it
+                    # wields a two-hander in that hand too (DUAL_WIELD_TWOHAND_SPECS).
+                    if occupies_both_hands(item_lookup.get(mh_item_id), spec_id):
                         # always build combined list (falls back to just mh entries if oh is None)
                         combined = mh["entries"] + (oh.get("entries", []) if oh else [])
                         # re‑sort + trim to top 10

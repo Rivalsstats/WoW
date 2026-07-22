@@ -3,19 +3,26 @@
 The page is fully static: analyzer.js parses a pasted SimulationCraft addon
 export in the browser, resolves the spec, fetches the small per-spec meta JSON
 that generateSpecPages.py bakes to /assets/json/spec_meta/<spec_id>.json, and
-renders a slot-by-slot gap report. This generator only bakes the lookup tables
-the JS needs to turn a SimC export's class/spec tokens into a spec_id — no DB
-access required.
+renders a slot-by-slot gap report. This generator bakes the lookup tables the JS needs to turn a SimC export's
+class/spec tokens into a spec_id, plus the sharded item icon index it falls back
+to for gear outside the site's popular-items manifest — no DB access required.
 """
 import os
 import json
+import shutil
 import argparse
 from datetime import datetime, timezone
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from pageGeneration import generateSpecNav, generateDungeonNav
-from generateSpecPages import LOOKUP_DIR, load_json
+from commonUtils import LOOKUP_DIR, load_json, occupies_both_hands
 
 TEMPLATE_PATH = "templates"
+
+# Item ids per icon-index shard. analyzer.js only ever needs the handful of
+# buckets its equipped ids land in, so a small bucket keeps the fetch tiny; 1000
+# gives ~276 files of ~17 KB each for the current catalog.
+ICON_SHARD_SIZE = 1000
+ICON_SHARD_DIR = os.path.join("assets", "json", "item_icons")
 
 # SimulationCraft class tokens (the lowercase word before '="charname"' in an
 # export) mapped to the WoW class id used in specs.json/classes.json. Stable.
@@ -56,6 +63,52 @@ def build_spec_index(spec_lookup, class_lookup):
     return index, display
 
 
+def write_item_icon_shards():
+    """Bake the id -> [icon, quality(, 1)] fallback lookup analyzer.js draws the
+    player's own gear with, sharded by ``id // ICON_SHARD_SIZE``. The optional
+    third element marks a weapon that occupies both hands, which is how the
+    client knows a suggested two-hander replaces a one-hand + off-hand pair.
+
+    ``items_index.json`` only covers the ~500 items that have an /items page, so
+    anything else a player wears (PvP gear, raid/leveling drops) used to render a
+    questionmark. The full catalog is 109k items — far too big to ship as one
+    blob — but the client knows its equipped ids before it needs an icon, so it
+    fetches only the buckets those ids fall in.
+
+    Returns the sorted list of bucket keys written, which gets baked into the
+    page so the client never has to guess whether a 404 means "empty id range"
+    or "broken deploy".
+    """
+    items = load_json(os.path.join(LOOKUP_DIR, "equippable-items.json"))
+    buckets = {}
+    for item in items:
+        icon = item.get("icon")
+        if not icon:
+            continue  # a handful of catalog rows carry no icon at all
+        item_id = item["id"]
+        entry = [icon, item.get("quality")]
+        # Shards are keyed by item id alone, so this mark is the item-level
+        # answer with no spec_id: "this weapon is a two-hander". The Titan's Grip
+        # exception is applied on the client instead — a dual-wielding spec keeps
+        # its OFF_HAND meta slot, and analyzer.js only consults the mark for a
+        # spec that has none.
+        if occupies_both_hands(item):
+            entry.append(1)
+        buckets.setdefault(item_id // ICON_SHARD_SIZE, {})[str(item_id)] = entry
+
+    # Rebuild from scratch so a shrinking catalog can't leave stale shards behind.
+    shutil.rmtree(ICON_SHARD_DIR, ignore_errors=True)
+    os.makedirs(ICON_SHARD_DIR, exist_ok=True)
+    for key, entries in buckets.items():
+        with open(os.path.join(ICON_SHARD_DIR, f"{key}.json"), "w", encoding="utf-8") as f:
+            json.dump(entries, f, separators=(",", ":"), ensure_ascii=False)
+    print(
+        f"[{datetime.now(timezone.utc).isoformat()}] "
+        f"wrote {len(buckets)} item icon shards ({sum(len(v) for v in buckets.values())} items)"
+    )
+    return sorted(buckets)
+
+
 def main(template_path, output_dir):
     spec_lookup = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
@@ -64,6 +117,7 @@ def main(template_path, output_dir):
     season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
 
     spec_index, spec_display = build_spec_index(spec_lookup, class_lookup)
+    item_icon_buckets = write_item_icon_shards()
 
     env = Environment(
         loader=FileSystemLoader(os.path.dirname(template_path) or TEMPLATE_PATH),
@@ -85,6 +139,7 @@ def main(template_path, output_dir):
         simc_class_tokens=SIMC_CLASS_TOKENS,
         spec_index=spec_index,
         spec_display=spec_display,
+        item_icon_buckets=item_icon_buckets,
     )
 
     out_path = os.path.join(output_dir, "analyzer.html")
