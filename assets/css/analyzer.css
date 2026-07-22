@@ -52,11 +52,13 @@
   display: flex;
   flex-direction: column;
 }
-/* left accent = slot status */
-.an-tile.an-sim { border-left-color: #ce93d8; }
-.an-tile.an-top { border-left-color: #66bb6a; }
-.an-tile.an-meta { border-left-color: #4dd0e1; }
-.an-tile.an-off { border-left-color: #ef5350; }
+/* left accent = what to fix in this slot:
+   green = item + gems + enchants all good,
+   amber = item is a meta pick but a gem/enchant is off,
+   red   = the item itself isn't a meta pick. */
+.an-tile.an-good { border-left-color: #66bb6a; }
+.an-tile.an-warn { border-left-color: #ffa726; background: rgba(255, 167, 38, 0.06); }
+.an-tile.an-bad  { border-left-color: #ef5350; background: rgba(239, 83, 80, 0.06); }
 .an-tile.an-none { border-left-color: rgba(255, 255, 255, 0.18); }
 
 .an-slot-label {
@@ -167,6 +169,19 @@
   left: -5px;
   box-shadow: 0 0 6px rgba(58, 141, 222, 0.6);
 }
+
+/* tile-colour legend swatches */
+.an-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  margin-right: 3px;
+  vertical-align: middle;
+}
+.an-swatch-good { background: #66bb6a; }
+.an-swatch-warn { background: #ffa726; }
+.an-swatch-bad { background: #ef5350; }
 
 /* inline badges in the legend line */
 .an-legend-badge {

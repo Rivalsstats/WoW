@@ -73,6 +73,27 @@
     return itemsIndexPromise;
   }
 
+  // Spec-independent gem/enchant catalog: { gems: {<gemItemId>: {...}},
+  // enchants: {<enchantId>: {..., itemId, spellId}} }. Baked once by
+  // generateSpecPages.py so the per-slot cells can draw the real icon/name for
+  // ANY gem/enchant a player runs — not just the current spec's top combo — and
+  // link an enchant by its scroll item/spell rather than mis-reading the
+  // enchant_id as an item id.
+  var gxIndex = { gems: {}, enchants: {} };
+  var gxIndexPromise = null;
+
+  function loadGemEnchantIndex() {
+    if (gxIndexPromise) return gxIndexPromise;
+    gxIndexPromise = fetch("/assets/json/gem_enchant_index.json")
+      .then(function (r) { return r.ok ? r.json() : {}; })
+      .then(function (o) {
+        gxIndex = { gems: (o && o.gems) || {}, enchants: (o && o.enchants) || {} };
+        return gxIndex;
+      })
+      .catch(function () { gxIndex = { gems: {}, enchants: {} }; return gxIndex; });
+    return gxIndexPromise;
+  }
+
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
@@ -177,12 +198,16 @@
 
   // The meta picks to display for a slot: the group-union of SIM + TOP, or the
   // group-union of `common` when there's no TOP/SIM (the fallback target).
+  // `excludeIds` drops picks already worn in a sibling slot of an interchangeable
+  // pair (unique-equipped rings/trinkets); when that empties out the TOP/SIM set,
+  // we still fall back to `common` so the slot always shows *some* suggestion.
   // Returns [{pick, kind}], kind in {sim, top, meta}.
-  function displayTargets(metaSlots, slotName) {
+  function displayTargets(metaSlots, slotName, excludeIds) {
     var names = (GROUPS[slotName] || slotName).split(",");
     var seen = {}, out = [];
+    excludeIds = excludeIds || {};
     function add(pick, kind) {
-      if (!pick || pick.id == null || seen[pick.id]) return;
+      if (!pick || pick.id == null || seen[pick.id] || excludeIds[pick.id]) return;
       seen[pick.id] = true; out.push({ pick: pick, kind: kind });
     }
     names.forEach(function (n) { var m = metaSlots[n]; if (m && m.sim) add(m.sim, "sim"); });
@@ -392,6 +417,12 @@
       bare.slice(0, Math.max(0, expected - enchanted)).forEach(function (s) { missingSlots[s] = true; });
     });
 
+    // Ids already suggested to an earlier slot of an interchangeable pair, keyed
+    // by group (FINGER / TRINKET). A unique-equipped item must be recommended to
+    // at most one slot of the pair, so when both slots are off-meta the second
+    // one falls through to the next distinct pick instead of repeating the first.
+    var groupSuggested = {};
+
     SLOT_ORDER.forEach(function (slotName) {
       var metaSlot = meta.slots[slotName];
       var user = parsed.slots[slotName];
@@ -420,8 +451,31 @@
       var yours = iconEl(user.id, um && um.icon, um && um.quality, um && um.slug,
         user, specId, "an-user", mark);
 
-      // Meta target icons (group-union; SIM/TOP, or the popular fallback).
-      var targets = displayTargets(meta.slots, slotName).map(function (t) {
+      // Ids we must not suggest for this slot: anything worn in a sibling slot of
+      // an interchangeable pair (unique-equipped — can't wear a second copy) plus
+      // anything already recommended to an earlier slot of the same pair (so the
+      // two off-meta slots get distinct suggestions, never the same item twice).
+      var grp = groupKey(slotName);
+      var suggestedInGroup = groupSuggested[grp] || (groupSuggested[grp] = {});
+      var excludeIds = {};
+      (GROUPS[slotName] ? GROUPS[slotName].split(",") : []).forEach(function (n) {
+        if (n === slotName) return;
+        var sib = parsed.slots[n];
+        if (sib) excludeIds[sib.id] = true;
+      });
+      Object.keys(suggestedInGroup).forEach(function (id) { excludeIds[id] = true; });
+
+      // Meta target picks (group-union; SIM/TOP, or the popular fallback), minus
+      // the excluded ids above. When excluding empties the TOP/SIM set,
+      // displayTargets falls back to the most-popular `common` pick so the slot
+      // still shows a distinct suggestion. Record what we suggest so the paired
+      // slot skips it.
+      var picks = displayTargets(meta.slots, slotName, excludeIds);
+      // Only a slot that actually shows a swap (off-meta) reserves its pick; a
+      // matched slot shows no target, so recording its picks would wrongly starve
+      // an off-meta sibling of the very item it should be told to equip.
+      if (!matched) picks.forEach(function (t) { suggestedInGroup[t.pick.id] = true; });
+      var targets = picks.map(function (t) {
         return iconEl(t.pick.id, t.pick.icon, t.pick.quality, t.pick.slug, t.pick, specId, "", chip(t.kind, t.pick, meta));
       });
       var targetHtml = targets.length ? '<div class="an-targets">' + targets.join("") + "</div>" : "";
@@ -431,9 +485,9 @@
       if (!matched) {
         var bagGroup = parsed.bags[groupKey(slotName)] || {};
         var wantIds = [];
-        acc.sim.forEach(function (i) { wantIds.push(i); });
-        acc.top.forEach(function (i) { wantIds.push(i); });
-        if (!hasIdeal) acc.common.forEach(function (i) { wantIds.push(i); });
+        acc.sim.forEach(function (i) { if (!excludeIds[i]) wantIds.push(i); });
+        acc.top.forEach(function (i) { if (!excludeIds[i]) wantIds.push(i); });
+        if (!hasIdeal) acc.common.forEach(function (i) { if (!excludeIds[i]) wantIds.push(i); });
         var ownedId = wantIds.filter(function (i) { return bagGroup[i]; })[0];
         if (ownedId != null) {
           inBagsHtml = '<div class="an-inbags">' +
@@ -445,11 +499,19 @@
       // gem-style icon with a ✓ / ⚠ / ✕ corner glyph. Off-combo and over-used
       // gems are flagged; a gem the top combo knows uses its own icon, an
       // off-combo gem falls back to a questionmark + Wowhead tooltip.
+      // Does this slot carry a gem/enchant problem (off-combo, over-used, or a
+      // missing-but-expected enchant)? Drives the tile's amber "item's fine but
+      // fix a socket/enchant" colour when the item itself is already a meta pick.
+      var footIssue = false;
+
       var gemCell = "";
       if (meta.gem_combo && user.gems && user.gems.length) {
         gemCell = user.gems.map(function (gid) {
           var st = classifyAgainstCombo(gid, counts.gems, gemBudget);
-          var info = gemInfo[gid] || { id: gid };
+          if (st !== "ok") footIssue = true;
+          // Combo entry first (carries qty context); otherwise the global gem
+          // catalog so an off-combo gem still shows its real icon/name.
+          var info = gemInfo[gid] || gxIndex.gems[gid] || { id: gid };
           var tip = st === "warn"
               ? "Top players use only " + (gemBudget[gid] || 0) + "× this gem — you have " + (counts.gems[gid] || 0) + "."
             : st === "bad" ? "Not in the top gem combo."
@@ -467,13 +529,21 @@
       if (meta.enchant_combo && eg && (enchExpected[eg] || 0) > 0) {
         if (!user.enchant) {
           if (missingSlots[slotName]) {
+            footIssue = true;
             enchCell = '<span class="an-icon an-icon-sm an-gem-slot an-ench-missing">' +
               '<img src="' + QUESTION + '" alt="">' + statusMark("bad", "Missing enchant") + "</span>";
           }
         } else {
           var est = classifyAgainstCombo(user.enchant, counts.enchants, enchBudget);
-          var einfo = enchInfo[user.enchant] || { id: user.enchant };
-          var whRef = einfo.itemId ? "item=" + einfo.itemId : "item=" + user.enchant;
+          if (est !== "ok") footIssue = true;
+          // Combo entry first (carries qty context); otherwise the global enchant
+          // catalog so an off-combo enchant still shows its real icon/name. Link
+          // via the enchant's scroll itemId (or spellId) — NEVER item=<enchantId>,
+          // which resolves to an unrelated item that happens to share the number.
+          var einfo = enchInfo[user.enchant] || gxIndex.enchants[user.enchant] || { id: user.enchant };
+          var whRef = einfo.itemId ? "item=" + einfo.itemId
+            : einfo.spellId ? "spell=" + einfo.spellId
+            : "item=" + user.enchant;
           var etip = est === "ok" ? ((einfo.name || "Enchant") + " matches the top combo.")
             : est === "warn" ? "You use this enchant more times than the top players do."
             : "Off-combo enchant — not in the top players' set.";
@@ -484,7 +554,7 @@
       // Already on a meta pick → just the equipped item; no exchange arrow /
       // target (nothing to change). Off-meta slots show the swap to make.
       var body = '<div class="an-tile-body"><div class="an-yours">' + yours + "</div>";
-      if (!matched) {
+      if (!matched && targetHtml) {
         body += '<span class="material-symbols-rounded an-arrow">arrow_right_alt</span>' + targetHtml;
       }
       body += "</div>";
@@ -499,8 +569,17 @@
           "</div>"
         : "";
 
+      // Tile colour is now purely about "what should I fix here":
+      //   red  = the item itself isn't a meta pick (swap it),
+      //   amber = the item is fine but a gem/enchant is off,
+      //   green = item, gems and enchants all check out.
+      // (The SIM/TOP/most-popular distinction lives on the target badges, not
+      // the tile, since which flavour of "meta" a slot matched didn't tell the
+      // user anything actionable.)
+      var tileState = !matched ? "bad" : (footIssue ? "warn" : "good");
+
       tiles.push(
-        '<div class="an-tile an-' + status + '">' +
+        '<div class="an-tile an-' + tileState + '">' +
           '<div class="an-slot-label">' + esc(slotName.replace(/_/g, " ")) + "</div>" +
           body +
           foot +
@@ -532,7 +611,11 @@
       '<div class="an-grid">' + tiles.join("") + "</div>" +
       comboSection(meta.gem_combo, counts.gems, "gem", meta) +
       comboSection(meta.enchant_combo, counts.enchants, "enchant", meta) +
-      '<p class="text-xxs text-secondary mt-3 mb-0">' +
+      '<p class="text-xxs text-secondary mt-2 mb-0">' +
+        '<span class="an-swatch an-swatch-good"></span> Item, gems &amp; enchants all good &nbsp; ' +
+        '<span class="an-swatch an-swatch-warn"></span> Item OK, a gem or enchant is off &nbsp; ' +
+        '<span class="an-swatch an-swatch-bad"></span> Item isn’t a meta pick</p>' +
+      '<p class="text-xxs text-secondary mt-2 mb-0">' +
         '<span class="badge simc-badge an-legend-badge">SIM</span> SimulationCraft rank 1 &nbsp; ' +
         '<span class="badge bis-badge an-legend-badge">TOP</span> Raider.io top-50 loadout pick. ' +
         'Where a slot has neither, the most-popular item is shown for reference. ' +
@@ -571,6 +654,7 @@
         return r.json();
       }),
       loadItemsIndex(),
+      loadGemEnchantIndex(),
     ])
       .then(function (out) { render(out[0], parsed); })
       .catch(function () {

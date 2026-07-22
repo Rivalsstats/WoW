@@ -755,6 +755,53 @@ def build_spec_meta_json(
     }
 
 
+def write_analyzer_gem_enchant_index(enchant_lookup_all):
+    """Bake a spec-independent gem/enchant icon+name index for analyzer.js.
+
+    Written once per build to ``assets/json/gem_enchant_index.json`` as
+    ``{"gems": {<gemItemId>: {...}}, "enchants": {<enchantId>: {...}}}``:
+
+      - gems are keyed by their item id (what the SimC export's ``gem_id`` is),
+      - enchants are keyed by their SimC ``enchant_id`` and carry ``itemId``
+        (the enchanting scroll) so the client links/tooltips the *enchant*, not
+        an unrelated item that happens to share the enchant's numeric id.
+
+    Mirrors the ``enchantments.json`` catalog the spec pages already use, so the
+    analyzer resolves anything a player actually has, not just the top combo.
+    """
+    gems = {}
+    enchants = {}
+    for e in enchant_lookup_all or []:
+        name = e.get("itemName") or e.get("displayName")
+        icon = e.get("itemIcon") or e.get("spellIcon")
+        quality = e.get("quality")
+        if e.get("slot") == "socket":
+            gid = e.get("itemId")
+            if gid is None:
+                continue
+            gems[str(gid)] = {"name": name, "icon": icon, "quality": quality}
+        else:
+            eid = e.get("id")
+            if eid is None:
+                continue
+            entry = {"name": name, "icon": icon, "quality": quality}
+            if e.get("itemId") is not None:
+                entry["itemId"] = e["itemId"]
+            if e.get("spellId") is not None:
+                # Fallback Wowhead ref for enchants with no scroll item, so the
+                # client never links an enchant_id as if it were an item id.
+                entry["spellId"] = e["spellId"]
+            enchants[str(eid)] = entry
+    out_dir = os.path.join("assets", "json")
+    os.makedirs(out_dir, exist_ok=True)
+    with open(os.path.join(out_dir, "gem_enchant_index.json"), "w", encoding="utf-8") as f:
+        json.dump({"gems": gems, "enchants": enchants}, f, separators=(",", ":"), ensure_ascii=False)
+    print(
+        f"[{datetime.now(timezone.utc).isoformat()}] "
+        f"wrote gem_enchant_index.json ({len(gems)} gems, {len(enchants)} enchants)"
+    )
+
+
 def checkItemLimits(sockets, socket_lookup, socket_limits):
     for socket in sockets:
         if not socket_lookup.get(int(socket["id"])):
@@ -1554,6 +1601,15 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
     socket_lookup = {
         e["itemId"]: e for e in enchant_lookup_all if e.get("slot") == "socket"
     }
+    # Global gem/enchant catalog for the client-side analyzer. The per-spec
+    # spec_meta only carries the single most-popular gem/enchant combo, so a
+    # player running anything off that combo (or gear optimised for a different
+    # spec) had no icon/name for their sockets and — worse — the analyzer linked
+    # an enchant by its enchant_id as if it were an item id, resolving to an
+    # unrelated item on Wowhead. This spec-independent index lets the analyzer
+    # resolve any gem (by its item id) or enchant (by its SimC enchant_id) to the
+    # real icon/name and, for enchants, the scroll item id used for the link.
+    write_analyzer_gem_enchant_index(enchant_lookup_all)
     equippable_items = load_json(os.path.join(LOOKUP_DIR, "equippable-items.json"))
     for item in equippable_items:
         if "stats" in item:
