@@ -595,7 +595,7 @@ def normalize_slot_collections(list_of_lists, slot_names):
 
 
 def build_spec_meta_json(
-    spec_id, spec_data, class_data, stat_priority,
+    spec_id, spec_data, class_data,
     left_slots, right_slots, weapon_slots, trinket_slots,
     enchant_slots, enchant_lookup, item_lookup, item_slug_map,
     bis_summary, socket_lookup,
@@ -616,8 +616,8 @@ def build_spec_meta_json(
     scores the player's sockets/enchants against as a per-id quantity budget, how
     many enchanted slots top players run per slot group
     (``enchant_group_expected``, so the client only flags a bare slot "missing"
-    while under that count), and the stat priority. Icons/quality are baked so the
-    client can render item tiles.
+    while under that count). Icons/quality are baked so the client can render
+    item tiles.
     """
     def _name(item_id):
         it = item_lookup.get(item_id) or {}
@@ -752,8 +752,6 @@ def build_spec_meta_json(
         "spec_id": int(spec_id),
         "spec": spec_data.get("name"),
         "class": class_data.get("name"),
-        # secondary stat names in the same priority order the page displays.
-        "stat_priority": [s.get("name") for s in (stat_priority or []) if s.get("name")],
         "slots": slots,
         "gem_combo": gem_combo,
         "enchant_combo": enchant_combo,
@@ -2381,7 +2379,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
             # analyzer. Reuses data already assembled above; writes one small
             # JSON per spec that analyzer.js fetches by spec_id.
             spec_meta = build_spec_meta_json(
-                spec_id, spec_data, class_data, stat_priority,
+                spec_id, spec_data, class_data,
                 left_slots, right_slots, weapon_slots, trinket_slots,
                 enchant_slots, enchant_lookup, item_lookup, item_slug_map,
                 bis_summary, socket_lookup,

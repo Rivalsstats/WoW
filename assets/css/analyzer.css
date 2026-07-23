@@ -8,8 +8,25 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
   padding: 0.6rem 0.75rem;
-  resize: vertical;
+  /* no resize grip: the browser draws it in the bottom-right corner, on top of
+     the scrollbar's lower end */
+  resize: none;
 }
+/* The paste box opts into the site's thin scrollbar via .custom-scrollbar
+   (custom-scrollbars.css) — but that file also sets scrollbar-width/-color for
+   Firefox, and Chrome drops every ::-webkit-scrollbar rule on an element whose
+   standard scrollbar properties are non-auto. The webkit rules were therefore
+   dead and the box fell back to the OS bar (~10px, with arrow buttons).
+   Handing the standard properties back to `auto` where the webkit pseudos exist
+   lets Chrome/Edge draw the 8px rounded bar; Firefox doesn't match this
+   @supports and keeps its thin scrollbar. */
+@supports selector(::-webkit-scrollbar) {
+  .analyzer-input {
+    scrollbar-width: auto;
+    scrollbar-color: auto;
+  }
+}
+
 .analyzer-input:focus {
   outline: none;
   border-color: rgba(33, 150, 243, 0.6);
@@ -17,40 +34,182 @@
 }
 
 .an-spec-icon {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 8px;
 }
 
-.an-score {
-  font-size: 1.6rem;
+/* === Score band ===
+   The page asks one question; this is the answer, so it gets its own panel
+   rather than a line in the header. Styled like the combo panels (.an-gems) so
+   it reads as part of the same report. */
+
+/* The band's layout switches on the *card's* width, not the viewport's — the
+   results card lives in a col-lg-7, so a media query would flip it at the wrong
+   moment (same reason .an-grid sizes its panes by flex-basis). */
+#analyzer-results {
+  container-type: inline-size;
+  container-name: an-results;
+}
+
+.an-summary {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  /* the slot grid follows immediately; same breathing room the combo panels
+     below it use (.an-gems margin-top) */
+  margin-bottom: 0.9rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+}
+.an-summary-id {
+  display: flex;
+  align-items: center;
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+.an-summary-spec {
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+/* Symmetric autos, not margin-left alone: on a single-line band .an-summary-id's
+   flex-grow has already eaten the free space by the time auto margins resolve,
+   so both collapse to 0 and the ring stays hard right. On a wrapped line the
+   ring is alone with free space to spare, and the pair centres it — which is
+   what engines without @container fall back to. */
+.an-summary-score {
+  flex: 0 0 auto;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* Too narrow for identity + ring side by side → the band becomes one centred
+   column. The threshold is the natural wrap point: 12rem basis + 1rem gap +
+   92px ring + the band's 2×1rem padding and 2×1px border = 334px of card, so
+   21rem (336px) flips it a hair early and the wrapped-but-left-aligned
+   in-between state never shows.
+   The .an-summary-id override is load-bearing, not cosmetic: in a column
+   container its 12rem flex-basis would become a HEIGHT and leave a 192px hole
+   above the ring. */
+@container an-results (max-width: 21rem) {
+  .an-summary {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .an-summary-id {
+    flex: 0 0 auto;
+    justify-content: center;
+  }
+  .an-summary-score {
+    margin: 0;
+  }
+}
+.an-ring-label {
+  margin-top: 0.3rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #90a4ae;
+}
+
+/* The score threshold classes live on the band and colour BOTH the ring arc and
+   the figure inside it, so "what counts as good" is defined once. */
+.an-score-hi { --an-ring-color: #66bb6a; }
+.an-score-mid { --an-ring-color: #ffca28; }
+.an-score-lo { --an-ring-color: #ef5350; }
+
+/* Progress ring. The arc is its own element because a mask applies to the whole
+   subtree — the figure has to live outside it or the hole swallows it too. */
+.an-ring {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  display: grid;
+  place-items: center;
+}
+/* A conic-gradient disc with its middle masked out, so the hole is genuinely
+   transparent rather than a fill colour that has to be kept in sync with
+   whatever the card background happens to be. */
+.an-ring-arc {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(var(--an-ring-color, #66bb6a) calc(var(--an-pct, 0) * 1%),
+                             rgba(255, 255, 255, 0.09) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 9px), #000 calc(100% - 8px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 9px), #000 calc(100% - 8px));
+}
+.an-ring-pct {
+  position: relative;
+  font-size: 1.55rem;
   font-weight: 800;
   line-height: 1;
+  color: var(--an-ring-color, #66bb6a);
 }
-.an-score-hi { color: #66bb6a; }
-.an-score-mid { color: #ffca28; }
-.an-score-lo { color: #ef5350; }
 
 .text-xxs { font-size: 0.6rem; }
 
-.badge.an-stat { background: rgba(33, 150, 243, 0.16); color: #90caf9; border: 1px solid rgba(33, 150, 243, 0.32); text-transform: capitalize; }
-
-/* === Compact slot grid === */
+/* === Armory-style slot layout ===
+   Mirrors the spec page's Gear Overview (spec_page.html): armour split into a
+   left and a right pane, then a weapons pane beside a trinkets pane.
+   Columns are sized by flex-basis rather than a media query on purpose — the
+   results card lives in a col-lg-7 whose width doesn't track the viewport, so
+   the panes have to wrap on their own container's width (the same idea as the
+   spec page's flex-fill + `flex: 1 1 0`). */
 .an-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 0.55rem;
-  align-items: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
 }
 
+.an-block {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.an-col {
+  flex: 1 1 230px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Pane heading ("Weapon" / "Trinkets"), matching the combo rows' section label.
+   Left-aligned in both panes: the spec page right-aligns Trinkets from md up,
+   but that reads wrong once the panes stack, and the wrap point here is the
+   card's width rather than the viewport's. */
+.an-col-head {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #cfd8dc;
+  padding: 0 0.15rem;
+}
+
+/* One slot = one row of two zones:
+     [SLOT] [worn -> target, "in your bags"]        [enchant][gems]
+   Left zone = the item and what to do about it, packed left. Right zone = the
+   item's modifiers, packed against the row's right edge. Only the left zone
+   grows, so the modifiers hold their x down the whole column. */
 .an-tile {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-left-width: 3px;
   border-radius: 8px;
-  padding: 0.4rem 0.5rem 0.45rem;
+  padding: 0.5rem 0.6rem;
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 0.5rem;
+  row-gap: 0.4rem;
 }
 /* left accent = what to fix in this slot:
    green = item + gems + enchants all good,
@@ -61,27 +220,51 @@
 .an-tile.an-bad  { border-left-color: #ef5350; background: rgba(239, 83, 80, 0.06); }
 .an-tile.an-none { border-left-color: rgba(255, 255, 255, 0.18); }
 
+/* fixed-width left cell so the item icons line up down the column */
 .an-slot-label {
+  flex: 0 0 auto;
+  width: 3.4rem;
   font-size: 0.58rem;
+  line-height: 1.15;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: #90a4ae;
-  margin-bottom: 0.3rem;
 }
 
-.an-tile-body {
+/* ITEM ZONE — worn item, the swap, and the owned-upgrade chip, packed left.
+   The row's only growing cell: it absorbs the slack, which is what pins the
+   modifier zone to a constant x.
+
+   flex-basis auto, deliberately. A 0 basis would keep this zone on the row at
+   any width, but in a ~240px pane that leaves it about 54px — the icons then
+   wrap one per line and the row balloons to 160px tall. An auto basis instead
+   sends the whole zone to its own line when it can't fit, which costs one row
+   its compactness but keeps every other row intact. */
+.an-item {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.an-yours {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
 }
 
-/* Icons match the spec page: rounded, object-fit cover, no quality border. */
+/* Icons match the spec page: rounded, object-fit cover, rarity-tinted rim.
+   The border has to be declared here — stat-colors.css's .border-quality-N only
+   sets border-COLOR, so without a width and style there is nothing to tint. */
 .an-icon {
   position: relative;
   display: inline-block;
   box-sizing: border-box;
   width: 40px;
   height: 40px;
+  border: 2px solid rgba(255, 255, 255, 0.12);
   border-radius: 6px;
   overflow: visible;
   flex: 0 0 auto;
@@ -89,15 +272,17 @@
 .an-icon img {
   width: 100%;
   height: 100%;
-  border-radius: 6px;
+  border-radius: 4px;
   object-fit: cover;
   display: block;
 }
-.an-targets .an-icon { width: 34px; height: 34px; }
 
+/* Size carries the hierarchy: an item is 40px whether you're wearing it or
+   being told to go get it, a modifier is 24px. The swap target used to be 34px
+   next to 28px gems, which made a whole item read as just another socket. */
 .an-arrow {
-  color: #607d8b;
-  font-size: 1.05rem;
+  color: #90a4ae;
+  font-size: 1.25rem;
   flex: 0 0 auto;
 }
 
@@ -205,13 +390,16 @@
   right: -4px;
 }
 
-/* "in your bags" owned-upgrade badge — pinned to the very bottom of the
-   (equal-height) tile so it never floats mid-tile. */
+/* "in your bags" owned-upgrade badge — trails the swap it belongs to, inside
+   the item zone, so it reads as "change to this, you already own it". The extra
+   left margin is on top of the zone's own 0.35rem gap: at that gap alone the
+   chip crowds the target icon and the two read as one blob. */
 .an-inbags {
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  flex: 0 0 auto;
+  margin-left: 0.4rem;
   gap: 0.3rem;
-  margin-top: auto;
   padding: 0.25rem 0.35rem;
   border-radius: 6px;
   background: rgba(77, 208, 225, 0.1);
@@ -221,32 +409,47 @@
 }
 .an-inbags .material-symbols-rounded { font-size: 0.8rem; color: #4dd0e1; }
 
-/* Footer band directly under the item icon: gems then enchant, left-aligned and
-   grouped closely (with a thin divider between them when a slot has both). The
-   bottom margin keeps the icons' corner glyphs clear of the "In your bags" chip.
-   Only rendered when the slot has gems and/or an enchant. */
+/* MODIFIER ZONE — enchant then gems, packed hard against the row's right edge.
+   Nothing is reserved per icon: whatever a slot has is glued to the same hard
+   edge, so a gem can never end up floating in the blank half of a cell it
+   didn't fill. The ZONE is still fixed-width (--an-mod-slots = the busiest
+   slot's gem count + 1 for the enchant column, set on .an-grid by analyzer.js)
+   so its footprint is the same on every row and the item zone's room doesn't
+   jump about between a 3-gem neck and a bare chest.
+
+   The auto margin matters on the second line, when a long row wraps: it keeps
+   the zone against the right edge there too. */
 .an-foot {
-  margin-top: 0.5rem;
-  margin-bottom: 0.6rem;
-  padding-top: 0.45rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  display: flex;
+  display: none;
+  flex: 0 0 auto;
+  margin-left: auto;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: flex-end;
+  gap: 0.3rem;
+  width: calc(var(--an-mod-slots, 0) * 24px +
+              max(0px, (var(--an-mod-slots, 0) - 1) * 0.3rem));
 }
-.an-foot-gems {
+/* No slot in the report has a gem or an enchant → no zone, and no stray rule. */
+.an-grid.an-has-mods .an-foot {
   display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  flex-wrap: wrap;
 }
+.an-foot-gems,
 .an-foot-ench {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
+  gap: 0.3rem;
 }
-/* gem + enchant icons in the footer share one size (the enchant is drawn like a
-   gem: a small rounded icon with the same corner glyph). */
-.an-foot .an-gem-slot.an-icon-sm { width: 28px; height: 28px; }
+/* An unused cell must go, not just render empty: a zero-width flex child still
+   contributes its gap, which is enough to nudge the icon that IS there off the
+   right edge — the floating-gem problem all over again, 5px at a time. */
+.an-foot-gems:empty,
+.an-foot-ench:empty {
+  display: none;
+}
+/* gem + enchant icons in the modifier zone share one size (the enchant is drawn
+   like a gem: a small rounded icon with the same corner glyph). */
+.an-foot .an-gem-slot.an-icon-sm { width: 24px; height: 24px; }
 /* bare-but-expected enchant: a muted questionmark placeholder carrying the ✕ */
 .an-ench-missing {
   cursor: default;

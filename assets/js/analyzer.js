@@ -33,10 +33,44 @@
   // EITHER slot's target, since players slot them in any order.
   var GROUPS = { FINGER_1: "FINGER_1,FINGER_2", FINGER_2: "FINGER_1,FINGER_2",
                  TRINKET_1: "TRINKET_1,TRINKET_2", TRINKET_2: "TRINKET_1,TRINKET_2" };
-  // Display order for the report.
+  // Scoring order for the report. Load-bearing beyond mere display: the
+  // unique-equipped reservation (groupSuggested) hands a ring/trinket to the
+  // FIRST slot of its pair, and the enchant quota walks slots in this order.
   var SLOT_ORDER = ["HEAD", "NECK", "SHOULDER", "BACK", "CHEST", "WRIST", "HANDS",
     "WAIST", "LEGS", "FEET", "FINGER_1", "FINGER_2", "TRINKET_1", "TRINKET_2",
     "MAIN_HAND", "OFF_HAND"];
+
+  // Armory display grouping — mirrors generateSpecPages.py LEFT_ORDER /
+  // RIGHT_ORDER / WEAPON_SLOTS / TRINKET_SLOTS so the report reads like the
+  // spec page's Gear Overview (two panes: armour left/right, then weapons
+  // beside trinkets) instead of flowing row-major through SLOT_ORDER.
+  var LEFT_ORDER = ["HEAD", "NECK", "SHOULDER", "BACK", "CHEST", "WRIST"];
+  var RIGHT_ORDER = ["HANDS", "WAIST", "LEGS", "FEET", "FINGER_1", "FINGER_2"];
+  var WEAPON_SLOTS = ["MAIN_HAND", "OFF_HAND"];
+  var TRINKET_SLOTS = ["TRINKET_1", "TRINKET_2"];
+  var DISPLAY_BLOCKS = [
+    { left: { slots: LEFT_ORDER }, right: { slots: RIGHT_ORDER } },
+    { left: { slots: WEAPON_SLOTS, head: "Weapon" },
+      right: { slots: TRINKET_SLOTS, head: "Trinkets" } },
+  ];
+
+  // A slot scored but not placed in a pane would silently vanish from the
+  // report. render() runs inside analyze()'s promise chain, whose .catch
+  // rewrites every error into "No meta data available for this spec yet" — so
+  // check the grouping here, at load, where the failure can't be disguised.
+  (function () {
+    var placed = [];
+    DISPLAY_BLOCKS.forEach(function (b) {
+      placed = placed.concat(b.left.slots, b.right.slots);
+    });
+    var missing = SLOT_ORDER.filter(function (s) { return placed.indexOf(s) === -1; });
+    var extra = placed.filter(function (s) { return SLOT_ORDER.indexOf(s) === -1; });
+    if (missing.length || extra.length) {
+      throw new Error("analyzer.js: DISPLAY_BLOCKS must cover SLOT_ORDER exactly" +
+        (missing.length ? " (unplaced: " + missing.join(",") + ")" : "") +
+        (extra.length ? " (unknown: " + extra.join(",") + ")" : ""));
+    }
+  })();
   // Gear slot -> the enchant slot_group key top players' enchant data uses.
   // Which of these a spec actually enchants is gated at render time on
   // meta.enchant_slot_groups, so listing a slot here never forces a "missing"
@@ -63,11 +97,12 @@
 
   // Fallback icon lookup for everything else a player can equip: the full
   // catalog is baked by generateAnalyzerPage.py into
-  // /assets/json/item_icons/<id//ICON_SHARD_SIZE>.json as {id: [icon, quality]}.
+  // /assets/json/item_icons/<id//ICON_SHARD_SIZE>.json as
+  // {id: [icon, quality(, 1 when two-handed)]}.
   // We know the equipped ids before we need their icons, so only the few buckets
   // they land in are ever fetched.
   var ICON_SHARD_SIZE = 1000;
-  var iconIndex = {};          // merged id -> [icon, quality] of loaded shards
+  var iconIndex = {};          // merged id -> shard entry of loaded shards
   var iconShardPromises = {};  // bucket -> in-flight/settled fetch
 
   function loadIconShards(ids) {
@@ -137,6 +172,31 @@
       })
       .catch(function () { gxIndex = { gems: {}, enchants: {} }; return gxIndex; });
     return gxIndexPromise;
+  }
+
+  // bonus id -> item quality, baked by generateAnalyzerPage.py from the same
+  // data/static/bonus_quality_map.json the spec pages use. A Mythic+ drop is
+  // catalogued as *rare* and promoted to epic by a quality bonus id, so the
+  // catalog's base quality alone paints the wrong rim on the player's own gear.
+  var bonusQuality = null;
+  var bonusQualityPromise = null;
+
+  function loadBonusQuality() {
+    if (bonusQualityPromise) return bonusQualityPromise;
+    bonusQualityPromise = fetch("/assets/json/bonus_quality.json")
+      .then(function (r) {
+        // Every build writes this file, so a miss is a broken deploy, not a data
+        // gap. Rejecting keeps a silently empty map from re-introducing the very
+        // mis-colouring this table exists to fix.
+        if (!r.ok) {
+          var err = new Error("bonus quality map failed: HTTP " + r.status);
+          err.dataError = true;
+          throw err;
+        }
+        return r.json();
+      })
+      .then(function (o) { bonusQuality = o; return o; });
+    return bonusQualityPromise;
   }
 
   function esc(s) {
@@ -273,6 +333,19 @@
     return shard ? { icon: shard[0], quality: shard[1], slug: null } : null;
   }
 
+  // The rarity a player's item actually shows: its catalog quality, overridden by
+  // any quality-carrying bonus id on it. Same rule as generateSpecPages.py's
+  // convert_slots (truthy-only, last bonus wins), so a slot's "yours" and "meta
+  // pick" tiles can never disagree about the same item.
+  function resolveQuality(baseQuality, bonusIds) {
+    var q = baseQuality;
+    (bonusIds || []).forEach(function (b) {
+      var bq = bonusQuality[b];
+      if (bq) q = bq;
+    });
+    return q;
+  }
+
   // Build the &bonus=..&spec=..&ench=..&gems=..&pcs=.. tail shared by the tooltip
   // and the Wowhead link, from either a meta pick or a parsed user item.
   function wowheadParams(o, specId) {
@@ -288,17 +361,27 @@
     return p;
   }
 
-  // One clickable, Wowhead-tooltipped item icon. Links to the internal /items
-  // page when a slug is known, else to Wowhead. `data` supplies bonus/ench/gems
-  // for the tooltip; `extra` is overlay markup (status glyph / chip).
-  function iconEl(id, iconName, quality, slug, data, specId, cls, extra) {
+  // Where an item points: its own /items page when the site has one, else
+  // Wowhead.
+  function itemLink(id, slug, data, specId) {
+    var params = wowheadParams(data || {}, specId);
+    return slug
+      ? { href: "/items/" + esc(slug) + (specId != null ? "?spec=" + specId : ""), target: "", params: params }
+      : { href: "https://www.wowhead.com/item=" + id + (params ? "?" + params.replace(/^&/, "") : ""),
+          target: ' target="_blank" rel="noopener"', params: params };
+  }
+
+  // One clickable, Wowhead-tooltipped item icon. `data` supplies bonus/ench/gems
+  // for the tooltip; `extra` is overlay markup (status glyph / chip); `label` is
+  // the link's accessible name — the rows are icons only, so without it a
+  // screen reader reads the whole link as nothing at all.
+  function iconEl(id, iconName, quality, slug, data, specId, cls, extra, label) {
     var q = quality != null ? " border-quality-" + quality : "";
     var src = iconName ? "/data/icons/" + esc(iconName) + ".png" : QUESTION;
-    var params = wowheadParams(data || {}, specId);
-    var href = slug ? "/items/" + esc(slug) + (specId != null ? "?spec=" + specId : "")
-                    : "https://www.wowhead.com/item=" + id + (params ? "?" + params.replace(/^&/, "") : "");
-    var target = slug ? "" : ' target="_blank" rel="noopener"';
+    var lk = itemLink(id, slug, data, specId);
+    var params = lk.params, href = lk.href, target = lk.target;
     return '<a class="an-icon' + q + (cls ? " " + cls : "") + '"' + target +
+      (label ? ' aria-label="' + esc(label) + '"' : "") +
       ' href="' + href + '" data-wowhead="item=' + id + params + '">' +
       '<img src="' + src + '" alt="" loading="lazy" onerror="this.src=\'' + QUESTION + '\'">' +
       (extra || "") + "</a>";
@@ -458,11 +541,37 @@
     return { sim: sim, top: top, common: common };
   }
 
+  // Lay the scored tiles out in the spec page's armory grouping. Both panes of a
+  // block are always emitted (an empty one keeps its half of the row, same as
+  // spec_page.html's unconditional flex-fill divs); a block with no tiles at all
+  // — a spec whose whole weapon/trinket pair fell out — is dropped entirely.
+  function layout(tilesBySlot) {
+    return DISPLAY_BLOCKS.map(function (block) {
+      var panes = [block.left, block.right].map(function (pane) {
+        return pane.slots.map(function (s) { return tilesBySlot[s] || ""; }).join("");
+      });
+      if (!panes[0] && !panes[1]) return "";
+      return '<div class="an-block">' +
+        [block.left, block.right].map(function (pane, i) {
+          return '<div class="an-col">' +
+            (pane.head ? '<div class="an-col-head">' + esc(pane.head) + "</div>" : "") +
+            panes[i] + "</div>";
+        }).join("") +
+        "</div>";
+    }).join("");
+  }
+
   function render(meta, parsed) {
     var specId = meta.spec_id;
     var disp = (window.SPEC_DISPLAY || {})[specId] || { name: meta.spec, class: meta.class, icon: null };
-    var tiles = [];
+    // Keyed by slot, not a flat list: the scoring loop below walks SLOT_ORDER,
+    // but layout() places the tiles in the armory grouping afterwards.
+    var tilesBySlot = {};
     var comparable = 0, good = 0;
+    // How wide the modifier zone has to be: the busiest slot in THIS report
+    // decides, so the zone's leading hairline lands on the same x on every row.
+    // Combined into --an-mod-slots below.
+    var maxGems = 0, anyEnch = false;
 
     // Equipping the meta two-hander costs the player BOTH weapons, so a
     // one-hand + off-hand player has to be told about both slots, not just the
@@ -548,8 +657,10 @@
       var um = userMeta(user.id);
       var mark = matched ? '<span class="an-mark an-mark-ok">✓</span>'
                          : '<span class="an-mark an-mark-bad">✕</span>';
-      var yours = iconEl(user.id, um && um.icon, um && um.quality, um && um.slug,
-        user, specId, "an-user", mark);
+      var slotLabel = slotName.replace(/_/g, " ").toLowerCase();
+      var yours = iconEl(user.id, um && um.icon,
+        resolveQuality(um && um.quality, user.bonus), um && um.slug,
+        user, specId, "an-user", mark, "your " + slotLabel + " item");
 
       // Ids we must not suggest for this slot: anything worn in a sibling slot of
       // an interchangeable pair (unique-equipped — can't wear a second copy) plus
@@ -576,7 +687,8 @@
       // an off-meta sibling of the very item it should be told to equip.
       if (!matched) picks.forEach(function (t) { suggestedInGroup[t.pick.id] = true; });
       var targets = picks.map(function (t) {
-        return iconEl(t.pick.id, t.pick.icon, t.pick.quality, t.pick.slug, t.pick, specId, "", chip(t.kind, t.pick, meta));
+        return iconEl(t.pick.id, t.pick.icon, t.pick.quality, t.pick.slug, t.pick, specId, "",
+          chip(t.kind, t.pick, meta), "meta pick for " + slotLabel);
       });
       var targetHtml = targets.length ? '<div class="an-targets">' + targets.join("") + "</div>" : "";
 
@@ -594,8 +706,10 @@
         if (!hasIdeal) acc.common.forEach(function (i) { if (!excludeIds[i]) wantIds.push(i); });
         var ownedId = wantIds.filter(function (i) { return bagGroup[i]; })[0];
         if (ownedId != null) {
-          inBagsHtml = '<div class="an-inbags">' +
-            '<i class="material-symbols-rounded">backpack</i> In your bags</div>';
+          // Trails the swap it belongs to ("change to this — you already own
+          // it"), inside the item zone, so it never reaches the modifier columns.
+          inBagsHtml = '<span class="an-inbags">' +
+            '<i class="material-symbols-rounded">backpack</i> In your bags</span>';
         }
       }
 
@@ -655,23 +769,26 @@
         }
       }
 
-      // Already on a meta pick → just the equipped item; no exchange arrow /
-      // target (nothing to change). Off-meta slots show the swap to make.
-      var body = '<div class="an-tile-body"><div class="an-yours">' + yours + "</div>";
-      if (!matched && targetHtml) {
-        body += '<span class="material-symbols-rounded an-arrow">arrow_right_alt</span>' + targetHtml;
-      }
-      body += "</div>";
+      // ITEM ZONE — everything about the item itself, packed left: what you
+      // wear, the swap to make, and whether you already own the target. This is
+      // the row's only growing cell, so it pushes the modifier zone right.
+      // Already on a meta pick → no arrow and no target; there's nothing to change.
+      var itemZone = '<div class="an-item"><div class="an-yours">' + yours + "</div>" +
+        (!matched && targetHtml
+          ? '<span class="material-symbols-rounded an-arrow">arrow_right_alt</span>' + targetHtml
+          : "") +
+        inBagsHtml + "</div>";
 
-      // Footer band right under the item: gems then enchant, grouped tightly.
-      // "In your bags" is pinned to the very bottom (see .an-inbags) instead of
-      // floating mid-tile.
-      var foot = (gemCell || enchCell)
-        ? '<div class="an-foot">' +
-          (gemCell ? '<div class="an-foot-gems">' + gemCell + "</div>" : "") +
-          (enchCell ? '<div class="an-foot-ench">' + enchCell + "</div>" : "") +
-          "</div>"
-        : "";
+      // MODIFIER ZONE — enchant then gems (the order the spec page's render_slot
+      // uses), packed hard against the row's right edge so nothing can float in
+      // the middle of a reserved cell. The zone itself is a fixed width, which is
+      // what keeps its leading hairline on one x down the whole column.
+      if (gemCell) maxGems = Math.max(maxGems, user.gems.length);
+      if (enchCell) anyEnch = true;
+      var foot = '<div class="an-foot">' +
+        '<div class="an-foot-ench">' + enchCell + "</div>" +
+        '<div class="an-foot-gems">' + gemCell + "</div>" +
+        "</div>";
 
       // Tile colour is now purely about "what should I fix here":
       //   red  = the item itself isn't a meta pick (swap it),
@@ -682,14 +799,12 @@
       // user anything actionable.)
       var tileState = !matched ? "bad" : (footIssue ? "warn" : "good");
 
-      tiles.push(
+      tilesBySlot[slotName] =
         '<div class="an-tile an-' + tileState + '">' +
           '<div class="an-slot-label">' + esc(slotName.replace(/_/g, " ")) + "</div>" +
-          body +
+          itemZone +
           foot +
-          inBagsHtml +
-        "</div>"
-      );
+        "</div>";
     });
 
     if (comparable === 0) {
@@ -698,33 +813,42 @@
     }
 
     var score = Math.round((good / comparable) * 100);
-    var stats = (meta.stat_priority || []).map(function (s) {
-      return '<span class="badge an-stat">' + esc(s) + "</span>";
-    }).join(" ");
+    var iconHtml = disp.icon ? '<img src="/data/icons/' + esc(disp.icon) + '.jpg" class="an-spec-icon me-3" alt="">' : "";
 
-    var iconHtml = disp.icon ? '<img src="/data/icons/' + esc(disp.icon) + '.jpg" class="an-spec-icon me-2" alt="">' : "";
+    // The page asks one question, so its answer gets its own band: the score as
+    // a progress ring, big enough to read before anything else on the card.
+    // The same hi/mid/lo class drives the ring colour and the figure, so the
+    // thresholds stay defined in one place (analyzer.css).
+    var scoreClass = score >= 80 ? "an-score-hi" : score >= 50 ? "an-score-mid" : "an-score-lo";
+    var summary =
+      '<div class="an-summary ' + scoreClass + '">' +
+        '<div class="an-summary-id">' + iconHtml +
+          '<div><div class="an-summary-spec">' + esc(disp.name) + " " + esc(disp.class) + "</div>" +
+          '<div class="text-xs text-secondary">' + good + " of " + comparable +
+            " scored slots on a meta pick</div></div>" +
+        "</div>" +
+        '<div class="an-summary-score">' +
+          '<div class="an-ring" style="--an-pct:' + score + '" role="img"' +
+            ' aria-label="' + score + '% meta match">' +
+            '<span class="an-ring-arc"></span>' +
+            '<span class="an-ring-pct">' + score + "%</span></div>" +
+          '<div class="an-ring-label">meta match</div>' +
+        "</div>" +
+      "</div>";
+
+    // Width of the modifier zone, in icon slots: the busiest slot's gem count
+    // plus one for the enchant column. Zero means no slot in this report has
+    // either, and `an-has-mods` drops the zone (and its divider) entirely.
+    var modSlots = maxGems + (anyEnch ? 1 : 0);
 
     results.innerHTML =
-      '<div class="d-flex align-items-center mb-2">' + iconHtml +
-        '<div><div class="font-weight-bolder">' + esc(disp.name) + " " + esc(disp.class) + "</div>" +
-        '<div class="text-xs text-secondary">' + good + " of " + comparable + " scored slots on a meta pick</div></div>" +
-        '<div class="ms-auto text-end"><div class="an-score ' + (score >= 80 ? "an-score-hi" : score >= 50 ? "an-score-mid" : "an-score-lo") + '">' + score + "%</div>" +
-        '<div class="text-xxs text-uppercase text-secondary">meta match</div></div>' +
-      "</div>" +
-      (stats ? '<div class="my-3 text-xs"><span class="text-uppercase text-secondary me-2">Stat priority</span>' + stats + "</div>" : "") +
-      '<div class="an-grid">' + tiles.join("") + "</div>" +
+      summary +
+      '<div class="an-grid' + (modSlots ? " an-has-mods" : "") +
+        '" style="--an-mod-slots:' + modSlots + '">' + layout(tilesBySlot) + "</div>" +
       comboSection(meta.gem_combo, counts.gems, "gem", meta) +
       comboSection(meta.enchant_combo, counts.enchants, "enchant", meta) +
       '<p class="text-xxs text-secondary mt-2 mb-0">' +
-        '<span class="an-swatch an-swatch-good"></span> Item, gems &amp; enchants all good &nbsp; ' +
-        '<span class="an-swatch an-swatch-warn"></span> Item OK, a gem or enchant is off &nbsp; ' +
-        '<span class="an-swatch an-swatch-bad"></span> Item isn’t a meta pick</p>' +
-      '<p class="text-xxs text-secondary mt-2 mb-0">' +
-        '<span class="badge simc-badge an-legend-badge">SIM</span> SimulationCraft rank 1 &nbsp; ' +
-        '<span class="badge bis-badge an-legend-badge">TOP</span> Raider.io top-50 loadout pick. ' +
-        'Where a slot has neither, the most-popular item is shown for reference. ' +
-        'Gems and enchants are scored per slot against the top players’ most-popular combo. ' +
-        'Click an item for its details page; hover for the Wowhead tooltip. Talents aren’t compared yet.</p>';
+        'Talents aren’t compared yet.</p>';
 
     if (window.$WowheadPower && typeof window.$WowheadPower.refreshLinks === "function") {
       try { window.$WowheadPower.refreshLinks(); } catch (e) { /* tooltips are best-effort */ }
@@ -759,6 +883,7 @@
       }),
       loadItemsIndex(),
       loadGemEnchantIndex(),
+      loadBonusQuality(),
     ])
       .then(function (out) {
         var meta = out[0];
@@ -781,7 +906,7 @@
       })
       .catch(function (err) {
         showError(err && err.dataError
-          ? "Couldn't load the item icon data. Reload the page and try again."
+          ? "Couldn't load the item data. Reload the page and try again."
           : "No meta data available for this spec yet. Check back after the next update.");
       });
   }

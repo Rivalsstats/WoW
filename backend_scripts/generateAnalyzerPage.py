@@ -24,6 +24,9 @@ TEMPLATE_PATH = "templates"
 ICON_SHARD_SIZE = 1000
 ICON_SHARD_DIR = os.path.join("assets", "json", "item_icons")
 
+# Client copy of the bonus id -> item quality table (see write_bonus_quality_map).
+BONUS_QUALITY_OUT = os.path.join("assets", "json", "bonus_quality.json")
+
 # SimulationCraft class tokens (the lowercase word before '="charname"' in an
 # export) mapped to the WoW class id used in specs.json/classes.json. Stable.
 SIMC_CLASS_TOKENS = {
@@ -69,6 +72,10 @@ def write_item_icon_shards():
     third element marks a weapon that occupies both hands, which is how the
     client knows a suggested two-hander replaces a one-hand + off-hand pair.
 
+    No item name here on purpose: the report's rows are icons only, so a name
+    would be ~3 MB of catalog nobody reads. Hover gets it from the Wowhead
+    tooltip instead.
+
     ``items_index.json`` only covers the ~500 items that have an /items page, so
     anything else a player wears (PvP gear, raid/leveling drops) used to render a
     questionmark. The full catalog is 109k items — far too big to ship as one
@@ -109,6 +116,30 @@ def write_item_icon_shards():
     return sorted(buckets)
 
 
+def write_bonus_quality_map():
+    """Bake the bonus id -> quality table analyzer.js needs to rim the player's
+    own gear the way the spec pages rim the meta picks.
+
+    A Mythic+ drop is a *rare* item in the catalog that a quality bonus id
+    promotes to epic. generateSpecPages.py already applies this table to the meta
+    picks (convert_slots -> quality_override), so without the client half the
+    analyzer draws a blue rim on the very item it draws purple one tile right.
+
+    data/static/bonus_quality_map.json is committed (processBonusIds.py builds it
+    from bonuses.json) but data/static is never deployed — buildPages.yml ships
+    only data/icons and data/creature_img — so re-emit it minified under
+    assets/json, which the build artifact does carry.
+    """
+    quality_map = load_json(os.path.join(LOOKUP_DIR, "bonus_quality_map.json"))
+    os.makedirs(os.path.dirname(BONUS_QUALITY_OUT), exist_ok=True)
+    with open(BONUS_QUALITY_OUT, "w", encoding="utf-8") as f:
+        json.dump(quality_map, f, separators=(",", ":"), ensure_ascii=False)
+    print(
+        f"[{datetime.now(timezone.utc).isoformat()}] "
+        f"wrote bonus quality map ({len(quality_map)} bonus ids)"
+    )
+
+
 def main(template_path, output_dir):
     spec_lookup = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
@@ -118,6 +149,7 @@ def main(template_path, output_dir):
 
     spec_index, spec_display = build_spec_index(spec_lookup, class_lookup)
     item_icon_buckets = write_item_icon_shards()
+    write_bonus_quality_map()
 
     env = Environment(
         loader=FileSystemLoader(os.path.dirname(template_path) or TEMPLATE_PATH),
