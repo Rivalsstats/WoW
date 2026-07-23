@@ -10,7 +10,8 @@ Runs continuously inside the collector container (registered alongside
      locks those slots to the tier piece.
   4. Evaluates whole-set combinations (Raidbots "Top Gear" style): the cartesian
      product of each non-tier slot's candidate bag, pruning any set that breaks
-     an equip limit (<=2 embellishments via itemLimit category 512, no duplicate
+     an equip limit (each embellishment's own itemLimit — usually the 2-per-character
+     category 512, but some consume nothing and some cap at 1 — no duplicate
      unique-equipped item, other itemLimit categories), and evaluating each legal
      set as a full profileset in a single simc invocation. The bag is trimmed
      (least-popular first) so the product fits ``SIMC_MAX_COMBINATIONS``.
@@ -109,8 +110,12 @@ SIMC_CANDIDATES_PER_SLOT = int(os.environ.get("SIMC_CANDIDATES_PER_SLOT", "10"))
 # Top-Gear combination budget: hard cap on the number of full-set profilesets we
 # evaluate per spec. The per-slot candidate "bag" is trimmed (least-popular items
 # first) until its cartesian product fits this cap. One simc invocation handles
-# them all as profilesets.
-SIMC_MAX_COMBINATIONS = int(os.environ.get("SIMC_MAX_COMBINATIONS", "2000"))
+# them all as profilesets. This is now a real budget: it used to sit at 2000 while
+# most enumerated sets were discarded as illegal (a spec delivered ~500), so
+# raising it mostly bought pruned combos. With the equip limits modelled correctly
+# nearly every enumerated set survives, and the cap directly sets how long a spec
+# takes — roughly cap/SIMC_CHUNK_SIZE simc invocations per rotation.
+SIMC_MAX_COMBINATIONS = int(os.environ.get("SIMC_MAX_COMBINATIONS", "500"))
 # Maximum iteration count for the combination pass: every combo converges to
 # SIMC_TARGET_ERROR but is capped here, stopping at whichever comes first. The cap
 # stops a slow-converging (high-variance) combo from running unbounded. Set to
@@ -288,30 +293,64 @@ def load_item_lookup():
     return {int(i["id"]): i for i in items if i.get("id") is not None}
 
 
-_EMBELLISH_BONUS_IDS = None
-
-
-def load_embellishment_bonus_ids():
-    """Set of bonus_id strings that apply an embellishment.
-
-    embellishments.json maps embellishment bonus_id -> reagent item_id. Every
-    embellishment reagent shares itemLimit {category: 512, quantity: 2}, so a
-    crafted item carries an embellishment (and counts toward that cap) when any
-    of its bonus_ids is one of these keys."""
-    global _EMBELLISH_BONUS_IDS
-    if _EMBELLISH_BONUS_IDS is None:
-        try:
-            data = json.loads((STATIC_DIR / "embellishments.json").read_text(encoding="utf-8"))
-            _EMBELLISH_BONUS_IDS = {str(k) for k in data.keys()}
-        except Exception as e:
-            _log(f"could not load embellishments.json: {e}")
-            _EMBELLISH_BONUS_IDS = set()
-    return _EMBELLISH_BONUS_IDS
-
-
-# Embellishment item-limit category/quantity (Blizzard crafting category 512).
+# Fallback embellishment item-limit category/quantity (Blizzard crafting
+# category 512, the classic "two embellishments per character" cap). Only used
+# for an embellishment whose reagent we can't resolve — the real limit comes from
+# the reagent itself, see load_embellishment_limits.
 EMBELLISH_LIMIT_CATEGORY = 512
 EMBELLISH_LIMIT_QUANTITY = 2
+
+
+_EMBELLISH_LIMITS = None
+
+
+def load_embellishment_limits():
+    """Embellishment bonus_id (str) -> (limit_category, limit_quantity), or None
+    for the embellishments that consume no budget at all.
+
+    embellishments.json maps embellishment bonus_id -> reagent item_id, and it is
+    the REAGENT's own itemLimit (crafting.json) that the game enforces. Most
+    reagents share {category: 512, quantity: 2} — the familiar two-embellishment
+    cap — but not all: a handful (Lucky Keychain, Griftah's powders, Reserve
+    Parachute, ...) carry no itemLimit and stack freely with anything, and a few
+    sit in a stricter category of their own (697, quantity 1). Treating every
+    embellishment as 512/2 gets both ends wrong: it prunes legal sets that wear a
+    free embellishment — enough of them and a spec has NO legal combination left
+    and never sims at all — and it lets two of a one-per-character embellishment
+    be simmed together. An unresolvable reagent falls back to the 512/2 cap:
+    over-constraining is the safer error, and it is logged.
+
+    Both source files are required: without them every set would silently be
+    judged legal, which is how illegal, DPS-inflated gear reaches the site — so a
+    missing file raises rather than degrading quietly.
+    """
+    global _EMBELLISH_LIMITS
+    if _EMBELLISH_LIMITS is not None:
+        return _EMBELLISH_LIMITS
+    data = json.loads((STATIC_DIR / "embellishments.json").read_text(encoding="utf-8"))
+    craft = json.loads((STATIC_DIR / "crafting.json").read_text(encoding="utf-8"))
+    reagents = {}
+    for r in craft.get("reagents") or []:
+        if isinstance(r, dict) and r.get("itemId") is not None:
+            reagents[int(r["itemId"])] = r
+
+    out = {}
+    unresolved = []
+    for bonus_id, reagent_id in data.items():
+        reagent = reagents.get(int(reagent_id))
+        if reagent is None:
+            unresolved.append(reagent_id)
+            out[str(bonus_id)] = (EMBELLISH_LIMIT_CATEGORY, EMBELLISH_LIMIT_QUANTITY)
+            continue
+        lim = reagent.get("itemLimit") or {}
+        cat = lim.get("category")
+        out[str(bonus_id)] = (cat, lim.get("quantity")) if cat is not None else None
+    if unresolved:
+        _log(f"{len(unresolved)} embellishment reagent(s) missing from crafting.json "
+             f"(e.g. {unresolved[:5]}); assuming the {EMBELLISH_LIMIT_QUANTITY}-embellishment "
+             f"cap for them")
+    _EMBELLISH_LIMITS = out
+    return _EMBELLISH_LIMITS
 
 
 _BONUS_SOCKET_COUNTS = None
@@ -436,7 +475,7 @@ def gather_candidates(conn, cursor, spec_id, season, item_lookup):
     count is at least SIMC_MIN_CANDIDATE_FRACTION of the slot's most-popular item
     (the top item always passes).
     """
-    embellish_ids = load_embellishment_bonus_ids()
+    embellish_limits = load_embellishment_limits()
     socket_bonus_counts = load_bonus_socket_counts()
     out = {}
     group_cache = {}  # slot_group -> group rows, so each pair's query runs once
@@ -461,7 +500,11 @@ def gather_candidates(conn, cursor, spec_id, season, item_lookup):
                 [b.strip() for b in str(bonus_list).split(",") if b.strip()]
                 if bonus_list else []
             )
-            has_embellishment = any(b in embellish_ids for b in bonus_ids)
+            # Only the embellishments that actually consume an equip budget
+            # constrain the set; several consume nothing (load_embellishment_limits).
+            emb_hits = [b for b in bonus_ids if b in embellish_limits]
+            has_embellishment = bool(emb_hits)
+            emb_limits = [embellish_limits[b] for b in emb_hits if embellish_limits[b]]
             # Socket count: sockets granted by the equipped bonus_ids, raised to
             # the item's inherent socket count (mirrors the spec page's
             # convert_slots so the simmed item matches the one shown there).
@@ -479,6 +522,7 @@ def gather_candidates(conn, cursor, spec_id, season, item_lookup):
                     "unique_equipped": bool(meta.get("uniqueEquipped")),
                     "item_limit": meta.get("itemLimit"),
                     "has_embellishment": has_embellishment,
+                    "embellish_limits": emb_limits,
                     "socket_count": socket_count,
                 }
             )
@@ -622,73 +666,142 @@ def apply_enchants_and_gems(candidates, enchant_map, gem_ranking, item_lookup):
 # --------------------------------------------------------------------------
 
 def candidate_limit_categories(cand):
-    """Yield (category, max_quantity) limit contributions for a candidate:
-    the item's own itemLimit (e.g. unique-equipped categories) plus the
-    embellishment cap (category 512, quantity 2) when it carries one."""
+    """Yield (category, max_quantity) limit contributions for a candidate: the
+    item's own itemLimit (unique-equipped categories, alchemist stones, ...) plus
+    the real itemLimit of every embellishment it carries — which is per
+    embellishment, not a blanket 512/2 (see load_embellishment_limits)."""
     out = []
     lim = cand.get("item_limit")
     if lim and lim.get("category") is not None:
         out.append((lim["category"], lim.get("quantity")))
-    if cand.get("has_embellishment"):
-        out.append((EMBELLISH_LIMIT_CATEGORY, EMBELLISH_LIMIT_QUANTITY))
+    for cat, qty in cand.get("embellish_limits") or []:
+        out.append((cat, qty))
+    return out
+
+
+def _consumes_limit(cand):
+    """True if the candidate spends an equip-limit budget shared with other slots
+    (an embellishment, an alchemist-stone-style itemLimit category). Such a pick
+    can only ever be worn alongside a limited number of its peers."""
+    return bool(cand) and bool(candidate_limit_categories(cand))
+
+
+def set_violations(chosen):
+    """Every equip limit a full equipped set breaks.
+
+    chosen: dict slot -> candidate. Returns a list of
+    {"kind": "unique"|"category", "key": item_id|category, "limit": qty,
+    "slots": [slot, ...]} — the slots being the picks that contribute to it.
+    Covers unique-equipped (no duplicate of the same unique item across slots)
+    and per-category itemLimit quantities (the embellishment cap,
+    alchemist-stone-style unique categories, etc.)."""
+    unique_slots = {}   # item_id -> [slot, ...]
+    cat_slots = {}      # category -> [slot, ...]
+    cat_limit = {}
+    for slot, cand in chosen.items():
+        if not cand:
+            continue
+        if cand.get("unique_equipped"):
+            unique_slots.setdefault(cand["item_id"], []).append(slot)
+        for cat, qty in candidate_limit_categories(cand):
+            cat_slots.setdefault(cat, []).append(slot)
+            if qty is not None:
+                cat_limit[cat] = qty if cat not in cat_limit else min(cat_limit[cat], qty)
+    out = []
+    for iid, slots in unique_slots.items():
+        if len(slots) > 1:
+            out.append({"kind": "unique", "key": iid, "limit": 1, "slots": slots})
+    for cat, slots in cat_slots.items():
+        q = cat_limit.get(cat)
+        if q is not None and len(slots) > q:
+            out.append({"kind": "category", "key": cat, "limit": q, "slots": slots})
     return out
 
 
 def set_is_valid(chosen):
-    """True if a full equipped set respects every equip limit.
+    """True if a full equipped set respects every equip limit (see set_violations)."""
+    return not set_violations(chosen)
 
-    chosen: dict slot -> candidate. Enforces unique-equipped (no duplicate of the
-    same unique item across slots) and per-category itemLimit quantities (the
-    embellishment cap, alchemist-stone-style unique categories, etc.)."""
-    seen_unique = set()
-    cat_counts = {}
-    cat_limit = {}
-    for cand in chosen.values():
-        if not cand:
-            continue
-        if cand.get("unique_equipped"):
-            iid = cand["item_id"]
-            if iid in seen_unique:
-                return False
-            seen_unique.add(iid)
-        for cat, qty in candidate_limit_categories(cand):
-            cat_counts[cat] = cat_counts.get(cat, 0) + 1
-            if qty is not None:
-                cat_limit[cat] = qty if cat not in cat_limit else min(cat_limit[cat], qty)
-    for cat, n in cat_counts.items():
-        q = cat_limit.get(cat)
-        if q is not None and n > q:
-            return False
-    return True
+
+def _violation_label(v):
+    """Human-readable name of a violated constraint, for logs and alerts."""
+    if v["kind"] == "unique":
+        return f"unique-equipped item {v['key']}"
+    if v["key"] == EMBELLISH_LIMIT_CATEGORY:
+        return f"the {v['limit']}-embellishment cap"
+    return f"itemLimit category {v['key']} (max {v['limit']})"
+
+
+def _violation_reason(chosen, violations):
+    """One-line explanation of why a set is illegal, naming slots and item ids."""
+    parts = []
+    for v in violations:
+        items = ", ".join(
+            f"{s} {chosen[s]['item_id']}" for s in sorted(v["slots"]) if chosen.get(s)
+        )
+        parts.append(f"{len(v['slots'])} equipped items break {_violation_label(v)}: {items}")
+    return "; ".join(parts)
+
+
+def _hits_violation(cand, v):
+    """True if `cand` contributes to the constraint violated in `v`."""
+    if not cand:
+        return False
+    if v["kind"] == "unique":
+        return bool(cand.get("unique_equipped")) and cand["item_id"] == v["key"]
+    return any(cat == v["key"] for cat, _ in candidate_limit_categories(cand))
+
+
+def legalize_set(chosen, candidates, locked=()):
+    """Demote offending picks until an equipped set respects every equip limit.
+
+    Candidate bags are ranked per slot independently, so a set assembled from them
+    can break limits no single slot can see: more than EMBELLISH_LIMIT_QUANTITY
+    embellishments (illegal in-game — only two ever apply, and simc would apply
+    them all and inflate the set's DPS), the same unique-equipped ring twice, and
+    so on. For each violation we demote the LEAST popular offending slot — never a
+    `locked` one (the tier pieces a scenario deliberately pins) — to that slot's
+    most-popular candidate which doesn't contribute to the violated constraint,
+    and re-check. Mutates and returns (chosen, unresolved), `unresolved` listing
+    the violations no demotion could fix.
+    """
+    locked = set(locked)
+    stuck = set()
+    # Each successful demotion removes one contributor from the violated
+    # constraint, but can introduce a different one; bound the loop so a pair of
+    # constraints that keep pushing each other around can never spin forever.
+    for _ in range(4 * len(ALL_SLOTS)):
+        pending = [v for v in set_violations(chosen) if (v["kind"], v["key"]) not in stuck]
+        if not pending:
+            break
+        v = pending[0]
+        # least popular first: demote the pick the fewest players actually equip
+        offenders = sorted((s for s in v["slots"] if s not in locked),
+                           key=lambda s: chosen[s].get("count") or 0)
+        for slot in offenders:
+            alt = next((c for c in candidates.get(slot, []) if not _hits_violation(c, v)), None)
+            if alt is not None:
+                _log(f"legalize: {slot} {chosen[slot]['item_id']} -> {alt['item_id']} "
+                     f"to respect {_violation_label(v)}")
+                chosen[slot] = alt
+                break
+        else:
+            stuck.add((v["kind"], v["key"]))
+    return chosen, set_violations(chosen)
 
 
 def legalize_baseline_embellishments(baseline, candidates):
-    """Demote excess embellished picks so a baseline respects the embellishment cap.
+    """Demote excess picks so the popular baseline respects every equip limit.
 
-    The popular baseline takes the most-popular item per slot independently, which can
-    equip more than EMBELLISH_LIMIT_QUANTITY embellishments — illegal in-game (only two
-    ever apply), and simc would apply all of them and inflate the set's DPS. Keep the
-    most-popular embellished picks up to the cap and swap every further embellished slot
-    to its most-popular non-embellished candidate. Mutates and returns `baseline`.
+    The popular baseline takes the most-popular item per slot independently, which
+    can equip more than EMBELLISH_LIMIT_QUANTITY embellishments (or the same
+    unique-equipped item twice). Thin wrapper over legalize_set, which keeps the
+    most-popular offending picks and swaps the rest. Mutates and returns `baseline`.
     """
-    emb_slots = [s for s, c in baseline.items() if c and c.get("has_embellishment")]
-    if len(emb_slots) <= EMBELLISH_LIMIT_QUANTITY:
-        return baseline
-    # keep the most-popular embellished picks (highest equip count) up to the cap
-    emb_slots.sort(key=lambda s: baseline[s].get("count", 0), reverse=True)
-    for slot in emb_slots[EMBELLISH_LIMIT_QUANTITY:]:
-        alt = next(
-            (c for c in candidates.get(slot, []) if not c.get("has_embellishment")),
-            None,
-        )
-        if alt is not None:
-            _log(f"baseline: demoting embellished item {baseline[slot]['item_id']} in {slot} "
-                 f"to non-embellished {alt['item_id']} to respect the "
-                 f"{EMBELLISH_LIMIT_QUANTITY}-embellishment cap")
-            baseline[slot] = alt
-        else:
-            _log(f"baseline: {slot} has no non-embellished candidate; keeping embellished "
-                 f"item {baseline[slot]['item_id']} (set may exceed embellishment cap)")
+    baseline, unresolved = legalize_set(baseline, candidates)
+    for v in unresolved:
+        _log(f"baseline: no legal candidate in {sorted(v['slots'])} for "
+             f"{_violation_label(v)}; the popular set stays illegal")
     return baseline
 
 
@@ -702,13 +815,47 @@ def _combo_count(opts):
     return n
 
 
+def promote_limit_free_alternative(bag):
+    """Move each slot's most-popular limit-free candidate up to index 1 whenever
+    the slot's top pick spends an equip-limit budget.
+
+    trim_bag shrinks bags from the tail, so without this the one alternative that
+    could keep a set legal is usually trimmed away long before the limited head
+    is — see trim_bag's protection rule. Relative popularity order is otherwise
+    preserved. Mutates and returns `bag`."""
+    for slot, cands in bag.items():
+        if not cands or not _consumes_limit(cands[0]):
+            continue
+        i = next((k for k, c in enumerate(cands) if not _consumes_limit(c)), None)
+        if i is None or i == 1:
+            continue
+        bag[slot] = [cands[0], cands[i]] + [c for k, c in enumerate(cands) if k not in (0, i)]
+    return bag
+
+
 def trim_bag(opts, cap):
     """Trim the least-popular candidate from the bag's largest slot until the
     cartesian product fits `cap`. Candidates are most-popular first, so popping
-    the tail drops the least-equipped option. Every slot keeps >= 1 candidate."""
+    the tail drops the least-equipped option. Every slot keeps >= 1 candidate.
+
+    A slot whose head spends an equip-limit budget is protected from collapsing
+    onto that single pick while a limit-free alternative is still in its bag:
+    collapsing it FORCES the limited item into every combination, and three such
+    forced slots make every set illegal (the embellishment cap is 2) — the spec
+    would then produce no valid combination at all. Protected slots keep
+    [limited head, best limit-free alternative] so the sim decides which limited
+    items are worth wearing. The cap still wins: protection is dropped once
+    nothing else can be trimmed."""
+    def _protected(slot):
+        v = opts[slot]
+        return len(v) == 2 and _consumes_limit(v[0]) and not _consumes_limit(v[1])
+
     while _combo_count(opts) > cap:
-        slot = max((s for s, v in opts.items() if len(v) > 1),
+        slot = max((s for s, v in opts.items() if len(v) > 1 and not _protected(s)),
                    key=lambda s: len(opts[s]), default=None)
+        if slot is None:   # everything left is protected — the cap takes priority
+            slot = max((s for s, v in opts.items() if len(v) > 1),
+                       key=lambda s: len(opts[s]), default=None)
         if slot is None:
             break
         opts[slot] = opts[slot][:-1]
@@ -904,12 +1051,13 @@ def build_combinations(candidates, baseline, active_slots, tier_set_id, tier_slo
     off-piece" (always keeping >=4pc). simc applies the set bonus per combo, so the
     tier-vs-off-piece choice — and which off-piece — is settled by full-set DPS.
 
-    Returns (base_full, profilesets, index, all_combos, scenarios):
+    Returns (base_full, profilesets, index, all_combos, scenarios, reason):
       base_full   : dict slot->cand seeding the simc base actor (most-popular combo)
       profilesets : list of (name, [(slot, cand), ...]) overrides vs base_full
       index       : name -> (full_set_dict, config_label)
       all_combos  : list of (full_set_dict, config_label)
       scenarios   : list of config labels explored
+      reason      : None on success, else why no legal combination exists
     """
     # Tier piece available per tier slot, and the tier scenarios to explore.
     tier_pieces = {}
@@ -956,6 +1104,7 @@ def build_combinations(candidates, baseline, active_slots, tier_set_id, tier_slo
 
     all_combos = []   # list of (full_set_dict, config_label)
     used_labels = []
+    blockers = {}     # why -> [scenario label, ...]
     for label, kept_tier, dropped in scenarios:
         bag = {s: list(v) for s, v in normal_bag.items()}
         if dropped:
@@ -963,6 +1112,7 @@ def build_combinations(candidates, baseline, active_slots, tier_set_id, tier_slo
             if not off:
                 continue   # nothing to drop to; "all" already covers wearing it
             bag[dropped] = slot_bag(dropped, off)
+        promote_limit_free_alternative(bag)
         trim_bag(bag, per_scenario_cap)
         fixed_slots = {s: v[0] for s, v in bag.items() if len(v) == 1}
         vary = {s: v for s, v in bag.items() if len(v) > 1}
@@ -971,12 +1121,32 @@ def build_combinations(candidates, baseline, active_slots, tier_set_id, tier_slo
         if dropped:
             scen_fixed.pop(dropped, None)   # ... except the dropped slot (from bag)
         scen_fixed.update(fixed_slots)
-        for chosen in enumerate_valid_combos(scen_fixed, vary, per_scenario_cap):
+        # The trim above pins every collapsed slot to its raw most-popular item,
+        # which silently undoes the demotions legalize_baseline_embellishments
+        # made on the baseline. Left alone, a core carrying three embellishments
+        # makes EVERY enumerated set illegal and the spec produces nothing at all,
+        # so legalize the pinned part (tier pieces locked) before enumerating —
+        # the varying slots are excluded because their pick comes from the
+        # product below, where enumerate_valid_combos already prunes illegal sets.
+        core = {s: c for s, c in scen_fixed.items() if s not in vary}
+        core, unresolved = legalize_set(core, candidates, locked=set(kept_tier))
+        scen_fixed.update(core)
+        combos = enumerate_valid_combos(scen_fixed, vary, per_scenario_cap)
+        if not combos:
+            heads = {**scen_fixed, **{s: v[0] for s, v in vary.items()}}
+            why = (_violation_reason(heads, unresolved or set_violations(heads))
+                   or "no legal combination")
+            # every scenario shares the same pinned core, so they usually fail for
+            # the identical reason — say it once, with the scenarios it covers.
+            blockers.setdefault(why, []).append(label)
+        for chosen in combos:
             all_combos.append(({**scen_fixed, **chosen}, label))
         used_labels.append(label)
 
     if not all_combos:
-        return None, [], {}, [], used_labels
+        reason = "; ".join(f"{why} (tier scenarios: {', '.join(labels)})"
+                           for why, labels in blockers.items())
+        return None, [], {}, [], used_labels, reason or "no legal gear combination"
 
     # Seed the base actor with the first (most-popular) combo; express every other
     # combo as a profileset overriding only the slots that differ from it.
@@ -990,7 +1160,7 @@ def build_combinations(candidates, baseline, active_slots, tier_set_id, tier_slo
         name = f"g{i}"
         profilesets.append((name, overrides))
         index[name] = (full, label)
-    return base_full, profilesets, index, all_combos, used_labels
+    return base_full, profilesets, index, all_combos, used_labels, None
 
 
 # --------------------------------------------------------------------------
@@ -1450,7 +1620,11 @@ def _build_run(prep, item_lookup):
     changes the generated profile and therefore the signature, so stale
     checkpoints are discarded rather than mixed into a new run. The simc *build*
     is deliberately not part of the signature, so the 6-hourly image pulls don't
-    invalidate a run mid-flight. Returns None when the spec has no valid combos.
+    invalidate a run mid-flight.
+
+    Returns (build_dict, None), or (None, reason) when the spec has no legal
+    combination — `reason` naming the equip limit and the slots/items that break
+    it, so the alert says what is actually wrong instead of "no valid combos".
     """
     header = prep["header"]
     candidates = prep["candidates"]
@@ -1478,12 +1652,12 @@ def _build_run(prep, item_lookup):
     if combo_iters is not None and combo_iters <= 0:
         combo_iters = None
 
-    base_full, profilesets, index, all_combos, scenarios = build_combinations(
+    base_full, profilesets, index, all_combos, scenarios, reason = build_combinations(
         candidates, baseline, active_slots, tier_set_id, tier_slots,
         item_lookup, SIMC_MAX_COMBINATIONS,
     )
     if not all_combos:
-        return None
+        return None, reason or "no legal gear combination"
 
     full_text = build_profile(header, base_full, profilesets, iterations=combo_iters)
     signature = hashlib.sha256(full_text.encode("utf-8")).hexdigest()
@@ -1500,7 +1674,7 @@ def _build_run(prep, item_lookup):
         "combo_iters": combo_iters,
         "n_combos": len(all_combos),
         "signature": signature,
-    }
+    }, None
 
 
 def _assemble_result(spec_id, season, build, means, baseline_dps, simc_version):
@@ -1580,9 +1754,9 @@ async def simulate_prepared(spec_id, season, prep, item_lookup, stats=None):
     path in run_simc_bis instead. Touches no DB; all reads happen in
     _prepare_spec.
     """
-    build = _build_run(prep, item_lookup)
+    build, build_err = _build_run(prep, item_lookup)
     if build is None:
-        msg = f"spec {spec_id} produced no valid gear combinations"
+        msg = f"spec {spec_id} produced no valid gear combinations: {build_err}"
         _stat_log(stats, f"simc: {msg}")
         return None, msg
 
@@ -1941,7 +2115,7 @@ async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, 
             # and throw all banked chunks away. get_live_connection()
             # pings/reconnects on checkout, reviving stale pooled connections.
             prep = prep_err = None
-            build = None
+            build = build_err = None
             snapshot = None
             spec_id = info = class_info = None
             season = None
@@ -1988,7 +2162,7 @@ async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, 
                 pmeta = databaseConnector.fetch_simc_progress_meta(conn, cursor, spec_id, season)
                 if pmeta is not None:
                     snap_prep = _load_prep_snapshot(pmeta.get("prep_snapshot"))
-                    snap_build = _build_run(snap_prep, item_lookup) if snap_prep else None
+                    snap_build = _build_run(snap_prep, item_lookup)[0] if snap_prep else None
                     if snap_build is not None and snap_build["signature"] == pmeta.get("run_signature"):
                         build = snap_build
                         snapshot = pmeta.get("prep_snapshot")
@@ -2008,7 +2182,7 @@ async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, 
                         spec_id, info, class_info, season, conn, cursor, item_lookup, stats
                     )
                     if prep:
-                        build = _build_run(prep, item_lookup)
+                        build, build_err = _build_run(prep, item_lookup)
                         if build is not None:
                             snapshot = _snapshot_prep(prep)
             # connection released here — the sims below hold no DB connection
@@ -2017,7 +2191,7 @@ async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, 
 
             # --- Prep / build failures: mark an attempt and move on ---
             if build is None:
-                msg = prep_err if prep_err else f"spec {spec_id} produced no valid gear combinations"
+                msg = prep_err or build_err or f"spec {spec_id} produced no valid gear combinations"
                 await _alert(
                     reporter, stats, "SimC: spec simulation failed",
                     f"No result for spec {spec_id} ({spec_label}).\n```\n{(msg or 'unknown error')[-1000:]}\n```",
@@ -2209,12 +2383,34 @@ async def _dry_run_single(spec_id, season):
     tier_slots = prep["tier_slots"]
     active_slots = prep["active_slots"]
 
-    # candidate count per slot (spot thin slots at a glance)
+    # candidate count per slot (spot thin slots at a glance). The equip-limit
+    # flags matter: a slot whose every candidate is embellished/limited can force
+    # an illegal set (see legalize_set / trim_bag's protection rule).
     print("\n=== candidates per slot (after popularity filter) ===")
+    print("     flags: E=embellished (E-free spends no budget)  U=unique-equipped"
+          "  <cat>x<qty>=itemLimit consumed")
     for slot in active_slots:
         cs = candidates.get(slot, [])
-        ids = ", ".join(f"{c['item_id']}(n={c['count']},sockets={c.get('socket_count', 0)})" for c in cs)
-        print(f"  {slot:10} {len(cs):2}: {ids}")
+        parts = []
+        for c in cs:
+            flags = []
+            if c.get("has_embellishment"):
+                flags.append("E" if c.get("embellish_limits") else "E-free")
+            if c.get("unique_equipped"):
+                flags.append("U")
+            flags += [f"{cat}x{qty}" for cat, qty in candidate_limit_categories(c)]
+            parts.append(f"{c['item_id']}(n={c['count']},sockets={c.get('socket_count', 0)}"
+                         + (f",{'/'.join(flags)}" if flags else "") + ")")
+        limit_free = sum(1 for c in cs if not _consumes_limit(c))
+        print(f"  {slot:10} {len(cs):2} ({limit_free} limit-free): {', '.join(parts)}")
+
+    base_violations = set_violations(baseline)
+    print("\n=== baseline (most-popular per slot, after legalization) ===")
+    print(f"  embellished slots: {sorted(s for s, c in baseline.items() if c.get('has_embellishment'))}"
+          f" — of which budget-consuming: "
+          f"{sorted(s for s, c in baseline.items() if c.get('embellish_limits'))}")
+    print(f"  legal: {not base_violations}"
+          + (f" — {_violation_reason(baseline, base_violations)}" if base_violations else ""))
 
     print("\n=== enchants (group -> enchant_id, constant across profilesets) ===")
     for grp, eid in sorted((prep.get("enchant_map") or {}).items()):
@@ -2227,7 +2423,7 @@ async def _dry_run_single(spec_id, season):
 
     # full-set Top-Gear combination profile (tier configs co-optimised), exactly
     # as the real run builds it.
-    base_full, ps, index, all_combos, scenarios = build_combinations(
+    base_full, ps, index, all_combos, scenarios, reason = build_combinations(
         candidates, baseline, active_slots, tier_set_id, tier_slots,
         item_lookup, SIMC_MAX_COMBINATIONS,
     )
@@ -2235,6 +2431,21 @@ async def _dry_run_single(spec_id, season):
         combo_iters = int(SIMC_COMBO_ITERATIONS) if SIMC_COMBO_ITERATIONS else None
     except ValueError:
         combo_iters = None
+
+    # Which slots the search actually varies, read back off the combos: a slot the
+    # trim collapsed is pinned in every set, so a bad pin there can never be
+    # escaped (the failure mode this diagnostic exists for).
+    print("\n=== forced vs varying slots (across every enumerated combo) ===")
+    if all_combos:
+        for slot in active_slots:
+            ids = {full[slot]["item_id"] for full, _ in all_combos if full.get(slot)}
+            kind = "VARY  " if len(ids) > 1 else "forced"
+            print(f"  {kind} {slot:10} {sorted(ids)}")
+        illegal = [i for i, (full, _) in enumerate(all_combos) if not set_is_valid(full)]
+        print(f"  illegal combos returned: {len(illegal)} (must be 0)")
+    else:
+        print(f"  NO VALID COMBINATIONS — {reason}")
+
     txt = build_profile(header, base_full or baseline, ps, iterations=combo_iters)
     p = SIMC_IO_DIR / f"dryrun_spec{spec_id}_topgear.simc"
     p.write_text(txt, encoding="utf-8")
