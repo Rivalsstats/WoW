@@ -36,6 +36,15 @@ COPY data/static/equippable-items.json ${APP_DIR}/data/static/equippable-items.j
 COPY data/static/embellishments.json ${APP_DIR}/data/static/embellishments.json
 # seasonInfo.json provides the derived max_character_level used by simcBis.py.
 COPY data/static/seasonInfo.json ${APP_DIR}/data/static/seasonInfo.json
+# crafting.json carries each embellishment reagent's real itemLimit, which is
+# what the <=2 cap above is actually enforced from; simcBis.py raises without it.
+COPY data/static/crafting.json ${APP_DIR}/data/static/crafting.json
+# bonuses.json (socket counts per bonus_id) and enchantments.json (valid enchant
+# ids + gem itemLimitCategory) are what let simcBis.py put enchants and gems on
+# its candidates. Their loaders swallow a missing file, so without these the sims
+# run bare — deflating baseline_dps and with it the cross-spec tierlist.
+COPY data/static/bonuses.json ${APP_DIR}/data/static/bonuses.json
+COPY data/static/enchantments.json ${APP_DIR}/data/static/enchantments.json
 
 # entrypoint and executable
 COPY entrypoint.sh /entrypoint.sh

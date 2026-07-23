@@ -1,20 +1,24 @@
 #!/usr/bin/env python
-"""Verify every import in the collector image resolves.
+"""Verify the collector image ships everything its modules reference.
 
-The collector image copies a hand-maintained whitelist of backend scripts into
-/app (see the COPY block in Dockerfile). A module that grows a new local import
-without its file being added to that whitelist produces a ModuleNotFoundError at
-container startup, not at build time -- which is exactly how
-`from commonUtils import DUAL_WIELD_TWOHAND_SPECS` turned into a production
-crash-loop. This script turns that class of mistake into a failed image build.
+The image copies hand-maintained whitelists into /app -- one of backend scripts,
+one of data/static JSON files (see the COPY blocks in Dockerfile). Both drift:
+a module that grows a new import or reads a new lookup file keeps working in the
+repo and only fails inside the container. That is how
+`from commonUtils import DUAL_WIELD_TWOHAND_SPECS` became a crash-loop and how
+crafting.json/bonuses.json/enchantments.json went missing from the sims. This
+script turns that class of mistake into a failed image build.
 
-Imports are resolved statically via ast; nothing is executed. That matters
-because collectLeaderboardData.py has import-time side effects (load_dotenv,
-argparse.parse_args, databaseConnector.init_connection_pool) that cannot run at
-build time or in a preflight check.
+Two checks, both static (ast only, nothing is imported or executed -- which
+matters because collectLeaderboardData.py has import-time side effects:
+load_dotenv, argparse.parse_args, databaseConnector.init_connection_pool):
+
+1. every imported module resolves to a local file or an installed package;
+2. every `STATIC_DIR / "x.json"` / `... / "static" / "x.json"` path literal
+   exists under <root>/data/static.
 
 Run as `python verifyImageImports.py [root]` (root defaults to /app). Exits
-non-zero and lists every unresolvable import; there is no warn-and-continue path.
+non-zero and lists everything unresolved; there is no warn-and-continue path.
 """
 
 import ast
@@ -43,6 +47,34 @@ def collect_imported_names(tree):
     return names
 
 
+def collect_static_json_refs(tree):
+    """Names of data/static JSON files referenced by pathlib `/` expressions.
+
+    Matches `STATIC_DIR / "crafting.json"` and `DATA_DIR / "static" / "specs.json"`
+    -- the two forms the collector modules use. Deliberately narrow: only a
+    literal filename whose left-hand path is anchored to STATIC_DIR or a "static"
+    segment counts, so runtime-built paths (SIMC_IO_DIR / f"{token}.json",
+    data/discord_status.json) are not mistaken for shipped lookup data.
+    """
+    names = set()
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div)):
+            continue
+        right = node.right
+        if not (isinstance(right, ast.Constant) and isinstance(right.value, str)):
+            continue
+        if not right.value.endswith(".json"):
+            continue
+        anchored = any(
+            (isinstance(n, ast.Name) and n.id == "STATIC_DIR")
+            or (isinstance(n, ast.Constant) and n.value == "static")
+            for n in ast.walk(node.left)
+        )
+        if anchored:
+            names.add(right.value)
+    return names
+
+
 def resolves(name, root):
     """Can `name` be imported from `root`? Local module first, then installed."""
     if (root / f"{name}.py").exists() or (root / name).is_dir():
@@ -66,24 +98,43 @@ def main(argv):
         print(f"ERROR: no python modules found in {root}", file=sys.stderr)
         return 1
 
-    missing = []
+    static_dir = root / "data" / "static"
+    missing_imports = []
+    missing_data = []
+    static_refs = 0
     for path in sources:
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         for name in sorted(collect_imported_names(tree)):
             if not resolves(name, root):
-                missing.append(f"{path.name}: {name}")
+                missing_imports.append(f"{path.name}: {name}")
+        for name in sorted(collect_static_json_refs(tree)):
+            static_refs += 1
+            if not (static_dir / name).exists():
+                missing_data.append(f"{path.name}: data/static/{name}")
 
-    if missing:
-        print(
-            f"ERROR: unresolvable imports in {root} "
-            f"(missing COPY in Dockerfile, or missing pip dependency):",
-            file=sys.stderr,
-        )
-        for entry in missing:
-            print(f"  {entry}", file=sys.stderr)
+    if missing_imports or missing_data:
+        if missing_imports:
+            print(
+                f"ERROR: unresolvable imports in {root} "
+                f"(missing COPY in Dockerfile, or missing pip dependency):",
+                file=sys.stderr,
+            )
+            for entry in missing_imports:
+                print(f"  {entry}", file=sys.stderr)
+        if missing_data:
+            print(
+                f"ERROR: static data files referenced but not shipped in {root} "
+                f"(missing COPY in Dockerfile):",
+                file=sys.stderr,
+            )
+            for entry in missing_data:
+                print(f"  {entry}", file=sys.stderr)
         return 1
 
-    print(f"import check OK: {len(sources)} modules in {root}")
+    print(
+        f"image check OK: {len(sources)} modules, "
+        f"{static_refs} static data references in {root}"
+    )
     return 0
 
 

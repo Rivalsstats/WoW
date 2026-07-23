@@ -21,6 +21,9 @@ on:
       - 'data/static/equippable-items.json'
       - 'data/static/embellishments.json'
       - 'data/static/seasonInfo.json'
+      - 'data/static/crafting.json'
+      - 'data/static/bonuses.json'
+      - 'data/static/enchantments.json'
       - 'Dockerfile'
       - 'entrypoint.sh'
   workflow_dispatch: {}
