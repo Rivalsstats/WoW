@@ -9,6 +9,12 @@
 (function () {
   "use strict";
 
+  // Wowhead's power.js is injected by Klaro (consent-gated, see items.html). Its
+  // defaults recolor/rename/iconize every link it binds to, which would fight the
+  // card's own quality colouring, so opt out before it can load. This file is a
+  // plain body script and Klaro is deferred in the head, so we always win the race.
+  window.whTooltips = { colorLinks: false, iconizeLinks: false, renameLinks: false };
+
   var SPECS = window.specs_map || {};
 
   // Character-sheet slot order, mirroring the spec page's LEFT/RIGHT panel
@@ -108,6 +114,9 @@
     var a = document.createElement("a");
     a.className = "item-card";
     a.href = "/items/" + item.slug;
+    // Tooltip shows the base item — the manifest carries no bonus ids, same as
+    // the item page's own header link.
+    a.dataset.wowhead = "item=" + item.id;
     var img = document.createElement("img");
     img.src = iconUrl(item.icon);
     img.alt = item.name;
@@ -135,6 +144,11 @@
     var frag = document.createDocumentFragment();
     slice.forEach(function (i) { frag.appendChild(itemCard(i)); });
     grid.appendChild(frag);
+    // Cards are rendered after page load, so power.js' own scan misses them.
+    // No-op until the user consents to Wowhead (it then scans the page itself).
+    if (window.$WowheadPower && typeof window.$WowheadPower.refreshLinks === "function") {
+      try { window.$WowheadPower.refreshLinks(); } catch (e) { /* tooltips optional */ }
+    }
     shown += slice.length;
     el("items-more").classList.toggle("d-none", shown >= filtered.length);
   }
