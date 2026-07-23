@@ -269,6 +269,17 @@
   overflow: visible;
   flex: 0 0 auto;
 }
+/* Badge shell for a meta target icon. The SIM/TOP badge sits OUTSIDE the Wowhead
+   link (so hovering the badge can't open the item tooltip across the badge's own
+   tooltip), which means it needs a positioning context of its own — this
+   wrapper, tight around the 40px icon, so the badge lands exactly where it did
+   when it was inside the link. */
+.an-icon-wrap {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
 .an-icon img {
   width: 100%;
   height: 100%;

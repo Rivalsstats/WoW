@@ -33,9 +33,10 @@
   // EITHER slot's target, since players slot them in any order.
   var GROUPS = { FINGER_1: "FINGER_1,FINGER_2", FINGER_2: "FINGER_1,FINGER_2",
                  TRINKET_1: "TRINKET_1,TRINKET_2", TRINKET_2: "TRINKET_1,TRINKET_2" };
-  // Scoring order for the report. Load-bearing beyond mere display: the
-  // unique-equipped reservation (groupSuggested) hands a ring/trinket to the
-  // FIRST slot of its pair, and the enchant quota walks slots in this order.
+  // Scoring order for the report. Load-bearing beyond mere display: an
+  // interchangeable pair's meta picks are dealt best-first in this order (so the
+  // top pick lands on FINGER_1 / TRINKET_1), and the enchant quota walks slots
+  // in this order too.
   var SLOT_ORDER = ["HEAD", "NECK", "SHOULDER", "BACK", "CHEST", "WRIST", "HANDS",
     "WAIST", "LEGS", "FEET", "FINGER_1", "FINGER_2", "TRINKET_1", "TRINKET_2",
     "MAIN_HAND", "OFF_HAND"];
@@ -301,11 +302,31 @@
     return { sim: sim, top: top, common: common };
   }
 
+  // Score one slot's equipped item against its (group-wide) meta targets.
+  // Returns null when the slot has no meta data at all. Used by both the render
+  // loop and planGroupTargets(), so the two can never disagree about which slot
+  // of an interchangeable pair still needs a suggestion.
+  function scoreSlot(metaSlots, slotName, user) {
+    var acc = acceptableIds(metaSlots, slotName);
+    var hasIdeal = acc.sim.size > 0 || acc.top.size > 0;
+    if (!hasIdeal && acc.common.size === 0) return null; // truly no meta data
+    var status = acc.sim.has(user.id) ? "sim"
+      : acc.top.has(user.id) ? "top"
+      : hasIdeal ? "off"                    // has TOP/SIM, user misses
+      : acc.common.has(user.id) ? "meta"    // fallback: popular pick
+      : "off";                              // misses the popular fallback
+    return { status: status, matched: status !== "off" };
+  }
+
   // The meta picks to display for a slot: the group-union of SIM + TOP, or the
   // group-union of `common` when there's no TOP/SIM (the fallback target).
-  // `excludeIds` drops picks already worn in a sibling slot of an interchangeable
-  // pair (unique-equipped rings/trinkets); when that empties out the TOP/SIM set,
-  // we still fall back to `common` so the slot always shows *some* suggestion.
+  // `excludeIds` drops picks that can't be suggested here (an item already worn
+  // in a sibling slot of an interchangeable pair, or one dealt to that sibling);
+  // when that empties out the TOP/SIM set, we still fall back to `common` so the
+  // slot always shows *some* suggestion.
+  // For an interchangeable pair this returns the whole group union — it's
+  // planGroupTargets() that deals that union across the pair's slots rather than
+  // handing it all to one of them.
   // Returns [{pick, kind}], kind in {sim, top, meta}.
   function displayTargets(metaSlots, slotName, excludeIds) {
     var names = (GROUPS[slotName] || slotName).split(",");
@@ -321,6 +342,70 @@
       names.forEach(function (n) { var m = metaSlots[n]; if (m && m.common) add(m.common, "meta"); });
     }
     return out;
+  }
+
+  // Which meta picks each slot of an interchangeable pair (FINGER / TRINKET) is
+  // told to equip: { slotName: [{pick, kind}] }.
+  //
+  // A unique-equipped ring/trinket may only be recommended once, so the group's
+  // distinct picks are DEALT across the pair's off-meta slots — best pick to the
+  // first slot, second to the second, then round-robin. Handing the whole union
+  // to the first slot instead (what the old per-slot reservation did) starved
+  // the second one into the unbadged most-popular `common` fallback even though
+  // a real TOP pick was still unclaimed.
+  function planGroupTargets(metaSlots, parsed) {
+    var plan = {};
+    var groups = {};  // FINGER / TRINKET -> its slots, in SLOT_ORDER order
+    SLOT_ORDER.forEach(function (s) {
+      if (!GROUPS[s] || !metaSlots[s] || !parsed.slots[s]) return;
+      var g = groupKey(s);
+      (groups[g] || (groups[g] = [])).push(s);
+    });
+
+    Object.keys(groups).forEach(function (g) {
+      var slotsG = groups[g];
+      // Worn anywhere in the pair: unique-equipped, so never suggestable. A slot
+      // that IS wearing a pick scores as matched and shows no target of its own,
+      // so excluding its item costs the off-meta sibling nothing.
+      var worn = {};
+      slotsG.forEach(function (s) { worn[parsed.slots[s].id] = true; });
+
+      var off = slotsG.filter(function (s) {
+        var sc = scoreSlot(metaSlots, s, parsed.slots[s]);
+        return sc && !sc.matched;
+      });
+      if (!off.length) return;
+
+      // Group union minus the worn ids — either slot name of the pair yields the
+      // same list (GROUPS maps both to the same names).
+      var pool = displayTargets(metaSlots, off[0], worn);
+      // Best-first, so the top pick lands on the first slot: SIM picks keep the
+      // lead displayTargets already gave them, TOP picks sort by popularity.
+      // (sort is stable, so equal-pct picks keep the baked order.)
+      var sims = pool.filter(function (t) { return t.kind === "sim"; });
+      var rest = pool.filter(function (t) { return t.kind !== "sim"; })
+        .sort(function (a, b) { return (b.pick.pct || 0) - (a.pick.pct || 0); });
+      pool = sims.concat(rest);
+
+      off.forEach(function (s) { plan[s] = []; });
+      var used = {};
+      pool.forEach(function (t, i) {
+        plan[off[i % off.length]].push(t);
+        used[t.pick.id] = true;
+      });
+
+      // Fewer distinct picks than off-meta slots: the leftover slot still gets a
+      // suggestion — the most-popular pick nothing else has claimed.
+      off.forEach(function (s) {
+        if (plan[s].length) return;
+        var ex = {};
+        Object.keys(worn).forEach(function (id) { ex[id] = true; });
+        Object.keys(used).forEach(function (id) { ex[id] = true; });
+        plan[s] = displayTargets(metaSlots, s, ex);
+        plan[s].forEach(function (t) { used[t.pick.id] = true; });
+      });
+    });
+    return plan;
   }
 
   // Icon/quality (and slug, when the item has its own page) for one of the
@@ -626,31 +711,22 @@
       bare.slice(0, Math.max(0, expected - enchanted)).forEach(function (s) { missingSlots[s] = true; });
     });
 
-    // Ids already suggested to an earlier slot of an interchangeable pair, keyed
-    // by group (FINGER / TRINKET). A unique-equipped item must be recommended to
-    // at most one slot of the pair, so when both slots are off-meta the second
-    // one falls through to the next distinct pick instead of repeating the first.
-    var groupSuggested = {};
+    // How the interchangeable pairs' picks are split, decided up front: the
+    // render loop can't work it out slot by slot, since dealing needs to know
+    // which slots of a pair are off-meta before the first of them renders.
+    // Built from the post-swap metaSlots so it scores the same table the loop does.
+    var groupPlan = planGroupTargets(metaSlots, parsed);
 
     SLOT_ORDER.forEach(function (slotName) {
       var metaSlot = metaSlots[slotName];
       var user = parsed.slots[slotName];
       if (!metaSlot || !user) return; // only compare slots both sides have
 
-      var acc = acceptableIds(metaSlots, slotName);
-      var hasIdeal = acc.sim.size > 0 || acc.top.size > 0;
-      var hasAny = hasIdeal || acc.common.size > 0;
-      if (!hasAny) return; // truly no meta data for this slot
-
-      var status;
-      if (acc.sim.has(user.id)) status = "sim";
-      else if (acc.top.has(user.id)) status = "top";
-      else if (hasIdeal) status = "off";              // has TOP/SIM, user misses
-      else if (acc.common.has(user.id)) status = "meta"; // fallback: popular pick
-      else status = "off";                            // misses the popular fallback
+      var sc = scoreSlot(metaSlots, slotName, user);
+      if (!sc) return; // truly no meta data for this slot
 
       comparable++;
-      var matched = status !== "off";
+      var matched = sc.matched;
       if (matched) good++;
 
       // User's equipped item, with a status overlay glyph.
@@ -662,33 +738,22 @@
         resolveQuality(um && um.quality, user.bonus), um && um.slug,
         user, specId, "an-user", mark, "your " + slotLabel + " item");
 
-      // Ids we must not suggest for this slot: anything worn in a sibling slot of
-      // an interchangeable pair (unique-equipped — can't wear a second copy) plus
-      // anything already recommended to an earlier slot of the same pair (so the
-      // two off-meta slots get distinct suggestions, never the same item twice).
-      var grp = groupKey(slotName);
-      var suggestedInGroup = groupSuggested[grp] || (groupSuggested[grp] = {});
-      var excludeIds = {};
-      (GROUPS[slotName] ? GROUPS[slotName].split(",") : []).forEach(function (n) {
-        if (n === slotName) return;
-        var sib = parsed.slots[n];
-        if (sib) excludeIds[sib.id] = true;
-      });
-      Object.keys(suggestedInGroup).forEach(function (id) { excludeIds[id] = true; });
-
-      // Meta target picks (group-union; SIM/TOP, or the popular fallback), minus
-      // the excluded ids above. When excluding empties the TOP/SIM set,
-      // displayTargets falls back to the most-popular `common` pick so the slot
-      // still shows a distinct suggestion. Record what we suggest so the paired
-      // slot skips it.
-      var picks = displayTargets(metaSlots, slotName, excludeIds);
-      // Only a slot that actually shows a swap (off-meta) reserves its pick; a
-      // matched slot shows no target, so recording its picks would wrongly starve
-      // an off-meta sibling of the very item it should be told to equip.
-      if (!matched) picks.forEach(function (t) { suggestedInGroup[t.pick.id] = true; });
+      // Meta target picks. A slot of an interchangeable pair takes the share
+      // planGroupTargets dealt it (empty when the slot is already on a meta pick
+      // — a matched slot shows no target anyway); every other slot takes its own
+      // SIM/TOP picks, or the most-popular `common` fallback.
+      var picks = GROUPS[slotName] ? (groupPlan[slotName] || [])
+                                   : displayTargets(metaSlots, slotName);
       var targets = picks.map(function (t) {
-        return iconEl(t.pick.id, t.pick.icon, t.pick.quality, t.pick.slug, t.pick, specId, "",
-          chip(t.kind, t.pick, meta), "meta pick for " + slotLabel);
+        // Badge OUTSIDE the Wowhead <a>: hovering it must not also open the item
+        // tooltip, which would then be drawn across the badge's own tooltip.
+        // Same structure the spec page uses (spec_page.html:51). The wrapper is
+        // the badge's positioning context and is the same box as the icon, so
+        // the badge lands exactly where it did inside the link.
+        return '<span class="an-icon-wrap">' +
+          iconEl(t.pick.id, t.pick.icon, t.pick.quality, t.pick.slug, t.pick, specId, "", "",
+            "meta pick for " + slotLabel) +
+          chip(t.kind, t.pick, meta) + "</span>";
       });
       var targetHtml = targets.length ? '<div class="an-targets">' + targets.join("") + "</div>" : "";
 
@@ -700,10 +765,9 @@
         var bagGroup = parsed.bags[
           twoHandSwap && slotName === "OFF_HAND" ? "MAIN_HAND" : groupKey(slotName)
         ] || {};
-        var wantIds = [];
-        acc.sim.forEach(function (i) { if (!excludeIds[i]) wantIds.push(i); });
-        acc.top.forEach(function (i) { if (!excludeIds[i]) wantIds.push(i); });
-        if (!hasIdeal) acc.common.forEach(function (i) { if (!excludeIds[i]) wantIds.push(i); });
+        // Exactly the picks this slot is being told to equip — so a paired slot
+        // flags the bag it can actually use, not one reserved for its sibling.
+        var wantIds = picks.map(function (t) { return t.pick.id; });
         var ownedId = wantIds.filter(function (i) { return bagGroup[i]; })[0];
         if (ownedId != null) {
           // Trails the swap it belongs to ("change to this — you already own
@@ -857,7 +921,17 @@
     // load; our badges are rendered afterward, so wire them up here.
     if (window.bootstrap && window.bootstrap.Tooltip) {
       results.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
-        try { window.bootstrap.Tooltip.getOrCreateInstance(el); } catch (e) { /* best-effort */ }
+        // A badge that sits ON an item icon opens its tooltip to the LEFT:
+        // Wowhead draws the item tooltip to the icon's right, and the default
+        // "top" placement put the two on top of each other. fallbackPlacements
+        // is pinned so Popper can't flip it back into the collision in a narrow
+        // pane. The combo-header badge isn't on an icon and keeps the default.
+        var onIcon = el.classList.contains("item-icon-top-badge") ||
+                     el.classList.contains("item-icon-sim-badge");
+        try {
+          window.bootstrap.Tooltip.getOrCreateInstance(el,
+            onIcon ? { placement: "left", fallbackPlacements: ["left", "top"] } : {});
+        } catch (e) { /* best-effort */ }
       });
     }
   }
