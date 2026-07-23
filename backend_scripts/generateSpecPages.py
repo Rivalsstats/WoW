@@ -102,20 +102,76 @@ INVTYPE_DISPLAY_ORDER = {
     12: 13,  # trinket
 }
 
+# Sorts anything we deliberately place after every gear slot (profession tools).
+NON_GEAR_DISPLAY_ORDER = 99
+
+# Blizzard itemClass values seen on an enchant's `equipRequirements`.
+ENCHANT_CLASS_WEAPON = 2
+ENCHANT_CLASS_ARMOR = 4
+ENCHANT_CLASS_PROFESSION_TOOL = 19
+
+
+def enchant_slot_pos(info, enchant_id=None):
+    """Gear-overview display position for an enchant, from enchantments.json.
+
+    Enchant comps are multisets of enchant ids with no slot recorded, so the
+    slot has to come from the catalog's ``equipRequirements``. For armor
+    enchants ``invTypeMask`` is a bitmask whose BIT INDEX is the Blizzard
+    inventoryType (bit 1 head, 3 shoulder, {5,20} chest/robe, 7 legs, 8 feet,
+    9 wrist, 11 finger, 16 back), so it maps straight through
+    INVTYPE_DISPLAY_ORDER; the chest/robe pair collapses to one position.
+
+    Weapon enchants (itemClass 2, including death knight runes) carry mask 0 --
+    main hand and off-hand are indistinguishable in the catalog, and an enchant
+    on both weapons already collapses to a single "x2" tile, so they all take
+    the main-hand position.
+
+    Raises on anything else: ids missing from enchantments.json are dropped by
+    the callers before they get here (deliberate old-enchant suppression), so a
+    miss at this point means the catalog grew a shape we don't model, and
+    silently sorting it to the end would just look like the ordering bug this
+    replaces.
+    """
+    req = (info or {}).get("equipRequirements") or {}
+    item_class = req.get("itemClass")
+    if item_class == ENCHANT_CLASS_WEAPON:
+        return INVTYPE_DISPLAY_ORDER[13]  # main hand
+    if item_class == ENCHANT_CLASS_PROFESSION_TOOL:
+        return NON_GEAR_DISPLAY_ORDER
+    if item_class == ENCHANT_CLASS_ARMOR:
+        mask = int(req.get("invTypeMask") or 0)
+        positions = [
+            INVTYPE_DISPLAY_ORDER[bit]
+            for bit in range(mask.bit_length())
+            if mask >> bit & 1 and bit in INVTYPE_DISPLAY_ORDER
+        ]
+        if positions:
+            return min(positions)
+    raise ValueError(
+        f"enchant {enchant_id if enchant_id is not None else info.get('id')} "
+        f"has no known gear slot (itemClass={item_class!r}, "
+        f"invTypeMask={req.get('invTypeMask')!r}) - enchantments.json shape changed"
+    )
+
+
+# Enchant slot groups in gear-overview order (LEFT_ORDER + RIGHT_ORDER, then
+# weapons and trinkets), which is the order the Enchantment Details accordion
+# renders: fetch_enchant_info builds `enchant_slots` by iterating this list and
+# spec_page.html walks that dict's insertion order.
 SLOT_GROUPS = [
-    "BACK",
-    "CHEST",
-    "FEET",
-    "FINGER",
-    "HANDS",
     "HEAD",
-    "LEGS",
-    "WEAPON",
     "NECK",
     "SHOULDER",
-    "TRINKET",
-    "WAIST",
+    "BACK",
+    "CHEST",
     "WRIST",
+    "HANDS",
+    "WAIST",
+    "LEGS",
+    "FEET",
+    "FINGER",
+    "WEAPON",
+    "TRINKET",
 ]
 
 BLIZZARD_STAT_MAP = {
@@ -594,6 +650,179 @@ def normalize_slot_collections(list_of_lists, slot_names):
 
 
 
+# Start-of-list sentinel for the set-run split below: itemSetId is legitimately
+# None for setless items, so None can't double as "no previous group".
+_UNSET = object()
+
+
+def build_comps(
+    raw_rows, threshold, item_lookup, comp_kind, spec_id, limit=10, slot_sorted=True
+):
+    """Filter rare comps and parse the DB comp strings into display id lists.
+
+    Each comp carries ``ids`` (the flat display order) and ``groups`` (the same
+    ids split into their item-set runs, in the same order). The template draws a
+    divider between groups so a set combo that mixes, say, four tier pieces with
+    a two-piece ring set reads as two clusters instead of one undifferentiated
+    row of icons.
+
+    ``slot_sorted`` off keeps the canonical ascending-id order and yields a
+    single group: embellishment comps go through here too, and an embellishment
+    is a reagent with no gear slot of its own (its ids resolve via
+    ``reagent_lookup``, not ``item_lookup``), so there is nothing to sort or
+    group them by.
+    """
+    # An item that can't be resolved to an inventoryType used to sort to the
+    # end, which silently collapsed the whole sort back to the ascending-id
+    # tiebreak -- and Blizzard hands out tier-set item ids in alphabetical
+    # slot-name order, so the result looked like a deliberate name sort rather
+    # than a broken slot sort. Fail loudly instead.
+    def slot_pos(item_id):
+        item = item_lookup.get(item_id)
+        inv_type = (item or {}).get("inventoryType")
+        pos = INVTYPE_DISPLAY_ORDER.get(inv_type)
+        if pos is None:
+            raise ValueError(
+                f"spec {spec_id}: {comp_kind} comp item {item_id} has no display "
+                f"slot ({'not in item_lookup' if item is None else f'inventoryType={inv_type!r}'})"
+                " - refresh equippable-items.json"
+            )
+        return pos
+
+    comps = []
+    for row in raw_rows:
+        count = int(row[1] or 0)
+        if threshold > 0 and count < threshold:
+            continue
+        try:
+            ids = [int(i) for i in str(row[0]).split(",") if i]
+        except (ValueError, TypeError):
+            continue
+        # comp strings are id-sorted (canonical DB key); show the items grouped
+        # by set (largest set first, tie broken by earliest slot) in
+        # gear-overview slot order within each group. Setless items (crafted
+        # comps) all land in one group, i.e. plain slot order.
+        if slot_sorted:
+            set_counts = {}
+            set_first_slot = {}
+            for i in ids:
+                sid = item_lookup.get(i, {}).get("itemSetId")
+                set_counts[sid] = set_counts.get(sid, 0) + 1
+                set_first_slot[sid] = min(
+                    set_first_slot.get(sid, NON_GEAR_DISPLAY_ORDER), slot_pos(i)
+                )
+            group_rank = {
+                sid: rank
+                for rank, sid in enumerate(
+                    sorted(
+                        set_counts,
+                        key=lambda s: (-set_counts[s], set_first_slot[s]),
+                    )
+                )
+            }
+            ids.sort(
+                key=lambda i: (
+                    group_rank[item_lookup.get(i, {}).get("itemSetId")],
+                    slot_pos(i),
+                    i,
+                )
+            )
+            # Split into the set runs the sort just produced. Setless items all
+            # share the None key, so they stay one cluster rather than becoming
+            # one cluster each.
+            groups = []
+            last_sid = _UNSET
+            for i in ids:
+                sid = item_lookup.get(i, {}).get("itemSetId")
+                if sid != last_sid:
+                    groups.append([])
+                    last_sid = sid
+                groups[-1].append(i)
+        else:
+            groups = [ids]
+        comps.append(
+            {
+                "ids": ids,
+                "groups": groups,
+                "count": count,
+                "max_timed": row[2],
+                "max_depleted": row[3],
+            }
+        )
+        if len(comps) >= limit:
+            break
+    return comps
+
+
+def build_multiset_comps(raw_rows, lookup, threshold, limit=10, slot_rank=None):
+    """Collapse gem/enchant comps (multisets) into ``{id, qty}`` display entries.
+
+    The DB comp string keeps repeats (e.g. the same enchant on both rings).
+    This collapses those into ``{id, qty}`` for a compact "x2" display, drops
+    ids the render lookup doesn't know (cosmetic gems / filtered old enchants),
+    and re-merges any rows that become identical once those ids are gone so
+    their counts sum instead of showing as duplicate rows.
+
+    ``slot_rank`` (used for enchants) sorts each surviving row's entries into
+    gear-overview slot order. It is applied only at the very end: the dedupe key
+    has to stay in canonical id order or equivalent multisets stop merging.
+    """
+    merged = {}
+    for row in raw_rows:
+        count = int(row[1] or 0)
+        if threshold > 0 and count < threshold:
+            continue
+        try:
+            ids = [int(i) for i in str(row[0]).split(",") if i]
+        except (ValueError, TypeError):
+            continue
+        # keep only ids the template can render (has an icon/name)
+        ids = [
+            i for i in ids
+            if lookup.get(i) is not None or lookup.get(str(i)) is not None
+        ]
+        if not ids:
+            continue
+        # ids arrive id-sorted (canonical DB key); collapse runs of
+        # the same id into {id, qty} preserving that canonical order.
+        entries = []
+        for i in ids:
+            if entries and entries[-1]["id"] == i:
+                entries[-1]["qty"] += 1
+            else:
+                entries.append({"id": i, "qty": 1})
+        key = tuple((e["id"], e["qty"]) for e in entries)
+        existing = merged.get(key)
+        if existing:
+            existing["count"] += count
+            existing["max_timed"] = max(
+                existing["max_timed"] or 0, row[2] or 0
+            )
+            existing["max_depleted"] = max(
+                existing["max_depleted"] or 0, row[3] or 0
+            )
+        else:
+            merged[key] = {
+                "entries": entries,
+                "count": count,
+                "max_timed": row[2],
+                "max_depleted": row[3],
+            }
+    # merging can reorder, so re-sort by the summed count.
+    ranked = sorted(
+        merged.values(), key=lambda m: m["count"], reverse=True
+    )[:limit]
+    if slot_rank:
+        for comp in ranked:
+            comp["entries"].sort(
+                key=lambda e: (
+                    slot_rank(lookup.get(e["id"]) or lookup.get(str(e["id"])), e["id"]),
+                    e["id"],
+                )
+            )
+    return ranked
+
+
 def build_spec_meta_json(
     spec_id, spec_data, class_data,
     left_slots, right_slots, weapon_slots, trinket_slots,
@@ -713,11 +942,18 @@ def build_spec_meta_json(
             if is_enchant:
                 # Wowhead tooltip/link for the enchant is via its scroll itemId.
                 entry["itemId"] = info.get("itemId")
-            entries.append(entry)
+            entries.append((entry, info))
         if not entries:
             return None
-        # Most-repeated ids first for a stable, popularity-ish ordering.
-        entries.sort(key=lambda e: (-e["qty"], e["id"]))
+        if is_enchant:
+            # Gear-overview slot order, matching the spec page's Enchant Combos
+            # section -- the analyzer renders these entries in array order.
+            entries.sort(key=lambda t: (enchant_slot_pos(t[1], t[0]["id"]), t[0]["id"]))
+        else:
+            # Gems have no slot, so most-repeated ids first for a stable,
+            # popularity-ish ordering.
+            entries.sort(key=lambda t: (-t[0]["qty"], t[0]["id"]))
+        entries = [entry for entry, _info in entries]
         return {
             "entries": entries,
             "pct": round(best.get("pct") or 0, 1),
@@ -1909,134 +2145,30 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                             filtered_embs.append(e)
                     embellishments = filtered_embs
 
-                # Filter rare comps and parse the comp strings into id lists
-                def build_comps(raw_rows, threshold, limit=10):
-                    comps = []
-                    for row in raw_rows:
-                        count = int(row[1] or 0)
-                        if threshold > 0 and count < threshold:
-                            continue
-                        try:
-                            ids = [int(i) for i in str(row[0]).split(",") if i]
-                        except (ValueError, TypeError):
-                            continue
-                        # comp strings are id-sorted (canonical DB key); show the
-                        # items grouped by set (largest set first, tie broken by
-                        # earliest slot) in gear-overview slot order within each
-                        # group. Setless items (crafted/embellishment comps) all
-                        # land in one group, i.e. plain slot order.
-                        def slot_pos(item_id):
-                            return INVTYPE_DISPLAY_ORDER.get(
-                                item_lookup.get(item_id, {}).get("inventoryType"), 99
-                            )
-
-                        set_counts = {}
-                        set_first_slot = {}
-                        for i in ids:
-                            sid = item_lookup.get(i, {}).get("itemSetId")
-                            set_counts[sid] = set_counts.get(sid, 0) + 1
-                            set_first_slot[sid] = min(
-                                set_first_slot.get(sid, 99), slot_pos(i)
-                            )
-                        group_rank = {
-                            sid: rank
-                            for rank, sid in enumerate(
-                                sorted(
-                                    set_counts,
-                                    key=lambda s: (-set_counts[s], set_first_slot[s]),
-                                )
-                            )
-                        }
-                        ids.sort(
-                            key=lambda i: (
-                                group_rank[item_lookup.get(i, {}).get("itemSetId")],
-                                slot_pos(i),
-                                i,
-                            )
-                        )
-                        comps.append(
-                            {
-                                "ids": ids,
-                                "count": count,
-                                "max_timed": row[2],
-                                "max_depleted": row[3],
-                            }
-                        )
-                        if len(comps) >= limit:
-                            break
-                    return comps
-
-                # Gem/enchant combos are multisets (the DB comp string keeps
-                # repeats, e.g. two of the same gem). This collapses those repeats
-                # into {id, qty} for a compact "x2" display, drops ids the render
-                # lookup doesn't know (cosmetic gems / filtered old enchants), and
-                # re-merges any rows that become identical once those ids are gone
-                # so their counts sum instead of showing as duplicate rows.
-                def build_multiset_comps(raw_rows, lookup, threshold, limit=10):
-                    merged = {}
-                    for row in raw_rows:
-                        count = int(row[1] or 0)
-                        if threshold > 0 and count < threshold:
-                            continue
-                        try:
-                            ids = [int(i) for i in str(row[0]).split(",") if i]
-                        except (ValueError, TypeError):
-                            continue
-                        # keep only ids the template can render (has an icon/name)
-                        ids = [
-                            i for i in ids
-                            if lookup.get(i) is not None or lookup.get(str(i)) is not None
-                        ]
-                        if not ids:
-                            continue
-                        # ids arrive id-sorted (canonical DB key); collapse runs of
-                        # the same id into {id, qty} preserving that canonical order.
-                        entries = []
-                        for i in ids:
-                            if entries and entries[-1]["id"] == i:
-                                entries[-1]["qty"] += 1
-                            else:
-                                entries.append({"id": i, "qty": 1})
-                        key = tuple((e["id"], e["qty"]) for e in entries)
-                        existing = merged.get(key)
-                        if existing:
-                            existing["count"] += count
-                            existing["max_timed"] = max(
-                                existing["max_timed"] or 0, row[2] or 0
-                            )
-                            existing["max_depleted"] = max(
-                                existing["max_depleted"] or 0, row[3] or 0
-                            )
-                        else:
-                            merged[key] = {
-                                "entries": entries,
-                                "count": count,
-                                "max_timed": row[2],
-                                "max_depleted": row[3],
-                            }
-                    # merging can reorder, so re-sort by the summed count.
-                    ranked = sorted(
-                        merged.values(), key=lambda m: m["count"], reverse=True
-                    )
-                    return ranked[:limit]
-
                 # Comp tables only cover the ~2 weeks of retained gear data, so
                 # threshold against their own totals instead of season-wide
                 # spec run counts (which would filter everything out).
                 embellishment_comps = build_comps(
-                    embellishment_comps_raw, total_embellishment_comps * 0.005
+                    embellishment_comps_raw, total_embellishment_comps * 0.005,
+                    item_lookup, "embellishment", spec_id, slot_sorted=False
                 )
                 crafted_comps = build_comps(
-                    crafted_comps_raw, total_crafted_comps * 0.005
+                    crafted_comps_raw, total_crafted_comps * 0.005,
+                    item_lookup, "crafted", spec_id
                 )
                 tier_set_comps = build_comps(
-                    tier_set_comps_raw, total_tier_set_comps * 0.005
+                    tier_set_comps_raw, total_tier_set_comps * 0.005,
+                    item_lookup, "tier set", spec_id
                 )
+                # Gems carry no slot: the comp string records which gems were
+                # socketed, never which item they went into, so they keep the
+                # canonical order. Enchants sort into gear-overview slot order.
                 gem_comps = build_multiset_comps(
                     gem_comps_raw, socket_lookup, total_gem_comps * 0.005
                 )
                 enchant_comps = build_multiset_comps(
-                    enchant_comps_raw, enchant_lookup, total_enchant_comps * 0.005
+                    enchant_comps_raw, enchant_lookup, total_enchant_comps * 0.005,
+                    slot_rank=enchant_slot_pos
                 )
 
                 print(f"[{datetime.now(timezone.utc).isoformat()}] fetching loadout...")

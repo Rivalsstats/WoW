@@ -538,6 +538,17 @@
   pointer-events: none;
 }
 
+/* Set/crafted combo rows are split into one .combo-set-group per item set, so a
+   combo that mixes four tier pieces with a two-piece ring set reads as separate
+   clusters. A rule between clusters carries the distinction; the first cluster
+   gets no rule, and a single-set combo therefore looks exactly as before.
+   Quality is already encoded in the icon borders, so this stays achromatic. */
+.combo-set-group + .combo-set-group {
+  margin-left: 0.25rem;
+  padding-left: 0.5rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.25);
+}
+
 /* Compact item rows on phones: rows hug their content and badges/popularity
    tighten so the details column stays close to the (44px min) icon height. */
 @media (max-width: 575.98px) {

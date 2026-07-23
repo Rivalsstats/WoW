@@ -1530,18 +1530,22 @@
                               <!-- Tier set combo list -->
                               {% for comp in tier_set_comps %}
                               <div class="row align-items-center mb-2">
-                                <!-- Combo icons (names in tooltips to keep rows compact) -->
+                                <!-- Combo icons, clustered per item set (names in tooltips to keep rows compact) -->
                                 <div class="col d-flex flex-wrap gap-1">
-                                  {% for id in comp.ids %}
-                                  {% if item_lookup[id] %}
-                                  <a target="_blank" href="https://www.wowhead.com/item={{ id }}&spec={{ spec_id }}"
-                                    class="icon-link position-relative detail-row-icon"
-                                    data-bs-toggle="tooltip" data-bs-placement="top"
-                                    title="{{ item_lookup[id].name }}">
-                                    <img src="/data/icons/{{ item_lookup[id].icon }}.png" alt=""
-                                      class="base-icon border {% if item_lookup[id].quality %}border-quality-{{item_lookup[id].quality}}{% else %}border-grey-100{% endif %}">
-                                  </a>
-                                  {% endif %}
+                                  {% for group in comp.groups %}
+                                  <div class="combo-set-group d-flex flex-wrap gap-1">
+                                    {% for id in group %}
+                                    {% if item_lookup[id] %}
+                                    <a target="_blank" href="https://www.wowhead.com/item={{ id }}&spec={{ spec_id }}"
+                                      class="icon-link position-relative detail-row-icon"
+                                      data-bs-toggle="tooltip" data-bs-placement="top"
+                                      title="{{ item_lookup[id].name }}">
+                                      <img src="/data/icons/{{ item_lookup[id].icon }}.png" alt=""
+                                        class="base-icon border {% if item_lookup[id].quality %}border-quality-{{item_lookup[id].quality}}{% else %}border-grey-100{% endif %}">
+                                    </a>
+                                    {% endif %}
+                                    {% endfor %}
+                                  </div>
                                   {% endfor %}
                                 </div>
                                 <!-- Popularity % -->
@@ -1691,18 +1695,22 @@
                               <!-- Crafted item combo list -->
                               {% for comp in crafted_comps %}
                               <div class="row align-items-center mb-2">
-                                <!-- Combo icons (names in tooltips to keep rows compact) -->
+                                <!-- Combo icons, clustered per item set (names in tooltips to keep rows compact) -->
                                 <div class="col d-flex flex-wrap gap-1">
-                                  {% for id in comp.ids %}
-                                  {% if item_lookup[id] %}
-                                  <a target="_blank" href="https://www.wowhead.com/item={{ id }}&spec={{ spec_id }}"
-                                    class="icon-link position-relative detail-row-icon"
-                                    data-bs-toggle="tooltip" data-bs-placement="top"
-                                    title="{{ item_lookup[id].name }}">
-                                    <img src="/data/icons/{{ item_lookup[id].icon }}.png" alt=""
-                                      class="base-icon border {% if item_lookup[id].quality %}border-quality-{{item_lookup[id].quality}}{% else %}border-grey-100{% endif %}">
-                                  </a>
-                                  {% endif %}
+                                  {% for group in comp.groups %}
+                                  <div class="combo-set-group d-flex flex-wrap gap-1">
+                                    {% for id in group %}
+                                    {% if item_lookup[id] %}
+                                    <a target="_blank" href="https://www.wowhead.com/item={{ id }}&spec={{ spec_id }}"
+                                      class="icon-link position-relative detail-row-icon"
+                                      data-bs-toggle="tooltip" data-bs-placement="top"
+                                      title="{{ item_lookup[id].name }}">
+                                      <img src="/data/icons/{{ item_lookup[id].icon }}.png" alt=""
+                                        class="base-icon border {% if item_lookup[id].quality %}border-quality-{{item_lookup[id].quality}}{% else %}border-grey-100{% endif %}">
+                                    </a>
+                                    {% endif %}
+                                    {% endfor %}
+                                  </div>
                                   {% endfor %}
                                 </div>
                                 <!-- Popularity % -->
