@@ -180,6 +180,11 @@
 /* DataTables injects a wrapper; keep it from adding its own scrollbars/margins. */
 .item-page .dataTables_wrapper { width: 100%; }
 
+/* Card-header heading that doubles as a link into the filtered browse page
+   (/pages/items?slot=…). Reads as a heading until hovered, like .dt-name. */
+.item-page .card-header a.slot-link { color: inherit; text-decoration: none; }
+.item-page .card-header a.slot-link:hover { color: var(--quality-4); }
+
 /* ----- enchant / gems / embellishment / missive: responsive card grid ----- */
 /* Cards auto-fit and stretch to fill the row, so showing only a subset (e.g. just
    an enchant) never leaves a fixed-width column gap. Gems share this grid so they

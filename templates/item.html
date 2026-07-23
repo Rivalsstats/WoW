@@ -453,7 +453,12 @@
 
         {% if alternatives %}
         <div class="card mb-3" id="alternatives-card">
-          <div class="card-header pb-0"><h6 class="mb-0">Other Popular Items in This Slot</h6></div>
+          <div class="card-header pb-0">
+            <h6 class="mb-0">
+              <a href="/pages/items?slot={{ item.slot | lower | replace(' ', '-') }}" class="slot-link"
+                title="Browse all {{ item.slot }} items">Other Popular Items in This Slot</a>
+            </h6>
+          </div>
           <div class="card-body row g-2" id="item-alternatives">
             {% for m in alternatives %}
             <div class="col-12 col-md-6 col-xl-4">

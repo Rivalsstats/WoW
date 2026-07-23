@@ -31,6 +31,17 @@
     4: "Epic", 5: "Legendary", 6: "Artifact", 7: "Heirloom",
   };
 
+  // Filter state is mirrored into the query string (?slot=one-hand&quality=epic&
+  // sort=name&q=blade) so a filtered view survives a refresh and can be linked to
+  // someone else. Slots are slugged from their display name, not from the
+  // manifest's slotKey — that key collapses One-Hand/Two-Hand/Ranged into WEAPON.
+  function slotSlug(name) { return String(name).toLowerCase().replace(/\s+/g, "-"); }
+  var SLOT_BY_SLUG = {}; // "one-hand" -> "One-Hand", filled by buildSlotOptions
+  var QUALITY_BY_SLUG = {}; // "epic" -> "4"
+  Object.keys(QUALITY_NAMES).forEach(function (q) {
+    QUALITY_BY_SLUG[QUALITY_NAMES[q].toLowerCase()] = q;
+  });
+
   function el(id) { return document.getElementById(id); }
   function iconUrl(icon) { return "/data/icons/" + icon + ".png"; }
   function fmt(n) { return (n || 0).toLocaleString(); }
@@ -67,6 +78,7 @@
       var o = document.createElement("option");
       o.value = s; o.textContent = s;
       sel.appendChild(o);
+      SLOT_BY_SLUG[slotSlug(s)] = s;
     });
     refreshPicker("slot-filter");
   }
@@ -85,6 +97,60 @@
       sel.appendChild(o);
     });
     refreshPicker("quality-filter");
+  }
+
+  // Resolve ?slot/?quality/?sort/?q into the values the controls carry. Values we
+  // don't recognise are dropped (the control falls back to its default) — this is
+  // user-typed URL input, not a data file, so it must not blow up the page.
+  function readParams() {
+    var sp = new URLSearchParams(window.location.search);
+    var slot = sp.get("slot") || "";
+    var quality = (sp.get("quality") || "").toLowerCase();
+    var sort = sp.get("sort") || "";
+    return {
+      q: sp.get("q") || "",
+      // Slugging first means a raw display name (?slot=Held%20In%20Off-hand) resolves too.
+      slot: SLOT_BY_SLUG[slotSlug(slot)] || "",
+      quality: QUALITY_BY_SLUG[quality] || (/^\d+$/.test(quality) ? quality : ""),
+      sort: sort === "name" || sort === "runs" ? sort : "runs",
+    };
+  }
+
+  // selectpicker("val") is what keeps the styled button label in sync; setting
+  // .value + "refresh" leaves the old selection in the picker's internal data for
+  // options authored in the template (the label ends up showing both). It fires
+  // changed.bs.select, not a native change, so our filter listeners don't re-run.
+  function setSelect(id, value) {
+    if (window.jQuery && window.jQuery.fn.selectpicker) {
+      window.jQuery("#" + id).selectpicker("val", value);
+    } else {
+      el(id).value = value;
+    }
+  }
+
+  function applyParamsToControls(p) {
+    el("item-search").value = p.q;
+    setSelect("slot-filter", p.slot);
+    setSelect("quality-filter", p.quality);
+    setSelect("sort-by", p.sort);
+  }
+
+  // Mirror the current controls back into the URL, omitting defaults so an
+  // unfiltered page stays a bare /pages/items. replaceState (not pushState) keeps
+  // Back leaving the page instead of unwinding one filter at a time, matching the
+  // route search page; the search box's writes ride its existing input debounce.
+  function updateUrl() {
+    var sp = new URLSearchParams();
+    var q = el("item-search").value.trim();
+    var slot = el("slot-filter").value;
+    var quality = el("quality-filter").value;
+    var sort = el("sort-by").value;
+    if (slot) sp.set("slot", slotSlug(slot));
+    if (quality) sp.set("quality", (QUALITY_NAMES[quality] || quality).toLowerCase());
+    if (sort && sort !== "runs") sp.set("sort", sort);
+    if (q) sp.set("q", q);
+    var qs = sp.toString();
+    window.history.replaceState(null, "", window.location.pathname + (qs ? "?" + qs : ""));
   }
 
   function applyFilters() {
@@ -106,6 +172,7 @@
     el("items-grid").innerHTML = "";
     el("items-empty").classList.toggle("d-none", filtered.length > 0);
     renderMore();
+    updateUrl();
   }
 
   function itemCard(item) {
@@ -160,12 +227,20 @@
         all = data || [];
         buildSlotOptions();
         buildQualityOptions();
+        // After the options exist, so SLOT_BY_SLUG can resolve ?slot=.
+        applyParamsToControls(readParams());
         applyFilters();
         el("item-search").addEventListener("input", debounce(applyFilters, 200));
         el("slot-filter").addEventListener("change", applyFilters);
         el("quality-filter").addEventListener("change", applyFilters);
         el("sort-by").addEventListener("change", applyFilters);
         el("items-more").addEventListener("click", renderMore);
+        // Only fires when the user navigates back to an earlier URL of this page;
+        // our own replaceState writes never trigger it, so there is no loop.
+        window.addEventListener("popstate", function () {
+          applyParamsToControls(readParams());
+          applyFilters();
+        });
       })
       .catch(function () {
         el("items-empty").textContent = "Could not load item list.";
