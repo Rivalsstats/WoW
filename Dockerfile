@@ -16,6 +16,10 @@ COPY backend_scripts/stats.py ${APP_DIR}/stats.py
 COPY backend_scripts/discordHandler.py ${APP_DIR}/discordHandler.py
 COPY backend_scripts/databaseConnector.py ${APP_DIR}/databaseConnector.py
 COPY backend_scripts/simcBis.py ${APP_DIR}/simcBis.py
+# Shared dependency-light helpers. simcBis.py imports DUAL_WIELD_TWOHAND_SPECS
+# from here (the Titan's Grip exception to the "2H main hand => no off-hand"
+# rule) so the page generators and the BiS collector can never disagree on it.
+COPY backend_scripts/commonUtils.py ${APP_DIR}/commonUtils.py
 
 RUN mkdir -p ${APP_DIR}/data/static
 COPY data/static/dungeons.json ${APP_DIR}/data/static/dungeons.json
@@ -37,6 +41,10 @@ COPY data/static/seasonInfo.json ${APP_DIR}/data/static/seasonInfo.json
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+# Build-time guard against a module being imported but never COPYed above (kept
+# in the image: entrypoint.sh re-runs it as a startup preflight).
+COPY backend_scripts/verifyImageImports.py ${APP_DIR}/verifyImageImports.py
+
 # python deps
 RUN pip install --no-cache-dir \
     aiohttp \
@@ -49,5 +57,9 @@ RUN pip install --no-cache-dir \
     requests \
     discord.py \
     docker
+
+# Runs last, after pip install, so installed packages resolve. Fails the build
+# if any module in /app imports something the image doesn't ship.
+RUN python ${APP_DIR}/verifyImageImports.py ${APP_DIR}
 
 ENTRYPOINT ["/entrypoint.sh"]

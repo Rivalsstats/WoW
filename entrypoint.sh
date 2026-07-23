@@ -8,6 +8,21 @@ if [ -f /app/.env ]; then
   set +a
 fi
 
+# WEBHOOK_URL is a Discord webhook (see .envexample), and Discord rejects a body
+# without content/embeds/file with {"message": "Cannot send an empty message",
+# "code": 50006} -- so every alert has to carry a "content" field. json_escape
+# keeps interpolated values (env var names, file paths) inside the JSON string.
+json_escape(){
+  printf '%s' "$1" | python -c 'import json,sys; print(json.dumps(sys.stdin.read())[1:-1], end="")'
+}
+
+post_alert(){
+  # best-effort, never blocks startup or shutdown
+  [ -n "${WEBHOOK_URL:-}" ] || return 0
+  payload="{\"content\": \"$(json_escape "$1")\"}"
+  curl --max-time 5 -s -o /dev/null -X POST -H "Content-Type: application/json" -d "$payload" "$WEBHOOK_URL" || true
+}
+
 # required envs
 REQUIRED=("WEBHOOK_URL" "DATABASE_HOST" "DATABASE_USER" "DATABASE_PASSWORD" "DATABASE_NAME" "DATABASE_PORT" "RAIDERIO_API_KEY" "KEYSTONE_GURU_USER" "KEYSTONE_GURU_PW")
 missing=()
@@ -31,10 +46,7 @@ done
 
 if [ "${#missing[@]}" -ne 0 ]; then
   echo "ERROR: missing required env vars: ${missing[*]}" >&2
-  if [ -n "${WEBHOOK_URL:-}" ]; then
-    payload="{\"status\":\"crash\",\"message\":\"Missing env vars: ${missing[*]}\",\"container\":\"${HOSTNAME:-unknown}\"}"
-    curl --max-time 5 -s -X POST -H "Content-Type: application/json" -d "$payload" "$WEBHOOK_URL" || true
-  fi
+  post_alert "**crash** \`${HOSTNAME:-unknown}\`: missing env vars: ${missing[*]}"
   exit 2
 fi
 
@@ -49,19 +61,22 @@ done
 
 if [ "${#missing_files[@]}" -ne 0 ]; then
   echo "CRITICAL STARTUP ERROR: missing required static application files: ${missing_files[*]}" >&2
-  
-  if [ -n "${WEBHOOK_URL:-}" ]; then
-    payload="{\"status\":\"crash\",\"message\":\"Missing required static files: ${missing_files[*]}\",\"container\":\"${HOSTNAME:-unknown}\"}"
-    curl --max-time 5 -s -X POST -H "Content-Type: application/json" -d "$payload" "$WEBHOOK_URL" || true
-  fi
-  
+  post_alert "**crash** \`${HOSTNAME:-unknown}\`: missing required static files: ${missing_files[*]}"
   exit 3
 fi
 
+# Every module in /app must be importable before anything runs. Without this a
+# module missing from the Dockerfile COPY block only surfaces as a
+# ModuleNotFoundError crash-loop further down, after the cleanup call below has
+# already swallowed the first (and clearest) traceback with `|| true`.
+if ! python -u /app/verifyImageImports.py /app; then
+  echo "CRITICAL STARTUP ERROR: unresolvable imports in /app (see above)" >&2
+  post_alert "**crash** \`${HOSTNAME:-unknown}\`: unresolvable imports in /app - a module is missing from the image"
+  exit 4
+fi
+
 send_webhook(){
-  payload="{\"status\":\"$1\",\"container\":\"${HOSTNAME:-unknown}\"}"
-  # best-effort, don't exit on failure
-  curl --max-time 5 -s -X POST -H "Content-Type: application/json" -d "$payload" "$WEBHOOK_URL" || true
+  post_alert "collector \`${HOSTNAME:-unknown}\`: $1"
 }
 
 send_webhook started

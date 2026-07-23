@@ -12,6 +12,8 @@ on:
       - 'backend_scripts/discordHandler.py'
       - 'backend_scripts/stats.py'
       - 'backend_scripts/simcBis.py'
+      - 'backend_scripts/commonUtils.py'
+      - 'backend_scripts/verifyImageImports.py'
       - 'data/static/dungeons.json'
       - 'data/static/specs.json'
       - 'data/static/talents.json'
