@@ -50,29 +50,17 @@ if [ "${#missing[@]}" -ne 0 ]; then
   exit 2
 fi
 
-# required static files
-REQUIRED_FILES=("/app/data/static/dungeons.json" "/app/data/static/specs.json" "/app/data/static/talents.json" "/app/data/static/classes.json" "/app/data/static/equippable-items.json")
-missing_files=()
-for f in "${REQUIRED_FILES[@]}"; do
-  if [ ! -f "$f" ]; then
-    missing_files+=("$f")
-  fi
-done
-
-if [ "${#missing_files[@]}" -ne 0 ]; then
-  echo "CRITICAL STARTUP ERROR: missing required static application files: ${missing_files[*]}" >&2
-  post_alert "**crash** \`${HOSTNAME:-unknown}\`: missing required static files: ${missing_files[*]}"
-  exit 3
-fi
-
-# Every module in /app must be importable before anything runs. Without this a
-# module missing from the Dockerfile COPY block only surfaces as a
-# ModuleNotFoundError crash-loop further down, after the cleanup call below has
-# already swallowed the first (and clearest) traceback with `|| true`.
+# Everything the app imports or reads must be present before anything runs. This
+# replaces a hardcoded list of required static files: verifyImageImports.py
+# derives both sets from the source itself, so it can't fall behind the way a
+# hand-maintained list does (it already covers every file that list named, plus
+# the ones it had missed). Without it a gap in the Dockerfile COPY blocks only
+# surfaces later as a crash-loop or, worse, as sims quietly running on empty
+# lookup tables.
 if ! python -u /app/verifyImageImports.py /app; then
-  echo "CRITICAL STARTUP ERROR: unresolvable imports in /app (see above)" >&2
-  post_alert "**crash** \`${HOSTNAME:-unknown}\`: unresolvable imports in /app - a module is missing from the image"
-  exit 4
+  echo "CRITICAL STARTUP ERROR: the image is missing something it needs (see above)" >&2
+  post_alert "**crash** \`${HOSTNAME:-unknown}\`: image is missing a module or static data file it needs - see container logs"
+  exit 3
 fi
 
 send_webhook(){

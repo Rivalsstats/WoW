@@ -357,19 +357,22 @@ _BONUS_SOCKET_COUNTS = None
 
 
 def load_bonus_socket_counts():
-    """bonus_id (str) -> number of sockets that bonus grants (bonuses.json)."""
+    """bonus_id (str) -> number of sockets that bonus grants (bonuses.json).
+
+    Required, like load_embellishment_limits' sources: an empty table means no
+    candidate is ever found to have a socket, so no gem is applied anywhere and
+    every sim runs a socket short. That deflates baseline_dps and with it the
+    cross-spec tierlist built from it — silently, and identically for every spec,
+    so nothing downstream looks wrong. A missing or unreadable file raises.
+    """
     global _BONUS_SOCKET_COUNTS
     if _BONUS_SOCKET_COUNTS is None:
-        try:
-            data = json.loads((STATIC_DIR / "bonuses.json").read_text(encoding="utf-8"))
-            _BONUS_SOCKET_COUNTS = {
-                str(k): int(v.get("socket", 0))
-                for k, v in data.items()
-                if isinstance(v, dict) and v.get("socket")
-            }
-        except Exception as e:
-            _log(f"could not load bonuses.json: {e}")
-            _BONUS_SOCKET_COUNTS = {}
+        data = json.loads((STATIC_DIR / "bonuses.json").read_text(encoding="utf-8"))
+        _BONUS_SOCKET_COUNTS = {
+            str(k): int(v.get("socket", 0))
+            for k, v in data.items()
+            if isinstance(v, dict) and v.get("socket")
+        }
     return _BONUS_SOCKET_COUNTS
 
 
@@ -383,23 +386,29 @@ def load_enchant_static():
     to drop stale/bogus ids the same way the spec page's fetch_enchant_info
     does. gem_lookup: gem item_id (int) -> {limit_category, limit_quantity}
     for entries with slot == "socket" (itemLimitCategory caps unique gems).
+
+    Required. Both returns are used as allow-lists — fetch_enchant_map keeps only
+    ids in valid_enchant_ids and fetch_gem_ranking only gems in gem_lookup — so
+    empty tables don't mean "unknown", they mean every enchant and every gem is
+    dropped and the sims run bare. A missing or unreadable file raises rather
+    than quietly producing that.
+
+    Note this is about the FILE being absent. Individual ids absent from a file
+    that did load are the intended old-enchant noise filter, and stay a drop.
     """
     global _ENCHANT_STATIC
     if _ENCHANT_STATIC is None:
         valid, gems = set(), {}
-        try:
-            data = json.loads((STATIC_DIR / "enchantments.json").read_text(encoding="utf-8"))
-            for e in data:
-                if e.get("id") is not None:
-                    valid.add(int(e["id"]))
-                if e.get("slot") == "socket" and e.get("itemId") is not None:
-                    lim = e.get("itemLimitCategory") or {}
-                    gems[int(e["itemId"])] = {
-                        "limit_category": lim.get("id"),
-                        "limit_quantity": lim.get("quantity"),
-                    }
-        except Exception as ex:
-            _log(f"could not load enchantments.json: {ex}")
+        data = json.loads((STATIC_DIR / "enchantments.json").read_text(encoding="utf-8"))
+        for e in data:
+            if e.get("id") is not None:
+                valid.add(int(e["id"]))
+            if e.get("slot") == "socket" and e.get("itemId") is not None:
+                lim = e.get("itemLimitCategory") or {}
+                gems[int(e["itemId"])] = {
+                    "limit_category": lim.get("id"),
+                    "limit_quantity": lim.get("quantity"),
+                }
         _ENCHANT_STATIC = (valid, gems)
     return _ENCHANT_STATIC
 
