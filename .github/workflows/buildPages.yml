@@ -439,7 +439,7 @@ jobs:
           if compgen -G "social-images/*.png" > /dev/null; then
             cp social-images/*.png _site/data/social/
           fi
-          cp index.html 404.html ads.txt robots.txt sitemap.xml llms.txt _site/
+          cp index.html 404.html robots.txt sitemap.xml llms.txt _site/
 
       - name: Upload static files as artifact
         uses: actions/upload-pages-artifact@v5
