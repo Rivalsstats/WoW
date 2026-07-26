@@ -91,6 +91,7 @@ self.onmessage = (ev) => {
     const {
       dungeons = [],
       specs = [],
+      specsPriority = null,
       spells = [],
       npcInclude = [],
       npcExclude = [],
@@ -118,22 +119,17 @@ self.onmessage = (ev) => {
       candidateSets.push(unionSets(ds));
     }
 
-    if (specs && specs.length > 0) {
-      const ss = [];
-      for (const s of specs) {
-        if (specIndex.has(String(s))) ss.push(specIndex.get(String(s)));
-        else {
-          self.postMessage({
-            cmd: "result",
-            total: 0,
-            page,
-            pageSize,
-            results: [],
-          });
-          return;
-        }
+    // Specs are resolved but not folded in yet: when the full set matches nothing
+    // we relax it below, and that needs the other filters kept separate.
+    const specKeys = (specs || []).map(String);
+    let specSets = [];
+    let specMissing = false;
+    for (const s of specKeys) {
+      if (specIndex.has(s)) specSets.push(specIndex.get(s));
+      else {
+        specMissing = true;
+        break;
       }
-      candidateSets.push(intersectSets(ss));
     }
 
     if (spells && spells.length > 0) {
@@ -172,16 +168,45 @@ self.onmessage = (ev) => {
       candidateSets.push(unionSets(nis));
     }
 
-    let matchesSet =
-      candidateSets.length > 0
-        ? intersectSets(candidateSets)
-        : new Set(allRouteKeys);
+    // Everything except the spec filter; reused when relaxing the spec set.
+    const baseSets = candidateSets;
 
-    if (npcExclude && npcExclude.length > 0) {
-      for (const ex of npcExclude) {
-        const s = npcIndex.get(String(ex));
-        if (!s) continue;
-        for (const rk of s) matchesSet.delete(rk);
+    function matchesFor(sets) {
+      const out =
+        sets.length > 0 ? intersectSets(sets.slice()) : new Set(allRouteKeys);
+      if (npcExclude && npcExclude.length > 0) {
+        for (const ex of npcExclude) {
+          const s = npcIndex.get(String(ex));
+          if (!s) continue;
+          for (const rk of s) out.delete(rk);
+        }
+      }
+      return out;
+    }
+
+    let matchesSet = specMissing
+      ? new Set()
+      : matchesFor(baseSets.concat(specSets.length ? [intersectSets(specSets.slice())] : []));
+
+    // Nothing matched all the requested specs — find the largest subset that does,
+    // so the page can offer a relaxed search instead of an empty list.
+    let relaxHint = null;
+    if (matchesSet.size === 0 && specKeys.length > 1) {
+      const known = new Set(specKeys.filter((s) => specIndex.has(s)));
+      const ordered = (
+        Array.isArray(specsPriority) && specsPriority.length
+          ? specsPriority.map(String).filter((s) => known.has(s))
+          : specKeys.filter((s) => known.has(s))
+      );
+      // When some specs were unknown they are already gone, so the full remaining
+      // set is itself a relaxation worth trying.
+      const maxK =
+        ordered.length < specKeys.length ? ordered.length : ordered.length - 1;
+      for (let k = maxK; k >= 1 && !relaxHint; --k) {
+        const subset = ordered.slice(0, k);
+        const sets = subset.map((s) => specIndex.get(s));
+        const hits = matchesFor(baseSets.concat([intersectSets(sets)]));
+        if (hits.size > 0) relaxHint = { specs: subset, total: hits.size };
       }
     }
 
@@ -203,6 +228,6 @@ self.onmessage = (ev) => {
     const start = (page - 1) * pageSize;
     const results = matchedRoutes.slice(start, start + pageSize);
 
-    self.postMessage({ cmd: "result", total, page, pageSize, results });
+    self.postMessage({ cmd: "result", total, page, pageSize, results, relaxHint });
   }
 };

@@ -169,7 +169,10 @@
                     </div>
                   </div>
                   <div class="d-flex align-items-center">
-                    <button class="btn btn-sm btn-white" onclick="showCompDetailsByC('{{ comp.c | join(',') }}', false, 'all')">Details</button>
+                    <button class="btn btn-sm btn-outline-primary mb-0" onclick="showCompDetailsByC('{{ comp.c | join(',') }}', false, 'all')">Details</button>
+                    <a href="/pages/routes?specs={{ comp.c | join(',') }}" target="_blank" rel="noopener"
+                      class="btn btn-sm btn-outline-primary mb-0 ms-2 comp-routes-btn"
+                      title="Find keystone.guru routes played by this comp">Routes</a>
                   </div>
                 </div>
                 {% endfor %}
@@ -206,7 +209,10 @@
                     </div>
                   </div>
                   <div class="d-flex align-items-center">
-                    <button class="btn btn-sm btn-white" onclick="showCompDetailsByC('{{ comp.c | join(',') }}', true, 'all')">Details</button>
+                    <button class="btn btn-sm btn-outline-primary mb-0" onclick="showCompDetailsByC('{{ comp.c | join(',') }}', true, 'all')">Details</button>
+                    <a href="/pages/routes?specs={{ comp.c | join(',') }}" target="_blank" rel="noopener"
+                      class="btn btn-sm btn-outline-primary mb-0 ms-2 comp-routes-btn"
+                      title="Find keystone.guru routes played by this comp">Routes</a>
                   </div>
                 </div>
                 {% endfor %}
@@ -251,6 +257,10 @@
                             title="{{ s.name }}">
                           {% endfor %}
                           {% if is_meta %}{{ meta_badge_html | safe }}{% endif %}
+                          <a href="/pages/routes?specs={{ hg.specs | join(',') }}" target="_blank" rel="noopener"
+                            class="btn btn-sm btn-outline-primary mb-0 ms-2 comp-routes-btn"
+                            onclick="event.stopPropagation()"
+                            title="Find keystone.guru routes played by this comp">Routes</a>
                         </div>
                       </td>
                       <td class="align-middle text-center text-sm" data-order="{{ hg.max_key }}">
@@ -345,6 +355,9 @@
           <!-- Filled by JS -->
         </div>
         <div class="modal-footer">
+          <a id="compRoutesLink" href="/pages/routes" target="_blank" rel="noopener" class="btn btn-primary mb-0"
+            title="Find keystone.guru routes played by this comp"><i
+              class="material-symbols-rounded align-middle me-1">route</i>Find routes for this comp</a>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
@@ -458,6 +471,29 @@
     // its specs keeps the user on the path toward building the meta comp.
     function onMetaPath(selected) {
       return META_COMP_SPECS.length > 0 && Array.from(selected).every(s => META_COMP_SPECS.includes(Number(s)));
+    }
+
+    // Deep-link into the routes page. Both pages use the same spec ids, so the
+    // comp key can be handed over verbatim. The dungeon filter is read live so
+    // every link reflects whatever the user currently has selected.
+    function compRoutesUrl(specIds) {
+      const dFilter = document.getElementById('dungeonFilter');
+      const d = dFilter ? dFilter.value : 'all';
+      let qs = 'specs=' + Array.from(specIds).join(',');
+      if (d && d !== 'all') qs += '&dungeons=' + d;
+      return '/pages/routes?' + qs;
+    }
+
+    const ROUTES_LINK_TITLE = 'Find keystone.guru routes played by this comp';
+    function routesLinkHtml(specIds, compact = true) {
+      const cls = compact
+        ? 'btn btn-sm btn-outline-primary mb-0 ms-2 comp-routes-btn'
+        : 'btn btn-primary w-100 mb-2';
+      // The icon only earns its space on the full-width variant.
+      const label = compact
+        ? 'Routes'
+        : '<i class="material-symbols-rounded align-middle me-1">route</i>Find routes for this comp';
+      return `<a href="${compRoutesUrl(specIds)}" target="_blank" rel="noopener" class="${cls}" title="${ROUTES_LINK_TITLE}">${label}</a>`;
     }
 
     function readUrlParams() {
@@ -582,7 +618,9 @@
       if (selectedSpecs.size === 5) {
         if (headerTitle) headerTitle.innerText = 'Composition Analysis';
         if (possibleComps.length === 0) {
-          suggestionsContainer.innerHTML = '<div class="alert alert-secondary text-white text-sm"><i class="material-symbols-rounded align-middle me-2">info</i>We don\'t have enough top-tier data matching this exact 5-man team.</div>';
+          // No aggregate stats for this exact team, but routes may still exist.
+          suggestionsContainer.innerHTML = '<div class="alert alert-secondary text-white text-sm"><i class="material-symbols-rounded align-middle me-2">info</i>We don\'t have enough top-tier data matching this exact 5-man team.</div>'
+            + routesLinkHtml(Array.from(selectedSpecs), false);
         } else {
           const comp = possibleComps[0];
 
@@ -638,6 +676,7 @@
                 ${dungeonStat}
               </div>
             </div>
+            ${routesLinkHtml(comp.c, false)}
             <button class="btn btn-outline-primary w-100" onclick="clearSelection()">Start Over</button>
           `;
         }
@@ -814,7 +853,8 @@
             </div>
           </div>
           <div class="d-flex align-items-center">
-            <button class="btn btn-sm btn-white" onclick='showCompDetails(${JSON.stringify(comp)}, ${useTopKey}, ${JSON.stringify(dungeonId)})'>Details</button>
+            <button class="btn btn-sm btn-outline-primary mb-0" onclick='showCompDetails(${JSON.stringify(comp)}, ${useTopKey}, ${JSON.stringify(dungeonId)})'>Details</button>
+            ${routesLinkHtml(comp.c)}
           </div>
         </div>
       `;
@@ -962,6 +1002,8 @@
       } catch (e) { /* ignore */ }
 
       body.innerHTML = html;
+      const routesLink = document.getElementById('compRoutesLink');
+      if (routesLink) routesLink.href = compRoutesUrl(comp.c);
       const modalEl = document.getElementById('compDetailsModal');
       const modal = new bootstrap.Modal(modalEl);
       modal.show();

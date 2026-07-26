@@ -17,11 +17,55 @@ function safeId(str) {
   return str.replace(/[^A-Za-z0-9_-]/g, "_");
 }
 
+// Label a spec by its select option ("Restoration Druid"), falling back to the id.
+function specLabel(id) {
+  const opt = document.querySelector(`#specSelect option[value="${id}"]`);
+  const text = opt ? opt.textContent.trim() : "";
+  return text || String(id);
+}
+
+// A comp with all five specs often has no route recorded at all. Rather than a
+// bare "no results", offer the largest spec subset the worker found matches for.
+function renderNoRoutes(accordion) {
+  const hint = lastResults.relaxHint;
+  const chosen = paramsFromForm().specs.map(String);
+
+  if (!hint || !hint.specs || !hint.specs.length) {
+    accordion.innerHTML =
+      '<p class="text-sm mb-0">No routes found for these filters.</p>';
+    return;
+  }
+
+  const kept = hint.specs.map(String);
+  const dropped = chosen.filter((s) => !kept.includes(s));
+  const wrap = document.createElement("div");
+  wrap.className = "alert alert-secondary text-white text-sm";
+  wrap.innerHTML = `
+    <p class="mb-2">No route has been recorded with all ${chosen.length} of these specs.</p>
+    <p class="mb-2">Searching without
+      <strong>${dropped.map(specLabel).join(", ")}</strong>
+      finds <strong>${hint.total}</strong> route${hint.total === 1 ? "" : "s"}.</p>
+    <button type="button" class="btn btn-sm btn-primary mb-0" id="relaxSpecsBtn">
+      Search with ${kept.length} spec${kept.length === 1 ? "" : "s"} instead
+    </button>`;
+  accordion.innerHTML = "";
+  accordion.appendChild(wrap);
+
+  wrap.querySelector("#relaxSpecsBtn").addEventListener("click", function () {
+    $("#specSelect").selectpicker("val", kept);
+    currentPage = 1;
+    const params = paramsFromForm();
+    params.page = 1;
+    updateUrlFromParams(params, { replace: false });
+    doQuery({ page: 1 });
+  });
+}
+
 function renderMatches(routes, append = false) {
   const accordion = document.getElementById("routeDungeonAccordion");
   if (!append) accordion.innerHTML = "";
   if (!routes || routes.length === 0) {
-    if (!append) accordion.innerHTML = "<p>No routes found.</p>";
+    if (!append) renderNoRoutes(accordion);
     return;
   }
 
@@ -181,6 +225,7 @@ function initSearch() {
     } else if (msg.cmd === "result") {
       lastResults.total = msg.total;
       lastResults.results = msg.results;
+      lastResults.relaxHint = msg.relaxHint || null;
       renderMatches(msg.results, false);
 
       if (typeof window.__routeRenderPagination === "function") {
@@ -231,11 +276,16 @@ function doQuery({ page = 1, pageSize = PAGE_SIZE } = {}) {
   const npcExclude = npcExcludeSelected
     .map((s) => Number(s))
     .filter((n) => !Number.isNaN(n));
+  // Tank -> healer -> DPS, so relaxing an over-specific comp filter drops DPS first.
+  const roleOf = (id) => Number(((window.spec_data || {})[id] || {}).role ?? 2);
+  const specsPriority = chosenSpecs.slice().sort((a, b) => roleOf(a) - roleOf(b));
+
   worker.postMessage({
     cmd: "query",
     payload: {
       dungeons: chosenDungeon,
       specs: chosenSpecs,
+      specsPriority: specsPriority,
       spells: spellsWanted,
       npcInclude: npcInclude,
       npcExclude: npcExclude,
