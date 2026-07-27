@@ -1,57 +1,67 @@
-/* === Theme variables === */
+/* === Theme variables ===
+ *
+ * Stat and rarity colors were identical in both themes and tuned for the game's
+ * black UI, so on white the uncommon green was 1.6:1 and the artifact gold 1.6:1,
+ * while rare/epic sat near 3.2:1 on the dark cards. Each value below keeps its hue
+ * and saturation and shifts only lightness, by the minimum needed to clear 4.5:1
+ * against that theme's worst surface (light #f2f2f2, dark #2a2a2a).
+ */
 
 :root,
 [data-bs-theme="light"] {
   /*–– Primary stats ––*/
-  --stat-stragiint: #ffd100;
+  --stat-stragiint: #856d00;
   --stat-stragi: #8b008b;
-  --stat-int: #d26cd1;
-  --stat-str: #f33232;
-  --stat-agi: #ffd955;
-  --stat-sta: #ff8b2d;
-  --stat-health: #27cc4e;
+  --stat-int: #b537b4;
+  --stat-str: #de0d0d;
+  --stat-agi: #8a6b00;
+  --stat-sta: #b65100;
+  --stat-health: #188031;
 
   /*–– Secondary stats ––*/
-  --stat-mastery: #9256ff;
-  --stat-haste: #0ed59b;
-  --stat-crit: #e01c1c;
-  --stat-vers: #bfbfbf;
+  --stat-mastery: #8440ff;
+  --stat-haste: #087e5c;
+  --stat-crit: #da1b1b;
+  --stat-vers: #6f6f6f;
 
   /*–– Tertiary stats ––*/
-  --stat-runspeed: #00c2ff;
-  --stat-avoidance: #1e90ff;
-  --stat-leech: #ff5a6c;
+  --stat-runspeed: #00789e;
+  --stat-avoidance: #006dd7;
+  --stat-leech: #e00018;
 
   /*–– Rarities ––*/
-  --quality-0: #9d9d9d; /* poor */
+  --quality-0: #6f6f6f; /* poor */
   --quality-1: #312e2e; /* common */
-  --quality-2: #1eff00; /* uncommon */
-  --quality-3: #0070dd; /* rare */
-  --quality-4: #a335ee; /* epic */
-  --quality-5: #ff8000; /* legendary */
-  --quality-6: #e6cc80; /* artifact */
-  --quality-7: #00ccff; /* heirloom*/
-  --quality-8: #00ccff; /* token */
+  --quality-2: #0f8100; /* uncommon */
+  --quality-3: #006dd7; /* rare */
+  --quality-4: #a130ee; /* epic */
+  --quality-5: #ae5700; /* legendary */
+  --quality-6: #876b1b; /* artifact */
+  --quality-7: #007997; /* heirloom*/
+  --quality-8: #007997; /* token */
 }
 [data-bs-theme="dark"] {
+  /* Item rarity keeps the exact in-game colors — recognising an epic by its purple
+     outweighs the ratio, same call as the class colors. The stat palette is the
+     site's own, not an in-game identity, so it is nudged for readability. */
   /*–– Primary stats ––*/
   --stat-stragiint: #ffd100;
-  --stat-stragi: #8b008b;
+  --stat-stragi: #c000c0;
   --stat-int: #d26cd1;
-  --stat-str: #f33232;
+  --stat-str: #f55c5c;
   --stat-agi: #ffd955;
   --stat-sta: #ff8b2d;
   --stat-health: #27cc4e;
 
   /*–– Secondary stats ––*/
-  --stat-mastery: #9256ff;
+  --stat-mastery: #a675ff;
   --stat-haste: #0ed59b;
-  --stat-crit: #e01c1c;
+  --stat-crit: #ec6464;
   --stat-vers: #bfbfbf;
 
   /*–– Tertiary stats ––*/
   --stat-runspeed: #00c2ff;
-  --stat-avoidance: #1e90ff;
+  --stat-avoidance: #2191ff;
   --stat-leech: #ff5a6c;
 
   /*–– Rarities ––*/
@@ -66,90 +76,124 @@
   --quality-8: #00ccff; /* token */
 }
 
+
+/* Rarity fills — theme-invariant, for badges that paint rarity as a background. */
+:root {
+  --quality-0-raw: #9d9d9d;
+  --quality-1-raw: #ffffff;
+  --quality-2-raw: #1eff00;
+  --quality-3-raw: #0070dd;
+  --quality-4-raw: #a335ee;
+  --quality-5-raw: #ff8000;
+  --quality-6-raw: #e6cc80;
+  --quality-7-raw: #00ccff;
+  --quality-8-raw: #00ccff;
+}
+
+/* Fill colors — theme-invariant. The --stat-* values are contrast-tuned per theme
+   for use as text; .stat-* chips paint them as backgrounds, so they use these. */
+:root {
+  --stat-stragiint-raw: #ffd100;
+  --stat-stragi-raw: #8b008b;
+  --stat-int-raw: #d26cd1;
+  --stat-str-raw: #f33232;
+  --stat-agi-raw: #ffd955;
+  --stat-sta-raw: #ff8b2d;
+  --stat-health-raw: #27cc4e;
+  --stat-mastery-raw: #8040e0;
+  --stat-haste-raw: #0ed59b;
+  --stat-crit-raw: #c81717;
+  --stat-vers-raw: #bfbfbf;
+  --stat-runspeed-raw: #00c2ff;
+  --stat-avoidance-raw: #1e90ff;
+  --stat-leech-raw: #ff5a6c;
+}
+
 /* === Stat classes === */
 .stat-stragiint {
-  background-color: var(--stat-stragiint);
+  background-color: var(--stat-stragiint-raw);
   color: var(--bs-gray-dark);
 }
 .stat-stragi {
-  background-color: var(--stat-stragi);
+  background-color: var(--stat-stragi-raw);
   color: var(--bs-gray-dark);
 }
 .stat-int {
-  background-color: var(--stat-int);
+  background-color: var(--stat-int-raw);
   color: var(--bs-gray-dark);
 }
 .stat-intellect {
-  background-color: var(--stat-int);
+  background-color: var(--stat-int-raw);
   color: var(--bs-gray-100);
 }
 .stat-str {
-  background-color: var(--stat-str);
+  background-color: var(--stat-str-raw);
   color: var(--bs-gray-100);
 }
 .stat-strength {
-  background-color: var(--stat-str);
+  background-color: var(--stat-str-raw);
   color: var(--bs-gray-100);
 }
 .stat-agi {
-  background-color: var(--stat-agi);
+  background-color: var(--stat-agi-raw);
   color: var(--bs-gray-dark);
 }
 .stat-agility {
-  background-color: var(--stat-agi);
+  background-color: var(--stat-agi-raw);
   color: var(--bs-gray-dark);
 }
 .stat-sta {
-  background-color: var(--stat-sta);
+  background-color: var(--stat-sta-raw);
   color: var(--bs-gray-dark);
 }
 .stat-stamina {
-  background-color: var(--stat-sta);
+  background-color: var(--stat-sta-raw);
   color: var(--bs-gray-dark);
 }
 .stat-health {
-  background-color: var(--stat-health);
+  background-color: var(--stat-health-raw);
   color: var(--bs-gray-dark);
 }
 
 .stat-mastery {
-  background-color: var(--stat-mastery);
+  /* #9256ff cleared neither white (3.9:1) nor dark (3.6:1) text; deepened. */
+  background-color: var(--stat-mastery-raw);
   color: var(--bs-gray-100);
 }
 .stat-haste {
-  background-color: var(--stat-haste);
+  background-color: var(--stat-haste-raw);
   color: var(--bs-gray-dark);
 }
 .stat-crit {
-  background-color: var(--stat-crit);
+  background-color: var(--stat-crit-raw);
   color: var(--bs-gray-100);
 }
 .stat-vers {
-  background-color: var(--stat-vers);
+  background-color: var(--stat-vers-raw);
   color: var(--bs-gray-dark);
 }
 .stat-versatility {
-  background-color: var(--stat-vers);
+  background-color: var(--stat-vers-raw);
   color: var(--bs-gray-dark);
 }
 .stat-leech {
-  background-color: var(--stat-leech);
+  background-color: var(--stat-leech-raw);
   color: var(--bs-gray-100);
 }
 .stat-lifesteal {
-  background-color: var(--stat-leech);
+  background-color: var(--stat-leech-raw);
   color: var(--bs-gray-100);
 }
 .stat-speed {
-  background-color: var(--stat-runspeed);
+  background-color: var(--stat-runspeed-raw);
   color: var(--bs-gray-dark);
 }
 .stat-runspeed {
-  background-color: var(--stat-runspeed);
+  background-color: var(--stat-runspeed-raw);
   color: var(--bs-gray-dark);
 }
 .stat-avoidance {
-  background-color: var(--stat-avoidance);
+  background-color: var(--stat-avoidance-raw);
   color: var(--bs-gray-100);
 }
 
@@ -184,7 +228,7 @@
 
 /* === Rarity text classes (shared by item pages and spec-page item names) === */
 .item-quality-0 { color: var(--quality-0) !important; }
-.item-quality-1 { color: #d4d4d4 !important; }
+.item-quality-1 { color: var(--quality-1) !important; }
 .item-quality-2 { color: var(--quality-2) !important; }
 .item-quality-3 { color: var(--quality-3) !important; }
 .item-quality-4 { color: var(--quality-4) !important; }

@@ -13,13 +13,13 @@
 
 .result-excerpt {
   display: block;
-  color: var(--bs-body-color, #9aa);
+  color: var(--mythi-text-muted);
   font-size: 0.9rem;
 }
 
 .result-meta {
   font-size: 0.8rem;
-  color: var(--bs-body-color, #8a8a8a);
+  color: var(--mythi-text-muted);
 }
 
 .line-clamp-3 {
@@ -34,8 +34,8 @@
   z-index: 3000;
   border-radius: 0.5rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  background: var(--bs-body-bg, #0b0b0b);
-  color: var(--bs-body-color, #fff);
+  background: var(--bs-body-bg);
+  color: var(--bs-body-color);
   max-height: 60vh;
   overflow-y: auto;
   overflow-x: hidden;

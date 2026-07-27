@@ -13,7 +13,7 @@
 #route-search-overlay .overlay-backdrop {
   position: absolute;
   inset: 0;
-  background-color: var(--bs-body-bg, #000);
+  background-color: var(--bs-body-bg);
   opacity: 0.75;
 }
 #route-search-overlay .overlay-content {
@@ -24,9 +24,10 @@
   align-items: center;
   padding: 1rem 1.5rem;
   border-radius: 0.5rem;
-  background: rgba(0, 0, 0, 0.35);
+  /* A fixed 35%-black scrim left the themed text at poor contrast on light. */
+  background: var(--mythi-overlay-bg);
   backdrop-filter: blur(4px);
-  color: var(--bs-body-color, #fff);
+  color: var(--mythi-overlay-color);
 }
 #route-search-overlay .overlay-content .small {
   margin-top: 0.5rem;

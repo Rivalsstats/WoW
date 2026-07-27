@@ -116,7 +116,7 @@
 
 </head>
 
-<body class="g-sidenav-show g-sidenav-show-right" data-bs-theme="dark">
+<body class="g-sidenav-show g-sidenav-show-right">
   {% include "sidenav.html" %}
   <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <!-- Navbar -->
@@ -159,14 +159,14 @@
                   <p class="text-sm mb-0 text-capitalize">Keys / Minute</p>
                   {% set delta = key_throughput.delta_pct %}
                   <div class="d-flex align-items-baseline">
-                    <span class="font-weight-bolder h4 text-white mb-0">{{ key_throughput.current_total }}</span>
-                    <span class="text-xs ms-1 text-white opacity-8">/min this week</span>
+                    <span class="font-weight-bolder h4 text-body-emphasis mb-0">{{ key_throughput.current_total }}</span>
+                    <span class="text-xs ms-1 text-body-emphasis opacity-8">/min this week</span>
                   </div>
                   <p class="text-xs mb-0 mt-1">
                     <span class="font-weight-bolder {{ 'text-success' if delta >= 0 else 'text-danger' }}">
                       <i class="material-symbols-rounded text-xs align-middle">{{ 'arrow_upward' if delta >= 0 else 'arrow_downward' }}</i>{{ delta | abs }}%
                     </span>
-                    <span class="text-white opacity-8">vs season avg ({{ key_throughput.season_total }}/min)</span>
+                    <span class="text-body-emphasis opacity-8">vs season avg ({{ key_throughput.season_total }}/min)</span>
                   </p>
                 </div>
                 <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
@@ -207,7 +207,7 @@
                   run_data.keystone_level) %}
                   <div>
                     <span class="font-weight-bolder h4 {{ info.css }}">{{ info.text }}</span>
-                    <a href="/dungeons/{{ dungeon_info.slug }}" class="font-weight-bolder h4 text-white text-decoration-none">
+                    <a href="/dungeons/{{ dungeon_info.slug }}" class="font-weight-bolder h4 text-body-emphasis text-decoration-none">
                       {{ dungeon_info.name.en_US }}
                     </a>
                     <span class="font-weight-bolder h4">{{run_data.region|upper}}</span>
@@ -665,8 +665,8 @@
           layout: { padding: { bottom: (32 + 8 + 4) } },
           interaction: { intersect: false, mode: 'index' },
           scales: {
-            y: { grid: { drawBorder: false, display: true, drawOnChartArea: true, drawTicks: false, borderDash: [5, 5], color: '#e5e5e5' }, ticks: { display: false } },
-            x: { grid: { drawBorder: false, display: false, drawOnChartArea: false, drawTicks: false, borderDash: [5, 5] }, ticks: { display: false, color: '#737373', padding: 10, font: { size: 14, lineHeight: 2 } } }
+            y: { grid: { drawBorder: false, display: true, drawOnChartArea: true, drawTicks: false, borderDash: [5, 5], color: MythiChart.colors.grid }, ticks: { display: false } },
+            x: { grid: { drawBorder: false, display: false, drawOnChartArea: false, drawTicks: false, borderDash: [5, 5] }, ticks: { display: false, color: MythiChart.colors.tickText, padding: 10, font: { size: 14, lineHeight: 2 } } }
           }
         },
         plugins: [iconPlugin]
@@ -703,7 +703,7 @@
             grid: {
               display: false,
               drawBorder: false,
-              color: '#e5e5e5',
+              color: MythiChart.colors.grid,
               borderDash: [5, 5]
             }
           },
@@ -712,7 +712,7 @@
             grid: { display: false },
             barPercentage: 0.1,
             ticks: {
-              color: '#737373',
+              color: MythiChart.colors.tickText,
               padding: 6,
               font: { size: 12, lineHeight: 2 }
             }
@@ -784,7 +784,7 @@
             },
             beginAtZero: true,
             grid: {
-              color: "#e5e5e5",
+              color: MythiChart.colors.grid,
               borderDash: [5, 5]
             }
           }
@@ -884,7 +884,7 @@
             },
             y: {
               stacked: true,
-              grid: { color: "#e5e5e5", borderDash: [5, 5] },
+              grid: { color: MythiChart.colors.grid, borderDash: [5, 5] },
               ticks: { display: false, padding: 6, font: { size: 12 } }
             }
           },
@@ -912,7 +912,7 @@
               textGap: 4,
               fontSize: 12,
               fontFace: "Arial",
-              color: "#fff"
+              color: MythiChart.colors.legendText
             }
           }
         },
@@ -1027,7 +1027,7 @@
             grid: {
               display: false,
               drawBorder: false,
-              color: '#e5e5e5',
+              color: MythiChart.colors.grid,
               borderDash: [5, 5]
             }
           },
@@ -1036,7 +1036,7 @@
             grid: { display: false },
             barPercentage: 0.1,
             ticks: {
-              color: '#737373',
+              color: MythiChart.colors.tickText,
               padding: 6,
               font: { size: 12, lineHeight: 2 }
             }
@@ -1102,19 +1102,19 @@
           scales: {
             x: {
               grid: { display: false },
-              ticks: { color: "#9ca3af", maxRotation: 0, autoSkip: true, font: { size: 10 } }
+              ticks: { color: MythiChart.colors.tickText, maxRotation: 0, autoSkip: true, font: { size: 10 } }
             },
             y: {
               beginAtZero: true,
-              grid: { color: "rgba(255,255,255,0.08)" },
-              ticks: { color: "#9ca3af", maxTicksLimit: 4, font: { size: 10 } }
+              grid: { color: MythiChart.colors.grid },
+              ticks: { color: MythiChart.colors.tickText, maxTicksLimit: 4, font: { size: 10 } }
             }
           },
           plugins: {
             legend: {
               position: "top",
               labels: {
-                color: "#cbd5e1", usePointStyle: true, pointStyle: "circle",
+                color: MythiChart.colors.legendText, usePointStyle: true, pointStyle: "circle",
                 boxWidth: 8, padding: 8, font: { size: 10 }
               }
             },
@@ -1235,14 +1235,14 @@
             x: {
               type: "linear", position: "top", min: -0.5, max: 23.5, offset: false,
               ticks: {
-                stepSize: 3, color: "#9ca3af", font: { size: 10 },
+                stepSize: 3, color: MythiChart.colors.tickText, font: { size: 10 },
                 callback: v => (v >= 0 && v % 3 === 0) ? `${v}:00` : ""
               },
               grid: { display: false }
             },
             y: {
               type: "category", labels: DAY_ORDER.map(d => DAYS[d]),
-              ticks: { color: "#9ca3af", font: { size: 10 } },
+              ticks: { color: MythiChart.colors.tickText, font: { size: 10 } },
               grid: { display: false }
             }
           },

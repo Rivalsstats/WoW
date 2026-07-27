@@ -82,14 +82,17 @@
   --bs-body-font-size: 1rem;
   --bs-body-font-weight: 400;
   --bs-body-line-height: 1.5;
-  --bs-body-color: #737373;
-  --bs-body-color-rgb: 115, 115, 115;
+  /* Was #737373 — only 4.76:1 on white, so any .opacity-7/.opacity-8 text built on
+     it (form labels, card sub-lines) dropped to ~2.7:1. #3d3d3d keeps enough
+     headroom that even .opacity-7 still clears AA. */
+  --bs-body-color: #353535;
+  --bs-body-color-rgb: 53, 53, 53;
   --bs-body-bg: #fff;
   --bs-body-bg-rgb: 255, 255, 255;
   --bs-emphasis-color: #0a0a0a;
   --bs-emphasis-color-rgb: 10, 10, 10;
-  --bs-secondary-color: rgba(115, 115, 115, 0.75);
-  --bs-secondary-color-rgb: 115, 115, 115;
+  --bs-secondary-color: rgba(64, 64, 64, 0.85);
+  --bs-secondary-color-rgb: 64, 64, 64;
   --bs-secondary-bg: #e5e5e5;
   --bs-secondary-bg-rgb: 229, 229, 229;
   --bs-tertiary-color: rgba(115, 115, 115, 0.5);
@@ -134,7 +137,7 @@
   --bs-emphasis-bg-subtle: rgba(var(--bs-emphasis-color-rgb), 0.08);
   --bs-emphasis-bg-solid: var(--bs-emphasis-color);
   --bs-emphasis-border-subtle: rgba(var(--bs-emphasis-color-rgb), 0.18);
-  --bs-card-bg: #adacac;
+  --bs-card-bg: #fff;
   --bs-modal-bg: #fff;
   --bs-modal-header-border-color: #d4d4d4;
   --bs-modal-footer-border-color: #d4d4d4;
@@ -161,7 +164,7 @@
   --bs-dropdown-link-active-bg: transparent;
   --bs-dropdown-link-disabled-color: #525252;
   --bs-dropdown-header-color: #525252;
-  --bs-form-label-color: #737373;
+  --bs-form-label-color: #333333;
   --bs-pagination-bg: #fff;
   --bs-pagination-border-color: #d4d4d4;
   --bs-pagination-hover-bg: #e5e5e5;
@@ -174,6 +177,26 @@
   --bs-pagination-disabled-color: #525252;
   --bs-pagination-disabled-bg: #fff;
   --bs-pagination-disabled-border-color: #d4d4d4;
+  /* MythiStone surface tokens. Per-page CSS used to hardcode rgba(255,255,255,…)
+     panel fills and borders, which vanish on a light page. Use these instead so
+     new components are theme-correct without a per-file [data-bs-theme] block. */
+  --mythi-text-muted: #5c5c5c;
+  --mythi-surface-raised: #f2f2f2;
+  --mythi-surface-sunken: #e8e8e8;
+  --mythi-border-subtle: rgba(10, 10, 10, 0.12);
+  --mythi-border-strong: rgba(10, 10, 10, 0.24);
+  --mythi-chip-bg: rgba(10, 10, 10, 0.05);
+  --mythi-hover-bg: rgba(10, 10, 10, 0.04);
+  --mythi-overlay-bg: rgba(255, 255, 255, 0.96);
+  --mythi-overlay-color: #171717;
+  --mythi-scrollbar-track: rgba(10, 10, 10, 0.08);
+  --mythi-scrollbar-thumb: rgba(10, 10, 10, 0.32);
+  --mythi-scrollbar-thumb-hover: rgba(10, 10, 10, 0.52);
+  --mythi-text-success: #2e7d32;
+  --mythi-text-danger: #c62828;
+  --mythi-text-warning: #b35300;
+  --mythi-text-info: #1a73e8;
+  --mythi-text-primary: #c2185b;
 }
 
 [data-bs-theme=dark] {
@@ -276,6 +299,24 @@
   --bs-pagination-disabled-color: #525252;
   --bs-pagination-disabled-bg: #000000;
   --bs-pagination-disabled-border-color: #373737;
+  /* See the light block for what these are for. */
+  --mythi-text-muted: #a8a8a8;
+  --mythi-surface-raised: #2a2a2a;
+  --mythi-surface-sunken: #111111;
+  --mythi-border-subtle: rgba(255, 255, 255, 0.12);
+  --mythi-border-strong: rgba(255, 255, 255, 0.24);
+  --mythi-chip-bg: rgba(255, 255, 255, 0.05);
+  --mythi-hover-bg: rgba(255, 255, 255, 0.05);
+  --mythi-overlay-bg: rgba(0, 0, 0, 0.86);
+  --mythi-overlay-color: #f5f5f5;
+  --mythi-scrollbar-track: rgba(255, 255, 255, 0.1);
+  --mythi-scrollbar-thumb: rgba(255, 255, 255, 0.4);
+  --mythi-scrollbar-thumb-hover: rgba(255, 255, 255, 0.6);
+  --mythi-text-success: #4CAF50;
+  --mythi-text-danger: #F44335;
+  --mythi-text-warning: #fb8c00;
+  --mythi-text-info: #4d9bf0;
+  --mythi-text-primary: #f06292;
 }
 
 *,
@@ -2677,16 +2718,18 @@ progress {
   --bs-table-bg-type: initial;
   --bs-table-color-state: initial;
   --bs-table-bg-state: initial;
-  --bs-table-color: #737373;
+  /* These were pinned to the light palette (#737373 text, black-alpha stripes), so
+     table cells stayed mid-grey on the dark cards. Drive them off the theme. */
+  --bs-table-color: var(--bs-body-color);
   --bs-table-bg: transparent;
-  --bs-table-border-color: #e5e5e5;
+  --bs-table-border-color: var(--bs-border-color);
   --bs-table-accent-bg: transparent;
-  --bs-table-striped-color: #737373;
-  --bs-table-striped-bg: rgba(10, 10, 10, 0.05);
-  --bs-table-active-color: #737373;
-  --bs-table-active-bg: rgba(10, 10, 10, 0.1);
-  --bs-table-hover-color: #737373;
-  --bs-table-hover-bg: rgba(10, 10, 10, 0.075);
+  --bs-table-striped-color: var(--bs-body-color);
+  --bs-table-striped-bg: var(--mythi-chip-bg);
+  --bs-table-active-color: var(--bs-body-color);
+  --bs-table-active-bg: var(--mythi-border-subtle);
+  --bs-table-hover-color: var(--bs-body-color);
+  --bs-table-hover-bg: var(--mythi-hover-bg);
   width: 100%;
   margin-bottom: 1rem;
   vertical-align: top;
@@ -4231,17 +4274,20 @@ fieldset:disabled .btn {
 }
 
 .btn-outline-light {
-  --bs-btn-color: #e5e5e5;
-  --bs-btn-border-color: #e5e5e5;
-  --bs-btn-hover-color: #0a0a0a;
-  --bs-btn-hover-bg: #e5e5e5;
-  --bs-btn-hover-border-color: #e5e5e5;
-  --bs-btn-focus-shadow-rgb: 229, 229, 229;
-  --bs-btn-active-color: #0a0a0a;
-  --bs-btn-active-bg: #e5e5e5;
-  --bs-btn-active-border-color: #e5e5e5;
+  /* This was a fixed near-white (#e5e5e5) label and border — invisible on a light
+     page, which made the run/region toggle tabs unreadable. It is used as a neutral
+     outline button, so drive it off the emphasis pair and let it invert per theme. */
+  --bs-btn-color: var(--bs-emphasis-color);
+  --bs-btn-border-color: var(--bs-emphasis-border-subtle);
+  --bs-btn-hover-color: var(--bs-emphasis-contrast);
+  --bs-btn-hover-bg: var(--bs-emphasis-color);
+  --bs-btn-hover-border-color: var(--bs-emphasis-color);
+  --bs-btn-focus-shadow-rgb: var(--bs-emphasis-color-rgb);
+  --bs-btn-active-color: var(--bs-emphasis-contrast);
+  --bs-btn-active-bg: var(--bs-emphasis-color);
+  --bs-btn-active-border-color: var(--bs-emphasis-color);
   --bs-btn-active-shadow: none;
-  --bs-btn-disabled-color: #e5e5e5;
+  --bs-btn-disabled-color: var(--bs-secondary-color);
   --bs-btn-disabled-bg: transparent;
   --bs-btn-disabled-border-color: #e5e5e5;
   --bs-gradient: none;
@@ -11157,27 +11203,31 @@ fieldset:disabled .btn {
 
 /* rtl:end:remove */
 .text-primary {
-  color: #e91e63 !important;
+  /* The brand pink is 4.35:1 on white and 3.9:1 on the dark cards as text; these
+     shift it just enough per theme. Buttons and fills still use --bs-primary. */
+  color: var(--mythi-text-primary) !important;
 }
 
 .text-secondary {
-  color: var(--bs-secondary) !important;
+  /* Muted body text, not the "secondary" brand color: --bs-secondary is a fixed
+     #737373 declared only in the light block, so it read at 2.8:1 on dark cards. */
+  color: var(--mythi-text-muted) !important;
 }
 
 .text-success {
-  color: var(--bs-success) !important;
+  color: var(--mythi-text-success) !important;
 }
 
 .text-info {
-  color: #1A73E8 !important;
+  color: var(--mythi-text-info) !important;
 }
 
 .text-warning {
-  color: #fb8c00 !important;
+  color: var(--mythi-text-warning) !important;
 }
 
 .text-danger {
-  color: #F44335 !important;
+  color: var(--mythi-text-danger) !important;
 }
 
 .text-light {
@@ -22255,7 +22305,7 @@ fieldset:disabled .btn {
   background-color: transparent;
   opacity: 0.75;
   box-shadow: none;
-  color: #e5e5e5;
+  color: var(--bs-emphasis-color);
 }
 
 .btn-dark,
@@ -27527,7 +27577,8 @@ p {
 }
 
 .text-muted {
-  color: #737373 !important;
+  /* Was a fixed #737373 in both themes — 3.6:1 on the dark cards. */
+  color: var(--mythi-text-muted) !important;
 }
 
 .text-black-50 {

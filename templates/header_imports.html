@@ -1,5 +1,20 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- Theme bootstrap. Must stay inline and before any stylesheet: it sets the theme
+     on <html> before first paint, so switching themes never flashes the other one.
+     Dark is the unconditional default — the OS colour-scheme preference is
+     deliberately ignored, so a first-time visitor always lands on dark and only
+     ever sees light mode after opting in via the UI Configurator.
+     material-dashboard.js takes over from here (toggle, persistence, klaro sync). -->
+<script>
+  (function () {
+    var theme = 'dark';
+    try {
+      if (localStorage.getItem('theme') === 'light') theme = 'light';
+    } catch (e) { /* storage blocked (private mode / cookie policy) — stay dark */ }
+    document.documentElement.setAttribute('data-bs-theme', theme);
+  })();
+</script>
 <link rel="icon" type="image/png" href="/assets/img/favicon/favicon-96x96.png" sizes="96x96" />
 <link rel="icon" type="image/svg+xml" href="/assets/img/favicon/favicon.svg" />
 <link rel="shortcut icon" href="/assets/img/favicon/favicon.ico" />

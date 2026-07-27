@@ -494,38 +494,59 @@ function sidenavTypeOnResize() {
 }
 
 // Light Mode / Dark Mode
+//
+// The attribute lives on <html>, not <body>: the inline bootstrap in
+// header_imports.html sets it before first paint (so light-mode users don't get a
+// dark flash), and vendored CSS such as DataTables scopes its own theme rules to
+// the root element. Anything here just keeps the rest of the page in sync with it.
   const checkbox = document.getElementById('dark-version');
   const selectors = '.klaro .context-notice, .klaro .cookie-notice, .klaro .cookie-modal, #klaro';
-  // apply theme to the document body
+
   function applyTheme(theme) {
-    document.body.setAttribute('data-bs-theme', theme);
+    document.documentElement.setAttribute('data-bs-theme', theme);
+    // Klaro renders asynchronously, so late-arriving banners are also handled by
+    // the observer below — this covers whatever is already in the DOM.
+    syncKlaro(theme);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', theme === 'dark' ? '#171717' : '#ffffff');
+    window.dispatchEvent(new CustomEvent('mythistone:themechange', { detail: { theme: theme } }));
+  }
+
+  function syncKlaro(theme) {
     document.querySelectorAll(selectors).forEach(el => {
-        if (theme === 'dark') el.classList.add('cm-dark');
-        else el.classList.remove('cm-dark');
+      el.classList.toggle('cm-dark', theme === 'dark');
     });
+  }
+
+  function currentTheme() {
+    return document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light';
   }
 
   // set checkbox boolean property (NOT attribute)
   function setCheckboxForTheme(theme) {
-    checkbox.checked = (theme === 'dark');
+    if (checkbox) checkbox.checked = (theme === 'dark');
   }
-  
-  // run on load: pick stored theme, else system preference, else light
-  window.addEventListener('DOMContentLoaded', () => {
-    const stored = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const theme = stored || (prefersDark ? 'dark' : 'light');
 
+  // The inline bootstrap already applied the theme; this re-runs the rest of the
+  // sync once the DOM (checkbox, klaro container) actually exists.
+  window.addEventListener('DOMContentLoaded', () => {
+    const theme = currentTheme();
     applyTheme(theme);
     setCheckboxForTheme(theme);
+
+    // Klaro mounts after load; keep its dark class correct whenever it appears.
+    new MutationObserver(() => syncKlaro(currentTheme()))
+      .observe(document.body, { childList: true, subtree: true });
   });
 
   // persist and toggle when user changes the switch
-  checkbox.addEventListener('change', (e) => {
-    const theme = e.target.checked ? 'dark' : 'light';
-    applyTheme(theme);
-    localStorage.setItem('theme', theme);
-  });
+  if (checkbox) {
+    checkbox.addEventListener('change', (e) => {
+      const theme = e.target.checked ? 'dark' : 'light';
+      applyTheme(theme);
+      localStorage.setItem('theme', theme);
+    });
+  }
 
 
 // side bullets

@@ -51,8 +51,8 @@
   cursor: pointer;
   padding: 0.25rem 0.5rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--mythi-border-subtle);
+  background: var(--mythi-chip-bg);
   font-size: 0.8rem;
   text-decoration: none;
   color: inherit;
@@ -86,8 +86,8 @@
   gap: 0.5rem;
   padding: 0.45rem 0.7rem;
   border-radius: 0.6rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--mythi-border-subtle);
+  background: var(--mythi-chip-bg);
   text-decoration: none;
   color: inherit;
   min-width: 0;
@@ -95,7 +95,7 @@
 }
 .item-page .spec-card:hover {
   border-color: var(--quality-4);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--mythi-chip-bg);
   transform: translateY(-1px);
 }
 .item-page .spec-card.active {
@@ -130,7 +130,7 @@
 }
 /* Reuse the spec page's badge colours: SimC blue (.simc-badge) and gold
    frequency-based TOP (.bis-badge) so the same signal reads the same everywhere. */
-.item-page .rec-badge-sim { background: #3a8dde; color: #fff; }
+.item-page .rec-badge-sim { background: #2a6fb0; color: #fff; }
 .item-page .rec-badge-top { background: #ffd100; color: #000; }
 
 /* ----- scrollable, sortable DataTables (enchant / gems / used-by-spec …) ----- */
@@ -145,14 +145,14 @@
   position: sticky;
   top: 0;
   z-index: 2;
-  background: #1d1d1d;
+  background: var(--mythi-surface-raised);
   padding: 0.4rem 0.6rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--mythi-border-subtle);
   white-space: nowrap;
 }
 .item-page table.item-dt tbody td {
   padding: 0.3rem 0.6rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--mythi-border-subtle);
   vertical-align: middle;
 }
 .item-page table.item-dt .dt-name {
@@ -173,7 +173,7 @@
 /* Enchants have no item quality; show them in the green WoW uses for enchant
    text on items. Quality-coloured names carry their own !important colour, and
    spec names are inline-styled, so all of them stay stable on hover. */
-.item-page .enchant-name { color: #9ad46a !important; }
+.item-page .enchant-name { color: var(--class-Hunter) !important; }
 .item-page table.item-dt .dt-name:hover span { color: var(--quality-4); }
 .item-page table.item-dt .dt-name .spec-icon,
 .item-page table.item-dt .dt-name .gem-icon { width: 24px; height: 24px; }
@@ -209,8 +209,8 @@
   gap: 0.6rem;
   padding: 0.55rem 0.8rem;
   border-radius: 0.6rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--mythi-border-subtle);
+  background: var(--mythi-chip-bg);
   text-decoration: none;
   color: inherit;
   min-width: 12rem;
@@ -220,7 +220,7 @@
 }
 .item-page .craft-card:hover {
   border-color: var(--quality-4);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--mythi-chip-bg);
   transform: translateY(-1px);
 }
 .item-page .craft-card .craft-card-meta { min-width: 0; line-height: 1.2; }
@@ -252,12 +252,12 @@
   border-radius: 0.4rem;
   letter-spacing: 0.02em;
 }
-.item-page .tier-standard   { background: var(--quality-3); color: #fff; }       /* blue   (rare)      */
-.item-page .tier-raidfinder { background: var(--quality-2); color: #11331a; }    /* green  (uncommon)  */
-.item-page .tier-heroic     { background: var(--quality-4); color: #fff; }       /* purple (epic)      */
-.item-page .tier-mythic     { background: var(--quality-5); color: #3a1d00; }    /* orange (legendary) */
-.item-page .tier-other      { background: rgba(255, 255, 255, 0.14); color: #e9e9e9; }
-.item-page .tier-ilvl       { background: rgba(94, 114, 228, 0.22); color: #cdd6ff; border: 1px solid rgba(94, 114, 228, 0.5); }
+.item-page .tier-standard   { background: var(--quality-3-raw); color: #fff; }       /* blue   (rare)      */
+.item-page .tier-raidfinder { background: var(--quality-2-raw); color: #11331a; }    /* green  (uncommon)  */
+.item-page .tier-heroic     { background: var(--quality-4-raw); color: #fff; }       /* purple (epic)      */
+.item-page .tier-mythic     { background: var(--quality-5-raw); color: #3a1d00; }    /* orange (legendary) */
+.item-page .tier-other      { background: var(--mythi-chip-bg); color: var(--bs-body-color); border: 1px solid var(--mythi-border-subtle); }
+.item-page .tier-ilvl       { background: rgba(94, 114, 228, 0.22); color: var(--mythi-text-info); border: 1px solid rgba(94, 114, 228, 0.5); }
 
 /* horizontal usage bars (spec popularity / gems) */
 .item-page .usage-row {
@@ -271,7 +271,7 @@
   position: relative;
   height: 18px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--mythi-chip-bg);
   overflow: hidden;
 }
 .item-page .usage-bar > span {
@@ -390,14 +390,14 @@
   line-height: 1.4;
   border: 1px solid var(--bs-primary);
   border-radius: 0.375rem;
-  color: #d4d4d4;
+  color: var(--bs-body-color);
 }
 .items-browse #item-search.form-control:focus {
   border-color: var(--bs-primary);
   box-shadow: none;
 }
 .items-browse #item-search.form-control::placeholder {
-  color: #999;
+  color: var(--mythi-text-muted);
   opacity: 1;
 }
 
@@ -408,15 +408,15 @@
   gap: 0.6rem;
   padding: 0.5rem 0.75rem;
   border-radius: 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--mythi-border-subtle);
+  background: var(--mythi-chip-bg);
   text-decoration: none;
   color: inherit;
   height: 100%;
 }
 .items-browse .item-card:hover {
   border-color: var(--quality-4);
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--mythi-chip-bg);
 }
 .items-browse .item-card img {
   width: 40px;
@@ -433,5 +433,6 @@
 }
 .items-browse .item-card .sub {
   font-size: 0.72rem;
-  opacity: 0.7;
+  /* 0.7 dropped the muted foreground to 4.26:1 on the light card. */
+  opacity: 0.85;
 }

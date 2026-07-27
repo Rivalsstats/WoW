@@ -64,8 +64,8 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border: 1px solid #555;
-  background: #000;
+  border: 1px solid var(--mythi-border-strong);
+  background: var(--mythi-surface-sunken);
 }
 .tt-node[data-ntype="passive"] img {
   border-radius: 50%;
@@ -91,16 +91,20 @@
   bottom: -15px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.8);
+  /* Was a fixed black pill with no color of its own, so the base variant
+     inherited the page text color (dark-on-dark) and the whole tree read as a
+     slab of black chips on the light theme. */
+  background: var(--mythi-overlay-bg);
+  color: var(--mythi-overlay-color);
   font-size: 10px;
   padding: 2px 6px;
   border-radius: 10px;
-  border: 1px solid #333;
+  border: 1px solid var(--mythi-border-subtle);
   white-space: nowrap;
   text-align: center;
 }
-.tt-badge.high { color: #0f0; border-color: #0f0; }
-.tt-badge.med { color: #ff0; border-color: #ff0; }
+.tt-badge.high { color: var(--mythi-text-success); border-color: var(--mythi-text-success); }
+.tt-badge.med { color: var(--mythi-text-warning); border-color: var(--mythi-text-warning); }
 
 /* Talent "TOP" highlight — flags nodes/hero trees where the top-50 verified
    players diverge from the general population. Gold, matching the gear TOP
@@ -137,13 +141,13 @@
 }
 
 .tt-choice-wrapper:hover .tt-custom-tooltip { display: flex !important; }
-.tt-custom-tooltip a:hover { background: #333 !important; }
+.tt-custom-tooltip a:hover { background: var(--mythi-hover-bg) !important; }
 
 /* Choice-node tooltip rows. The pick the top-50 players favour gets the same
    gold TOP treatment as a highlighted node: gold-tinted row + gold TOP badge
    (elite % lives in the badge tooltip, matching the node badges). */
 .tt-choice-row {
-  color: #fff;
+  color: var(--mythi-overlay-color);
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -155,7 +159,7 @@
 }
 .tt-choice-name { flex: 1 1 auto; }
 .tt-choice-pct {
-  color: #b6b6b6;
+  color: var(--mythi-text-muted);
   font-variant-numeric: tabular-nums;
   min-width: 2.4em;
   text-align: right;
@@ -197,8 +201,8 @@
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  background: #111;
-  border: 1px solid #444;
+  background: var(--mythi-overlay-bg);
+  border: 1px solid var(--mythi-border-strong);
   border-radius: 6px;
   padding: 8px;
   white-space: nowrap;
@@ -279,7 +283,7 @@
 }
 
 .tt-tooltip-link {
-  color: #fff;
+  color: var(--mythi-overlay-color);
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -534,7 +538,7 @@
   border-radius: 6px;
   background: rgba(0, 0, 0, 0.85);
   color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--mythi-border-strong);
   pointer-events: none;
 }
 
@@ -546,7 +550,7 @@
 .combo-set-group + .combo-set-group {
   margin-left: 0.25rem;
   padding-left: 0.5rem;
-  border-left: 1px solid rgba(255, 255, 255, 0.25);
+  border-left: 1px solid var(--mythi-border-strong);
 }
 
 /* Compact item rows on phones: rows hug their content and badges/popularity
@@ -620,11 +624,17 @@
   object-fit: contain;
 }
 
+/* The markup carried `border border-white text-white bg-transparent`, so on a light
+   page this was white-on-white — completely invisible. Colors live here now and the
+   utility classes were dropped from the template. */
 .max-key-badge {
   opacity: 0.85;
   font-size: 0.75rem;
   cursor: help;
   font-weight: 500;
+  color: var(--bs-emphasis-color);
+  border: 1px solid var(--mythi-border-strong);
+  background-color: transparent;
 }
 
 /* BIS highlight styles */
@@ -644,7 +654,8 @@
 /* SimulationCraft-derived "best in slot" highlight (distinct from the gold
    frequency-based TOP badge). */
 .simc-badge {
-  background: #3a8dde;
+  /* #3a8dde put white text at 3.5:1. */
+  background: #2a6fb0;
   color: #fff;
   font-weight: 700;
   padding: 0.08rem 0.4rem;
@@ -725,7 +736,6 @@
   font-size: 0.65rem;
   padding: 0.25rem 0.5rem;
   border-radius: 6px;
-  color: #ffffff;
 }
 .stat-value {
   font-weight: 700;
@@ -734,7 +744,7 @@
   min-width: 48px;
 }
 .stat-progress {
-  background: rgba(255,255,255,0.04);
+  background: var(--mythi-chip-bg);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -751,8 +761,8 @@
 /* Chip-style stat elements (icon + label + value + color dot) */
 .stat-chip {
   display: inline-flex;
-  background: rgba(255,255,255,0.035);
-  border: 1px solid rgba(255,255,255,0.07);
+  background: var(--mythi-chip-bg);
+  border: 1px solid var(--mythi-border-subtle);
   border-radius: 14px;
   padding: 10px 18px;
   gap: 12px;
@@ -768,7 +778,8 @@
 .stat-chip-name {
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--bs-gray-100);
+  /* --bs-gray-100 is near-white in both themes. */
+  color: var(--bs-emphasis-color);
   line-height: 1;
 }
 .stat-chip-value {
@@ -788,7 +799,11 @@
   .stat-chip-name { font-size: 0.95rem; }
   .stat-chip-value { font-size: 0.9rem; }
   .stat-chip-icon { width: 24px; height: 24px; }
-  .stat-chip-rank { width: 34px; height: 34px; border-radius: 8px; background: rgba(255,255,255,0.03); color: var(--bs-gray-100); font-weight:700; margin-right:6px; }
+  .stat-chip-rank { width: 34px; height: 34px; border-radius: 8px; background: var(--mythi-chip-bg); color: var(--bs-emphasis-color); font-weight:700; margin-right:6px; }
 }
 
 /* rank visible only on xs via bootstrap d-sm-none class; .stat-chip-rank styling above */
+/* Inherited a white foreground, so it vanished on the light theme. */
+.item-pop-pct {
+  color: var(--bs-emphasis-color);
+}

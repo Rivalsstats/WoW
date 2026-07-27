@@ -191,7 +191,7 @@
   </script>
 </head>
 
-<body class="g-sidenav-show g-sidenav-show-right" data-bs-theme="dark">
+<body class="g-sidenav-show g-sidenav-show-right">
   {% include "sidenav.html" %}
   <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg items-browse item-page">
     {% include "navbar.html" %}
@@ -234,7 +234,7 @@
                 <div id="item-scope-note" class="text-xs opacity-7 mt-1"></div>
               </div>
             </div>
-            <div class="d-none d-md-flex bg-dark bg-opacity-50 border border-secondary rounded shadow-sm">
+            <div class="d-none d-md-flex bg-body-tertiary border border-secondary rounded shadow-sm">
               <div id="item-runs-box" class="text-center p-3 border-end border-secondary"
                 title="{% if g.slot_runs %}{{ '{:,}'.format(g.total_runs) }} of {{ '{:,}'.format(g.slot_runs) }} runs with a {{ item.slot }} item ({{ g.adoption }}%){% else %}{{ '{:,}'.format(g.total_runs) }} runs{% endif %}">
                 <span class="d-block text-xs text-uppercase text-secondary font-weight-bolder">Total Runs</span>

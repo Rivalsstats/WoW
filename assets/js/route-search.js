@@ -39,7 +39,7 @@ function renderNoRoutes(accordion) {
   const kept = hint.specs.map(String);
   const dropped = chosen.filter((s) => !kept.includes(s));
   const wrap = document.createElement("div");
-  wrap.className = "alert alert-secondary text-white text-sm";
+  wrap.className = "alert alert-secondary text-sm";
   wrap.innerHTML = `
     <p class="mb-2">No route has been recorded with all ${chosen.length} of these specs.</p>
     <p class="mb-2">Searching without
@@ -104,18 +104,18 @@ function renderMatches(routes, append = false) {
 
     const leftCol = document.createElement("div");
     leftCol.className = "col-12 col-sm-4 text-start";
-    leftCol.innerHTML = `<span class="badge bg-dark bg-opacity-50 text-white rounded px-2 mx-1">${englishName}</span>
-                         <span class="badge bg-dark bg-opacity-50 text-success rounded px-2 mx-1">+${r.level}</span>`;
+    leftCol.innerHTML = `<span class="badge bg-secondary text-white rounded px-2 mx-1">${englishName}</span>
+                         <span class="badge bg-success text-dark rounded px-2 mx-1">+${r.level}</span>`;
 
     const centerCol = document.createElement("div");
     centerCol.className = "col-12 col-sm-4 text-center";
     const durationspan = document.createElement("span");
     durationspan.className =
-      "badge bg-dark bg-opacity-50 text-white rounded px-2 mx-2";
+      "badge bg-secondary text-white rounded px-2 mx-2";
     durationspan.textContent = formatDuration(r.duration);
     const timestampspan = document.createElement("span");
     timestampspan.className =
-      "timestamp badge bg-dark bg-opacity-50 text-white rounded px-2 mx-2";
+      "timestamp badge bg-secondary text-white rounded px-2 mx-2";
     timestampspan.setAttribute(
       "title",
       new Date(Number(r.timestamp) * 1000).toLocaleString()

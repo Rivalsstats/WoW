@@ -3,9 +3,9 @@
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   font-size: 0.78rem;
   line-height: 1.4;
-  background: rgba(0, 0, 0, 0.25);
-  color: #e8e8e8;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--mythi-surface-sunken);
+  color: var(--bs-body-color);
+  border: 1px solid var(--mythi-border-subtle);
   border-radius: 8px;
   padding: 0.6rem 0.75rem;
   /* no resize grip: the browser draws it in the bottom-right corner, on top of
@@ -61,9 +61,9 @@
      below it use (.an-gems margin-top) */
   margin-bottom: 0.9rem;
   padding: 0.85rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--mythi-border-subtle);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--mythi-chip-bg);
 }
 .an-summary-id {
   display: flex;
@@ -114,7 +114,7 @@
   font-size: 0.6rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #90a4ae;
+  color: var(--mythi-text-muted);
 }
 
 /* The score threshold classes live on the band and colour BOTH the ring arc and
@@ -149,7 +149,7 @@
   font-size: 1.55rem;
   font-weight: 800;
   line-height: 1;
-  color: var(--an-ring-color, #66bb6a);
+  color: var(--an-ring-text, var(--bs-emphasis-color));
 }
 
 .text-xxs { font-size: 0.6rem; }
@@ -190,7 +190,7 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #cfd8dc;
+  color: var(--bs-body-color);
   padding: 0 0.15rem;
 }
 
@@ -200,8 +200,8 @@
    item's modifiers, packed against the row's right edge. Only the left zone
    grows, so the modifiers hold their x down the whole column. */
 .an-tile {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--mythi-chip-bg);
+  border: 1px solid var(--mythi-border-subtle);
   border-left-width: 3px;
   border-radius: 8px;
   padding: 0.5rem 0.6rem;
@@ -218,7 +218,7 @@
 .an-tile.an-good { border-left-color: #66bb6a; }
 .an-tile.an-warn { border-left-color: #ffa726; background: rgba(255, 167, 38, 0.06); }
 .an-tile.an-bad  { border-left-color: #ef5350; background: rgba(239, 83, 80, 0.06); }
-.an-tile.an-none { border-left-color: rgba(255, 255, 255, 0.18); }
+.an-tile.an-none { border-left-color: var(--mythi-text-muted); }
 
 /* fixed-width left cell so the item icons line up down the column */
 .an-slot-label {
@@ -228,7 +228,7 @@
   line-height: 1.15;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #90a4ae;
+  color: var(--mythi-text-muted);
 }
 
 /* ITEM ZONE — worn item, the swap, and the owned-upgrade chip, packed left.
@@ -264,7 +264,7 @@
   box-sizing: border-box;
   width: 40px;
   height: 40px;
-  border: 2px solid rgba(255, 255, 255, 0.12);
+  border: 2px solid var(--mythi-border-subtle);
   border-radius: 6px;
   overflow: visible;
   flex: 0 0 auto;
@@ -292,7 +292,7 @@
    being told to go get it, a modifier is 24px. The swap target used to be 34px
    next to 28px gems, which made a whole item read as just another socket. */
 .an-arrow {
-  color: #90a4ae;
+  color: var(--mythi-text-muted);
   font-size: 1.25rem;
   flex: 0 0 auto;
 }
@@ -308,7 +308,7 @@
   font-size: 0.55rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #78909c;
+  color: var(--mythi-text-muted);
 }
 
 /* status glyph on the user's item */
@@ -341,7 +341,7 @@
   font-size: 0.7rem;
 }
 .bis-badge { background: #ffd100; color: #000; }
-.simc-badge { background: #3a8dde; color: #fff; }
+.simc-badge { background: #2a6fb0; color: #fff; }
 
 .item-icon-top-badge,
 .item-icon-sim-badge {
@@ -413,12 +413,12 @@
   gap: 0.3rem;
   padding: 0.25rem 0.35rem;
   border-radius: 6px;
-  background: rgba(77, 208, 225, 0.1);
+  background: var(--mythi-chip-bg);
   border: 1px solid rgba(77, 208, 225, 0.28);
   font-size: 0.58rem;
-  color: #b2ebf2;
+  color: var(--mythi-text-info);
 }
-.an-inbags .material-symbols-rounded { font-size: 0.8rem; color: #4dd0e1; }
+.an-inbags .material-symbols-rounded { font-size: 0.8rem; color: var(--mythi-text-info); }
 
 /* MODIFIER ZONE — enchant then gems, packed hard against the row's right edge.
    Nothing is reserved per icon: whatever a slot has is glued to the same hard
@@ -472,9 +472,9 @@
 .an-gems {
   margin-top: 0.9rem;
   padding: 0.75rem 0.85rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--mythi-border-subtle);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--mythi-chip-bg);
 }
 .an-gems-head {
   display: flex;
@@ -486,7 +486,7 @@
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.06em;
-  color: #cfd8dc;
+  color: var(--bs-body-color);
 }
 .an-gems-row {
   display: flex;
@@ -544,6 +544,6 @@
   border-radius: 5px;
   background: rgba(0, 0, 0, 0.85);
   color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.45);
+  border: 1px solid var(--mythi-border-strong);
   pointer-events: none;
 }

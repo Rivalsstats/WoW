@@ -15,12 +15,12 @@
   transform: scale(1.1);
 }
 .comp-result {
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid var(--mythi-border-subtle);
   padding: 10px 0;
 }
 .flex-score {
   font-weight: bold;
-  color: #e91e63;
+  color: var(--mythi-text-primary);
 }
 .synergy-box {
   width: 25px;
@@ -87,8 +87,8 @@
   width: 30px;
   height: 30px;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--mythi-border-subtle);
+  background: var(--mythi-chip-bg);
   transition: opacity 0.15s ease, box-shadow 0.15s ease;
 }
 .buff-chip img {
@@ -119,6 +119,8 @@
   flex-wrap: wrap;
   gap: 0.25rem;
 }
+/* The badge text is a pale tint that only reads on a dark chip, so the
+   foreground flips to a deep shade in light mode; the tinted fills work in both. */
 .buff-gain-badge {
   display: inline-block;
   font-size: 0.65rem;
@@ -135,4 +137,12 @@
   color: #ffe082;
   border-color: rgba(255, 193, 7, 0.45);
   font-weight: 600;
+}
+[data-bs-theme="light"] .buff-gain-badge {
+  color: #1b5e20;
+  border-color: rgba(76, 175, 80, 0.55);
+}
+[data-bs-theme="light"] .buff-gain-badge--critical {
+  color: #6d4c00;
+  border-color: rgba(255, 193, 7, 0.65);
 }

@@ -101,7 +101,7 @@
   </script>
 </head>
 
-<body class="g-sidenav-show g-sidenav-show-right" data-bs-theme="dark">
+<body class="g-sidenav-show g-sidenav-show-right">
 
   {% include "sidenav.html" %}
   <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
@@ -256,24 +256,24 @@
                   <!-- content wrapper: padding applied here so the button bg covers full area -->
                   <div class="w-100 row w-100 gx-2 align-items-center py-3 px-4">
                     <div class="col-12 col-sm-4 text-start">
-                      <span class="badge bg-dark bg-opacity-50 text-white rounded px-2 mx-1">
+                      <span class="badge bg-secondary text-white rounded px-2 mx-1">
                         {{ dungeon['name']['en_US'] }}
                       </span>
-                      <span class="badge bg-dark bg-opacity-50 text-success rounded px-2 mx-1">
+                      <span class="badge bg-success text-dark rounded px-2 mx-1">
                         +{{ r.level }}
                       </span>
                       {% if r.usage_count and r.usage_count > 1 %}
-                      <span class="badge bg-dark bg-opacity-50 text-white rounded px-2 mx-1" data-bs-toggle="tooltip" title="Route usage count">
+                      <span class="badge bg-secondary text-white rounded px-2 mx-1" data-bs-toggle="tooltip" title="Route usage count">
                         {{ r.usage_count }} Uses
                       </span>
                       {% endif %}
                     </div>
 
                     <div class="col-12 col-sm-4 text-center">
-                      <span class="badge bg-dark bg-opacity-50 text-white rounded px-2 mx-2">
+                      <span class="badge bg-secondary text-white rounded px-2 mx-2">
                         {{ r.duration|duration }}
                       </span>
-                      <span class="timestamp badge bg-dark bg-opacity-50 text-white rounded px-2 mx-2"
+                      <span class="timestamp badge bg-secondary text-white rounded px-2 mx-2"
                         data-bs-toggle="tooltip" data-bs-placement="top" data-timestamp={{r.timestamp|int}}></span>
                     </div>
 

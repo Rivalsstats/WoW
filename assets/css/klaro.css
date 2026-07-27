@@ -742,3 +742,59 @@ to create a white background.
 #klaro-cookie-notice{
   z-index: 9999999 !important;
 }
+
+/* ---------- MythiStone contrast fixes ----------
+   The consent modal and notice always render on Klaro's dark --dark1 (#333)
+   surface, in both site themes. Several of Klaro's own defaults are mid-greys
+   and a deep green that fail AA against it: the "powered by" link and the
+   required/opt-out tags were 1.9:1, the service links 3.3:1 and the purpose
+   descriptions 3.0:1. These lift the foregrounds only — the same tokens are
+   also used as button/border backgrounds, which are fine as-is, so we override
+   the specific text rules rather than redefining --dark2/--dark3/--green1. */
+.klaro .cookie-modal .cm-modal .cm-footer .cm-powered-by a,
+.klaro .cookie-modal .cm-modal .cm-body ul.cm-services li.cm-service span.cm-opt-out,
+.klaro .cookie-modal .cm-modal .cm-body ul.cm-services li.cm-service span.cm-required,
+.klaro .cookie-modal .cm-modal .cm-body ul.cm-services li.cm-purpose span.cm-opt-out,
+.klaro .cookie-modal .cm-modal .cm-body ul.cm-services li.cm-purpose span.cm-required,
+.klaro .cookie-modal .cm-modal .cm-body ul.cm-purposes li.cm-service span.cm-opt-out,
+.klaro .cookie-modal .cm-modal .cm-body ul.cm-purposes li.cm-service span.cm-required,
+.klaro .cookie-modal .cm-modal .cm-body ul.cm-purposes li.cm-purpose span.cm-opt-out,
+.klaro .cookie-modal .cm-modal .cm-body ul.cm-purposes li.cm-purpose span.cm-required {
+  color: #b0b0b0;
+}
+
+.klaro .cookie-modal .cm-list-description,
+.klaro .context-notice .cm-list-description,
+.klaro .cookie-notice .cm-list-description {
+  color: #b0b0b0;
+}
+
+.klaro .cookie-modal a,
+.klaro .context-notice a,
+.klaro .cookie-notice a {
+  color: #4fd1a5;
+}
+
+/* Material Dashboard styles every `label` with --bs-form-label-color (a light-theme
+   mid-grey). Klaro's service toggles are <label>s on its dark modal, so they
+   inherited grey-on-dark at 2.7:1. Pin them to the modal's own foreground. */
+.klaro .cookie-modal .cm-list-label,
+.klaro .context-notice .cm-list-label,
+.klaro .cookie-notice .cm-list-label,
+.klaro .cookie-modal .cm-list-title,
+.klaro .context-notice .cm-list-title,
+.klaro .cookie-notice .cm-list-title {
+  color: #fafafa;
+}
+
+/* White button text needed a slightly deeper fill to clear AA. */
+.klaro .cookie-modal .cm-btn.cm-btn-success,
+.klaro .context-notice .cm-btn.cm-btn-success,
+.klaro .cookie-notice .cm-btn.cm-btn-success {
+  background-color: #14795b;
+}
+.klaro .cookie-modal .cm-btn.cm-btn-info,
+.klaro .context-notice .cm-btn.cm-btn-info,
+.klaro .cookie-notice .cm-btn.cm-btn-info {
+  background-color: #1c6394;
+}

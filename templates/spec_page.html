@@ -13,7 +13,7 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 -->
 {% macro pct_color(pct) -%}
-{%- if pct < 10 -%}#9d9d9d{%- elif pct < 25 -%}#ffffff{%- elif pct < 50 -%}#1eff00{%- elif pct < 75 -%}#0070dd{%- elif pct < 95 -%}#a335ee{%- else -%}#ff8000{%- endif -%}
+{%- if pct < 10 -%}#9d9d9d{%- elif pct < 25 -%}var(--class-Priest){%- elif pct < 50 -%}var(--class-Monk){%- elif pct < 75 -%}#0070dd{%- elif pct < 95 -%}#a335ee{%- else -%}#ff8000{%- endif -%}
 {%- endmacro %}
 {% macro render_slot(entry, slot_count=0, is_button=false, slug="") -%}
 {# choose tag and base classes #}
@@ -169,7 +169,7 @@
         {%endif%}% </p>
         {% if entry.max_timed_key or entry.max_depleted_key %}
         <div class="mt-1 mb-1">
-          <span class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
+          <span class="badge py-1 px-2 max-key-badge"
             data-bs-toggle="tooltip"
             data-bs-placement="bottom" data-bs-html="true"
             title="{% if entry.max_timed_key %}Highest Timed: +{{ entry.max_timed_key }}{% endif %}{% if entry.max_timed_key and entry.max_depleted_key %}<br>{% endif %}{% if entry.max_depleted_key %}Highest Depleted: +{{ entry.max_depleted_key }}{% endif %}">
@@ -197,7 +197,7 @@
     <span class="stat-chip-rank d-inline-flex d-sm-none align-items-center justify-content-center">{{ loop.index }}</span>
     <img src="/assets/img/icons/stats/{{ stat|lower }}.svg" alt="{{ label }} icon" class="stat-chip-icon" />
     <div class="d-flex flex-column">
-      <div class="stat-chip-name" style="color: var(--stat-{{ stat|lower }}, var(--bs-gray-100));">{{ label }}</div>
+      <div class="stat-chip-name" style="color: var(--stat-{{ stat|lower }}, var(--bs-emphasis-color));">{{ label }}</div>
       <div class="stat-chip-value text-body-emphasis small">
         {% if pct is not none %}
           {% if pct > 0 and pct < 1 %}&lt;1%{% else %}{{ '%.1f' % pct }}%{% endif %}
@@ -258,7 +258,7 @@
             {% set spent = 0 %}
           {% endif %}
           {% set is_active = spent > 0 %}
-        <a href="https://www.wowhead.com/spell={{c.spellId}}" target="_blank" style="color: {% if is_active %}#fff{% else %}#777{% endif %}; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; font-size: 13px;">
+        <a href="https://www.wowhead.com/spell={{c.spellId}}" target="_blank" style="color: {% if is_active %}var(--bs-emphasis-color){% else %}var(--mythi-text-muted){% endif %}; text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; font-size: 13px;">
           <img src="/data/icons/{{c.icon}}.png" width="24" height="24" style="border-radius: 4px; filter: {% if is_active %}none{% else %}grayscale(100%){% endif %};" onerror="this.src='/data/icons/inv_misc_questionmark.png'">
           <span>{{c.name}}{% if c.maxRanks > 1 %} ({{ spent }}/{{ c.maxRanks }} points){% endif %}</span>
         </a>
@@ -268,9 +268,9 @@
     </div>
   {% endif %}
   {% if n.is_top %}<div class="tt-top-badge" data-bs-toggle="tooltip" title="{% if n.top_choice_name %}Top 50 {{ spec.name }} {{ class_info.name }} players pick {{ n.top_choice_name }}: {{ '{:.0f}'.format(n.top_pct_val) }}% vs {{ '{:.0f}'.format(n.top_choice_pct_val) }}% of the general population.{% else %}Used by {{ '{:.0f}'.format(n.top_pct_val) }}% of the top 50 {{ spec.name }} {{ class_info.name }} players vs {{ '{:.0f}'.format(n.pct_val) }}% of the general population.{% endif %}">TOP</div>{% endif %}
-  {% if not n.isFreeNode %}<div class="tt-badge" style="position: absolute; left: auto; bottom: -8px; right: -8px; transform: none; white-space: nowrap; background: #000; color: #fff; font-size: 10px; padding: 1px 4px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; z-index: 5;" title="{{ '{:.1f}'.format(n.pct_val) }}%">{{n.pct_val | round | int}}%</div>{% endif %}
+  {% if not n.isFreeNode %}<div class="tt-badge" style="position: absolute; left: auto; bottom: -8px; right: -8px; transform: none; white-space: nowrap; background: var(--mythi-overlay-bg); color: var(--mythi-overlay-color); font-size: 10px; padding: 1px 4px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; z-index: 5;" title="{{ '{:.1f}'.format(n.pct_val) }}%">{{n.pct_val | round | int}}%</div>{% endif %}
   {% if n.maxRanks > 1 %}
-    <div class="tt-maxrank" style="position: absolute; top: -6px; right: -6px; background: #333; border: 1px solid #777; color: #fff; font-size: 10px; padding: 0px 3px; border-radius: 3px; z-index: 5; cursor: default;" title="Average points spent: {{ n.avgRank | round(2) }}/{{ n.maxRanks }}">
+    <div class="tt-maxrank" style="position: absolute; top: -6px; right: -6px; background: var(--mythi-surface-raised); border: 1px solid var(--mythi-border-strong); color: var(--bs-emphasis-color); font-size: 10px; padding: 0px 3px; border-radius: 3px; z-index: 5; cursor: default;" title="Average points spent: {{ n.avgRank | round(2) }}/{{ n.maxRanks }}">
       {{ n.avgRank | round | int }}
     </div>
   {% endif %}
@@ -288,7 +288,7 @@
       </div>
       <div class="arrow-right"></div>
       {% if n.is_top %}<div class="tt-top-badge" data-bs-toggle="tooltip" title="{% if n.top_choice_name %}Top 50 {{ spec.name }} {{ class_info.name }} players pick {{ n.top_choice_name }}: {{ '{:.0f}'.format(n.top_pct_val) }}% vs {{ '{:.0f}'.format(n.top_choice_pct_val) }}% of the general population.{% else %}Used by {{ '{:.0f}'.format(n.top_pct_val) }}% of the top 50 {{ spec.name }} {{ class_info.name }} players vs {{ '{:.0f}'.format(n.pct_val) }}% of the general population.{% endif %}">TOP</div>{% endif %}
-      <div class="text-center mt-1" style="background: #000; color: #fff; font-size: 11px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; padding: 1px 4px; position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); white-space: nowrap;" title="{{ '{:.1f}'.format(n.pct_val) }}%">{{n.pct_val | round | int}}%</div>
+      <div class="text-center mt-1" style="background: var(--mythi-overlay-bg); color: var(--mythi-overlay-color); font-size: 11px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; padding: 1px 4px; position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); white-space: nowrap;" title="{{ '{:.1f}'.format(n.pct_val) }}%">{{n.pct_val | round | int}}%</div>
       <div class="tt-custom-tooltip" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px; white-space: nowrap; z-index: 1050; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 5px;">
         {% for c in n.choices %}
         <a href="https://www.wowhead.com/spell={{c.spellId}}" class="tt-choice-row{% if c.is_top %} is-top{% endif %}" target="_blank">
@@ -434,7 +434,7 @@
   </style>
 </head>
 
-<body class="g-sidenav-show g-sidenav-show-right" data-bs-theme="dark">
+<body class="g-sidenav-show g-sidenav-show-right">
 
   {% include "sidenav.html" %}
 
@@ -461,7 +461,7 @@
                 <div class="d-flex justify-content-between align-items-start">
                   <div>
                     <p class="text-sm mb-0 text-capitalize">Spec Popularity</p>
-                    <div class="text-xs text-secondary mt-1">Overall Played: <span class="text-white">{{ ((summary_data.count / (total_season_runs if total_season_runs else 1)) * 100) | round(1) }}%</span></div>
+                    <div class="text-xs text-secondary mt-1">Overall Played: <span class="text-body-emphasis">{{ ((summary_data.count / (total_season_runs if total_season_runs else 1)) * 100) | round(1) }}%</span></div>
                   </div>
                   <div class="d-flex align-items-center">
                     <button id="resetZoomBtnSpec" class="btn btn-sm btn-outline-light me-2 mb-0" style="display: none;">Reset Zoom</button>
@@ -617,7 +617,7 @@
                     <div class="position-relative d-inline-block mt-2 tt-hero-switch{% if hero_variants | length > 1 %} tt-hero-switch-active{% endif %}"
                       {% if hero_variants | length > 1 %}role="button" tabindex="0" title="Click to switch hero tree"{% endif %}>
                       <img src="/data/icons/{{ v.icon }}.png" alt="{{ v.name }}" style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid #ffb000; box-shadow: 0 0 15px rgba(255, 176, 0, 0.4);" onerror="this.src='/data/icons/inv_misc_questionmark.png'">
-                      <div style="position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); background: #000; color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; border: 1px solid #ffb000; white-space: nowrap;" title="{{ '{:.1f}'.format(v.pct) }}%">
+                      <div style="position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); background: var(--mythi-overlay-bg); color: var(--mythi-overlay-color); padding: 2px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; border: 1px solid #ffb000; white-space: nowrap;" title="{{ '{:.1f}'.format(v.pct) }}%">
                         {{ v.pct | round | int }}%
                       </div>
                       {% if hero_variants | length > 1 %}
@@ -1059,7 +1059,7 @@
                                               {% if ench.max_timed_key or ench.max_depleted_key %}
                                               <div class="mt-1 mb-1">
                                                 <span
-                                                  class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
+                                                  class="badge py-1 px-2 max-key-badge"
                                                                                                     data-bs-toggle="tooltip" data-bs-placement="bottom"
                                                   data-bs-html="true"
                                                   title="{% if ench.max_timed_key %}Highest Timed: +{{ ench.max_timed_key }}{% endif %}{% if ench.max_timed_key and ench.max_depleted_key %}<br>{% endif %}{% if ench.max_depleted_key %}Highest Depleted: +{{ ench.max_depleted_key }}{% endif %}">
@@ -1189,7 +1189,7 @@
                                       total_socket_count * 100) }} {%else%} 100 {%endif%}% </p>
                                       {% if s.max_timed_key or s.max_depleted_key %}
                                       <div class="mt-1 mb-1">
-                                        <span class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
+                                        <span class="badge py-1 px-2 max-key-badge"
                                                                                     data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
                                           title="{% if s.max_timed_key %}Highest Timed: +{{ s.max_timed_key }}{% endif %}{% if s.max_timed_key and s.max_depleted_key %}<br>{% endif %}{% if s.max_depleted_key %}Highest Depleted: +{{ s.max_depleted_key }}{% endif %}">
                                           {% if s.max_timed_key %}
@@ -1294,7 +1294,7 @@
                                       total_embellishment_count * 100) }} {%else%} 100 {%endif%}% </p>
                                       {% if pair[2] or pair[3] %}
                                       <div class="mt-1 mb-1">
-                                        <span class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
+                                        <span class="badge py-1 px-2 max-key-badge"
                                                                                     data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
                                           title="{% if pair[2] %}Highest Timed: +{{ pair[2] }}{% endif %}{% if pair[2] and pair[3] %}<br>{% endif %}{% if pair[3] %}Highest Depleted: +{{ pair[3] }}{% endif %}">
                                           {% if pair[2] %}
@@ -1392,7 +1392,7 @@
                                         total_missive_count * 100) }} {%else%} 100 {%endif%}% </p>
                                         {% if pair[2] or pair[3] %}
                                         <div class="mt-1 mb-1">
-                                          <span class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
+                                          <span class="badge py-1 px-2 max-key-badge"
                                                                                         data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
                                             title="{% if pair[2] %}Highest Timed: +{{ pair[2] }}{% endif %}{% if pair[2] and pair[3] %}<br>{% endif %}{% if pair[3] %}Highest Depleted: +{{ pair[3] }}{% endif %}">
                                             {% if pair[2] %}
@@ -1487,7 +1487,7 @@
                                       total_crafted_items * 100) }} {%else%} 100 {%endif%}% {%else%} 0% {%endif%} </p>
                                       {% if pair[2] or pair[3] %}
                                       <div class="mt-1 mb-1">
-                                        <span class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
+                                        <span class="badge py-1 px-2 max-key-badge"
                                                                                     data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
                                           title="{% if pair[2] %}Highest Timed: +{{ pair[2] }}{% endif %}{% if pair[2] and pair[3] %}<br>{% endif %}{% if pair[3] %}Highest Depleted: +{{ pair[3] }}{% endif %}">
                                           {% if pair[2] %}
@@ -1562,7 +1562,7 @@
                                       total_tier_set_comps * 100) }} {%else%} 100 {%endif%}% {%else%} 0% {%endif%} </p>
                                       {% if comp.max_timed or comp.max_depleted %}
                                       <div class="mt-1 mb-1">
-                                        <span class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
+                                        <span class="badge py-1 px-2 max-key-badge"
                                                                                     data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
                                           title="{% if comp.max_timed %}Highest Timed: +{{ comp.max_timed }}{% endif %}{% if comp.max_timed and comp.max_depleted %}<br>{% endif %}{% if comp.max_depleted %}Highest Depleted: +{{ comp.max_depleted }}{% endif %}">
                                           {% if comp.max_timed %}
@@ -1653,7 +1653,7 @@
                                       {%endif%} </p>
                                       {% if comp.max_timed or comp.max_depleted %}
                                       <div class="mt-1 mb-1">
-                                        <span class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
+                                        <span class="badge py-1 px-2 max-key-badge"
                                                                                     data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
                                           title="{% if comp.max_timed %}Highest Timed: +{{ comp.max_timed }}{% endif %}{% if comp.max_timed and comp.max_depleted %}<br>{% endif %}{% if comp.max_depleted %}Highest Depleted: +{{ comp.max_depleted }}{% endif %}">
                                           {% if comp.max_timed %}
@@ -1727,7 +1727,7 @@
                                       total_crafted_comps * 100) }} {%else%} 100 {%endif%}% {%else%} 0% {%endif%} </p>
                                       {% if comp.max_timed or comp.max_depleted %}
                                       <div class="mt-1 mb-1">
-                                        <span class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
+                                        <span class="badge py-1 px-2 max-key-badge"
                                                                                     data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
                                           title="{% if comp.max_timed %}Highest Timed: +{{ comp.max_timed }}{% endif %}{% if comp.max_timed and comp.max_depleted %}<br>{% endif %}{% if comp.max_depleted %}Highest Depleted: +{{ comp.max_depleted }}{% endif %}">
                                           {% if comp.max_timed %}
@@ -1810,7 +1810,7 @@
                                       total_gem_comps * 100) }} {%else%} 100 {%endif%}% {%else%} 0% {%endif%} </p>
                                       {% if comp.max_timed or comp.max_depleted %}
                                       <div class="mt-1 mb-1">
-                                        <span class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
+                                        <span class="badge py-1 px-2 max-key-badge"
                                                                                     data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
                                           title="{% if comp.max_timed %}Highest Timed: +{{ comp.max_timed }}{% endif %}{% if comp.max_timed and comp.max_depleted %}<br>{% endif %}{% if comp.max_depleted %}Highest Depleted: +{{ comp.max_depleted }}{% endif %}">
                                           {% if comp.max_timed %}
@@ -1889,7 +1889,7 @@
                                       total_enchant_comps * 100) }} {%else%} 100 {%endif%}% {%else%} 0% {%endif%} </p>
                                       {% if comp.max_timed or comp.max_depleted %}
                                       <div class="mt-1 mb-1">
-                                        <span class="badge border border-white text-white bg-transparent py-1 px-2 max-key-badge"
+                                        <span class="badge py-1 px-2 max-key-badge"
                                                                                     data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
                                           title="{% if comp.max_timed %}Highest Timed: +{{ comp.max_timed }}{% endif %}{% if comp.max_timed and comp.max_depleted %}<br>{% endif %}{% if comp.max_depleted %}Highest Depleted: +{{ comp.max_depleted }}{% endif %}">
                                           {% if comp.max_timed %}
@@ -1945,7 +1945,7 @@
                           background-repeat: no-repeat;
                           background-blend-mode: overlay;
                         ">
-                  <span class="badge bg-dark bg-opacity-50 rounded px-2">{{
+                  <span class="badge bg-secondary text-white rounded px-2">{{
                     dungeon_lookup[dungeon].name['en_US'] }}</span>
                 </button>
               </h2>
@@ -2153,7 +2153,7 @@
                             background-blend-mode: overlay;
                           ">
                   <div class="flex-fill text-start" style="min-width: 0;">
-                    <span class="badge bg-dark bg-opacity-50 rounded px-2 text-wrap">{{
+                    <span class="badge bg-secondary text-white rounded px-2 text-wrap">{{
                       dungeon_lookup[ds|string].name['en_US'] }}</span>
                     {% set info = top_routes[ds|string].duration|
                     upgrade_info(dungeon_lookup[ds|string].keystone_upgrades,
@@ -2163,10 +2163,10 @@
                     </span>
                   </div>
                   <div class="flex-fill text-center p-2">
-                    <span class="badge bg-dark bg-opacity-50 rounded px-2 mr-1">
+                    <span class="badge bg-secondary text-white rounded px-2 mr-1">
                       {{ top_routes[ds|string].duration|duration }}
                     </span>
-                    <span class="timestamp badge bg-dark bg-opacity-50 rounded px-2 ml-1" data-bs-toggle="tooltip"
+                    <span class="timestamp badge bg-secondary text-white rounded px-2 ml-1" data-bs-toggle="tooltip"
                       data-bs-placement="top" data-timestamp={{top_routes[ds|string].timestamp|int}}></span>
                   </div>
                   <div class="flex-fill text-end">
@@ -2320,17 +2320,17 @@
           scales: {
             x: {
               stacked: true,
-              ticks: { color: '#fff', autoSkip: true, maxRotation: 0, minRotation: 0, maxTicksLimit: 12, font: { size: 11 } },
+              ticks: { color: MythiChart.colors.tickText, autoSkip: true, maxRotation: 0, minRotation: 0, maxTicksLimit: 12, font: { size: 11 } },
               grid: { display: false }
             },
             y: {
               stacked: true,
-              ticks: { color: '#fff', beginAtZero: true, font: { size: 11 } },
-              grid: { color: '#333' }
+              ticks: { color: MythiChart.colors.tickText, beginAtZero: true, font: { size: 11 } },
+              grid: { color: MythiChart.colors.grid }
             }
           },
           plugins: {
-            legend: { labels: { color: '#fff' } },
+            legend: { labels: { color: MythiChart.colors.tickText } },
             tooltip: { mode: 'index', intersect: false },
             datalabels: { display: false },
             zoom: {

@@ -118,7 +118,7 @@
     line-height: 1.15;
     padding: 3px 0 0;
     margin: 0;
-    color: var(--bs-gray-300, #cfd2d6);
+    color: var(--bs-body-color);
     display: block;
     overflow: visible;
     text-overflow: clip;
@@ -160,7 +160,7 @@
 
 .tier-count-small {
   font-size: 0.85rem;
-  color: var(--bs-gray-400, #9aa0a6);
+  color: var(--mythi-text-muted);
 }
 
 .tier-S {
@@ -235,7 +235,7 @@
   bottom: 10px;
   width: 44px;
   height: 44px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--mythi-chip-bg);
   border-radius: 50%;
   padding: 4px;
   overflow: hidden;
@@ -258,7 +258,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #e9ecef;
+  color: var(--bs-body-color);
   background: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0.04),
@@ -334,7 +334,7 @@
 
 .spec-tile .dungeon-tile-title small {
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--bs-body-color);
 }
 
 @media (max-width: 768px) {

@@ -128,7 +128,7 @@
   vertical-align: middle;
 }
 .dash-rank-num {
-  color: var(--bs-gray-500, #6c757d);
+  color: var(--mythi-text-muted);
   width: 1.6rem;
   text-align: right;
   font-variant-numeric: tabular-nums;
@@ -152,7 +152,7 @@
 .dash-rank-bar {
   height: 6px;
   border-radius: 3px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--mythi-surface-sunken);
   overflow: hidden;
   margin-top: 3px;
 }
@@ -162,26 +162,45 @@
   border-radius: 3px;
 }
 
-/* ---------- DataTables Responsive: dark-theme child rows ---------- */
-/* The expand/collapse control is a border-drawn caret. The bundled CSS only
-   whitens it when data-bs-theme is on <html>, but this site sets it on <body>,
-   so force the caret white here. Collapsed = right caret (border-left),
-   expanded = down caret (border-top). */
+/* ---------- DataTables Responsive: child rows ---------- */
+/* The expand/collapse control is a border-drawn caret. The bundled CSS picks its
+   color from its own theme rules, which didn't reliably match this site, so pin it
+   to the body text color — correct in both themes. Collapsed = right caret
+   (border-left), expanded = down caret (border-top). */
 table.dataTable > tbody > tr > td.dtr-control:before {
-  border-left-color: #fff !important;
+  border-left-color: var(--bs-body-color) !important;
 }
 table.dataTable > tbody > tr.dtr-expanded > td.dtr-control:before {
-  border-top-color: #fff !important;
+  border-top-color: var(--bs-body-color) !important;
   border-left-color: transparent !important;
 }
 ul.dtr-details {
   width: 100%;
 }
 ul.dtr-details > li {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--mythi-border-subtle);
   padding: 0.35rem 0;
 }
 .dtr-details .dtr-title {
   min-width: 8rem;
-  color: var(--bs-gray-400, #9aa0a6);
+  color: var(--mythi-text-muted);
+}
+
+/* ---------- bootstrap-select ---------- */
+/* The vendored theme hardcodes a #999 value/placeholder, which is 2.9:1 on the
+   light page and only slightly better on dark. Follow the body text instead. */
+.bootstrap-select > .dropdown-toggle .filter-option-inner-inner {
+  color: var(--bs-body-color);
+}
+.bootstrap-select > .dropdown-toggle.bs-placeholder .filter-option-inner-inner {
+  color: var(--mythi-text-muted);
+}
+
+/* bootstrap-select keeps the original <select> in the layout (clipped, not
+   display:none). Its options inherited a hardcoded light-on-light color, which
+   only shows if the plugin fails to initialise — follow the theme regardless. */
+select.selectpicker,
+select.selectpicker option {
+  color: var(--bs-body-color);
+  background-color: var(--bs-body-bg);
 }

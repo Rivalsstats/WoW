@@ -56,8 +56,17 @@
     .tier-D { background: #9d9d9d33; color: #b8b8b8; border: 1px solid #9d9d9d; }
     .tier-F { background: #ff414133; color: #ff7b7b; border: 1px solid #ff4141; }
 
+    /* The tier foregrounds above are pale tints that only read on a dark page;
+       on the light theme they sit on a near-white tint at ~2:1. Deepen them. */
+    [data-bs-theme="light"] .tier-S { color: #8a3f00; }
+    [data-bs-theme="light"] .tier-A { color: #6b1f9e; }
+    [data-bs-theme="light"] .tier-B { color: #00478f; }
+    [data-bs-theme="light"] .tier-C { color: #1b6b28; }
+    [data-bs-theme="light"] .tier-D { color: #4a4a4a; }
+    [data-bs-theme="light"] .tier-F { color: #a01c1c; }
+
     .dps-bar-track {
-      background: rgba(255, 255, 255, 0.08);
+      background: var(--mythi-border-subtle);
       border-radius: 0.35rem;
       height: 0.85rem;
       overflow: hidden;
@@ -74,7 +83,7 @@
 
     .gear-label {
       min-width: 4.2rem;
-      color: rgba(255, 255, 255, 0.55);
+      color: var(--mythi-text-muted);
       text-transform: uppercase;
       letter-spacing: 0.02em;
     }
@@ -84,7 +93,7 @@
       font-variant-numeric: tabular-nums;
     }
 
-    .tierlist-row:hover { background: rgba(255, 255, 255, 0.04); }
+    .tierlist-row:hover { background: var(--mythi-chip-bg); }
 
     /* mobile list (d-lg-none) tweaks */
     .min-width-0 { min-width: 0; }
@@ -115,7 +124,7 @@
   </style>
 </head>
 
-<body class="g-sidenav-show g-sidenav-show-right" data-bs-theme="dark">
+<body class="g-sidenav-show g-sidenav-show-right">
   {% include "sidenav.html" %}
   <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
     {% include "navbar.html" %}
