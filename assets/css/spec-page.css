@@ -334,6 +334,87 @@
   .tt-hero .tt-hero-choice-inner { width: 40px !important; height: 40px !important; }
 }
 
+/* Per-dungeon talent swaps ("take here" / "drop here"). Flat rows rather than
+   accordions: each side holds a handful of entries, so an expander only ever
+   hid what the reader came for behind a click. The container is a plain page
+   card so it reads as part of the page rather than a widget bolted onto it --
+   take/drop is carried by the heading and the percentages, not by chrome. */
+.tt-swap-section-title,
+.tt-swap-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mythi-text-muted);
+  margin-bottom: 0.5rem;
+}
+.tt-swap-section-title {
+  text-align: center;
+}
+/* Hairline panel on the modal's own surface, matching the page's card radius.
+   Bootstrap's .card is not reused here: its border colour is hardcoded light,
+   which reads as a bright outline on the dark theme. */
+.tt-swap-card {
+  height: 100%;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--mythi-border-subtle);
+  border-radius: 0.5rem;
+}
+.tt-swap-take .tt-swap-title { color: var(--mythi-text-success); }
+.tt-swap-drop .tt-swap-title { color: var(--mythi-text-danger); }
+.tt-swap-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+  color: inherit;
+  text-decoration: none;
+}
+.tt-swap-row img {
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+.tt-swap-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  color: var(--bs-emphasis-color);
+}
+.tt-swap-flag {
+  flex-shrink: 0;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 0.2em 0.5em;
+}
+.tt-swap-flag-take { background: rgba(76, 175, 80, 0.16); color: var(--mythi-text-success); }
+.tt-swap-flag-drop { background: rgba(229, 72, 77, 0.16); color: var(--mythi-text-danger); }
+.tt-swap-pct {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.tt-swap-pct-from,
+.tt-swap-arrow { color: var(--mythi-text-muted); }
+.tt-swap-take .tt-swap-pct-to { color: var(--mythi-text-success); font-weight: 600; }
+.tt-swap-drop .tt-swap-pct-to { color: var(--mythi-text-danger); font-weight: 600; }
+
+/* Per-dungeon talent tree in the Talent Differences modal. It is a clone of the
+   page tree dropped into a dialog that is narrower than the page column, so the
+   nodes shrink the same way the small-screen rules above do (the tree keeps its
+   %-based node centers, only the icon footprint changes). */
+.dungeon-tree-mount .tt-node { width: 34px; height: 34px; }
+.dungeon-tree-mount .tt-node img { width: 26px; height: 26px; }
+.dungeon-tree-mount .tt-badge,
+.dungeon-tree-mount .tt-maxrank { font-size: 9px; }
+.dungeon-tree-mount .talent-tree-wrapper { gap: 1rem !important; }
+.dungeon-tree-mount .tt-hero-switch { cursor: default; }
+
 /* Hero-tree switcher: the hero icon doubles as a button to cycle the talent
    overview between hero trees. The swap badge + label hint at the affordance. */
 .tt-hero-switch-active {

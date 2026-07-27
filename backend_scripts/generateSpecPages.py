@@ -60,26 +60,32 @@ GEAR_LIST_MIN_KEEP = 3
 TALENT_ELITE_MIN_PCT = 50.0      # top-50 usage must be at least this high
 TALENT_DIVERGENCE_DELTA = 20.0   # ...and exceed general popularity by this many points
 
-# "TOP" highlight in the per-dungeon Talent Differences modal. That modal surfaces
-# niche, dungeon-specific talents (e.g. a curse dispel only taken in a curse
-# dungeon) which have low OVERALL usage, so the tree's divergence metric never
-# flags them. Instead we badge a talent there when a majority of the top-50
-# players took it IN THAT DUNGEON (per-dungeon adoption).
-TALENT_DUNGEON_ELITE_MIN_PCT = 50.0
-
 # Minimum top-50 usage share (%) for an item/gem/enchant/missive/embellishment or
 # a combo to earn the gold "TOP" badge. Shared by the gear-slot BIS annotations
 # and the combo/detail sections so every TOP badge on the page means the same
 # thing: the top-50 players run it in more than this share of their loadouts.
 BIS_PCT_THRESHOLD = 80.0
 
-# Ranking blend for the Talent Differences modal: the score that decides which
-# talents surface as the biggest per-dungeon gains/losses mixes the general
-# population's relative change with the top-50 players' relative change. Top
-# selections are weighted more heavily so the modal reflects what the best
-# players actually swap per dungeon. Must sum to 1.0.
-TALENT_DIFF_TOP_WEIGHT = 0.7
-TALENT_DIFF_NORMAL_WEIGHT = 0.3
+# Talent Differences modal (per-dungeon talent swaps). It reads ONLY the top-50
+# verified loadouts: each of those is a complete build tied to one dungeon, so a
+# talent's per-dungeon share is a true adoption rate. The general-population
+# aggregation is sampled per run and its per-dungeon slices are too noisy to
+# tell a real dungeon swap from collection noise, which is why it is not mixed
+# in here.
+#
+# Everything below is a noise gate. The modal shows a dungeon's swaps only when
+# they clear these, and renders nothing at all rather than an empty shell: a
+# heading over "no data" is worse than no heading.
+TALENT_DIFF_MIN_DUNGEON_LOADOUTS = 5   # loadouts before a dungeon is listed
+TALENT_DIFF_MIN_PCT_POINTS = 10.0      # a talent must move this much to show
+TALENT_DIFF_TOP_N = 4                  # rows per side (take / drop)
+# Called out as an outright recommendation only where the adoption rate decides
+# it on its own: most of the dungeon's top loadouts take it, or almost none do.
+TALENT_DIFF_RECOMMEND_MIN_PCT = 50.0
+TALENT_DIFF_DROP_MAX_PCT = 20.0
+# Hero-tree preference shifts per dungeon: a couple of tenths of a percent is
+# not a preference, so only shifts of this many points are worth a row.
+HERO_TREE_DIFF_MIN_PCT_POINTS = 5.0
 
 # Blizzard inventoryType -> display position matching the gear overview slot
 # order (LEFT_ORDER + RIGHT_ORDER + WEAPON_SLOTS + TRINKET_SLOTS, columns
@@ -1068,11 +1074,17 @@ def compute_bis_from_top_loadouts(
     missive_lookup=None,
     embellishment_lookup=None,
     crafted_item_ids=None,
+    hero_node_subtree=None,
 ):
     """Compute BIS summary from a list of top-player loadouts.
 
     Input: list of loadout dicts as returned by `databaseConnector.fetch_top50_loadouts`.
     Returns a dict with `items`, `enchants`, `gems`, `talents`, `full_loadout` summary.
+
+    With `hero_node_subtree` (hero node_id -> subTreeId) each loadout is also
+    assigned the hero tree most of its hero nodes belong to, which feeds
+    `hero_tree_loadout_counts` and `talent_dungeon_stats` (per hero tree, the
+    raw per-dungeon talent counts the Talent Differences modal is built from).
 
     When the optional lookups are supplied it additionally derives the top-50
     versions of the combo/detail sections (mirroring the DB aggregation logic so
@@ -1112,6 +1124,25 @@ def compute_bis_from_top_loadouts(
     talent_dungeon_counts = defaultdict(lambda: defaultdict(int))  # dungeon -> node_id -> count
     dungeon_loadout_totals = defaultdict(int)  # dungeon -> number of loadouts
     full_loadout_counts = defaultdict(int)
+
+    # Same counts split by the hero tree each loadout runs. A build's whole
+    # talent shape follows its hero tree, so per-dungeon deviations are only
+    # meaningful within one tree (comparing across trees mostly measures which
+    # tree happened to be sampled in that dungeon). `ranks` sums the points
+    # spent per node so multi-rank nodes can show an average.
+    def _new_dungeon_stats():
+        return {"total": 0, "nodes": defaultdict(int), "ranks": defaultdict(int)}
+
+    def _new_tree_stats():
+        return {
+            "total": 0,
+            "nodes": defaultdict(int),
+            "ranks": defaultdict(int),
+            "dungeons": defaultdict(_new_dungeon_stats),
+        }
+
+    tree_talent_stats = defaultdict(_new_tree_stats)  # subTreeId -> stats
+    hero_tree_loadout_counts = defaultdict(int)  # subTreeId -> loadouts
 
     for lo in top_loadouts:
         # meta loadout key
@@ -1153,10 +1184,14 @@ def compute_bis_from_top_loadouts(
         dungeon = meta.get("map_challenge_mode_id") if isinstance(meta, dict) else None
         if dungeon is not None:
             dungeon_loadout_totals[int(dungeon)] += 1
+        loadout_nodes = []
+        loadout_ranks = {}
         for t in lo.get("talents", []) or []:
             node = t.get("node_id") or t.get("id")
             if not node:
                 continue
+            loadout_nodes.append(int(node))
+            loadout_ranks[int(node)] = int(t.get("node_rank") or 1)
             talent_node_counts[int(node)] += 1
             if dungeon is not None:
                 talent_dungeon_counts[int(dungeon)][int(node)] += 1
@@ -1164,6 +1199,27 @@ def compute_bis_from_top_loadouts(
             spell_id = t.get("spell_id")
             if entry_id is not None or spell_id is not None:
                 talent_entry_counts[int(node)][(entry_id, spell_id)] += 1
+
+        # hero tree of this loadout: the subtree most of its hero nodes sit in
+        loadout_tree = None
+        if hero_node_subtree:
+            subtree_hits = defaultdict(int)
+            for node in loadout_nodes:
+                subtree = hero_node_subtree.get(node)
+                if subtree is not None:
+                    subtree_hits[subtree] += 1
+            if subtree_hits:
+                loadout_tree = max(subtree_hits.items(), key=lambda x: x[1])[0]
+        if loadout_tree is not None:
+            hero_tree_loadout_counts[loadout_tree] += 1
+            buckets = [tree_talent_stats[loadout_tree]]
+            if dungeon is not None:
+                buckets.append(tree_talent_stats[loadout_tree]["dungeons"][int(dungeon)])
+            for bucket in buckets:
+                bucket["total"] += 1
+                for node in loadout_nodes:
+                    bucket["nodes"][node] += 1
+                    bucket["ranks"][node] += loadout_ranks.get(node, 1)
 
     # Build summary
     def _top_n_from_countmap(countmap, n_top=3, total=n):
@@ -1232,16 +1288,26 @@ def compute_bis_from_top_loadouts(
         for nid, emap in talent_entry_counts.items()
     }
 
-    # Per-dungeon adoption: {dungeon_id(str): {node_id(int): pct}} where pct is
-    # the share of that dungeon's top-player loadouts that took the node.
-    talent_pct_by_dungeon = {}
-    for d, nodes in talent_dungeon_counts.items():
-        total = dungeon_loadout_totals.get(d, 0)
-        if total <= 0:
-            continue
-        talent_pct_by_dungeon[str(d)] = {
-            int(nid): (int(cnt) / total) * 100.0 for nid, cnt in nodes.items()
+    # Raw per-dungeon talent counts per hero tree, with their loadout
+    # denominators and points-spent sums. The Talent Differences modal derives
+    # both its per-dungeon gains/losses (via
+    # `aggregateData.dungeon_talent_deviations_from_top`) and its per-dungeon
+    # tree view from these; keeping counts rather than pcts lets the consumer
+    # apply a sample-size floor.
+    def _counts(bucket):
+        return {
+            "total": int(bucket["total"]),
+            "nodes": {int(nid): int(cnt) for nid, cnt in bucket["nodes"].items()},
+            "ranks": {int(nid): int(cnt) for nid, cnt in bucket["ranks"].items()},
         }
+
+    talent_dungeon_stats = {
+        int(tid): {
+            **_counts(s),
+            "dungeons": {str(d): _counts(ds) for d, ds in s["dungeons"].items()},
+        }
+        for tid, s in tree_talent_stats.items()
+    }
 
     # most common full loadout if present
     full_loadout_top = None
@@ -1358,7 +1424,10 @@ def compute_bis_from_top_loadouts(
         "talents": talents_summary,
         "talent_node_pct": talent_node_pct,
         "talent_node_entry_pct": talent_node_entry_pct,
-        "talent_pct_by_dungeon": talent_pct_by_dungeon,
+        "talent_dungeon_stats": talent_dungeon_stats,
+        "hero_tree_loadout_counts": {
+            int(tid): int(cnt) for tid, cnt in hero_tree_loadout_counts.items()
+        },
         "full_loadout": full_loadout_top,
         "crafted_items": _summarize(crafted_item_counts),
         "crafted_comps": _summarize(crafted_comp_counts),
@@ -1545,7 +1614,6 @@ def convert_slots(
     socket_lookup,
     enchant_slots,
     set_members,
-    spec_talents_difs=None,
     missives=None,
     embellishments=None,
     bis_summary=None,
@@ -1963,17 +2031,9 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 valid_talents = {int(tid) for tid in talent_lookup.get("talents", {})}
                 valid_subtrees = {int(tid) for tid in talent_lookup.get("subTrees", {})}
                 print(f"[{datetime.now(timezone.utc).isoformat()}] Fetching talents...")
-                # One fetch feeds both the overall and the per-hero-tree
-                # spec-talent breakdowns (they run the identical query).
                 spec_talent_rows = databaseConnector.fetch_spec_talents_differences(
                     conn, cursor, spec_id, current_season_id
                 )
-                # spec_talents_difs is still threaded into convert_slots below.
-                spec_talents_full = aggregateData.get_spec_talent_differences(
-                    conn, cursor, spec_id, current_season_id, valid_talents,
-                    rows=spec_talent_rows,
-                )
-                spec_talents_difs = aggregateData.biggest_deviations_per_dungeon(spec_talents_full)
                 # Per-hero-tree breakdowns so the talent overview can be shown
                 # relative to a single hero tree (toggleable on the page).
                 class_by_tree = aggregateData.get_class_talent_differences_by_hero_tree(
@@ -2175,7 +2235,13 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 loadouts = aggregateData.get_loadout(
                     conn, cursor, spec_id, current_season_id
                 )
-                # fetch top-50 verified loadouts (meta + items/gems/enchants/talents)
+                # Per-dungeon export strings for the Talent Differences modal's
+                # "copy full build" button.
+                dungeon_loadouts = aggregateData.get_loadout_per_dungeon(
+                    conn, cursor, spec_id, current_season_id
+                )
+                # Verified loadouts of the top 50 players (meta +
+                # items/gems/enchants/talents), one per dungeon each.
                 try:
                     top50_raw = databaseConnector.fetch_top50_loadouts(
                         conn, cursor, spec_id, current_season_id, limit=50
@@ -2183,6 +2249,15 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 except Exception as e:
                     print(f"Warning: fetch_top50_loadouts failed: {e}")
                     top50_raw = []
+
+                # hero node -> hero tree, so the loadouts can be split by the
+                # hero tree they run (per-tree per-dungeon talent deviations)
+                tree_nodes = tree_by_spec.get(int(spec_id), {})
+                hero_node_subtree = {
+                    int(hn["id"]): int(hn["subTreeId"])
+                    for hn in tree_nodes.get("heroNodes", [])
+                    if "id" in hn and hn.get("subTreeId") is not None
+                }
 
                 # Universe of crafted item ids for this spec (build-time stand-in
                 # for the DB crafted_item_ids registry): the item ids the general
@@ -2196,6 +2271,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     missive_lookup=missive_lookup,
                     embellishment_lookup=embellishment_lookup,
                     crafted_item_ids=crafted_item_id_set,
+                    hero_node_subtree=hero_node_subtree,
                 )
                 print(f"[{datetime.now(timezone.utc).isoformat()}] BIS summary from top loadouts: {bis_summary}")
 
@@ -2272,7 +2348,6 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     socket_lookup,
                     enchant_slots,
                     set_members,
-                    spec_talents_difs,
                     missives,
                     embellishments,
                     bis_summary=bis_summary,
@@ -2351,7 +2426,6 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
             # first, which becomes the default shown). Each variant carries its
             # own class/spec/hero UI trees, per-dungeon deviations, and loadout
             # string so the page can switch the whole overview client-side.
-            tree_nodes = tree_by_spec.get(int(spec_id), {})
             sub_trees = talent_lookup.get("subTrees", {})
 
             # Top-50 verified-player usage, used for the talent "TOP" highlight.
@@ -2362,42 +2436,17 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
             # the elite players actually pick (drives the per-choice TOP badge).
             top_entry_pct_map = bis_summary.get("talent_node_entry_pct", {}) if bis_summary else {}
 
-            # Per-dungeon "TOP" set for the Talent Differences modal: flat
-            # "<dungeon_id>:<node_id>" -> pct for talents a majority of top
-            # players took in that dungeon. Keyed by string to match the modal's
-            # dungeon loop variable.
-            top_dungeon_talent_pct = {}
-            for _d, _nodes in (bis_summary.get("talent_pct_by_dungeon", {}) if bis_summary else {}).items():
-                for _nid, _pct in _nodes.items():
-                    if _pct >= TALENT_DUNGEON_ELITE_MIN_PCT:
-                        top_dungeon_talent_pct[f"{_d}:{_nid}"] = _pct
+            # Raw per-dungeon talent counts from the verified loadouts, split by
+            # hero tree; the Talent Differences modal is built purely from these.
+            top_tree_talent_stats = (
+                bis_summary.get("talent_dungeon_stats", {}) if bis_summary else {}
+            )
 
-            # Inputs for the weighted Talent Differences ranking: overall top-50
-            # adoption per node, plus the full per-dungeon adoption map.
-            top_overall_pct = {
-                int(nid): info.get("pct", 0.0)
-                for nid, info in (bis_summary.get("talent_node_pct", {}) if bis_summary else {}).items()
-            }
-            top_dungeon_pct_map = bis_summary.get("talent_pct_by_dungeon", {}) if bis_summary else {}
-            hero_node_subtree = {
-                int(hn["id"]): int(hn["subTreeId"])
-                for hn in tree_nodes.get("heroNodes", [])
-                if "id" in hn and hn.get("subTreeId") is not None
-            }
-            hero_tree_top_counts = defaultdict(int)
+            # Which hero tree each verified loadout runs (counted per tree).
+            hero_tree_top_counts = (
+                bis_summary.get("hero_tree_loadout_counts", {}) if bis_summary else {}
+            )
             n_top = len(top50_raw) if top50_raw else 0
-            for lo in (top50_raw or []):
-                subtree_hits = defaultdict(int)
-                for t in lo.get("talents", []) or []:
-                    nid = t.get("node_id") or t.get("id")
-                    if nid is None:
-                        continue
-                    st = hero_node_subtree.get(int(nid))
-                    if st is not None:
-                        subtree_hits[st] += 1
-                if subtree_hits:
-                    chosen = max(subtree_hits.items(), key=lambda x: x[1])[0]
-                    hero_tree_top_counts[chosen] += 1
             hero_tree_top_pct = {
                 st: (cnt / n_top * 100.0) if n_top else 0.0
                 for st, cnt in hero_tree_top_counts.items()
@@ -2415,12 +2464,134 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 if top_hero_tree is not None else 0.0
             )
 
+            # Node id -> talent tree, so the modal can split the flat node list
+            # of a verified loadout into its Class / Spec / Hero sections.
+            # Intersected with `valid_talents`: verified loadouts also list nodes
+            # the per-spec talent lookup drops (free/automatic nodes, hero-tree
+            # selection nodes), which the modal has no name or icon for.
+            class_node_ids = {
+                int(n["id"]) for n in tree_nodes.get("classNodes", []) if n.get("id")
+            } & valid_talents
+            spec_node_ids = {
+                int(n["id"]) for n in tree_nodes.get("specNodes", []) if n.get("id")
+            } & valid_talents
+            hero_node_ids_by_tree = defaultdict(set)
+            for _nid, _subtree in hero_node_subtree.items():
+                if _nid in valid_talents:
+                    hero_node_ids_by_tree[_subtree].add(_nid)
+
+            def top_dungeon_difs(hero_tree_id, node_ids):
+                """Per-dungeon talent swaps for one hero tree, top-50 only.
+
+                One ranked pair of lists per dungeon rather than one per talent
+                tree: which tree a swapped talent sits in tells a reader nothing
+                they cannot see from the icon, and splitting by tree turned one
+                short answer into six mostly-empty panels.
+                """
+                return aggregateData.dungeon_talent_deviations_from_top(
+                    top_tree_talent_stats.get(int(hero_tree_id), {}),
+                    node_ids=node_ids,
+                    top_n=TALENT_DIFF_TOP_N,
+                    min_loadouts=TALENT_DIFF_MIN_DUNGEON_LOADOUTS,
+                    min_pct_points=TALENT_DIFF_MIN_PCT_POINTS,
+                    recommend_min_pct=TALENT_DIFF_RECOMMEND_MIN_PCT,
+                    drop_max_pct=TALENT_DIFF_DROP_MAX_PCT,
+                )
+
+            def top_dungeon_tree_usage(hero_tree_id, node_ids):
+                """Per-dungeon node adoption for the modal's talent tree.
+
+                {"<dungeon_id>": {"total": loadouts, "nodes": {node_id: [pct, avg_rank]}}}
+                The page ships this as JSON and repaints a clone of the static
+                talent tree with it -- rendering a tree per dungeon server-side
+                would add megabytes of markup to every spec page.
+                """
+                stats = top_tree_talent_stats.get(int(hero_tree_id), {})
+                usage = {}
+                for dungeon, dungeon_stats in (stats.get("dungeons") or {}).items():
+                    total = int(dungeon_stats.get("total", 0) or 0)
+                    if total < TALENT_DIFF_MIN_DUNGEON_LOADOUTS:
+                        continue
+                    ranks = dungeon_stats.get("ranks") or {}
+                    nodes = {}
+                    for nid, count in (dungeon_stats.get("nodes") or {}).items():
+                        if int(nid) not in node_ids or not count:
+                            continue
+                        nodes[str(nid)] = [
+                            round(count / total * 100.0, 1),
+                            round(int(ranks.get(nid, count)) / count, 2),
+                        ]
+                    if not nodes:
+                        continue
+                    # share of this dungeon's verified loadouts on this tree, so
+                    # the cloned tree's hero badge is per-dungeon too
+                    dungeon_all_trees = sum(
+                        int(((s.get("dungeons") or {}).get(dungeon) or {}).get("total", 0) or 0)
+                        for s in top_tree_talent_stats.values()
+                    )
+                    usage[str(dungeon)] = {
+                        "total": total,
+                        "tree_pct": round(total / dungeon_all_trees * 100.0, 1)
+                        if dungeon_all_trees
+                        else 0.0,
+                        "nodes": nodes,
+                    }
+                return usage
+
+            def dungeon_build_codes(hero_tree_id):
+                """Most-run full build per dungeon for this hero tree."""
+                codes = {}
+                for dungeon, by_tree in (dungeon_loadouts or {}).items():
+                    entry = by_tree.get(int(hero_tree_id))
+                    code = escape_raidbot_code((entry or {}).get("loadout"))
+                    if code:
+                        codes[str(dungeon)] = {**code, "count": entry.get("count", 0)}
+                return codes
+
+            # Hero-tree preference per dungeon, from the same verified loadouts:
+            # {dungeon: [{id, name, icon, dungeon_pct, overall_pct, diff}]}, only
+            # where the shift is big enough to mean something, biggest first.
+            hero_tree_shifts = defaultdict(list)
+            top_total = sum(hero_tree_top_counts.values())
+            for _tid, _stats in top_tree_talent_stats.items():
+                _sub = sub_trees.get(str(_tid), {})
+                if not _sub or not top_total:
+                    continue
+                _overall_pct = hero_tree_top_counts.get(_tid, 0) / top_total * 100.0
+                for _dungeon, _dstats in (_stats.get("dungeons") or {}).items():
+                    _dungeon_total = sum(
+                        int(((s.get("dungeons") or {}).get(_dungeon) or {}).get("total", 0) or 0)
+                        for s in top_tree_talent_stats.values()
+                    )
+                    if _dungeon_total < TALENT_DIFF_MIN_DUNGEON_LOADOUTS:
+                        continue
+                    _dungeon_pct = int(_dstats.get("total", 0) or 0) / _dungeon_total * 100.0
+                    _diff = _dungeon_pct - _overall_pct
+                    if abs(_diff) < HERO_TREE_DIFF_MIN_PCT_POINTS:
+                        continue
+                    hero_tree_shifts[str(_dungeon)].append({
+                        "id": _tid,
+                        "name": _sub.get("name"),
+                        "icon": _sub.get("icon"),
+                        "dungeon_pct": _dungeon_pct,
+                        "overall_pct": _overall_pct,
+                        "diff": _diff,
+                    })
+            for _rows in hero_tree_shifts.values():
+                _rows.sort(key=lambda r: r["diff"], reverse=True)
+
             hero_variants = []
             for ht in sorted(
                 hero_trees, key=lambda t: t.get("count", 0), reverse=True
             ):
                 tid = ht["id"]
                 sub = sub_trees.get(str(tid), {})
+                # every node this variant can render: class + spec + its own tree
+                variant_node_ids = (
+                    class_node_ids
+                    | spec_node_ids
+                    | hero_node_ids_by_tree.get(int(tid), set())
+                )
                 ui_class_tree = build_ui_tree(
                     tree_nodes.get("classNodes", []), class_by_tree.get(tid, {}),
                     top_pct_map=top_pct_map, top_entry_pct_map=top_entry_pct_map,
@@ -2450,29 +2621,13 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     "loadout_code": escape_raidbot_code(
                         loadouts.get(tid, {}).get("loadout")
                     ),
-                    "talent_difs": {
-                        "Class": aggregateData.biggest_deviations_per_dungeon(
-                            class_by_tree.get(tid, {}),
-                            top_overall=top_overall_pct,
-                            top_dungeon_pct=top_dungeon_pct_map,
-                            top_weight=TALENT_DIFF_TOP_WEIGHT,
-                            normal_weight=TALENT_DIFF_NORMAL_WEIGHT,
-                        ),
-                        "Hero": aggregateData.biggest_deviations_per_dungeon(
-                            hero_by_tree.get(tid, {}),
-                            top_overall=top_overall_pct,
-                            top_dungeon_pct=top_dungeon_pct_map,
-                            top_weight=TALENT_DIFF_TOP_WEIGHT,
-                            normal_weight=TALENT_DIFF_NORMAL_WEIGHT,
-                        ),
-                        "Spec": aggregateData.biggest_deviations_per_dungeon(
-                            spec_by_tree.get(tid, {}),
-                            top_overall=top_overall_pct,
-                            top_dungeon_pct=top_dungeon_pct_map,
-                            top_weight=TALENT_DIFF_TOP_WEIGHT,
-                            normal_weight=TALENT_DIFF_NORMAL_WEIGHT,
-                        ),
-                    },
+                    # Per-dungeon talent swaps of the top players running THIS
+                    # hero tree (its own hero nodes, plus class and spec).
+                    "talent_difs": top_dungeon_difs(tid, variant_node_ids),
+                    # Full per-dungeon picture behind those swaps: node adoption
+                    # for the tree view, plus the dungeon's most-run build.
+                    "dungeon_tree_usage": top_dungeon_tree_usage(tid, variant_node_ids),
+                    "dungeon_loadouts": dungeon_build_codes(tid),
                 })
 
             print(f"[{datetime.now(timezone.utc).isoformat()}] generating page...")
@@ -2584,7 +2739,8 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 top_hero_tree_id=top_hero_tree,
                 top_hero_tree_name=top_hero_tree_name,
                 top_hero_tree_pct=top_hero_tree_pct,
-                top_dungeon_talent_pct=top_dungeon_talent_pct,
+                talent_dif_min_pct_points=TALENT_DIFF_MIN_PCT_POINTS,
+                hero_tree_shifts=hero_tree_shifts,
                 tree_data=tree_by_spec.get(int(spec_id)),
                 hero_tree_difs=hero_tree_difs,
                 hero_tree_count=hero_tree_count,

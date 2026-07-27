@@ -144,6 +144,24 @@ def get_loadout(conn, cursor, spec_id, current_season_id):
     return overall_loadouts
 
 
+def get_loadout_per_dungeon(conn, cursor, spec_id, current_season_id):
+    """Most-run talent loadout string per dungeon, keyed {dungeon: {hero_tree: ...}}.
+
+    Same shape as `get_loadout` one level deeper, so the spec page can offer a
+    "copy the build for this dungeon" next to the season-wide export.
+    """
+    rows = databaseConnector.fetch_top_loadout_per_dungeon(
+        conn, cursor, spec_id, current_season_id
+    )
+    per_dungeon = {}
+    for dungeon_id, hero_talent_id, loadout, run_count in rows:
+        per_dungeon.setdefault(str(dungeon_id), {})[int(hero_talent_id)] = {
+            "loadout": loadout,
+            "count": int(run_count),
+        }
+    return per_dungeon
+
+
 def get_talent_differences(talent_diffs, points_available, valid_talents):
     overall_talent_diffs = {}
     dungeon_counts = {}
@@ -286,95 +304,104 @@ def get_class_talent_differences_by_hero_tree(
     )
 
 
-def biggest_deviations_per_dungeon(
-    data,
-    top_n=3,
-    top_overall=None,
-    top_dungeon_pct=None,
-    top_weight=0.7,
-    normal_weight=0.3,
+def dungeon_talent_deviations_from_top(
+    stats,
+    node_ids=None,
+    top_n=4,
+    min_loadouts=5,
+    min_pct_points=10.0,
+    recommend_min_pct=50.0,
+    drop_max_pct=20.0,
 ):
-    """
-    Returns for each dungeon the top N gains and top N losses compared to overall distribution.
-    Output format:
-    {
-      "<dungeon_id>": {
-         "gains": [ {talent_id, overall_pct, dungeon_pct, pct_point_diff, rel_pct_change_percent, weighted_pct}, ... ],
-         "losses": [ { ... }, ... ]
-      }, ...
-    }
+    """Per-dungeon talent deviations computed from verified top-player loadouts.
 
-    When `top_overall` (node_id -> overall top-50 adoption %) and `top_dungeon_pct`
-    ({dungeon_str: {node_id: adoption %}}) are supplied, each talent's ranking score
-    (`weighted_pct`) blends the general-population relative change with the top-50
-    players' relative change, weighting the top-50 signal `top_weight` vs
-    `normal_weight`. Without them it falls back to the plain general relative change.
+    `stats` is one hero tree's branch of `compute_bis_from_top_loadouts`'s
+    `talent_dungeon_stats`:
+
+        {"total": <loadouts>,
+         "nodes": {node_id: <loadouts that took it>},
+         "dungeons": {"<dungeon_id>": {"total": ..., "nodes": {...}}}}
+
+    Every loadout here is a full, verified talent build tied to one dungeon, so
+    a node's share is a true adoption rate: `count / loadouts`. That makes the
+    dungeon-vs-overall comparison a plain percentage-POINT difference ("70% of
+    the top players take this in Dawnbreaker vs 15% across all dungeons"), and
+    percentage points keep rarely-taken talents from dominating the ranking the
+    way a relative change off a near-zero baseline does. This replaced a ranking
+    built on the general-population aggregation, whose per-dungeon slices come
+    from partially sampled loadouts and were too noisy to trust.
+
+    `node_ids` restricts the comparison to renderable nodes. Dungeons with fewer
+    than `min_loadouts` loadouts are omitted entirely, and a talent needs to move
+    at least `min_pct_points` to be listed at all, so a thin sample yields no
+    rows instead of noise.
+
+    A row is called out as a recommendation only where the adoption rate is
+    decisive on its own: `take` once a majority (`recommend_min_pct`) of the
+    dungeon's top loadouts run it, `drop` once almost none (`drop_max_pct`) do.
+    A talent that merely shifted stays an unlabelled row.
+
+    Output: {"<dungeon_id>": {"gains": [...], "losses": [...], "sample": <loadouts>}}
+    where each row carries talent_id, dungeon_pct, overall_pct, pct_point_diff,
+    dungeon_count, dungeon_total and recommendation ("take"/"drop"/None).
     """
-    # build map of overall pct by talent id
-    overall_map = {
-        int(item["id"]): float(item["pct"])
-        for item in data.get("overall_dungeon_talents", [])
-    }
-    use_top = top_overall is not None and top_dungeon_pct is not None
+    overall_total = int(stats.get("total", 0) or 0)
+    if overall_total <= 0:
+        return {}
+    overall_nodes = stats.get("nodes", {}) or {}
 
     results = {}
-    for dungeon, talents in data.get("dungeon_talent_counts", {}).items():
+    for dungeon, dungeon_stats in (stats.get("dungeons") or {}).items():
+        dungeon_total = int(dungeon_stats.get("total", 0) or 0)
+        if dungeon_total < min_loadouts:
+            continue
+        dungeon_nodes = dungeon_stats.get("nodes", {}) or {}
+
         rows = []
-        for t in talents:
-            tid = int(t["id"])
-            dungeon_pct = float(t.get("pct", 0))
-            overall_pct = overall_map.get(tid)
-            # skip talents that don't have an overall baseline
-            if overall_pct is None:
+        # Union of both sides: a talent dropped entirely for this dungeon has no
+        # per-dungeon count but is still the most interesting loss.
+        for node_id in set(dungeon_nodes) | set(overall_nodes):
+            nid = int(node_id)
+            if node_ids is not None and nid not in node_ids:
                 continue
-            pct_point_diff = (
-                dungeon_pct - overall_pct
-            )  # signed difference in percentage points
-            rel_change = None
-            if overall_pct != 0:
-                rel_change = (pct_point_diff / overall_pct) * 100.0
-
-            # Blend in the top-50 players' per-dungeon relative change so that
-            # talents the elite actually swap for a given dungeon rank higher.
-            weighted = rel_change
-            if use_top:
-                t_over = float(top_overall.get(tid, 0.0) or 0.0)
-                if t_over > 0:
-                    t_dun = float(
-                        (top_dungeon_pct.get(str(dungeon), {}) or {}).get(tid, 0.0)
-                    )
-                    top_rel = ((t_dun - t_over) / t_over) * 100.0
-                    if rel_change is None:
-                        weighted = top_rel
-                    else:
-                        weighted = normal_weight * rel_change + top_weight * top_rel
-                # else: top players never take this node at all -> no top signal,
-                # keep the plain general relative change.
-
+            dungeon_count = int(dungeon_nodes.get(node_id, 0))
+            dungeon_pct = (dungeon_count / dungeon_total) * 100.0
+            overall_pct = (int(overall_nodes.get(node_id, 0)) / overall_total) * 100.0
+            pct_point_diff = dungeon_pct - overall_pct
+            if abs(pct_point_diff) < min_pct_points:
+                continue
+            if pct_point_diff > 0:
+                recommendation = "take" if dungeon_pct >= recommend_min_pct else None
+            else:
+                recommendation = "drop" if dungeon_pct <= drop_max_pct else None
             rows.append(
                 {
-                    "talent_id": tid,
+                    "talent_id": nid,
                     "overall_pct": overall_pct,
                     "dungeon_pct": dungeon_pct,
-                    "pct_point_diff": pct_point_diff,
-                    "rel_pct_change_percent": rel_change,
-                    "weighted_pct": weighted,
-                    "id": tid,
-                    "pct": pct_point_diff, # Keep this for compatibility if it's used elsewhere, though usually rel_change is better
+                    "pct_point_diff": pct_point_diff,  # ranking score
+                    "dungeon_count": dungeon_count,
+                    "dungeon_total": dungeon_total,
+                    "recommendation": recommendation,
                 }
             )
 
-        # gains: positive weighted score, sorted descending
-        gains = [r for r in rows if r["weighted_pct"] is not None and r["weighted_pct"] > 0]
-        gains_sorted = sorted(gains, key=lambda r: r["weighted_pct"], reverse=True)[
-            :top_n
-        ]
-
-        # losses: negative weighted score, sorted ascending (most negative first)
-        losses = [r for r in rows if r["weighted_pct"] is not None and r["weighted_pct"] < 0]
-        losses_sorted = sorted(losses, key=lambda r: r["weighted_pct"])[:top_n]
-
-        results[str(dungeon)] = {"gains": gains_sorted, "losses": losses_sorted}
+        gains = sorted(
+            (r for r in rows if r["pct_point_diff"] > 0),
+            key=lambda r: r["pct_point_diff"],
+            reverse=True,
+        )[:top_n]
+        losses = sorted(
+            (r for r in rows if r["pct_point_diff"] < 0),
+            key=lambda r: r["pct_point_diff"],
+        )[:top_n]
+        if not gains and not losses:
+            continue
+        results[str(dungeon)] = {
+            "gains": gains,
+            "losses": losses,
+            "sample": dungeon_total,
+        }
 
     return results
 

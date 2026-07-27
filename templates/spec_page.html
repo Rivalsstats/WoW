@@ -218,7 +218,7 @@
 
 {# Class / Spec talent tree node (positioned). Shared by both columns. #}
 {% macro render_tree_node(n) -%}
-<div class="tt-node{% if n.pct_val == 0 %} inactive{% endif %}" data-spellid="{{n.spellId}}" data-ntype="{{n.type}}" style="position: absolute; left: {{n.left}}%; top: {{n.top}}%; transform: translate(-50%, -50%); z-index: 2;">
+<div class="tt-node{% if n.pct_val == 0 %} inactive{% endif %}" data-nodeid="{{n.id}}" data-spellid="{{n.spellId}}" data-ntype="{{n.type}}" style="position: absolute; left: {{n.left}}%; top: {{n.top}}%; transform: translate(-50%, -50%); z-index: 2;">
   {% if n.type == 'choice' %}
       <div class="tt-choice-wrapper" style="position: relative; display: inline-flex; --border-color: #ffb000; width: 100%; height: 100%;">
         <div class="arrow-left"></div>
@@ -279,7 +279,7 @@
 
 {# Hero talent tree choice node (stacked column layout). #}
 {% macro render_hero_node(n) -%}
-<div class="d-flex flex-column align-items-center" data-spellid="{{n.spellId}}" data-ntype="{{n.type}}">
+<div class="d-flex flex-column align-items-center" data-nodeid="{{n.id}}" data-spellid="{{n.spellId}}" data-ntype="{{n.type}}">
   {% if n.type == 'choice' %}
     <div class="tt-choice-wrapper" style="position: relative; display: inline-flex; --border-color: #ffb000; width: 46px; height: 46px;">
       <div class="arrow-left"></div>
@@ -288,7 +288,7 @@
       </div>
       <div class="arrow-right"></div>
       {% if n.is_top %}<div class="tt-top-badge" data-bs-toggle="tooltip" title="{% if n.top_choice_name %}Top 50 {{ spec.name }} {{ class_info.name }} players pick {{ n.top_choice_name }}: {{ '{:.0f}'.format(n.top_pct_val) }}% vs {{ '{:.0f}'.format(n.top_choice_pct_val) }}% of the general population.{% else %}Used by {{ '{:.0f}'.format(n.top_pct_val) }}% of the top 50 {{ spec.name }} {{ class_info.name }} players vs {{ '{:.0f}'.format(n.pct_val) }}% of the general population.{% endif %}">TOP</div>{% endif %}
-      <div class="text-center mt-1" style="background: var(--mythi-overlay-bg); color: var(--mythi-overlay-color); font-size: 11px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; padding: 1px 4px; position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); white-space: nowrap;" title="{{ '{:.1f}'.format(n.pct_val) }}%">{{n.pct_val | round | int}}%</div>
+      <div class="text-center mt-1 tt-hero-node-pct" style="background: var(--mythi-overlay-bg); color: var(--mythi-overlay-color); font-size: 11px; border-radius: 4px; border: 1px solid {{ pct_color(n.pct_val) }}; padding: 1px 4px; position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); white-space: nowrap;" title="{{ '{:.1f}'.format(n.pct_val) }}%">{{n.pct_val | round | int}}%</div>
       <div class="tt-custom-tooltip" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #444; border-radius: 6px; padding: 8px; white-space: nowrap; z-index: 1050; box-shadow: 0 4px 10px rgba(0,0,0,0.5); flex-direction: column; gap: 5px;">
         {% for c in n.choices %}
         <a href="https://www.wowhead.com/spell={{c.spellId}}" class="tt-choice-row{% if c.is_top %} is-top{% endif %}" target="_blank">
@@ -304,12 +304,34 @@
 </div>
 {%- endmacro %}
 
-{# Inline "TOP" badge for a talent in a specific dungeon. Flags niche talents a
-   majority of the top-50 players took in THAT dungeon (top_dungeon_talent_pct is
-   keyed "<dungeon_id>:<node_id>"). Used in the per-dungeon talent-difference modal. #}
-{% macro talent_top_badge(tid, dungeon) -%}
-{% set _k = dungeon ~ ':' ~ tid %}
-{% if top_dungeon_talent_pct and _k in top_dungeon_talent_pct %}<span class="badge tt-top-badge tt-top-badge-inline flex-shrink-0 ms-1" data-bs-toggle="tooltip" title="Taken here by {{ '{:.0f}'.format(top_dungeon_talent_pct[_k]) }}% of the top 50 {{ spec.name }} {{ class_info.name }} players in {{dungeon_lookup[dungeon].name['en_US']}}">TOP</span>{% endif %}
+{# One side of a dungeon's talent swaps ("take" or "drop"). Each row reads
+   "<overall>% -> <here>%", which says the same thing the old percentage-point
+   delta did without the jargon, and needs no hover to be understood -- the
+   talent name keeps the Wowhead tooltip to itself. #}
+{% macro talent_swap_list(title, rows, kind) -%}
+{% set lookup = talent_lookup.talents %}
+<div class="tt-swap-card tt-swap-{{ kind }}">
+  <div class="tt-swap-title">{{ title }}</div>
+  {% for item in rows %}
+  {% set talent = lookup[item.talent_id|string] %}
+  <a class="tt-swap-row" href="https://www.wowhead.com/spell={{ talent.spellId }}?spec={{ spec_id }}"
+    target="_blank">
+    <img src="/data/icons/{{ talent.icon }}.png" alt="" width="28" height="28"
+      onerror="this.src='/data/icons/inv_misc_questionmark.png'">
+    <span class="tt-swap-name">{{ talent.name }}</span>
+    {% if item.recommendation == 'take' %}
+    <span class="badge tt-swap-flag tt-swap-flag-take">Recommended</span>
+    {% elif item.recommendation == 'drop' %}
+    <span class="badge tt-swap-flag tt-swap-flag-drop">Recommended to remove</span>
+    {% endif %}
+    <span class="tt-swap-pct">
+      <span class="tt-swap-pct-from">{{ '{:.0f}'.format(item.overall_pct) }}%</span>
+      <span class="tt-swap-arrow">&rarr;</span>
+      <span class="tt-swap-pct-to">{{ '{:.0f}'.format(item.dungeon_pct) }}%</span>
+    </span>
+  </a>
+  {% endfor %}
+</div>
 {%- endmacro %}
 
 <!DOCTYPE html>
@@ -617,7 +639,7 @@
                     <div class="position-relative d-inline-block mt-2 tt-hero-switch{% if hero_variants | length > 1 %} tt-hero-switch-active{% endif %}"
                       {% if hero_variants | length > 1 %}role="button" tabindex="0" title="Click to switch hero tree"{% endif %}>
                       <img src="/data/icons/{{ v.icon }}.png" alt="{{ v.name }}" style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid #ffb000; box-shadow: 0 0 15px rgba(255, 176, 0, 0.4);" onerror="this.src='/data/icons/inv_misc_questionmark.png'">
-                      <div style="position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); background: var(--mythi-overlay-bg); color: var(--mythi-overlay-color); padding: 2px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; border: 1px solid #ffb000; white-space: nowrap;" title="{{ '{:.1f}'.format(v.pct) }}%">
+                      <div class="tt-hero-share" style="position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); background: var(--mythi-overlay-bg); color: var(--mythi-overlay-color); padding: 2px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; border: 1px solid #ffb000; white-space: nowrap;" title="{{ '{:.1f}'.format(v.pct) }}%">
                         {{ v.pct | round | int }}%
                       </div>
                       {% if hero_variants | length > 1 %}
@@ -686,7 +708,7 @@
             <div class="col-12 col-md-auto d-flex justify-content-center mb-2 mb-md-0">
               <button class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal"
                 data-bs-target="#talentModal">
-                Talent Differences per Dungeon
+                Talents per Dungeon
               </button>
             </div>
 
@@ -1923,15 +1945,30 @@
         {% include "footer.html" %}
   </main>
   <div class="modal fade" id="talentModal" tabindex="-1" aria-labelledby="talentModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg modal-dialog-centered">
+    {# xl: the per-dungeon talent tree needs the room the diff lists never did #}
+    <div class="modal-dialog modal-dialog-scrollable modal-xl modal-dialog-centered">
       <div class="modal-content card">
         <div class="modal-header">
-          <h5 class="modal-title" id="talentModalLabel">Talent Usage Variance by Dungeon</h5>
+          <h5 class="modal-title" id="talentModalLabel">Talents per Dungeon</h5>
         </div>
         <div class="modal-body">
           <p class="text-sm mb-3">
-            Percentages show how much more or less a talent is used in a specific dungeon compared to its average usage across all dungeons. The ranking is weighted toward what the top 50 players swap per dungeon (70% top players / 30% overall), so the picks shown reflect elite dungeon-specific choices. A <span class="badge tt-top-badge tt-top-badge-inline">TOP</span> badge marks talents a majority of the top 50 players took in that dungeon.
+            What the top 50 {{ spec.name }} {{ class_info.name }} players change per dungeon, from their verified
+            loadouts &mdash; one full build each, per dungeon. <span class="tt-swap-pct"><span
+                class="tt-swap-pct-from">29%</span> <span class="tt-swap-arrow">&rarr;</span> <span
+                class="tt-swap-pct-to">39%</span></span> reads as "29% of their loadouts take it across all dungeons,
+            39% take it here". Only talents that move by at least
+            {{ '{:.0f}'.format(talent_dif_min_pct_points) }} points are listed.
           </p>
+          {# Per-dungeon node adoption for every hero tree. The tree views below
+             are clones of the page's talent tree repainted from this, so the
+             page ships one tree of markup instead of one per dungeon. #}
+          {% for v in hero_variants %}
+          {% if v.dungeon_tree_usage %}
+          <script type="application/json" class="js-dungeon-tree-usage"
+            data-hero-tree-id="{{ v.id }}">{{ v.dungeon_tree_usage | tojson }}</script>
+          {% endif %}
+          {% endfor %}
           <div class="accordion" id="dungeonAccordion">
             {% for dungeon in hero_tree_difs['dungeons'] %}
             <div class="accordion-item mb-2">
@@ -1953,159 +1990,90 @@
                 aria-labelledby="dungeonHeading-{{ dungeon }}" data-bs-parent="#dungeonAccordion">
                 <div class="accordion-body">
 
-                  {# — Hero Trees — #}
-                  {% if hero_tree_difs %}
-                  <h4 class="mt-2">Hero Trees</h4>
-                  <div class="row justify-content-center mb-3">
-                    {% set lookup = talent_lookup.subTrees %}
-                    {% for tid in hero_tree_difs['dungeons'][dungeon] %}
-                    {% if lookup[tid|string] %}
-                    {% set delta = hero_tree_difs['dungeons'][dungeon][tid].diff %}
-                    <div class="col-auto text-center mx-2">
-                      <a target="_blank"
-                        href="https://www.wowhead.com/talent-calc/{{ class_info.name | lower }}/{{ spec.name | lower }}/{{ lookup[tid|string].name | lower }}">
-                        <img src="/data/icons/{{ lookup[tid|string].icon }}.png" alt="{{ lookup[tid|string].name }}"
-                          style="width:32px; height:32px;" /><br />
-                        <small>{{ lookup[tid|string].name }}</small><br />
-                        <small class="{% if delta >= 0 %}text-success{% else %}text-danger{% endif %}">
-                          {{ delta|round(2) }}%
-                        </small>
-                      </a>
-                    </div>
-                    {% endif %}
+                  {# — Hero tree preference, only where it actually shifts — #}
+                  {% set tree_shifts = hero_tree_shifts.get(dungeon|string) %}
+                  {% if tree_shifts %}
+                  <h6 class="tt-swap-section-title">Hero tree preference here</h6>
+                  <div class="d-flex flex-wrap justify-content-center gap-4 mb-4">
+                    {% for shift in tree_shifts %}
+                    <a class="text-center text-decoration-none text-reset"
+                      href="https://www.wowhead.com/talent-calc/{{ class_info.name | lower }}/{{ spec.name | lower }}/{{ shift.name | lower }}"
+                      target="_blank">
+                      <img src="/data/icons/{{ shift.icon }}.png" alt="{{ shift.name }}" width="32" height="32"
+                        onerror="this.src='/data/icons/inv_misc_questionmark.png'"><br>
+                      <small class="d-block">{{ shift.name }}</small>
+                      <small class="tt-swap-pct {% if shift.diff >= 0 %}text-success{% else %}text-danger{% endif %}">
+                        {{ '{:.0f}'.format(shift.overall_pct) }}% &rarr; {{ '{:.0f}'.format(shift.dungeon_pct) }}%
+                      </small>
+                    </a>
                     {% endfor %}
                   </div>
                   {% endif %}
 
-                  {# — Class/Spec/Hero Talents — #}
-
+                  {# The build view only earns its space when something about the
+                     build actually changes here; otherwise one line says it. #}
+                  {% set ns = namespace(any=false) %}
                   {% for v in hero_variants %}
+                  {% set swaps = v.talent_difs.get(dungeon|string) %}
+                  {% set d_usage = v.dungeon_tree_usage.get(dungeon|string) %}
+                  {% set d_build = v.dungeon_loadouts.get(dungeon|string) %}
+                  {% set has_swaps = swaps and (swaps.gains or swaps.losses) %}
+                  {% if has_swaps or d_usage %}
+                  {% set ns.any = true %}
                   <div class="talent-dif-variant" data-hero-tree-id="{{ v.id }}"{% if not v.is_default %} style="display: none;"{% endif %}>
-                  {% for category in v.talent_difs %}
-                  {% set all_data = v.talent_difs[category] %}
-                  {% set data = all_data.get(dungeon|string, {}) %}
-                  {% set lookup = talent_lookup.talents %}
-                  {% set url_prefix = '/spell' %}
-                  {% set id_attr = 'spellId' %}
-                  {% set uid = dungeon ~ '-' ~ category ~ '-' ~ v.id %}
-
-                  <h4 class="mt-3">{{ category }} Talents</h4>
-                  <div class="row">
-                    {# Gains Accordion #}
-                    <div class="col-md-6 mb-3">
-                      <div class="accordion" id="gainAcc-{{ uid }}">
-                        <div class="accordion-item">
-                          <h2 class="accordion-header" id="gainHead-{{ uid }}">
-                            {% if data.gains %}
-                            {# top is a dict now, use .talent_id and .pct_point_diff #}
-                            {% set top = data.gains[0] %}
-                            <a class="accordion-button collapsed border-success d-flex align-items-center overflow-hidden"
-                              href="https://www.wowhead.com{{ url_prefix }}={{ lookup[top.talent_id|string][id_attr] }}?spec={{ spec_id }}"
-                              target="_blank" role="button" data-bs-toggle="collapse"
-                              data-bs-target="#gainCol-{{ uid }}" aria-expanded="false"
-                              aria-controls="gainCol-{{ uid }}">
-                              <img src="/data/icons/{{ lookup[top.talent_id|string].icon }}.png" alt=""
-                                class="flex-shrink-0 me-2" style="width:24px; height:24px;" />
-                              <span class="flex-grow-1 text-truncate" title="{{ lookup[top.talent_id|string].name }}">
-                                {{ lookup[top.talent_id|string].name }}
-                              </span>
-                              {{ talent_top_badge(top.talent_id, dungeon) }}
-                              <span class="flex-shrink-0 mx-3 text-success">
-                                {% set top_delta = top.weighted_pct if top.weighted_pct is not none else top.rel_pct_change_percent %}
-                                {% if top_delta is not none %}+{{ top_delta|round(2) }}%{% endif %}
-                              </span>
-                            </a>
-                            {% else %}
-                            <button class="accordion-button collapsed" disabled>No data</button>
-                            {% endif %}
-                          </h2>
-                          {% if data.gains %}
-                          <div id="gainCol-{{ uid }}" class="accordion-collapse collapse"
-                            aria-labelledby="gainHead-{{ uid }}"
-                            data-bs-parent="#gainAcc-{{ uid }}">
-                            <div class="accordion-body p-2">
-                              {# loop over remaining items; each 'item' is a dict #}
-                              {% for item in data.gains[1:] %}
-                              {% set tid = item.talent_id %}
-                              {# prefer pct from item; if you have hero_tree_difs keyed by talent id use it instead #}
-                              {% set delta = item.weighted_pct if item.weighted_pct is not none else item.rel_pct_change_percent %}
-                              <a class="d-flex align-items-center mb-2 text-decoration-none text-reset"
-                                href="https://www.wowhead.com{{ url_prefix }}={{ lookup[tid|string][id_attr] }}?spec={{ spec_id }}"
-                                target="_blank">
-                                <img src="/data/icons/{{ lookup[tid|string].icon }}.png" alt=""
-                                  style="width:24px;height:24px;" />
-                                <span class="ms-2">{{ lookup[tid|string].name }}</span>
-                                {{ talent_top_badge(tid, dungeon) }}
-                                <span class="ms-auto text-success">
-                                  {% if delta is not none %}+{{ delta|round(2) }}%{% endif %}
-                                </span>
-                              </a>
-                              {% endfor %}
-                            </div>
-                          </div>
-                          {% endif %}
-                        </div>
-                      </div>
+                    {% if has_swaps %}
+                    {# heading belongs to the build view, so it only appears with it #}
+                    {% if d_usage or d_build %}
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                      <h4 class="mb-0"><span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{
+          spec.name }} {{ class_info.name }} </span> build in {{ dungeon_lookup[dungeon].name['en_US'] }}</h4>
+                      {% if d_build %}
+                      <button type="button" class="btn btn-sm btn-primary d-flex align-items-center mb-0 js-copy-build"
+                        data-loadout="{{ d_build.original }}" data-bs-toggle="tooltip"
+                        title="Most-used complete {{
+          spec.name }} {{ class_info.name }} build in {{ dungeon_lookup[dungeon].name['en_US'] }} ({{ d_build.count | humanize }} runs). Paste into the in-game talent import.">
+                        <i class="fas fa-copy me-2"></i>
+                        <span class="js-copy-build-text" data-text="Copy full build">Copy full build</span>
+                      </button>
+                      {% endif %}
                     </div>
-
-                    {# Losses Accordion (mirror of gains with sign/colour changes) #}
-                    <div class="col-md-6 mb-3">
-                      <div class="accordion" id="lossAcc-{{ uid }}">
-                        <div class="accordion-item">
-                          <h2 class="accordion-header" id="lossHead-{{ uid }}">
-                            {% if data.losses %}
-                            {% set top = data.losses[0] %}
-                            <a class="accordion-button collapsed border-danger d-flex align-items-center overflow-hidden"
-                              href="https://www.wowhead.com{{ url_prefix }}={{ lookup[top.talent_id|string][id_attr] }}?spec={{ spec_id }}"
-                              target="_blank" role="button" data-bs-toggle="collapse"
-                              data-bs-target="#lossCol-{{ uid }}" aria-expanded="false"
-                              aria-controls="lossCol-{{ uid }}">
-                              <img src="/data/icons/{{ lookup[top.talent_id|string].icon }}.png" alt=""
-                                class="flex-shrink-0 me-2" style="width:24px; height:24px;" />
-                              <span class="flex-grow-1 text-truncate" title="{{ lookup[top.talent_id|string].name }}">
-                                {{ lookup[top.talent_id|string].name }}
-                              </span>
-                              {{ talent_top_badge(top.talent_id, dungeon) }}
-                              <span class="flex-shrink-0 mx-3 text-danger">
-                                {% set top_delta = top.weighted_pct if top.weighted_pct is not none else top.rel_pct_change_percent %}
-                                {% if top_delta is not none %}{{ top_delta|round(2) }}%{% endif %}
-                              </span>
-                            </a>
-                            {% else %}
-                            <button class="accordion-button collapsed" disabled>No data</button>
-                            {% endif %}
-                          </h2>
-                          {% if data.losses %}
-                          <div id="lossCol-{{ uid }}" class="accordion-collapse collapse"
-                            aria-labelledby="lossHead-{{ uid }}"
-                            data-bs-parent="#lossAcc-{{ uid }}">
-                            <div class="accordion-body p-2">
-                              {% for item in data.losses[1:] %}
-                              {% set tid = item.talent_id %}
-                              {% set delta = item.weighted_pct if item.weighted_pct is not none else item.rel_pct_change_percent %}
-                              <a class="d-flex align-items-center mb-2 text-decoration-none text-reset"
-                                href="https://www.wowhead.com{{ url_prefix }}={{ lookup[tid|string][id_attr] }}?spec={{ spec_id }}"
-                                target="_blank">
-                                <img src="/data/icons/{{ lookup[tid|string].icon }}.png" alt=""
-                                  style="width:24px;height:24px;" />
-                                <span class="ms-2">{{ lookup[tid|string].name }}</span>
-                                {{ talent_top_badge(tid, dungeon) }}
-                                <span class="ms-auto text-danger">
-                                  {% if delta is not none %}{{ delta|round(2) }}%{% endif %}
-                                </span>
-                              </a>
-                              {% endfor %}
-                            </div>
-                          </div>
-                          {% endif %}
-                        </div>
+                    {% if d_usage %}
+                    <div class="dungeon-tree-mount" data-hero-tree-id="{{ v.id }}" data-dungeon="{{ dungeon }}"></div>
+                    <p class="text-xs text-secondary text-center mb-4">
+                      Talent usage across the {{ d_usage.total }} verified top-50 loadouts recorded for
+                      {{ dungeon_lookup[dungeon].name['en_US'] }}.
+                    </p>
+                    {% endif %}
+                    {% endif %}
+                    <div class="row g-3">
+                      {% set both = swaps.gains and swaps.losses %}
+                      {% if swaps.gains %}
+                      <div class="{% if both %}col-lg-6{% else %}col-12{% endif %}">
+                        {{ talent_swap_list('Take in ' ~ dungeon_lookup[dungeon].name['en_US'], swaps.gains, 'take') }}
                       </div>
+                      {% endif %}
+                      {% if swaps.losses %}
+                      <div class="{% if both %}col-lg-6{% else %}col-12{% endif %}">
+                        {{ talent_swap_list('Drop in ' ~ dungeon_lookup[dungeon].name['en_US'], swaps.losses, 'drop') }}
+                      </div>
+                      {% endif %}
                     </div>
+                    {% else %}
+                    <p class="text-sm text-secondary text-center mb-0">
+                      No notable talent changes. <span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{
+          spec.name }} {{ class_info.name }} </span> players run their usual build in
+                      {{ dungeon_lookup[dungeon].name['en_US'] }}.
+                    </p>
+                    {% endif %}
                   </div>
-                  {% endfor %}
-                  </div>
+                  {% endif %}
                   {% endfor %}
 
+                  {% if not ns.any and not tree_shifts %}
+                  <p class="text-sm text-secondary text-center mb-0">
+                    No verified top-50 loadouts recorded for {{ dungeon_lookup[dungeon].name['en_US'] }} yet.
+                  </p>
+                  {% endif %}
 
                 </div> {# .accordion-body #}
               </div> {# .accordion-collapse #}
@@ -2568,6 +2536,122 @@
             e.preventDefault();
             advance();
           }
+        });
+      });
+    })();
+
+    // Talent Differences modal: the per-dungeon tree views are clones of the
+    // page's talent tree, repainted from the per-dungeon usage JSON. Rendering
+    // a tree per dungeon server-side would add megabytes to every spec page, so
+    // the page ships one tree plus a few KB of numbers. Every percentage in a
+    // clone is repainted or removed, so nothing season-wide leaks into a
+    // dungeon view.
+    (function () {
+      const usageByTree = {};
+      document.querySelectorAll('script.js-dungeon-tree-usage').forEach((el) => {
+        try {
+          usageByTree[el.getAttribute('data-hero-tree-id')] = JSON.parse(el.textContent);
+        } catch (err) {
+          console.error('Unreadable per-dungeon talent usage payload', err);
+        }
+      });
+
+      // mirrors the pct_color macro
+      function pctColor(pct) {
+        if (pct < 10) return '#9d9d9d';
+        if (pct < 25) return 'var(--class-Priest)';
+        if (pct < 50) return 'var(--class-Monk)';
+        if (pct < 75) return '#0070dd';
+        if (pct < 95) return '#a335ee';
+        return '#ff8000';
+      }
+
+      function repaintNode(node, entry) {
+        const pct = entry ? entry[0] : 0;
+        const avgRank = entry ? entry[1] : 0;
+        node.classList.toggle('inactive', pct === 0);
+        const shaded = node.querySelector('.tt-octagon-border') || node.querySelector('img');
+        if (shaded) shaded.style.filter = 'grayscale(' + (100 - pct) + '%)';
+        const badge = node.querySelector('.tt-badge, .tt-hero-node-pct');
+        if (badge) {
+          badge.textContent = Math.round(pct) + '%';
+          badge.title = pct.toFixed(1) + '%';
+          badge.style.borderColor = pctColor(pct);
+        }
+        const maxRank = node.querySelector('.tt-maxrank');
+        if (maxRank) {
+          maxRank.textContent = Math.round(avgRank);
+          maxRank.title = 'Average points spent: ' + avgRank.toFixed(2);
+        }
+      }
+
+      function hydrate(mount) {
+        if (mount.dataset.hydrated) return;
+        const treeId = mount.getAttribute('data-hero-tree-id');
+        const data = (usageByTree[treeId] || {})[mount.getAttribute('data-dungeon')];
+        const source = document.querySelector(
+          '#static-talent-tree .tt-variant[data-hero-tree-id="' + treeId + '"] .talent-tree-wrapper'
+        );
+        if (!data || !source) return;
+        mount.dataset.hydrated = '1';
+
+        const clone = source.cloneNode(true);
+        // Season-wide numbers and the page-only hero switcher have no meaning here.
+        clone.querySelectorAll(
+          '.tt-top-badge, .tt-choice-pct, .tt-choice-badge, .tt-hero-top-hint, .tt-hero-switch-label, .tt-hero-switch-hint'
+        ).forEach((el) => el.remove());
+        clone.querySelectorAll('.tt-hero-switch').forEach((el) => {
+          el.classList.remove('tt-hero-switch-active');
+          el.removeAttribute('role');
+          el.removeAttribute('tabindex');
+          el.removeAttribute('title');
+        });
+        // Bootstrap moves initialised tooltips' text into data-bs-original-title
+        // and the clone is not registered with it, so fall back to plain titles.
+        clone.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((el) => {
+          const text = el.getAttribute('data-bs-original-title');
+          if (text) el.setAttribute('title', text);
+          el.removeAttribute('data-bs-toggle');
+        });
+        const share = clone.querySelector('.tt-hero-share');
+        if (share) {
+          share.textContent = Math.round(data.tree_pct || 0) + '%';
+          share.title = (data.tree_pct || 0).toFixed(1) + '% of this dungeon\'s top-50 loadouts';
+        }
+        clone.querySelectorAll('[data-nodeid]').forEach((node) => {
+          repaintNode(node, data.nodes[node.getAttribute('data-nodeid')]);
+        });
+        mount.appendChild(clone);
+      }
+
+      // Hydrate every variant in a dungeon panel, not just the visible one, so
+      // switching hero trees with the panel open never leaves an empty mount.
+      // Direct children only: the gains/losses lists are accordions too.
+      document.querySelectorAll('#dungeonAccordion > .accordion-item > .accordion-collapse').forEach((panel) => {
+        panel.addEventListener('show.bs.collapse', () => {
+          panel.querySelectorAll('.dungeon-tree-mount').forEach(hydrate);
+        });
+      });
+
+      document.querySelectorAll('.js-copy-build').forEach((btn) => {
+        const label = btn.querySelector('.js-copy-build-text');
+        if (!label) return;
+        const text = label.getAttribute('data-text');
+        btn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(btn.getAttribute('data-loadout') || '');
+            label.textContent = 'Copied!';
+            btn.classList.replace('btn-primary', 'btn-success');
+          } catch (err) {
+            console.error('Copy failed', err);
+            label.textContent = 'Error';
+            btn.classList.replace('btn-primary', 'btn-danger');
+          }
+          setTimeout(() => {
+            label.textContent = text;
+            btn.classList.replace('btn-success', 'btn-primary');
+            btn.classList.replace('btn-danger', 'btn-primary');
+          }, 2000);
         });
       });
     })();
