@@ -30,8 +30,9 @@
   function qsSpec() { return new URLSearchParams(window.location.search).get("spec"); }
 
   // Re-scope the page to a spec (or null = global) without a full navigation.
+  // Keeps any deep-link fragment so re-scoping doesn't drop the shared view.
   function setScope(specId) {
-    var url = specId ? "?spec=" + specId : basePath();
+    var url = (specId ? "?spec=" + specId : basePath()) + window.location.hash;
     window.history.replaceState(null, "", url);
     renderDetail(DATA, specId);
   }
@@ -446,6 +447,29 @@
     renderDungeons(curScope, levels);
     el("item-keylevels").querySelectorAll(".key-bar").forEach(function (b) {
       b.classList.toggle("selected", levels.indexOf(Number(b.getAttribute("data-level"))) >= 0);
+    });
+    if (window.MythiLink) window.MythiLink.sync();
+  }
+
+  // The key-level filter rewrites the whole dungeon breakdown, so it belongs in a
+  // shared link. Registered at parse time; deep-link.js resolves one tick after
+  // DOMContentLoaded, by which point init() has built the picker.
+  if (window.MythiLink) {
+    window.MythiLink.registerState("keys", {
+      read: function () {
+        var levels = selectedLevels();
+        return levels.length ? levels.join(",") : null;
+      },
+      apply: function (value) {
+        var levels = String(value).split(",")
+          .map(Number)
+          .filter(function (n) { return !isNaN(n); })
+          .map(String);
+        var $s = $kl();
+        // selectpicker("val") fires changed.bs.select -> applySelection.
+        if ($s && $s.selectpicker) $s.selectpicker("val", levels);
+        else applySelection();
+      }
     });
   }
 

@@ -1,0 +1,131 @@
+/* Copy-link buttons and the arrival flash, injected by assets/js/deep-link.js.
+   Global: every page gets accordion/modal permalink controls from one place. */
+
+.deep-link-host {
+  position: relative;
+}
+
+.deep-link-copy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--bs-body-color);
+  opacity: 0.55;
+  line-height: 1;
+  cursor: pointer;
+  transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.deep-link-copy i {
+  font-size: 1.05rem;
+}
+
+.deep-link-copy:hover,
+.deep-link-copy:focus-visible {
+  opacity: 1;
+  background: color-mix(in srgb, var(--bs-body-color) 12%, transparent);
+}
+
+.deep-link-copy.deep-link-copied {
+  opacity: 1;
+  color: var(--bs-success);
+}
+
+.deep-link-copy.deep-link-error {
+  opacity: 1;
+  color: var(--bs-danger);
+}
+
+/* Accordion headers: the control is a flex sibling of .accordion-button rather
+   than an overlay. Gear-slot rows run their content flush to the right edge, so
+   an absolutely positioned button would sit on top of the adoption percentage.
+   Reserving the space unconditionally also means nothing shifts when the button
+   fades in on hover. */
+.accordion-header.deep-link-host {
+  display: flex;
+  align-items: center;
+}
+
+.accordion-header.deep-link-host > .accordion-button {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.accordion-header.deep-link-host > .deep-link-copy {
+  flex: 0 0 auto;
+  margin-left: 0.15rem;
+  z-index: 3;
+}
+
+/* Modal headers place it inline, pushed to the right of the title and before
+   the close button. */
+.modal-header.deep-link-host > .deep-link-copy {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+/* Bootstrap gives .btn-close its own margin-left:auto. With two auto margins the
+   free space is split between them and the copy button drifts into the middle of
+   the header instead of pairing with the close button. */
+.modal-header.deep-link-host > .deep-link-copy ~ .btn-close {
+  margin-left: 0.25rem;
+}
+
+/* Opt-in section headers (data-share) use the same inline treatment. */
+.card-header.deep-link-host > .deep-link-copy {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 3;
+}
+
+/* Pointerless devices never get a hover, so the control stays visible there.
+   On mouse/trackpad it fades in with the header to keep the page quiet. */
+@media (hover: hover) and (pointer: fine) {
+  .deep-link-host > .deep-link-copy {
+    opacity: 0;
+  }
+
+  .deep-link-host:hover > .deep-link-copy,
+  .deep-link-host:focus-within > .deep-link-copy {
+    opacity: 0.55;
+  }
+
+  .deep-link-host > .deep-link-copy:hover,
+  .deep-link-host > .deep-link-copy:focus-visible,
+  .deep-link-host > .deep-link-copy.deep-link-copied,
+  .deep-link-host > .deep-link-copy.deep-link-error {
+    opacity: 1;
+  }
+}
+
+/* Arrival flash: brief ring around whatever the shared link pointed at, so the
+   recipient can see which panel was meant. */
+.deep-link-flash {
+  animation: deep-link-flash 2s ease-out 1;
+  border-radius: 0.5rem;
+}
+
+@keyframes deep-link-flash {
+  0%,
+  60% {
+    box-shadow: 0 0 0 3px var(--bs-primary);
+  }
+
+  100% {
+    box-shadow: 0 0 0 3px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deep-link-flash {
+    animation: none;
+    box-shadow: 0 0 0 3px var(--bs-primary);
+  }
+}

@@ -548,7 +548,10 @@
       }
 
       const newQs = sp.toString();
-      window.history.replaceState({}, '', newQs ? '?' + newQs : window.location.pathname);
+      // Keep the deep-link fragment: the filters and the open comp modal are
+      // independent bits of state and either can change without the other.
+      const base = newQs ? '?' + newQs : window.location.pathname;
+      window.history.replaceState({}, '', base + window.location.hash);
     }
 
     compsLoaded.then(() => {
@@ -991,8 +994,41 @@
       const routesLink = document.getElementById('compRoutesLink');
       if (routesLink) routesLink.href = compRoutesUrl(comp.c);
       const modalEl = document.getElementById('compDetailsModal');
-      const modal = new bootstrap.Modal(modalEl);
+      const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+      openComp = { specs: comp.c.join(','), topKey: !!useTopKey, dungeon: contextDungeonId };
       modal.show();
+      if (window.MythiLink) MythiLink.sync();
+    }
+
+    // The comp modal is built in JS from three inputs, so its contents can't be
+    // reached by an element id alone — they ride in the hash as
+    // &comp=<specIds>[|top][|<dungeonId>] instead.
+    let openComp = null;
+
+    document.getElementById('compDetailsModal').addEventListener('hidden.bs.modal', function () {
+      openComp = null;
+      if (window.MythiLink) MythiLink.sync();
+    });
+
+    if (window.MythiLink) {
+      MythiLink.registerState('comp', {
+        read: function () {
+          if (!openComp) return null;
+          const parts = [openComp.specs];
+          if (openComp.topKey) parts.push('top');
+          if (openComp.dungeon && openComp.dungeon !== 'all') parts.push(openComp.dungeon);
+          return parts.join('|');
+        },
+        apply: function (value) {
+          const parts = String(value).split('|');
+          const specs = parts[0];
+          if (!specs) return;
+          const topKey = parts.indexOf('top') > 0;
+          const dungeon = parts.slice(1).filter(p => p && p !== 'top')[0] || 'all';
+          // Handles compsData not being loaded yet by fetching, then retrying.
+          showCompDetailsByC(specs, topKey, dungeon);
+        }
+      });
     }
 
     function showCompDetailsByC(cKey, useTopKey = false, contextDungeonId = 'all') {

@@ -2165,7 +2165,7 @@
                       class="me-1" height="24em" width="24em" /></a>
                   <div class="iframe-container position-relative">
                     <!-- Spinner overlay -->
-                    <div class="iframe-spinner position-absolute top-50 start-50 translate-middle">
+                    <div class="iframe-spinner position-absolute top-50 start-50 translate-middle d-none">
                       <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Loading...</span>
                       </div>
@@ -2319,150 +2319,16 @@
 
   <script>
     (function () {
-      // ---------- Klaro helpers ----------
-      function safeGetManager() {
-        try {
-          if (!window.klaro || typeof klaro.getManager !== 'function') return null;
-          return klaro.getManager();
-        } catch (e) {
-          return null;
-        }
-      }
-
-      function hasConsentFor(name) {
-        try {
-          const mgr = safeGetManager();
-          if (mgr && typeof mgr.getConsent === 'function') return !!mgr.getConsent(name);
-          if (window.klaro && klaro.consents && Object.prototype.hasOwnProperty.call(klaro.consents, name)) {
-            return !!klaro.consents[name];
-          }
-        } catch (e) { }
-        return false;
-      }
-
-      // watch for consent changes (calls cb() when consent becomes true)
-      function watchForConsent(name, cb) {
-        const mgr = safeGetManager();
-        if (mgr && typeof mgr.watch === 'function') {
-          try {
-            mgr.watch({
-              update: function (obj /*, nameArg, data */) {
-                // Klaro's watcher shape differs by version, check for states or direct map
-                const states = obj && (obj.states || obj);
-                if (states && states[name]) cb();
-              }
-            });
-            return;
-          } catch (e) {
-            // fallback to poll below
-          }
-        }
-
-        // fallback short poll (stops after ~10s)
-        let attempts = 0;
-        const id = setInterval(() => {
-          attempts++;
-          if (hasConsentFor(name)) {
-            clearInterval(id);
-            cb();
-            return;
-          }
-          if (attempts > 20) clearInterval(id);
-        }, 500);
-      }
-
-      // ---------- helpers for the accordion/iframes ----------
-      function hideSpinner(panel) {
-        const spinner = panel.querySelector('.iframe-spinner');
-        if (spinner) spinner.classList.add('d-none');
-      }
-
-      function showSpinner(panel) {
-        const spinner = panel.querySelector('.iframe-spinner');
-        if (spinner) spinner.classList.remove('d-none');
-      }
-
-      // Attach a MutationObserver to detect if some external script (Klaro) later sets src
-      function observeIframeSrc(iframe, panel) {
-        // If iframe already has src and loaded, we might not need observation
-        if (iframe.src && iframe.src !== '' && iframe.complete) { hideSpinner(panel); return; }
-
-        // Add a load listener to hide spinner on load
-        function onLoad() {
-          hideSpinner(panel);
-          iframe.removeEventListener('load', onLoad);
-        }
-        iframe.addEventListener('load', onLoad, { once: true });
-
-        // observe src attribute changes to attach load handler if Klaro sets src later
-        const mo = new MutationObserver((mutations) => {
-          for (const m of mutations) {
-            if (m.type === 'attributes' && m.attributeName === 'src') {
-              // if src becomes non-empty, ensure we have load handler set (or hide spinner if already loaded)
-              if (iframe.src && iframe.src !== '') {
-                // If already completed (very fast), hide spinner immediately else the load handler will run
-                try {
-                  // Some browsers expose .complete only on images; still safe to add handler
-                  // Keep the existing load handler to hide when done.
-                } catch (e) { }
-              }
-            }
-          }
-        });
-        mo.observe(iframe, { attributes: true, attributeFilter: ['src'] });
-        // stop observing after 30s to avoid leak
-        setTimeout(() => mo.disconnect(), 30000);
-      }
-
-      // Load iframe for a given panel (if not already set)
-      function loadIframeInPanel(panel) {
-        const iframe = panel.querySelector('iframe[data-src]');
-        if (!iframe) return;
-        // if src already set and not empty -> do nothing (but hide spinner on load)
-        if (iframe.src && iframe.src !== '') {
-          // attach load listener to hide spinner (in case it's still loading)
-          iframe.addEventListener('load', () => hideSpinner(panel), { once: true });
-          return;
-        }
-
-        // set src from dataset and hide spinner on load
-        iframe.src = iframe.dataset.src;
-        iframe.addEventListener('load', () => hideSpinner(panel), { once: true });
-      }
-
-      // Load all currently visible/open panels' iframes
-      function loadAllVisibleIframes() {
-        document.querySelectorAll('#routeDungeonAccordion .accordion-collapse.show').forEach(panel => {
-          loadIframeInPanel(panel);
-        });
-      }
-
-      // ---------- main accordion wiring ----------
+      // Route embeds load on first open, gated on Klaro consent for keystoneGuru
+      // and never before. MythiConsent.loadEmbed (assets/js/consent.js) owns the
+      // whole dance — consent check, deferring until consent is granted, setting
+      // src, and the spinner — so the spec page, the route search page and
+      // route-search.js can't drift apart on it.
       document.querySelectorAll('#routeDungeonAccordion .accordion-collapse').forEach(function (panel) {
-        panel.addEventListener('shown.bs.collapse', function (event) {
-          // once this panel opens, find its iframe
-          const iframe = panel.querySelector('iframe[data-src]');
-          if (!iframe) {
-            console.warn('No iframe found in this panel:', panel);
-            return;
-          }
-
-          showSpinner(panel);
-          observeIframeSrc(iframe, panel);
-
-          const serviceName = iframe.getAttribute('data-name') || 'keystoneGuru';
-
-          if (hasConsentFor(serviceName)) {
-            // consent exists now -> set src immediately
-            loadIframeInPanel(panel);
-          } else {
-            watchForConsent(serviceName, () => {
-              loadAllVisibleIframes();
-            });
-          }
+        panel.addEventListener('shown.bs.collapse', function () {
+          MythiConsent.loadEmbed(panel.querySelector('iframe[data-src]'));
         });
       });
-
     })();
     (function () {
       const copyBtn = document.getElementById('copyBtn');
@@ -2522,11 +2388,13 @@
       // Determine the initially visible variant (the server-rendered default).
       let current = variants.findIndex((el) => el.style.display !== 'none');
       if (current < 0) current = 0;
+      const defaultTreeId = variants[current].getAttribute('data-hero-tree-id');
       show(current);
 
       function advance() {
         current = (current + 1) % variants.length;
         show(current);
+        if (window.MythiLink) MythiLink.sync();
       }
 
       document.querySelectorAll('.tt-hero-switch-active').forEach((el) => {
@@ -2538,6 +2406,26 @@
           }
         });
       });
+
+      // The hero tree is the one bit of view state that changes what a visitor
+      // walks away with: it drives the talent tree, the per-dungeon diffs *and*
+      // the Export Talent String. A shared link that landed on the default tree
+      // would hand the recipient the wrong import string, so it rides in the
+      // hash as &hero=<treeId> whenever it isn't the default.
+      if (window.MythiLink) {
+        MythiLink.registerState('hero', {
+          read: function () {
+            const id = variants[current].getAttribute('data-hero-tree-id');
+            return id === defaultTreeId ? null : id;
+          },
+          apply: function (treeId) {
+            const idx = variants.findIndex((el) => el.getAttribute('data-hero-tree-id') === String(treeId));
+            if (idx < 0) return;  // unknown tree id in a hand-edited link
+            current = idx;
+            show(current);
+          }
+        });
+      }
     })();
 
     // Talent Differences modal: the per-dungeon tree views are clones of the

@@ -2,6 +2,15 @@
 <script src="/assets/js/core/popper.min.js"></script>
 <script src="/assets/js/core/jquery.min.js"></script>
 <script src="/assets/js/core/bootstrap.min.js"></script>
+<!-- Klaro consent helpers (MythiConsent). Needed by any page that sets an
+     embed's src itself, because Klaro only manages elements that existed when
+     it initialised. Must load before the pages that use it. -->
+<script src="/assets/js/consent.js"></script>
+<!-- Deep links: opens the modal/accordion/tab a #fragment points at, keeps the
+     hash in sync, injects the copy-link buttons. Needs Bootstrap's Modal /
+     Collapse / Tab APIs, so it has to come after bootstrap.min.js; pages register
+     their own state with window.MythiLink further down. -->
+<script src="/assets/js/deep-link.js"></script>
 <script src="/assets/js/plugins/bootstrap-select.min.js"></script>
 <script src="/assets/js/plugins/fuse.js"></script>
 <script src="/assets/js/site-search.js"></script>

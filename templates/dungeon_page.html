@@ -259,15 +259,39 @@
             </style>
             <script>
                 (function () {
+                    function activate(btn) {
+                        var card = btn.closest('.run-toggle-card');
+                        if (!card) return null;
+                        card.querySelectorAll('.run-panel').forEach(function (p) { p.classList.add('d-none'); });
+                        card.querySelectorAll('.run-toggle-btn').forEach(function (b) { b.classList.remove('active'); });
+                        var target = document.getElementById(btn.dataset.target);
+                        if (target) target.classList.remove('d-none');
+                        btn.classList.add('active');
+                        return target;
+                    }
+
                     document.querySelectorAll('.run-toggle-btn').forEach(function (btn) {
                         btn.addEventListener('click', function () {
-                            var card = btn.closest('.run-toggle-card');
-                            if (!card) return;
-                            card.querySelectorAll('.run-panel').forEach(function (p) { p.classList.add('d-none'); });
-                            card.querySelectorAll('.run-toggle-btn').forEach(function (b) { b.classList.remove('active'); });
-                            var target = document.getElementById(btn.dataset.target);
-                            if (target) target.classList.remove('d-none');
-                            btn.classList.add('active');
+                            var target = activate(btn);
+                            // #panel-closest-call / -shortest / -longest are stable names,
+                            // so they make good permalinks even though this is a plain
+                            // d-none toggle rather than a Bootstrap collapse.
+                            if (target && window.MythiLink) MythiLink.notifyShown(target);
+                        });
+                    });
+
+                    // This block sits mid-body, above javascript_imports.html, so
+                    // MythiLink doesn't exist yet — register on DOMContentLoaded,
+                    // which still lands before deep-link.js resolves the hash.
+                    document.addEventListener('DOMContentLoaded', function () {
+                        if (!window.MythiLink) return;
+                        MythiLink.registerRevealer({
+                            match: function (el) { return el.classList.contains('run-panel'); },
+                            isOpen: function (el) { return !el.classList.contains('d-none'); },
+                            show: function (el) {
+                                var btn = document.querySelector('.run-toggle-btn[data-target="' + el.id + '"]');
+                                if (btn) activate(btn);
+                            }
                         });
                     });
                 })();
@@ -349,17 +373,22 @@
                                             </div>
                                         </button>
                                     </h2>
-                                    <div id="collapse-{{ runKey }}" class="accordion-collapse collapse"
+                                    {# The id carries the run id, which changes every refresh, so
+                                       permalinks use the route alone (deep-link.js prefers
+                                       data-share-id). A stale link then finds nothing and
+                                       no-ops instead of opening some unrelated route. #}
+                                    <div id="collapse-{{ runKey }}" data-share-id="route-{{ dungeon.slug }}-{{ route.route_key }}"
+                                        class="accordion-collapse collapse"
                                         aria-labelledby="heading-{{ runKey }}" data-bs-parent="#routeDungeonAccordion">
                                         <div class="accordion-body p-0 border-top">
                                             <div class="iframe-container position-relative">
                                                 <div
-                                                    class="iframe-spinner position-absolute top-50 start-50 translate-middle">
+                                                    class="iframe-spinner position-absolute top-50 start-50 translate-middle d-none">
                                                     <div class="spinner-border text-primary" role="status">
                                                         <span class="visually-hidden">Loading...</span>
                                                     </div>
                                                 </div>
-                                                <iframe src="" loading="lazy" data-name="keystoneGuru"
+                                                <iframe loading="lazy" data-name="keystoneGuru"
                                                     data-src="https://keystone.guru/route/{{ dungeon.slug }}/{{ route.route_key }}/{{ dungeon.slug }}/embed"
                                                     style="border: none; width: 100%; height: 60vh; display: block;"></iframe>
                                             </div>
@@ -801,6 +830,22 @@
     {% include "right_aside.html" %}
     {% include "fixed_plugin.html" %}
     {% include "javascript_imports.html" %}
+    <script>
+        // These route embeds are server-rendered, so Klaro would eventually manage
+        // them on its own — but only after a consent change, and it never touches
+        // the loading spinner. Going through MythiConsent.loadEmbed on first open
+        // gives this page the same behaviour as the spec and route search pages:
+        // the embed loads as soon as consent allows, and the spinner only runs
+        // while something is actually loading (otherwise it sat spinning on top of
+        // Klaro's "enable external content" notice).
+        (function () {
+            document.querySelectorAll('#routeDungeonAccordion .accordion-collapse').forEach(function (panel) {
+                panel.addEventListener('shown.bs.collapse', function () {
+                    MythiConsent.loadEmbed(panel.querySelector('iframe[data-src]'));
+                });
+            });
+        })();
+    </script>
     <!-- DataTables (responsive tables) -->
     <script src="/assets/js/plugins/dataTables.min.js"></script>
     <script>

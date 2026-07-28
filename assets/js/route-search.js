@@ -159,6 +159,10 @@ function renderMatches(routes, append = false) {
 
     const collapseDiv = document.createElement("div");
     collapseDiv.id = collapseId;
+    // Permalink handle without the run id, which changes on every data refresh
+    // (see assets/js/deep-link.js). The search filters already live in the query
+    // string, so #route-<slug>-<routeKey> plus those params is a full link.
+    collapseDiv.setAttribute("data-share-id", safeId(`route-${slug}-${r.route_key}`));
     collapseDiv.className = "accordion-collapse collapse";
     collapseDiv.setAttribute("aria-labelledby", headerId);
     collapseDiv.setAttribute("data-bs-parent", "#routeDungeonAccordion");
@@ -174,10 +178,10 @@ function renderMatches(routes, append = false) {
       </a>
     </p>
     <div class="iframe-container position-relative">
-      <div class="iframe-spinner position-absolute top-50 start-50 translate-middle">
+      <div class="iframe-spinner position-absolute top-50 start-50 translate-middle d-none">
         <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
       </div>
-      <iframe src="" loading="lazy" data-name="keystoneGuru"
+      <iframe loading="lazy" data-name="keystoneGuru"
         data-src="https://keystone.guru/route/${slug}/${
       r.route_key
     }/${slug}/embed"
@@ -195,23 +199,18 @@ function renderMatches(routes, append = false) {
     collapseDiv.addEventListener("shown.bs.collapse", function () {
       const iframe = collapseDiv.querySelector("iframe[data-src]");
       if (!iframe) return;
-      if (
-        !iframe.src ||
-        iframe.src === "" ||
-        iframe.src !== iframe.dataset.src
-      ) {
-        iframe.src = iframe.dataset.src;
-        iframe.addEventListener(
-          "load",
-          () => {
-            const spinner = collapseDiv.querySelector(".iframe-spinner");
-            if (spinner) spinner.classList.add("d-none");
-          },
-          { once: true }
-        );
-      }
+      // Gated on Klaro consent for keystoneGuru. These result panels are built
+      // client-side, so Klaro never sees the iframes and cannot hold them back
+      // itself — setting src here unconditionally loaded the embed even when the
+      // visitor had declined. MythiConsent defers until consent is granted, never
+      // loads it if it isn't, and owns the spinner either way.
+      MythiConsent.loadEmbed(iframe);
     });
   });
+
+  // Results are rebuilt from scratch on every query, so the injected copy-link
+  // buttons have to be re-attached to the new panels.
+  if (window.MythiLink) window.MythiLink.refresh();
 }
 
 function initSearch() {
