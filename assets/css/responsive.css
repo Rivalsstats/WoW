@@ -37,6 +37,27 @@
   transform: none;
 }
 
+/* ---------- Notifications: readable in both themes ---------- */
+/* Material Dashboard paints .alert-* with a fixed saturated gradient (see the
+   theme block near the end of material-dashboard.css) but leaves the text on
+   Bootstrap's --bs-alert-color, which is tuned for the *subtle* background:
+   light-blue ink on a mid-blue gradient, illegible either way round. The
+   gradient itself is identical in light and dark mode, so the old text-white
+   could only ever be right for one of them.
+   Dropping the gradient hands the banner back to Bootstrap's subtle/emphasis
+   pair, which is defined per colour mode and therefore reads correctly in both
+   — and it applies to every notification type, not just the info one in use. */
+#page-notification {
+  background-image: none;
+  border: 1px solid var(--bs-alert-border-color);
+}
+
+/* The close glyph is a Material Symbol, so it follows the text colour. */
+#page-notification .btn-close {
+  color: var(--bs-alert-color);
+  opacity: 1;
+}
+
 /* ---------- Notifications: keep the action button from clipping ---------- */
 @media (max-width: 575.98px) {
   #page-notification {

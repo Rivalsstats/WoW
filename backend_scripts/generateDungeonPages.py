@@ -103,6 +103,14 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
             global_total = databaseConnector.fetch_global_totals(conn, cursor, current_season)
             global_total_count = global_total[0]['total'] if global_total and global_total[0]['total'] else 1
 
+            # Same ids the lust queries filter on, so the "More Details" heatmap
+            # link shows exactly the spells the Most Lusted Pulls table counted.
+            bloodlust_spell_ids = databaseConnector.fetch_bloodlust_spell_ids(conn, cursor)
+            if not bloodlust_spell_ids:
+                raise RuntimeError(
+                    "bloodlust_spells is empty — the lust timeline and the heatmap link both depend on it."
+                )
+
             print("Pre-fetching global dungeon success rates...")
             all_dungeon_runs = databaseConnector.fetch_runs_per_dungeon(conn, cursor, current_season)
             dungeon_runs_lookup = {str(d['dungeon_id']): d for d in all_dungeon_runs}
@@ -270,6 +278,7 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                     toggle_runs=toggle_runs,
                     single_runs=single_runs,
                     lust_timeline=lust_timeline,
+                    bloodlust_spell_ids=bloodlust_spell_ids,
                     skip_rates=skip_rates,
                     npcs=npcs_lookup,
                     bosses=bosses_lookup.get(dungeon_id, []),

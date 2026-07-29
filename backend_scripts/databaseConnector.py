@@ -3368,6 +3368,16 @@ LIMIT 20
 def fetch_dungeon_lust_timeline(connection, cursor, dungeon_id: str):
     return fetch_with_retry(connection, cursor, FETCH_DUNGEON_LUST_TIMELINE_SQL, (dungeon_id,))
 
+FETCH_BLOODLUST_SPELL_IDS_SQL = """
+SELECT spell_id FROM bloodlust_spells ORDER BY spell_id;
+"""
+
+def fetch_bloodlust_spell_ids(connection, cursor):
+    """The spell ids the lust queries above filter on, for the dungeon page's
+    keystone.guru heatmap link (includePlayerSpellIds)."""
+    rows = fetch_with_retry(connection, cursor, FETCH_BLOODLUST_SPELL_IDS_SQL)
+    return [int(row["spell_id"] if isinstance(row, dict) else row[0]) for row in rows]
+
 FETCH_DUNGEON_SKIP_RATES_SQL = """
 SELECT 
     ansr.npc_id,

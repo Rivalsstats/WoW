@@ -150,10 +150,11 @@
         {%- endmacro %}
 
         <!-- Spec tierlist  -->
-        <section id="spec-tierlist" class="mb-4 round-tierlist">
+        {# data-share: deep-link.js puts a copy-link button on the header row. #}
+        <section id="spec-tierlist" class="mb-4 round-tierlist" data-share>
 
           <div class="row card shadow-sm">
-            <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="card-header d-flex align-items-center justify-content-between" data-share-anchor>
               <div>
                 <h2 class="mb-0">Spec Tierlist</h2>
               </div>
@@ -210,9 +211,9 @@
         <!-- End Spec tierlist -->
 
         <!-- Dungeon tierlist -->
-        <section id="dungeon-tierlist" class="mb-4">
+        <section id="dungeon-tierlist" class="mb-4" data-share>
           <div class="row card shadow-sm">
-            <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="card-header d-flex align-items-center justify-content-between" data-share-anchor>
               <div>
                 <h2 class="mb-0">Dungeon Tierlist</h2>
               </div>
@@ -265,9 +266,9 @@
 
         <!-- Buff tierlist -->
 
-        <section id="buff-tierlist" class="mb-4 round-tierlist">
+        <section id="buff-tierlist" class="mb-4 round-tierlist" data-share>
           <div class="row card shadow-sm">
-            <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="card-header d-flex align-items-center justify-content-between" data-share-anchor>
               <div>
                 <h2 class="mb-0">Raidbuff Popularity Tierlist</h2>
               </div>

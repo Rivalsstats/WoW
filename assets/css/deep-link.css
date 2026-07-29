@@ -42,25 +42,40 @@
   color: var(--bs-danger);
 }
 
-/* Accordion headers: the control is a flex sibling of .accordion-button rather
-   than an overlay. Gear-slot rows run their content flush to the right edge, so
-   an absolutely positioned button would sit on top of the adoption percentage.
-   Reserving the space unconditionally also means nothing shifts when the button
-   fades in on hover. */
-.accordion-header.deep-link-host {
+/* Collapse panels: the control sits inside the open panel. It used to be a flex
+   sibling of .accordion-button in .accordion-header, which reserved ~2rem next
+   to every collapsed row — the gear rows then fell short of the "Popularity"
+   heading above them and the talent modal's dungeon banners fell short of the
+   modal edge.
+
+   In flow, not absolute: --bs-accordion-body-padding-x is 0 in this theme, so
+   there is no side padding to hide in, and the gear alt rows run their adoption
+   percentage flush right. The route panels are wall-to-wall keystone.guru
+   iframes, which an overlay would cover. */
+.deep-link-share-bar {
   display: flex;
-  align-items: center;
+  justify-content: flex-end;
+  /* Matches the mx-2 on the gear alt rows below it, and gives the p-0 route
+     panels some breathing room. */
+  padding: 0 0.5rem;
+  margin-top: -0.25rem;
+  margin-bottom: 0.25rem;
 }
 
-.accordion-header.deep-link-host > .accordion-button {
-  flex: 1 1 auto;
-  min-width: 0;
+.deep-link-share-bar > .deep-link-copy {
+  width: auto;
+  height: auto;
+  min-height: 1.85rem;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  opacity: 0.75;
 }
 
-.accordion-header.deep-link-host > .deep-link-copy {
-  flex: 0 0 auto;
-  margin-left: 0.15rem;
-  z-index: 3;
+.deep-link-copy-label {
+  line-height: 1;
+  white-space: nowrap;
 }
 
 /* Modal headers place it inline, pushed to the right of the title and before
@@ -77,7 +92,8 @@
   margin-left: 0.25rem;
 }
 
-/* Opt-in section headers (data-share) use the same inline treatment. */
+/* Opt-in section headers (data-share) pin the control to the corner so the
+   section keeps its full width, same as the panels. */
 .card-header.deep-link-host > .deep-link-copy {
   position: absolute;
   top: 0.75rem;
@@ -85,8 +101,51 @@
   z-index: 3;
 }
 
+/* Sections without a card header host it themselves. */
+[data-share].deep-link-host > .deep-link-copy {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 3;
+}
+
+/* A template-named anchor (data-share-anchor) is a flex title bar: the control
+   joins the row instead of overlaying it. Giving the title an auto margin
+   consumes the free space before justify-content can act, so a bar that already
+   carries a button keeps that button at the right edge instead of having
+   space-between re-centre it once a third child arrives. */
+/* !important because the title is what carries this margin, and titles wear
+   Bootstrap spacing utilities (m-0, me-*) that are themselves !important. Lose
+   this and space-between spreads the bar's controls evenly instead of keeping
+   them together at the right edge. */
+[data-share-anchor].deep-link-host > :first-child {
+  margin-right: auto !important;
+}
+
+/* position:static undoes the .card-header corner rule above for the headers
+   that name themselves as the anchor — those already carry a badge or a button
+   in that corner. */
+[data-share-anchor].deep-link-host > .deep-link-copy {
+  position: static;
+  flex: 0 0 auto;
+  margin-right: 0.5rem;
+}
+
+/* Those bars are saturated gradients in both themes (bg-gradient-*), so the
+   body-colour ink the control normally uses disappears on them. */
+[class*="bg-gradient-"] > .deep-link-copy {
+  color: #fff;
+}
+
+[class*="bg-gradient-"] > .deep-link-copy:hover,
+[class*="bg-gradient-"] > .deep-link-copy:focus-visible {
+  background: rgba(255, 255, 255, 0.22);
+}
+
 /* Pointerless devices never get a hover, so the control stays visible there.
-   On mouse/trackpad it fades in with the header to keep the page quiet. */
+   On mouse/trackpad it fades in with its host to keep the page quiet. The
+   in-panel bar is never a .deep-link-host, so it is excluded from this and
+   stays visible for as long as the panel it belongs to is open. */
 @media (hover: hover) and (pointer: fine) {
   .deep-link-host > .deep-link-copy {
     opacity: 0;
@@ -94,6 +153,12 @@
 
   .deep-link-host:hover > .deep-link-copy,
   .deep-link-host:focus-within > .deep-link-copy {
+    opacity: 0.55;
+  }
+
+  /* A corner button is a small target on a tall section: hovering anywhere in
+     the section reveals it. */
+  [data-share]:hover .deep-link-host > .deep-link-copy {
     opacity: 0.55;
   }
 
@@ -105,11 +170,36 @@
   }
 }
 
+/* Phones: icon-only controls grow to a real touch target; the panel bar's
+   button gets there through min-height. 575.98px is the breakpoint the gear
+   rows already compress at (spec-page.css). */
+@media (max-width: 575.98px) {
+  .card-header.deep-link-host > .deep-link-copy,
+  [data-share].deep-link-host > .deep-link-copy {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .deep-link-share-bar > .deep-link-copy {
+    min-height: 2.75rem;
+    padding-inline: 0.9rem;
+    font-size: 0.8rem;
+  }
+}
+
 /* Arrival flash: brief ring around whatever the shared link pointed at, so the
    recipient can see which panel was meant. */
 .deep-link-flash {
   animation: deep-link-flash 2s ease-out 1;
   border-radius: 0.5rem;
+}
+
+/* .accordion-header used to be position:relative through .deep-link-host, which
+   put the ring in the positioned-paint layer. Without it the open panel below
+   paints over the ring's bottom edge. */
+.accordion-header.deep-link-flash {
+  position: relative;
+  z-index: 4;
 }
 
 @keyframes deep-link-flash {

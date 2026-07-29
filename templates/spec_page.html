@@ -713,7 +713,8 @@
             </div>
 
             <!-- Gear Overview -->
-            <div id="stat-overview" class="mx-auto my-4">
+            {# data-share: deep-link.js pins a copy-link button to the corner (assets/js/deep-link.js). #}
+            <div id="stat-overview" class="mx-auto my-4" data-share>
               <h6 class="mb-1 text-center">Stat Priority</h6>
 
               <div class="row gy-2 gx-3 my-2 justify-content-center">
@@ -734,7 +735,7 @@
                 </div>
               </div>
             </div>
-            <div id="gear-overview" class="mx-auto my-4">
+            <div id="gear-overview" class="mx-auto my-4" data-share>
               <h6> Gear Overview</h6>
               <p>
                 This overview shows the most popular items used by
@@ -2024,10 +2025,15 @@
                     {% if has_swaps %}
                     {# heading belongs to the build view, so it only appears with it #}
                     {% if d_usage or d_build %}
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                      <h4 class="mb-0"><span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{
+                    <h4 class="mb-2"><span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{
           spec.name }} {{ class_info.name }} </span> build in {{ dungeon_lookup[dungeon].name['en_US'] }}</h4>
-                      {% if d_build %}
+                    {% if d_usage %}
+                    <div class="dungeon-tree-mount" data-hero-tree-id="{{ v.id }}" data-dungeon="{{ dungeon }}"></div>
+                    {% endif %}
+                    {# Centred under the tree, next to the caption it belongs with: the
+                       modal's top-right corner is the copy-link control's. #}
+                    {% if d_build %}
+                    <div class="d-flex justify-content-center mb-2">
                       <button type="button" class="btn btn-sm btn-primary d-flex align-items-center mb-0 js-copy-build"
                         data-loadout="{{ d_build.original }}" data-bs-toggle="tooltip"
                         title="Most-used complete {{
@@ -2035,10 +2041,9 @@
                         <i class="fas fa-copy me-2"></i>
                         <span class="js-copy-build-text" data-text="Copy full build">Copy full build</span>
                       </button>
-                      {% endif %}
                     </div>
+                    {% endif %}
                     {% if d_usage %}
-                    <div class="dungeon-tree-mount" data-hero-tree-id="{{ v.id }}" data-dungeon="{{ dungeon }}"></div>
                     <p class="text-xs text-secondary text-center mb-4">
                       Talent usage across the {{ d_usage.total }} verified top-50 loadouts recorded for
                       {{ dungeon_lookup[dungeon].name['en_US'] }}.

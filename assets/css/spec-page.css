@@ -473,6 +473,17 @@
 }
 
 /* Item render slot styles */
+/* The top entry of a slot is the .accordion-button itself, so it carries
+   Bootstrap's width:100% on top of the row's own mx-2. That overflows the pane
+   by the right margin, leaving the card 8px inset on the left and 8px proud on
+   the right — into the gutter between the two gear columns. Subtracting the
+   margins lines the header row up with both the "Popularity" heading above it
+   and the alternative rows inside its panel. (width:auto is not an option: a
+   <button> sizes to fit-content, not to its container.) */
+.accordion-button.row {
+  width: calc(100% - 1rem);
+}
+
 /* The icon column has a fixed width but stretches to the row's full height, and
    the image fills it via object-fit: cover. This makes the icon fill the whole
    accordion box height without the fragile height:100%/aspect-ratio chain, whose

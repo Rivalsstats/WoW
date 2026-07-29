@@ -21,8 +21,11 @@
  *   2. sync    — as the user opens/closes panels, rewrite the hash with
  *      replaceState so the address bar is always copy-pasteable. replaceState,
  *      not pushState, matches items.js/route-search.js: Back leaves the page.
- *   3. share   — inject a copy-link button into every accordion and modal header
- *      whose panel is addressable, so no template has to carry the markup.
+ *   3. share   — inject a copy-link button into every addressable collapse panel
+ *      and modal header, so no template has to carry the markup. It goes inside
+ *      the panel, not in its header: a control in the header has to reserve its
+ *      width from the collapsed row, which knocked the gear rows out of line
+ *      with their own column headings.
  *
  * Revealing goes through the Bootstrap API, never classList.add('show'): the
  * spec page hydrates per-dungeon talent trees on show.bs.collapse and sets the
@@ -413,16 +416,37 @@
       window.location.search + (hash ? "#" + hash : "");
   }
 
-  function makeCopyButton(getUrl, label) {
+  // `label`, when given, renders next to the icon. Icon-only reads fine among
+  // other chrome (a modal header, a card corner); inside an opened panel the
+  // control is the only affordance there, so it says what it does.
+  function makeCopyButton(getUrl, title, label) {
     var btn = document.createElement("button");
     btn.type = "button";
     btn.className = "deep-link-copy";
-    btn.title = label;
-    btn.setAttribute("aria-label", label);
+    btn.title = title;
+    // aria-label wins over the visible text, so screen readers get the longer
+    // "…to this section" phrasing either way.
+    btn.setAttribute("aria-label", title);
     var icon = document.createElement("i");
     icon.className = "bi bi-link-45deg";
     icon.setAttribute("aria-hidden", "true");
     btn.appendChild(icon);
+
+    var text = null;
+    if (label) {
+      btn.classList.add("deep-link-copy-labelled");
+      text = document.createElement("span");
+      text.className = "deep-link-copy-label";
+      text.textContent = label;
+      btn.appendChild(text);
+    }
+
+    function reset() {
+      icon.className = "bi bi-link-45deg";
+      if (text) text.textContent = label;
+      btn.classList.remove("deep-link-copied");
+      btn.classList.remove("deep-link-error");
+    }
 
     // Same clipboard + 2s feedback shape as the Export Talent String and
     // "Copy full build" buttons on the spec page.
@@ -434,48 +458,55 @@
         .then(function () { return navigator.clipboard.writeText(url); })
         .then(function () {
           icon.className = "bi bi-check-lg";
+          if (text) text.textContent = "Copied";
           btn.classList.add("deep-link-copied");
         })
         .catch(function (err) {
           console.error("deep-link: copy failed", err);
           icon.className = "bi bi-exclamation-triangle";
+          if (text) text.textContent = "Copy failed";
           btn.classList.add("deep-link-error");
         })
         .then(function () {
-          setTimeout(function () {
-            icon.className = "bi bi-link-45deg";
-            btn.classList.remove("deep-link-copied");
-            btn.classList.remove("deep-link-error");
-          }, COPIED_MS);
+          setTimeout(reset, COPIED_MS);
         });
     });
     return btn;
-  }
-
-  function panelForHeader(header) {
-    var toggle = header.querySelector('[data-bs-toggle="collapse"]');
-    if (!toggle) return null;
-    var selector = toggle.getAttribute("data-bs-target") || toggle.getAttribute("href");
-    if (!selector) return null;
-    try { return document.querySelector(selector); } catch (e) { return null; }
   }
 
   function shareable(el) {
     return el && isTrackable(el) && !el.hasAttribute("data-no-share");
   }
 
+  // A section names its own control host when its top-right corner is taken.
+  // Anything belonging to a nested [data-share] is that section's business, not
+  // this one's.
+  function shareHost(section, selector) {
+    var el = section.querySelector(selector);
+    return el && el.closest("[data-share]") === section ? el : null;
+  }
+
   function injectShareButtons() {
-    // Accordion headers: the button sits as a sibling of .accordion-button, so
-    // Bootstrap's delegated collapse handler never sees the click and the panel
-    // does not toggle when someone copies its link.
-    document.querySelectorAll(".accordion-header").forEach(function (header) {
-      if (header.querySelector(".deep-link-copy")) return;
-      var panel = panelForHeader(header);
+    // Collapse panels carry the control *inside* the panel. It used to be a
+    // flex sibling of .accordion-button in .accordion-header, which reserved
+    // ~2rem next to every *collapsed* row: the gear rows then stopped short of
+    // the "Popularity" heading above them and the talent modal's dungeon
+    // banners stopped short of the modal edge. A closed row now gets its full
+    // width back, and the link is offered in the panel it points at.
+    document.querySelectorAll(".accordion-collapse").forEach(function (panel) {
       if (!shareable(panel)) return;
-      header.classList.add("deep-link-host");
-      header.appendChild(makeCopyButton(function () {
+      // Direct child only: nested accordions have their own bodies and each
+      // gets its own bar.
+      var body = panel.querySelector(":scope > .accordion-body") || panel;
+      if (body.querySelector(":scope > .deep-link-share-bar")) return;
+      var bar = document.createElement("div");
+      bar.className = "deep-link-share-bar";
+      bar.appendChild(makeCopyButton(function () {
         return permalinkFor(panel);
-      }, "Copy link to this section"));
+      }, "Copy link to this section", "Copy link"));
+      // Prepended, so it is visible the moment the panel opens rather than
+      // below a 60vh route iframe.
+      body.insertBefore(bar, body.firstChild);
     });
 
     // Modal headers copy whatever is open inside the modal right now — sync
@@ -495,11 +526,13 @@
     });
 
     // Opt-in for plain sections: data-share on any element with an id puts the
-    // same control in its .card-header (or in the element itself).
+    // same control in the host it names with data-share-anchor, else its
+    // .card-header, else the element itself (pinned to its top-right corner).
     document.querySelectorAll("[data-share]").forEach(function (section) {
       if (!shareable(section)) return;
-      var host = section.querySelector(".card-header") || section;
-      if (host.querySelector(".deep-link-copy")) return;
+      var host = shareHost(section, "[data-share-anchor]") ||
+        shareHost(section, ".card-header") || section;
+      if (host.querySelector(":scope > .deep-link-copy")) return;
       host.classList.add("deep-link-host");
       host.appendChild(makeCopyButton(function () {
         return permalinkFor(section);

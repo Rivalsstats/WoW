@@ -300,9 +300,10 @@
             <div class="row">
                 <!-- Top Routes -->
                 <div class="col-lg-6 col-md-12 mb-4">
-                    <div class="card h-100">
+                    {# data-share: deep-link.js puts a copy-link button on the title bar. #}
+                    <div class="card h-100" id="dungeon-top-routes" data-share>
                         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                            <div
+                            <div data-share-anchor
                                 class="bg-gradient-primary shadow-primary border-radius-lg pt-3 pb-3 d-flex justify-content-between align-items-center">
                                 <h6 class="text-white text-capitalize ps-3 mb-0">Top Routes</h6>
                                 <a href="/pages/routes?dungeons={{ dungeon_id }}"
@@ -411,15 +412,17 @@
                 </div>
                 <!-- Most Lusted Pulls -->
                 <div class="col-lg-6 col-md-12 mb-4">
-                    <div class="card h-100">
+                    <div class="card h-100" id="dungeon-lusted-pulls" data-share>
                         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                            <div class="bg-gradient-warning shadow-warning border-radius-lg pt-3 pb-3 d-flex justify-content-between align-items-center">
+                            <div data-share-anchor class="bg-gradient-warning shadow-warning border-radius-lg pt-3 pb-3 d-flex justify-content-between align-items-center">
                                 <h6 class="text-white text-capitalize ps-3 mb-0" data-bs-toggle="tooltip"
                                     data-bs-placement="top"
                                     title="The exact sets of enemies that players most frequently use Bloodlust / Heroism against.">
                                     Most Lusted Pulls</h6>
                 
-                                <a href="https://keystone.guru/heatmap/retail/{{ dungeon.slug }}/1?type=player_spell&region=world"
+                                {# includePlayerSpellIds is a comma-separated list, urlencoded (%2C), so the
+                                   heatmap opens filtered to the same spells the table counted. #}
+                                <a href="https://keystone.guru/heatmap/retail/{{ dungeon.slug }}/1?type=player_spell&includePlayerSpellIds={{ bloodlust_spell_ids | join('%2C') }}&region=world"
                                     class="btn btn-sm btn-white me-3 mb-0 opacity-8" title="Find more Details on Keystone.guru" target="_blank">More
                                     Details</a>
                             </div>
@@ -528,9 +531,9 @@
             <div class="row mb-4">
                 <!-- Popular Team Comps -->
                 <div class="col-lg-6 col-md-12 mb-4">
-                    <div class="card h-100">
+                    <div class="card h-100" id="dungeon-team-comps" data-share>
                         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                            <div
+                            <div data-share-anchor
                                 class="bg-gradient-success shadow-primary border-radius-lg pt-3 pb-3 d-flex justify-content-between align-items-center">
                                 <h6 class="text-white text-capitalize ps-3 mb-0">Popular Team Comps</h6>
                                 <a href="/pages/comps?dungeons={{ dungeon_id }}"
@@ -600,10 +603,10 @@
                 </div>
                 <!-- Uniquely Popular Specs -->
                 <div class="col-lg-6 col-md-12 mb-4">
-                    <div class="card h-100">
+                    <div class="card h-100" id="dungeon-unique-specs" data-share>
                         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                            <div class="bg-gradient-info shadow-info border-radius-lg pt-3 pb-3">
-                                <h6 class="text-white text-capitalize ps-3" data-bs-toggle="tooltip"
+                            <div data-share-anchor class="bg-gradient-info shadow-info border-radius-lg pt-3 pb-3 d-flex justify-content-between align-items-center">
+                                <h6 class="text-white text-capitalize ps-3 mb-0" data-bs-toggle="tooltip"
                                     data-bs-placement="top"
                                     title="Specs with highest % difference compared to their global average.">Uniquely
                                     Popular Here (+12 and higher)</h6>
@@ -686,10 +689,10 @@
             <div class="row mb-4">
                 <!-- Skipped NPCs -->
                 <div class="col-lg-6 col-md-12 mb-4">
-                    <div class="card h-100">
+                    <div class="card h-100" id="dungeon-skipped-npcs" data-share>
                         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                            <div class="bg-gradient-danger shadow-danger border-radius-lg pt-3 pb-3">
-                                <h6 class="text-white text-capitalize ps-3" data-bs-toggle="tooltip"
+                            <div data-share-anchor class="bg-gradient-danger shadow-danger border-radius-lg pt-3 pb-3 d-flex justify-content-between align-items-center">
+                                <h6 class="text-white text-capitalize ps-3 mb-0" data-bs-toggle="tooltip"
                                     data-bs-placement="top"
                                     title="Least encountered enemies across all logged routes for this dungeon.">Least
                                     Played NPC's</h6>
@@ -783,12 +786,17 @@
                 
                 <!-- Keystone Success Rates Chart -->
                 <div class="col-lg-6 col-md-12 mb-4">
-                    <div class="card h-100">
+                    <div class="card h-100" id="dungeon-success-rate" data-share>
                         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
                             <div class="bg-gradient-dark shadow-dark border-radius-lg pt-3 pb-3">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <h6 class="text-white text-capitalize ps-3 m-0">Success Rate by Keystone Level</h6>
-                                    <button id="resetZoomBtn" class="btn btn-sm btn-outline-light me-3 mb-0 d-none d-lg-inline-block" style="display: none;">Reset Zoom</button>
+                                <div class="d-flex justify-content-between align-items-center" data-share-anchor>
+                                    {# mb-0, not m-0: the title carries the auto right margin that keeps
+                                       this bar's controls together at the right edge (deep-link.css). #}
+                                    <h6 class="text-white text-capitalize ps-3 mb-0">Success Rate by Keystone Level</h6>
+                                    {# d-none only: a d-lg-inline-block here beat the inline display with
+                                       !important, so the button showed on desktop with nothing to reset.
+                                       Zoom is disabled below lg anyway, so the class is all it needs. #}
+                                    <button id="resetZoomBtn" class="btn btn-sm btn-outline-light me-3 mb-0 d-none">Reset Zoom</button>
                                 </div>
                             </div>
                         </div>
@@ -913,7 +921,7 @@
                                 enabled: enableZoom,
                                 mode: 'x',
                                 onPan: function({chart}) {
-                                    document.getElementById('resetZoomBtn').style.display = 'block';
+                                    document.getElementById('resetZoomBtn').classList.remove('d-none');
                                 }
                             },
                             zoom: {
@@ -921,7 +929,7 @@
                                 pinch: { enabled: enableZoom },
                                 mode: 'x',
                                 onZoom: function({chart}) {
-                                    document.getElementById('resetZoomBtn').style.display = 'block';
+                                    document.getElementById('resetZoomBtn').classList.remove('d-none');
                                 }
                             }
                         }
@@ -931,7 +939,7 @@
 
             document.getElementById('resetZoomBtn').addEventListener('click', function() {
                 keyLevelChart.resetZoom();
-                this.style.display = 'none';
+                this.classList.add('d-none');
             });
             {% endif %}
         });

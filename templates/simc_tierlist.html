@@ -149,9 +149,10 @@
         </div>
       </div>
 
-      {% macro tierlist_card(title, rows, expected) %}
+      {# anchor: the share id, so a copied link reopens the right target tab too. #}
+      {% macro tierlist_card(title, rows, expected, anchor) %}
       <div class="col-12 mb-4">
-        <div class="card">
+        <div class="card" id="{{ anchor }}" data-share>
           <div class="card-header pb-0 p-3">
             <h6 class="mb-0">{{ title }}</h6>
             <p class="text-sm mb-0">{{ rows | length }} of {{ expected }} specs simmed.</p>
@@ -263,8 +264,8 @@
         <div class="tab-pane fade {% if loop.first %}show active{% endif %}" id="tab-{{ tab.targets }}"
           role="tabpanel" aria-labelledby="tab-btn-{{ tab.targets }}">
           <div class="row">
-            {% if tab.dps_rows %}{{ tierlist_card("DPS Specs — " + tab.targets|string + " target" + ("s" if tab.targets != 1 else ""), tab.dps_rows, expected_counts["Dps"]) }}{% endif %}
-            {% if tab.tank_rows %}{{ tierlist_card("Tanks (DPS while tanking) — " + tab.targets|string + " target" + ("s" if tab.targets != 1 else ""), tab.tank_rows, expected_counts["Tank"]) }}{% endif %}
+            {% if tab.dps_rows %}{{ tierlist_card("DPS Specs — " + tab.targets|string + " target" + ("s" if tab.targets != 1 else ""), tab.dps_rows, expected_counts["Dps"], "tier-dps-" ~ tab.targets ~ "t") }}{% endif %}
+            {% if tab.tank_rows %}{{ tierlist_card("Tanks (DPS while tanking) — " + tab.targets|string + " target" + ("s" if tab.targets != 1 else ""), tab.tank_rows, expected_counts["Tank"], "tier-tanks-" ~ tab.targets ~ "t") }}{% endif %}
           </div>
         </div>
         {% endfor %}
@@ -272,7 +273,7 @@
 
       <div class="row">
         <div class="col-12 mb-4">
-          <div class="card">
+          <div class="card" id="tier-methodology" data-share>
             <div class="card-header pb-0 p-3">
               <h6 class="mb-0">Methodology &amp; caveats</h6>
             </div>
