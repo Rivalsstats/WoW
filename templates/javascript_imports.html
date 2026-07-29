@@ -11,6 +11,10 @@
      Collapse / Tab APIs, so it has to come after bootstrap.min.js; pages register
      their own state with window.MythiLink further down. -->
 <script src="/assets/js/deep-link.js"></script>
+<!-- Sidenav share buttons: points them at the current page (canonical + any open
+     panel's #fragment) instead of the site root. After deep-link.js, whose hash
+     it reads. -->
+<script src="/assets/js/share.js"></script>
 <script src="/assets/js/plugins/bootstrap-select.min.js"></script>
 <script src="/assets/js/plugins/fuse.js"></script>
 <script src="/assets/js/site-search.js"></script>

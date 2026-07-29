@@ -187,6 +187,41 @@
   }
 }
 
+/* Sidenav share row (templates/sidenav.html, driven by assets/js/share.js).
+   Six controls have to live inside a 14rem sidenav, so they are square icon
+   buttons rather than wearing the theme's default button padding. */
+.share-buttons {
+  --share-btn-size: 2.25rem;
+  /* Three per row, deliberately: the ~11rem of usable sidenav width fits four,
+     which left the fifth stranded on a line of its own (and the native-share
+     button is only present on some devices, so the count itself varies). Capped
+     to three, both lines stay centred whether five or six buttons show.
+     0.5rem is the .gap-2 the row carries in the template. */
+  max-width: calc(3 * var(--share-btn-size) + 2 * 0.5rem);
+}
+
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--share-btn-size);
+  height: var(--share-btn-size);
+  padding: 0;
+  line-height: 1;
+}
+
+.share-btn i {
+  font-size: 1rem;
+}
+
+/* Phones get a real touch target, same 575.98px breakpoint and 2.75rem size as
+   the copy-link controls above. */
+@media (max-width: 575.98px) {
+  .share-buttons {
+    --share-btn-size: 2.75rem;
+  }
+}
+
 /* Arrival flash: brief ring around whatever the shared link pointed at, so the
    recipient can see which panel was meant. */
 .deep-link-flash {

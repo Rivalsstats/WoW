@@ -102,6 +102,22 @@
     padding-bottom: 1rem !important;
   }
 }
+/* Everywhere else the footer stays bottom-anchored and absolutely positioned,
+   and material-dashboard.css pins it to a flat height: 20vh. Its content — the
+   two support buttons plus the share row — is ~280px tall, so on any window
+   shorter than ~1400px the bottom of the block ran off the screen: the share
+   buttons were unreachable on an ordinary laptop. Let the box grow with its
+   content instead, and give the scrollable list room to clear it (it is
+   absolutely positioned, so it reserves no space of its own). */
+@media (min-width: 1200px) and (min-height: 760.02px) {
+  #sidenav-main .sidenav-footer {
+    height: auto;
+    min-height: 20vh;
+  }
+  #sidenav-main #sidenav-collapse-main {
+    padding-bottom: 18rem !important;
+  }
+}
 
 /* ---------- Run cards: long key/dungeon/region headline overflow ---------- */
 @media (max-width: 575.98px) {
