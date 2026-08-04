@@ -31,17 +31,24 @@ def _dungeon_entry(item, dungeon_lookup, highest_keys):
     }
 
 
-def create_dungeon_tierlist_img(out_path, season, icon_size=None):
+def create_dungeon_tierlist_img(out_path, season, icon_size=None,
+                                dungeon_data=None, total_runs=None):
     """Build the dungeon tierlist card; returns the post_data facts dict.
-    icon_size is accepted for caller compatibility and ignored."""
+    icon_size is accepted for caller compatibility and ignored.
+
+    ``dungeon_data`` / ``total_runs`` accept data the caller already fetched;
+    anything left as None is fetched here."""
     dungeon_lookup = get_dungeon_lookup()
 
-    with closing(databaseConnector.get_connection()) as conn:
-        cursor = conn.cursor()
-        dungeon_data = databaseConnector.fetch_runs_per_dungeon_per_level(
-            conn, cursor, season
-        )
-        total_runs = databaseConnector.fetch_total_season_runs(conn, cursor, season)
+    if dungeon_data is None or total_runs is None:
+        with closing(databaseConnector.get_connection()) as conn:
+            cursor = conn.cursor()
+            if dungeon_data is None:
+                dungeon_data = databaseConnector.fetch_runs_per_dungeon_per_level(
+                    conn, cursor, season
+                )
+            if total_runs is None:
+                total_runs = databaseConnector.fetch_total_season_runs(conn, cursor, season)
 
     # highest key seen per dungeon (max keystone_level with at least one run)
     highest_keys = {}

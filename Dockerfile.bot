@@ -1,0 +1,65 @@
+FROM python:3.11-slim
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    APP_DIR=/app
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR ${APP_DIR}
+
+# Shared backend modules, flat-copied to /app so `import databaseConnector`
+# resolves exactly as it does in the collector image.
+COPY backend_scripts/databaseConnector.py ${APP_DIR}/databaseConnector.py
+COPY backend_scripts/commonUtils.py       ${APP_DIR}/commonUtils.py
+COPY backend_scripts/chartData.py         ${APP_DIR}/chartData.py
+COPY backend_scripts/tierMath.py          ${APP_DIR}/tierMath.py
+
+# The bot package itself.
+COPY discord_bot/ ${APP_DIR}/discord_bot/
+
+# Shared social-image renderers (og:image generators) + their assets, so
+# /meta specs, /meta dungeons and /meta popularity render the exact same images as
+# the site. Spec/dungeon icons are fetched from the site at render time (data/icons
+# is 82 MB, not shipped); bg_imgs is optional and falls back to a flat canvas.
+COPY backend_scripts/image_generation/ ${APP_DIR}/image_generation/
+COPY assets/fonts/BebasNeue-Regular.ttf ${APP_DIR}/assets/fonts/BebasNeue-Regular.ttf
+COPY assets/img/favicon/favicon-96x96.png ${APP_DIR}/assets/img/favicon/favicon-96x96.png
+
+# Static lookups the bot reads (commonUtils.LOOKUP_DIR = data/static, CWD=/app).
+RUN mkdir -p ${APP_DIR}/data/static
+COPY data/static/specs.json      ${APP_DIR}/data/static/specs.json
+COPY data/static/classes.json    ${APP_DIR}/data/static/classes.json
+COPY data/static/dungeons.json   ${APP_DIR}/data/static/dungeons.json
+COPY data/static/seasonInfo.json ${APP_DIR}/data/static/seasonInfo.json
+COPY data/static/groupbuffs.json ${APP_DIR}/data/static/groupbuffs.json
+COPY data/static/periods.json    ${APP_DIR}/data/static/periods.json
+COPY data/static/npcs.json       ${APP_DIR}/data/static/npcs.json
+# per-spec talent shards for /spec talents (hero-tree + talent names).
+COPY data/static/talents/        ${APP_DIR}/data/static/talents/
+
+COPY entrypoint_bot.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Same build-time import/static-data guard as the collector image. It scans
+# /app/*.py (the flat backend modules); the package gets its own import smoke.
+COPY backend_scripts/verifyImageImports.py ${APP_DIR}/verifyImageImports.py
+
+RUN pip install --no-cache-dir \
+    "discord.py>=2.4" \
+    aiohttp \
+    python-dotenv \
+    mysql-connector-python \
+    matplotlib
+
+# Guard 1: every import in the flat /app modules resolves.
+RUN python ${APP_DIR}/verifyImageImports.py ${APP_DIR}
+# Guard 2: importing every cog resolves every import the package makes (config.py
+# loads seasonInfo.json at import, so a missing lookup file fails here too).
+RUN python -c "import discord_bot.bot, discord_bot.charts, discord_bot.smoke_test; import discord_bot.cogs.season, discord_bot.cogs.meta, discord_bot.cogs.spec, discord_bot.cogs.dungeon, discord_bot.cogs.comps, discord_bot.cogs.routes, discord_bot.cogs.items, discord_bot.cogs.stats"
+# Guard 3: offline smoke test — fails the build on any embed-limit or shape regression.
+RUN python -m discord_bot.smoke_test
+
+ENTRYPOINT ["/entrypoint.sh"]

@@ -306,6 +306,34 @@ def build_tab(spec_dps, spec_lookup, class_lookup):
     return grouped
 
 
+SIMDPS_ARTIFACT_PATH = os.path.join("assets", "json", "simdps_tierlist.json")
+_ARTIFACT_ROW_KEYS = ("spec_id", "rank", "tier", "name", "class_name", "icon", "primary")
+
+
+def write_simdps_artifact(tabs, simc_version, simmed_str, path=SIMDPS_ARTIFACT_PATH):
+    """Publish the per-target DPS rows as a JSON artifact for the Discord bot.
+
+    The bot has no access to the sim result files (it only reads the DB + published
+    site JSON), so it can't compute multi-target DPS itself. This mirrors the page's
+    already-computed tabs — one slim DPS row list per target count, tiers included —
+    so ``/meta simdps targets:N`` renders exactly what the site shows."""
+    payload = {
+        "simc_version": simc_version,
+        "simmed_at": simmed_str,
+        "targets": [t["targets"] for t in tabs],
+        "tabs": {
+            str(t["targets"]): [
+                {k: row.get(k) for k in _ARTIFACT_ROW_KEYS} for row in t["dps_rows"]
+            ]
+            for t in tabs
+        },
+    }
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(payload, f, separators=(",", ":"))
+    print(f"Generated {path} ({len(tabs)} target tab(s))")
+
+
 def main(template_path, output_dir, sim_results_dir, debug=False):
     season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
 
@@ -342,6 +370,9 @@ def main(template_path, output_dir, sim_results_dir, debug=False):
     if not tabs:
         print("ERROR: sim results contained no known specs; not writing the page", file=sys.stderr)
         sys.exit(2)
+
+    if not debug:
+        write_simdps_artifact(tabs, simc_version, simmed_str)
 
     simmed_str = simmed_at.strftime("%Y-%m-%d") if simmed_at else ""
     is_stale = bool(

@@ -28,16 +28,22 @@ def _spec_entry(item, spec_lookup, class_lookup):
     }
 
 
-def create_spec_tierlist_img(out_path, season):
+def create_spec_tierlist_img(out_path, season, spec_upgrades=None, total_runs=None):
     """Build the spec tierlist card; returns the post_data facts dict or None
-    when there is no spec data. Tiers match the index page exactly."""
+    when there is no spec data. Tiers match the index page exactly.
+
+    ``spec_upgrades`` / ``total_runs`` accept data the caller already fetched;
+    anything left as None is fetched here."""
     spec_lookup = get_spec_lookup()
     class_lookup = get_class_lookup()
 
-    with closing(databaseConnector.get_connection()) as conn:
-        cursor = conn.cursor()
-        spec_upgrades = databaseConnector.fetch_spec_upgrades(conn, cursor)
-        total_runs = databaseConnector.fetch_total_season_runs(conn, cursor, season)
+    if spec_upgrades is None or total_runs is None:
+        with closing(databaseConnector.get_connection()) as conn:
+            cursor = conn.cursor()
+            if spec_upgrades is None:
+                spec_upgrades = databaseConnector.fetch_spec_upgrades(conn, cursor)
+            if total_runs is None:
+                total_runs = databaseConnector.fetch_total_season_runs(conn, cursor, season)
 
     if not spec_upgrades:
         return None

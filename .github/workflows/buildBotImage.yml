@@ -1,0 +1,78 @@
+name: Build and publish bot image
+
+on:
+  push:
+    # Keep this list in sync with every file COPYed into the image in
+    # Dockerfile.bot — otherwise a changed runtime file ships stale (or, for a
+    # file that isn't copied at all, never reaches the container).
+    paths:
+      - 'discord_bot/**'
+      - 'backend_scripts/databaseConnector.py'
+      - 'backend_scripts/commonUtils.py'
+      - 'backend_scripts/chartData.py'
+      - 'backend_scripts/tierMath.py'
+      - 'backend_scripts/verifyImageImports.py'
+      - 'data/static/specs.json'
+      - 'data/static/classes.json'
+      - 'data/static/dungeons.json'
+      - 'data/static/seasonInfo.json'
+      - 'data/static/groupbuffs.json'
+      - 'data/static/periods.json'
+      - 'data/static/npcs.json'
+      - 'data/static/talents/**'
+      - 'Dockerfile.bot'
+      - 'entrypoint_bot.sh'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read commit message (full + one-line)
+        id: commit_msg
+        run: |
+          commit_msg="$(git log -1 --pretty=%B)"
+
+          # write multiline output reliably
+          printf "full<<EOF\n%s\nEOF\n" "$commit_msg" >> "$GITHUB_OUTPUT"
+
+          # one-line safe version for labels (remove newlines, compress spaces, replace double quotes)
+          oneline=$(printf "%s" "$commit_msg" | tr '\n' ' ' | sed -E 's/  +/ /g' | sed -E 's/"/'\''/g')
+          echo "one=$oneline" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push image to GHCR
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.bot
+          push: true
+          tags: |
+            ghcr.io/mythistone/mythistone-bot:latest
+            ghcr.io/mythistone/mythistone-bot:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.description=${{ steps.commit_msg.outputs.one }}
+          annotations: |
+            index:org.opencontainers.image.description=${{ steps.commit_msg.outputs.one }}

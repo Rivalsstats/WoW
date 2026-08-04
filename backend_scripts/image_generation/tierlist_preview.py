@@ -35,8 +35,11 @@ def _blend(fg, bg, a):
     return tuple(int(fg[i] * a + bg[i] * (1 - a)) for i in range(3))
 
 
-def generate_preview_image(rows, spec_lookup, class_lookup, season_name, targets):
+def generate_preview_image(rows, spec_lookup, class_lookup, season_name, targets, out_path=None):
     """Render the 1200x630 og:image preview from one tab's DPS rows.
+
+    ``out_path`` overrides the default og:image location (used by the bot to render
+    the same image into its chart cache); defaults to ``PREVIEW_REL_PATH``.
 
     Self-contained (Pillow only, no DB) and best-effort: any failure — missing
     Pillow, font or icons — is logged and the build continues without a preview,
@@ -161,9 +164,10 @@ def generate_preview_image(rows, spec_lookup, class_lookup, season_name, targets
         except Exception:
             pass
 
-        os.makedirs(os.path.dirname(PREVIEW_REL_PATH), exist_ok=True)
-        img.save(PREVIEW_REL_PATH, "PNG")
-        print(f"Generated {PREVIEW_REL_PATH}")
+        dest = out_path or PREVIEW_REL_PATH
+        os.makedirs(os.path.dirname(dest) or ".", exist_ok=True)
+        img.save(dest, "PNG")
+        print(f"Generated {dest}")
         return True
     except Exception as e:
         print(f"WARN: failed to render tierlist preview image: {e}", file=sys.stderr)

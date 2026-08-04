@@ -52,8 +52,13 @@
     return base + window.location.search + window.location.hash;
   }
 
+  // Most og:titles — and every <title> the document.title fallback sees — end in
+  // "| MythiStone". Each share text below already names the site, as a handle on
+  // X and Bluesky and through the link's own domain on Reddit and Facebook, so
+  // the suffix would only say it a second time.
   function pageTitle() {
-    return metaContent('meta[property="og:title"]') || document.title.trim();
+    var raw = metaContent('meta[property="og:title"]') || document.title;
+    return raw.replace(/\s*[|–-]\s*mythistone\s*$/i, "").trim();
   }
 
   function previewImage() {
