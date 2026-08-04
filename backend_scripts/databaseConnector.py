@@ -1585,6 +1585,7 @@ chosen_run AS (
   SELECT r.*
   FROM runs r
   JOIN maxk m ON r.keystone_level = m.max_keystone
+  JOIN dungeon_data dd ON dd.dungeon_id = r.dungeon_id
   WHERE r.season = %s
     AND EXISTS (
     SELECT 1
@@ -1593,7 +1594,12 @@ chosen_run AS (
     WHERE rm.run_id = r.run_id
       AND mm.spec_id = %s
   )
-  ORDER BY r.duration ASC, r.timestamp ASC
+  -- Tie-break equal key levels by time left on the timer (par - duration),
+  -- so a run that beat a longer timer by more ranks above a barely-timed
+  -- shorter-timer clear even when the latter's raw duration is smaller.
+  -- CAST to SIGNED: duration is unsigned, so over-time runs would otherwise
+  -- underflow the subtraction and error (BIGINT UNSIGNED out of range).
+  ORDER BY (CAST(dd.upgrade_1_duration AS SIGNED) - CAST(r.duration AS SIGNED)) DESC, r.timestamp ASC
   LIMIT 1
 )
 SELECT cr.*, mb.member AS member_id, mb.spec_id AS member_spec_id
@@ -1663,10 +1669,15 @@ FROM runs cr
 LEFT JOIN run_members rm ON rm.run_id = cr.run_id
 LEFT JOIN members mb     ON mb.member = rm.member
 WHERE cr.run_id = (
-    SELECT run_id
-    FROM runs
-    WHERE season = %s
-    ORDER BY keystone_level DESC, duration ASC, run_id ASC
+    -- Highest key level first, then most time left on the timer
+    -- (par - duration) so a bigger cushion against a longer timer outranks
+    -- a barely-timed clear of a shorter-timer dungeon. CAST to SIGNED because
+    -- duration is unsigned; over-time runs would otherwise underflow and error.
+    SELECT r.run_id
+    FROM runs r
+    JOIN dungeon_data dd ON dd.dungeon_id = r.dungeon_id
+    WHERE r.season = %s
+    ORDER BY r.keystone_level DESC, (CAST(dd.upgrade_1_duration AS SIGNED) - CAST(r.duration AS SIGNED)) DESC, r.run_id ASC
     LIMIT 1
 )
 ORDER BY mb.member;
