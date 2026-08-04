@@ -59,10 +59,10 @@ services:
   # MySQL DB (shared DATABASE_* env) plus its own DISCORD_BOT_TOKEN. Watchtower
   # auto-updates it from GHCR like the collector.
   mythistone-bot:
-    build:
-      context: .
-      dockerfile: Dockerfile.bot
-    #image: ghcr.io/mythistone/mythistone-bot:latest
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile.bot
+    image: ghcr.io/mythistone/mythistone-bot:latest
     container_name: mythistone-bot
     network_mode: "host"
     restart: always
