@@ -13,4 +13,5 @@ COG_MODULES = [
     "routes",
     "items",
     "stats",
+    "analyze",
 ]
