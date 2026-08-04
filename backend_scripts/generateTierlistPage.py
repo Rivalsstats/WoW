@@ -371,10 +371,10 @@ def main(template_path, output_dir, sim_results_dir, debug=False):
         print("ERROR: sim results contained no known specs; not writing the page", file=sys.stderr)
         sys.exit(2)
 
+    simmed_str = simmed_at.strftime("%Y-%m-%d") if simmed_at else ""
+
     if not debug:
         write_simdps_artifact(tabs, simc_version, simmed_str)
-
-    simmed_str = simmed_at.strftime("%Y-%m-%d") if simmed_at else ""
     is_stale = bool(
         simmed_at and simmed_at < datetime.now(timezone.utc) - timedelta(days=STALE_DAYS)
     )
