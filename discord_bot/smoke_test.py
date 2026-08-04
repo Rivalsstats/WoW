@@ -12,7 +12,7 @@ import sys
 import discord
 
 from . import charts, embeds, lookups
-from .cogs import comps, dungeon, items, routes, season, spec, stats
+from .cogs import analyze, comps, dungeon, items, routes, season, spec, stats
 from .errors import ValidationError
 from .site_data import RouteIndexes
 
@@ -223,6 +223,22 @@ def test_spec():
     assert_embed(spec.build_stats_embed(sid, fx_stat_info()), "spec.stats")
 
 
+def test_analyze():
+    meta = lookups.SPECS[A_SPEC]
+    token = next(t for t, c in analyze._CLASS_TOKENS.items() if str(c) == str(meta["classID"]))
+    export = f'{token}="X"\nspec={meta["name"].lower()}\nhead=,id=250060,enchant_id=1,gem_id=5\n'
+    parsed = analyze.parse_simc(export)
+    check(parsed["class_id"] == str(meta["classID"]), "parse_simc class")
+    check(parsed["slots"].get("HEAD", {}).get("id") == 250060, "parse_simc slot id")
+    check(analyze.resolve_spec(parsed) == int(A_SPEC), "resolve_spec roundtrip")
+    # off-meta trinket (id 999 vs fixture common 249343) + on-meta head (250060)
+    off = {"slots": {"HEAD": {"id": 250060, "enchant": None, "gems": []},
+                     "TRINKET_1": {"id": 999, "enchant": None, "gems": []}}}
+    assert_embed(analyze.build_analyze_embed(A_SPEC, fx_spec_meta(), off), "analyze (off)")
+    fully = {"slots": {"HEAD": {"id": 250060, "enchant": None, "gems": []}}}
+    assert_embed(analyze.build_analyze_embed(A_SPEC, fx_spec_meta(), fully), "analyze (meta)")
+
+
 def test_dungeon():
     did = A_DUNGEON
     assert_embed(dungeon.build_overview_embed(did), "dungeon.overview")
@@ -310,7 +326,7 @@ def test_items():
 
 
 TESTS = [
-    test_helpers, test_resolvers, test_season, test_spec, test_dungeon,
+    test_helpers, test_resolvers, test_season, test_spec, test_analyze, test_dungeon,
     test_comps, test_routes, test_items, test_stats, test_charts,
 ]
 

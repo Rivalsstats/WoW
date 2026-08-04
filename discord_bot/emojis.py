@@ -119,24 +119,32 @@ def expected() -> list[dict]:
 
 
 async def spec_item_emojis(site_data) -> list[dict]:
-    """``{name, url}`` for the items ``/spec gear`` renders — the most-popular
-    (``common``) pick per slot across all specs (NOT every item). Fetched from the
-    published per-spec ``spec_meta`` artifacts; failures for one spec are skipped."""
+    """``{name, url}`` for the item icons the bot renders — the most-popular
+    (``common``) pick ``/spec gear`` shows plus the SIM/TOP picks the ``/analyze``
+    meta-check suggests (NOT every item). Fetched from the published per-spec
+    ``spec_meta`` artifacts; failures for one spec are skipped."""
     entries, seen = [], set()
+
+    def add(pick):
+        if not isinstance(pick, dict):
+            return
+        iid, icon = pick.get("id"), pick.get("icon")
+        if iid is None or not icon or iid in seen:
+            return
+        seen.add(iid)
+        entries.append({"name": _item_name(iid), "url": lookups.asset_icon_url(icon)})
+
     for sid in lookups.SPECS:
         try:
             meta = await site_data.spec_meta(sid)
         except Exception:  # noqa: BLE001 - one missing spec_meta shouldn't block provisioning
             continue
         for slot in (meta or {}).get("slots", {}).values():
-            pick = slot.get("common")
-            if not isinstance(pick, dict):
-                continue
-            iid, icon = pick.get("id"), pick.get("icon")
-            if iid is None or not icon or iid in seen:
-                continue
-            seen.add(iid)
-            entries.append({"name": _item_name(iid), "url": lookups.asset_icon_url(icon)})
+            add(slot.get("common"))  # /spec gear
+            add(slot.get("sim"))     # /analyze suggestion (preferred)
+            top = slot.get("top") or []
+            if top:
+                add(top[0])          # /analyze suggestion (TOP fallback)
     return entries
 
 

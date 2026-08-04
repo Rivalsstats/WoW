@@ -58,7 +58,7 @@ RUN pip install --no-cache-dir \
 RUN python ${APP_DIR}/verifyImageImports.py ${APP_DIR}
 # Guard 2: importing every cog resolves every import the package makes (config.py
 # loads seasonInfo.json at import, so a missing lookup file fails here too).
-RUN python -c "import discord_bot.bot, discord_bot.charts, discord_bot.smoke_test; import discord_bot.cogs.season, discord_bot.cogs.meta, discord_bot.cogs.spec, discord_bot.cogs.dungeon, discord_bot.cogs.comps, discord_bot.cogs.routes, discord_bot.cogs.items, discord_bot.cogs.stats"
+RUN python -c "import discord_bot.bot, discord_bot.charts, discord_bot.smoke_test; import discord_bot.cogs.season, discord_bot.cogs.meta, discord_bot.cogs.spec, discord_bot.cogs.dungeon, discord_bot.cogs.comps, discord_bot.cogs.routes, discord_bot.cogs.items, discord_bot.cogs.stats, discord_bot.cogs.analyze"
 # Guard 3: offline smoke test — fails the build on any embed-limit or shape regression.
 RUN python -m discord_bot.smoke_test
 
