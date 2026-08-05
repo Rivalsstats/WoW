@@ -446,6 +446,33 @@ jobs:
         with:
           path: '_site'
 
+      # Cold-storage snapshot of the exact deployed site for later archive view.
+      - name: Archive snapshot to season branch (separate repo)
+        env:
+          ARCHIVE_DEPLOY_KEY: ${{ secrets.ARCHIVE_DEPLOY_KEY }}
+          ARCHIVE_REPO: git@github.com:MythiStone/Mythistone_Archive.git
+        run: |
+          set -euo pipefail
+          SEASON_ID=$(jq -r .blizzard_season_id data/static/seasonInfo.json)
+          SLUG=$(jq -r .slug data/static/seasonInfo.json)
+          NOW=$(date -u +%FT%TZ)
+          # Provenance marker inside the snapshot root
+          printf '{"blizzard_season_id": %s, "slug": "%s", "snapshot_utc": "%s", "source_commit": "%s"}\n' \
+            "$SEASON_ID" "$SLUG" "$NOW" "$GITHUB_SHA" > _site/SNAPSHOT.json
+          # SSH auth via write-enabled deploy key on the archive repo
+          mkdir -p ~/.ssh
+          echo "$ARCHIVE_DEPLOY_KEY" > ~/.ssh/archive_key
+          chmod 600 ~/.ssh/archive_key
+          export GIT_SSH_COMMAND="ssh -i ~/.ssh/archive_key -o StrictHostKeyChecking=accept-new"
+          cd _site
+          git init -q
+          git checkout -q -b "season-${SEASON_ID}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Snapshot ${SLUG} (season ${SEASON_ID}) @ ${NOW}"
+          git push --force "$ARCHIVE_REPO" "season-${SEASON_ID}"
+
   deploy:
     environment:
       name: github-pages
