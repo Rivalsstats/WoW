@@ -67,6 +67,66 @@ GLOBAL_STATS = stats.StatsCollector(
     route_db_queue=route_db_queue,
 )
 
+# --- Season-rollover write gate (see database.sql wipe_control / ev_season_wipe) ---
+# During a season wipe the DB is blanket-cleared; this gate lets the collector
+# quiesce its writers so the clear runs against idle tables. The wipe_watch()
+# coroutine polls wipe_control, pauses the gate while a wipe is pending, and acks
+# collector_paused=1 once every in-flight write section has drained.
+WIPE_POLL_SECONDS = float(getenv_clean("WIPE_POLL_SECONDS", "30"))
+# Failsafe: never stay paused longer than this without the wipe completing, so a
+# stuck or never-approved request can't halt collection forever.
+WIPE_MAX_PAUSE_SECONDS = float(getenv_clean("WIPE_MAX_PAUSE_SECONDS", str(60 * 60)))
+
+
+class WriteGate:
+    """Cooperative pause for DB writers during a season-rollover wipe.
+
+    Wrap a counted write section with ``begin()``/``end()`` (or ``async with``):
+    a paused gate blocks new sections from starting, and ``is_quiesced()`` is true
+    only once every in-flight section has exited — that is the signal the DB event
+    waits for before it truncates. ``pause_point()`` is a lighter, uncounted check
+    for periodic writers to stop *between* units of work.
+    """
+
+    def __init__(self):
+        self._allowed = asyncio.Event()
+        self._allowed.set()
+        self._in_flight = 0
+
+    async def begin(self):
+        await self._allowed.wait()
+        self._in_flight += 1
+
+    def end(self):
+        self._in_flight -= 1
+
+    async def __aenter__(self):
+        await self.begin()
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        self.end()
+        return False
+
+    async def pause_point(self):
+        await self._allowed.wait()
+
+    def pause(self):
+        self._allowed.clear()
+
+    def resume(self):
+        self._allowed.set()
+
+    @property
+    def paused(self):
+        return not self._allowed.is_set()
+
+    def is_quiesced(self):
+        return (not self._allowed.is_set()) and self._in_flight == 0
+
+
+WRITE_GATE = WriteGate()
+
 try:
     policy = asyncio.WindowsSelectorEventLoopPolicy()
     asyncio.set_event_loop_policy(policy)
@@ -93,7 +153,7 @@ databaseConnector.init_connection_pool(
     getenv_clean("DATABASE_PASSWORD"),
     getenv_clean("DATABASE_NAME"),
     getenv_clean("DATABASE_PORT"),
-    DATABASE_WORKERS + 3,  # +2 for route_db_worker and run_raiderio_top_loadouts and simworker
+    DATABASE_WORKERS + 4,  # +route_db_worker +run_raiderio_top_loadouts +simworker +wipe_watch
 )
 
 if args.region:
@@ -329,6 +389,7 @@ async def route_db_worker(name: str):
 
                 raider_reduced, keystone_route = job
                 route_key = keystone_route.get("publicKey") or raider_reduced.get("route_key")
+                await WRITE_GATE.begin()  # yield to a pending season wipe
                 try:
                     print(f"[{name}] Processing route {route_key} for run {raider_reduced.get('keystone_run_id')}")
                     rio_run_id = int(raider_reduced.get("keystone_run_id") or 0)
@@ -383,6 +444,7 @@ async def route_db_worker(name: str):
                     conn.rollback()
                     GLOBAL_STATS.console_log(f"[{name}] DB insert route error: {e}")
                 finally:
+                    WRITE_GATE.end()
                     route_db_queue.task_done()
     except Exception as e:
         GLOBAL_STATS.console_log(f"[{name}] CRITICAL ERROR starting route worker (connection pool?): {e}")
@@ -1202,6 +1264,7 @@ async def run_raiderio_top_loadouts(session):
         for spec_id_str, spec_info in specs.items():
             if cancel_event.is_set():
                 break
+            await WRITE_GATE.pause_point()  # hold between specs while a season wipe runs
             try:
                 spec_id = int(spec_id_str)
                 spec_name = spec_info.get("name")
@@ -2091,6 +2154,7 @@ async def database_worker(name: str):
                     await process_batch(name, conn, cursor, batch, GLOBAL_STATS)
                 break
             if len(batch) >= BATCH_SIZE:
+                await WRITE_GATE.begin()  # yield to a pending season wipe
                 try:
                     await process_batch(name, conn, cursor, batch, GLOBAL_STATS)
                     batch.clear()
@@ -2101,11 +2165,86 @@ async def database_worker(name: str):
                     traceback.print_exc()
                     conn.rollback()
                     continue
+                finally:
+                    WRITE_GATE.end()
 
         # `with closing(...)` returns the pooled connection exactly once on exit;
         # do not call conn.close() here or it double-returns and injects a surplus
         # connection into the shared pool ("Failed adding connection; queue is full").
         cursor.close()
+
+
+async def wipe_watch():
+    """Poll wipe_control and drive the collector side of the season-wipe handshake.
+
+    While a wipe is pending (request_season > done_season) the write gate is paused
+    and we ack collector_paused=1 once writers are quiesced; the DB event then does
+    the blanket clear. When it finishes (done catches up) we resume. A failsafe
+    resumes writers if a request lingers too long without completing so collection
+    can never be halted indefinitely by an unapproved/stuck request."""
+    loop = asyncio.get_running_loop()
+    paused_since = None
+    failsafe_request = None  # request_season we've given up waiting on
+    while not cancel_event.is_set():
+        try:
+            state = await loop.run_in_executor(
+                None, databaseConnector.read_wipe_control
+            )
+        except Exception as e:
+            GLOBAL_STATS.console_log(f"wipe_watch: could not read wipe_control: {e}")
+            await asyncio.sleep(WIPE_POLL_SECONDS)
+            continue
+
+        now_ms = int(time.time() * 1000)
+        pending = bool(state) and state["request_season"] > state["done_season"]
+        req = state["request_season"] if state else 0
+
+        if not pending:
+            # nothing (or no longer anything) requested
+            if WRITE_GATE.paused:
+                WRITE_GATE.resume()
+                GLOBAL_STATS.console_log("wipe_watch: wipe cleared; resuming DB writers")
+            paused_since = None
+            failsafe_request = None
+            await loop.run_in_executor(
+                None, databaseConnector.set_collector_wipe_state, False, now_ms
+            )
+        elif failsafe_request == req:
+            # already gave up on this exact request; stay resumed, report not paused
+            await loop.run_in_executor(
+                None, databaseConnector.set_collector_wipe_state, False, now_ms
+            )
+        else:
+            if not WRITE_GATE.paused:
+                WRITE_GATE.pause()
+                paused_since = time.monotonic()
+                GLOBAL_STATS.console_log(
+                    f"wipe_watch: season wipe requested (season {req}); pausing DB writers"
+                )
+            if paused_since is not None and (
+                time.monotonic() - paused_since
+            ) > WIPE_MAX_PAUSE_SECONDS:
+                GLOBAL_STATS.console_log(
+                    "ERROR: wipe_watch failsafe tripped — paused > "
+                    f"{WIPE_MAX_PAUSE_SECONDS:.0f}s without the wipe completing; "
+                    "resuming writers and no longer honoring this request"
+                )
+                WRITE_GATE.resume()
+                paused_since = None
+                failsafe_request = req
+                await loop.run_in_executor(
+                    None, databaseConnector.set_collector_wipe_state, False, now_ms
+                )
+            else:
+                # report quiescence so the DB event may proceed once writers idle
+                await loop.run_in_executor(
+                    None,
+                    databaseConnector.set_collector_wipe_state,
+                    WRITE_GATE.is_quiesced(),
+                    now_ms,
+                )
+
+        await asyncio.sleep(WIPE_POLL_SECONDS)
 
 
 async def main():
@@ -2200,6 +2339,8 @@ async def main():
 
         tasks.append(asyncio.create_task(route_poller_task(session)))
         tasks.append(asyncio.create_task(run_raiderio_top_loadouts(session)))
+        # Season-rollover wipe handshake: pauses DB writers while a wipe runs.
+        tasks.append(asyncio.create_task(wipe_watch()))
 
         # SimulationCraft per-slot BiS collector (runs continuously, one spec at a
         # time). Gated behind SIMC_ENABLED so deployments without a simc image /
@@ -2218,6 +2359,7 @@ async def main():
                         stats=GLOBAL_STATS,
                         get_season=(lambda conn, cursor: simc_season) if simc_season else None,
                         reporter=reporter,
+                        pause_check=WRITE_GATE.pause_point,
                     )
                 )
             )
@@ -2225,6 +2367,20 @@ async def main():
         GLOBAL_STATS.console_log(
             f"Started {len(tasks)} tasks for processing realms across all regions."
         )
+        # If a season wipe is already pending, start writers paused so we never
+        # write into tables the DB event is about to clear (closes the startup gap
+        # before wipe_watch's first poll).
+        try:
+            _wipe_state = await asyncio.get_running_loop().run_in_executor(
+                None, databaseConnector.read_wipe_control
+            )
+            if _wipe_state and _wipe_state["request_season"] > _wipe_state["done_season"]:
+                WRITE_GATE.pause()
+                GLOBAL_STATS.console_log(
+                    "Season wipe already pending at startup; DB writers start paused"
+                )
+        except Exception as e:
+            GLOBAL_STATS.console_log(f"Could not read initial wipe state: {e}")
         simple_workers = [
             asyncio.create_task(simple_worker(f"simple-{i}", session))
             for i in range(WORKERS_PER_REALM)

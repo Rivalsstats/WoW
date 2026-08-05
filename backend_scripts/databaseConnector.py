@@ -4273,3 +4273,62 @@ def fetch_simc_bis_overview(connection, cursor, season):
                 }
             )
     return out
+
+
+# ---------------------------------------------------------------------------
+# Season-rollover wipe handshake (see database.sql `wipe_control` / ev_season_wipe)
+# ---------------------------------------------------------------------------
+def read_wipe_control():
+    """Return the single-row wipe_control state as a dict, or None if the table
+    does not exist yet (older DBs without the rollover-wipe feature applied)."""
+    conn = get_connection()
+    try:
+        cursor = conn.cursor(dictionary=True)
+        try:
+            cursor.execute(
+                "SELECT request_season, done_season, collector_paused, "
+                "collector_beat, requested_at FROM wipe_control WHERE id = 1"
+            )
+            row = cursor.fetchone()
+        finally:
+            cursor.close()
+        conn.commit()  # release the read's MDL under the pool's autocommit=0 default
+        if not row:
+            return None
+        return {
+            "request_season": int(row["request_season"]),
+            "done_season": int(row["done_season"]),
+            "collector_paused": int(row["collector_paused"]),
+            "collector_beat": int(row["collector_beat"]),
+            "requested_at": int(row["requested_at"]),
+        }
+    except mysql.connector.errors.ProgrammingError as err:
+        # ER_NO_SUCH_TABLE (1146): feature not deployed to this DB — treat as "no wipe".
+        if err.errno == 1146:
+            return None
+        raise
+    finally:
+        conn.close()
+
+
+def set_collector_wipe_state(paused, beat_ms):
+    """Collector ack: record whether its writers are currently quiesced plus a
+    heartbeat (unix ms). Best-effort; no-op if the table is absent."""
+    conn = get_connection()
+    try:
+        cursor = conn.cursor()
+        try:
+            cursor.execute(
+                "UPDATE wipe_control SET collector_paused = %s, collector_beat = %s "
+                "WHERE id = 1",
+                (1 if paused else 0, int(beat_ms)),
+            )
+        finally:
+            cursor.close()
+        conn.commit()
+    except mysql.connector.errors.ProgrammingError as err:
+        if err.errno == 1146:
+            return
+        raise
+    finally:
+        conn.close()

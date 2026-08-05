@@ -1,0 +1,114 @@
+name: Season Rollover DB Wipe
+
+# Requests a blanket DB wipe at a WoW season rollover — but only after the old
+# season's site snapshot exists in the archive repo, and only after a human
+# approves. This workflow does NOT delete anything itself: it raises an intent
+# flag (wipe_control.request_season) that the paused collector + the MySQL event
+# ev_season_wipe act on. See backend_scripts/database.sql and the plan for the
+# full handshake.
+
+on:
+  # Run after a successful site build+deploy, so the archive snapshot is fresh.
+  workflow_run:
+    workflows: ["Build Jinja Pages"]
+    types: [completed]
+  workflow_dispatch:
+
+concurrency:
+  group: "season-wipe"
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  # Detect whether a rollover wipe should be requested. No environment here, so a
+  # no-op run never triggers the approval prompt.
+  detect:
+    runs-on: ubuntu-latest
+    # Only proceed on a successful build (or a manual run).
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    outputs:
+      proceed: ${{ steps.gate.outputs.proceed }}
+      current: ${{ steps.dbdetect.outputs.current }}
+    steps:
+      - name: Clone project
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          ref: main
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install mysql-connector-python
+
+      - name: Detect pending season rollover
+        id: dbdetect
+        env:
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORT }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+        run: python backend_scripts/requestSeasonWipe.py --detect
+
+      - name: Confirm the old season's archive branch exists
+        id: gate
+        if: ${{ steps.dbdetect.outputs.should_wipe == 'true' }}
+        env:
+          ARCHIVE_DEPLOY_KEY: ${{ secrets.ARCHIVE_DEPLOY_KEY }}
+          OLDMAX: ${{ steps.dbdetect.outputs.oldmax }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          echo "$ARCHIVE_DEPLOY_KEY" > ~/.ssh/archive_key
+          chmod 600 ~/.ssh/archive_key
+          export GIT_SSH_COMMAND="ssh -i ~/.ssh/archive_key -o StrictHostKeyChecking=accept-new"
+          if git ls-remote --heads --exit-code \
+               git@github.com:MythiStone/Mythistone_Archive.git "season-${OLDMAX}" >/dev/null; then
+            echo "Archive branch season-${OLDMAX} present — clearing is safe."
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::Archive branch season-${OLDMAX} MISSING — not requesting a wipe."
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  # Raise the intent flag. The environment gate is the manual approval; it only
+  # fires when detect said proceed=true, so approvals are requested only on a real
+  # rollover.
+  request-wipe:
+    needs: detect
+    if: ${{ needs.detect.outputs.proceed == 'true' }}
+    runs-on: ubuntu-latest
+    environment: production-wipe
+    steps:
+      - name: Clone project
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          ref: main
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install mysql-connector-python
+
+      - name: Raise wipe request
+        env:
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORT }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+        run: python backend_scripts/requestSeasonWipe.py --commit --season "${{ needs.detect.outputs.current }}"

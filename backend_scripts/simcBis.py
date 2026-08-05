@@ -2063,13 +2063,15 @@ def pick_next_spec(conn, cursor, specs, season):
 # Public entrypoint (wired into collectLeaderboardData.main)
 # --------------------------------------------------------------------------
 
-async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, reporter=None):
+async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, reporter=None, pause_check=None):
     """Continuously simulate per-slot BiS, one spec at a time, round-robin.
 
     `get_season(conn, cursor)` -> int season id. If omitted, falls back to the
     SIMC_SEASON env var. `session` is accepted for signature parity with the
     other collector tasks (not used directly). `reporter` is the DiscordReporter
-    used to surface error conditions (instead of failing silently).
+    used to surface error conditions (instead of failing silently). `pause_check`
+    is an optional awaitable called between specs; it blocks while a season-rollover
+    wipe is pending so this task doesn't write into tables about to be cleared.
     """
     from contextlib import closing
 
@@ -2107,6 +2109,8 @@ async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, 
     last_pull = asyncio.get_event_loop().time()
 
     while not _cancelled():
+        if pause_check is not None:
+            await pause_check()  # hold between specs while a season wipe runs
         # refresh the simc image periodically
         if (asyncio.get_event_loop().time() - last_pull) > SIMC_PULL_INTERVAL:
             await pull_simc_image(stats)
