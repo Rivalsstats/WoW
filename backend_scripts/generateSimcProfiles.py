@@ -28,6 +28,7 @@ import json
 import argparse
 from contextlib import closing
 from datetime import datetime, timezone
+from pathlib import Path
 
 import databaseConnector
 import simcBis
@@ -251,7 +252,12 @@ if __name__ == "__main__":
 
     season = args.season
     if season is None:
-        season_info = json.loads((simcBis.STATIC_DIR / "seasonInfo.json").read_text(encoding="utf-8"))
+        # MYTHISTONE_SEASON_INFO lets a final snapshot of the outgoing season be
+        # built after seasonInfo.json has flipped (see commonUtils.load_season_info).
+        season_info_path = os.environ.get("MYTHISTONE_SEASON_INFO", "").strip() or str(
+            simcBis.STATIC_DIR / "seasonInfo.json"
+        )
+        season_info = json.loads(Path(season_info_path).read_text(encoding="utf-8"))
         season = season_info.get("blizzard_season_id")
     if not season:
         print("ERROR: no season id (pass --season or set blizzard_season_id in seasonInfo.json)", file=sys.stderr)

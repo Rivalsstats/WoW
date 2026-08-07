@@ -14,7 +14,7 @@ import argparse
 from datetime import datetime, timezone
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from pageGeneration import generateSpecNav, generateDungeonNav
-from commonUtils import LOOKUP_DIR, load_json, occupies_both_hands
+from commonUtils import LOOKUP_DIR, load_json, load_season_info, occupies_both_hands
 
 TEMPLATE_PATH = "templates"
 
@@ -145,7 +145,7 @@ def main(template_path, output_dir):
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
     dungeon_lookup = load_json(os.path.join(LOOKUP_DIR, "dungeons.json"))
     notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
-    season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
+    season_info = load_season_info(LOOKUP_DIR)
 
     spec_index, spec_display = build_spec_index(spec_lookup, class_lookup)
     item_icon_buckets = write_item_icon_shards()

@@ -16,6 +16,7 @@ from generateSpecPages import (
     format_utc_timestamp,
     upgrade_info,
     load_json,
+    load_season_info,
 )
 
 try:
@@ -528,7 +529,7 @@ def main(template_path, output_dir):
     spec_lookup = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
     notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
-    season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
+    season_info = load_season_info(LOOKUP_DIR)
     spec_nav = generateSpecNav(spec_lookup, class_lookup)
     dungeon_nav = generateDungeonNav(dungeon_lookup)
 

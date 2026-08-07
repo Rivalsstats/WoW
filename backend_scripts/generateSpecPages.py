@@ -20,6 +20,7 @@ from commonUtils import (
     TERTIARY_STATS,
     HEALTH_STATS,
     load_json,
+    load_season_info,
     occupies_both_hands,
     upgrade_info,
     humanize_number,
@@ -1966,7 +1967,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
             _r["stats"] = normalized
     spec_lookup = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
-    season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
+    season_info = load_season_info(LOOKUP_DIR)
     os.makedirs(output_dir, exist_ok=True)
 
     set_members = defaultdict(list)

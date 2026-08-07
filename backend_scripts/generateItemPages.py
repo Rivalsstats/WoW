@@ -14,7 +14,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 import databaseConnector
 from pageGeneration import generateSpecNav, generateDungeonNav, build_item_slug_map
 from generateSpecPages import (
-    LOOKUP_DIR, load_json, BLIZZARD_STAT_MAP,
+    LOOKUP_DIR, load_json, load_season_info, BLIZZARD_STAT_MAP,
     LEFT_ORDER, RIGHT_ORDER, WEAPON_SLOTS, TRINKET_SLOTS, MULTI_SLOT_GROUPS,
     GEAR_LIST_MIN_KEEP, GEAR_LIST_MIN_SLOT_SHARE,
 )
@@ -422,7 +422,7 @@ def load_static_lookups():
     """Load every DB-free static lookup the item build needs, returned as a ctx
     dict shared by the full page build (``main``) and the single-item debug
     renderer in renderAllSocialImages."""
-    season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
+    season_info = load_season_info(LOOKUP_DIR)
     season = season_info.get("blizzard_season_id")
 
     # ---- static lookups -------------------------------------------------

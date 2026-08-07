@@ -21,7 +21,7 @@ from collections import Counter, defaultdict
 import argparse
 import databaseConnector
 import traceback
-from contextlib import closing
+from contextlib import closing, suppress
 import shutil
 from dotenv import load_dotenv
 import stats
@@ -46,6 +46,10 @@ GHA_TIMEOUT = 60 * 60 * 24
 HARD_TIMEOUT = GHA_TIMEOUT + 30 * 60  # force cancel after 30 minutes past GHA_TIMEOUT
 cancel_event = asyncio.Event()
 shutdown_event = asyncio.Event()
+# Set when the process must restart to pick up state it only resolves at startup
+# (season + active period). runner() winds the collector down so the container
+# supervisor (`restart: always`) brings us back with fresh values.
+restart_event = asyncio.Event()
 MAX_GLOBAL_BACKOFF = 60.0
 WORKERS_PER_REALM = int(getenv_clean("WORKERS_PER_REALM", "5"))
 POLL_INTERVAL_SECONDS = int(getenv_clean("POLL_INTERVAL_SECONDS", "300"))
@@ -74,8 +78,23 @@ GLOBAL_STATS = stats.StatsCollector(
 # collector_paused=1 once every in-flight write section has drained.
 WIPE_POLL_SECONDS = float(getenv_clean("WIPE_POLL_SECONDS", "30"))
 # Failsafe: never stay paused longer than this without the wipe completing, so a
-# stuck or never-approved request can't halt collection forever.
-WIPE_MAX_PAUSE_SECONDS = float(getenv_clean("WIPE_MAX_PAUSE_SECONDS", str(60 * 60)))
+# stuck or never-approved request can't halt collection forever. Must comfortably
+# exceed a full nightly agg-pipeline run: the pipeline holds GET_LOCK('agg_pipeline'),
+# which is exactly what keeps ev_season_wipe from firing, so a value shorter than
+# the pipeline makes the failsafe trip on a *healthy* wipe.
+WIPE_MAX_PAUSE_SECONDS = float(getenv_clean("WIPE_MAX_PAUSE_SECONDS", str(4 * 60 * 60)))
+# After giving up on a request, wait this long before trying the handshake again.
+# Without this the give-up is permanent for the process lifetime and the wipe can
+# never happen — re-running the CI job doesn't help, because it re-raises the same
+# request_season we already blacklisted.
+WIPE_FAILSAFE_RETRY_SECONDS = float(
+    getenv_clean("WIPE_FAILSAFE_RETRY_SECONDS", str(int(WIPE_MAX_PAUSE_SECONDS)))
+)
+# Grace period for the collector to wind down after a post-wipe restart request
+# before we cancel it outright. Kept short on purpose: the write gate stays paused
+# across the restart, so anything still queued is old-season work we do not want
+# written anyway.
+WIPE_RESTART_GRACE_SECONDS = float(getenv_clean("WIPE_RESTART_GRACE_SECONDS", "30"))
 
 
 class WriteGate:
@@ -1460,6 +1479,7 @@ async def run_raiderio_top_loadouts(session):
                             except Exception:
                                 lut = None
 
+                        gated = False
                         try:
                             # determine integer DB season id
                             db_season = None
@@ -1494,6 +1514,14 @@ async def run_raiderio_top_loadouts(session):
                             if map_challenge_mode_id is None:
                                 # nothing to insert for this dungeon
                                 continue
+
+                            # Hold the write gate across this loadout's writes. The
+                            # pause_point() between specs is not enough on its own:
+                            # it is uncounted, so is_quiesced() could report idle
+                            # mid-loadout and let ev_season_wipe truncate
+                            # top_player_* while these inserts are still landing.
+                            await WRITE_GATE.begin()
+                            gated = True
 
                             # Delete existing meta (cascades children), then insert meta + children in a transaction
                             deleted = databaseConnector.delete_top_player_meta(conn, cursor, spec_id, r, int(map_challenge_mode_id))
@@ -1576,6 +1604,9 @@ async def run_raiderio_top_loadouts(session):
                             GLOBAL_STATS.console_log(f"DB error inserting top loadout for spec {spec_id} rank {r}: {e}")
                             traceback.print_exc()
                             continue
+                        finally:
+                            if gated:
+                                WRITE_GATE.end()
 
             except Exception as e:
                 GLOBAL_STATS.console_log(f"Error processing spec {spec_id}: {e}")
@@ -2151,7 +2182,14 @@ async def database_worker(name: str):
             database_queue.task_done()
             if run_obj is None:
                 if batch:
-                    await process_batch(name, conn, cursor, batch, GLOBAL_STATS)
+                    # same gating as the steady-state flush below: a shutdown
+                    # landing mid-wipe must not write into tables the DB event
+                    # is about to truncate
+                    await WRITE_GATE.begin()
+                    try:
+                        await process_batch(name, conn, cursor, batch, GLOBAL_STATS)
+                    finally:
+                        WRITE_GATE.end()
                 break
             if len(batch) >= BATCH_SIZE:
                 await WRITE_GATE.begin()  # yield to a pending season wipe
@@ -2179,72 +2217,142 @@ async def wipe_watch():
 
     While a wipe is pending (request_season > done_season) the write gate is paused
     and we ack collector_paused=1 once writers are quiesced; the DB event then does
-    the blanket clear. When it finishes (done catches up) we resume. A failsafe
-    resumes writers if a request lingers too long without completing so collection
-    can never be halted indefinitely by an unapproved/stuck request."""
+    the blanket clear. Once it finishes we request a process restart rather than
+    simply resuming — see the `armed_for` branch below. A failsafe resumes writers
+    if a request lingers too long without completing so collection can never be
+    halted indefinitely by an unapproved/stuck request.
+
+    Every tick is individually guarded: this coroutine owns the only path that can
+    un-pause the write gate, so it must never die. A transient DB error that killed
+    it while paused would silently halt all collection (asyncio.gather in main()
+    swallows the traceback) and take the failsafe down with it."""
     loop = asyncio.get_running_loop()
     paused_since = None
     failsafe_request = None  # request_season we've given up waiting on
-    while not cancel_event.is_set():
-        try:
-            state = await loop.run_in_executor(
-                None, databaseConnector.read_wipe_control
-            )
-        except Exception as e:
-            GLOBAL_STATS.console_log(f"wipe_watch: could not read wipe_control: {e}")
+    failsafe_until = 0.0  # monotonic deadline after which we retry it
+    armed_for = None  # request_season this process actually quiesced for
+    restarting = False  # leaving deliberately, with writers still gated
+
+    try:
+        while not cancel_event.is_set():
+            try:
+                state = await loop.run_in_executor(
+                    None, databaseConnector.read_wipe_control
+                )
+
+                now_ms = int(time.time() * 1000)
+                now_mono = time.monotonic()
+                pending = bool(state) and state["request_season"] > state["done_season"]
+                req = state["request_season"] if state else 0
+                done = state["done_season"] if state else 0
+
+                # Re-arm a request we previously gave up on, so a transient blocker
+                # (typically a long nightly pipeline holding agg_pipeline) can't
+                # strand the wipe for the lifetime of this process.
+                if failsafe_request is not None and (
+                    failsafe_request != req or now_mono >= failsafe_until
+                ):
+                    if failsafe_request == req:
+                        GLOBAL_STATS.console_log(
+                            f"wipe_watch: retrying season wipe request {req} after "
+                            "the failsafe cooldown"
+                        )
+                    failsafe_request = None
+
+                if not pending:
+                    if armed_for is not None and done >= armed_for:
+                        # The wipe we quiesced for completed. Season and active
+                        # period were resolved once at startup, so resuming would
+                        # re-insert rows for the season that was just cleared —
+                        # and wipe_control.done_season now blocks any further
+                        # wipe, so those rows would survive the whole season.
+                        # Restart instead and pick the new season up cleanly.
+                        #
+                        # The gate deliberately stays paused: everything still
+                        # queued is old-season work, and runner() cancels us
+                        # shortly anyway.
+                        restarting = True
+                        GLOBAL_STATS.console_log(
+                            f"wipe_watch: season wipe {armed_for} completed; "
+                            "requesting restart to pick up the new season/period"
+                        )
+                        await loop.run_in_executor(
+                            None,
+                            databaseConnector.set_collector_wipe_state,
+                            False,
+                            now_ms,
+                        )
+                        restart_event.set()
+                        return
+                    # nothing (or no longer anything) requested
+                    if WRITE_GATE.paused:
+                        WRITE_GATE.resume()
+                        GLOBAL_STATS.console_log(
+                            "wipe_watch: wipe cleared; resuming DB writers"
+                        )
+                    paused_since = None
+                    armed_for = None
+                    await loop.run_in_executor(
+                        None, databaseConnector.set_collector_wipe_state, False, now_ms
+                    )
+                elif failsafe_request == req:
+                    # still inside the cooldown for this request; stay resumed and
+                    # report not paused so the DB event keeps waiting
+                    await loop.run_in_executor(
+                        None, databaseConnector.set_collector_wipe_state, False, now_ms
+                    )
+                else:
+                    if not WRITE_GATE.paused:
+                        WRITE_GATE.pause()
+                        GLOBAL_STATS.console_log(
+                            f"wipe_watch: season wipe requested (season {req}); "
+                            "pausing DB writers"
+                        )
+                    # also covers the case where main() pre-paused us at startup
+                    if paused_since is None:
+                        paused_since = now_mono
+                    armed_for = req
+
+                    if (now_mono - paused_since) > WIPE_MAX_PAUSE_SECONDS:
+                        GLOBAL_STATS.console_log(
+                            "ERROR: wipe_watch failsafe tripped — paused > "
+                            f"{WIPE_MAX_PAUSE_SECONDS:.0f}s without the wipe completing; "
+                            "resuming writers and retrying in "
+                            f"{WIPE_FAILSAFE_RETRY_SECONDS:.0f}s"
+                        )
+                        WRITE_GATE.resume()
+                        paused_since = None
+                        armed_for = None
+                        failsafe_request = req
+                        failsafe_until = now_mono + WIPE_FAILSAFE_RETRY_SECONDS
+                        await loop.run_in_executor(
+                            None,
+                            databaseConnector.set_collector_wipe_state,
+                            False,
+                            now_ms,
+                        )
+                    else:
+                        # report quiescence so the DB event may proceed once writers idle
+                        await loop.run_in_executor(
+                            None,
+                            databaseConnector.set_collector_wipe_state,
+                            WRITE_GATE.is_quiesced(),
+                            now_ms,
+                        )
+            except Exception as e:
+                GLOBAL_STATS.console_log(f"wipe_watch: poll failed: {e}")
+                traceback.print_exc()
+
             await asyncio.sleep(WIPE_POLL_SECONDS)
-            continue
-
-        now_ms = int(time.time() * 1000)
-        pending = bool(state) and state["request_season"] > state["done_season"]
-        req = state["request_season"] if state else 0
-
-        if not pending:
-            # nothing (or no longer anything) requested
-            if WRITE_GATE.paused:
-                WRITE_GATE.resume()
-                GLOBAL_STATS.console_log("wipe_watch: wipe cleared; resuming DB writers")
-            paused_since = None
-            failsafe_request = None
-            await loop.run_in_executor(
-                None, databaseConnector.set_collector_wipe_state, False, now_ms
+    finally:
+        # Nothing else can un-pause the gate. If we are leaving for any reason
+        # other than a deliberate post-wipe restart, writers must not stay blocked.
+        if WRITE_GATE.paused and not restarting:
+            WRITE_GATE.resume()
+            GLOBAL_STATS.console_log(
+                "ERROR: wipe_watch exited with the write gate still paused; "
+                "resuming DB writers"
             )
-        elif failsafe_request == req:
-            # already gave up on this exact request; stay resumed, report not paused
-            await loop.run_in_executor(
-                None, databaseConnector.set_collector_wipe_state, False, now_ms
-            )
-        else:
-            if not WRITE_GATE.paused:
-                WRITE_GATE.pause()
-                paused_since = time.monotonic()
-                GLOBAL_STATS.console_log(
-                    f"wipe_watch: season wipe requested (season {req}); pausing DB writers"
-                )
-            if paused_since is not None and (
-                time.monotonic() - paused_since
-            ) > WIPE_MAX_PAUSE_SECONDS:
-                GLOBAL_STATS.console_log(
-                    "ERROR: wipe_watch failsafe tripped — paused > "
-                    f"{WIPE_MAX_PAUSE_SECONDS:.0f}s without the wipe completing; "
-                    "resuming writers and no longer honoring this request"
-                )
-                WRITE_GATE.resume()
-                paused_since = None
-                failsafe_request = req
-                await loop.run_in_executor(
-                    None, databaseConnector.set_collector_wipe_state, False, now_ms
-                )
-            else:
-                # report quiescence so the DB event may proceed once writers idle
-                await loop.run_in_executor(
-                    None,
-                    databaseConnector.set_collector_wipe_state,
-                    WRITE_GATE.is_quiesced(),
-                    now_ms,
-                )
-
-        await asyncio.sleep(WIPE_POLL_SECONDS)
 
 
 async def main():
@@ -2290,6 +2398,24 @@ async def main():
             session, GLOBAL_STATS, interval_seconds=300
         )
         await reporter.start()
+
+        # If a season wipe is already pending, start writers paused so we never
+        # write into tables the DB event is about to clear (closes the startup gap
+        # before wipe_watch's first poll). This has to happen before the first
+        # writer task is created: every `await` below yields the loop, and a task
+        # created earlier would sail straight through its pause_point().
+        try:
+            _wipe_state = await asyncio.get_running_loop().run_in_executor(
+                None, databaseConnector.read_wipe_control
+            )
+            if _wipe_state and _wipe_state["request_season"] > _wipe_state["done_season"]:
+                WRITE_GATE.pause()
+                GLOBAL_STATS.console_log(
+                    "Season wipe already pending at startup; DB writers start paused"
+                )
+        except Exception as e:
+            GLOBAL_STATS.console_log(f"Could not read initial wipe state: {e}")
+
         tasks = []
         for region in REGIONS:
             GLOBAL_STATS.console_log(f"Processing region: {region}")
@@ -2360,6 +2486,7 @@ async def main():
                         get_season=(lambda conn, cursor: simc_season) if simc_season else None,
                         reporter=reporter,
                         pause_check=WRITE_GATE.pause_point,
+                        write_gate=WRITE_GATE,
                     )
                 )
             )
@@ -2367,20 +2494,6 @@ async def main():
         GLOBAL_STATS.console_log(
             f"Started {len(tasks)} tasks for processing realms across all regions."
         )
-        # If a season wipe is already pending, start writers paused so we never
-        # write into tables the DB event is about to clear (closes the startup gap
-        # before wipe_watch's first poll).
-        try:
-            _wipe_state = await asyncio.get_running_loop().run_in_executor(
-                None, databaseConnector.read_wipe_control
-            )
-            if _wipe_state and _wipe_state["request_season"] > _wipe_state["done_season"]:
-                WRITE_GATE.pause()
-                GLOBAL_STATS.console_log(
-                    "Season wipe already pending at startup; DB writers start paused"
-                )
-        except Exception as e:
-            GLOBAL_STATS.console_log(f"Could not read initial wipe state: {e}")
         simple_workers = [
             asyncio.create_task(simple_worker(f"simple-{i}", session))
             for i in range(WORKERS_PER_REALM)
@@ -2444,11 +2557,42 @@ async def runner():
     GLOBAL_STATS.console_log("Starting data collection runner…")
     collector = asyncio.create_task(main(), name="collector")
     timer = asyncio.create_task(timeout_watcher(collector), name="timeout_watcher")
+    # A completed season wipe asks for a restart: season and active period are
+    # resolved once at startup, so the process has to come back to see the new
+    # ones. realm_poller loops forever and never observes cancel_event, so the
+    # only reliable wind-down is to cancel the collector task ourselves.
+    restart = asyncio.create_task(restart_event.wait(), name="restart_watcher")
 
-    # Wait until either main() completes or the timer fires
+    # Wait until main() completes, the timer fires, or a restart is requested
     done, pending = await asyncio.wait(
-        {collector, timer}, return_when=asyncio.FIRST_COMPLETED
+        {collector, timer, restart}, return_when=asyncio.FIRST_COMPLETED
     )
+
+    if restart in done:
+        GLOBAL_STATS.console_log(
+            "Restart requested (season wipe completed); winding down so the "
+            "container supervisor can restart us…"
+        )
+        cancel_event.set()
+        shutdown_event.set()
+        timer.cancel()
+        try:
+            await asyncio.wait_for(collector, timeout=WIPE_RESTART_GRACE_SECONDS)
+        except asyncio.TimeoutError:
+            GLOBAL_STATS.console_log(
+                f"Collector did not wind down within {WIPE_RESTART_GRACE_SECONDS:.0f}s; "
+                "cancelling it."
+            )
+            collector.cancel()
+        with suppress(asyncio.CancelledError, Exception):
+            await collector
+        with suppress(asyncio.CancelledError):
+            await timer
+        return
+
+    restart.cancel()
+    with suppress(asyncio.CancelledError):
+        await restart
 
     if timer in done:
         # Timer fired -> we set cancel_event above; now wait for collector to finish cleanly

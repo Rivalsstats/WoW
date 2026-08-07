@@ -54,6 +54,19 @@ def load_json(path):
         return json.load(f)
 
 
+def load_season_info(lookup_dir=LOOKUP_DIR):
+    """Mirror of commonUtils.load_season_info, inlined for the same reason
+    load_json is: commonUtils pulls in databaseConnector, and the assemble job
+    that renders this page installs only jinja2 + pillow. Keep the two in sync."""
+    path = os.environ.get("MYTHISTONE_SEASON_INFO", "").strip() or os.path.join(
+        lookup_dir, "seasonInfo.json"
+    )
+    info = load_json(path)
+    if info.get("blizzard_season_id") is None:
+        raise ValueError(f"blizzard_season_id missing from {path}")
+    return info
+
+
 def ckmeans_1d(values, k):
     """Optimal 1-D k-means (Fisher's exact DP) clustering.
 
@@ -335,7 +348,7 @@ def write_simdps_artifact(tabs, simc_version, simmed_str, path=SIMDPS_ARTIFACT_P
 
 
 def main(template_path, output_dir, sim_results_dir, debug=False):
-    season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
+    season_info = load_season_info(LOOKUP_DIR)
 
     mock_tmp = None
     if debug:

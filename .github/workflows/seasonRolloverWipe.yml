@@ -20,6 +20,8 @@ concurrency:
 
 permissions:
   contents: read
+  # needed to dispatch the one-off final-snapshot build when the archive is stale
+  actions: write
 
 jobs:
   # Detect whether a rollover wipe should be requested. No environment here, so a
@@ -58,26 +60,97 @@ jobs:
           DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
         run: python backend_scripts/requestSeasonWipe.py --detect
 
-      - name: Confirm the old season's archive branch exists
+      # Branch existence is not enough. `season-<old>` is force-pushed on every
+      # build while seasonInfo.json still names that season, so the branch is
+      # normally last written by the last build BEFORE the Wednesday flip —
+      # typically a day or two before the season actually ended. Wiping then
+      # would discard the season's final days forever. So require a snapshot
+      # taken after the season ended, and if there isn't one, go make one.
+      - name: Confirm a FINAL archive snapshot of the old season exists
         id: gate
         if: ${{ steps.dbdetect.outputs.should_wipe == 'true' }}
         env:
           ARCHIVE_DEPLOY_KEY: ${{ secrets.ARCHIVE_DEPLOY_KEY }}
+          ARCHIVE_REPO: git@github.com:MythiStone/Mythistone_Archive.git
           OLDMAX: ${{ steps.dbdetect.outputs.oldmax }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           mkdir -p ~/.ssh
           echo "$ARCHIVE_DEPLOY_KEY" > ~/.ssh/archive_key
           chmod 600 ~/.ssh/archive_key
           export GIT_SSH_COMMAND="ssh -i ~/.ssh/archive_key -o StrictHostKeyChecking=accept-new"
-          if git ls-remote --heads --exit-code \
-               git@github.com:MythiStone/Mythistone_Archive.git "season-${OLDMAX}" >/dev/null; then
-            echo "Archive branch season-${OLDMAX} present — clearing is safe."
-            echo "proceed=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "::warning::Archive branch season-${OLDMAX} MISSING — not requesting a wipe."
+
+          block() {   # $1 = reason; refuse this cycle, loudly
+            echo "::error::$1"
+            { echo "### Season wipe blocked"; echo; echo "$1"; } >> "$GITHUB_STEP_SUMMARY"
             echo "proceed=false" >> "$GITHUB_OUTPUT"
+          }
+
+          request_final_build() {
+            # One-off dispatch that rebuilds the OUTGOING season from
+            # seasonInfo.prev.json and force-pushes it to season-$OLDMAX. Skip if
+            # a build is already running, so a failing build can't turn every
+            # cycle into a fresh dispatch.
+            BUSY=$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/buildPages.yml/runs?per_page=20" \
+                     --jq '[.workflow_runs[] | select(.status != "completed")] | length' 2>/dev/null || echo 0)
+            if [ "${BUSY:-0}" -gt 0 ]; then
+              echo "A Build Jinja Pages run is already in flight; not dispatching another." \
+                >> "$GITHUB_STEP_SUMMARY"
+              return
+            fi
+            if gh workflow run buildPages.yml -f "season_override=${OLDMAX}"; then
+              echo "Dispatched a final-snapshot build for season \`${OLDMAX}\`; the wipe will be re-evaluated when it finishes." \
+                >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "::error::Could not dispatch the final-snapshot build for season ${OLDMAX}."
+            fi
+          }
+
+          if ! git ls-remote --heads --exit-code "$ARCHIVE_REPO" "season-${OLDMAX}" >/dev/null; then
+            block "Archive branch season-${OLDMAX} does not exist — the outgoing season was never archived."
+            request_final_build
+            exit 0
           fi
+
+          # Blobless, checkout-free clone: fetches commit + trees only, then pulls
+          # the single file on demand. Avoids downloading the ~350 MB snapshot.
+          rm -rf archive_probe
+          git clone --quiet --depth 1 --single-branch --branch "season-${OLDMAX}" \
+                    --filter=blob:none --no-checkout "$ARCHIVE_REPO" archive_probe
+          if ! git -C archive_probe show HEAD:SNAPSHOT.json > snapshot.json 2>/dev/null; then
+            block "season-${OLDMAX} has no SNAPSHOT.json — cannot prove it is a final snapshot."
+            request_final_build
+            exit 0
+          fi
+          cat snapshot.json
+
+          SNAP_ID=$(jq -r '.blizzard_season_id // empty' snapshot.json)
+          SNAP_AT=$(jq -r '.snapshot_utc // empty' snapshot.json)
+          SNAP_ENDS=$(jq -r '.season_ends_utc // empty' snapshot.json)
+
+          if [ "$SNAP_ID" != "$OLDMAX" ]; then
+            block "season-${OLDMAX} contains a snapshot of season ${SNAP_ID:-unknown}."
+            request_final_build
+            exit 0
+          fi
+          if [ -z "$SNAP_ENDS" ]; then
+            block "season-${OLDMAX}'s snapshot records no season end date — it predates the final-snapshot check."
+            request_final_build
+            exit 0
+          fi
+          # ISO-8601 UTC timestamps compare correctly as strings.
+          if [ "$SNAP_AT" \< "$SNAP_ENDS" ]; then
+            block "season-${OLDMAX} was archived at ${SNAP_AT}, before the season ended at ${SNAP_ENDS} — it is not the final state."
+            request_final_build
+            exit 0
+          fi
+
+          echo "proceed=true" >> "$GITHUB_OUTPUT"
+          { echo "### Archive verified";
+            echo;
+            echo "\`season-${OLDMAX}\` snapshot taken ${SNAP_AT}, after the season ended ${SNAP_ENDS}. Clearing is safe.";
+          } >> "$GITHUB_STEP_SUMMARY"
 
   # Raise the intent flag. The environment gate is the manual approval; it only
   # fires when detect said proceed=true, so approvals are requested only on a real
@@ -111,4 +184,9 @@ jobs:
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORT }}
           DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
           DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
-        run: python backend_scripts/requestSeasonWipe.py --commit --season "${{ needs.detect.outputs.current }}"
+        # Re-derive the season from seasonInfo.json rather than trusting the value
+        # captured before the approval — that approval can sit pending for days,
+        # and committing a stale, lower boundary would mark the wrong one cleared
+        # and permanently block the real one. --expect-season makes any drift a
+        # hard failure instead of a silent mistake.
+        run: python backend_scripts/requestSeasonWipe.py --commit --expect-season "${{ needs.detect.outputs.current }}"

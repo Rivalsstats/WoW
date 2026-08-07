@@ -14,6 +14,7 @@ from generateSpecPages import (
     format_utc_timestamp,
     upgrade_info,
     load_json,
+    load_season_info,
     LOOKUP_DIR,
 )
 
@@ -52,7 +53,7 @@ def main(template_path, output_dir, limit):
     dungeon_lookup = load_json(os.path.join(LOOKUP_DIR, "dungeons.json"))
     spell_lookup = load_json(os.path.join(LOOKUP_DIR, "spells.json"))
     npc_lookup = load_json(os.path.join(LOOKUP_DIR, "npcs.json"))
-    season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
+    season_info = load_season_info(LOOKUP_DIR)
     notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
 
     # init DB pool (this will raise on error)

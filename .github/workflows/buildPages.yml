@@ -33,6 +33,16 @@ on:
       - 'robots.txt'
 
   workflow_dispatch:
+    inputs:
+      season_override:
+        description: >-
+          Build against this Blizzard season id instead of the current one.
+          Used once per rollover to capture a FINAL snapshot of the outgoing
+          season after seasonInfo.json has already flipped — see
+          seasonRolloverWipe.yml, which gates the DB wipe on that snapshot.
+          Requires data/static/seasonInfo.prev.json to describe this season.
+        required: false
+        default: ''
   workflow_run:
     workflows: ["Gather Static WoW data"]
     types:
@@ -49,10 +59,67 @@ permissions:
   id-token: write
 jobs:
   # ----------------------------------------------------------------------
+  # Which season is this build for? Normally seasonInfo.json. A season_override
+  # dispatch builds the OUTGOING season instead, from seasonInfo.prev.json — the
+  # one-off final snapshot that the rollover wipe is gated on. Resolved once here
+  # so the generators, the sims and the archive branch name can never disagree.
+  # ----------------------------------------------------------------------
+  resolve-season:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      season_id: ${{ steps.resolve.outputs.season_id }}
+      season_info: ${{ steps.resolve.outputs.season_info }}
+      is_override: ${{ steps.resolve.outputs.is_override }}
+    steps:
+      - name: Clone project
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          ref: main
+
+      - name: Resolve target season
+        id: resolve
+        env:
+          OVERRIDE: ${{ inputs.season_override }}
+        run: |
+          set -euo pipefail
+          CURRENT=$(jq -r .blizzard_season_id data/static/seasonInfo.json)
+          if [ -z "${OVERRIDE:-}" ] || [ "$OVERRIDE" = "$CURRENT" ]; then
+            echo "season_id=$CURRENT"           >> "$GITHUB_OUTPUT"
+            echo "season_info="                 >> "$GITHUB_OUTPUT"
+            echo "is_override=false"            >> "$GITHUB_OUTPUT"
+            echo "Building current season $CURRENT." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          PREV=data/static/seasonInfo.prev.json
+          if [ ! -f "$PREV" ]; then
+            echo "::error::season_override=$OVERRIDE requested but $PREV does not exist."
+            exit 1
+          fi
+          PREV_ID=$(jq -r .blizzard_season_id "$PREV")
+          if [ "$PREV_ID" != "$OVERRIDE" ]; then
+            # Refuse rather than render the wrong season's branding over this
+            # data — the archive step would freeze that as a permanent record.
+            echo "::error::season_override=$OVERRIDE but $PREV describes season $PREV_ID."
+            exit 1
+          fi
+          echo "season_id=$OVERRIDE"  >> "$GITHUB_OUTPUT"
+          echo "season_info=$PREV"    >> "$GITHUB_OUTPUT"
+          echo "is_override=true"     >> "$GITHUB_OUTPUT"
+          { echo "Building **final snapshot of season $OVERRIDE** from \`$PREV\` (current is $CURRENT).";
+            echo;
+            echo "This run archives only — it does NOT deploy, so the live site keeps showing season $CURRENT.";
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ----------------------------------------------------------------------
   # SimulationCraft tierlist sims (run on every trigger, in parallel with the
   # page build — they finish well before the pages do).
   # ----------------------------------------------------------------------
   prepare-sims:
+    needs: [resolve-season]
+    env:
+      MYTHISTONE_SEASON_INFO: ${{ needs.resolve-season.outputs.season_info }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -192,7 +259,9 @@ jobs:
   # Static pages (runs in parallel with the sims).
   # ----------------------------------------------------------------------
   buildPages:
-    needs: [prepare-sims]
+    needs: [resolve-season, prepare-sims]
+    env:
+      MYTHISTONE_SEASON_INFO: ${{ needs.resolve-season.outputs.season_info }}
     runs-on: ubuntu-latest
     steps:
       - name: Clone project
@@ -384,7 +453,10 @@ jobs:
     # Default needs semantics: only runs if BOTH the pages and every sim leg
     # succeeded. If any sim fails, assemble + deploy are skipped and the whole
     # workflow is marked failed — no stale-data fallback, no partial deploy.
-    needs: [buildPages, simulate]
+    needs: [resolve-season, buildPages, simulate]
+    env:
+      MYTHISTONE_SEASON_INFO: ${{ needs.resolve-season.outputs.season_info }}
+      TARGET_SEASON_ID: ${{ needs.resolve-season.outputs.season_id }}
     steps:
       - name: Clone project
         uses: actions/checkout@v7
@@ -441,7 +513,10 @@ jobs:
           fi
           cp index.html 404.html robots.txt sitemap.xml llms.txt _site/
 
+      # Skipped for a season_override run: that build renders the OUTGOING season
+      # and must only reach the archive, never the live site.
       - name: Upload static files as artifact
+        if: ${{ needs.resolve-season.outputs.is_override != 'true' }}
         uses: actions/upload-pages-artifact@v5
         with:
           path: '_site'
@@ -453,12 +528,30 @@ jobs:
           ARCHIVE_REPO: git@github.com:MythiStone/Mythistone_Archive.git
         run: |
           set -euo pipefail
-          SEASON_ID=$(jq -r .blizzard_season_id data/static/seasonInfo.json)
-          SLUG=$(jq -r .slug data/static/seasonInfo.json)
+          # Same source the generators used, so the branch name can never drift
+          # from the data inside it (a season_override build archives the
+          # OUTGOING season, not the current one).
+          SEASON_JSON="${MYTHISTONE_SEASON_INFO:-data/static/seasonInfo.json}"
+          SEASON_ID=$(jq -r .blizzard_season_id "$SEASON_JSON")
+          SLUG=$(jq -r .slug "$SEASON_JSON")
+          # Latest region end date for this season, or null while it is running.
+          # seasonRolloverWipe.yml uses this plus snapshot_utc to tell a FINAL
+          # snapshot from a mid-season one before it lets the DB be wiped.
+          SEASON_ENDS=$(jq -r '[(.ends // {})[] | select(. != null)] | max // ""' "$SEASON_JSON")
           NOW=$(date -u +%FT%TZ)
+          if [ "$SEASON_ID" != "$TARGET_SEASON_ID" ]; then
+            echo "::error::archive season $SEASON_ID != resolved target $TARGET_SEASON_ID"
+            exit 1
+          fi
           # Provenance marker inside the snapshot root
-          printf '{"blizzard_season_id": %s, "slug": "%s", "snapshot_utc": "%s", "source_commit": "%s"}\n' \
-            "$SEASON_ID" "$SLUG" "$NOW" "$GITHUB_SHA" > _site/SNAPSHOT.json
+          jq -n \
+            --argjson id "$SEASON_ID" \
+            --arg slug "$SLUG" \
+            --arg ends "$SEASON_ENDS" \
+            --arg now "$NOW" \
+            --arg sha "$GITHUB_SHA" \
+            '{blizzard_season_id: $id, slug: $slug, season_ends_utc: (if $ends == "" then null else $ends end), snapshot_utc: $now, source_commit: $sha}' \
+            > _site/SNAPSHOT.json
           # SSH auth via write-enabled deploy key on the archive repo
           mkdir -p ~/.ssh
           echo "$ARCHIVE_DEPLOY_KEY" > ~/.ssh/archive_key
@@ -478,7 +571,10 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: assemble
+    needs: [resolve-season, assemble]
+    # A final-snapshot build renders the season that just ended. Publishing it
+    # would roll the live site back a season, so those runs archive only.
+    if: ${{ needs.resolve-season.outputs.is_override != 'true' }}
     steps:
 
       - name: Deploy to GitHub Pages

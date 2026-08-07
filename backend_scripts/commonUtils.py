@@ -49,6 +49,37 @@ def load_json(path):
         return json.load(f)
 
 
+SEASON_INFO_ENV = "MYTHISTONE_SEASON_INFO"
+
+
+def load_season_info(lookup_dir=None):
+    """The seasonInfo the build renders against — id, name, slug and end dates.
+
+    Normally data/static/seasonInfo.json. MYTHISTONE_SEASON_INFO points at an
+    alternate file (in practice seasonInfo.prev.json) so a *final* snapshot of the
+    outgoing season can still be built after seasonInfo.json has already flipped
+    to the new one. That snapshot is what gates the season-rollover DB wipe, and
+    it has to carry the outgoing season's whole identity, not just its id —
+    otherwise the archived pages would show new-season branding over old-season
+    data. See .github/workflows/seasonRolloverWipe.yml.
+
+    Raises rather than returning a partial dict: a generator building against "no
+    season" produces a plausible-looking empty page, and the archive step would
+    then freeze that as the season's permanent record."""
+    path = os.environ.get(SEASON_INFO_ENV, "").strip() or os.path.join(
+        lookup_dir or LOOKUP_DIR, "seasonInfo.json"
+    )
+    info = load_json(path)
+    if info.get("blizzard_season_id") is None:
+        raise ValueError(f"blizzard_season_id missing from {path}")
+    return info
+
+
+def current_season_id(lookup_dir=None):
+    """Blizzard season id the build renders against. See load_season_info."""
+    return int(load_season_info(lookup_dir)["blizzard_season_id"])
+
+
 # Weapon itemSubClass values that occupy both hands the way inventoryType 17
 # (two-hand) does: bows, guns and crossbows are ranged mainhands with no
 # off-hand.

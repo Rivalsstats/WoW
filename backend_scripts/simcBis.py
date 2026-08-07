@@ -2063,7 +2063,8 @@ def pick_next_spec(conn, cursor, specs, season):
 # Public entrypoint (wired into collectLeaderboardData.main)
 # --------------------------------------------------------------------------
 
-async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, reporter=None, pause_check=None):
+async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None,
+                       reporter=None, pause_check=None, write_gate=None):
     """Continuously simulate per-slot BiS, one spec at a time, round-robin.
 
     `get_season(conn, cursor)` -> int season id. If omitted, falls back to the
@@ -2072,8 +2073,25 @@ async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, 
     used to surface error conditions (instead of failing silently). `pause_check`
     is an optional awaitable called between specs; it blocks while a season-rollover
     wipe is pending so this task doesn't write into tables about to be cleared.
+
+    `write_gate` is the collector's WriteGate. `pause_check` alone is not enough:
+    it is uncounted, so between two specs the gate could report quiesced while a
+    simc_bis_* write is still landing and ev_season_wipe truncates underneath it.
+    Every write below is therefore held inside a counted begin()/end() section —
+    only the writes, never a sim, which can run for hours.
     """
-    from contextlib import closing
+    from contextlib import asynccontextmanager, closing
+
+    @asynccontextmanager
+    async def _gated():
+        if write_gate is None:
+            yield
+            return
+        await write_gate.begin()
+        try:
+            yield
+        finally:
+            write_gate.end()
 
     specs, classes = load_static()
     item_lookup = load_item_lookup()
@@ -2210,9 +2228,10 @@ async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, 
                     f"No result for spec {spec_id} ({spec_label}).\n```\n{(msg or 'unknown error')[-1000:]}\n```",
                     level="error", throttle_key=f"simc_spec_fail_{spec_id}",
                 )
-                _write_failure_meta(spec_id, season)
-                if reset_progress:
-                    _clear_progress(spec_id, season)
+                async with _gated():
+                    _write_failure_meta(spec_id, season)
+                    if reset_progress:
+                        _clear_progress(spec_id, season)
                 await asyncio.sleep(SIMC_SPEC_SLEEP)
                 continue
 
@@ -2242,13 +2261,15 @@ async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, 
                                     f"```\n{(run_err or 'unknown error')[-1000:]}\n```",
                                     level="error", throttle_key=f"simc_spec_fail_{spec_id}",
                                 )
-                                _touch_progress_attempt(spec_id, season, build["signature"],
-                                                        total, reset_progress, snapshot, now)
+                                async with _gated():
+                                    _touch_progress_attempt(spec_id, season, build["signature"],
+                                                            total, reset_progress, snapshot, now)
                             break
                         baseline_dps = parse_baseline_dps(result_json)
                         simc_version = parse_simc_version(result_json)
-                    ok, fin = _finalize_run(spec_id, season, build, done,
-                                            baseline_dps, simc_version, item_lookup)
+                    async with _gated():
+                        ok, fin = _finalize_run(spec_id, season, build, done,
+                                                baseline_dps, simc_version, item_lookup)
                     if ok:
                         if stats is not None:
                             try:
@@ -2263,8 +2284,9 @@ async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, 
                             f"No result for spec {spec_id} ({spec_label}).\n```\n{(fin or 'unknown error')[-1000:]}\n```",
                             level="error", throttle_key=f"simc_spec_fail_{spec_id}",
                         )
-                        _write_failure_meta(spec_id, season)
-                        _clear_progress(spec_id, season)
+                        async with _gated():
+                            _write_failure_meta(spec_id, season)
+                            _clear_progress(spec_id, season)
                     break
 
                 chunk = remaining[:SIMC_CHUNK_SIZE]
@@ -2292,8 +2314,9 @@ async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, 
                         f"Chunk failed for spec {spec_id} ({spec_label}).\n```\n{(run_err or 'unknown error')[-1000:]}\n```",
                         level="error", throttle_key=f"simc_spec_fail_{spec_id}",
                     )
-                    _touch_progress_attempt(spec_id, season, build["signature"], total,
-                                            reset_progress, snapshot, now)
+                    async with _gated():
+                        _touch_progress_attempt(spec_id, season, build["signature"], total,
+                                                reset_progress, snapshot, now)
                     break
 
                 baseline_dps = parse_baseline_dps(result_json)
@@ -2312,8 +2335,9 @@ async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, 
                         f"Chunk returned no profileset results for spec {spec_id} ({spec_label}).",
                         level="error", throttle_key=f"simc_spec_fail_{spec_id}",
                     )
-                    _touch_progress_attempt(spec_id, season, build["signature"], total,
-                                            reset_progress, snapshot, now)
+                    async with _gated():
+                        _touch_progress_attempt(spec_id, season, build["signature"], total,
+                                                reset_progress, snapshot, now)
                     break
                 if stats is not None:
                     try:
@@ -2323,9 +2347,10 @@ async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None, 
 
                 # Bank the chunk before anything else so a crash/restart from here
                 # on can only lose work that was never persisted.
-                _persist_progress_chunk(spec_id, season, build["signature"], total,
-                                        reset_progress, snapshot, chunk_means,
-                                        baseline_dps, simc_version, now)
+                async with _gated():
+                    _persist_progress_chunk(spec_id, season, build["signature"], total,
+                                            reset_progress, snapshot, chunk_means,
+                                            baseline_dps, simc_version, now)
                 reset_progress = False   # stale rows dropped on the first write
                 done.update(chunk_means)
                 stored_baseline, stored_version = baseline_dps, simc_version

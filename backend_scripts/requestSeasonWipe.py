@@ -14,6 +14,10 @@ Two modes:
   --commit   Raise the intent flag: upsert wipe_control.request_season = <season>
              (idempotent; a no-op once done_season has caught up). The DB event
              ev_season_wipe + the paused collector then perform the actual clear.
+             Pass --expect-season to assert the boundary hasn't moved since it was
+             detected: the manual approval in between can sit for days, and
+             committing a stale, lower season id would mark the wrong boundary
+             cleared. Mismatch exits non-zero instead of guessing.
 
 The wipe keys off seasonInfo.json (the archive's source of truth), never off live
 runs.season — see database.sql's wipe section for the timing hazard this avoids.
@@ -63,6 +67,17 @@ def _emit(**kv):
                 f.write(f"{k}={v}\n")
 
 
+def _summary(text):
+    """Append a line to the Actions job summary so a skipped run says why. A green
+    workflow that silently did nothing is indistinguishable from one that silently
+    failed to do something."""
+    print(text)
+    path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if path:
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(text + "\n")
+
+
 def detect(current):
     conn = databaseConnector.get_connection()
     try:
@@ -95,10 +110,30 @@ def detect(current):
             file=sys.stderr,
         )
         _emit(current=current, oldmax=oldmax, should_wipe="false")
+        _summary(
+            "**Season wipe: not requested.** `wipe_control` is missing — the "
+            "season-wipe SQL has not been applied to this database."
+        )
         return
 
     should_wipe = oldmax > 0 and done < current
     _emit(current=current, oldmax=oldmax, should_wipe="true" if should_wipe else "false")
+    if should_wipe:
+        _summary(
+            f"**Season rollover detected.** Current season `{current}`, lingering "
+            f"old-season data up to season `{oldmax}` (last cleared boundary: "
+            f"`{done}`). Pending the archive check and manual approval."
+        )
+    elif oldmax <= 0:
+        _summary(
+            f"Season wipe: nothing to do — no `runs` rows older than season "
+            f"`{current}`."
+        )
+    else:
+        _summary(
+            f"Season wipe: nothing to do — boundary into season `{current}` was "
+            f"already cleared (`done_season` = `{done}`)."
+        )
 
 
 def commit(season):
@@ -118,9 +153,12 @@ def commit(season):
     finally:
         conn.close()
     if affected:
-        print(f"Season wipe requested: request_season = {season}")
+        _summary(f"**Season wipe requested:** `request_season = {season}`.")
     else:
-        print(f"No-op: season {season} already cleared (done_season >= {season}).")
+        _summary(
+            f"Season wipe: no-op — season `{season}` already cleared "
+            f"(`done_season` >= `{season}`)."
+        )
 
 
 def main():
@@ -134,9 +172,33 @@ def main():
         default=None,
         help="season id to request (default: blizzard_season_id from seasonInfo.json)",
     )
+    parser.add_argument(
+        "--expect-season",
+        type=int,
+        default=None,
+        help="fail unless the resolved season equals this (guards against the "
+             "boundary moving while the manual approval was pending)",
+    )
     args = parser.parse_args()
 
     season = args.season if args.season is not None else current_season_id()
+
+    if args.expect_season is not None and season != args.expect_season:
+        # Fail loudly: the approval gate can hold for days, and silently
+        # committing the stale value would mark the wrong boundary cleared and
+        # permanently block the real one.
+        print(
+            f"ERROR: season drifted since detection — expected {args.expect_season}, "
+            f"seasonInfo.json now says {season}. Re-run detection instead of "
+            f"committing a stale boundary.",
+            file=sys.stderr,
+        )
+        _summary(
+            f"**Season wipe aborted.** Boundary drifted while the approval was "
+            f"pending (detected `{args.expect_season}`, now `{season}`)."
+        )
+        sys.exit(1)
+
     _init_pool()
 
     if args.detect:

@@ -38,6 +38,8 @@ RAIDERIO_API_KEY = os.getenv("RAIDERIO_API_KEY")
 CURRENT_EXPANSION_ID = 11  # MIDNIGHT
 
 SEASON_INFO_JSON = os.path.join("data", "static", "seasonInfo.json")
+# The season this file described before the most recent flip; see the write below.
+SEASON_INFO_PREV_JSON = os.path.join("data", "static", "seasonInfo.prev.json")
 
 
 # Obtain an access token
@@ -255,6 +257,28 @@ def main():
             print("Warning: could not derive max character level from ContentTuning")
     except Exception as e:
         print(f"Failed to derive max character level: {e}")
+
+    # A season flip is destructive to the outgoing season's identity: name, slug
+    # and end dates are simply overwritten. Keep the previous file so a final
+    # snapshot of that season can still be rendered afterwards (MYTHISTONE_SEASON_INFO
+    # -> commonUtils.load_season_info); that snapshot is what gates the DB wipe.
+    if os.path.exists(SEASON_INFO_JSON):
+        try:
+            with open(SEASON_INFO_JSON, "r", encoding="utf-8") as f:
+                previous = json.load(f)
+        except Exception as e:
+            raise RuntimeError(
+                f"Could not read the existing {SEASON_INFO_JSON} before overwriting "
+                f"it; refusing to lose the outgoing season's identity: {e}"
+            )
+        if previous.get("blizzard_season_id") != CURRENT_SEASON.get("blizzard_season_id"):
+            with open(SEASON_INFO_PREV_JSON, "w", encoding="utf-8") as f:
+                json.dump(previous, f, indent=2)
+            print(
+                f"Season flip {previous.get('blizzard_season_id')} -> "
+                f"{CURRENT_SEASON.get('blizzard_season_id')}; wrote "
+                f"{SEASON_INFO_PREV_JSON}"
+            )
 
     # persist season info
     with open(SEASON_INFO_JSON, "w", encoding="utf-8") as f:

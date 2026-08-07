@@ -2728,6 +2728,14 @@ DO purge_block: BEGIN
   DECLARE v_rio_run_window BIGINT DEFAULT 200000; -- chunk size, tune if needed
   DECLARE v_process_up_to BIGINT DEFAULT 0;
 
+  -- Stand down while the nightly pipeline / member purge / season wipe holds the
+  -- shared lock, exactly like ev_purge_old_run_details_incremental does. Without
+  -- this, a season wipe's TRUNCATE route_data races this DELETE for the same
+  -- table's metadata lock and needlessly stalls the wipe.
+  IF IS_USED_LOCK('agg_pipeline') IS NOT NULL THEN
+    LEAVE purge_block;
+  END IF;
+
   -- cutoff in seconds (route_data.timestamp stored in seconds)
   SET v_cutoff_ts = UNIX_TIMESTAMP() - 28*24*3600;
 
@@ -2875,3 +2883,238 @@ DO purge_block: BEGIN
   DO RELEASE_LOCK('purge_members_lock');
 
 END purge_block;
+
+-- ============================================================================
+-- Season-rollover blanket wipe
+-- ----------------------------------------------------------------------------
+-- At a WoW season rollover the whole raw + derived dataset is cleared to reclaim
+-- storage. Coordination is a two-actor handshake so this never fights the
+-- collector or the nightly pipeline:
+--   * CI (archive-gated + manual approval) raises `wipe_control.request_season`.
+--   * The always-on collector sees request > done, pauses its writers and sets
+--     `collector_paused = 1` once its in-flight work has drained.
+--   * `ev_season_wipe` runs only when a request is pending AND the collector has
+--     acked the pause AND it can take GET_LOCK('agg_pipeline') (the same lock the
+--     nightly pipeline / member purge use) — then CALL sp_season_wipe() and mark
+--     the request done, which lets the collector resume and re-collect the new
+--     season from scratch.
+-- The wipe keys off the CI-supplied season id (seasonInfo.json), NOT
+-- MAX(runs.season), because the collector flips runs.season before the archive
+-- branch flips; see the plan/notes for the timing hazard this avoids.
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS `Mythistone`.`wipe_control` (
+  id                TINYINT      NOT NULL DEFAULT 1,   -- single-row guard
+  request_season    INT          NOT NULL DEFAULT 0,   -- CI: clear everything for the boundary INTO this season
+  done_season       INT          NOT NULL DEFAULT 0,   -- event: last season boundary already cleared
+  collector_paused  TINYINT      NOT NULL DEFAULT 0,   -- collector ack: 1 = writers quiesced
+  collector_beat    BIGINT       NOT NULL DEFAULT 0,   -- collector heartbeat (unix ms) for observability/failsafe
+  requested_at      BIGINT       NOT NULL DEFAULT 0,   -- when CI raised the request (unix ms)
+  PRIMARY KEY (id),
+  CONSTRAINT chk_wipe_control_single_row CHECK (id = 1)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT IGNORE INTO `Mythistone`.`wipe_control` (id) VALUES (1);
+
+CREATE DEFINER=`Test`@`%` PROCEDURE `Mythistone`.`sp_truncate_with_retry`(IN p_table VARCHAR(128))
+BEGIN
+  -- TRUNCATE needs an EXCLUSIVE metadata lock, and an MDL wait is governed by
+  -- lock_wait_timeout (default 31536000 = one YEAR), not innodb_lock_wait_timeout.
+  -- Without an explicit budget, one session sitting idle in a transaction that
+  -- touched the table blocks the wipe effectively forever -- while the caller
+  -- holds GET_LOCK('agg_pipeline'), which would also stall the nightly pipeline
+  -- and the member purge with no error ever raised. So: escalate the budget, log
+  -- the blocker, then kill idle holders, exactly as sp_swap_public_table does for
+  -- its RENAME. A table that vanished mid-wipe (a shadow table renamed away by a
+  -- concurrent swap) is not an error -- there is nothing left to clear.
+  DECLARE v_attempt      INT DEFAULT 0;
+  DECLARE v_max_attempts INT DEFAULT 4;
+  DECLARE v_kill_after   INT DEFAULT 2;
+  DECLARE v_done         INT DEFAULT 0;
+  DECLARE v_errno        INT DEFAULT 0;
+
+  trunc_scope: BEGIN
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+    BEGIN
+      GET DIAGNOSTICS CONDITION 1 v_errno = MYSQL_ERRNO;
+    END;
+
+    WHILE v_done = 0 AND v_attempt < v_max_attempts DO
+      SET v_attempt = v_attempt + 1;
+      SET v_errno   = 0;
+      SET SESSION lock_wait_timeout = LEAST(30 * v_attempt, 120);
+
+      SET @trunc_sql = CONCAT('TRUNCATE TABLE `Mythistone`.`', p_table, '`');
+      PREPARE trunc_stmt FROM @trunc_sql;
+      EXECUTE trunc_stmt;
+      DEALLOCATE PREPARE trunc_stmt;
+
+      IF v_errno = 0 THEN
+        SET v_done = 1;                                  -- cleared
+      ELSEIF v_errno = 1205 THEN
+        CALL sp_capture_lock_holders('season_wipe', p_table);
+        IF v_attempt >= v_kill_after THEN
+          CALL sp_kill_lock_holders(p_table);            -- last resort: idle holders only
+        END IF;
+        DO SLEEP(5);
+      ELSEIF v_errno IN (1146, 1051, 1243) THEN
+        SET v_done  = 1;                                 -- table is gone; nothing to clear
+        SET v_errno = 0;
+      ELSE
+        SET v_done = 1;                                  -- non-retryable
+      END IF;
+    END WHILE;
+  END trunc_scope;
+
+  -- Surface an unresolved lock timeout to the caller. The event's EXIT HANDLER
+  -- then releases agg_pipeline and leaves request_season raised, so the next tick
+  -- retries -- far better than blocking forever holding the shared lock.
+  IF v_errno = 1205 THEN
+    SET @wipe_err = CONCAT('season wipe: could not get an exclusive lock on ', p_table);
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @wipe_err;
+  END IF;
+END;
+
+-- Blanket clear. Raw tables are truncated by explicit name; every derived table is
+-- swept by prefix (aggregated_%, global_aggregated_%, simc_bis_%, top_player_%) so
+-- the ~40 derived tables — including aggregated_top_items, which is created
+-- out-of-band and so is not listed in this file — are all covered. No static /
+-- reference table (dungeon_data, season_periods, slot_group_map, bloodlust_spells,
+-- crafted_item_ids, embellishments, missives, tier_set_items) nor any control/log
+-- table (summary_meta, wipe_control, agg_pipeline_log, agg_lock_diag) matches those
+-- prefixes, so they are preserved. If a future reference table starts with one of
+-- these prefixes, add an explicit exclusion to the cursor's WHERE.
+--
+-- Not atomic: TRUNCATE implicitly commits, so a failure part-way leaves a
+-- half-cleared DB. That is deliberate — the caller leaves request_season raised,
+-- so the next tick re-runs and truncating an already-empty table is a no-op.
+CREATE DEFINER=`Test`@`%` PROCEDURE `Mythistone`.`sp_season_wipe`()
+BEGIN
+  DECLARE v_done INT DEFAULT 0;
+  DECLARE v_tname VARCHAR(128);
+  -- `_new` / `_old` are sp_swap_public_table's shadow tables. They match the
+  -- prefixes but are owned by the swap, so leave them alone rather than racing it;
+  -- sp_truncate_with_retry tolerates one disappearing anyway.
+  DECLARE cur CURSOR FOR
+    SELECT table_name
+    FROM information_schema.tables
+    WHERE table_schema = 'Mythistone'
+      AND table_type = 'BASE TABLE'
+      AND ( table_name LIKE 'aggregated\_%'
+         OR table_name LIKE 'global\_aggregated\_%'
+         OR table_name LIKE 'simc\_bis\_%'
+         OR table_name LIKE 'top\_player\_%' )
+      AND table_name NOT LIKE '%\_new'
+      AND table_name NOT LIKE '%\_old';
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = 1;
+
+  SET FOREIGN_KEY_CHECKS = 0;
+
+  -- raw tables (explicit)
+  CALL `Mythistone`.`sp_truncate_with_retry`('runs');
+  CALL `Mythistone`.`sp_truncate_with_retry`('run_members');
+  CALL `Mythistone`.`sp_truncate_with_retry`('members');
+  CALL `Mythistone`.`sp_truncate_with_retry`('equipment');
+  CALL `Mythistone`.`sp_truncate_with_retry`('sockets');
+  CALL `Mythistone`.`sp_truncate_with_retry`('enchantments');
+  CALL `Mythistone`.`sp_truncate_with_retry`('bonus_ids');
+  CALL `Mythistone`.`sp_truncate_with_retry`('character_stats');
+  CALL `Mythistone`.`sp_truncate_with_retry`('class_talents');
+  CALL `Mythistone`.`sp_truncate_with_retry`('hero_talents');
+  CALL `Mythistone`.`sp_truncate_with_retry`('spec_talents');
+  CALL `Mythistone`.`sp_truncate_with_retry`('route_data');
+  CALL `Mythistone`.`sp_truncate_with_retry`('route_pulls');
+  CALL `Mythistone`.`sp_truncate_with_retry`('route_specs');
+  CALL `Mythistone`.`sp_truncate_with_retry`('pull_enemies');
+  CALL `Mythistone`.`sp_truncate_with_retry`('pull_spells');
+
+  -- derived tables (by prefix)
+  OPEN cur;
+  wipe_loop: LOOP
+    FETCH cur INTO v_tname;
+    IF v_done = 1 THEN
+      LEAVE wipe_loop;
+    END IF;
+    CALL `Mythistone`.`sp_truncate_with_retry`(v_tname);
+  END LOOP wipe_loop;
+  CLOSE cur;
+
+  SET FOREIGN_KEY_CHECKS = 1;
+
+  -- reset moving-pointer watermarks so the purge events / top-items rollup
+  -- recompute cleanly against the now-empty tables
+  UPDATE `Mythistone`.`summary_meta`
+    SET last_run_id = 0
+  WHERE name IN ('purge_member_pointer', 'purge_routes_pointer', 'aggregated_top_items');
+END;
+
+CREATE EVENT ev_season_wipe
+ON SCHEDULE EVERY 10 MINUTE
+ON COMPLETION PRESERVE
+ENABLE
+COMMENT 'Blanket season-rollover clear; runs only when CI raised a request and the collector has paused'
+DO wipe_block: BEGIN
+  DECLARE v_req    INT DEFAULT 0;
+  DECLARE v_done   INT DEFAULT 0;
+  DECLARE v_paused TINYINT DEFAULT 0;
+  DECLARE v_log_id BIGINT UNSIGNED DEFAULT NULL;
+  DECLARE v_msg    TEXT DEFAULT NULL;
+  -- Never leak the shared lock if the clear errors; the request stays raised so a
+  -- later tick retries (idempotent). Record why it failed too — a silently
+  -- abandoned wipe is otherwise invisible until someone notices the DB never
+  -- shrank. Order matters: read the diagnostics area first (anything else
+  -- overwrites it), release the lock next (so a failing log write can't strand
+  -- it), and only then write the log row.
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 v_msg = MESSAGE_TEXT;
+    DO RELEASE_LOCK('agg_pipeline');
+    IF v_log_id IS NOT NULL THEN
+      UPDATE `Mythistone`.`agg_pipeline_log`
+        SET finished_at = NOW(),
+            error = COALESCE(v_msg, 'season wipe failed')
+      WHERE id = v_log_id;
+    END IF;
+  END;
+
+  SELECT request_season, done_season, collector_paused
+    INTO v_req, v_done, v_paused
+  FROM `Mythistone`.`wipe_control`
+  WHERE id = 1;
+
+  IF v_req <= v_done THEN
+    LEAVE wipe_block;                                   -- nothing requested
+  END IF;
+  IF v_paused = 0 THEN
+    LEAVE wipe_block;                                   -- wait for the collector to ack the pause
+  END IF;
+  IF IS_USED_LOCK('agg_pipeline') IS NOT NULL THEN
+    LEAVE wipe_block;                                   -- nightly pipeline / purge is running
+  END IF;
+  IF GET_LOCK('agg_pipeline', 0) = 0 THEN
+    LEAVE wipe_block;                                   -- couldn't grab the lock this tick
+  END IF;
+
+  SET SESSION innodb_lock_wait_timeout = 15;            -- row locks: yield rather than block
+  -- Metadata locks are a SEPARATE budget, and its default is one year. TRUNCATE
+  -- takes an exclusive MDL, so without this a single idle-in-transaction session
+  -- would hang this event forever while it holds agg_pipeline.
+  SET SESSION lock_wait_timeout = 30;
+
+  INSERT INTO `Mythistone`.`agg_pipeline_log` (step, started_at)
+  VALUES (CONCAT('season_wipe:', v_req), NOW());
+  SET v_log_id = LAST_INSERT_ID();
+
+  CALL `Mythistone`.`sp_season_wipe`();
+
+  UPDATE `Mythistone`.`wipe_control`
+    SET done_season = v_req,
+        request_season = 0
+  WHERE id = 1;
+
+  UPDATE `Mythistone`.`agg_pipeline_log`
+    SET finished_at = NOW()
+  WHERE id = v_log_id;
+
+  DO RELEASE_LOCK('agg_pipeline');
+END wipe_block;

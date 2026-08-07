@@ -7,7 +7,7 @@ from contextlib import closing
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import databaseConnector
 from pageGeneration import generateSpecNav, generateDungeonNav
-from generateSpecPages import LOOKUP_DIR, load_json
+from generateSpecPages import LOOKUP_DIR, load_json, load_season_info
 from image_generation.comp_overview import createCompOverviewImg
 
 def avg_top_n_keys(keylevel_timed, n=5):
@@ -424,7 +424,7 @@ def compute_meta_comp(frontend_json, min_runs=20):
 
 
 def main(template_path, output_dir):
-    season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
+    season_info = load_season_info(LOOKUP_DIR)
     season = season_info.get('blizzard_season_id')
     if not season:
         print("ERROR: Current season ID not found in seasonInfo.json", file=sys.stderr)

@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import databaseConnector
 from pageGeneration import generateSpecNav, generateDungeonNav, ROLE_FOLDERS
-from generateSpecPages import format_duration, format_utc_timestamp, format_iso_timestamp, load_json, upgrade_info
+from generateSpecPages import format_duration, format_utc_timestamp, format_iso_timestamp, load_json, load_season_info, upgrade_info
 from image_generation.dungeon_overview import createDungeonOverviewImg, fetch_route_thumbnail
 
 LOOKUP_DIR = "data/static"
@@ -65,7 +65,7 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
     dungeon_lookup = load_json(os.path.join(LOOKUP_DIR, "dungeons.json"))
     spec_lookup = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
-    season_info = load_json(os.path.join(LOOKUP_DIR, "seasonInfo.json"))
+    season_info = load_season_info(LOOKUP_DIR)
     notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
     npcs_lookup = load_json(os.path.join(LOOKUP_DIR, "npcs.json"))
     
