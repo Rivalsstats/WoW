@@ -8,7 +8,7 @@ import aggregateData
 import argparse
 import databaseConnector
 from collections import defaultdict, Counter
-from pageGeneration import generateSpecNav, generateDungeonNav
+from pageGeneration import generateSpecNav, generateDungeonNav, build_global_trends
 from generateSpecPages import (
     LOOKUP_DIR,
     humanize_number,
@@ -619,6 +619,7 @@ def main(template_path, output_dir):
     print("Rendering template...")
 
     output_html = template.render(
+        trends=build_global_trends(),
         generated_at=generated_at,
         spec_nav=spec_nav,
         dungeon_nav=dungeon_nav,

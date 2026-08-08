@@ -466,8 +466,9 @@
     <!-- End Navbar -->
     <!-- Notifications -->
     {% include "notifications.html" %}
+    {% include "trends_bar.html" %}
     <!-- End Notifications -->
-    <div class="container-fluid py-2">
+    <div class="container-fluid py-2 mx-3 w-auto">
       <h1 class="h3"> <span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{
           spec.name }} {{ class_info.name }} </span> Mythic+ Build &amp; Gear Guide in {{ season_info.name }}</h1>
         <div class="row justify-content-center text-start gx-4 align-items-stretch text-body-emphasis">

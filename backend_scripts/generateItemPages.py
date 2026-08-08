@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 import databaseConnector
-from pageGeneration import generateSpecNav, generateDungeonNav, build_item_slug_map
+from pageGeneration import generateSpecNav, generateDungeonNav, build_item_slug_map, build_global_trends
 from generateSpecPages import (
     LOOKUP_DIR, load_json, load_season_info, BLIZZARD_STAT_MAP,
     LEFT_ORDER, RIGHT_ORDER, WEAPON_SLOTS, TRINKET_SLOTS, MULTI_SLOT_GROUPS,
@@ -1172,6 +1172,7 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
         intro_paragraphs = build_item_intro(
             payload, specs_map, dungeons_map, season_info.get("name", ""))
         item_html = item_tmpl.render(
+            trends=build_global_trends(),
             item=payload,
             slug=slug,
             slug_map=slug_map,
@@ -1225,6 +1226,7 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
     # The browse grid page (filterable list of all items) at pages/items.html.
     page = env.get_template(os.path.basename(template_path))
     page_html = page.render(
+        trends=build_global_trends(),
         active_page="items",
         cur_page="items",
         breadcrumbs=[

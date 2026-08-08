@@ -26,7 +26,7 @@ import argparse
 import tempfile
 from datetime import datetime, timedelta, timezone
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from pageGeneration import generateSpecNav, generateDungeonNav
+from pageGeneration import generateSpecNav, generateDungeonNav, build_global_trends
 from image_generation.tierlist_preview import PREVIEW_URL, PREVIEW_TARGETS, generate_preview_image
 
 # Static lookup dir (inlined so this generator needs no DB deps, only jinja2).
@@ -412,6 +412,7 @@ def main(template_path, output_dir, sim_results_dir, debug=False):
     )
     template = env.get_template(os.path.basename(template_path))
     output_html = template.render(
+        trends=build_global_trends(),
         tabs=tabs,
         gear_sets=GEAR_SETS,
         expected_counts=expected,

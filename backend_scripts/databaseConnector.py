@@ -71,6 +71,11 @@ def configure_read_session(conn, cursor):
     MDL after each statement; READ UNCOMMITTED matches the events' isolation;
     the lock timeouts bound how long a query waits instead of hanging."""
     conn.autocommit = True
+    # Setting the ``autocommit`` attribute on a PooledMySQLConnection does NOT
+    # reach the server (the wrapper swallows the setter), so issue it as SQL too —
+    # otherwise the session stays autocommit=0 and the MDL never releases between
+    # statements (and any writes on this session would roll back on pool return).
+    cursor.execute("SET SESSION autocommit = 1")
     cursor.execute("SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED")
     cursor.execute("SET SESSION lock_wait_timeout = 120")
     cursor.execute("SET SESSION innodb_lock_wait_timeout = 30")
@@ -4332,3 +4337,267 @@ def set_collector_wipe_state(paused, beat_ms):
         raise
     finally:
         conn.close()
+
+
+# ---------------------------------------------------------------------------
+# Trend bar snapshots (see database.sql `trend_snapshot`) — a weekly per-entity
+# freeze used to show week-over-week movement in the "Top Trends" bar. The
+# snapshot writer (snapshotTrends.py) reads the current aggregates and upserts
+# one row per (week_id, feed, group_key, entity_key); the page generators read
+# the latest two weeks back via fetch_trend_snapshots + pageGeneration.build_trends.
+# ---------------------------------------------------------------------------
+
+FETCH_CURRENT_PERIOD_SQL = """
+SELECT MAX(period_id) AS cur_period
+FROM season_periods
+WHERE season = %s
+  AND start_timestamp <= CAST(UNIX_TIMESTAMP() * 1000 AS UNSIGNED)
+"""
+
+
+def fetch_current_period(connection, cursor, season):
+    """The current reset week: the highest period whose window has started for
+    this season (season_periods timestamps are unix milliseconds — same idiom as
+    fetch_dungeon_timed_runs_last_two_periods). Returns an int week_id or None
+    when no period has started yet."""
+    rows = fetch_with_retry(connection, cursor, FETCH_CURRENT_PERIOD_SQL, (season,))
+    if not rows or rows[0][0] is None:
+        return None
+    return int(rows[0][0])
+
+
+FETCH_RECENT_TREND_WEEKS_SQL = """
+SELECT DISTINCT week_id
+FROM Mythistone.trend_snapshot
+ORDER BY week_id DESC
+LIMIT %s
+"""
+
+
+def fetch_recent_trend_weeks(connection, cursor, limit=2):
+    """The most recent distinct week_ids that have snapshots (newest first).
+    build_trends compares the latest two."""
+    rows = fetch_with_retry(connection, cursor, FETCH_RECENT_TREND_WEEKS_SQL, (int(limit),))
+    return [int(r[0]) for r in rows]
+
+
+FETCH_TREND_WEEK_EXISTS_SQL = """
+SELECT 1 FROM Mythistone.trend_snapshot WHERE week_id = %s LIMIT 1
+"""
+
+
+def fetch_trend_week_exists(connection, cursor, week_id):
+    """True if this reset week already has a snapshot. The writer is write-once
+    per period: it freezes each week at its first build so week-over-week deltas
+    span a full reset period rather than collapsing to a day right after a reset."""
+    rows = fetch_with_retry(connection, cursor, FETCH_TREND_WEEK_EXISTS_SQL, (int(week_id),))
+    return bool(rows)
+
+
+FETCH_PREV_TREND_WEEK_SQL = """
+SELECT MAX(week_id) FROM Mythistone.trend_snapshot WHERE week_id < %s
+"""
+
+
+def fetch_prev_trend_week(connection, cursor, current_week_id):
+    """The most recent stored baseline strictly older than the current reset week
+    — i.e. "last week's snapshotted value" that build_trends diffs the live current
+    against. None when no prior week exists yet."""
+    rows = fetch_with_retry(connection, cursor, FETCH_PREV_TREND_WEEK_SQL, (int(current_week_id),))
+    if not rows or rows[0][0] is None:
+        return None
+    return int(rows[0][0])
+
+
+FETCH_TREND_SNAPSHOTS_SQL = """
+SELECT week_id, entity_key, label, tier, rank_pos, score, popularity, run_count
+FROM Mythistone.trend_snapshot
+WHERE feed = %s AND group_key = %s AND week_id IN ({placeholders})
+"""
+
+
+def fetch_trend_snapshots(connection, cursor, feed, group_key, week_ids):
+    """Rows for one feed/group across the given weeks. Returns a list of dicts;
+    empty when the feed/group has no snapshots yet."""
+    if not week_ids:
+        return []
+    placeholders = ",".join(["%s"] * len(week_ids))
+    sql = FETCH_TREND_SNAPSHOTS_SQL.format(placeholders=placeholders)
+    params = [feed, str(group_key)] + [int(w) for w in week_ids]
+    rows = fetch_with_retry(connection, cursor, sql, params)
+    return [
+        {
+            "week_id": int(r[0]),
+            "entity_key": r[1],
+            "label": r[2],
+            "tier": None if r[3] is None else int(r[3]),
+            "rank_pos": None if r[4] is None else int(r[4]),
+            "score": None if r[5] is None else float(r[5]),
+            "popularity": float(r[6]),
+            "run_count": int(r[7]),
+        }
+        for r in rows
+    ]
+
+
+UPSERT_TREND_ROW_SQL = """
+INSERT INTO Mythistone.trend_snapshot
+  (week_id, feed, group_key, entity_key, label, tier, rank_pos, score, popularity, run_count)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+ON DUPLICATE KEY UPDATE
+  label = VALUES(label),
+  tier = VALUES(tier),
+  rank_pos = VALUES(rank_pos),
+  score = VALUES(score),
+  popularity = VALUES(popularity),
+  run_count = VALUES(run_count)
+"""
+
+
+def upsert_trend_rows(connection, cursor, rows):
+    """Idempotent bulk write of snapshot rows. Each row is a 10-tuple matching
+    UPSERT_TREND_ROW_SQL's column order. The ON DUPLICATE clause makes --force
+    re-snapshots and --debug reruns safe; the normal writer is write-once per
+    period (snapshotTrends guards on fetch_trend_week_exists)."""
+    if not rows:
+        return
+    executemany_with_retry(connection, cursor, UPSERT_TREND_ROW_SQL, rows)
+
+
+DELETE_OLD_TREND_WEEKS_SQL = """
+DELETE FROM Mythistone.trend_snapshot WHERE week_id < %s
+"""
+
+
+def prune_trend_snapshots(connection, cursor, keep_from_week):
+    """Drop snapshots older than keep_from_week (retention bound). Cheap; the
+    table is only a few thousand rows per week."""
+    execute_with_retry(connection, cursor, DELETE_OLD_TREND_WEEKS_SQL, (int(keep_from_week),))
+
+
+# --- snapshot source fetchers (per-spec / per-dungeon, small result sets) -----
+
+FETCH_TALENT_USAGE_SQL = """
+SELECT talent_id, tree, SUM(run_count) AS run_count
+FROM (
+  SELECT talent_id, 'spec'  AS tree, run_count FROM Mythistone.aggregated_spec_talent  WHERE spec_id = %s AND season = %s
+  UNION ALL
+  SELECT talent_id, 'class' AS tree, run_count FROM Mythistone.aggregated_class_talent WHERE spec_id = %s AND season = %s
+  UNION ALL
+  SELECT talent_id, 'hero'  AS tree, run_count FROM Mythistone.aggregated_hero_talent  WHERE spec_id = %s AND season = %s
+) u
+GROUP BY talent_id, tree
+ORDER BY run_count DESC
+"""
+
+
+def fetch_talent_usage(connection, cursor, spec_id, season):
+    """Per-talent pickrate for a spec, rolled up across dungeon/hero-tree splits
+    for all three talent tables. Returns [{talent_id, tree, run_count}]."""
+    params = (spec_id, season, spec_id, season, spec_id, season)
+    rows = fetch_with_retry(connection, cursor, FETCH_TALENT_USAGE_SQL, params)
+    return [
+        {"talent_id": int(r[0]), "tree": r[1], "run_count": int(r[2])} for r in rows
+    ]
+
+
+FETCH_EQUIPMENT_USAGE_SQL = """
+SELECT slot, item_id, run_count
+FROM Mythistone.global_aggregated_equipment
+WHERE spec_id = %s AND season = %s
+"""
+
+
+def fetch_equipment_usage(connection, cursor, spec_id, season):
+    """All per-slot item usage for a spec (small — a few hundred rows). The
+    writer keeps top-N per slot and computes each slot's share denominator."""
+    params = (spec_id, season)
+    rows = fetch_with_retry(connection, cursor, FETCH_EQUIPMENT_USAGE_SQL, params)
+    return [
+        {"slot": r[0], "item_id": str(r[1]), "run_count": int(r[2])} for r in rows
+    ]
+
+
+FETCH_EMBELLISHMENT_USAGE_SQL = """
+SELECT item_id, run_count
+FROM Mythistone.global_aggregated_embellishments
+WHERE spec_id = %s AND season = %s
+ORDER BY run_count DESC
+"""
+
+FETCH_CRAFTED_USAGE_SQL = """
+SELECT item_id, run_count
+FROM Mythistone.global_aggregated_crafted_items
+WHERE spec_id = %s AND season = %s
+ORDER BY run_count DESC
+"""
+
+FETCH_GEM_USAGE_SQL = """
+SELECT socket_item_id, SUM(run_count) AS run_count
+FROM Mythistone.global_aggregated_item_sockets
+WHERE spec_id = %s AND season = %s
+GROUP BY socket_item_id
+ORDER BY run_count DESC
+"""
+
+
+def _fetch_id_run_pairs(connection, cursor, sql, spec_id, season):
+    rows = fetch_with_retry(connection, cursor, sql, (spec_id, season))
+    return [{"item_id": str(r[0]), "run_count": int(r[1])} for r in rows]
+
+
+def fetch_embellishment_usage(connection, cursor, spec_id, season):
+    return _fetch_id_run_pairs(connection, cursor, FETCH_EMBELLISHMENT_USAGE_SQL, spec_id, season)
+
+
+def fetch_crafted_usage(connection, cursor, spec_id, season):
+    return _fetch_id_run_pairs(connection, cursor, FETCH_CRAFTED_USAGE_SQL, spec_id, season)
+
+
+def fetch_gem_usage(connection, cursor, spec_id, season):
+    """Gem popularity for a spec: socket_item_id usage summed across the items it
+    was socketed into. Returns [{item_id (=gem), run_count}]."""
+    return _fetch_id_run_pairs(connection, cursor, FETCH_GEM_USAGE_SQL, spec_id, season)
+
+
+FETCH_DUNGEON_HIGH_KEY_COMPS_SQL = """
+SELECT
+  comp,
+  SUM(timed_runs + depleted_runs)             AS total_runs,
+  SUM(timed_runs * keystone_level)            AS high_key_score,
+  MAX(keystone_level)                         AS max_key
+FROM Mythistone.aggregated_dungeon_comps
+WHERE dungeon_id = %s AND season = %s
+GROUP BY comp
+ORDER BY high_key_score DESC
+LIMIT %s
+"""
+
+FETCH_DUNGEON_COMP_TOTAL_SQL = """
+SELECT SUM(timed_runs + depleted_runs)
+FROM Mythistone.aggregated_dungeon_comps
+WHERE dungeon_id = %s AND season = %s
+"""
+
+
+def fetch_dungeon_high_key_comps(connection, cursor, dungeon_id, season, limit=5):
+    """Top comps 'best for high keys' in a dungeon: ranked by timed runs weighted
+    by keystone level. Returns ([{comp, total_runs, high_key_score, max_key}], dungeon_total)."""
+    rows = fetch_with_retry(
+        connection, cursor, FETCH_DUNGEON_HIGH_KEY_COMPS_SQL,
+        (dungeon_id, season, int(limit)),
+    )
+    top = [
+        {
+            "comp": r[0],
+            "total_runs": int(r[1] or 0),
+            "high_key_score": float(r[2] or 0),
+            "max_key": int(r[3] or 0),
+        }
+        for r in rows
+    ]
+    total_rows = fetch_with_retry(
+        connection, cursor, FETCH_DUNGEON_COMP_TOTAL_SQL, (dungeon_id, season)
+    )
+    dungeon_total = int(total_rows[0][0]) if total_rows and total_rows[0][0] else 0
+    return top, dungeon_total

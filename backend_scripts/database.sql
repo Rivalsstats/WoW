@@ -599,6 +599,34 @@ CREATE TABLE `season_periods` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
+-- Mythistone.trend_snapshot definition
+--
+-- Weekly per-entity snapshot that powers the "Top Trends" bar. One row per
+-- (reset week, feed, group, entity); rewritten each page build for the current
+-- `week_id` (idempotent upsert) so a week's row freezes once the reset advances.
+-- `feed` names what is trended ('spec','dungeon','buff','talent','item','gem',
+-- 'embellishment','crafted','set_combo','crafted_combo','embellishment_combo',
+-- 'gem_combo','comp'); `group_key` scopes per-spec / per-dungeon feeds (empty for
+-- global feeds). Spec/dungeon feeds carry an S..F `tier` (0=S) and `score`
+-- (tierMath lb_ci); the rest carry a within-group `rank_pos`. `popularity` is a
+-- share-of-runs %. Kept for the current season only; pruned by the writer and
+-- blanket-cleared on season rollover (see sp_season_wipe).
+CREATE TABLE `trend_snapshot` (
+  `week_id` int unsigned NOT NULL,
+  `feed` varchar(24) NOT NULL,
+  `group_key` varchar(100) NOT NULL DEFAULT '',
+  `entity_key` varchar(128) NOT NULL,
+  `label` varchar(255) DEFAULT NULL,
+  `tier` tinyint DEFAULT NULL,
+  `rank_pos` smallint DEFAULT NULL,
+  `score` double DEFAULT NULL,
+  `popularity` double NOT NULL DEFAULT '0',
+  `run_count` bigint unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`week_id`,`feed`,`group_key`,`entity_key`),
+  KEY `idx_trend_feed_group_week` (`feed`,`group_key`,`week_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
 -- Mythistone.simc_bis_meta definition
 
 CREATE TABLE `simc_bis_meta` (
@@ -3027,6 +3055,9 @@ BEGIN
   CALL `Mythistone`.`sp_truncate_with_retry`('route_specs');
   CALL `Mythistone`.`sp_truncate_with_retry`('pull_enemies');
   CALL `Mythistone`.`sp_truncate_with_retry`('pull_spells');
+  -- trend bar snapshots are period-keyed and season-specific; last season's
+  -- weeks are meaningless once the raw data is gone, so clear them too.
+  CALL `Mythistone`.`sp_truncate_with_retry`('trend_snapshot');
 
   -- derived tables (by prefix)
   OPEN cur;

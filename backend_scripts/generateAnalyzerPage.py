@@ -13,7 +13,7 @@ import shutil
 import argparse
 from datetime import datetime, timezone
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from pageGeneration import generateSpecNav, generateDungeonNav
+from pageGeneration import generateSpecNav, generateDungeonNav, build_global_trends
 from commonUtils import LOOKUP_DIR, load_json, load_season_info, occupies_both_hands
 
 TEMPLATE_PATH = "templates"
@@ -157,6 +157,7 @@ def main(template_path, output_dir):
     )
     template = env.get_template(os.path.basename(template_path))
     output_html = template.render(
+        trends=build_global_trends(),
         generated_at=datetime.now(timezone.utc).timestamp(),
         spec_nav=generateSpecNav(spec_lookup, class_lookup),
         dungeon_nav=generateDungeonNav(dungeon_lookup),

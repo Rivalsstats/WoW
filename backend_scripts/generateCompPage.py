@@ -6,7 +6,7 @@ import math
 from contextlib import closing
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import databaseConnector
-from pageGeneration import generateSpecNav, generateDungeonNav
+from pageGeneration import generateSpecNav, generateDungeonNav, build_global_trends
 from generateSpecPages import LOOKUP_DIR, load_json, load_season_info
 from image_generation.comp_overview import createCompOverviewImg
 
@@ -522,6 +522,7 @@ def main(template_path, output_dir):
         
         template = env.get_template(os.path.basename(template_path))
         output_html = template.render(
+            trends=build_global_trends(),
             specs_ui=specs_ui,
             synergy_matrix=json.dumps(synergy_matrix),
             hidden_gems=hidden_gems,

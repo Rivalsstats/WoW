@@ -5,7 +5,13 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import databaseConnector
-from pageGeneration import generateSpecNav, generateDungeonNav, ROLE_FOLDERS
+from pageGeneration import (
+    generateSpecNav,
+    generateDungeonNav,
+    ROLE_FOLDERS,
+    build_trends,
+    trend_feeds_for_dungeon,
+)
 from generateSpecPages import format_duration, format_utc_timestamp, format_iso_timestamp, load_json, load_season_info, upgrade_info
 from image_generation.dungeon_overview import createDungeonOverviewImg, fetch_route_thumbnail
 
@@ -274,8 +280,16 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                      "subtitle": "Fastest clear among the 3 highest key levels"},
                 ]
                 
+                trends = build_trends(
+                    conn,
+                    cursor,
+                    trend_feeds_for_dungeon(dungeon_id),
+                    {"specs": spec_lookup},
+                )
+
                 output_html = template.render(dungeon=dungeon_data,
                     toggle_runs=toggle_runs,
+                    trends=trends,
                     single_runs=single_runs,
                     lust_timeline=lust_timeline,
                     bloodlust_spell_ids=bloodlust_spell_ids,

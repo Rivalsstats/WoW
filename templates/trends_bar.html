@@ -1,0 +1,128 @@
+{# Top Trends bar. Rendered only when the page passes a non-empty `trends`
+   list (pageGeneration.build_trends / build_global_trends). Icon-only ticker.
+   The row is a single .trends-seq; assets/js/trends-bar.js clones it enough
+   times to overfill the viewport and drives a seamless, count-independent
+   infinite scroll (shifting by exactly one sequence width). Without JS it just
+   renders a static, clipped row. Self-hides when there's nothing to show. #}
+{% if trends %}
+<div class="container-fluid">
+  <div class="trends-bar d-flex align-items-center mx-3 my-2 rounded-3" role="region"
+    aria-label="Top trends this week">
+    <span class="trends-bar-title">
+      <i class="material-symbols-rounded" aria-hidden="true">trending_up</i>Top Trends
+    </span>
+    <div class="trends-marquee">
+      <div class="trends-track">
+        <div class="trends-seq">
+          {% for t in trends %}
+          {% set inner %}
+            {% if t.icons %}
+            <span class="trends-cluster d-inline-flex align-items-center">
+              {% for s in t.icons %}
+              <img class="trends-cluster-icon" src="{{ s.icon or '/data/icons/inv_misc_questionmark.png' }}"
+                alt="" width="20" height="20" loading="lazy" onerror="this.src='/data/icons/inv_misc_questionmark.png'">
+              {% endfor %}
+            </span>
+            {% elif t.icon %}
+            <img class="trends-icon" src="{{ t.icon }}" alt="" width="22" height="22" loading="lazy"
+              onerror="this.src='/data/icons/inv_misc_questionmark.png'">
+            {% endif %}
+            <span class="trends-value fw-bold">{{ '%.2f'|format(t.value) }}%</span>
+            {% if t.direction == 'up' %}
+            <span class="material-symbols-rounded text-success trends-arrow" aria-hidden="true">arrow_drop_up</span>
+            {% elif t.direction == 'down' %}
+            <span class="material-symbols-rounded text-danger trends-arrow" aria-hidden="true">arrow_drop_down</span>
+            {% else %}
+            <span class="material-symbols-rounded text-muted trends-arrow" aria-hidden="true">remove</span>
+            {% endif %}
+            <span class="trends-delta small {{ 'text-success' if t.delta > 0 else ('text-danger' if t.delta < 0 else 'text-muted') }}">({{ '%+.2f'|format(t.delta) }})</span>
+            {% if t.tier_changed and t.tier_prev and t.tier_now %}
+            <span class="trends-tier badge bg-gradient-info ms-1">{{ t.tier_prev }}&rarr;{{ t.tier_now }}</span>
+            {% endif %}
+            <span class="visually-hidden">{{ t.label }}
+              {{ 'up' if t.direction == 'up' else ('down' if t.direction == 'down' else 'steady') }}
+              {{ '%+.2f'|format(t.delta) }} percentage points{% if t.tier_changed %}, tier {{ t.tier_prev }} to {{ t.tier_now }}{% endif %}</span>
+          {% endset %}
+          {% if t.href %}
+          <a class="trends-item {{ t.css or '' }}" href="{{ t.href }}" title="{{ t.label }}">{{ inner }}</a>
+          {% else %}
+          <span class="trends-item {{ t.css or '' }}" title="{{ t.label }}">{{ inner }}</span>
+          {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .trends-bar {
+    background: var(--bs-tertiary-bg, rgba(127, 127, 127, .08));
+    border: 1px solid var(--bs-border-color, rgba(127, 127, 127, .18));
+    padding: .35rem .5rem;
+    overflow: hidden;
+  }
+  .trends-bar-title {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--bs-emphasis-color, inherit);
+    opacity: .72;
+    padding: 0 .75rem 0 .25rem;
+    margin-right: .25rem;
+    border-right: 1px solid var(--bs-border-color, rgba(127, 127, 127, .25));
+    white-space: nowrap;
+  }
+  .trends-bar-title .material-symbols-rounded { font-size: 1.05rem; }
+  .trends-marquee {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 1.5rem, #000 calc(100% - 1.5rem), transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0, #000 1.5rem, #000 calc(100% - 1.5rem), transparent 100%);
+  }
+  .trends-track { display: flex; width: max-content; }
+  .trends-track.is-animated {
+    animation: trends-scroll var(--trends-duration, 40s) linear infinite;
+    will-change: transform;
+  }
+  .trends-marquee:hover .trends-track.is-animated { animation-play-state: paused; }
+  /* Each sequence trails a gap so cloned copies butt together evenly. */
+  .trends-seq { display: flex; align-items: center; gap: 1.75rem; padding-right: 1.75rem; }
+  .trends-item {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    white-space: nowrap;
+    color: inherit;
+    text-decoration: none;
+  }
+  .trends-item:hover { text-decoration: none; opacity: .85; }
+  .trends-icon { border-radius: 4px; object-fit: cover; }
+  .trends-arrow { font-size: 1.25rem; line-height: 1; margin: 0 -.2rem; }
+  .trends-delta { white-space: nowrap; }
+  .trends-tier { font-size: .62rem; }
+  .trends-cluster-icon {
+    border-radius: 50%;
+    margin-right: -7px;
+    border: 1px solid var(--bs-body-bg, #1a1a1a);
+    object-fit: cover;
+  }
+  .trends-cluster-icon:last-child { margin-right: 0; }
+  @keyframes trends-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(calc(-1 * var(--trends-shift, 100%))); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .trends-track.is-animated { animation: none; }
+    .trends-marquee { overflow-x: auto; }
+  }
+</style>
+{% endif %}

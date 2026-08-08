@@ -7,7 +7,7 @@ from collections import defaultdict
 from datetime import datetime, timezone
 
 # project imports (adjust paths if necessary)
-from pageGeneration import generateSpecNav, generateDungeonNav
+from pageGeneration import generateSpecNav, generateDungeonNav, build_global_trends
 from generateSpecPages import (
     humanize_number,
     format_duration,
@@ -126,6 +126,7 @@ def main(template_path, output_dir, limit):
     # render
     template = env.get_template(os.path.basename(template_path))
     output_html = template.render(
+        trends=build_global_trends(),
         generated_at=datetime.now(timezone.utc).timestamp(),
         spec_nav=generateSpecNav(
             spec_lookup, class_lookup

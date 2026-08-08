@@ -1,10 +1,26 @@
+import json
+import os
 import re
+
+import databaseConnector
 
 ROLE_FOLDERS = {
     "0": "Tank",
     "1": "Healer",
     "2": "Dps",
 }
+
+# S..F letters, index-aligned with tierMath / snapshotTrends (0 = S = best).
+TIER_LETTERS = ["S", "A", "B", "C", "D", "F"]
+
+# Feeds whose entities carry an S..F tier (movement = tier change); everything
+# else is ranked (movement = rank-position change). Mirrors snapshotTrends.py.
+TIERED_FEEDS = {"spec", "dungeon", "buff"}
+
+# How many top movers the bar shows.
+TREND_LIMIT = 6
+# Ignore sub-threshold popularity wobble so the bar shows real movement.
+TREND_MIN_DELTA = 0.05
 
 
 def slugify(text):
@@ -49,6 +65,305 @@ def generateDungeonNav(dungeons):
         })
     dungeon_nav.sort(key=lambda x: x["name"])
     return dungeon_nav
+
+# ---------------------------------------------------------------------------
+# "Top Trends" bar
+#
+# build_trends() reads the latest two weekly snapshots (databaseConnector /
+# trend_snapshot) for the feeds a page cares about, diffs them, and returns the
+# biggest movers as render-ready dicts. Presentation (icon/href) is resolved
+# here from the same lookups the pages already load, so templates/trends_bar.html
+# stays dumb. When fewer than two weeks exist (e.g. season start) it returns [],
+# and the partial renders nothing.
+# ---------------------------------------------------------------------------
+
+_COMBO_LABELS = {
+    "set_combo": "Tier-set combo",
+    "embellishment_combo": "Embellishment combo",
+    "crafted_combo": "Crafted combo",
+    "gem_combo": "Gem combo",
+}
+
+
+def trend_feeds_for_index():
+    """Global spec + dungeon movement (the index bar)."""
+    return [("spec", ""), ("dungeon", "")]
+
+
+def trend_feeds_for_spec(spec_id):
+    """A single spec's own talents / gear / combos (the spec-page bar)."""
+    gk = str(spec_id)
+    return [
+        (feed, gk)
+        for feed in (
+            "talent", "item", "embellishment", "gem", "crafted",
+            "set_combo", "embellishment_combo", "crafted_combo", "gem_combo",
+        )
+    ]
+
+
+def trend_feeds_for_dungeon(dungeon_id):
+    """A dungeon's best-for-high-keys comp movement (the dungeon-page bar)."""
+    return [("comp", str(dungeon_id))]
+
+
+def _maybe_int(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return value
+
+
+def _icon_src(icon_file, ext="jpg"):
+    """Mirror the templates' /data/icons/<file>.<ext> convention. Spec/buff icons
+    are .jpg; item/talent/gem/embellishment icons are .png; dungeon icons already
+    carry their extension. Passes through absolute paths / URLs and names that
+    already include an extension."""
+    if not icon_file:
+        return None
+    s = str(icon_file)
+    if s.startswith(("http://", "https://", "/")):
+        return s
+    if s.endswith((".png", ".jpg")):
+        return "/data/icons/" + s
+    return f"/data/icons/{s}.{ext}"
+
+
+def _name_str(name, fallback):
+    if isinstance(name, dict):
+        return name.get("en_US") or fallback
+    return name or fallback
+
+
+def _resolve_icon_cluster(csv_ids, lookup, kind="item", limit=6):
+    """A comp/combo is a comma-separated list of ids (spec ids for group comps,
+    item ids for gear combos). Resolve each to {icon, name} so the bar can render
+    the same mini-icon cluster the spec/dungeon pages use. Spec icons are .jpg
+    (via SpellIconFileId); item/gem/embellishment icons are .png (via `icon`)."""
+    out = []
+    for raw in (csv_ids or "").split(","):
+        key = raw.strip()
+        if not key:
+            continue
+        meta = lookup.get(key) or lookup.get(_maybe_int(key)) or {}
+        if kind == "spec":
+            icon = _icon_src(meta.get("SpellIconFileId"))
+            name = _name_str(meta.get("name"), f"Spec {key}")
+        else:
+            icon = _icon_src(meta.get("icon"), ext="png")
+            name = _name_str(meta.get("name"), f"Item {key}")
+        out.append({"icon": icon, "name": name})
+        if len(out) >= limit:
+            break
+    return out
+
+
+def _resolve_entry(feed, entity_key, label, lookups):
+    """Turn a raw snapshot entity into {label, icon, href, css, comp_specs}."""
+    specs = lookups.get("specs", {})
+    classes = lookups.get("classes", {})
+    dungeons = lookups.get("dungeons", {})
+    buffs = lookups.get("buffs", {})
+    items = lookups.get("items", {})
+    talents = lookups.get("talents", {})
+    role_lookup = lookups.get("role_lookup", ROLE_FOLDERS)
+
+    out = {"label": label or str(entity_key), "icon": None, "href": None,
+           "css": None, "icons": None}
+
+    if feed == "spec":
+        meta = specs.get(str(entity_key)) or {}
+        name = _name_str(meta.get("name"), str(entity_key))
+        cls = classes.get(str(meta.get("classID"))) or {}
+        role = role_lookup.get(str(meta.get("role"))) or role_lookup.get(meta.get("role"))
+        out["label"] = name
+        out["icon"] = _icon_src(meta.get("SpellIconFileId"))
+        if name and cls.get("name") and role:
+            out["href"] = f"/classes/{role}/{name}_{cls['name']}"
+        out["css"] = (cls.get("name") or "").replace(" ", "") or None
+    elif feed == "dungeon":
+        meta = dungeons.get(str(entity_key)) or {}
+        out["label"] = _name_str(meta.get("name"), str(entity_key))
+        out["icon"] = _icon_src(meta.get("icon"))
+        if meta.get("slug"):
+            out["href"] = f"/dungeons/{meta['slug']}"
+    elif feed == "buff":
+        meta = buffs.get(entity_key) or buffs.get(_maybe_int(entity_key)) or {}
+        out["label"] = meta.get("name") or meta.get("display_name") or out["label"]
+        out["icon"] = _icon_src(meta.get("icon") or meta.get("icon_file"))
+    elif feed == "comp":
+        # group comp: a list of spec ids -> cluster of spec icons
+        out["icons"] = _resolve_icon_cluster(label, specs, kind="spec")
+        out["label"] = _COMBO_LABELS.get(feed, "Comp")
+    elif feed in ("set_combo", "embellishment_combo", "crafted_combo", "gem_combo"):
+        # gear combo: a list of item ids -> cluster of item icons, exactly like
+        # build_comps renders on the spec page.
+        out["icons"] = _resolve_icon_cluster(label, items, kind="item")
+        out["label"] = _COMBO_LABELS.get(feed, "Build")
+    elif feed in ("item", "embellishment", "gem", "crafted"):
+        item_id = str(entity_key).split(":")[-1]
+        meta = items.get(item_id) or items.get(_maybe_int(item_id)) or {}
+        out["label"] = _name_str(meta.get("name"), f"Item {item_id}")
+        out["icon"] = _icon_src(meta.get("icon"), ext="png")
+        name = _name_str(meta.get("name"), "")
+        if name:
+            out["href"] = f"/items/{slugify(name)}"
+    elif feed == "talent":
+        tid = str(entity_key).split(":")[-1]
+        meta = talents.get(tid) or talents.get(_maybe_int(tid))
+        if isinstance(meta, dict):
+            out["label"] = _name_str(meta.get("name"), f"Talent {tid}")
+            out["icon"] = _icon_src(meta.get("icon"), ext="png")
+        else:
+            out["label"] = meta or f"Talent {tid}"
+    return out
+
+
+def build_trends(conn, cursor, feeds, lookups, limit=TREND_LIMIT):
+    """Diff the CURRENT live values against last week's stored snapshot and return
+    up to ``limit`` render-ready movers, biggest movement first.
+
+    The "now" side is the live values snapshotTrends computed for this build and
+    wrote to TRENDS_LIVE_PATH — never persisted to the DB, so the displayed number
+    stays fresh through the week. The "prev" side is the most recent stored weekly
+    baseline strictly older than the live week (i.e. the previous reset week).
+    Movement = tier change (tiered feeds) or rank change (ranked feeds) + the
+    popularity delta. Returns [] until a previous week's snapshot exists."""
+    live = _load_live_trends()
+    if not live:
+        return []
+    # Own plain (tuple) cursor: the fetchers index rows positionally, but callers
+    # may hand us a dictionary=True cursor (e.g. the dungeon generator).
+    cursor = conn.cursor()
+    prev_week = databaseConnector.fetch_prev_trend_week(conn, cursor, live["week_id"])
+    if prev_week is None:
+        return []
+
+    # Index the live "now" records by (feed, group_key) -> {entity_key: record}.
+    live_by_group = {}
+    for r in live.get("records", []):
+        live_by_group.setdefault((r["feed"], r["group_key"]), {})[r["entity_key"]] = r
+
+    movers = []
+    for feed, group_key in feeds:
+        gk = str(group_key)
+        now = live_by_group.get((feed, gk), {})
+        prev = {
+            r["entity_key"]: r
+            for r in databaseConnector.fetch_trend_snapshots(conn, cursor, feed, gk, [prev_week])
+        }
+
+        tiered = feed in TIERED_FEEDS
+        for ek, n in now.items():
+            p = prev.get(ek)
+            delta = n["popularity"] - (p["popularity"] if p else 0.0)
+
+            if tiered:
+                t_now, t_prev = n["tier"], (p["tier"] if p else None)
+                changed = t_prev is not None and t_now != t_prev
+                tier_now = TIER_LETTERS[t_now] if t_now is not None and 0 <= t_now < len(TIER_LETTERS) else None
+                tier_prev = TIER_LETTERS[t_prev] if t_prev is not None and 0 <= t_prev < len(TIER_LETTERS) else None
+                moved = 0 if t_prev is None else (t_prev - t_now)  # +ve = climbed toward S
+            else:
+                r_now, r_prev = n["rank_pos"], (p["rank_pos"] if p else None)
+                changed = r_prev is not None and r_now != r_prev
+                tier_now = tier_prev = None
+                moved = 0 if r_prev is None else (r_prev - r_now)  # +ve = climbed
+
+            if abs(delta) < TREND_MIN_DELTA and not changed:
+                continue
+
+            entry = _resolve_entry(feed, ek, n["label"], lookups)
+            # The bar is icon-only — never show a raw name/id. Drop anything we
+            # can't render as at least one real icon (single or cluster).
+            cluster = entry.get("icons") or []
+            if not entry.get("icon") and not any(c.get("icon") for c in cluster):
+                continue
+            entry.update({
+                "feed": feed,
+                "value": round(n["popularity"], 2),
+                "delta": round(delta, 2),
+                "direction": "up" if delta > TREND_MIN_DELTA else ("down" if delta < -TREND_MIN_DELTA else "flat"),
+                "moved": moved,
+                "is_new": p is None,
+                "tier_now": tier_now,
+                "tier_prev": tier_prev,
+                "tier_changed": changed if tiered else False,
+                "rank_changed": changed if not tiered else False,
+                "_mag": abs(delta) + (2.0 if (changed and tiered) else 0.0),
+            })
+            movers.append(entry)
+
+    movers.sort(key=lambda e: e["_mag"], reverse=True)
+    top = movers[:limit]
+    for e in top:
+        e.pop("_mag", None)
+    return top
+
+
+_LOOKUP_DIR = os.environ.get("MYTHI_LOOKUP_DIR", "data/static")
+_GLOBAL_TRENDS_CACHE = None
+
+# Build-local "current live" trends, written by snapshotTrends every build and
+# read here as the fresh "now" side of the diff. Deliberately NOT in the DB — the
+# DB only holds the weekly baselines. Same working dir for the snapshot step and
+# the generators, so a relative path is fine.
+TRENDS_LIVE_PATH = os.environ.get("TRENDS_LIVE_PATH", os.path.join("assets", "json", "trends_live.json"))
+_LIVE_TRENDS_CACHE = _GLOBAL_TRENDS_UNSET = object()
+
+
+def _load_live_trends():
+    """Load {week_id, records} written by snapshotTrends this build. Cached; None
+    (bar hides) when the file is absent — e.g. the snapshot step didn't run."""
+    global _LIVE_TRENDS_CACHE
+    if _LIVE_TRENDS_CACHE is not _GLOBAL_TRENDS_UNSET:
+        return _LIVE_TRENDS_CACHE
+    try:
+        with open(TRENDS_LIVE_PATH, encoding="utf-8") as fh:
+            _LIVE_TRENDS_CACHE = json.load(fh)
+    except (OSError, ValueError) as exc:
+        print(f"[trends] no live snapshot at {TRENDS_LIVE_PATH}, hiding bar: {exc}")
+        _LIVE_TRENDS_CACHE = None
+    return _LIVE_TRENDS_CACHE
+
+
+def _load_lookup(name):
+    with open(os.path.join(_LOOKUP_DIR, name), encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def build_global_trends():
+    """Global spec + dungeon trends for the shared site-wide bar — the feed used
+    by pages that don't have their own contextual trends (dashboard, routes,
+    comps, items, tierlist, ...). Self-contained: it loads the lookups it needs
+    and opens its own pooled connection, so a generator only has to pass
+    ``trends=build_global_trends()`` to its template. Cached per process (each
+    generator builds many pages from one snapshot). Returns [] — so the bar just
+    hides — if the DB/pool isn't available in this particular generator."""
+    global _GLOBAL_TRENDS_CACHE
+    if _GLOBAL_TRENDS_CACHE is not None:
+        return _GLOBAL_TRENDS_CACHE
+    try:
+        group_buffs = _load_lookup("groupbuffs.json")
+        lookups = {
+            "specs": _load_lookup("specs.json"),
+            "classes": _load_lookup("classes.json"),
+            "dungeons": _load_lookup("dungeons.json"),
+            "buffs": {b.get("id"): b for b in group_buffs},
+        }
+        conn = databaseConnector.get_connection()
+        try:
+            cursor = conn.cursor()
+            databaseConnector.configure_read_session(conn, cursor)
+            result = build_trends(conn, cursor, trend_feeds_for_index(), lookups)
+        finally:
+            conn.close()
+    except Exception as exc:  # pool not initialised / DB unreachable in this step
+        print(f"[trends] global trends unavailable, hiding bar: {exc}")
+        result = []
+    _GLOBAL_TRENDS_CACHE = result
+    return result
+
 
 def generateSpecNav(spec_lookup, class_lookup):
     # Build a dict mapping role names to lists of specs

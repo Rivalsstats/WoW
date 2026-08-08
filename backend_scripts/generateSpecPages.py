@@ -10,7 +10,14 @@ from datetime import datetime, timezone
 from contextlib import closing
 import re
 from urllib.parse import quote_plus
-from pageGeneration import ROLE_FOLDERS, generateSpecNav, generateDungeonNav, build_item_slug_map
+from pageGeneration import (
+    ROLE_FOLDERS,
+    generateSpecNav,
+    generateDungeonNav,
+    build_item_slug_map,
+    build_trends,
+    trend_feeds_for_spec,
+)
 # Re-exported for the many modules that import these from generateSpecPages;
 # the implementations live in commonUtils so image_generation/social_posts can
 # use them without importing this (jinja2-heavy) module.
@@ -1970,6 +1977,15 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
     season_info = load_season_info(LOOKUP_DIR)
     os.makedirs(output_dir, exist_ok=True)
 
+    # Merged id -> item metadata for the Top Trends bar so its gem / embellishment
+    # / crafted / *_combo feeds resolve icons the same lookups the page uses:
+    # gear + tier-set pieces (item_lookup), gems (socket_lookup) and embellishment/
+    # crafted reagents (reagent_lookup). Keyed by str(id); gear wins on collision.
+    trend_item_icons = {}
+    for _src in (reagent_lookup, socket_lookup, item_lookup):
+        for _iid, _meta in _src.items():
+            trend_item_icons[str(_iid)] = _meta
+
     set_members = defaultdict(list)
     for iid, itm in item_lookup.items():
         sid = itm.get("itemSetId")
@@ -2677,10 +2693,33 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
             with open(os.path.join(spec_meta_dir, f"{spec_id}.json"), "w", encoding="utf-8") as f:
                 json.dump(spec_meta, f, separators=(",", ":"))
 
+            # Merge the per-spec talent + subtree name/icon maps so the trends
+            # bar can label talent movers (keys match aggregated_*_talent.talent_id).
+            talent_name_map = dict(talent_lookup.get("talents", {}))
+            talent_name_map.update(talent_lookup.get("subTrees", {}))
+            # We're past the per-spec read block above, which already released its
+            # pooled connection (the read -> release -> heavy-work pattern), so the
+            # `conn` here is dead. Grab a fresh live connection just for the trends
+            # lookup (the pool slot is free at this point).
+            with closing(databaseConnector.get_connection()) as trends_conn:
+                trends_cursor = trends_conn.cursor()
+                databaseConnector.configure_read_session(trends_conn, trends_cursor)
+                trends = build_trends(
+                    trends_conn,
+                    trends_cursor,
+                    trend_feeds_for_spec(spec_id),
+                    {
+                        "specs": spec_lookup,
+                        "items": trend_item_icons,
+                        "talents": talent_name_map,
+                    },
+                )
+
             output_html = template.render(
                 generated_at=datetime.now(timezone.utc).timestamp(),
                 spec_id=spec_id,
                 spec=spec_data,
+                trends=trends,
                 class_info=class_data,
                 data_count=data_count,
                 active_page="spec",

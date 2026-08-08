@@ -292,6 +292,20 @@ jobs:
             rm -rf assets/img/previews/*
             mkdir -p assets/img/previews
 
+      # Freeze this reset week's Top Trends snapshot BEFORE any page is rendered,
+      # so the index / spec / dungeon generators read a current week to diff.
+      - name: Snapshot weekly trends
+        env:
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORT }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+          BLIZ_CLIENT_ID: ${{ secrets.BLIZ_CLIENT_ID }}
+          BLIZ_CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
+        run: |
+          python backend_scripts/snapshotTrends.py
+
       - name: Generate Dashboard HTML page
         env:
           DATABASE_HOST: ${{ secrets.DATABASE_HOST }}

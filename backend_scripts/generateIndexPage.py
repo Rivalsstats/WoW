@@ -5,7 +5,13 @@ from datetime import datetime, timezone
 import argparse
 from tierMath import build_buff_tiers, build_ckmeans_tiers, build_spec_tiers
 from contextlib import closing
-from pageGeneration import generateSpecNav, ROLE_FOLDERS, generateDungeonNav
+from pageGeneration import (
+    generateSpecNav,
+    ROLE_FOLDERS,
+    generateDungeonNav,
+    build_trends,
+    trend_feeds_for_index,
+)
 from aggregateData import get_current_season_id, get_access_token
 from generateSpecPages import (
     LOOKUP_DIR,
@@ -68,6 +74,17 @@ def main(template_path, output_dir):
         groupbuffs_stats = databaseConnector.fetch_groupbuffs_stats(
             conn, cursor, group_buffs, current_season, 12, 14
         )
+        trends = build_trends(
+            conn,
+            cursor,
+            trend_feeds_for_index(),
+            {
+                "specs": spec_lookup,
+                "classes": class_lookup,
+                "dungeons": dungeon_lookup,
+                "buffs": buff_lookup,
+            },
+        )
     print(groupbuffs_stats)
     print("Building tiers...")
     dungeon_tiers = build_ckmeans_tiers(
@@ -88,6 +105,7 @@ def main(template_path, output_dir):
         class_lookup=class_lookup,
         active_page="home",
         notifications=notifications,
+        trends=trends,
         breadcrumbs=[
             {"title": "Home", "href": "/"},
         ],

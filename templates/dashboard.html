@@ -124,8 +124,9 @@
     <!-- End Navbar -->
     <!-- Notifications -->
     {% include "notifications.html" %}
+    {% include "trends_bar.html" %}
     <!-- End Notifications -->
-    <div class="container-fluid py-2">
+    <div class="container-fluid py-2 mx-3 w-auto">
       {# Shared row shape for the mobile ranked tables #}
       {% macro dash_rank_row(rank, name, value, sub=None, icon_url=None, bar_pct=None, bar_class='', name_class='') %}
       <tr>
