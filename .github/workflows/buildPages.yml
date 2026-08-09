@@ -157,41 +157,78 @@ jobs:
           path: simc_profiles
           retention-days: 7
 
-  # Build SimulationCraft from source so the sims use current game data — the
-  # published Docker image lags weeks behind and skews DPS. Runs in parallel
-  # with prepare-sims and buildPages; the binary is compiled ONCE here and
-  # reused by every matrix leg. Cached on the resolved simc HEAD so repeat runs
-  # skip the compile.
+  # Build a VALIDATED SimulationCraft binary from source so the sims use current
+  # game data — the published Docker image lags weeks behind and skews DPS. simc's
+  # `midnight` branch is actively developed and its tip occasionally can't init a
+  # spec (e.g. the Unholy DK army_ghoul break that failed run 31325084815), so we
+  # do NOT trust the raw tip: buildResilientSimc.sh walks newest->oldest over recent
+  # commits and picks the first whose build initializes every spec in the real
+  # gearset profiles (hence needs: prepare-sims). Compiled ONCE here and reused by
+  # every matrix leg; an unchanged, already-validated HEAD skips the recompile via
+  # cache, and a last-known-good binary is kept as a floor if the whole window breaks.
   build-simc:
+    needs: [prepare-sims]
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 60
+    env:
+      SIMC_WALKBACK_CAP: '8'
     steps:
-      - name: Resolve simc HEAD revision
-        id: rev
-        run: echo "sha=$(git ls-remote https://github.com/simulationcraft/simc.git HEAD | cut -f1)" >> "$GITHUB_OUTPUT"
-
-      - name: Cache simc binary
-        id: cache
-        uses: actions/cache@v4
+      - name: Clone project
+        uses: actions/checkout@v7
         with:
-          path: simc-bin
-          key: simc-bin-${{ steps.rev.outputs.sha }}
+          fetch-depth: 1
+          ref: main
+
+      - name: Download sim profiles
+        uses: actions/download-artifact@v4
+        with:
+          name: simc-profiles
+          path: simc_io
 
       - name: Install build dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake g++ libssl-dev libcurl4-openssl-dev
 
-      - name: Build SimulationCraft (CLI, no GUI)
-        if: steps.cache.outputs.cache-hit != 'true'
+      - name: Resolve candidate simc commits (newest first)
+        id: cands
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          set -e
-          git clone --depth=1 https://github.com/simulationcraft/simc.git simc
-          cmake -S simc -B simc/build -DCMAKE_BUILD_TYPE=Release -DBUILD_GUI=OFF
-          cmake --build simc/build --parallel "$(nproc)" --target simc
-          mkdir -p simc-bin
-          cp "$(find simc/build -name simc -type f -executable | head -1)" simc-bin/simc
+          set -euo pipefail
+          gh api "repos/simulationcraft/simc/commits?sha=midnight&per_page=${SIMC_WALKBACK_CAP}" \
+            --jq '.[].sha' > candidates.txt
+          head=$(head -1 candidates.txt)
+          echo "head=$head" >> "$GITHUB_OUTPUT"
+          echo "Newest simc commit (HEAD): $head"
+          echo "Candidate window ($(wc -l < candidates.txt) commits):"; cat candidates.txt
+
+      - name: Cache simc binary (fast path for an already-validated HEAD)
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: simc-cache
+          key: simc-bin-${{ steps.cands.outputs.head }}
+
+      - name: Restore last-known-good simc (fallback floor)
+        uses: actions/cache@v4
+        with:
+          path: simc-lastgood
+          key: simc-lastgood-${{ github.run_id }}
+          restore-keys: |
+            simc-lastgood-
+
+      - name: Build & validate (walk back to the newest working commit)
+        env:
+          HEAD_SHA: ${{ steps.cands.outputs.head }}
+          HEAD_CACHED: ${{ steps.cache.outputs.cache-hit }}
+        run: bash backend_scripts/buildResilientSimc.sh
+
+      - name: Update last-known-good
+        run: |
+          mkdir -p simc-cache simc-lastgood
+          cp simc-bin/simc simc-lastgood/simc
+          cp simc-bin/CHOSEN_SHA simc-lastgood/CHOSEN_SHA 2>/dev/null || true
           simc-bin/simc --version || true
 
       - name: Upload simc binary

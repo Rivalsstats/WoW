@@ -1,40 +1,64 @@
 name: Build and publish simc image
 
-# Recompiles SimulationCraft from upstream HEAD and publishes it to GHCR so the
+# Recompiles SimulationCraft from upstream and publishes it to GHCR so the
 # collector's short-lived sibling sims (simcBis.py) run current game data. The
 # collector self-pulls SIMC_DOCKER_IMAGE on SIMC_PULL_INTERVAL, so a fresh image
 # here propagates to production without touching the collector image.
 #
+# We do NOT trust the raw tip of simc's actively-developed `midnight` branch: it
+# occasionally can't init a spec (e.g. the Unholy DK army_ghoul break that failed
+# buildPages run 31325084815). buildResilientSimcImage.sh walks newest->oldest over
+# recent commits and publishes the first image that initializes every simulated
+# spec (validated with simcSmoke.py). Staleness is therefore bounded by the newest
+# *working* commit, not by this cron — a broken tip just ships yesterday's good
+# commit, and if the whole window is broken we keep the last good :latest and fail
+# loudly instead of shipping a broken build.
+#
 # See Dockerfile.simc for the GPL-3.0 compliance notes (LICENSE + source commit).
 
 on:
-  # Weekly is plenty: the collector self-pulls every 6h and upstream data changes
-  # slowly. Runs at 04:00 UTC, clear of the Wednesday full update.
+  # Daily (not weekly): the walk-back handles a transient broken tip, but if an
+  # entire candidate window is broken this cadence bounds recovery to ~a day
+  # instead of a week. Cache-cheap when the chosen commit is unchanged. 04:00 UTC,
+  # clear of the Wednesday full update.
   schedule:
-    - cron: '0 4 * * WED'
+    - cron: '0 4 * * *'
   push:
-    paths:  
+    paths:
       - 'Dockerfile.simc'
       - '.github/workflows/buildSimcImage.yml'
+      - 'backend_scripts/buildResilientSimcImage.sh'
+      - 'backend_scripts/simcSmoke.py'
   workflow_dispatch: {}
 
 permissions:
   contents: read
   packages: write
 
+env:
+  SIMC_WALKBACK_CAP: '6'
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     steps:
-      - name: Checkout (for Dockerfile.simc)
+      - name: Checkout (Dockerfile.simc, static data, scripts)
         uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
-      - name: Resolve simc HEAD revision
-        id: rev
-        run: echo "sha=$(git ls-remote https://github.com/simulationcraft/simc.git HEAD | cut -f1)" >> "$GITHUB_OUTPUT"
+      - name: Resolve candidate simc commits (newest first)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api "repos/simulationcraft/simc/commits?sha=midnight&per_page=${SIMC_WALKBACK_CAP}" \
+            --jq '.[].sha' > candidates.txt
+          echo "Candidate window ($(wc -l < candidates.txt) commits):"; cat candidates.txt
+
+      - name: Generate all-spec smoke profile
+        run: python3 backend_scripts/simcSmoke.py --output smoke.simc
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -46,27 +70,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push simc image to GHCR
-        uses: docker/build-push-action@v6
-        with:
-          # simc source is fetched inside the Dockerfile; the local context only
-          # needs to supply Dockerfile.simc (from the checkout above).
-          file: Dockerfile.simc
-          context: .
-          platforms: linux/amd64
-          push: true
-          build-args: |
-            SIMC_REV=${{ steps.rev.outputs.sha }}
-          tags: |
-            ghcr.io/mythistone/simc:latest
-            ghcr.io/mythistone/simc:${{ steps.rev.outputs.sha }}
-          # Cache on the resolved commit: an unchanged upstream HEAD reuses the
-          # compile layer and republishes the same digest cheaply.
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          labels: |
-            org.opencontainers.image.title=SimulationCraft (unofficial build)
-            org.opencontainers.image.description=Unofficial SimulationCraft build for the MythiStone collector
-            org.opencontainers.image.source=https://github.com/simulationcraft/simc
-            org.opencontainers.image.revision=${{ steps.rev.outputs.sha }}
-            org.opencontainers.image.licenses=GPL-3.0-or-later
+      - name: Build, validate, and push the newest working commit
+        env:
+          IMAGE: ghcr.io/mythistone/simc
+        run: bash backend_scripts/buildResilientSimcImage.sh
