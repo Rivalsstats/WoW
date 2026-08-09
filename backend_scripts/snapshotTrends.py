@@ -39,6 +39,7 @@ from contextlib import closing
 
 import databaseConnector
 from aggregateData import get_access_token, get_current_season_id
+from compArchetypes import build_dungeon_archetypes, collapse_comps
 from tierMath import build_buff_tiers, build_ckmeans_tiers, build_spec_tiers
 from generateSpecPages import LOOKUP_DIR, load_json
 from pageGeneration import TRENDS_LIVE_PATH
@@ -65,7 +66,7 @@ RETENTION_WEEKS = 8
 TOP_N_ITEMS_PER_SLOT = 5
 TOP_N_MISC = 5           # embellishments / gems / crafted
 TOP_N_COMBOS = 5         # tier-set / embellishment / crafted / gem combos
-TOP_N_DUNGEON_COMPS = 5
+TOP_N_ARCHETYPES = 6     # families kept per context (matches the comps page top_n)
 
 
 def _ekey(raw):
@@ -273,17 +274,34 @@ def jitter_records(records, week_id, jitter=0.4, seed=1234):
     return out
 
 
-def build_dungeon_rows(conn, cursor, week_id, season, dungeon_id):
-    """Per-dungeon 'best for high keys' comps (top-N, ranked by high-key score)."""
-    top, dungeon_total = databaseConnector.fetch_dungeon_high_key_comps(
-        conn, cursor, dungeon_id, season, TOP_N_DUNGEON_COMPS
+def build_archetype_rows(conn, cursor, week_id, season, spec_lookup, class_lookup, dungeon_ids):
+    """Team-comp *archetype* feed (the comps page's grouped families), one bounded
+    top-N list per context: the global 'all' bar plus one per dungeon (which also
+    powers the dungeon-page bar). Reuses the exact clustering the comps page renders
+    (collapse_comps -> build_dungeon_archetypes) off a single aggregated_dungeon_comps
+    scan, so no extra SQL.
+
+    Ranked by popularity (runs) — the most stable "is this comp rising or falling"
+    signal. entity_key is the family's most-PLAYED member (`key_c`), a handle that
+    survives the displayed core flipping to a fresh top-key comp; label is the
+    displayed core (`c`) so the bar renders the recognisable archetype icons."""
+    raw = databaseConnector.fetch_all_comps(conn, cursor, season)
+    collapsed = collapse_comps(raw, spec_lookup)
+    arch = build_dungeon_archetypes(
+        collapsed, spec_lookup, class_lookup, dungeon_ids, top_n=TOP_N_ARCHETYPES
     )
     rows = []
-    for pos, c in enumerate(top, start=1):
-        rows.append(_row(
-            week_id, "comp", str(dungeon_id), c["comp"], c["comp"],
-            None, pos, None, _pct(c["total_runs"], dungeon_total), c["total_runs"],
-        ))
+    for ctx, flavours in arch.items():
+        popular = flavours.get("popular", [])
+        ctx_total = sum(int(f["runs"]) for f in popular)
+        for pos, f in enumerate(popular, start=1):
+            key_c = f.get("key_c") or f["c"]
+            rows.append(_row(
+                week_id, "archetype", str(ctx),
+                ",".join(str(s) for s in key_c),          # stable identity handle
+                ",".join(str(s) for s in f["c"]),         # displayed core -> icon cluster
+                None, pos, None, _pct(int(f["runs"]), ctx_total), int(f["runs"]),
+            ))
     return rows
 
 
@@ -350,8 +368,10 @@ def main():
             records += build_spec_rows(
                 conn, cursor, week_id, season, spec_id, spec_run_map.get(spec_id, 0)
             )
-        for did in lookups["dungeons"]:
-            records += build_dungeon_rows(conn, cursor, week_id, season, did)
+        dungeon_ids = [str(d) for d in lookups["dungeons"]]
+        records += build_archetype_rows(
+            conn, cursor, week_id, season, lookups["specs"], lookups["classes"], dungeon_ids
+        )
         print(f"  total live records: {len(records)}")
 
         # 1) Current "now" -> build-local JSON, refreshed every build (NOT the DB).

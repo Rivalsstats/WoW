@@ -606,8 +606,10 @@ CREATE TABLE `season_periods` (
 -- `week_id` (idempotent upsert) so a week's row freezes once the reset advances.
 -- `feed` names what is trended ('spec','dungeon','buff','talent','item','gem',
 -- 'embellishment','crafted','set_combo','crafted_combo','embellishment_combo',
--- 'gem_combo','comp'); `group_key` scopes per-spec / per-dungeon feeds (empty for
--- global feeds). Spec/dungeon feeds carry an S..F `tier` (0=S) and `score`
+-- 'archetype'); `group_key` scopes per-spec / per-dungeon feeds (empty for global
+-- feeds; 'all' or a dungeon id for the archetype feed). The retired 'comp' feed
+-- (raw per-dungeon comps) was replaced by 'archetype' (clustered team-comp
+-- families). Spec/dungeon feeds carry an S..F `tier` (0=S) and `score`
 -- (tierMath lb_ci); the rest carry a within-group `rank_pos`. `popularity` is a
 -- share-of-runs %. Kept for the current season only; pruned by the writer and
 -- blanket-cleared on season rollover (see sp_season_wipe).

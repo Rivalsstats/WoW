@@ -474,6 +474,15 @@ def _family(members, recs, spec_lookup, class_lookup, min_alt_frac, hk_levels, g
     runs = sum(recs[i].runs for i in members)
     timed = sum(recs[i].timed for i in members)
     key_runs = sum(recs[i].avg_key * recs[i].runs for i in members)
+
+    # Stable identity handle for week-over-week trending. The displayed core `rep`
+    # is the highest-KEY member (_core_rank), which flips whenever a sister comp
+    # posts a new top key — too volatile to key a trend on. The most-PLAYED member
+    # (highest runs, weight as tie-break) barely moves week to week, so trend
+    # snapshots match on this while still displaying `rep`. Same spec ordering as
+    # `c`, so it resolves through the same spec-icon lookup.
+    key_idx = max(members, key=lambda i: (recs[i].runs, recs[i].weight))
+    key_c = list(recs[key_idx].specs)
     hk = _level_stats(members, recs, hk_levels)
     gem = _level_stats(members, recs, gem_levels)
 
@@ -495,6 +504,7 @@ def _family(members, recs, spec_lookup, class_lookup, min_alt_frac, hk_levels, g
 
     return {
         "c": list(rep),
+        "key_c": key_c,
         "runs": runs,
         "t": timed,
         "d": sum(recs[i].depleted for i in members),

@@ -102,9 +102,14 @@ def trend_feeds_for_spec(spec_id):
     ]
 
 
+def trend_feeds_for_comps():
+    """Global team-comp archetype movement (the comps-page bar)."""
+    return [("archetype", "all")]
+
+
 def trend_feeds_for_dungeon(dungeon_id):
-    """A dungeon's best-for-high-keys comp movement (the dungeon-page bar)."""
-    return [("comp", str(dungeon_id))]
+    """A dungeon's team-comp archetype movement (the dungeon-page bar)."""
+    return [("archetype", str(dungeon_id))]
 
 
 def _maybe_int(value):
@@ -191,6 +196,11 @@ def _resolve_entry(feed, entity_key, label, lookups):
         meta = buffs.get(entity_key) or buffs.get(_maybe_int(entity_key)) or {}
         out["label"] = meta.get("name") or meta.get("display_name") or out["label"]
         out["icon"] = _icon_src(meta.get("icon") or meta.get("icon_file"))
+    elif feed == "archetype":
+        # team-comp archetype: label carries the displayed core comp (a list of spec
+        # ids) -> cluster of spec icons, same rendering as a raw group comp.
+        out["icons"] = _resolve_icon_cluster(label, specs, kind="spec")
+        out["label"] = "Archetype"
     elif feed == "comp":
         # group comp: a list of spec ids -> cluster of spec icons
         out["icons"] = _resolve_icon_cluster(label, specs, kind="spec")

@@ -7,7 +7,7 @@ from contextlib import closing
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import databaseConnector
 from compArchetypes import build_dungeon_archetypes
-from pageGeneration import generateSpecNav, generateDungeonNav, build_global_trends
+from pageGeneration import generateSpecNav, generateDungeonNav, build_trends, trend_feeds_for_comps
 from generateSpecPages import LOOKUP_DIR, load_json, load_season_info
 from image_generation.comp_overview import createCompOverviewImg
 
@@ -547,7 +547,10 @@ def main(template_path, output_dir):
         
         template = env.get_template(os.path.basename(template_path))
         output_html = template.render(
-            trends=build_global_trends(),
+            # Contextual archetype trends (the comps page's own bar), diffed off the
+            # already-open build connection; build_trends opens its own tuple cursor.
+            trends=build_trends(conn, cursor, trend_feeds_for_comps(),
+                                {"specs": spec_lookup, "classes": class_lookup}),
             specs_ui=specs_ui,
             synergy_matrix=json.dumps(synergy_matrix),
             glue_specs_by_role=glue_specs_by_role,
@@ -614,8 +617,8 @@ if __name__ == "__main__":
         os.environ.get("DATABASE_PASSWORD"),
         os.environ.get("DATABASE_NAME", "Mythistone"),
         os.environ.get("DATABASE_PORT", "3306"),
-        # >=2: main() holds one connection for the whole build while the template
-        # render calls build_global_trends(), which checks out a second one.
+        # main() holds one pooled connection for the whole build; the trends bar now
+        # reuses it (build_trends opens its own cursor), so a small pool is plenty.
         4,
     )
 
