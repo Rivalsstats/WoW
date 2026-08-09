@@ -4,6 +4,7 @@ import argparse
 import traceback
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import databaseConnector
+import compArchetypes
 import aggregateData
 from collections import defaultdict
 from datetime import datetime, timezone
@@ -2021,10 +2022,17 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
         )
         print(f"[{datetime.now(timezone.utc).isoformat()}] fetching per-spec upgrade distributions...")
         spec_upgrades_all = databaseConnector.fetch_spec_upgrades(conn, cursor)
-        print(f"[{datetime.now(timezone.utc).isoformat()}] fetching season-wide top comps...")
-        top_comps_by_spec = databaseConnector.fetch_spec_top_comps_all(
-            conn, cursor, current_season_id
-        )
+        # Team-comp families (same clustering as the comps page) so each spec page can
+        # show the popular team comps that spec belongs to, grouped with their flexible
+        # alternates. One scan of aggregated_dungeon_comps, clustered once, indexed by spec.
+        print(f"[{datetime.now(timezone.utc).isoformat()}] clustering team comps...")
+        _collapsed_comps = compArchetypes.collapse_comps(
+            databaseConnector.fetch_all_comps(conn, cursor, current_season_id),
+            spec_lookup)
+        _team_families = compArchetypes.build_archetypes(
+            _collapsed_comps, spec_lookup, class_lookup, top_n=None)
+        team_spec_comps = compArchetypes.spec_team_comps(
+            _team_families, spec_lookup, class_lookup)
 
     # Iterate over each spec folder
     for spec_id in spec_keys:
@@ -2434,7 +2442,13 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 stat_priority, tertiary_priority, health_priority = fetch_stat_info(
                     conn, cursor, spec_id, current_season_id, spec_lookup
                 )
-                top_comps_data = top_comps_by_spec.get(str(spec_id), [])
+                # Top team-comp families this spec is actually played in, with the spec
+                # swapped into the shown comp. If it belongs to no family, fall back to the
+                # most popular raw comps that include it so the panel is never empty.
+                team_comp_families = team_spec_comps.get(int(spec_id), [])
+                if not team_comp_families:
+                    team_comp_families = compArchetypes.top_comps_with_spec(
+                        _collapsed_comps, int(spec_id), spec_lookup, class_lookup)
 
             if not tree_by_spec.get(int(spec_id)):
                 raise ValueError(f"No talent tree data for spec {spec_id}")
@@ -2785,7 +2799,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 hero_tree_difs=hero_tree_difs,
                 hero_tree_count=hero_tree_count,
                 top_routes=top_routes,
-                top_comps_data=top_comps_data,
+                team_comp_families=team_comp_families,
                 season_info=season_info,
                 stats=stat_priority,
                 tertiary_priority=tertiary_priority,

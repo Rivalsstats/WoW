@@ -52,20 +52,23 @@
   }
 }
 
-/* Most Popular / Best High-Key rows: let icons + stats + button wrap on
-   narrow screens instead of overflowing off the card. */
+/* Most Popular / Best High-Key / Hidden Gems rows: let icons + stats + button
+   wrap on narrow screens instead of overflowing off the card. */
 #most-popular-list .list-group-item,
-#best-highkey-list .list-group-item {
+#best-highkey-list .list-group-item,
+#hidden-gems-list .list-group-item {
   flex-wrap: wrap;
   gap: 0.5rem;
 }
 #most-popular-list .list-group-item > .d-flex,
-#best-highkey-list .list-group-item > .d-flex {
+#best-highkey-list .list-group-item > .d-flex,
+#hidden-gems-list .list-group-item > .d-flex {
   flex-wrap: wrap;
   min-width: 0;
 }
 #most-popular-list .list-group-item .ms-3,
-#best-highkey-list .list-group-item .ms-3 {
+#best-highkey-list .list-group-item .ms-3,
+#hidden-gems-list .list-group-item .ms-3 {
   margin-left: 0.5rem !important;
 }
 

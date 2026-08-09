@@ -26,7 +26,9 @@ try:
         os.environ.get("DATABASE_PASSWORD"),
         os.environ.get("DATABASE_NAME"),
         os.environ.get("DATABASE_PORT"),
-        1,
+        # >=2 so build_global_trends() can check out a second connection while the
+        # page build still holds its own (otherwise the trends bar silently hides).
+        4,
     )
 except Exception as pool_err:
     print(f"WARNING: database connection pool unavailable: {pool_err}")

@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import databaseConnector
+import compArchetypes
 from pageGeneration import (
     generateSpecNav,
     generateDungeonNav,
@@ -148,6 +149,17 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                         fetch_route_thumbnail, dungeon_id, top_routes[0]['route_key']
                     )
 
+            # Team-comp families per dungeon (same clustering as the comps page), so each
+            # dungeon's popular comps are grouped with their flexible alternates. One scan
+            # + one clustering pass, indexed by dungeon.
+            print("Clustering team comps for dungeon pages...")
+            team_families_by_dungeon = compArchetypes.build_dungeon_archetypes(
+                compArchetypes.collapse_comps(
+                    databaseConnector.fetch_all_comps(conn, cursor, current_season),
+                    spec_lookup),
+                spec_lookup, class_lookup,
+                [str(k) for k in dungeon_lookup.keys()], top_n=6)
+
             for dungeon_id, dungeon_data in dungeon_lookup.items():
                 if target_dungeon and str(dungeon_id) != str(target_dungeon):
                     continue
@@ -197,21 +209,9 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                 over_represented.sort(key=lambda x: x['relative_diff_pct'], reverse=True)
                 top_over_represented = over_represented[:5]
                 
-                # Fetch top comps for this dungeon
-                print(f"Fetching top comps for {dungeon_id}...")
-                comps_rows = databaseConnector.fetch_dungeon_top_comps(conn, cursor, dungeon_id, current_season)
-                
-                print(f"Fetched {len(comps_rows)} comps for dungeon {dungeon_id}")
-                print(comps_rows)
-                top_comps = []
-                for r in comps_rows:
-                    if r['comp']:
-                        top_comps.append({
-                            'specs': r['comp'].split(','),
-                            'count': r['comp_count'],
-                            'highest_key': r['highest_key'],
-                            'win_rate': r['win_rate']
-                        })
+                # Clustered team-comp families for this dungeon (popular ranking).
+                team_comp_families = team_families_by_dungeon.get(
+                    str(dungeon_id), {}).get('popular', [])
 
                 # Top routes were fetched in the thumbnail pre-pass above
                 top_routes = top_routes_by_dungeon.get(dungeon_id, [])
@@ -297,7 +297,7 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                     npcs=npcs_lookup,
                     bosses=bosses_lookup.get(dungeon_id, []),
                     top_routes=top_routes,
-                    top_comps=top_comps,
+                    team_comp_families=team_comp_families,
                     top_over_represented=top_over_represented,
                     overall_stats=overall_stats,
                     level_stats=level_stats,
@@ -342,7 +342,6 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                         conn=conn,
                         cursor=cursor,
                         dungeon_totals=local_total_res,
-                        top_comps_data=comps_rows,
                         per_level=level_stats,
                         top_routes_data=top_routes,
                         route_thumbnail=route_thumbnail,

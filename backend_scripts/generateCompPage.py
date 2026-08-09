@@ -6,6 +6,7 @@ import math
 from contextlib import closing
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import databaseConnector
+from compArchetypes import build_dungeon_archetypes
 from pageGeneration import generateSpecNav, generateDungeonNav, build_global_trends
 from generateSpecPages import LOOKUP_DIR, load_json, load_season_info
 from image_generation.comp_overview import createCompOverviewImg
@@ -293,7 +294,33 @@ def calculate_comp_stats(connection, cursor, season, spec_lookup):
     # We only need to send the top 2000 comps by weight to the frontend to keep json tiny
     unique_comps_list.sort(key=lambda x: x['weight'], reverse=True)
     top_comps = unique_comps_list[:2000]
-    
+
+    # Rich per-comp input for team-comp clustering: retains the per-key-level breakdown
+    # (stripped from frontend_json below) so the high-key / hidden-gem cards can restrict
+    # to each context's highest key levels. Dungeon keys stay int here, matching frontend.
+    def _kl(runs_map, timed_map):
+        return {int(lvl): {'r': int(runs_map.get(lvl, 0)), 't': int(timed_map.get(lvl, 0))}
+                for lvl in runs_map}
+
+    archetype_input = []
+    for tc in top_comps:
+        dj = {}
+        for did, ds in tc['dungeons'].items():
+            d_runs = ds.get('t', 0) + ds.get('d', 0)
+            dj[did] = {
+                't': ds.get('t', 0), 'd': ds.get('d', 0), 'runs': d_runs,
+                'mk': ds.get('mk', 0), 'w': ds.get('w', 0),
+                'avg_key': (ds.get('avg_key_acc', 0) / d_runs) if d_runs else 0,
+                'kl': _kl(ds.get('keylevel_runs', {}), ds.get('keylevel_timed', {})),
+            }
+        archetype_input.append({
+            'c': tc['specs'], 'w': tc['weight'], 't': tc['timed'], 'd': tc['depleted'],
+            'runs': tc['timed'] + tc['depleted'], 'mk': tc['max_key'],
+            'avg_key': tc.get('avg_key', 0),
+            'kl': _kl(tc.get('keylevel_runs', {}), tc.get('keylevel_timed', {})),
+            'dungeons': dj,
+        })
+
     frontend_json = []
     for tc in top_comps:
         # compute runs and best dungeon
@@ -380,7 +407,7 @@ def calculate_comp_stats(connection, cursor, season, spec_lookup):
         })
 
     # also keep per-dungeon top keylevels for debugging or advanced UIs (not required client-side)
-    return frontend_json, synergy_matrix, hidden_gems_out, glue_specs_list, glue_specs_by_role, top_key_levels
+    return frontend_json, synergy_matrix, hidden_gems_out, glue_specs_list, glue_specs_by_role, top_key_levels, archetype_input
 
 
 def compute_top_comps(frontend_json, n=5):
@@ -471,7 +498,7 @@ def main(template_path, output_dir):
                     'icon': sdata.get('SpellIconFileId')
                 })
         
-        frontend_json, synergy_matrix, hidden_gems, glue_specs, glue_specs_by_role, top_key_levels = calculate_comp_stats(conn, cursor, season, spec_lookup)
+        frontend_json, synergy_matrix, hidden_gems, glue_specs, glue_specs_by_role, top_key_levels, archetype_input = calculate_comp_stats(conn, cursor, season, spec_lookup)
 
         # Save Perfect Fit JSON
         json_out_dir = os.path.join("assets", "json")
@@ -479,26 +506,24 @@ def main(template_path, output_dir):
         with open(os.path.join(json_out_dir, "comps_index.json"), "w", encoding="utf-8") as f:
             json.dump(frontend_json, f, separators=(',', ':'))
 
-        # Compute server-side top lists for initial page render
-        # Most popular by raw runs
-        most_popular = sorted(frontend_json, key=lambda x: x.get('runs', 0), reverse=True)[:6]
+        # Archetypes drive the Most Popular / Best High Keys / Hidden Gems cards:
+        # popular comps grouped with their per-slot flexible alternates (leader
+        # radius-1 clustering). Precomputed per dungeon so the dungeon dropdown can
+        # re-rank client-side, and in three flavours per context. The 'all' context is
+        # server-rendered for first paint; the full map is shipped as JSON for the
+        # client to swap on dungeon change.
+        dungeon_ids = [str(k) for k in dungeon_lookup.keys()]
+        archetypes_by_dungeon = build_dungeon_archetypes(
+            archetype_input, spec_lookup, class_lookup, dungeon_ids, top_n=6)
+        with open(os.path.join(json_out_dir, "comp_archetypes.json"), "w", encoding="utf-8") as f:
+            json.dump(archetypes_by_dungeon, f, separators=(',', ':'))
+        archetypes_all = archetypes_by_dungeon.get(
+            "all", {"popular": [], "highkey": [], "gems": []})
 
-        # Best for high keys. This mirrors the client-side renderTopLists ranking
-        # exactly (global view): comps with at least MIN_RUNS runs, sorted by
-        # highest key reached, then high-key score, then runs. Keeping it in sync
-        # means the server-rendered list matches the client re-render, and the
-        # meta comp is precisely this list's rank 1.
-        MIN_COMP_RUNS = 20
-        best_highkey = sorted(
-            (c for c in frontend_json if c.get('runs', 0) >= MIN_COMP_RUNS),
-            key=lambda x: (x.get('mk', 0), x.get('highkey_score', 0), x.get('runs', 0)),
-            reverse=True,
-        )[:6]
-
-        # The "meta" comp is the rank 1 comp in "Best for High Keys". It is
-        # highlighted everywhere it appears across the page. Key is the canonical
-        # comma-joined spec list, matching the 'c' arrays used client-side.
-        meta_comp_key = ",".join(str(s) for s in best_highkey[0]['c']) if best_highkey else ""
+        # The "meta" comp is the rank-1 family of Best High Keys. It is highlighted
+        # everywhere it appears; key is the canonical comma-joined spec list.
+        meta_comp_key = (",".join(str(s) for s in archetypes_all["highkey"][0]["c"])
+                         if archetypes_all["highkey"] else "")
 
         # Prepare JS-friendly lookups to safely serialize into template
         dungeon_lookup_js = {}
@@ -525,7 +550,6 @@ def main(template_path, output_dir):
             trends=build_global_trends(),
             specs_ui=specs_ui,
             synergy_matrix=json.dumps(synergy_matrix),
-            hidden_gems=hidden_gems,
             glue_specs_by_role=glue_specs_by_role,
             spec_lookup=spec_lookup,
             class_lookup=class_lookup,
@@ -541,9 +565,9 @@ def main(template_path, output_dir):
             notifications=notifications,
             cur_page="comps",
             top_key_levels=top_key_levels,
-            # server-side precomputed lists for initial render
-            most_popular=most_popular,
-            best_highkey=best_highkey,
+            # server-side precomputed archetypes for the 'all' context (first paint);
+            # the client swaps per-dungeon lists from comp_archetypes.json
+            archetypes_all=archetypes_all,
             meta_comp_key=meta_comp_key,
             dungeon_lookup_js=dungeon_lookup_js,
             specs_ui_map=specs_ui_map,
@@ -590,7 +614,9 @@ if __name__ == "__main__":
         os.environ.get("DATABASE_PASSWORD"),
         os.environ.get("DATABASE_NAME", "Mythistone"),
         os.environ.get("DATABASE_PORT", "3306"),
-        1,
+        # >=2: main() holds one connection for the whole build while the template
+        # render calls build_global_trends(), which checks out a second one.
+        4,
     )
 
     main(args.template, args.output_dir)

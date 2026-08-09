@@ -1,0 +1,73 @@
+{#- Shared team-comp row: meta comp as spec slots (main spec + top swap + hover list),
+    a stat line, and Details / Routes. Used by comps, spec and dungeon pages.
+    mode        = 'popular' | 'highkey' | 'gems'
+    meta_key    = canonical comp string to badge as META ('' = never)
+    details_href= if set, Details is a link here; otherwise the comps-page JS modal.
+    Requires /assets/css/team-comps.css on the page. -#}
+{#- Just the spec slots of a comp: each main spec, its most-played swap beneath, and the
+    full ranked alternate list on hover. Reused by the full row and by compact cards. -#}
+{% macro comp_slots(arch) %}
+<div class="archetype-slots d-flex">
+  {% for slot in arch.slots %}
+  <div class="arch-slot">
+    <img src="/data/icons/{{ slot.icon }}.jpg" class="avatar avatar-sm arch-main"
+      style="--arch-ring: {{ slot.color }}" alt="{{ slot.name }}">
+    <div class="arch-under">
+      {% if slot.top_alt %}
+      <img src="/data/icons/{{ slot.top_alt.icon }}.jpg" class="arch-alt-icon"
+        style="border-bottom: 2px solid {{ slot.top_alt.color }}"
+        title="{{ slot.top_alt.name }} ({{ slot.top_alt.pct }}%)">
+      {% if slot.more %}<span class="arch-more">+{{ slot.more }}</span>{% endif %}
+      {% endif %}
+    </div>
+    {% if slot.alts %}
+    <div class="arch-pop">
+      <div class="arch-pop-h">Alternatives</div>
+      {% for a in slot.alts %}
+      <div class="arch-pr">
+        <img src="/data/icons/{{ a.icon }}.jpg" title="{{ a.name }}">
+        <span style="color: {{ a.color }}">{{ a.name }}</span>
+        <b>{{ a.pct }}%</b>
+      </div>
+      {% endfor %}
+      {% if slot.hidden %}<div class="arch-pr arch-more-row">+{{ slot.hidden }} rarer (&lt;1%)</div>{% endif %}
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endmacro %}
+
+{% macro arch_row(arch, mode='popular', meta_key='', details_href='') %}
+{% set is_meta = meta_key and (arch.c | join(',')) == meta_key %}
+{% set meta_badge = '<span class="badge meta-badge ms-2" title="Current meta comp: the strongest composition in the highest keys"><i class="material-symbols-rounded align-middle">workspace_premium</i> META</span>' %}
+{% if mode == 'highkey' %}
+  {% set stat_runs = arch.hk_runs %}{% set win_rate = arch.hk_success %}
+  {% set stat_label = 'high-key runs' %}{% set sub = 'Max: +' ~ arch.hk_max %}{% set use_top = 'true' %}
+{% elif mode == 'gems' %}
+  {% set stat_runs = arch.gem_runs %}{% set win_rate = arch.gem_success %}
+  {% set stat_label = 'high-key runs' %}{% set sub = 'Max: +' ~ arch.gem_max %}{% set use_top = 'false' %}
+{% else %}
+  {% set stat_runs = arch.runs %}{% set win_rate = arch.success %}
+  {% set stat_label = 'runs' %}{% set sub = 'Max: +' ~ arch.mk %}{% set use_top = 'false' %}
+{% endif %}
+<div class="list-group-item border-0 d-flex justify-content-between px-3 mb-2 border-radius-lg align-items-center{% if is_meta %} meta-comp{% endif %}">
+  <div class="d-flex align-items-center">
+    {{ comp_slots(arch) }}
+    <div class="ms-3">
+      <div class="text-sm font-weight-bolder">{{ stat_runs }} {{ stat_label }}{% if is_meta %}{{ meta_badge | safe }}{% endif %}</div>
+      <div class="text-xs text-secondary">{{ sub }} &nbsp; Success %: {{ win_rate }}% &nbsp; &middot; {{ arch.members }} comps</div>
+    </div>
+  </div>
+  <div class="d-flex align-items-center">
+    {% if details_href %}
+    <a href="{{ details_href }}" class="btn btn-sm btn-outline-primary mb-0">Details</a>
+    {% else %}
+    <button class="btn btn-sm btn-outline-primary mb-0" onclick="showCompDetailsByC('{{ arch.c | join(',') }}', {{ use_top }}, 'all')">Details</button>
+    {% endif %}
+    <a href="/pages/routes?specs={{ arch.c | join(',') }}" target="_blank" rel="noopener"
+      class="btn btn-sm btn-outline-primary mb-0 ms-2 comp-routes-btn"
+      title="Find keystone.guru routes played by this comp">Routes</a>
+  </div>
+</div>
+{% endmacro %}

@@ -1,0 +1,20 @@
+/* Shared team-comp row: a meta comp shown as spec slots, each with its most-played
+   alternate beneath and the full ranked list on hover. Used by the comps, spec and
+   dungeon pages. */
+.archetype-slots { gap: 0.9rem; flex-wrap: wrap; }
+.arch-slot { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.arch-slot .arch-main { border-radius: 6px !important; box-shadow: 0 0 0 2px var(--arch-ring, #888); }
+.arch-under { display: flex; align-items: center; gap: 3px; min-height: 22px; }
+.arch-alt-icon { width: 22px; height: 22px; border-radius: 4px; }
+.arch-more { color: var(--mythi-text-secondary, #8a90a0); font-size: 0.65rem; font-weight: 600; }
+.arch-dash { color: #4a505c; font-size: 0.9rem; line-height: 22px; }
+.arch-pop { display: none; position: absolute; top: calc(100% + 4px); left: 50%; transform: translateX(-50%);
+  z-index: 30; background: var(--mythi-surface-raised, #22262e); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px; padding: 6px; min-width: 172px; box-shadow: 0 6px 20px rgba(0,0,0,0.5); }
+.arch-slot:hover .arch-pop { display: block; }
+.arch-pop-h { color: var(--mythi-text-secondary, #8a90a0); font-size: 0.6rem; text-transform: uppercase;
+  letter-spacing: 0.05em; margin: 0 4px 4px; }
+.arch-pr { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; padding: 2px 4px; white-space: nowrap; }
+.arch-pr img { width: 20px; height: 20px; border-radius: 4px; }
+.arch-pr b { margin-left: auto; color: var(--mythi-text-secondary, #8a90a0); font-weight: 600; }
+.arch-pr.arch-more-row { color: #6b7180; font-style: italic; font-size: 0.7rem; }

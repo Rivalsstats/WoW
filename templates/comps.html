@@ -58,8 +58,11 @@
       .meta-badge .material-symbols-rounded { font-size: 0.9rem; line-height: 1; }
       /* keep DataTables' sort icons aligned with the centered numeric headers */
       #hidden-gems-table thead th.dt-orderable-asc, #hidden-gems-table thead th.dt-orderable-desc { cursor: pointer; }
+      /* team-comp row styles live in /assets/css/team-comps.css (shared with spec/dungeon pages) */
     </style>
     {% set meta_badge_html = '<span class="badge meta-badge ms-2" title="Current meta comp: the strongest composition in the highest keys"><i class="material-symbols-rounded align-middle">workspace_premium</i> META</span>' %}
+    {% import "_team_comp_macros.html" as tc %}
+    {% macro arch_row(arch, mode) %}{{ tc.arch_row(arch, mode, meta_comp_key) }}{% endmacro %}
     <div class="container-fluid py-2 mx-3 w-auto">
       <div class="row">
         <div class="ms-3 mb-4">
@@ -80,11 +83,12 @@
                   remaining slots.</p>
               </div>
               <div class="d-flex align-items-center w-100 w-md-auto">
-                <select id="dungeonFilter" class="form-select form-select-sm w-100 w-md-auto"
-                  style="min-width: 0;">
-                  <option value="all">All Dungeons</option>
+                <select id="dungeonFilter" class="selectpicker" data-style="btn-outline-primary"
+                  data-live-search="true" data-width="fit" title="All Dungeons">
+                  <option value="all" selected>All Dungeons</option>
                   {% for id, details in dungeon_lookup.items() %}
-                  <option value="{{ id }}">{{ details.name.en_US }}</option>
+                  <option value="{{ id }}"
+                    data-content="<span class='dropdown-icon-item'><img src='/data/icons/{{ details.icon }}' class='dropdown-icon' alt='' style='width:20px;height:20px;border-radius:4px;object-fit:cover;flex:0 0 20px;margin-right:8px;'><span class='dropdown-icon-label'>{{ details.name.en_US }}</span></span>">{{ details.name.en_US }}</option>
                   {% endfor %}
                 </select>
               </div>
@@ -141,42 +145,19 @@
       </div>
 
       <div class="row mb-3">
-        <!-- Top comps: Most Popular & Best High-Key -->
+        <!-- Top comps: Most Popular & Best High-Key (archetype-grouped) -->
         <div class="col-lg-6 col-md-12 mb-3">
           <div class="card h-100">
             <div class="card-header pb-0 d-flex justify-content-between align-items-center">
               <div>
                 <h6 class="mb-0">Most Popular</h6>
-                <p class="text-sm mb-0">Top comps by raw runs (global or selected dungeon).</p>
+                <p class="text-sm mb-0">Most-played team comps (global or selected dungeon). Each slot shows the main spec and the alternates that swap in.</p>
               </div>
               <!-- view-all removed per UX request -->
             </div>
             <div class="card-body px-0 pb-2">
               <div id="most-popular-list" class="list-group list-group-flush px-3 py-2">
-                {% for comp in most_popular %}
-                {% set total_runs = comp.runs if comp.runs else (comp.t + comp.d) %}
-                {% set win_rate = (comp.t / total_runs * 100) | round(0) if total_runs > 0 else 0 %}
-                {% set is_meta = (comp.c | join(',')) == meta_comp_key %}
-                <div class="list-group-item border-0 d-flex justify-content-between px-3 mb-2 border-radius-lg align-items-center{% if is_meta %} meta-comp{% endif %}"
-                  data-comp-c="{{ comp.c | join(',') }}" data-comp-dungeon="all" data-comp-useTop="false">
-                  <div class="d-flex align-items-center">
-                    {% for sid in comp.c %}
-                    {% set s = spec_lookup[sid|string] %}
-                    <img src="/data/icons/{{ s.SpellIconFileId }}.jpg" class="avatar avatar-sm me-1" title="{{ s.name }}">
-                    {% endfor %}
-                    <div class="ms-3">
-                      <div class="text-sm font-weight-bolder">{{ total_runs }} runs{% if is_meta %}{{ meta_badge_html | safe }}{% endif %}</div>
-                      <div class="text-xs text-secondary">Max: {{ comp.mk }} &nbsp; Success %: {{ win_rate }}%</div>
-                    </div>
-                  </div>
-                  <div class="d-flex align-items-center">
-                    <button class="btn btn-sm btn-outline-primary mb-0" onclick="showCompDetailsByC('{{ comp.c | join(',') }}', false, 'all')">Details</button>
-                    <a href="/pages/routes?specs={{ comp.c | join(',') }}" target="_blank" rel="noopener"
-                      class="btn btn-sm btn-outline-primary mb-0 ms-2 comp-routes-btn"
-                      title="Find keystone.guru routes played by this comp">Routes</a>
-                  </div>
-                </div>
-                {% endfor %}
+                {% for arch in archetypes_all.popular %}{{ arch_row(arch, 'popular') }}{% endfor %}
               </div>
             </div>
           </div>
@@ -186,37 +167,14 @@
           <div class="card h-100">
             <div class="card-header pb-0 d-flex justify-content-between align-items-center">
               <div>
-                <h6 class="mb-0">Best for High Keys</h6>
-                <p class="text-sm mb-0">Comps performing best in the dungeon's top 2 key levels.</p>
+                <h6 class="mb-0">Best for Highest Keys</h6>
+                <p class="text-sm mb-0" id="best-highkey-sub">Team comps performing best in {{ archetypes_all.hk_label }} (global or selected dungeon).</p>
               </div>
               <!-- view-all removed per UX request -->
             </div>
             <div class="card-body px-0 pb-2">
               <div id="best-highkey-list" class="list-group list-group-flush px-3 py-2">
-                {% for comp in best_highkey %}
-                {% set total_top_runs = comp.top_key_runs if comp.top_key_runs else 0 %}
-                {% set top_win_rate = (comp.top_key_timed / total_top_runs * 100) | round(0) if total_top_runs > 0 else 0 %}
-                {% set is_meta = (comp.c | join(',')) == meta_comp_key %}
-                <div class="list-group-item border-0 d-flex justify-content-between px-3 mb-2 border-radius-lg align-items-center{% if is_meta %} meta-comp{% endif %}"
-                  data-comp-c="{{ comp.c | join(',') }}" data-comp-dungeon="all" data-comp-useTop="true">
-                  <div class="d-flex align-items-center">
-                    {% for sid in comp.c %}
-                    {% set s = spec_lookup[sid|string] %}
-                    <img src="/data/icons/{{ s.SpellIconFileId }}.jpg" class="avatar avatar-sm me-1" title="{{ s.name }}">
-                    {% endfor %}
-                    <div class="ms-3">
-                      <div class="text-sm font-weight-bolder">{{ comp.top_key_runs }} top-key runs{% if is_meta %}{{ meta_badge_html | safe }}{% endif %}</div>
-                      <div class="text-xs text-secondary">Top Key Max: {{ comp.top_key_max }} &nbsp; Success %: {{ top_win_rate }}%</div>
-                    </div>
-                  </div>
-                  <div class="d-flex align-items-center">
-                    <button class="btn btn-sm btn-outline-primary mb-0" onclick="showCompDetailsByC('{{ comp.c | join(',') }}', true, 'all')">Details</button>
-                    <a href="/pages/routes?specs={{ comp.c | join(',') }}" target="_blank" rel="noopener"
-                      class="btn btn-sm btn-outline-primary mb-0 ms-2 comp-routes-btn"
-                      title="Find keystone.guru routes played by this comp">Routes</a>
-                  </div>
-                </div>
-                {% endfor %}
+                {% for arch in archetypes_all.highkey %}{{ arch_row(arch, 'highkey') }}{% endfor %}
               </div>
             </div>
           </div>
@@ -225,69 +183,28 @@
 
       <div class="row">
         <!-- Hidden Gems -->
-        <div class="col-lg-6 col-md-6 mb-md-0 mb-4">
+        <div class="col-lg-6 col-md-12 mb-4">
           <div class="card h-100">
             <div class="card-header pb-0">
               <h6>Hidden Gems</h6>
-              <p class="text-sm">Niche comps, played far less than the meta, but with strong success in high keys.</p>
+              <p class="text-sm" id="hidden-gems-sub">Niche team comps with strong success in {{ archetypes_all.gem_label }}.</p>
             </div>
             <div class="card-body px-0 pb-2">
-              <div class="custom-scrollbar" style="max-height: 435px; overflow-y: auto; overflow-x: hidden;">
-                <table id="hidden-gems-table" class="table align-items-center mb-0 w-100">
-                  <thead class="sticky-top" style="z-index: 10; background-color: var(--mythi-surface-raised);">
-                    <tr>
-                      <th class="text-uppercase text-body-emphasis text-xxs font-weight-bolder opacity-7"
-                        style="position: sticky; top: 0; background-color: var(--mythi-surface-raised);">Comp</th>
-                      <th class="text-center text-uppercase text-body-emphasis text-xxs font-weight-bolder opacity-7"
-                        style="position: sticky; top: 0; background-color: var(--mythi-surface-raised);" title="Highest key this comp has reached">Highest Key</th>
-                      <th class="text-center text-uppercase text-body-emphasis text-xxs font-weight-bolder opacity-7"
-                        style="position: sticky; top: 0; background-color: var(--mythi-surface-raised);" title="Share of this comp's runs that were timed">Success</th>
-                      <th class="text-center text-uppercase text-body-emphasis text-xxs font-weight-bolder opacity-7"
-                        style="position: sticky; top: 0; background-color: var(--mythi-surface-raised);">Runs</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for hg in hidden_gems %}
-                    {% set is_meta = (hg.specs | join(',')) == meta_comp_key %}
-                    <tr{% if is_meta %} class="meta-comp"{% endif %}>
-                      <td>
-                        <div class="d-flex px-2 py-1 align-items-center">
-                          {% for spec_id in hg.specs %}
-                          {% set s = spec_lookup[spec_id|string] %}
-                          <img src="/data/icons/{{ s.SpellIconFileId }}.jpg" class="avatar avatar-sm me-1"
-                            title="{{ s.name }}">
-                          {% endfor %}
-                          {% if is_meta %}{{ meta_badge_html | safe }}{% endif %}
-                          <a href="/pages/routes?specs={{ hg.specs | join(',') }}" target="_blank" rel="noopener"
-                            class="btn btn-sm btn-outline-primary mb-0 ms-2 comp-routes-btn"
-                            onclick="event.stopPropagation()"
-                            title="Find keystone.guru routes played by this comp">Routes</a>
-                        </div>
-                      </td>
-                      <td class="align-middle text-center text-sm" data-order="{{ hg.max_key }}">
-                        <span class="text-xs font-weight-bold">{{ hg.max_key }}</span>
-                      </td>
-                      <td class="align-middle text-center text-sm" data-order="{{ hg.success_pct }}">
-                        <span class="text-xs font-weight-bold {{ 'text-success' if hg.success_pct >= 90 else 'text-warning' }}">{{ hg.success_pct }}%</span>
-                      </td>
-                      <td class="align-middle text-center text-sm" data-order="{{ hg.timed + hg.depleted }}">
-                        <span class="text-xs font-weight-bold">{{ hg.timed + hg.depleted }}</span>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
+              <div id="hidden-gems-list" class="list-group list-group-flush px-3 py-2">
+                {% for arch in archetypes_all.gems %}{{ arch_row(arch, 'gems') }}{% else %}
+                <p class="text-sm text-secondary px-2">No hidden gems for this dungeon.</p>
+                {% endfor %}
               </div>
             </div>
           </div>
         </div>
 
         <!-- Glue Specs -->
-        <div class="col-lg-6 col-md-6">
+        <div class="col-lg-6 col-md-12">
           <div class="card h-100">
             <div class="card-header pb-0">
               <h6>Glue Specs (Flexibility Index)</h6>
-              <p class="text-sm">How versatile each spec is within its <strong>own role</strong> &mdash; adjusted for how
+              <p class="text-sm">How versatile each spec is within its <strong>own role</strong>, adjusted for how
                 much it's played so popularity isn't mistaken for flexibility. Hover a value for the raw comp count.</p>
             </div>
             <div class="card-body px-0 pt-0 pb-2">
@@ -424,7 +341,7 @@
       const critical = CRITICAL_BUFF_IDS.has(b.id);
       const cls = covered ? 'buff-chip buff-chip--on' : `buff-chip buff-chip--off${critical ? ' buff-chip--critical' : ''}`;
       const status = covered ? 'covered' : 'missing';
-      return `<span class="${cls}" title="${b.name} — ${status}">
+      return `<span class="${cls}" title="${b.name}: ${status}">
         <img src="/data/icons/${b.icon.replace(/\.(jpg|png)$/i, '')}.${/\.png$/i.test(b.icon) ? 'png' : 'jpg'}" alt="${b.name}" loading="lazy">
       </span>`;
     }
@@ -897,6 +814,50 @@
           </div>`;
       });
 
+      // Team-comp table: one column per slot. The header is the main spec (icon left, then
+      // name / class / usage% stacked right); the body lists the alternate specs that swap
+      // into that slot, with usage %. Attached as comp.__slots by showCompDetailsByC. When
+      // present this replaces the separate spec bar above (same info).
+      let flexHtml = '';
+      if (comp.__slots && comp.__slots.length) {
+        const slots = comp.__slots;
+        const ALT_CAP = 6;
+        const maxRows = Math.max(0, ...slots.map(s => (s.alts || []).length));
+        const head = slots.map(s =>
+          `<th class="pt-2 pb-2 pe-3" style="min-width:150px">
+             <div class="d-flex align-items-center">
+               <img src="/data/icons/${s.icon}.jpg" class="me-2" style="width:34px;height:34px;border-radius:6px;box-shadow:0 0 0 2px ${s.color}">
+               <div class="lh-sm text-start">
+                 <div class="text-xs font-weight-bold" style="color:${s.color}">${s.name}</div>
+                 <div class="text-xs text-secondary">${s.class || ''}</div>
+                 <div class="text-xs text-secondary">${s.primary_pct}%</div>
+               </div>
+             </div>
+           </th>`).join('');
+        const rowN = Math.min(maxRows, ALT_CAP);
+        let rows = '';
+        for (let r = 0; r < rowN; r++) {
+          rows += '<tr>' + slots.map(s => {
+            const a = (s.alts || [])[r];
+            if (!a) return '<td class="py-1"></td>';
+            return `<td class="py-1 pe-3">
+              <span class="d-inline-flex align-items-center">
+                <img src="/data/icons/${a.icon}.jpg" class="me-1" style="width:20px;height:20px;border-radius:4px;border-bottom:2px solid ${a.color}">
+                <span class="text-xs" style="color:${a.color}">${a.name}</span>
+                <span class="text-xs text-secondary ms-1">${a.pct}%</span>
+              </span></td>`;
+          }).join('') + '</tr>';
+        }
+        if (slots.some(s => (s.alts || []).length > ALT_CAP || s.hidden)) {
+          rows += '<tr>' + slots.map(s => {
+            const extra = Math.max(0, (s.alts || []).length - ALT_CAP) + (s.hidden || 0);
+            return `<td class="text-xs text-secondary py-1">${extra ? '+' + extra + ' more' : ''}</td>`;
+          }).join('') + '</tr>';
+        }
+        flexHtml = `<div class="table-responsive mb-3"><table class="table align-items-center mb-0">
+            <thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>`;
+      }
+
       const tile = (label, value, valueClass = 'text-body-emphasis') => `
         <div class="col">
           <div class="border border-secondary border-radius-lg p-2 text-center h-100">
@@ -906,7 +867,10 @@
         </div>`;
 
       let html = '';
-      html += `<div class="d-flex flex-wrap align-items-center mb-3">${specsHtml}</div>`;
+      // The team-comp table already shows the specs as its column headers, so only fall
+      // back to the standalone spec bar when there's no slot data.
+      if (flexHtml) html += flexHtml;
+      else html += `<div class="d-flex flex-wrap align-items-center mb-3">${specsHtml}</div>`;
 
       html += `<div class="row g-2 row-cols-2 row-cols-md-4 mb-3">`;
       html += tile('Total Runs', runs.toLocaleString());
@@ -921,7 +885,7 @@
         const share = runs > 0 ? Math.round((comp.bdr || 0) / runs * 100) : 0;
         html += `<p class="text-sm mb-3"><span class="text-secondary">Most played in</span>
           <strong>${bestDungeonName}</strong>
-          <span class="text-secondary">— ${comp.bdr || 0} runs (${share}% of this comp)</span></p>`;
+          <span class="text-secondary">(${comp.bdr || 0} runs, ${share}% of this comp)</span></p>`;
       }
 
       // per-dungeon breakdown (overall numbers, resolved names, busiest first)
@@ -1002,7 +966,7 @@
     }
 
     // The comp modal is built in JS from three inputs, so its contents can't be
-    // reached by an element id alone — they ride in the hash as
+    // reached by an element id alone, so they ride in the hash as
     // &comp=<specIds>[|top][|<dungeonId>] instead.
     let openComp = null;
 
@@ -1040,9 +1004,31 @@
         return null;
       };
 
+      // If this comp heads a visible archetype family, show the WHOLE family's merged numbers
+      // (runs, success, per-dungeon breakdown, …) — the card advertises the family total, so
+      // the details must match it, not just the core comp's own runs. The per-slot alternates
+      // ride along as __slots. Falls back to the raw comp when it heads no family (e.g. a
+      // deep-linked comp, or archetypes not loaded yet).
+      const attachSlots = (c) => {
+        const arch = (typeof findArchetypeByKey === 'function') ? findArchetypeByKey(cKey) : null;
+        if (!arch) { if (c) c.__slots = null; return c; }
+        // Everything comes from the family so the modal is internally consistent with the card.
+        // In a single-dungeon context arch.dungeons is empty, so the per-dungeon table is simply
+        // omitted (the scoped run total already tells the whole story).
+        return {
+          c: arch.c,
+          runs: arch.runs, t: arch.t, d: arch.d,
+          mk: arch.mk, avg_key: arch.avg_key,
+          dungeons: arch.dungeons || null,
+          bd: arch.bd, bdr: arch.bdr,
+          members: arch.members,
+          __slots: arch.slots,
+        };
+      };
+
       const comp = findComp();
-      if (comp) {
-        showCompDetails(comp, useTopKey, contextDungeonId);
+      if (comp || findArchetypeByKey(cKey)) {
+        showCompDetails(attachSlots(comp), useTopKey, contextDungeonId);
         return;
       }
 
@@ -1052,7 +1038,7 @@
         .then(data => {
           compsData = data;
           const c2 = compsData.find(x => Array.isArray(x.c) && x.c.join(',') === cKey);
-          if (c2) showCompDetails(c2, useTopKey, contextDungeonId);
+          if (c2) showCompDetails(attachSlots(c2), useTopKey, contextDungeonId);
           else alert('Comp details not available');
         })
         .catch(err => {
@@ -1061,70 +1047,119 @@
         });
     }
 
-    function renderTopLists() {
-      const dungeonId = document.getElementById('dungeonFilter').value;
-      const minRuns = MIN_RUNS_DEFAULT;
-      const topN = TOP_N_DEFAULT;
+    // --- Archetype cards (Most Popular / Best High Keys / Hidden Gems) ---
+    // Grouping is precomputed per dungeon in comp_archetypes.json (leader radius-1);
+    // the client renders the selected dungeon's lists and swaps on change. renderArchetypeRow
+    // is kept structurally in sync with the arch_row() Jinja macro used for first paint.
+    let archetypesByDungeon = null;
+    let currentArchetypes = { popular: [], highkey: [], gems: [] };
+    const archetypesLoaded = fetch('/assets/json/comp_archetypes.json')
+      .then(r => r.json())
+      .then(data => { archetypesByDungeon = data; })
+      .catch(err => { console.error('archetypes load failed', err); });
 
-      // Most Popular: sort by runs
-      const popularCandidates = compsData.filter(c => getCompRuns(c, dungeonId) >= minRuns);
-      popularCandidates.sort((a, b) => getCompRuns(b, dungeonId) - getCompRuns(a, dungeonId));
-      const popularTop = popularCandidates.slice(0, topN);
-
-      const popularContainer = document.getElementById('most-popular-list');
-      popularContainer.innerHTML = '';
-      popularTop.forEach(c => popularContainer.insertAdjacentHTML('beforeend', renderCompRow(c, dungeonId, false)));
-
-      // Best High-Key: sort by highest top-key level first, then highkey score
-      const bestCandidates = compsData.filter(c => getCompRuns(c, dungeonId) >= minRuns);
-      bestCandidates.sort((a, b) => {
-        // Primary: highest key achieved (`mk`) (dungeon-specific if available)
-        const aMax = dungeonId !== 'all' && a.dungeons && a.dungeons[dungeonId] ? (a.dungeons[dungeonId].mk || 0) : (a.mk || 0);
-        const bMax = dungeonId !== 'all' && b.dungeons && b.dungeons[dungeonId] ? (b.dungeons[dungeonId].mk || 0) : (b.mk || 0);
-        if (bMax !== aMax) return bMax - aMax;
-        // Secondary: exponential highkey score (computed server-side)
-        const aScore = dungeonId !== 'all' && a.dungeons && a.dungeons[dungeonId] ? (a.dungeons[dungeonId].highkey_score || 0) : (a.highkey_score || 0);
-        const bScore = dungeonId !== 'all' && b.dungeons && b.dungeons[dungeonId] ? (b.dungeons[dungeonId].highkey_score || 0) : (b.highkey_score || 0);
-        if (bScore !== aScore) return bScore - aScore;
-        // Final tie-breaker: runs
-        return getCompRuns(b, dungeonId) - getCompRuns(a, dungeonId);
-      });
-      const bestTop = bestCandidates.slice(0, topN);
-
-      const bestContainer = document.getElementById('best-highkey-list');
-      bestContainer.innerHTML = '';
-      bestTop.forEach(c => bestContainer.insertAdjacentHTML('beforeend', renderCompRow(c, dungeonId, true)));
+    function archAltPopover(slot) {
+      if (!slot.alts || !slot.alts.length) return '';
+      let rows = slot.alts.map(a =>
+        `<div class="arch-pr"><img src="/data/icons/${a.icon}.jpg" title="${a.name}">` +
+        `<span style="color:${a.color}">${a.name}</span><b>${a.pct}%</b></div>`).join('');
+      if (slot.hidden) rows += `<div class="arch-pr arch-more-row">+${slot.hidden} rarer (&lt;1%)</div>`;
+      return `<div class="arch-pop"><div class="arch-pop-h">Alternatives</div>${rows}</div>`;
     }
 
-    // Hook into initial load and dungeon changes
-    compsLoaded.then(() => {
-      renderTopLists();
-    });
+    function renderArchetypeRow(arch, mode) {
+      const isMeta = isMetaComp(arch.c);
+      let statRuns, statLabel, sub, useTop;
+      if (mode === 'highkey') {
+        statRuns = arch.hk_runs; statLabel = 'high-key runs'; useTop = true;
+        sub = `Max: +${arch.hk_max} &nbsp; Success %: ${arch.hk_success}%`;
+      } else if (mode === 'gems') {
+        statRuns = arch.gem_runs; statLabel = 'high-key runs'; useTop = false;
+        sub = `Max: +${arch.gem_max} &nbsp; Success %: ${arch.gem_success}%`;
+      } else {
+        statRuns = arch.runs; statLabel = 'runs'; useTop = false;
+        sub = `Max: +${arch.mk} &nbsp; Success %: ${arch.success}%`;
+      }
+      const slots = arch.slots.map(slot => {
+        const under = slot.top_alt
+          ? `<img src="/data/icons/${slot.top_alt.icon}.jpg" class="arch-alt-icon" ` +
+            `style="border-bottom:2px solid ${slot.top_alt.color}" title="${slot.top_alt.name} (${slot.top_alt.pct}%)">` +
+            (slot.more ? `<span class="arch-more">+${slot.more}</span>` : '')
+          : '';
+        return `<div class="arch-slot">` +
+          `<img src="/data/icons/${slot.icon}.jpg" class="avatar avatar-sm arch-main" style="--arch-ring:${slot.color}" alt="${slot.name}">` +
+          `<div class="arch-under">${under}</div>${archAltPopover(slot)}</div>`;
+      }).join('');
+      const cKey = arch.c.join(',');
+      return `
+        <div class="list-group-item border-0 d-flex justify-content-between px-3 mb-2 border-radius-lg align-items-center${isMeta ? ' meta-comp' : ''}">
+          <div class="d-flex align-items-center">
+            <div class="archetype-slots d-flex">${slots}</div>
+            <div class="ms-3">
+              <div class="text-sm font-weight-bolder">${statRuns} ${statLabel}${isMeta ? META_BADGE : ''}</div>
+              <div class="text-xs text-secondary">${sub} &nbsp; &middot; ${arch.members} comps</div>
+            </div>
+          </div>
+          <div class="d-flex align-items-center">
+            <button class="btn btn-sm btn-outline-primary mb-0" onclick='showCompDetailsByC(${JSON.stringify(cKey)}, ${useTop}, "all")'>Details</button>
+            ${routesLinkHtml(arch.c)}
+          </div>
+        </div>`;
+    }
 
-    dungeonFilter.addEventListener('change', () => {
-      writeUrlParams();
-      updateSuggestions();
-      renderTopLists();
-    });
+    function fillArchList(id, list, mode) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.innerHTML = (list && list.length)
+        ? list.map(a => renderArchetypeRow(a, mode)).join('')
+        : '<p class="text-sm text-secondary px-2">Nothing to show for this dungeon.</p>';
+    }
+
+    function renderArchetypeLists() {
+      if (!archetypesByDungeon) return;
+      const dungeonId = document.getElementById('dungeonFilter').value || 'all';
+      currentArchetypes = archetypesByDungeon[dungeonId] || archetypesByDungeon['all'] || { popular: [], highkey: [], gems: [] };
+      fillArchList('most-popular-list', currentArchetypes.popular, 'popular');
+      fillArchList('best-highkey-list', currentArchetypes.highkey, 'highkey');
+      fillArchList('hidden-gems-list', currentArchetypes.gems, 'gems');
+      // Card descriptions name the key-level band for the current context.
+      const hkSub = document.getElementById('best-highkey-sub');
+      if (hkSub && currentArchetypes.hk_label) {
+        hkSub.textContent = `Team comps performing best in ${currentArchetypes.hk_label} (global or selected dungeon).`;
+      }
+      const gemSub = document.getElementById('hidden-gems-sub');
+      if (gemSub && currentArchetypes.gem_label) {
+        gemSub.textContent = `Niche team comps with strong success in ${currentArchetypes.gem_label}.`;
+      }
+    }
+
+    // Find the archetype (in the current dungeon context) whose meta comp matches a
+    // spec-id key, so the details modal can show its per-slot alternates.
+    function findArchetypeByKey(cKey) {
+      for (const bucket of ['popular', 'highkey', 'gems']) {
+        const hit = (currentArchetypes[bucket] || []).find(a => a.c.join(',') === cKey);
+        if (hit) return hit;
+      }
+      return null;
+    }
+
+    // Apply a dungeon from the URL (?dungeons=<id>) to the selectpicker + native select,
+    // since bootstrap-select needs an explicit val() to update its button and menu.
+    function applyDungeonFromUrl() {
+      const sp = new URLSearchParams(window.location.search);
+      const d = sp.get('dungeons') || sp.get('dungeon');
+      if (d && dungeonFilter.querySelector(`option[value="${d}"]`)) {
+        dungeonFilter.value = d;
+        if (window.jQuery && jQuery.fn.selectpicker) jQuery(dungeonFilter).selectpicker('val', d);
+      }
+    }
+
+    // Render the selected dungeon's archetypes once loaded, and on dungeon change.
+    archetypesLoaded.then(() => { applyDungeonFromUrl(); renderArchetypeLists(); });
+    dungeonFilter.addEventListener('change', renderArchetypeLists);
 
     // --- DataTables (click headers to sort) ---
     $(function () {
-      $('#hidden-gems-table').DataTable({
-        responsive: true,
-        paging: false,
-        searching: false,
-        info: false,
-        order: [[1, 'desc']],            // default: Highest Key, descending
-        columnDefs: [
-          // Comp (icons) always shown; lower-value numeric columns collapse first on mobile
-          { targets: 0, orderable: false, responsivePriority: 1 },
-          { targets: 1, responsivePriority: 2 },  // Highest Key
-          { targets: 3, responsivePriority: 4 },  // Runs
-          { targets: 2, responsivePriority: 5 }   // Success collapses first
-        ],
-        language: { emptyTable: 'No hidden gems found.' }
-      });
-
       // Glue specs: one sortable table per role, default sorted by flexibility
       ['0', '1', '2'].forEach(function (role) {
         var el = document.getElementById('glue-table-' + role);
