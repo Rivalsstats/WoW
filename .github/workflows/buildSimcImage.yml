@@ -6,13 +6,14 @@ name: Build and publish simc image
 # here propagates to production without touching the collector image.
 #
 # We do NOT trust the raw tip of simc's actively-developed `midnight` branch: it
-# occasionally can't init a spec (e.g. the Unholy DK army_ghoul break that failed
-# buildPages run 31325084815). buildResilientSimcImage.sh walks newest->oldest over
-# recent commits and publishes the first image that initializes every simulated
-# spec (validated with simcSmoke.py). Staleness is therefore bounded by the newest
-# *working* commit, not by this cron — a broken tip just ships yesterday's good
-# commit, and if the whole window is broken we keep the last good :latest and fail
-# loudly instead of shipping a broken build.
+# occasionally can't sim a spec (e.g. the Unholy DK army_ghoul break that failed
+# buildPages runs 31325084815 and 31335443090). buildResilientSimcImage.sh samples
+# recent commits newest->oldest and publishes the first image that can actually
+# SIMULATE every spec, validated against simc's own profiles/CI.simc fetched at
+# that commit. Staleness is therefore bounded by the newest *working* commit, not
+# by this cron — a broken tip just ships an older good commit, and if everything
+# we sample is broken we keep the last good :latest and fail loudly instead of
+# shipping a broken build.
 #
 # See Dockerfile.simc for the GPL-3.0 compliance notes (LICENSE + source commit).
 
@@ -28,7 +29,8 @@ on:
       - 'Dockerfile.simc'
       - '.github/workflows/buildSimcImage.yml'
       - 'backend_scripts/buildResilientSimcImage.sh'
-      - 'backend_scripts/simcSmoke.py'
+      - 'backend_scripts/simcWalkback.sh'
+      - 'backend_scripts/validateSimc.sh'
   workflow_dispatch: {}
 
 permissions:
@@ -36,12 +38,15 @@ permissions:
   packages: write
 
 env:
-  SIMC_WALKBACK_CAP: '6'
+  # How many commits to ASK upstream for. simcWalkback.sh samples this window
+  # geometrically (offsets 0,1,2,4,8,16,32), so a big cap costs nothing — it only
+  # widens how far back a sustained break can be escaped from.
+  SIMC_WALKBACK_CAP: '40'
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     steps:
       - name: Checkout (Dockerfile.simc, static data, scripts)
         uses: actions/checkout@v5
@@ -56,9 +61,6 @@ jobs:
           gh api "repos/simulationcraft/simc/commits?sha=midnight&per_page=${SIMC_WALKBACK_CAP}" \
             --jq '.[].sha' > candidates.txt
           echo "Candidate window ($(wc -l < candidates.txt) commits):"; cat candidates.txt
-
-      - name: Generate all-spec smoke profile
-        run: python3 backend_scripts/simcSmoke.py --output smoke.simc
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4

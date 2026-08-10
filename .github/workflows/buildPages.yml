@@ -159,19 +159,25 @@ jobs:
 
   # Build a VALIDATED SimulationCraft binary from source so the sims use current
   # game data — the published Docker image lags weeks behind and skews DPS. simc's
-  # `midnight` branch is actively developed and its tip occasionally can't init a
-  # spec (e.g. the Unholy DK army_ghoul break that failed run 31325084815), so we
-  # do NOT trust the raw tip: buildResilientSimc.sh walks newest->oldest over recent
-  # commits and picks the first whose build initializes every spec in the real
-  # gearset profiles (hence needs: prepare-sims). Compiled ONCE here and reused by
-  # every matrix leg; an unchanged, already-validated HEAD skips the recompile via
-  # cache, and a last-known-good binary is kept as a floor if the whole window breaks.
+  # `midnight` branch is actively developed and its tip occasionally can't sim a
+  # spec (e.g. the Unholy DK army_ghoul break that failed runs 31325084815 and
+  # 31335443090), so we do NOT trust the raw tip: buildResilientSimc.sh samples
+  # recent commits newest->oldest and picks the first whose build can actually
+  # SIMULATE every spec in the real gearset profiles (hence needs: prepare-sims)
+  # plus simc's own profiles/CI.simc. Validation runs a real fight, not a 1-second
+  # init — pet actions like army_ghoul are only created when the pet is summoned,
+  # which is exactly how the previous gate let a broken build through.
+  # Compiled ONCE here and reused by every matrix leg; an unchanged,
+  # already-validated HEAD skips the recompile via cache, and a last-known-good
+  # binary is kept as a floor if everything we sample is broken.
   build-simc:
     needs: [prepare-sims]
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     env:
-      SIMC_WALKBACK_CAP: '8'
+      # Window to ASK upstream for; simcWalkback.sh samples it geometrically, so a
+      # big cap only widens how far back a sustained break can be escaped from.
+      SIMC_WALKBACK_CAP: '40'
     steps:
       - name: Clone project
         uses: actions/checkout@v7
@@ -225,11 +231,24 @@ jobs:
         run: bash backend_scripts/buildResilientSimc.sh
 
       - name: Update last-known-good
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p simc-cache simc-lastgood
           cp simc-bin/simc simc-lastgood/simc
           cp simc-bin/CHOSEN_SHA simc-lastgood/CHOSEN_SHA 2>/dev/null || true
-          simc-bin/simc --version || true
+          # Record which commit the sims will run on. (simc has no --version flag:
+          # it reads the argument as a profile path and errors, which is why that
+          # call used to redden every run's log.)
+          CHOSEN=$(cat simc-bin/CHOSEN_SHA)
+          DATE=$(gh api "repos/simulationcraft/simc/commits/$CHOSEN" \
+                   --jq '.commit.author.date' 2>/dev/null || echo unknown)
+          echo "Sims run on simc \`$CHOSEN\` (authored $DATE)." >> "$GITHUB_STEP_SUMMARY"
+          # A long upstream break means we keep falling back to an older binary and
+          # silently sim on stale game data. Say so where a human will see it.
+          if [ "$CHOSEN" != "${{ steps.cands.outputs.head }}" ]; then
+            echo "::warning::simc HEAD (${{ steps.cands.outputs.head }}) did not validate; using $CHOSEN from $DATE"
+          fi
 
       - name: Upload simc binary
         uses: actions/upload-artifact@v4
@@ -241,7 +260,10 @@ jobs:
   simulate:
     needs: [prepare-sims, build-simc]
     runs-on: ubuntu-latest
-    timeout-minutes: 300
+    # Healthy legs take 2-7 minutes (measured in run 31163721535). The old 300
+    # allowed a deadlocked simc to run out a FIVE HOUR clock on five legs at once
+    # (run 31335443090) before the workflow could even report the failure.
+    timeout-minutes: 40
     strategy:
       fail-fast: false
       matrix:
@@ -270,11 +292,24 @@ jobs:
           else
             max_time=60
           fi
-          ./simc-bin/simc \
+          # A spec simc can't handle does not always abort cleanly — in run
+          # 31335443090 five legs deadlocked mid-profileset instead of exiting 50.
+          # Cap it so a hang is reported as a hang in minutes, not discovered when
+          # the job clock runs out hours later.
+          # `|| rc=$?`, not `if ! ...`: after `!` inverts the status, $? inside the
+          # branch is 0 and a failed leg would exit green.
+          rc=0
+          timeout -k 60 30m ./simc-bin/simc \
             simc_io/gearset_${{ matrix.gearset }}.simc \
             desired_targets=${{ matrix.targets }} \
             max_time="$max_time" \
-            json2=simc_io/sim_${{ matrix.gearset }}_${{ matrix.targets }}t.json
+            json2=simc_io/sim_${{ matrix.gearset }}_${{ matrix.targets }}t.json || rc=$?
+          if [ "$rc" -ne 0 ]; then
+            if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+              echo "::error::simc hung (>30m) on ${{ matrix.gearset }}/${{ matrix.targets }}t — an upstream abort most likely deadlocked a worker thread"
+            fi
+            exit "$rc"
+          fi
 
       - name: Write sim metadata
         run: |

@@ -2,20 +2,30 @@
 # Build & publish a *validated* simc image to GHCR (buildSimcImage.yml).
 #
 # Same walk-back idea as buildResilientSimc.sh, but for the collector's image and
-# self-contained (this workflow installs no DB driver): validate each candidate
-# with the generated smoke.simc (one default actor per simulated spec). Publish
-# the newest commit whose image initializes every spec.
+# self-contained (this workflow installs no DB driver, and has no generated
+# gearset profiles). Validation therefore runs simc's own all-spec CI profile,
+# fetched at the exact candidate commit. Publish the newest sampled commit whose
+# image can actually simulate every spec.
 #
-# Crucially this bounds staleness by the newest *working* commit, not by the
-# weekly cron: a broken tip just publishes yesterday's good commit. If nothing in
-# the window passes we DON'T push — the collector keeps pulling the last good
+# Using upstream's CI.simc rather than a hand-rolled profile is deliberate: its
+# actors carry `load_default_gear=1`, so they are properly geared. The previous
+# hand-rolled smoke shipped weaponless actors, Death Knights hard-fail init
+# without a main hand, and so runs 31335443071 / 31359307342 rejected every
+# candidate over a defect in OUR profile and published nothing for days.
+#
+# Crucially the walk-back bounds staleness by the newest *working* commit, not by
+# the cron: a broken tip just publishes an older good commit. If nothing we
+# sampled passes we DON'T push — the collector keeps pulling the last good
 # :latest — and the job fails loudly so a human sees a sustained upstream break.
 #
 # Inputs (env / files):
 #   IMAGE            target repo, default ghcr.io/mythistone/simc
 #   candidates.txt   newest-first candidate shas, one per line
-#   smoke.simc       all-spec smoke profile (from simcSmoke.py)
 set -uo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=backend_scripts/simcWalkback.sh
+source "$HERE/simcWalkback.sh"
 
 IMAGE="${IMAGE:-ghcr.io/mythistone/simc}"
 HEAD_SHA="$(head -1 candidates.txt)"
@@ -29,9 +39,36 @@ LABELS=(
   --label "org.opencontainers.image.licenses=GPL-3.0-or-later"
 )
 
-while read -r sha; do
-  [ -n "$sha" ] || continue
+# Let validateSimc.sh drive the containerised binary exactly like a local one, so
+# both workflows share one gate and can never drift apart on fight shapes or
+# timeouts. `-w /io` makes the container resolve the profile path relative to the
+# mounted workdir, which is also where validateSimc.sh checks it exists on the host.
+cat > docker-simc.sh <<EOF
+#!/usr/bin/env bash
+exec docker run --rm -v "\$PWD:/io" -w /io "$IMAGE:candidate" "\$@"
+EOF
+chmod +x docker-simc.sh
+
+# mapfile returns 0 even when the substitution produced nothing, so check the count.
+mapfile -t CANDIDATES < <(select_candidates candidates.txt)
+if [ "${#CANDIDATES[@]}" -eq 0 ]; then
+  echo "::error::no simc candidates to try; candidates.txt is empty or unreadable." >&2
+  exit 1
+fi
+echo "Trying ${#CANDIDATES[@]} of $(wc -l < candidates.txt) candidates: ${CANDIDATES[*]}"
+
+for sha in "${CANDIDATES[@]}"; do
   echo "::group::Building & validating simc image $sha"
+
+  # Fetch the CI profile AT THIS COMMIT, so the gate always matches the build.
+  # CI.simc is self-contained (no includes), so a single file is enough — no need
+  # to bloat the runtime image with upstream's profiles/ directory.
+  if ! curl -fsSL -o CI.simc \
+        "https://raw.githubusercontent.com/simulationcraft/simc/$sha/profiles/CI.simc"; then
+    echo "::warning::could not fetch profiles/CI.simc at $sha; trying older"
+    echo "::endgroup::"
+    continue
+  fi
 
   if ! docker buildx build --load \
         -f Dockerfile.simc --platform linux/amd64 \
@@ -44,8 +81,7 @@ while read -r sha; do
     continue
   fi
 
-  # Entrypoint is /app/simc; mount the smoke profile and let simc init every actor.
-  if docker run --rm -v "$PWD:/io" "$IMAGE:candidate" /io/smoke.simc iterations=1 max_time=1; then
+  if bash "$HERE/validateSimc.sh" ./docker-simc.sh CI.simc; then
     # Re-run with --push (cache hit -> near-instant) to publish a proper registry
     # manifest tagged latest + the exact sha.
     docker buildx build --push \
@@ -60,9 +96,9 @@ while read -r sha; do
     exit 0
   fi
 
-  echo "::warning::simc commit $sha failed smoke validation; trying older"
+  echo "::warning::simc commit $sha failed validation; trying older"
   echo "::endgroup::"
-done < candidates.txt
+done
 
-echo "::error::No simc commit in the walk-back window passed validation; kept existing :latest so the collector stays on the last good image." >&2
+echo "::error::No sampled simc commit passed validation; kept existing :latest so the collector stays on the last good image." >&2
 exit 1
