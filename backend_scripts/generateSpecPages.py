@@ -75,6 +75,15 @@ TALENT_DIVERGENCE_DELTA = 20.0   # ...and exceed general popularity by this many
 # thing: the top-50 players run it in more than this share of their loadouts.
 BIS_PCT_THRESHOLD = 80.0
 
+# Keystone window used by the collector when deciding which runs contribute gear
+# and talent data: for each dungeon it takes the current rank-1 key level and
+# every run down to KEY_LEVEL_WINDOW levels below it (so KEY_LEVEL_WINDOW + 1 key
+# levels in total). Mirrors collectLeaderboardData.KEYLEVELS_DOWN — keep the two
+# in sync; it is duplicated here rather than imported so this generator doesn't
+# pull in the async collector module. Surfaced to the spec page so the gear
+# overview copy states the real cutoff instead of a hard-coded example.
+KEY_LEVEL_WINDOW = 5
+
 # Talent Differences modal (per-dungeon talent swaps). It reads ONLY the top-50
 # verified loadouts: each of those is a complete build tied to one dungeon, so a
 # talent's per-dungeon share is a true adoption rate. The general-population
@@ -2022,6 +2031,48 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
         )
         print(f"[{datetime.now(timezone.utc).isoformat()}] fetching per-spec upgrade distributions...")
         spec_upgrades_all = databaseConnector.fetch_spec_upgrades(conn, cursor)
+        # Single highest key completed this season across every class/spec. Used
+        # by the spec page's "how this data is collected" blurb as a real example
+        # of the per-dungeon top-key window (season-constant, so fetched once).
+        season_max_key_run = databaseConnector.fetch_max_key_run(
+            conn, cursor, current_season_id
+        )
+        season_max_key = (
+            season_max_key_run.get("keystone_level") if season_max_key_run else None
+        )
+
+        # Real dungeon names for the "how this data is collected" blurb: the
+        # dungeon that holds the season's single hardest key, and the dungeon
+        # with the LOWEST top key (the "quietest" one), so the blurb can point
+        # at concrete examples instead of "that dungeon" / "quieter dungeons".
+        # Season-constant, so computed once here.
+        def _dungeon_name(dungeon_id):
+            d = dungeon_lookup.get(str(dungeon_id))
+            return (d.get("name") or {}).get("en_US") if d else None
+
+        season_max_key_dungeon = None
+        season_min_top_key = None
+        season_min_top_key_dungeon = None
+        if season_max_key_run and season_max_key_run.get("dungeon_id") is not None:
+            season_max_key_dungeon = _dungeon_name(season_max_key_run["dungeon_id"])
+        per_dungeon_top_key = {}
+        for _r in databaseConnector.fetch_runs_per_dungeon_per_level(
+            conn, cursor, current_season_id
+        ):
+            if int(_r.get("total_runs", 0) or 0) <= 0:
+                continue
+            _did = str(_r["dungeon_id"])
+            _lvl = int(_r["keystone_level"])
+            if _lvl > per_dungeon_top_key.get(_did, 0):
+                per_dungeon_top_key[_did] = _lvl
+        if per_dungeon_top_key:
+            _low_did, _low_lvl = min(
+                per_dungeon_top_key.items(), key=lambda kv: kv[1]
+            )
+            # Only worth naming a "lower band" example when it really is lower.
+            if season_max_key and _low_lvl < season_max_key:
+                season_min_top_key = _low_lvl
+                season_min_top_key_dungeon = _dungeon_name(_low_did)
         # Team-comp families (same clustering as the comps page) so each spec page can
         # show the popular team comps that spec belongs to, grouped with their flexible
         # alternates. One scan of aggregated_dungeon_comps, clustered once, indexed by spec.
@@ -2661,6 +2712,35 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                     "dungeon_loadouts": dungeon_build_codes(tid),
                 })
 
+            # One concrete "players swap this in for dungeon X" example for the
+            # Talents intro. We pick the single biggest per-dungeon adoption jump
+            # ("take") from the default hero tree's swaps, so the guide text can
+            # name a real dungeon + talent instead of talking in the abstract.
+            # None when the spec has no notable swaps (genuinely low-data specs);
+            # the template falls back to a generic line.
+            talent_swap_highlight = None
+            _default_variant = next(
+                (v for v in hero_variants if v.get("is_default")),
+                hero_variants[0] if hero_variants else None,
+            )
+            if _default_variant:
+                _best = None  # (pct_point_diff, dungeon_id, gain_item)
+                for _dungeon_id, _difs in (_default_variant.get("talent_difs") or {}).items():
+                    for _gain in (_difs.get("gains") or []):
+                        _diff = _gain.get("pct_point_diff", 0) or 0
+                        if _best is None or _diff > _best[0]:
+                            _best = (_diff, _dungeon_id, _gain)
+                if _best:
+                    _, _dungeon_id, _gain = _best
+                    _talent = talent_lookup.get("talents", {}).get(str(_gain["talent_id"]))
+                    _dungeon = dungeon_lookup.get(str(_dungeon_id)) or dungeon_lookup.get(_dungeon_id)
+                    if _talent and _dungeon:
+                        talent_swap_highlight = {
+                            "dungeon_name": (_dungeon.get("name") or {}).get("en_US"),
+                            "talent_name": _talent.get("name"),
+                            "spellId": _talent.get("spellId"),
+                        }
+
             print(f"[{datetime.now(timezone.utc).isoformat()}] generating page...")
             # Build per-key-level stats for this spec to render stacked success chart
             # (spec_upgrades_all is season-constant, fetched once before the loop)
@@ -2789,7 +2869,13 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 formatted_price=formatted_price,
                 trending=spec_runs / total_runs if total_runs > 0 else 0,
                 highest_run=highest_run,
+                key_level_window=KEY_LEVEL_WINDOW,
+                season_max_key=season_max_key,
+                season_max_key_dungeon=season_max_key_dungeon,
+                season_min_top_key=season_min_top_key,
+                season_min_top_key_dungeon=season_min_top_key_dungeon,
                 hero_variants=hero_variants,
+                talent_swap_highlight=talent_swap_highlight,
                 top_hero_tree_id=top_hero_tree,
                 top_hero_tree_name=top_hero_tree_name,
                 top_hero_tree_pct=top_hero_tree_pct,
@@ -2802,6 +2888,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 team_comp_families=team_comp_families,
                 season_info=season_info,
                 stats=stat_priority,
+                secondary_stats=SECONDARY_STATS,
                 tertiary_priority=tertiary_priority,
                 health_priority=health_priority,
                 spec_runs=spec_runs,

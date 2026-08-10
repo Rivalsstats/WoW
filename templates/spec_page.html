@@ -605,8 +605,70 @@
           </div>
           {% endif %}
 
+          {% set class_slug = class_info.name | default('Unknown') | replace(' ', '') %}
+          <div class="col-12 mt-4">
+            <h6 class="mb-1">How this data is collected</h6>
+            <p class="text-sm">
+              Every talent, stat and gear number on this page is drawn from real Mythic+ runs recorded this season, so it
+              shows what players actually do rather than theory. To keep the picture focused on how
+              <span class="class-{{ class_slug }}-text">{{ spec.name }} {{ class_info.name }}</span>
+              is played at the highest level, only the hardest keys are counted. For each dungeon we look up the highest
+              keystone level <em>anyone</em> has completed, across every class and spec, and then include every run from
+              there down to {{ key_level_window }} levels below it, giving the {{ key_level_window + 1 }} highest key
+              levels of that dungeon.
+              {% if season_max_key %}
+              The hardest key completed anywhere this season so far is a <strong>+{{ season_max_key }}</strong>{% if
+              season_max_key_dungeon %} in <strong>{{ season_max_key_dungeon }}</strong>{% endif %}, so there every run of
+              <strong>+{{ season_max_key - key_level_window }}</strong> and above is counted. Each dungeon uses its own top
+              key, so a quieter one keeps a lower band.
+              {% if season_min_top_key and season_min_top_key_dungeon %}
+              In <strong>{{ season_min_top_key_dungeon }}</strong>, for example, the hardest key so far is a
+              <strong>+{{ season_min_top_key }}</strong>, so its runs start from
+              <strong>+{{ season_min_top_key - key_level_window }}</strong> instead.
+              {% endif %}
+              {% else %}
+              The cutoff is worked out for each dungeon on its own, so a harder dungeon keeps a higher band of keys than
+              an easier one.
+              {% endif %}
+              The sample keeps refreshing as new high keys are posted, so the numbers track how the spec is being played
+              right now rather than averaging the whole season. On top of that, the talent, gear and stat breakdowns are
+              built from a rolling window of roughly the last two weeks, so they stay in step with recent tuning and meta
+              shifts. Run totals and key levels still cover the full season.
+            </p>
+          </div>
+
           {% if hero_variants and hero_variants | length > 0 %}
           <div id="static-talent-tree">
+            {% set default_ht = (hero_variants | selectattr('is_default') | first) or (hero_variants | first) %}
+            <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+              <h6 class="mb-0">Talents</h6>
+              <button type="button"
+                class="btn btn-sm btn-outline-info rounded-pill d-inline-flex align-items-center gap-1 py-1 px-2 lh-1"
+                style="--bs-btn-color: var(--bs-info-text-emphasis); --bs-btn-border-color: var(--bs-info-text-emphasis);"
+                data-bs-toggle="modal" data-bs-target="#talentInfoModal" title="How to read the talents">
+                <i class="material-symbols-rounded" style="font-size: 1rem;">info</i>
+                <span>How to read the talents</span>
+              </button>
+            </div>
+            {% if default_ht and default_ht.name %}
+            <p class="text-sm mb-3">
+              Most <span class="class-{{ class_slug }}-text">{{ spec.name }} {{ class_info.name }}</span> players build
+              into the <strong>{{ default_ht.name }}</strong> hero tree. The tree below is the build they run at the
+              highest keys, and the percentage under each talent is how often it is picked. Most of it is a fixed core.
+              The talents sitting near 100% are taken by almost everyone, so the real decisions are the flexible picks
+              that players swap from dungeon to dungeon.
+              {% if talent_swap_highlight %}
+              The pick that shifts the most by dungeon is
+              <a href="https://www.wowhead.com/spell={{ talent_swap_highlight.spellId }}?spec={{ spec_id }}"
+                target="_blank" rel="noopener"><strong>{{ talent_swap_highlight.talent_name }}</strong></a>, which far
+              more players run in <strong>{{ talent_swap_highlight.dungeon_name }}</strong> than anywhere else. Open
+              <strong>Talents per Dungeon</strong> below to see every swap like this.
+              {% else %}
+              This build barely changes between dungeons. Open <strong>Talents per Dungeon</strong> below for the few
+              tweaks that do show up.
+              {% endif %}
+            </p>
+            {% endif %}
             {% for v in hero_variants %}
             {% if v.ui_class_tree and v.ui_spec_tree %}
             <div class="tt-variant" data-hero-tree-id="{{ v.id }}" data-loadout="{{ v.loadout_code.original if v.loadout_code else '' }}"{% if not v.is_default %} style="display: none;"{% endif %}>
@@ -705,7 +767,22 @@
             <!-- Gear Overview -->
             {# data-share: deep-link.js pins a copy-link button to the corner (assets/js/deep-link.js). #}
             <div id="stat-overview" class="mx-auto my-4" data-share>
-              <h6 class="mb-1 text-center">Stat Priority</h6>
+              <h6 class="mb-1">Stat Priority</h6>
+              {% set stat_secs = stats | selectattr('name', 'in', secondary_stats) | list %}
+              {% set stat_primary = stats | rejectattr('name', 'in', secondary_stats) | first %}
+              {% if stat_secs %}
+              <p class="text-sm mb-2">
+                Stat priority is the order in which
+                <span class="class-{{ class_slug }}-text">{{ spec.name }} {{ class_info.name }}</span>
+                players value their secondary stats, based on what the highest-key players actually carry on their
+                gear. Most prioritize <strong>{{ stat_display_name(stat_secs[0].name) }}</strong>{% if stat_secs |
+                length > 1 %}, followed by {% for s in stat_secs[1:] %}{% if not loop.first %}{% if loop.last %} and
+                {% else %}, {% endif %}{% endif %}{{ stat_display_name(s.name) }}{% endfor %}{% endif %}.
+                {% if stat_primary %}{{ stat_display_name(stat_primary.name) }} is your main stat and comes mostly
+                from item level, so a higher-item-level piece is almost always an upgrade.{% endif %} Use this order
+                as a guide when choosing between similar items, gems and enchants, not as a hard rule.
+              </p>
+              {% endif %}
 
               <div class="row gy-2 gx-3 my-2 justify-content-center">
                 {% for s in stats %}
@@ -726,22 +803,26 @@
               </div>
             </div>
             <div id="gear-overview" class="mx-auto my-4" data-share>
-              <h6> Gear Overview</h6>
-              <p>
-                This overview shows the most popular items used by
-                <span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{ spec.name }}
-                  {{
-                  class_info.name }}</span>
-                players in Mythic +
-                dungeons. Gear and Talent data is collected from the top 5 Keystone levels at any given point meaning if
-                the rank 1 key is lvl 17 all keystones above lvl 12 will be counted. The popularity percentage is based
-                on
-                the number of times an item was seen in comparison to the
-                total amount of items.
-                Popularity of 50% indicates that every 2. item of this type is used by <span
-                  class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{ spec.name }} {{
-                  class_info.name }}'s</span>.
-                You can hover over the percentage to see more details.
+              {% set class_slug = class_info.name | default('Unknown') | replace(' ', '') %}
+              <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+                <h6 class="mb-0">Gear Overview</h6>
+                <button type="button"
+                  class="btn btn-sm btn-outline-info rounded-pill d-inline-flex align-items-center gap-1 py-1 px-2 lh-1"
+                  style="--bs-btn-color: var(--bs-info-text-emphasis); --bs-btn-border-color: var(--bs-info-text-emphasis);"
+                  data-bs-toggle="modal" data-bs-target="#popularityInfoModal"
+                  title="How is popularity measured?">
+                  <i class="material-symbols-rounded" style="font-size: 1rem;">info</i>
+                  <span>How is popularity measured?</span>
+                </button>
+              </div>
+              <p class="mb-2">
+                This section lists the gear that
+                <span class="class-{{ class_slug }}-text">{{ spec.name }} {{ class_info.name }}</span>
+                players equip most often in those high keys, broken down slot by slot. For each slot the most popular item
+                is shown first with its alternatives underneath, and the percentage next to each item tells you how common
+                that choice is. It is a snapshot of what is being played, not a guaranteed upgrade for your character, so
+                always simulate your own character before committing to gear changes. You can do that with
+                <a href="https://www.raidbots.com/simbot/topgear" target="_blank" rel="noopener">Raidbots Top Gear</a>.
               </p>
               <div class="d-flex flex-column flex-md-row gap-3">
                 <div class="flex-fill" style="flex: 1 1 0 !important; min-width: 0;">
@@ -893,6 +974,15 @@
             </div>
             <!-- Overview -->
             <div class="mx-auto my-4">
+              {% set class_slug = class_info.name | default('Unknown') | replace(' ', '') %}
+              <h6 class="mb-1">Enchants, Gems &amp; Crafting</h6>
+              <p class="text-sm mb-3">
+                Expand any panel below for the finer gear choices
+                <span class="class-{{ class_slug }}-text">{{ spec.name }} {{ class_info.name }}</span>
+                players make in these high keys. It covers the enchants and gems they run in each slot, the embellishments
+                and missives on their crafted gear, and the combinations they pair together. Each list is ordered by how
+                common the choice is among the sampled characters, over the same rolling two-week window as the gear above.
+              </p>
               <div class="d-flex flex-column flex-md-row gap-3">
                 <!-- Enchantment Overview-->
                 <div class="flex-fill" style="flex:1 1 0 !important; min-width:0;">
@@ -2187,6 +2277,133 @@
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
             Close
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {# "How is popularity measured?" content, moved out of the gear overview intro
+     so the description stays short; opened by the info button under the overview. #}
+  <div class="modal fade" id="popularityInfoModal" tabindex="-1" aria-labelledby="popularityInfoModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg modal-dialog-centered">
+      <div class="modal-content card">
+        <div class="modal-header">
+          <h5 class="modal-title" id="popularityInfoModalLabel">How is popularity measured?</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          {% set class_slug = class_info.name | default('Unknown') | replace(' ', '') %}
+          {# Pick the single most-popular item across every gear slot as a real,
+             current example for the explanation below. #}
+          {% set ex = namespace(entry=none, slot_count=0, pct=-1) %}
+          {% for coll in [left_slots, right_slots, weapon_slots, trinket_slots] %}
+          {% for slot in coll %}
+          {% if slot.entries and slot.entries | length > 0 and slot.slot_count and slot.slot_count > 0 %}
+          {% set top = slot.entries | first %}
+          {% if top.id and item_lookup[top.id] %}
+          {% set p = top.count / slot.slot_count * 100 %}
+          {% if p > ex.pct %}
+          {% set ex.entry = top %}
+          {% set ex.slot_count = slot.slot_count %}
+          {% set ex.pct = p %}
+          {% endif %}
+          {% endif %}
+          {% endif %}
+          {% endfor %}
+          {% endfor %}
+          <p>
+            Each popularity percentage is measured per slot: how many times an item was seen, divided by the total
+            number of items recorded for that slot. Hover over any percentage on the page to see the exact counts
+            behind it.
+          </p>
+          {% if ex.entry %}
+          {% set ex_pct = ex.pct if ex.pct < 100 else 100 %}
+          <div class="d-flex align-items-center gap-2 my-3 p-2 border border-grey-100 border-radius-lg">
+            <a class="flex-shrink-0" target="_blank"
+              href="https://www.wowhead.com/item={{ ex.entry.id }}?bonus={{ ex.entry.bonus.list | join(':') }}&spec={{ spec_id }}"
+              data-wowhead="item={{ ex.entry.id }}&bonus={{ ex.entry.bonus.list | join(':') }}&spec={{ spec_id }}">
+              <img src="/data/icons/{{ item_lookup[ex.entry.id].icon }}.png" alt="{{ item_lookup[ex.entry.id].name }}"
+                width="56" height="56"
+                style="width:56px;height:56px;object-fit:cover;border-radius:6px;display:block;" />
+            </a>
+            <p class="mb-0 text-sm">
+              For example,
+              <a href="/items/{{ item_slug_map[ex.entry.id] }}?spec={{ spec_id }}" class="fw-bold item-name-link"
+                data-wowhead="item={{ ex.entry.id }}&bonus={{ ex.entry.bonus.list | join(':') }}&spec={{ spec_id }}">{{ item_lookup[ex.entry.id].name }}</a>
+              was seen on {{ ex.entry.count }} of the {{ ex.slot_count }} items recorded for its slot, a popularity of
+              <strong>{{ '%.0f' % ex_pct }}%</strong>. A popularity of 50% would mean one in every two
+              <span class="class-{{ class_slug }}-text">{{ spec.name }} {{ class_info.name }}</span> uses it in that
+              slot.
+            </p>
+          </div>
+          {% endif %}
+          <p class="mb-1">Badges you may see on an item:</p>
+          <ul class="mb-0 ps-3">
+            <li><span class="badge bis-badge">TOP</span>: run by most of the top&nbsp;50 Raider.io-verified {{ spec.name
+              }} {{ class_info.name }} players.</li>
+            <li><span class="badge simc-badge">SIM</span>: SimulationCraft's best pick for that slot.</li>
+            <li><span class="badge max-key-badge">+{{ highest_run.keystone_level if highest_run and
+              highest_run.get('keystone_level') else key_level_window + 15 }}</span>: the highest key level the item has
+              been seen in; a trailing “(D)” means that key was depleted rather than timed.</li>
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {# "How to read the talents" explainer, opened by the info button by the talent tree. #}
+  <div class="modal fade" id="talentInfoModal" tabindex="-1" aria-labelledby="talentInfoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg modal-dialog-centered">
+      <div class="modal-content card">
+        <div class="modal-header">
+          <h5 class="modal-title" id="talentInfoModalLabel">How to read the talents</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          {% set class_slug = class_info.name | default('Unknown') | replace(' ', '') %}
+          {% set default_ht = (hero_variants | selectattr('is_default') | first) or (hero_variants | first) %}
+          <p>
+            The tree above is the talent build that most
+            <span class="class-{{ class_slug }}-text">{{ spec.name }} {{ class_info.name }}</span>
+            players run in high Mythic+ keys, taken from the same top-key runs described at the top of the page. It is a
+            good default build to copy if you are unsure where to start.
+          </p>
+          <p>
+            The percentage under each talent is its <strong>pick rate</strong>: the share of those players who chose it.
+            A talent near 100% is effectively part of the core build that almost everyone takes, while lower numbers mark
+            flexible or situational picks that players swap depending on the dungeon or their group. Talents that almost
+            nobody takes are shown faded.
+          </p>
+          <p>
+            The two large icons in the middle are the <strong>hero trees</strong>, the spec's big talent-branch choice.
+            {% if default_ht and default_ht.name %}Most players build into <strong>{{ default_ht.name }}</strong>{% if
+            hero_variants | length > 1 and default_ht.pct %} ({{ default_ht.pct | round | int }}%){% endif %}{% if
+            hero_variants | length > 1 %}, and you can click the hero icon to view the other branch{% endif %}.{% endif %}
+            {% if top_hero_tree_name %} The top&nbsp;50 ranked players most often prefer
+            <strong>{{ top_hero_tree_name }}</strong>{% if top_hero_tree_pct %} ({{ '{:.0f}'.format(top_hero_tree_pct)
+            }}%){% endif %}, which can differ from the wider field's favourite.{% endif %}
+          </p>
+          <p>
+            A <span class="badge tt-top-badge tt-top-badge-inline">TOP</span> badge marks the picks favoured by the
+            top&nbsp;50 Raider.io-ranked players, so you can quickly spot where the very best players differ from
+            everyone else.
+          </p>
+          <p>
+            Why does the build change per dungeon? Each dungeon asks for something different. Trash-heavy dungeons with
+            big pulls reward cleave and area-of-effect talents. Dungeons built around tough single targets or bosses
+            reward sustained single-target damage instead. Dungeons with dangerous, spiky damage often pull in extra
+            defensive or utility picks at the cost of a little throughput. The core of the tree stays the same, so these
+            are just the handful of talents worth swapping to match the fight.
+          </p>
+          <p class="mb-0">
+            Under the tree, <strong>Talents per Dungeon</strong> shows how the build changes for individual dungeons, and
+            <strong>Export Talent String</strong> copies the full build so you can paste it straight into the game.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
     </div>

@@ -157,6 +157,24 @@
                 </div>
             </div>
 
+            <div class="row mb-4">
+                <div class="col-12 px-3 px-md-4">
+                    <p class="text-sm mb-2">
+                        Everything below reflects how {{ dungeon.name.en_US }} is actually being played at the top of the
+                        ladder this season, from the routes the best groups run and where they save Bloodlust, to the
+                        specs and comps that stand out here and how often each key level gets timed. It is a snapshot of
+                        what is working right now, not a fixed guide, so use it as a starting point for your own runs.
+                    </p>
+                    <button type="button"
+                        class="btn btn-sm btn-outline-info rounded-pill d-inline-flex align-items-center gap-1 py-1 px-2 lh-1"
+                        style="--bs-btn-color: var(--bs-info-text-emphasis); --bs-btn-border-color: var(--bs-info-text-emphasis);"
+                        data-bs-toggle="modal" data-bs-target="#dataInfoModal" title="How this data is collected">
+                        <i class="material-symbols-rounded" style="font-size: 1rem;">info</i>
+                        <span>How this data is collected</span>
+                    </button>
+                </div>
+            </div>
+
             {# Shared inner markup for a single featured-run card #}
             {% macro run_card_inner(run_entry, dungeon, specs) %}
             {% set run_data = run_entry.data %}
@@ -209,6 +227,11 @@
             </div>
             {% endmacro %}
 
+            <div class="row">
+                <div class="col-12 px-3 px-md-4">
+                    <h5 class="h5 mb-3">Standout Runs</h5>
+                </div>
+            </div>
             <div class="row mb-6">
                 {# Combined card: toggle between Closest Call / Shortest / Longest #}
                 {% set available_toggle = toggle_runs|selectattr('data')|list %}
@@ -543,6 +566,11 @@
                             </div>
                         </div>
                         <div class="card-body px-0 pb-2">
+                            <p class="text-sm text-secondary px-3 pt-2 mb-2">
+                                The comps that show up most in timed {{ dungeon.name.en_US }} runs this season. Where a
+                                slot lists more than one spec it is flexible, so you can usually bring a similar spec
+                                without hurting the comp.
+                            </p>
                             <div class="p-0">
                                 <table id="popular-comps-table" class="table align-items-center mb-0 w-100">
                                     <thead>
@@ -602,6 +630,11 @@
                             </div>
                         </div>
                         <div class="card-body px-0 pb-2">
+                            <p class="text-sm text-secondary px-3 pt-2 mb-2">
+                                Specs played far more in {{ dungeon.name.en_US }} at +12 and higher than they are across
+                                dungeons in general, usually because the dungeon rewards their particular strengths. If
+                                you play one of these, this is a dungeon where it stands out.
+                            </p>
                             <div class="p-0">
                                 <table id="unique-specs-table" class="table align-items-center mb-0 w-100">
                                     <thead>
@@ -791,6 +824,10 @@
                         </div>
                         <div class="card-body p-3">
                             {% if level_stats %}
+                            <p class="text-sm text-secondary mb-3">
+                                How reliably each keystone level gets timed in {{ dungeon.name.en_US }} this season. Use
+                                it to see how much harder the next level really is before you push your key higher.
+                            </p>
                             {% set total_runs = overall_stats.total_runs if overall_stats else (level_stats|map(attribute='total_runs')|sum) %}
                             {% set timed_total = (overall_stats.upgrade_1 + overall_stats.upgrade_2 + overall_stats.upgrade_3) if overall_stats else ((level_stats|map(attribute='upgrade_1')|sum) + (level_stats|map(attribute='upgrade_2')|sum) + (level_stats|map(attribute='upgrade_3')|sum)) %}
                             {% set depleted_total = overall_stats.depleted if overall_stats else (level_stats|map(attribute='depleted')|sum) %}
@@ -824,6 +861,36 @@
             {% include "footer.html" %}
         </div>
     </main>
+    {# "How this data is collected" explainer, opened by the info badge under the page header. #}
+    <div class="modal fade" id="dataInfoModal" tabindex="-1" aria-labelledby="dataInfoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg modal-dialog-centered">
+            <div class="modal-content card">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dataInfoModalLabel">How this data is collected</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Every number on this page comes from real Mythic+ runs rather than theory.
+                    </p>
+                    <p>
+                        The standout runs, popular team comps, uniquely popular specs and success rates are built from
+                        recorded leaderboard runs for {{ dungeon.name.en_US }} across the whole season.
+                    </p>
+                    <p>
+                        The top routes, most lusted pulls and least played enemies are taken from the actual routes used
+                        in the highest-ranked recorded runs, as logged on Keystone.guru. We read the real pulls and
+                        cooldowns from those runs, so they show how the best groups genuinely route
+                        {{ dungeon.name.en_US }} rather than a planned or theoretical route. Only runs from roughly the
+                        last four weeks are included, so this part of the page keeps up with the current meta.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     {% include "right_aside.html" %}
     {% include "fixed_plugin.html" %}
     {% include "javascript_imports.html" %}
