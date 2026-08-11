@@ -16,6 +16,8 @@
   window.whTooltips = { colorLinks: false, iconizeLinks: false, renameLinks: false };
 
   var SPECS = window.specs_map || {};
+  var DUNGEONS = window.dungeons_map || {};
+  var RAIDS = window.raids_map || {};
 
   // Character-sheet slot order, mirroring the spec page's LEFT/RIGHT panel
   // layout (HEAD, NECK, SHOULDER, BACK, CHEST, WRIST, HANDS, WAIST, LEGS, FEET,
@@ -38,6 +40,12 @@
   function slotSlug(name) { return String(name).toLowerCase().replace(/\s+/g, "-"); }
   var SLOT_BY_SLUG = {}; // "one-hand" -> "One-Hand", filled by buildSlotOptions
   var QUALITY_BY_SLUG = {}; // "epic" -> "4"
+  // Drop-source filter (multi-select). Each item's manifest `sources` is a flat
+  // list of tokens: "d:<dungeonId>", "r:<raidId>", "b:<raidId>:<encId>",
+  // "crafted", "tier", "pvp", "other". The <option> values are those tokens; the URL carries
+  // readable slugs instead. Both maps are filled by buildSourceOptions.
+  var TOKEN_BY_SLUG = {}; // "pit-of-saron" -> "d:556", "nerubar-palace--ulgrax" -> "b:1207:2902"
+  var SLUG_BY_TOKEN = {}; // "d:556" -> "pit-of-saron"
   Object.keys(QUALITY_NAMES).forEach(function (q) {
     QUALITY_BY_SLUG[QUALITY_NAMES[q].toLowerCase()] = q;
   });
@@ -61,6 +69,17 @@
     if (window.jQuery && window.jQuery.fn.selectpicker) {
       window.jQuery("#" + id).selectpicker("refresh");
     }
+  }
+
+  // The source filter is a multi-select, so its value is an array of tokens.
+  function getSourceTokens() {
+    if (window.jQuery && window.jQuery.fn.selectpicker) {
+      var v = window.jQuery("#source-filter").selectpicker("val");
+      return v == null ? [] : (Array.isArray(v) ? v : [v]);
+    }
+    var out = [], opts = el("source-filter").options;
+    for (var i = 0; i < opts.length; i++) if (opts[i].selected) out.push(opts[i].value);
+    return out;
   }
 
   function buildSlotOptions() {
@@ -99,6 +118,115 @@
     refreshPicker("quality-filter");
   }
 
+  // Bootstrap-select data-content markup with a leading icon, mirroring the route
+  // search page's grouped pickers. Returns null when there is no icon to show.
+  function iconContent(iconFile, label) {
+    if (!iconFile) return null;
+    return "<span class='dropdown-icon-item'><img src='/data/icons/" + iconFile +
+      "' class='dropdown-icon' alt='' style='width:20px;height:20px;border-radius:4px;" +
+      "object-fit:cover;flex:0 0 20px;margin-right:8px;'>" +
+      "<span class='dropdown-icon-label'>" + label + "</span></span>";
+  }
+
+  function addSourceOption(parent, token, label, slug, content) {
+    var o = document.createElement("option");
+    o.value = token; o.textContent = label;
+    o.setAttribute("data-tokens", label); // enables live-search by name
+    if (content) o.setAttribute("data-content", content);
+    parent.appendChild(o);
+    TOKEN_BY_SLUG[slug] = token;
+    SLUG_BY_TOKEN[token] = slug;
+  }
+
+  function buildSourceOptions() {
+    // Discover which sources actually drop something in the current data, from the
+    // per-item tokens, and lay them out grouped: acquisition categories (Crafted,
+    // Tier Set, PvP), then a "Dungeons" optgroup, then one optgroup per raid (whole
+    // raid + present bosses), then Other, with dividers between the blocks. Only
+    // tokens a rendered item carries are offered, so empty instances never appear.
+    var dungeonsPresent = {};        // dungeonId -> true
+    var raidsPresent = {};           // raidId -> { encId -> true }
+    var hasCrafted = false, hasTier = false, hasPvp = false, hasOther = false;
+    all.forEach(function (i) {
+      (i.sources || []).forEach(function (tok) {
+        if (tok === "crafted") { hasCrafted = true; return; }
+        if (tok === "tier") { hasTier = true; return; }
+        if (tok === "pvp") { hasPvp = true; return; }
+        if (tok === "other") { hasOther = true; return; }
+        var p = String(tok).split(":");
+        if (p[0] === "d") { dungeonsPresent[p[1]] = true; }
+        else if (p[0] === "r") { raidsPresent[p[1]] = raidsPresent[p[1]] || {}; }
+        else if (p[0] === "b") {
+          (raidsPresent[p[1]] = raidsPresent[p[1]] || {})[p[2]] = true;
+        }
+      });
+    });
+
+    var sel = el("source-filter");
+    sel.innerHTML = ""; // multi-select: empty selection means "all", no reset option
+    function addDivider() {
+      var o = document.createElement("option");
+      o.setAttribute("data-divider", "true");
+      sel.appendChild(o);
+    }
+
+    // Present instances, resolved + sorted. Only tokens that at least one rendered
+    // item carries reach here, so empty dungeons/raids never appear in the list.
+    var dungeonList = Object.keys(dungeonsPresent).map(function (id) {
+      var d = DUNGEONS[id] || {};
+      return { id: id, name: d.name || id, slug: d.slug || id, icon: d.icon };
+    }).sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
+    var raidList = Object.keys(raidsPresent).map(function (id) {
+      var r = RAIDS[id] || {};
+      return { id: id, name: r.name || ("Raid " + id), slug: r.slug || id,
+               icon: r.icon, bosses: r.bosses || {}, present: raidsPresent[id] };
+    }).sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
+
+    var hasCategory = hasCrafted || hasTier || hasPvp;
+    var hasInstance = dungeonList.length > 0 || raidList.length > 0;
+
+    // 1) Acquisition categories first (how you get it outside a PvE instance).
+    if (hasCrafted) addSourceOption(sel, "crafted", "Crafted", "crafted", null);
+    if (hasTier) addSourceOption(sel, "tier", "Tier Set", "tier", null);
+    if (hasPvp) addSourceOption(sel, "pvp", "PvP", "pvp", null);
+
+    // 2) Dungeons, under a "Dungeons" header (mirroring each raid's title).
+    if (hasCategory && hasInstance) addDivider();
+    if (dungeonList.length) {
+      var dog = document.createElement("optgroup");
+      dog.label = "Dungeons";
+      dungeonList.forEach(function (d) {
+        addSourceOption(dog, "d:" + d.id, d.name, String(d.slug), iconContent(d.icon, d.name));
+      });
+      sel.appendChild(dog);
+    }
+
+    // 3) Raids, each an optgroup: whole-raid option + one option per present boss.
+    raidList.forEach(function (r) {
+      var og = document.createElement("optgroup");
+      og.label = r.name;
+      addSourceOption(og, "r:" + r.id, "All of " + r.name, String(r.slug),
+        iconContent(r.icon, "All of " + r.name));
+      Object.keys(r.present).map(function (enc) {
+        var b = r.bosses[enc] || {};
+        return { enc: enc, name: b.name || ("Boss " + enc), slug: b.slug || ("boss-" + enc) };
+      }).sort(function (a, b) {
+        return String(a.name).localeCompare(String(b.name));
+      }).forEach(function (b) {
+        addSourceOption(og, "b:" + r.id + ":" + b.enc, b.name, r.slug + "--" + b.slug, null);
+      });
+      sel.appendChild(og);
+    });
+
+    // 4) Other, last, after a divider.
+    if (hasOther) {
+      if (hasCategory || hasInstance) addDivider();
+      addSourceOption(sel, "other", "Other", "other", null);
+    }
+
+    refreshPicker("source-filter");
+  }
+
   // Resolve ?slot/?quality/?sort/?q into the values the controls carry. Values we
   // don't recognise are dropped (the control falls back to its default) — this is
   // user-typed URL input, not a data file, so it must not blow up the page.
@@ -107,13 +235,28 @@
     var slot = sp.get("slot") || "";
     var quality = (sp.get("quality") || "").toLowerCase();
     var sort = sp.get("sort") || "";
+    var source = sp.get("source") || "";
     return {
       q: sp.get("q") || "",
       // Slugging first means a raw display name (?slot=Held%20In%20Off-hand) resolves too.
       slot: SLOT_BY_SLUG[slotSlug(slot)] || "",
       quality: QUALITY_BY_SLUG[quality] || (/^\d+$/.test(quality) ? quality : ""),
+      // Comma-separated list of readable source slugs (a lone legacy dungeon slug
+      // still resolves). Raw tokens (d:.., r:.., b:.., crafted, tier, pvp, other) pass through.
+      source: parseSourceParam(source),
       sort: sort === "name" || sort === "runs" ? sort : "runs",
     };
+  }
+
+  // "pit-of-saron,nerubar-palace--ulgrax,crafted" -> ["d:556","b:1207:2902","crafted"].
+  function parseSourceParam(raw) {
+    if (!raw) return [];
+    return raw.split(",").map(function (s) { return s.trim(); }).filter(Boolean)
+      .map(function (s) {
+        if (TOKEN_BY_SLUG[s]) return TOKEN_BY_SLUG[s]; // readable slug
+        if (SLUG_BY_TOKEN[s]) return s;                // already a token
+        return null;
+      }).filter(Boolean);
   }
 
   // selectpicker("val") is what keeps the styled button label in sync; setting
@@ -132,6 +275,7 @@
     el("item-search").value = p.q;
     setSelect("slot-filter", p.slot);
     setSelect("quality-filter", p.quality);
+    setSelect("source-filter", p.source);
     setSelect("sort-by", p.sort);
   }
 
@@ -144,9 +288,13 @@
     var q = el("item-search").value.trim();
     var slot = el("slot-filter").value;
     var quality = el("quality-filter").value;
+    var sourceTokens = getSourceTokens();
     var sort = el("sort-by").value;
     if (slot) sp.set("slot", slotSlug(slot));
     if (quality) sp.set("quality", (QUALITY_NAMES[quality] || quality).toLowerCase());
+    if (sourceTokens.length) {
+      sp.set("source", sourceTokens.map(function (t) { return SLUG_BY_TOKEN[t] || t; }).join(","));
+    }
     if (sort && sort !== "runs") sp.set("sort", sort);
     if (q) sp.set("q", q);
     var qs = sp.toString();
@@ -157,12 +305,18 @@
     var q = el("item-search").value.trim().toLowerCase();
     var slot = el("slot-filter").value;
     var quality = el("quality-filter").value;
+    var sourceTokens = getSourceTokens();
     var sort = el("sort-by").value;
 
     filtered = all.filter(function (i) {
       if (q && i.name.toLowerCase().indexOf(q) === -1) return false;
       if (slot && i.slot !== slot) return false;
       if (quality && String(i.quality) !== quality) return false;
+      // OR across selected sources: keep the item if it carries any selected token.
+      if (sourceTokens.length) {
+        var toks = i.sources || [];
+        if (!sourceTokens.some(function (t) { return toks.indexOf(t) !== -1; })) return false;
+      }
       return true;
     });
     if (sort === "name") filtered.sort(function (a, b) { return a.name.localeCompare(b.name); });
@@ -227,12 +381,14 @@
         all = data || [];
         buildSlotOptions();
         buildQualityOptions();
-        // After the options exist, so SLOT_BY_SLUG can resolve ?slot=.
+        buildSourceOptions();
+        // After the options exist, so SLOT_BY_SLUG / SOURCE_BY_SLUG can resolve ?slot=/?source=.
         applyParamsToControls(readParams());
         applyFilters();
         el("item-search").addEventListener("input", debounce(applyFilters, 200));
         el("slot-filter").addEventListener("change", applyFilters);
         el("quality-filter").addEventListener("change", applyFilters);
+        el("source-filter").addEventListener("change", applyFilters);
         el("sort-by").addEventListener("change", applyFilters);
         el("items-more").addEventListener("click", renderMore);
         // Only fires when the user navigates back to an earlier URL of this page;

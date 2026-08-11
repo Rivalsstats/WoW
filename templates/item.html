@@ -228,6 +228,23 @@
                 <p class="mb-1 text-md opacity-8">
                   {{ item.slot }}{% if item.weaponType %} · {{ item.weaponType }}{% endif %}{% if item.onUseTrinket %} · On-Use{% elif item.slotKey == "TRINKET" %} · Passive/Proc{% endif %}{% if item.uniqueEquipped %} · <span class="text-warning">Unique-Equipped</span>{% endif %}
                 </p>
+                {% if item.source_dungeons %}
+                <p class="mb-1 text-sm opacity-8">
+                  <i class="material-symbols-rounded text-sm align-middle">location_on</i> Drops from
+                  {% for d in item.source_dungeons %}<a href="/dungeons/{{ d.slug }}" class="font-weight-bold">{{ d.name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}
+                </p>
+                {% endif %}
+                {% if item.source_raids %}
+                <p class="mb-1 text-sm opacity-8">
+                  <i class="material-symbols-rounded text-sm align-middle">location_on</i> Drops in
+                  {% for r in item.source_raids %}<span class="font-weight-bold">{{ r.name }}</span>{% if r.bosses %} ({% for b in r.bosses %}{{ b.name }}{% if not loop.last %}, {% endif %}{% endfor %}){% endif %}{% if not loop.last %}, {% endif %}{% endfor %}
+                </p>
+                {% endif %}
+                {% if item.crafted %}
+                <p class="mb-1 text-sm opacity-8">
+                  <i class="material-symbols-rounded text-sm align-middle">build</i> Craftable
+                </p>
+                {% endif %}
                 <div id="item-stats" class="d-flex flex-wrap gap-1">
                   {% for s in item.stats %}<span class="badge stat-{{ s.type }}">{{ s.type }}</span>{% endfor %}
                   {% for s in item.sockets %}<span class="badge bg-secondary">◆ Socket</span>{% endfor %}

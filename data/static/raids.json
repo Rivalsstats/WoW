@@ -1,0 +1,136 @@
+{
+  "1305": {
+    "name": {
+      "en_US": "Sporefall"
+    },
+    "slug": "sporefall",
+    "icon": "sporefall-small.jpg",
+    "order": 0,
+    "bosses": {
+      "2711": {
+        "name": {
+          "en_US": "Rotmire"
+        },
+        "slug": "rotmire"
+      }
+    }
+  },
+  "1307": {
+    "name": {
+      "en_US": "The Voidspire"
+    },
+    "slug": "the-voidspire",
+    "icon": "the-voidspire-small.jpg",
+    "order": 1,
+    "bosses": {
+      "2733": {
+        "name": {
+          "en_US": "Imperator Averzian"
+        },
+        "slug": "imperator-averzian"
+      },
+      "2734": {
+        "name": {
+          "en_US": "Vorasius"
+        },
+        "slug": "vorasius"
+      },
+      "2736": {
+        "name": {
+          "en_US": "Fallen-King Salhadaar"
+        },
+        "slug": "fallen-king-salhadaar"
+      },
+      "2735": {
+        "name": {
+          "en_US": "Vaelgor & Ezzorak"
+        },
+        "slug": "vaelgor-ezzorak"
+      },
+      "2737": {
+        "name": {
+          "en_US": "Lightblinded Vanguard"
+        },
+        "slug": "lightblinded-vanguard"
+      },
+      "2738": {
+        "name": {
+          "en_US": "Crown of the Cosmos"
+        },
+        "slug": "crown-of-the-cosmos"
+      }
+    }
+  },
+  "1308": {
+    "name": {
+      "en_US": "March on Quel'Danas"
+    },
+    "slug": "march-on-quel-danas",
+    "icon": "march-on-queldanas-small.jpg",
+    "order": 2,
+    "bosses": {
+      "2739": {
+        "name": {
+          "en_US": "Belo'ren, Child of Al'ar"
+        },
+        "slug": "belo-ren-child-of-al-ar"
+      },
+      "2740": {
+        "name": {
+          "en_US": "Midnight Falls"
+        },
+        "slug": "midnight-falls"
+      }
+    }
+  },
+  "1312": {
+    "name": {
+      "en_US": "Midnight"
+    },
+    "slug": "midnight",
+    "icon": null,
+    "order": 3,
+    "bosses": {
+      "2827": {
+        "name": {
+          "en_US": "Lu'ashal"
+        },
+        "slug": "lu-ashal"
+      },
+      "2829": {
+        "name": {
+          "en_US": "Thorm'belan"
+        },
+        "slug": "thorm-belan"
+      },
+      "2828": {
+        "name": {
+          "en_US": "Predaxas"
+        },
+        "slug": "predaxas"
+      },
+      "2782": {
+        "name": {
+          "en_US": "Cragpine"
+        },
+        "slug": "cragpine"
+      }
+    }
+  },
+  "1314": {
+    "name": {
+      "en_US": "The Dreamrift"
+    },
+    "slug": "the-dreamrift",
+    "icon": "the-dreamrift-small.jpg",
+    "order": 4,
+    "bosses": {
+      "2795": {
+        "name": {
+          "en_US": "Chimaerus the Undreamt God"
+        },
+        "slug": "chimaerus-the-undreamt-god"
+      }
+    }
+  }
+}

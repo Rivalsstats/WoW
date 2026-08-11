@@ -58,12 +58,12 @@
               {{ item_count }} items seen in {{ season_info.name }} Mythic+ runs. Click an item for full usage details.
             </p>
             <div class="row g-2 align-items-end">
-              <div class="col-md-5">
+              <div class="col-md-4">
                 <label class="form-label text-xs opacity-7 mb-1">Search</label>
                 <input type="search" id="item-search" class="form-control" placeholder="Search items by name…"
                   aria-label="Search items by name" autocomplete="off" />
               </div>
-              <div class="col-md-3">
+              <div class="col-md-2">
                 <label class="form-label text-xs opacity-7 mb-1">Slot</label>
                 <select id="slot-filter" class="selectpicker form-control" data-style="btn-outline-primary"
                   data-width="100%" title="All slots" aria-label="Filter by slot">
@@ -73,6 +73,14 @@
                 <label class="form-label text-xs opacity-7 mb-1">Quality</label>
                 <select id="quality-filter" class="selectpicker form-control" data-style="btn-outline-primary"
                   data-width="100%" title="All quality" aria-label="Filter by quality">
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label text-xs opacity-7 mb-1">Drops from</label>
+                <select id="source-filter" class="selectpicker form-control" data-style="btn-outline-primary"
+                  data-width="100%" multiple data-live-search="true" data-actions-box="true"
+                  data-selected-text-format="count > 1" data-sanitize="false"
+                  title="All sources" aria-label="Filter by drop source">
                 </select>
               </div>
               <div class="col-md-2">
@@ -108,6 +116,7 @@
   <script>
     window.specs_map = {{ specs_map | tojson | safe }};
     window.dungeons_map = {{ dungeons_map | tojson | safe }};
+    window.raids_map = {{ raids_map | tojson | safe }};
   </script>
   <script src="/assets/js/items.js"></script>
 </body>

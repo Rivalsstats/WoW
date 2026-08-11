@@ -1,6 +1,7 @@
 import os
 import json
 import argparse
+from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -9,11 +10,13 @@ import compArchetypes
 from pageGeneration import (
     generateSpecNav,
     generateDungeonNav,
+    build_item_slug_map,
     ROLE_FOLDERS,
     build_trends,
     trend_feeds_for_dungeon,
 )
 from generateSpecPages import format_duration, format_utc_timestamp, format_iso_timestamp, load_json, load_season_info, upgrade_info
+from generateItemPages import slot_for_item
 from image_generation.dungeon_overview import createDungeonOverviewImg, fetch_route_thumbnail
 
 LOOKUP_DIR = "data/static"
@@ -75,7 +78,31 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
     season_info = load_season_info(LOOKUP_DIR)
     notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
     npcs_lookup = load_json(os.path.join(LOOKUP_DIR, "npcs.json"))
-    
+
+    # Item metadata (from Raidbots) drives the "Best Loot" card: name/icon/ilvl/slot
+    # plus the "sources" array that says which dungeon each item drops in.
+    equippable_items = load_json(os.path.join(LOOKUP_DIR, "equippable-items.json"))
+    item_lookup = {it["id"]: it for it in equippable_items}
+    item_slug_map = build_item_slug_map(item_lookup)
+
+    # Reverse map: Blizzard journal instance id -> our dungeon key (challenge_mode_id).
+    # journal_instance_id is written per dungeon by fetchDungeonData.py and equals the
+    # instanceId Raidbots ships in each item's "sources". Without it a dungeon simply
+    # has no loot to show (older data snapshots), so the card degrades to empty.
+    instance_to_dungeon = {}
+    for d_id, d_data in dungeon_lookup.items():
+        jii = d_data.get("journal_instance_id")
+        if jii is not None:
+            instance_to_dungeon[int(jii)] = str(d_id)
+
+    # dungeon key (str) -> set of item ids that drop there
+    source_items_by_dungeon = defaultdict(set)
+    for it in equippable_items:
+        for src in it.get("sources", []) or []:
+            d_id = instance_to_dungeon.get(src.get("instanceId"))
+            if d_id:
+                source_items_by_dungeon[d_id].add(it["id"])
+
     try:
         with open(os.path.join('data', 'boss_npcs.json'), 'r') as f:
             bosses_lookup = json.load(f)
@@ -106,9 +133,6 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
 
         with conn.cursor(dictionary=True) as cursor:
             databaseConnector.configure_read_session(conn, cursor)
-            print("Pre-fetching global spec populations for relative comparison...")
-            global_total = databaseConnector.fetch_global_totals(conn, cursor, current_season)
-            global_total_count = global_total[0]['total'] if global_total and global_total[0]['total'] else 1
 
             # Same ids the lust queries filter on, so the "More Details" heatmap
             # link shows exactly the spells the Most Lusted Pulls table counted.
@@ -160,55 +184,79 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                 spec_lookup, class_lookup,
                 [str(k) for k in dungeon_lookup.keys()], top_n=6)
 
+            # Global per-item usage across the meta, so each dungeon's loot can be
+            # ranked by how much the current playerbase actually equips each drop.
+            # Reuses the per-spec indexed query the item pages use (fast path);
+            # summed across specs = total equipping runs, and the spec with the most
+            # runs on an item is the "most used by" credit shown on the card.
+            print("Pre-fetching item usage for dungeon loot ranking...")
+            item_total_runs = defaultdict(int)
+            item_top_spec = {}  # item_id -> (spec_id str, runs)
+            for spec_id in spec_lookup.keys():
+                try:
+                    spec_id_int = int(spec_id)
+                except (TypeError, ValueError):
+                    continue
+                rows = databaseConnector.fetch_item_spec_usage(conn, cursor, current_season, spec_id_int)
+                for row in rows or []:
+                    # item_id is VARCHAR in global_aggregated_items, so normalise to
+                    # int to match the equippable-items.json ids the loot join uses.
+                    raw_iid = row['item_id']
+                    if not str(raw_iid).isdigit():
+                        continue
+                    iid = int(raw_iid)
+                    runs = row['run_count'] or 0
+                    if runs <= 0:
+                        continue
+                    item_total_runs[iid] += runs
+                    prev = item_top_spec.get(iid)
+                    if prev is None or runs > prev[1]:
+                        item_top_spec[iid] = (str(spec_id), runs)
+
             for dungeon_id, dungeon_data in dungeon_lookup.items():
                 if target_dungeon and str(dungeon_id) != str(target_dungeon):
                     continue
 
                 print(f"Generating dungeon page for {dungeon_data['name']['en_US']} ({dungeon_id})")
 
-                # Over-represented specs
+                # Overall run totals for this dungeon, consumed by the social overview
+                # image (createDungeonOverviewImg dungeon_totals=...).
                 local_total_res = databaseConnector.fetch_dungeon_totals(conn, cursor, dungeon_id, current_season)
-                local_total = local_total_res[0]['total'] if local_total_res and local_total_res[0]['total'] else 1
-                
-                ratios = databaseConnector.fetch_dungeon_specs_ratio(conn, cursor, dungeon_id, current_season)
-                over_represented = []
-                for r in ratios:
-                    s_id = str(r['spec_id'])
-                    local_runs = r['local_runs']
-                    global_runs = r['global_runs']
-                    if local_runs < 50: continue
-                    
-                    local_pct = local_runs / local_total
-                    global_pct = global_runs / global_total_count
-                    if global_pct == 0: continue
 
-                    diff_pct = local_pct - global_pct
-                    relative_diff_pct = diff_pct / global_pct
-                    
-                    if diff_pct > 0 and s_id in spec_lookup:
-                        s_data = spec_lookup[s_id]
-                        c_id = str(s_data.get('classID', ''))
-                        
-                        win_rate = 0
-                        if (r['timed_runs'] + r['depleted_runs']) > 0:
-                            win_rate = round((r['timed_runs'] / (r['timed_runs'] + r['depleted_runs'])) * 100)
-                            
-                        over_represented.append({
-                            'spec_id': s_id,
-                            'spec_name': s_data.get('name', 'Unknown'),
-                            'class_name': class_lookup.get(c_id, {}).get('name', 'Unknown'),
-                            'role': str(s_data.get('role', 2)),
-                            'icon': s_data.get('SpellIconFileId', ''),
-                            'diff_pct': diff_pct * 100,
-                            'relative_diff_pct': relative_diff_pct * 100,
-                            'ratio': local_pct / global_pct,
-                            'highest_key': r['highest_key'],
-                            'win_rate': win_rate
-                        })
-                
-                over_represented.sort(key=lambda x: x['relative_diff_pct'], reverse=True)
-                top_over_represented = over_represented[:5]
-                
+                # Best loot: the items that drop in this dungeon, ranked by how much
+                # the current meta actually equips them. Drop source comes from the
+                # Raidbots "sources" field, joined to this dungeon via journal_instance_id;
+                # usage comes from the global per-item sweep above.
+                loot = []
+                for iid in source_items_by_dungeon.get(str(dungeon_id), ()):
+                    runs = item_total_runs.get(iid, 0)
+                    if runs <= 0:
+                        continue
+                    item = item_lookup.get(iid)
+                    if not item:
+                        continue
+                    slot_label, _slot_key = slot_for_item(item)
+                    top_spec_id, _top_runs = item_top_spec.get(iid, (None, 0))
+                    top_spec = spec_lookup.get(top_spec_id) if top_spec_id else None
+                    top_class = class_lookup.get(str(top_spec.get('classID', '')), {}) if top_spec else {}
+                    loot.append({
+                        'id': iid,
+                        'name': item.get('name', 'Unknown'),
+                        'icon': item.get('icon', ''),
+                        'quality': item.get('quality'),
+                        'ilvl': item.get('itemLevel'),
+                        'slot': slot_label,
+                        'slug': item_slug_map.get(iid),
+                        'runs': runs,
+                        'top_spec_name': top_spec.get('name') if top_spec else None,
+                        'top_class_name': top_class.get('name') if top_spec else None,
+                        'top_spec_role': str(top_spec.get('role', 2)) if top_spec else None,
+                        'top_spec_icon': top_spec.get('SpellIconFileId', '') if top_spec else None,
+                    })
+
+                loot.sort(key=lambda x: x['runs'], reverse=True)
+                top_loot = loot[:8]
+
                 # Clustered team-comp families for this dungeon (popular ranking).
                 team_comp_families = team_families_by_dungeon.get(
                     str(dungeon_id), {}).get('popular', [])
@@ -298,7 +346,7 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                     bosses=bosses_lookup.get(dungeon_id, []),
                     top_routes=top_routes,
                     team_comp_families=team_comp_families,
-                    top_over_represented=top_over_represented,
+                    top_loot=top_loot,
                     overall_stats=overall_stats,
                     level_stats=level_stats,
                     generated_at=datetime.now(timezone.utc).timestamp(),

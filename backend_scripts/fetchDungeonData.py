@@ -146,7 +146,10 @@ for dungeon_id in short_name_map:
         "keystone_upgrades": upgrades,
         "icon": icon_filename,
         "raiderio_short_name": short_name_map.get(dungeon_id),
-        "boss_npc_ids": bosses_out[str(dungeon_id)]
+        "boss_npc_ids": bosses_out[str(dungeon_id)],
+        # Blizzard Dungeon Journal instance id (matches the instanceId in
+        # Raidbots equippable-items.json "sources"), used to map loot to dungeons.
+        "journal_instance_id": journal_id,
     }
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()

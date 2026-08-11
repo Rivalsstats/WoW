@@ -507,6 +507,108 @@ def load_static_lookups():
             "icon": d.get("icon"),
         }
 
+    # Raids are auto-discovered into raids.json (see fetchRaidData.py); the file
+    # may be absent early in a season before any raid ships, which is fine — raid
+    # sources simply won't appear. Shape mirrors dungeons.json, keyed by raid
+    # journal instance id, with a bosses map keyed by encounter id.
+    raids_path = os.path.join(LOOKUP_DIR, "raids.json")
+    raids_json = load_json(raids_path) if os.path.exists(raids_path) else {}
+    if not raids_json:
+        print("raids.json not found or empty; raid loot sources will be unavailable")
+    raids_map = {}
+    for rid, r in raids_json.items():
+        name = r.get("name")
+        if isinstance(name, dict):
+            name = name.get("en_US") or next(iter(name.values()), rid)
+        bosses = {}
+        for enc_id, b in (r.get("bosses") or {}).items():
+            bname = b.get("name")
+            if isinstance(bname, dict):
+                bname = bname.get("en_US") or next(iter(bname.values()), enc_id)
+            bosses[str(enc_id)] = {"name": bname, "slug": b.get("slug")}
+        raids_map[str(rid)] = {
+            "name": name,
+            "slug": r.get("slug"),
+            "icon": r.get("icon"),
+            "order": r.get("order", 0),
+            "bosses": bosses,
+        }
+
+    # Loot source classification. Each Raidbots "sources" entry carries an
+    # instanceId (dungeon or raid journal instance) and an encounterId (the boss).
+    # We resolve those to our dungeon keys / raid ids and emit a flat set of
+    # source tokens per item, which the browse-page filter matches by set
+    # intersection:
+    #   d:<dungeonKey>            drops in that dungeon
+    #   r:<raidInstanceId>        drops somewhere in that raid
+    #   b:<raidInstanceId>:<enc>  drops from that specific boss
+    #   crafted                   craftable (has a profession)
+    #   tier                      tier set piece (synthetic -87 Raidbots source)
+    #   pvp                       PvP/gladiator gear (synthetic -85 Raidbots source)
+    #   other                     has source rows that resolved to nothing, or no
+    #                             source at all and none of the above (world/vendor)
+    # source_dungeons_by_item / source_raids_by_item feed the richer item-page
+    # "Drops from" display. All keyed by int item id to match slug_map/item_lookup.
+    TIER_SET_INSTANCE_ID = -87  # synthetic Raidbots source shared by all tier pieces
+    PVP_INSTANCE_ID = -85       # synthetic Raidbots source shared by all PvP gear
+    instance_to_dungeon = {}
+    for did, d in dungeon_lookup.items():
+        jii = d.get("journal_instance_id")
+        if jii is not None:
+            instance_to_dungeon[int(jii)] = str(did)
+
+    source_dungeons_by_item = {}
+    source_raids_by_item = {}
+    source_tokens_by_item = {}
+    for iid, itm in item_lookup.items():
+        dids = []
+        raids_for_item = {}   # raid id -> set(encounter id)
+        tokens = []
+        for src in itm.get("sources", []) or []:
+            inst = src.get("instanceId")
+            did = instance_to_dungeon.get(inst)
+            if did:
+                if did not in dids:
+                    dids.append(did)
+                tok = f"d:{did}"
+                if tok not in tokens:
+                    tokens.append(tok)
+                continue
+            rid = str(inst) if inst is not None and str(inst) in raids_map else None
+            if rid:
+                rtok = f"r:{rid}"
+                if rtok not in tokens:
+                    tokens.append(rtok)
+                bucket = raids_for_item.setdefault(rid, set())
+                enc = src.get("encounterId")
+                if enc is not None and str(enc) in raids_map[rid]["bosses"]:
+                    bucket.add(str(enc))
+                    btok = f"b:{rid}:{enc}"
+                    if btok not in tokens:
+                        tokens.append(btok)
+
+        crafted = "profession" in itm
+        if crafted:
+            tokens.append("crafted")
+        # Tier set pieces all carry the same synthetic Raidbots source (-87 / -87)
+        # rather than a real instance, so group them as their own "tier" category.
+        is_tier = any(src.get("instanceId") == TIER_SET_INSTANCE_ID
+                      for src in (itm.get("sources", []) or []))
+        if is_tier:
+            tokens.append("tier")
+        is_pvp = any(src.get("instanceId") == PVP_INSTANCE_ID
+                     for src in (itm.get("sources", []) or []))
+        if is_pvp:
+            tokens.append("pvp")
+        if not dids and not raids_for_item and not crafted and not is_tier and not is_pvp:
+            tokens.append("other")
+
+        if dids:
+            source_dungeons_by_item[iid] = dids
+        if raids_for_item:
+            source_raids_by_item[iid] = {r: sorted(encs) for r, encs in raids_for_item.items()}
+        source_tokens_by_item[iid] = tokens
+
     return {
         "season_info": season_info,
         "season": season,
@@ -525,6 +627,10 @@ def load_static_lookups():
         "set_members": set_members,
         "specs_map": specs_map,
         "dungeons_map": dungeons_map,
+        "raids_map": raids_map,
+        "source_dungeons_by_item": source_dungeons_by_item,
+        "source_raids_by_item": source_raids_by_item,
+        "source_tokens_by_item": source_tokens_by_item,
     }
 
 
@@ -547,6 +653,11 @@ def build_payloads(season, ctx, only_item=None):
     item_lookup = ctx["item_lookup"]
     slug_map = ctx["slug_map"]
     set_members = ctx["set_members"]
+    dungeons_map = ctx["dungeons_map"]
+    raids_map = ctx["raids_map"]
+    source_dungeons_by_item = ctx["source_dungeons_by_item"]
+    source_raids_by_item = ctx["source_raids_by_item"]
+    source_tokens_by_item = ctx["source_tokens_by_item"]
 
     # counters keyed by item_id (str)
     spec_runs = defaultdict(lambda: defaultdict(int))          # item -> spec -> runs
@@ -867,6 +978,31 @@ def build_payloads(season, ctx, only_item=None):
                                       "is_top": r["is_top"], "top_pct": r["top_pct"],
                                       "simc_dps_pct": r["simc_dps_pct"]})
 
+        # Where this item drops (Raidbots "sources" -> our dungeon/raid ids), plus
+        # the flat source tokens the browse-page filter matches on.
+        iid_int = int(item_id)
+        src_dungeon_ids = source_dungeons_by_item.get(iid_int, [])
+        source_dungeons = [
+            {"id": did, "name": dungeons_map[did]["name"], "slug": dungeons_map[did]["slug"]}
+            for did in src_dungeon_ids if did in dungeons_map
+        ]
+        source_raids = []
+        for rid, enc_ids in source_raids_by_item.get(iid_int, {}).items():
+            if rid not in raids_map:
+                continue
+            rinfo = raids_map[rid]
+            source_raids.append({
+                "id": rid,
+                "name": rinfo["name"],
+                "slug": rinfo["slug"],
+                "bosses": [
+                    {"id": e, "name": rinfo["bosses"][e]["name"], "slug": rinfo["bosses"][e]["slug"]}
+                    for e in enc_ids if e in rinfo["bosses"]
+                ],
+            })
+        src_tokens = source_tokens_by_item.get(iid_int, [])
+        crafted = "profession" in item
+
         payload = {
             "id": int(item_id),
             "name": item.get("name", f"Item {item_id}"),
@@ -891,6 +1027,9 @@ def build_payloads(season, ctx, only_item=None):
             "spec_overview": spec_overview,
             "global": global_scope,
             "bySpec": by_spec,
+            "source_dungeons": source_dungeons,
+            "source_raids": source_raids,
+            "crafted": crafted,
         }
 
         payloads[item_id] = payload
@@ -904,6 +1043,8 @@ def build_payloads(season, ctx, only_item=None):
             "slug": slug_map[int(item_id)],
             "runs": int(total_runs),
             "top_spec": top_spec,
+            # Flat source tokens (d:/r:/b:/crafted/other) for the browse-page filter.
+            "sources": src_tokens,
         })
 
     manifest.sort(key=lambda x: x["runs"], reverse=True)
@@ -1115,6 +1256,7 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
     slug_map = ctx["slug_map"]
     specs_map = ctx["specs_map"]
     dungeons_map = ctx["dungeons_map"]
+    raids_map = ctx["raids_map"]
     notifications = ctx["notifications"]
 
     # Per-slot lists (manifest already sorted by runs desc) for the "other popular
@@ -1241,6 +1383,7 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
         notifications=notifications,
         specs_map=specs_map,
         dungeons_map=dungeons_map,
+        raids_map=raids_map,
     )
     with open(os.path.join(output_dir, "items.html"), "w", encoding="utf-8") as f:
         f.write(page_html)

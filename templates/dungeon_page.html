@@ -618,89 +618,91 @@
                         </div>
                     </div>
                 </div>
-                <!-- Uniquely Popular Specs -->
+                <!-- Best Loot From This Dungeon -->
                 <div class="col-lg-6 col-md-12 mb-4">
-                    <div class="card h-100" id="dungeon-unique-specs" data-share>
+                    <div class="card h-100" id="dungeon-best-loot" data-share>
                         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
                             <div data-share-anchor class="bg-gradient-info shadow-info border-radius-lg pt-3 pb-3 d-flex justify-content-between align-items-center">
                                 <h6 class="text-white text-capitalize ps-3 mb-0" data-bs-toggle="tooltip"
                                     data-bs-placement="top"
-                                    title="Specs with highest % difference compared to their global average.">Uniquely
-                                    Popular Here (+12 and higher)</h6>
+                                    title="Gear that drops here, ranked by how much the current meta equips it.">Best Loot
+                                    From This Dungeon</h6>
+                                <a href="/pages/items?source={{ dungeon.slug }}"
+                                    class="btn btn-sm btn-white me-3 mb-0 opacity-8" title="Browse all loot from this dungeon">All
+                                    Loot</a>
                             </div>
                         </div>
                         <div class="card-body px-0 pb-2">
                             <p class="text-sm text-secondary px-3 pt-2 mb-2">
-                                Specs played far more in {{ dungeon.name.en_US }} at +12 and higher than they are across
-                                dungeons in general, usually because the dungeon rewards their particular strengths. If
-                                you play one of these, this is a dungeon where it stands out.
+                                The gear that drops in {{ dungeon.name.en_US }}, ordered by how often the current meta
+                                equips each piece. A quick read on whether this dungeon is worth farming for your spec.
                             </p>
                             <div class="p-0">
-                                <table id="unique-specs-table" class="table align-items-center mb-0 w-100">
+                                {% if top_loot %}
+                                <table id="best-loot-table" class="table align-items-center mb-0 w-100">
                                     <thead>
                                         <tr>
                                             <th
                                                 class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                                Spec</th>
+                                                Item</th>
                                             <th
                                                 class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                                Highest Key</th>
+                                                Slot</th>
                                             <th
-                                                class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                                Timed %</th>
+                                                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                                Most Used By</th>
                                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                                                data-bs-toggle="tooltip" title="Absolute difference in play rate">Vs Avg
-                                                (Total)</th>
-                                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
-                                                data-bs-toggle="tooltip" title="Relative difference in play rate">Vs Avg
-                                                (Relative)</th>
+                                                data-bs-toggle="tooltip" title="Runs this season that equipped the item">
+                                                Runs</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for s in top_over_represented %}
+                                        {% for l in top_loot %}
                                         <tr>
                                             <td>
-                                                <div class="d-flex px-2 py-1">
+                                                <div class="d-flex px-2 py-1 align-items-center">
                                                     <div>
-                                                        <a href="/classes/{{ role_lookup.get(s.role|string, 'Other') }}/{{ s.spec_name }}_{{ s.class_name }}"
-                                                            class="text-decoration-none">
-                                                            <img src="/data/icons/{{ s.icon }}.jpg"
-                                                                class="avatar avatar-sm me-3 border border-dark border-1"
-                                                                alt="{{ s.spec_name }}">
+                                                        <a href="/items/{{ l.slug }}" class="text-decoration-none"
+                                                            data-wowhead="item={{ l.id }}">
+                                                            <img src="/data/icons/{{ l.icon }}.png"
+                                                                class="avatar avatar-sm me-3 border border-quality-{{ l.quality }} border-1"
+                                                                alt="{{ l.name }}">
                                                         </a>
                                                     </div>
                                                     <div class="d-flex flex-column justify-content-center">
-                                                        <a href="/classes/{{ role_lookup.get(s.role|string, 'Other') }}/{{ s.spec_name }}_{{ s.class_name }}"
-                                                            class="text-decoration-none">
-                                                            <h6
-                                                                class="mb-0 text-sm class-{{ s.class_name|replace(' ', '') }}-text">
-                                                                {{ s.spec_name }} {{ s.class_name }}</h6>
+                                                        <a href="/items/{{ l.slug }}" class="text-decoration-none"
+                                                            data-wowhead="item={{ l.id }}">
+                                                            <h6 class="mb-0 text-sm item-quality-{{ l.quality }}">{{ l.name }}</h6>
                                                         </a>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td class="align-middle text-center text-sm">
-                                                <span class="badge badge-sm bg-gradient-success">+{{ s.highest_key|default(0) }}</span>
+                                                <span class="text-xs font-weight-bold">{{ l.slot }}</span>
                                             </td>
-                                            <td class="align-middle text-center text-sm">
-                                                <span class="text-xs font-weight-bold">{{ s.win_rate }}%</span>
+                                            <td class="align-middle">
+                                                {% if l.top_spec_name %}
+                                                <a href="/classes/{{ role_lookup.get(l.top_spec_role, 'Other') }}/{{ l.top_spec_name }}_{{ l.top_class_name }}"
+                                                    class="text-decoration-none d-flex align-items-center px-2">
+                                                    <img src="/data/icons/{{ l.top_spec_icon }}.jpg"
+                                                        class="avatar avatar-xs me-2 border border-dark border-1"
+                                                        alt="{{ l.top_spec_name }}">
+                                                    <span class="text-xs font-weight-bold class-{{ l.top_class_name|replace(' ', '') }}-text">{{ l.top_spec_name }} {{ l.top_class_name }}</span>
+                                                </a>
+                                                {% else %}
+                                                <span class="text-xs text-secondary px-2">Not tracked</span>
+                                                {% endif %}
                                             </td>
                                             <td class="align-middle text-center">
-                                                <span class="badge badge-sm bg-gradient-success">+{{
-                                                    "%.2f"|format(s.diff_pct|float) }}%</span>
+                                                <span class="text-secondary text-xs font-weight-bold">{{ "{:,}".format(l.runs) }}</span>
                                             </td>
-                                            <td class="align-middle text-center">
-                                                <span class="badge badge-sm bg-gradient-success">+{{
-                                                    "%.0f"|format(s.relative_diff_pct|float) }}%</span>
-                                            </td>
-                                        </tr>
-                                        {% else %}
-                                        <tr>
-                                            <td colspan="5" class="text-center text-sm p-3">Not enough data.</td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
                                 </table>
+                                {% else %}
+                                <p class="text-center text-sm text-secondary p-3 mb-0">No tracked loot for this dungeon yet.</p>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -920,7 +922,7 @@
             var tables = {
                 'lust-table':          [{ targets: 0, responsivePriority: 1 }, { targets: 1, responsivePriority: 2 }, { targets: 3, responsivePriority: 4 }, { targets: 2, responsivePriority: 5 }],
                 'popular-comps-table': [{ targets: 0, responsivePriority: 1 }, { targets: 1, responsivePriority: 2 }, { targets: 3, responsivePriority: 3 }, { targets: 2, responsivePriority: 4 }],
-                'unique-specs-table':  [{ targets: 0, responsivePriority: 1 }, { targets: 4, responsivePriority: 2 }, { targets: 1, responsivePriority: 3 }, { targets: 2, responsivePriority: 5 }, { targets: 3, responsivePriority: 6 }],
+                'best-loot-table':     [{ targets: 0, responsivePriority: 1 }, { targets: 2, responsivePriority: 2 }, { targets: 3, responsivePriority: 3 }, { targets: 1, responsivePriority: 5 }],
                 'skip-npcs-table':     [{ targets: 0, responsivePriority: 1 }, { targets: 1, responsivePriority: 2 }, { targets: 3, responsivePriority: 4 }, { targets: 2, responsivePriority: 5 }]
             };
             Object.keys(tables).forEach(function (id) {
