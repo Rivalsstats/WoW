@@ -23,7 +23,7 @@ on:
   # instead of a week. Cache-cheap when the chosen commit is unchanged. 04:00 UTC,
   # clear of the Wednesday full update.
   schedule:
-    - cron: '0 4 * * *'
+    - cron: '0 4 * * WED'
   push:
     paths:
       - 'Dockerfile.simc'
