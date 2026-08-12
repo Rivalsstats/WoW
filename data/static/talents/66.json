@@ -572,6 +572,31 @@
       "icon": "paladin_retribution",
       "spellId": 204019
     },
+    "81476": {
+      "name": "Valiant Crusade",
+      "icon": "ability_mount_alliancepvpmount",
+      "spellId": 1245979
+    },
+    "107444": {
+      "name": "Valiant Crusade",
+      "icon": "ability_mount_alliancepvpmount",
+      "spellId": 1245979
+    },
+    "142265": {
+      "name": "Blessed Word",
+      "icon": "spell_paladin_divinecircle",
+      "spellId": 1301732
+    },
+    "81487": {
+      "name": "Grand Crusader",
+      "icon": "inv_helmet_74",
+      "spellId": 85043
+    },
+    "107458": {
+      "name": "Grand Crusader",
+      "icon": "inv_helmet_74",
+      "spellId": 85043
+    },
     "81494": {
       "name": "Imbued Shield",
       "icon": "inv_artifact_bulwarkoforder",
@@ -587,45 +612,20 @@
       "icon": "ability_warrior_shieldguard",
       "spellId": 280373
     },
-    "81487": {
-      "name": "Grand Crusader",
-      "icon": "inv_helmet_74",
-      "spellId": 85043
+    "110862": {
+      "name": "Blessing of Spellwarding",
+      "icon": "spell_holy_blessingofprotection",
+      "spellId": 204018
     },
-    "107458": {
-      "name": "Grand Crusader",
-      "icon": "inv_helmet_74",
-      "spellId": 85043
+    "116891": {
+      "name": "Blessing of Spellwarding",
+      "icon": "spell_holy_blessingofprotection",
+      "spellId": 204018
     },
-    "81498": {
-      "name": "Seal of Charity",
-      "icon": "spell_priest_power_word",
-      "spellId": 384815
-    },
-    "107472": {
-      "name": "Seal of Charity",
-      "icon": "spell_priest_power_word",
-      "spellId": 384815
-    },
-    "81486": {
-      "name": "Refining Fire",
-      "icon": "inv_everburningignition_yellow",
-      "spellId": 469883
-    },
-    "107457": {
-      "name": "Refining Fire",
-      "icon": "inv_everburningignition_yellow",
-      "spellId": 469883
-    },
-    "81476": {
-      "name": "Valiant Crusade",
-      "icon": "ability_mount_alliancepvpmount",
-      "spellId": 1245979
-    },
-    "107444": {
-      "name": "Valiant Crusade",
-      "icon": "ability_mount_alliancepvpmount",
-      "spellId": 1245979
+    "142611": {
+      "name": "Uther's Counsel",
+      "icon": "spell_holy_greaterblessingofsalvation",
+      "spellId": 378425
     },
     "81481": {
       "name": "Ardent Defender",
@@ -647,25 +647,20 @@
       "icon": "ability_essence_reapingflames",
       "spellId": 1244070
     },
-    "101927": {
-      "name": "Solace",
-      "icon": "spell_holy_prayerofmendingtga",
-      "spellId": 1245891
+    "142608": {
+      "name": "Hand of the Protector",
+      "icon": "ability_paladin_blessedhands",
+      "spellId": 315924
     },
-    "107456": {
-      "name": "Solace",
-      "icon": "spell_holy_prayerofmendingtga",
-      "spellId": 1245891
+    "81486": {
+      "name": "Refining Fire",
+      "icon": "inv_everburningignition_yellow",
+      "spellId": 469883
     },
-    "81492": {
-      "name": "Undying Embers",
-      "icon": "inv_achievement_dungeon_darkflamecleft",
-      "spellId": 1244019
-    },
-    "107464": {
-      "name": "Undying Embers",
-      "icon": "inv_achievement_dungeon_darkflamecleft",
-      "spellId": 1244019
+    "107457": {
+      "name": "Refining Fire",
+      "icon": "inv_everburningignition_yellow",
+      "spellId": 469883
     },
     "81499": {
       "name": "Bulwark of Order",
@@ -677,20 +672,15 @@
       "icon": "spell_holy_pureofheart",
       "spellId": 209389
     },
-    "90062": {
-      "name": "Improved Ardent Defender",
-      "icon": "spell_holy_ardentdefender",
-      "spellId": 393114
+    "81483": {
+      "name": "Avenging Wrath",
+      "icon": "spell_holy_avenginewrath",
+      "spellId": 31884
     },
-    "116892": {
-      "name": "Improved Ardent Defender",
-      "icon": "spell_holy_ardentdefender",
-      "spellId": 393114
-    },
-    "116891": {
-      "name": "Blessing of Spellwarding",
-      "icon": "spell_holy_blessingofprotection",
-      "spellId": 204018
+    "107453": {
+      "name": "Avenging Wrath",
+      "icon": "spell_holy_avenginewrath",
+      "spellId": 31884
     },
     "81503": {
       "name": "Light of the Titans",
@@ -707,15 +697,20 @@
       "icon": "spell_holy_revivechampion",
       "spellId": 392928
     },
-    "81470": {
-      "name": "Vision of Sanctity",
-      "icon": "ability_racial_orbitalstrike",
-      "spellId": 1245354
+    "101927": {
+      "name": "Solace",
+      "icon": "spell_holy_prayerofmendingtga",
+      "spellId": 1245891
     },
-    "107437": {
-      "name": "Vision of Sanctity",
-      "icon": "ability_racial_orbitalstrike",
-      "spellId": 1245354
+    "107456": {
+      "name": "Solace",
+      "icon": "spell_holy_prayerofmendingtga",
+      "spellId": 1245891
+    },
+    "107459": {
+      "name": "Instrument of the Divine",
+      "icon": "ability_priest_archangel",
+      "spellId": 1277162
     },
     "81474": {
       "name": "Tyr's Enforcer",
@@ -727,6 +722,16 @@
       "icon": "spell_holy_persecution",
       "spellId": 378285
     },
+    "81492": {
+      "name": "Undying Embers",
+      "icon": "inv_achievement_dungeon_darkflamecleft",
+      "spellId": 1244019
+    },
+    "107464": {
+      "name": "Undying Embers",
+      "icon": "inv_achievement_dungeon_darkflamecleft",
+      "spellId": 1244019
+    },
     "81506": {
       "name": "Relentless Inquisitor",
       "icon": "spell_holy_mindvision",
@@ -737,20 +742,20 @@
       "icon": "spell_holy_mindvision",
       "spellId": 383388
     },
-    "81483": {
-      "name": "Avenging Wrath",
-      "icon": "spell_holy_avenginewrath",
-      "spellId": 31884
+    "90062": {
+      "name": "Improved Ardent Defender",
+      "icon": "spell_holy_ardentdefender",
+      "spellId": 393114
     },
-    "107453": {
-      "name": "Avenging Wrath",
-      "icon": "spell_holy_avenginewrath",
-      "spellId": 31884
+    "116892": {
+      "name": "Improved Ardent Defender",
+      "icon": "spell_holy_ardentdefender",
+      "spellId": 393114
     },
-    "107452": {
-      "name": "Sentinel",
-      "icon": "spell_holy_holynova",
-      "spellId": 389539
+    "142609": {
+      "name": "Seal of Reprisal",
+      "icon": "spell_holy_sealoffury",
+      "spellId": 377053
     },
     "81612": {
       "name": "Crusader's Judgment",
@@ -761,6 +766,16 @@
       "name": "Crusader's Judgment",
       "icon": "ability_paladin_enlightenedjudgements",
       "spellId": 204023
+    },
+    "81470": {
+      "name": "Vision of Sanctity",
+      "icon": "ability_racial_orbitalstrike",
+      "spellId": 1245354
+    },
+    "107437": {
+      "name": "Vision of Sanctity",
+      "icon": "ability_racial_orbitalstrike",
+      "spellId": 1245354
     },
     "81485": {
       "name": "Consecration in Flame",
@@ -782,15 +797,10 @@
       "icon": "spell_burningbladeshaman_lavaslash",
       "spellId": 378457
     },
-    "81629": {
-      "name": "Seal of Reprisal",
-      "icon": "spell_holy_sealoffury",
-      "spellId": 377053
-    },
-    "107626": {
-      "name": "Seal of Reprisal",
-      "icon": "spell_holy_sealoffury",
-      "spellId": 377053
+    "142610": {
+      "name": "Focused Enmity",
+      "icon": "ability_priest_flashoflight",
+      "spellId": 378845
     },
     "81490": {
       "name": "Guardian of Ancient Kings",
@@ -802,65 +812,15 @@
       "icon": "spell_holy_heroism",
       "spellId": 86659
     },
-    "81475": {
-      "name": "Hand of the Protector",
-      "icon": "ability_paladin_blessedhands",
-      "spellId": 315924
-    },
-    "107443": {
-      "name": "Hand of the Protector",
-      "icon": "ability_paladin_blessedhands",
-      "spellId": 315924
-    },
-    "81473": {
+    "81488": {
       "name": "Sanctuary",
       "icon": "spell_holy_innerfire",
       "spellId": 379021
     },
-    "107441": {
+    "142612": {
       "name": "Sanctuary",
       "icon": "spell_holy_innerfire",
       "spellId": 379021
-    },
-    "81472": {
-      "name": "Focused Enmity",
-      "icon": "ability_priest_flashoflight",
-      "spellId": 378845
-    },
-    "107440": {
-      "name": "Focused Enmity",
-      "icon": "ability_priest_flashoflight",
-      "spellId": 378845
-    },
-    "81484": {
-      "name": "Gift of the Golden Val'kyr",
-      "icon": "inv_valkiergoldpet",
-      "spellId": 378279
-    },
-    "107454": {
-      "name": "Gift of the Golden Val'kyr",
-      "icon": "inv_valkiergoldpet",
-      "spellId": 378279
-    },
-    "103877": {
-      "name": "Sanctified Wrath",
-      "icon": "ability_paladin_judgementsofthejust",
-      "spellId": 53376
-    },
-    "133085": {
-      "name": "Sanctified Wrath",
-      "icon": "ability_paladin_judgementsofthejust",
-      "spellId": 53376
-    },
-    "81500": {
-      "name": "Uther's Counsel",
-      "icon": "spell_holy_greaterblessingofsalvation",
-      "spellId": 378425
-    },
-    "107474": {
-      "name": "Uther's Counsel",
-      "icon": "spell_holy_greaterblessingofsalvation",
-      "spellId": 378425
     },
     "81493": {
       "name": "Strength in Adversity",
@@ -877,6 +837,36 @@
       "icon": "ability_priest_angelicbulwark",
       "spellId": 380188
     },
+    "81484": {
+      "name": "Gift of the Golden Val'kyr",
+      "icon": "inv_valkiergoldpet",
+      "spellId": 378279
+    },
+    "107454": {
+      "name": "Gift of the Golden Val'kyr",
+      "icon": "inv_valkiergoldpet",
+      "spellId": 378279
+    },
+    "103877": {
+      "name": "Empyrean Authority",
+      "icon": "ability_paladin_empoweredsealsrighteous",
+      "spellId": 1246481
+    },
+    "133085": {
+      "name": "Empyrean Authority",
+      "icon": "ability_paladin_empoweredsealsrighteous",
+      "spellId": 1246481
+    },
+    "81498": {
+      "name": "Seal of Charity",
+      "icon": "spell_priest_power_word",
+      "spellId": 384815
+    },
+    "107472": {
+      "name": "Seal of Charity",
+      "icon": "spell_priest_power_word",
+      "spellId": 384815
+    },
     "81482": {
       "name": "Ferren Marcus's Fervor",
       "icon": "spell_holy_sealofwrath",
@@ -888,14 +878,14 @@
       "spellId": 378762
     },
     "81497": {
-      "name": "Empyrean Authority",
-      "icon": "ability_paladin_empoweredsealsrighteous",
-      "spellId": 1246481
+      "name": "Sentinel",
+      "icon": "spell_holy_holynova",
+      "spellId": 389539
     },
     "107471": {
-      "name": "Empyrean Authority",
-      "icon": "ability_paladin_empoweredsealsrighteous",
-      "spellId": 1246481
+      "name": "Sentinel",
+      "icon": "spell_holy_holynova",
+      "spellId": 389539
     },
     "81471": {
       "name": "Zealot's Paragon",
@@ -906,16 +896,6 @@
       "name": "Zealot's Paragon",
       "icon": "ability_paladin_conviction",
       "spellId": 391142
-    },
-    "81488": {
-      "name": "Instrument of the Divine",
-      "icon": "ability_priest_archangel",
-      "spellId": 1277162
-    },
-    "107459": {
-      "name": "Instrument of the Divine",
-      "icon": "ability_priest_archangel",
-      "spellId": 1277162
     },
     "81505": {
       "name": "Sweeping Verdict",

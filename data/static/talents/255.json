@@ -587,6 +587,16 @@
       "icon": "ability_hunter_beastmastery",
       "spellId": 459964
     },
+    "109305": {
+      "name": "Sic 'Em",
+      "icon": "ability_hunter_sickem",
+      "spellId": 1253137
+    },
+    "140253": {
+      "name": "Sic 'Em",
+      "icon": "ability_hunter_sickem",
+      "spellId": 1253137
+    },
     "110163": {
       "name": "Two Against Many",
       "icon": "ability_hunter_separationanxiety",
@@ -632,15 +642,15 @@
       "icon": "inv_10_engineering2_pvpflaregun_color1",
       "spellId": 1252931
     },
-    "109305": {
-      "name": "Sic 'Em",
-      "icon": "ability_hunter_sickem",
-      "spellId": 1253137
+    "110159": {
+      "name": "Primal Surge",
+      "icon": "ability_hunter_longevity",
+      "spellId": 1272154
     },
-    "140253": {
-      "name": "Sic 'Em",
-      "icon": "ability_hunter_sickem",
-      "spellId": 1253137
+    "141452": {
+      "name": "Primal Surge",
+      "icon": "ability_hunter_longevity",
+      "spellId": 1272154
     },
     "109307": {
       "name": "Bloody Claws",
@@ -702,16 +712,6 @@
       "icon": "inv_ore_blackrock_nugget",
       "spellId": 462036
     },
-    "109304": {
-      "name": "Shower of Blood",
-      "icon": "spell_druid_bloodythrash",
-      "spellId": 1253053
-    },
-    "140252": {
-      "name": "Shower of Blood",
-      "icon": "spell_druid_bloodythrash",
-      "spellId": 1253053
-    },
     "109306": {
       "name": "Outland Venom",
       "icon": "ability_hunter_potentvenom",
@@ -753,14 +753,14 @@
       "spellId": 378955
     },
     "102252": {
-      "name": "Flamefang Pitch",
-      "icon": "inv_10_blacksmithing_craftedoptional_blacksmithdye_fire",
-      "spellId": 1251592
+      "name": "Bombardier",
+      "icon": "inv_misc_blackironbomb",
+      "spellId": 1311963
     },
     "131137": {
-      "name": "Flamefang Pitch",
-      "icon": "inv_10_blacksmithing_craftedoptional_blacksmithdye_fire",
-      "spellId": 1251592
+      "name": "Bombardier",
+      "icon": "inv_misc_blackironbomb",
+      "spellId": 1311963
     },
     "109470": {
       "name": "Twin Fangs",
@@ -832,15 +832,15 @@
       "icon": "ability_siege_engineer_detonate",
       "spellId": 1262409
     },
-    "110159": {
-      "name": "Primal Surge",
-      "icon": "ability_hunter_longevity",
-      "spellId": 1272154
+    "109304": {
+      "name": "Razor Edge",
+      "icon": "spell_druid_bloodythrash",
+      "spellId": 1253053
     },
-    "141452": {
-      "name": "Primal Surge",
-      "icon": "ability_hunter_longevity",
-      "spellId": 1272154
+    "140252": {
+      "name": "Razor Edge",
+      "icon": "spell_druid_bloodythrash",
+      "spellId": 1253053
     },
     "110429": {
       "name": "Raptor Swipe",

@@ -252,6 +252,16 @@
       "icon": "inv_misc_book_04",
       "spellId": 382493
     },
+    "110597": {
+      "name": "Improved Warding",
+      "icon": "inv_cloth_raidmage_p_01helm",
+      "spellId": 1297073
+    },
+    "142170": {
+      "name": "Improved Warding",
+      "icon": "inv_cloth_raidmage_p_01helm",
+      "spellId": 1297073
+    },
     "62098": {
       "name": "Tome of Antonidas",
       "icon": "inv_misc_book_18",
@@ -477,16 +487,6 @@
       "icon": "inv12_ability_mage_arcanesalvo",
       "spellId": 384452
     },
-    "102473": {
-      "name": "Amplification",
-      "icon": "spell_arcane_invocation",
-      "spellId": 236628
-    },
-    "131369": {
-      "name": "Amplification",
-      "icon": "spell_arcane_invocation",
-      "spellId": 236628
-    },
     "102445": {
       "name": "Improved Clearcasting",
       "icon": "spell_shadow_manaburn",
@@ -496,6 +496,16 @@
       "name": "Improved Clearcasting",
       "icon": "spell_shadow_manaburn",
       "spellId": 321420
+    },
+    "110850": {
+      "name": "Refractive Images",
+      "icon": "inv_112_arcane_buff",
+      "spellId": 1309497
+    },
+    "142596": {
+      "name": "Refractive Images",
+      "icon": "inv_112_arcane_buff",
+      "spellId": 1309497
     },
     "102471": {
       "name": "Arcing Cleave",
@@ -601,6 +611,16 @@
       "name": "Intuition",
       "icon": "spell_shadow_brainwash",
       "spellId": 1223798
+    },
+    "110849": {
+      "name": "Amplification",
+      "icon": "spell_arcane_invocation",
+      "spellId": 236628
+    },
+    "142595": {
+      "name": "Amplification",
+      "icon": "spell_arcane_invocation",
+      "spellId": 236628
     },
     "102468": {
       "name": "Touch of the Magi",
@@ -828,24 +848,24 @@
       "spellId": 384858
     },
     "110420": {
-      "name": "Touch of the Archmage",
+      "name": "Prismatic Bolt",
       "icon": "inv12_apextalent_mage_touchofthearchmage",
-      "spellId": 1257942
+      "spellId": 1295923
     },
     "141791": {
-      "name": "Touch of the Archmage",
+      "name": "Prismatic Bolt",
       "icon": "inv12_apextalent_mage_touchofthearchmage",
-      "spellId": 1257942
+      "spellId": 1295923
     },
     "141790": {
-      "name": "Touch of the Archmage",
-      "icon": "spell_holy_arcaneintellect",
-      "spellId": 1257947
+      "name": "Prismatic Bolt",
+      "icon": "inv12_apextalent_mage_touchofthearchmage",
+      "spellId": 1295944
     },
     "141789": {
-      "name": "Touch of the Archmage",
-      "icon": "spell_arcane_invocation",
-      "spellId": 1257950
+      "name": "Prismatic Bolt",
+      "icon": "inv12_apextalent_mage_touchofthearchmage",
+      "spellId": 1295946
     },
     "94662": {
       "name": "Augury Abounds",

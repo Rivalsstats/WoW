@@ -132,5 +132,79 @@
         "slug": "chimaerus-the-undreamt-god"
       }
     }
+  },
+  "1317": {
+    "name": {
+      "en_US": "The Tidebound Grotto"
+    },
+    "slug": "the-tidebound-grotto",
+    "icon": null,
+    "order": 5,
+    "bosses": {
+      "2849": {
+        "name": {
+          "en_US": "Nymrissa Wavecaller"
+        },
+        "slug": "nymrissa-wavecaller"
+      }
+    }
+  },
+  "1320": {
+    "name": {
+      "en_US": "The Venomous Abyss"
+    },
+    "slug": "the-venomous-abyss",
+    "icon": null,
+    "order": 6,
+    "bosses": {
+      "2888": {
+        "name": {
+          "en_US": "Nek'zali the Soulcoiler"
+        },
+        "slug": "nek-zali-the-soulcoiler"
+      },
+      "2874": {
+        "name": {
+          "en_US": "Entombed Sentinels"
+        },
+        "slug": "entombed-sentinels"
+      },
+      "2894": {
+        "name": {
+          "en_US": "The Lost Explorers"
+        },
+        "slug": "the-lost-explorers"
+      },
+      "2882": {
+        "name": {
+          "en_US": "Vashnik the Malignant"
+        },
+        "slug": "vashnik-the-malignant"
+      },
+      "2871": {
+        "name": {
+          "en_US": "Sszorak"
+        },
+        "slug": "sszorak"
+      },
+      "2887": {
+        "name": {
+          "en_US": "The Twin Fangs"
+        },
+        "slug": "the-twin-fangs"
+      },
+      "2883": {
+        "name": {
+          "en_US": "The Coiled Altar"
+        },
+        "slug": "the-coiled-altar"
+      },
+      "2895": {
+        "name": {
+          "en_US": "Ula'tek"
+        },
+        "slug": "ula-tek"
+      }
+    }
   }
 }

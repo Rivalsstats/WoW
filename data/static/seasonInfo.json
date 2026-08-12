@@ -1,106 +1,106 @@
 {
-  "slug": "season-mn-1",
-  "name": "Midnight Season 1",
-  "blizzard_season_id": 17,
+  "slug": "season-mn-2",
+  "name": "Midnight Season 2",
+  "blizzard_season_id": 18,
   "is_main_season": true,
-  "short_name": "MN1 (Full)",
+  "short_name": "MN2",
   "seasonal_affix": null,
   "starts": {
-    "us": "2026-03-24T15:00:00Z",
-    "eu": "2026-03-25T04:00:00Z",
-    "tw": "2026-03-25T23:00:00Z",
-    "kr": "2026-03-25T23:00:00Z",
-    "cn": "2026-03-25T23:00:00Z"
-  },
-  "ends": {
     "us": "2026-08-18T15:00:00Z",
     "eu": "2026-08-19T04:00:00Z",
     "tw": "2026-08-19T23:00:00Z",
     "kr": "2026-08-19T23:00:00Z",
     "cn": "2026-08-19T23:00:00Z"
   },
+  "ends": {
+    "us": "2030-01-01T00:00:00Z",
+    "eu": "2030-01-01T00:00:00Z",
+    "tw": "2030-01-01T00:00:00Z",
+    "kr": "2030-01-01T00:00:00Z",
+    "cn": "2030-01-01T00:00:00Z"
+  },
   "dungeons": [
     {
-      "id": 14032,
-      "challenge_mode_id": 402,
-      "slug": "algethar-academy",
-      "name": "Algeth'ar Academy",
-      "short_name": "AA",
-      "keystone_timer_seconds": 1860,
-      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/achievement_dungeon_dragonacademy.jpg",
-      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion9/base/algethar-academy.jpg"
+      "id": 16865,
+      "challenge_mode_id": 588,
+      "slug": "altar-of-fangs",
+      "name": "Altar of Fangs",
+      "short_name": "AOF",
+      "keystone_timer_seconds": 1800,
+      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/inv_achievement_dungeon_altaroffangs.jpg",
+      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion11/base/altar-of-fangs.jpg"
     },
     {
-      "id": 15829,
-      "challenge_mode_id": 558,
-      "slug": "magisters-terrace",
-      "name": "Magisters' Terrace",
-      "short_name": "MT",
-      "keystone_timer_seconds": 2040,
-      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/inv_achievement_dungeon_magistersterrace.jpg",
-      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion11/base/magisters-terrace.jpg"
+      "id": 16368,
+      "challenge_mode_id": 586,
+      "slug": "den-of-nalorakk",
+      "name": "Den of Nalorakk",
+      "short_name": "DON",
+      "keystone_timer_seconds": 1920,
+      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/inv_achievement_dungeon_proveyourworth.jpg",
+      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion11/base/den-of-nalorakk.jpg"
     },
     {
-      "id": 16395,
-      "challenge_mode_id": 560,
-      "slug": "maisara-caverns",
-      "name": "Maisara Caverns",
-      "short_name": "MC",
+      "id": 9526,
+      "challenge_mode_id": 249,
+      "slug": "kings-rest",
+      "name": "Kings' Rest",
+      "short_name": "KR",
       "keystone_timer_seconds": 1980,
-      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/inv_achievement_dungeon_maisarahills.jpg",
-      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion11/base/maisara-caverns.jpg"
+      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/achievement_dungeon_kingsrest.jpg",
+      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion7/base/kings-rest.jpg"
     },
     {
-      "id": 16573,
-      "challenge_mode_id": 559,
-      "slug": "nexuspoint-xenas",
-      "name": "Nexus-Point Xenas",
-      "short_name": "NPX",
+      "id": 16091,
+      "challenge_mode_id": 587,
+      "slug": "murder-row",
+      "name": "Murder Row",
+      "short_name": "MR",
+      "keystone_timer_seconds": 2040,
+      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/inv_achievement_dungeon_murderrow.jpg",
+      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion11/base/murder-row.jpg"
+    },
+    {
+      "id": 14063,
+      "challenge_mode_id": 399,
+      "slug": "ruby-life-pools",
+      "name": "Ruby Life Pools",
+      "short_name": "RLP",
+      "keystone_timer_seconds": 1680,
+      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/achievement_dungeon_lifepools.jpg",
+      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion9/base/ruby-life-pools.jpg"
+    },
+    {
+      "id": 9527,
+      "challenge_mode_id": 250,
+      "slug": "temple-of-sethraliss",
+      "name": "Temple of Sethraliss",
+      "short_name": "TOS",
+      "keystone_timer_seconds": 1980,
+      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/achievement_dungeon_templeofsethraliss.jpg",
+      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion7/base/temple-of-sethraliss.jpg"
+    },
+    {
+      "id": 16359,
+      "challenge_mode_id": 584,
+      "slug": "the-blinding-vale",
+      "name": "The Blinding Vale",
+      "short_name": "BV",
+      "keystone_timer_seconds": 1980,
+      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/inv_achievement_dungeon_lightbloom.jpg",
+      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion11/base/the-blinding-vale.jpg"
+    },
+    {
+      "id": 16425,
+      "challenge_mode_id": 585,
+      "slug": "voidscar-arena",
+      "name": "Voidscar Arena",
+      "short_name": "VSA",
       "keystone_timer_seconds": 1800,
       "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/inv_achievement_dungeon_voidscararena.jpg",
-      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion11/base/nexuspoint-xenas.jpg"
-    },
-    {
-      "id": 4813,
-      "challenge_mode_id": 556,
-      "slug": "pit-of-saron",
-      "name": "Pit of Saron",
-      "short_name": "POS",
-      "keystone_timer_seconds": 1800,
-      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/achievement_dungeon_icecrown_pitofsaron.jpg",
-      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion2/base/pit-of-saron.jpg"
-    },
-    {
-      "id": 8910,
-      "challenge_mode_id": 239,
-      "slug": "seat-of-the-triumvirate",
-      "name": "Seat of the Triumvirate",
-      "short_name": "SEAT",
-      "keystone_timer_seconds": 2040,
-      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/achievement_boss_triumvirate_darknaaru.jpg",
-      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion6/base/seat-of-the-triumvirate.jpg"
-    },
-    {
-      "id": 6988,
-      "challenge_mode_id": 161,
-      "slug": "skyreach",
-      "name": "Skyreach",
-      "short_name": "SR",
-      "keystone_timer_seconds": 1680,
-      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/achievement_dungeon_arakkoaspires.jpg",
-      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion5/base/skyreach.jpg"
-    },
-    {
-      "id": 15808,
-      "challenge_mode_id": 557,
-      "slug": "windrunner-spire",
-      "name": "Windrunner Spire",
-      "short_name": "WS",
-      "keystone_timer_seconds": 1980,
-      "icon_url": "https://cdn.raiderio.net/images/wow/icons/large/inv_achievement_dungeon_windrunnerspire.jpg",
-      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion11/base/windrunner-spire.jpg"
+      "background_image_url": "https://cdn.raiderio.net/images/dungeons/expansion11/base/voidscar-arena.jpg"
     }
   ],
-  "blizzard_season_name": "Mythic+ Dungeons (Midnight Season 1)",
+  "blizzard_season_name": "Mythic+ Dungeons (Midnight Season 2)",
   "max_character_level": 90
 }

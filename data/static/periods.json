@@ -1,221 +1,21 @@
 {
   "us": {
-    "season_id": 17,
+    "season_id": 18,
     "periods": [
       {
-        "id": 1055,
-        "start_timestamp": 1773759600000,
-        "end_timestamp": 1774364399000
-      },
-      {
-        "id": 1056,
-        "start_timestamp": 1774364400000,
-        "end_timestamp": 1774969199000
-      },
-      {
-        "id": 1057,
-        "start_timestamp": 1774969200000,
-        "end_timestamp": 1775573999000
-      },
-      {
-        "id": 1058,
-        "start_timestamp": 1775574000000,
-        "end_timestamp": 1776178799000
-      },
-      {
-        "id": 1059,
-        "start_timestamp": 1776178800000,
-        "end_timestamp": 1776783599000
-      },
-      {
-        "id": 1060,
-        "start_timestamp": 1776783600000,
-        "end_timestamp": 1777388399000
-      },
-      {
-        "id": 1061,
-        "start_timestamp": 1777388400000,
-        "end_timestamp": 1777993199000
-      },
-      {
-        "id": 1062,
-        "start_timestamp": 1777993200000,
-        "end_timestamp": 1778597999000
-      },
-      {
-        "id": 1063,
-        "start_timestamp": 1778598000000,
-        "end_timestamp": 1779202799000
-      },
-      {
-        "id": 1064,
-        "start_timestamp": 1779202800000,
-        "end_timestamp": 1779807599000
-      },
-      {
-        "id": 1065,
-        "start_timestamp": 1779807600000,
-        "end_timestamp": 1780412399000
-      },
-      {
-        "id": 1066,
-        "start_timestamp": 1780412400000,
-        "end_timestamp": 1781017199000
-      },
-      {
-        "id": 1067,
-        "start_timestamp": 1781017200000,
-        "end_timestamp": 1781621999000
-      },
-      {
-        "id": 1068,
-        "start_timestamp": 1781622000000,
-        "end_timestamp": 1782226799000
-      },
-      {
-        "id": 1069,
-        "start_timestamp": 1782226800000,
-        "end_timestamp": 1782831599000
-      },
-      {
-        "id": 1070,
-        "start_timestamp": 1782831600000,
-        "end_timestamp": 1783436399000
-      },
-      {
-        "id": 1071,
-        "start_timestamp": 1783436400000,
-        "end_timestamp": 1784041199000
-      },
-      {
-        "id": 1072,
-        "start_timestamp": 1784041200000,
-        "end_timestamp": 1784645999000
-      },
-      {
-        "id": 1073,
-        "start_timestamp": 1784646000000,
-        "end_timestamp": 1785250799000
-      },
-      {
-        "id": 1074,
-        "start_timestamp": 1785250800000,
-        "end_timestamp": 1785855599000
-      },
-      {
-        "id": 1075,
-        "start_timestamp": 1785855600000,
-        "end_timestamp": 1786460399000
+        "id": 1076,
+        "start_timestamp": 1786460400000,
+        "end_timestamp": 1787065199000
       }
     ]
   },
   "eu": {
-    "season_id": 17,
+    "season_id": 18,
     "periods": [
       {
-        "id": 1055,
-        "start_timestamp": 1773806400000,
-        "end_timestamp": 1774411199000
-      },
-      {
-        "id": 1056,
-        "start_timestamp": 1774411200000,
-        "end_timestamp": 1775015999000
-      },
-      {
-        "id": 1057,
-        "start_timestamp": 1775016000000,
-        "end_timestamp": 1775620799000
-      },
-      {
-        "id": 1058,
-        "start_timestamp": 1775620800000,
-        "end_timestamp": 1776225599000
-      },
-      {
-        "id": 1059,
-        "start_timestamp": 1776225600000,
-        "end_timestamp": 1776830399000
-      },
-      {
-        "id": 1060,
-        "start_timestamp": 1776830400000,
-        "end_timestamp": 1777435199000
-      },
-      {
-        "id": 1061,
-        "start_timestamp": 1777435200000,
-        "end_timestamp": 1778039999000
-      },
-      {
-        "id": 1062,
-        "start_timestamp": 1778040000000,
-        "end_timestamp": 1778644799000
-      },
-      {
-        "id": 1063,
-        "start_timestamp": 1778644800000,
-        "end_timestamp": 1779249599000
-      },
-      {
-        "id": 1064,
-        "start_timestamp": 1779249600000,
-        "end_timestamp": 1779854399000
-      },
-      {
-        "id": 1065,
-        "start_timestamp": 1779854400000,
-        "end_timestamp": 1780459199000
-      },
-      {
-        "id": 1066,
-        "start_timestamp": 1780459200000,
-        "end_timestamp": 1781063999000
-      },
-      {
-        "id": 1067,
-        "start_timestamp": 1781064000000,
-        "end_timestamp": 1781668799000
-      },
-      {
-        "id": 1068,
-        "start_timestamp": 1781668800000,
-        "end_timestamp": 1782273599000
-      },
-      {
-        "id": 1069,
-        "start_timestamp": 1782273600000,
-        "end_timestamp": 1782878399000
-      },
-      {
-        "id": 1070,
-        "start_timestamp": 1782878400000,
-        "end_timestamp": 1783483199000
-      },
-      {
-        "id": 1071,
-        "start_timestamp": 1783483200000,
-        "end_timestamp": 1784087999000
-      },
-      {
-        "id": 1072,
-        "start_timestamp": 1784088000000,
-        "end_timestamp": 1784692799000
-      },
-      {
-        "id": 1073,
-        "start_timestamp": 1784692800000,
-        "end_timestamp": 1785297599000
-      },
-      {
-        "id": 1074,
-        "start_timestamp": 1785297600000,
-        "end_timestamp": 1785902399000
-      },
-      {
-        "id": 1075,
-        "start_timestamp": 1785902400000,
-        "end_timestamp": 1786507199000
+        "id": 1076,
+        "start_timestamp": 1786507200000,
+        "end_timestamp": 1787111999000
       }
     ]
   },
@@ -321,6 +121,11 @@
         "id": 1074,
         "start_timestamp": 1785366000000,
         "end_timestamp": 1785970799000
+      },
+      {
+        "id": 1075,
+        "start_timestamp": 1785970800000,
+        "end_timestamp": 1786575599000
       }
     ]
   },
@@ -426,6 +231,11 @@
         "id": 1074,
         "start_timestamp": 1785366000000,
         "end_timestamp": 1785970799000
+      },
+      {
+        "id": 1075,
+        "start_timestamp": 1785970800000,
+        "end_timestamp": 1786575599000
       }
     ]
   }

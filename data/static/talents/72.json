@@ -82,15 +82,15 @@
       "icon": "warrior_talent_icon_stormbolt",
       "spellId": 107570
     },
-    "109391": {
-      "name": "Rend",
-      "icon": "ability_gouge",
-      "spellId": 772
+    "110654": {
+      "name": "Storm of Blood",
+      "icon": "ability_ironmaidens_whirlofblood",
+      "spellId": 1299025
     },
-    "140353": {
-      "name": "Rend",
-      "icon": "ability_gouge",
-      "spellId": 772
+    "142232": {
+      "name": "Storm of Blood",
+      "icon": "ability_ironmaidens_whirlofblood",
+      "spellId": 1299025
     },
     "90332": {
       "name": "Second Wind",
@@ -304,12 +304,12 @@
     },
     "110118": {
       "name": "Javelineer",
-      "icon": "inv_spear_01",
+      "icon": "",
       "spellId": 1271948
     },
     "141397": {
       "name": "Javelineer",
-      "icon": "inv_spear_01",
+      "icon": "",
       "spellId": 1271948
     },
     "108685": {
@@ -626,6 +626,11 @@
       "name": "Meat Cleaver",
       "icon": "warrior_talent_icon_mastercleaver",
       "spellId": 280392
+    },
+    "142247": {
+      "name": "Carving Blades",
+      "icon": "inv_knife_1h_goblinrogue_c_01",
+      "spellId": 1300463
     },
     "90402": {
       "name": "Cold Steel, Hot Blood",

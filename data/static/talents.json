@@ -5,95 +5,6 @@
     "classId": 11,
     "specName": "Balance",
     "specId": 102,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 82199,
@@ -2223,7 +2134,7 @@
       },
       {
         "id": 88216,
-        "name": "Astral Communion",
+        "name": "Sculpt the Stars",
         "type": "single",
         "posX": 12300,
         "posY": 5100,
@@ -2242,9 +2153,9 @@
             "definitionId": 114855,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Astral Communion",
-            "spellId": 450598,
-            "icon": "talentspec_druid_balance",
+            "name": "Sculpt the Stars",
+            "spellId": 1240188,
+            "icon": "ability_druid_eclipseorange",
             "index": 0
           }
         ]
@@ -2307,7 +2218,7 @@
       },
       {
         "id": 88220,
-        "name": "Sculpt the Stars",
+        "name": "Astral Communion",
         "type": "single",
         "posX": 10500,
         "posY": 5700,
@@ -2326,9 +2237,9 @@
             "definitionId": 122112,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Sculpt the Stars",
-            "spellId": 1240188,
-            "icon": "ability_druid_eclipseorange",
+            "name": "Astral Communion",
+            "spellId": 450598,
+            "icon": "talentspec_druid_balance",
             "index": 0
           }
         ]
@@ -3951,7 +3862,8 @@
       110421,
       110424,
       110426,
-      110431
+      110431,
+      110694
     ]
   },
   {
@@ -3960,95 +3872,6 @@
     "classId": 11,
     "specName": "Feral",
     "specId": 103,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 82199,
@@ -5655,7 +5478,7 @@
       },
       {
         "id": 82098,
-        "name": "Merciless Claws",
+        "name": "Rampant Ferocity",
         "type": "single",
         "posX": 11100,
         "posY": 2700,
@@ -5672,9 +5495,9 @@
             "definitionId": 108164,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Merciless Claws",
-            "spellId": 231063,
-            "icon": "inv_misc_monsterclaw_03",
+            "name": "Rampant Ferocity",
+            "spellId": 391709,
+            "icon": "ability_druid_primaltenacity",
             "index": 100
           }
         ]
@@ -6017,7 +5840,7 @@
       },
       {
         "id": 82103,
-        "name": "Panther's Guile",
+        "name": "Merciless Claws",
         "type": "single",
         "posX": 12900,
         "posY": 4500,
@@ -6035,16 +5858,16 @@
             "definitionId": 108169,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Panther's Guile",
-            "spellId": 1280316,
-            "icon": "ability_mount_blackpanther",
+            "name": "Merciless Claws",
+            "spellId": 231063,
+            "icon": "inv_misc_monsterclaw_03",
             "index": 100
           }
         ]
       },
       {
         "id": 82117,
-        "name": "Rampant Ferocity",
+        "name": "Panther's Guile",
         "type": "single",
         "posX": 13500,
         "posY": 4500,
@@ -6064,9 +5887,9 @@
             "definitionId": 108186,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Rampant Ferocity",
-            "spellId": 391709,
-            "icon": "ability_druid_primaltenacity",
+            "name": "Panther's Guile",
+            "spellId": 1280316,
+            "icon": "ability_mount_blackpanther",
             "index": 100
           }
         ]
@@ -7893,7 +7716,8 @@
       110421,
       110424,
       110426,
-      110431
+      110431,
+      110694
     ]
   },
   {
@@ -7902,95 +7726,6 @@
     "classId": 11,
     "specName": "Guardian",
     "specId": 104,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 82199,
@@ -11897,7 +11632,8 @@
       110421,
       110424,
       110426,
-      110431
+      110431,
+      110694
     ]
   },
   {
@@ -11906,95 +11642,6 @@
     "classId": 11,
     "specName": "Restoration",
     "specId": 105,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 82199,
@@ -13587,30 +13234,30 @@
         ],
         "entries": [
           {
-            "id": 103137,
-            "definitionId": 108142,
+            "id": 137508,
+            "definitionId": 142268,
             "maxRanks": 1,
             "type": "passive",
             "name": "Verdant Infusion",
             "spellId": 392410,
             "icon": "inv_relics_totemoflife",
-            "index": 100
+            "index": 300
           },
           {
-            "id": 103136,
-            "definitionId": 108141,
+            "id": 137507,
+            "definitionId": 142267,
             "maxRanks": 1,
             "type": "passive",
             "name": "Prosperity",
             "spellId": 200383,
             "icon": "ability_druid_giftoftheearthmother",
-            "index": 200
+            "index": 400
           }
         ]
       },
       {
         "id": 82051,
-        "name": "Nature's Splendor / Passing Seasons",
+        "name": "Overgrowth / Passing Seasons",
         "type": "choice",
         "posX": 12300,
         "posY": 2700,
@@ -13628,9 +13275,9 @@
             "definitionId": 108108,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Nature's Splendor",
-            "spellId": 392288,
-            "icon": "spell_nature_spiritarmor",
+            "name": "Overgrowth",
+            "spellId": 203651,
+            "icon": "ability_druid_overgrowth",
             "index": 100
           },
           {
@@ -13818,7 +13465,7 @@
       },
       {
         "id": 82059,
-        "name": "Verdancy",
+        "name": "Germination",
         "type": "single",
         "posX": 10500,
         "posY": 4500,
@@ -13838,9 +13485,9 @@
             "definitionId": 108118,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Verdancy",
-            "spellId": 392325,
-            "icon": "inv_10_herb_seed_magiccolor5",
+            "name": "Germination",
+            "spellId": 155675,
+            "icon": "spell_druid_germination",
             "index": 100
           }
         ]
@@ -13903,8 +13550,8 @@
       },
       {
         "id": 82053,
-        "name": "Inner Peace / Flourish",
-        "type": "choice",
+        "name": "Flourish",
+        "type": "single",
         "posX": 12300,
         "posY": 4500,
         "reqPoints": 8,
@@ -13916,16 +13563,6 @@
           82054
         ],
         "entries": [
-          {
-            "id": 103107,
-            "definitionId": 108112,
-            "maxRanks": 1,
-            "type": "passive",
-            "name": "Inner Peace",
-            "spellId": 197073,
-            "icon": "ability_druid_dreamstate",
-            "index": 200
-          },
           {
             "id": 103106,
             "definitionId": 108111,
@@ -13940,7 +13577,7 @@
       },
       {
         "id": 82056,
-        "name": "Cultivation",
+        "name": "Flash of Clarity",
         "type": "single",
         "posX": 12900,
         "posY": 4500,
@@ -13948,6 +13585,7 @@
         "maxRanks": 1,
         "next": [
           82065,
+          110694,
           82080
         ],
         "prev": [
@@ -13959,9 +13597,9 @@
             "definitionId": 108115,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Cultivation",
-            "spellId": 200390,
-            "icon": "spell_nature_healingtouch",
+            "name": "Flash of Clarity",
+            "spellId": 392220,
+            "icon": "spell_nature_crystalball",
             "index": 100
           }
         ]
@@ -14175,6 +13813,33 @@
         ]
       },
       {
+        "id": 110694,
+        "name": "Cultivation",
+        "type": "single",
+        "posX": 12900,
+        "posY": 5100,
+        "reqPoints": 8,
+        "maxRanks": 2,
+        "next": [
+          82067
+        ],
+        "prev": [
+          82056
+        ],
+        "entries": [
+          {
+            "id": 137510,
+            "definitionId": 142270,
+            "maxRanks": 2,
+            "type": "passive",
+            "name": "Cultivation",
+            "spellId": 200390,
+            "icon": "spell_nature_healingtouch",
+            "index": 100
+          }
+        ]
+      },
+      {
         "id": 82080,
         "name": "Unstoppable Growth",
         "type": "single",
@@ -14346,7 +14011,8 @@
         ],
         "prev": [
           82080,
-          82065
+          82065,
+          110694
         ],
         "entries": [
           {
@@ -14736,7 +14402,7 @@
       },
       {
         "id": 82071,
-        "name": "Germination",
+        "name": "Verdancy",
         "type": "single",
         "posX": 14100,
         "posY": 6900,
@@ -14754,9 +14420,9 @@
             "definitionId": 108132,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Germination",
-            "spellId": 155675,
-            "icon": "spell_druid_germination",
+            "name": "Verdancy",
+            "spellId": 392325,
+            "icon": "inv_10_herb_seed_magiccolor5",
             "index": 100
           }
         ]
@@ -16015,7 +15681,8 @@
       110421,
       110424,
       110426,
-      110431
+      110431,
+      110694
     ]
   },
   {
@@ -16024,95 +15691,6 @@
     "classId": 13,
     "specName": "Devastation",
     "specId": 1467,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 93305,
@@ -19662,95 +19240,6 @@
     "classId": 13,
     "specName": "Preservation",
     "specId": 1468,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 93305,
@@ -23396,95 +22885,6 @@
     "classId": 13,
     "specName": "Augmentation",
     "specId": 1473,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 93305,
@@ -27231,95 +26631,6 @@
     "classId": 5,
     "specName": "Discipline",
     "specId": 256,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 82717,
@@ -29529,6 +28840,7 @@
         "maxRanks": 1,
         "next": [
           82568,
+          110648,
           110277
         ],
         "prev": [
@@ -29542,7 +28854,7 @@
             "maxRanks": 1,
             "type": "passive",
             "name": "Shadow Mend",
-            "spellId": 1252215,
+            "spellId": 1252217,
             "icon": "spell_shadow_shadowmend",
             "index": 0
           }
@@ -29583,8 +28895,10 @@
         "posX": 11100,
         "posY": 6300,
         "reqPoints": 20,
-        "maxRanks": 2,
-        "next": [],
+        "maxRanks": 1,
+        "next": [
+          86730
+        ],
         "prev": [
           82599
         ],
@@ -29592,7 +28906,7 @@
           {
             "id": 103694,
             "definitionId": 108699,
-            "maxRanks": 2,
+            "maxRanks": 1,
             "type": "passive",
             "name": "Greater Smite",
             "spellId": 1253724,
@@ -29638,6 +28952,7 @@
         "reqPoints": 20,
         "maxRanks": 2,
         "next": [
+          86730,
           82573
         ],
         "prev": [
@@ -29661,7 +28976,7 @@
         "id": 82568,
         "name": "Blaze of Light",
         "type": "single",
-        "posX": 13500,
+        "posX": 12900,
         "posY": 6300,
         "reqPoints": 20,
         "maxRanks": 2,
@@ -29682,6 +28997,34 @@
             "spellId": 215768,
             "icon": "spell_holy_searinglight",
             "index": 100
+          }
+        ]
+      },
+      {
+        "id": 110648,
+        "name": "Grim Deliverance",
+        "type": "single",
+        "posX": 13500,
+        "posY": 6300,
+        "reqPoints": 20,
+        "maxRanks": 1,
+        "next": [
+          82586,
+          82585
+        ],
+        "prev": [
+          82567
+        ],
+        "entries": [
+          {
+            "id": 137463,
+            "definitionId": 142223,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Grim Deliverance",
+            "spellId": 1298779,
+            "icon": "spell_bastion_priest_shadow",
+            "index": 0
           }
         ]
       },
@@ -29721,7 +29064,9 @@
         "posY": 6300,
         "reqPoints": 20,
         "maxRanks": 1,
-        "next": [],
+        "next": [
+          82585
+        ],
         "prev": [
           82570
         ],
@@ -29748,7 +29093,9 @@
         "maxRanks": 1,
         "next": [],
         "prev": [
-          82602
+          82602,
+          82572,
+          82569
         ],
         "entries": [
           {
@@ -29792,13 +29139,14 @@
         "id": 82586,
         "name": "Searing Light",
         "type": "single",
-        "posX": 13500,
+        "posX": 12900,
         "posY": 6900,
         "reqPoints": 20,
         "maxRanks": 1,
         "next": [],
         "prev": [
-          82568
+          82568,
+          110648
         ],
         "entries": [
           {
@@ -29823,7 +29171,9 @@
         "maxRanks": 2,
         "next": [],
         "prev": [
-          110277
+          110277,
+          110278,
+          110648
         ],
         "entries": [
           {
@@ -31004,7 +30354,8 @@
       110278,
       110408,
       110409,
-      110410
+      110410,
+      110648
     ]
   },
   {
@@ -31013,95 +30364,6 @@
     "classId": 5,
     "specName": "Holy",
     "specId": 257,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 82717,
@@ -34451,7 +33713,7 @@
             "type": "passive",
             "name": "Resonant Energy",
             "spellId": 453845,
-            "icon": "ability_priest_halo",
+            "icon": "inv_ability_holyfire_orb",
             "index": 100
           }
         ]
@@ -34866,7 +34128,8 @@
       110278,
       110408,
       110409,
-      110410
+      110410,
+      110648
     ]
   },
   {
@@ -34875,95 +34138,6 @@
     "classId": 5,
     "specName": "Shadow",
     "specId": 258,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 82717,
@@ -36895,7 +36069,7 @@
       },
       {
         "id": 82646,
-        "name": "Phantom Menace",
+        "name": "Shadeburst",
         "type": "single",
         "posX": 13500,
         "posY": 4500,
@@ -36916,9 +36090,9 @@
             "definitionId": 108790,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Phantom Menace",
-            "spellId": 1242779,
-            "icon": "spell_priest_spectralguise",
+            "name": "Shadeburst",
+            "spellId": 73510,
+            "icon": "ability_warlock_voidzone",
             "index": 100
           }
         ]
@@ -37977,7 +37151,7 @@
             "type": "passive",
             "name": "Resonant Energy",
             "spellId": 453845,
-            "icon": "ability_priest_halo",
+            "icon": "inv_ability_holyfire_orb",
             "index": 100
           }
         ]
@@ -38778,7 +37952,8 @@
       110278,
       110408,
       110409,
-      110410
+      110410,
+      110648
     ]
   },
   {
@@ -38787,95 +37962,6 @@
     "classId": 6,
     "specName": "Blood",
     "specId": 250,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 76081,
@@ -42416,95 +41502,6 @@
     "classId": 6,
     "specName": "Frost",
     "specId": 251,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 76081,
@@ -45980,95 +44977,6 @@
     "classId": 6,
     "specName": "Unholy",
     "specId": 252,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 76081,
@@ -48295,7 +47203,7 @@
       },
       {
         "id": 109458,
-        "name": "Reanimation",
+        "name": "Lord of the Dead",
         "type": "single",
         "posX": 12600,
         "posY": 6600,
@@ -48312,9 +47220,9 @@
             "definitionId": 140432,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Reanimation",
+            "name": "Lord of the Dead",
             "spellId": 1256813,
-            "icon": "achievement_dungeon_thenecroticwake_amarth",
+            "icon": "achievement_dungeon_thenecroticwake_nalthor",
             "index": 100
           }
         ]
@@ -49519,95 +48427,6 @@
     "classId": 3,
     "specName": "Beast Mastery",
     "specId": 253,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 102381,
@@ -51809,7 +50628,7 @@
       },
       {
         "id": 102360,
-        "name": "Heart of the Pack",
+        "name": "Razor Sharp",
         "type": "single",
         "posX": 12000,
         "posY": 6300,
@@ -51826,7 +50645,7 @@
             "definitionId": 131248,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Heart of the Pack",
+            "name": "Razor Sharp",
             "spellId": 1265052,
             "icon": "ability_druid_berserk",
             "index": 100
@@ -51842,7 +50661,7 @@
         "reqPoints": 20,
         "maxRanks": 1,
         "next": [
-          102339
+          110692
         ],
         "prev": [
           102336
@@ -51967,9 +50786,9 @@
         ]
       },
       {
-        "id": 102339,
-        "name": "Wild Instincts / Bloody Frenzy",
-        "type": "choice",
+        "id": 110692,
+        "name": "Bloody Frenzy",
+        "type": "single",
         "posX": 12600,
         "posY": 6900,
         "reqPoints": 20,
@@ -51980,16 +50799,6 @@
         ],
         "entries": [
           {
-            "id": 126401,
-            "definitionId": 131227,
-            "maxRanks": 1,
-            "type": "passive",
-            "name": "Wild Instincts",
-            "spellId": 378442,
-            "icon": "ability_hunter_beastwithin",
-            "index": 100
-          },
-          {
             "id": 126400,
             "definitionId": 131226,
             "maxRanks": 1,
@@ -51997,7 +50806,7 @@
             "name": "Bloody Frenzy",
             "spellId": 407412,
             "icon": "ability_racial_cannibalize",
-            "index": 200
+            "index": 100
           }
         ]
       },
@@ -53034,7 +51843,6 @@
       102336,
       102337,
       102338,
-      102339,
       102340,
       102341,
       102342,
@@ -53111,8 +51919,6 @@
       103962,
       103964,
       103966,
-      103972,
-      103973,
       103974,
       103975,
       103977,
@@ -53167,7 +51973,6 @@
       109804,
       109805,
       109807,
-      109938,
       109961,
       110028,
       110152,
@@ -53189,7 +51994,10 @@
       110572,
       110573,
       110574,
-      110575
+      110575,
+      110688,
+      110691,
+      110692
     ]
   },
   {
@@ -53198,95 +52006,6 @@
     "classId": 3,
     "specName": "Marksmanship",
     "specId": 254,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 102381,
@@ -54592,7 +53311,7 @@
             "type": "active",
             "name": "Aimed Shot",
             "spellId": 19434,
-            "icon": "inv_spear_07",
+            "icon": "",
             "index": 100
           }
         ]
@@ -54605,7 +53324,8 @@
         "posY": 2100,
         "maxRanks": 1,
         "next": [
-          103975
+          103975,
+          104127
         ],
         "prev": [
           103982
@@ -54631,6 +53351,7 @@
         "posY": 2100,
         "maxRanks": 1,
         "next": [
+          104127,
           107289
         ],
         "prev": [
@@ -54657,8 +53378,7 @@
         "posY": 2700,
         "maxRanks": 1,
         "next": [
-          104130,
-          104127
+          104130
         ],
         "prev": [
           103961
@@ -54677,6 +53397,44 @@
         ]
       },
       {
+        "id": 104127,
+        "name": "Avian Specialization / Unbreakable Bond",
+        "type": "choice",
+        "posX": 12600,
+        "posY": 2700,
+        "maxRanks": 1,
+        "next": [
+          103986,
+          103964
+        ],
+        "prev": [
+          103977,
+          103961
+        ],
+        "entries": [
+          {
+            "id": 128710,
+            "definitionId": 133512,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Avian Specialization",
+            "spellId": 466867,
+            "icon": "inv_111_hunter_ability_eyesinthesky",
+            "index": 100
+          },
+          {
+            "id": 129619,
+            "definitionId": 134420,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Unbreakable Bond",
+            "spellId": 1223323,
+            "icon": "ability_hunter_separationanxiety",
+            "index": 200
+          }
+        ]
+      },
+      {
         "id": 107289,
         "name": "Lock and Load",
         "type": "single",
@@ -54684,7 +53442,7 @@
         "posY": 2700,
         "maxRanks": 1,
         "next": [
-          104127,
+          103964,
           103957
         ],
         "prev": [
@@ -54712,7 +53470,7 @@
         "maxRanks": 1,
         "next": [
           103959,
-          103964
+          110572
         ],
         "prev": [
           103975
@@ -54731,41 +53489,67 @@
         ]
       },
       {
-        "id": 104127,
-        "name": "Avian Specialization / Unbreakable Bond",
+        "id": 103986,
+        "name": "Tenacious / Cunning",
         "type": "choice",
+        "posX": 12000,
+        "posY": 3300,
+        "maxRanks": 1,
+        "next": [
+          110572
+        ],
+        "prev": [
+          104127
+        ],
+        "entries": [
+          {
+            "id": 128408,
+            "definitionId": 133214,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Tenacious",
+            "spellId": 474456,
+            "icon": "ability_druid_demoralizingroar",
+            "index": 100
+          },
+          {
+            "id": 128411,
+            "definitionId": 133217,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Cunning",
+            "spellId": 474440,
+            "icon": "ability_eyeoftheowl",
+            "index": 200
+          }
+        ]
+      },
+      {
+        "id": 103964,
+        "name": "Penetrating Shots",
+        "type": "single",
         "posX": 12600,
         "posY": 3300,
         "maxRanks": 1,
         "next": [
-          103964,
-          103986,
-          103974
+          110572,
+          110575,
+          103947
         ],
         "prev": [
-          103975,
+          104127,
           107289
         ],
         "entries": [
           {
-            "id": 128710,
-            "definitionId": 133512,
+            "id": 128386,
+            "definitionId": 133192,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Avian Specialization",
-            "spellId": 466867,
-            "icon": "inv_111_hunter_ability_eyesinthesky",
+            "name": "Penetrating Shots",
+            "spellId": 459783,
+            "icon": "achievement_guildperk_reinforce_rank2",
             "index": 100
-          },
-          {
-            "id": 129619,
-            "definitionId": 134420,
-            "maxRanks": 1,
-            "type": "passive",
-            "name": "Unbreakable Bond",
-            "spellId": 1223323,
-            "icon": "ability_hunter_separationanxiety",
-            "index": 200
           }
         ]
       },
@@ -54777,7 +53561,7 @@
         "posY": 3300,
         "maxRanks": 1,
         "next": [
-          103974,
+          110575,
           107288
         ],
         "prev": [
@@ -54844,8 +53628,8 @@
         ]
       },
       {
-        "id": 103964,
-        "name": "Penetrating Shots",
+        "id": 110572,
+        "name": "No Scope",
         "type": "single",
         "posX": 12000,
         "posY": 3900,
@@ -54853,89 +53637,53 @@
         "maxRanks": 1,
         "next": [
           109490,
-          110572
+          103947,
+          103985
         ],
         "prev": [
-          104127,
+          103964,
+          103986,
           104130
         ],
         "entries": [
           {
-            "id": 128386,
-            "definitionId": 133192,
+            "id": 137375,
+            "definitionId": 142135,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Penetrating Shots",
-            "spellId": 459783,
-            "icon": "achievement_guildperk_reinforce_rank2",
+            "name": "No Scope",
+            "spellId": 473385,
+            "icon": "inv_eng_crowsnestscope",
             "index": 100
           }
         ]
       },
       {
-        "id": 103986,
-        "name": "Tenacious / Cunning",
-        "type": "choice",
-        "posX": 12600,
-        "posY": 3900,
-        "reqPoints": 8,
-        "maxRanks": 1,
-        "next": [
-          110572,
-          103947,
-          103955
-        ],
-        "prev": [
-          104127
-        ],
-        "entries": [
-          {
-            "id": 128408,
-            "definitionId": 133214,
-            "maxRanks": 1,
-            "type": "passive",
-            "name": "Tenacious",
-            "spellId": 474456,
-            "icon": "ability_druid_demoralizingroar",
-            "index": 100
-          },
-          {
-            "id": 128411,
-            "definitionId": 133217,
-            "maxRanks": 1,
-            "type": "passive",
-            "name": "Cunning",
-            "spellId": 474440,
-            "icon": "ability_eyeoftheowl",
-            "index": 200
-          }
-        ]
-      },
-      {
-        "id": 103974,
-        "name": "Master Marksman",
+        "id": 110575,
+        "name": "Explosive Shot",
         "type": "single",
         "posX": 13200,
         "posY": 3900,
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [
-          103955,
-          110575
+          103947,
+          110573,
+          110574
         ],
         "prev": [
-          104127,
-          103957
+          103957,
+          103964
         ],
         "entries": [
           {
-            "id": 128396,
-            "definitionId": 133202,
+            "id": 137378,
+            "definitionId": 142138,
             "maxRanks": 1,
-            "type": "passive",
-            "name": "Master Marksman",
-            "spellId": 260309,
-            "icon": "ability_hunter_mastermarksman",
+            "type": "active",
+            "name": "Explosive Shot",
+            "spellId": 212431,
+            "icon": "ability_hunter_explosiveshot",
             "index": 100
           }
         ]
@@ -54949,7 +53697,7 @@
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [
-          110575
+          103955
         ],
         "prev": [
           103957
@@ -54977,12 +53725,12 @@
         "maxRanks": 1,
         "next": [
           109491,
-          103972,
+          110688,
           103985
         ],
         "prev": [
-          103964,
-          103959
+          103959,
+          110572
         ],
         "entries": [
           {
@@ -54998,34 +53746,6 @@
         ]
       },
       {
-        "id": 110572,
-        "name": "No Scope",
-        "type": "single",
-        "posX": 12000,
-        "posY": 4500,
-        "reqPoints": 8,
-        "maxRanks": 1,
-        "next": [
-          103985
-        ],
-        "prev": [
-          103986,
-          103964
-        ],
-        "entries": [
-          {
-            "id": 137375,
-            "definitionId": 142135,
-            "maxRanks": 1,
-            "type": "passive",
-            "name": "No Scope",
-            "spellId": 473385,
-            "icon": "inv_eng_crowsnestscope",
-            "index": 100
-          }
-        ]
-      },
-      {
         "id": 103947,
         "name": "Trueshot",
         "type": "single",
@@ -55036,10 +53756,12 @@
         "next": [
           103985,
           103984,
-          103978
+          103974
         ],
         "prev": [
-          103986
+          103964,
+          110572,
+          110575
         ],
         "entries": [
           {
@@ -55055,19 +53777,84 @@
         ]
       },
       {
-        "id": 103955,
-        "name": "Critical Precision",
-        "type": "single",
+        "id": 110573,
+        "name": "Tactical Reload / Unstable Trigger",
+        "type": "choice",
         "posX": 13200,
         "posY": 4500,
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [
+          103974
+        ],
+        "prev": [
+          110575
+        ],
+        "entries": [
+          {
+            "id": 137376,
+            "definitionId": 142136,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Tactical Reload",
+            "spellId": 1301406,
+            "icon": "ability_ironmaidens_bombardment",
+            "index": 100
+          },
+          {
+            "id": 137635,
+            "definitionId": 142392,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Unstable Trigger",
+            "spellId": 473520,
+            "icon": "spell_sandexplosion",
+            "index": 200
+          }
+        ]
+      },
+      {
+        "id": 110574,
+        "name": "Precision Detonation",
+        "type": "single",
+        "posX": 13800,
+        "posY": 4500,
+        "reqPoints": 8,
+        "maxRanks": 1,
+        "next": [
+          103974,
+          110691,
           103978
         ],
         "prev": [
-          103974,
-          103986
+          110575
+        ],
+        "entries": [
+          {
+            "id": 137377,
+            "definitionId": 142137,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Precision Detonation",
+            "spellId": 471369,
+            "icon": "ability_hunter_explosiveshot",
+            "index": 100
+          }
+        ]
+      },
+      {
+        "id": 103955,
+        "name": "Critical Precision",
+        "type": "single",
+        "posX": 14400,
+        "posY": 4500,
+        "reqPoints": 8,
+        "maxRanks": 1,
+        "next": [
+          110691
+        ],
+        "prev": [
+          107288
         ],
         "entries": [
           {
@@ -55078,36 +53865,6 @@
             "name": "Critical Precision",
             "spellId": 1277572,
             "icon": "ability_impalingbolt",
-            "index": 100
-          }
-        ]
-      },
-      {
-        "id": 110575,
-        "name": "Explosive Shot",
-        "type": "single",
-        "posX": 13800,
-        "posY": 4500,
-        "reqPoints": 8,
-        "maxRanks": 1,
-        "next": [
-          103978,
-          110574,
-          110573
-        ],
-        "prev": [
-          107288,
-          103974
-        ],
-        "entries": [
-          {
-            "id": 137378,
-            "definitionId": 142138,
-            "maxRanks": 1,
-            "type": "active",
-            "name": "Explosive Shot",
-            "spellId": 212431,
-            "icon": "ability_hunter_explosiveshot",
             "index": 100
           }
         ]
@@ -55140,9 +53897,9 @@
         ]
       },
       {
-        "id": 103972,
-        "name": "Headshot / Deadeye",
-        "type": "choice",
+        "id": 110688,
+        "name": "Deadeye",
+        "type": "single",
         "posX": 11400,
         "posY": 5100,
         "reqPoints": 8,
@@ -55155,16 +53912,6 @@
         ],
         "entries": [
           {
-            "id": 128394,
-            "definitionId": 133200,
-            "maxRanks": 1,
-            "type": "passive",
-            "name": "Headshot",
-            "spellId": 471363,
-            "icon": "ability_marksmanship",
-            "index": 100
-          },
-          {
             "id": 128715,
             "definitionId": 133517,
             "maxRanks": 1,
@@ -55172,7 +53919,7 @@
             "name": "Deadeye",
             "spellId": 321460,
             "icon": "spell_hunter_focusingshot",
-            "index": 200
+            "index": 100
           }
         ]
       },
@@ -55233,84 +53980,58 @@
         ]
       },
       {
-        "id": 103978,
-        "name": "Small Game Hunter",
+        "id": 103974,
+        "name": "Master Marksman",
         "type": "single",
         "posX": 13200,
         "posY": 5100,
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [
-          103973
+          103978
         ],
         "prev": [
-          110575,
-          103955,
-          103947
+          110573,
+          103947,
+          110574
         ],
         "entries": [
           {
-            "id": 128400,
-            "definitionId": 133206,
+            "id": 128396,
+            "definitionId": 133202,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Small Game Hunter",
-            "spellId": 459802,
-            "icon": "inv_rabbit2_darkmoon",
-            "index": 200
-          }
-        ]
-      },
-      {
-        "id": 110574,
-        "name": "Precision Detonation",
-        "type": "single",
-        "posX": 13800,
-        "posY": 5100,
-        "reqPoints": 8,
-        "maxRanks": 1,
-        "next": [
-          103973
-        ],
-        "prev": [
-          110575
-        ],
-        "entries": [
-          {
-            "id": 137377,
-            "definitionId": 142137,
-            "maxRanks": 1,
-            "type": "passive",
-            "name": "Precision Detonation",
-            "spellId": 471369,
-            "icon": "ability_hunter_explosiveshot",
+            "name": "Master Marksman",
+            "spellId": 260309,
+            "icon": "ability_hunter_mastermarksman",
             "index": 100
           }
         ]
       },
       {
-        "id": 110573,
-        "name": "Shrapnel Shot",
+        "id": 110691,
+        "name": "Eagle's Accuracy",
         "type": "single",
         "posX": 14400,
         "posY": 5100,
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [
-          103973
+          103978
         ],
         "prev": [
-          110575
+          103955,
+          110574
         ],
         "entries": [
           {
-            "id": 137376,
-            "definitionId": 142136,
+            "id": 137506,
+            "definitionId": 142266,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Shrapnel Shot",
-            "spellId": 473520,
-            "icon": "spell_sandexplosion",
+            "name": "Eagle's Accuracy",
+            "spellId": 473369,
+            "icon": "ability_hunter_silenthunter",
             "index": 100
           }
         ]
@@ -55329,8 +54050,8 @@
         ],
         "prev": [
           103985,
-          103972,
-          109491
+          109491,
+          110688
         ],
         "entries": [
           {
@@ -55385,8 +54106,8 @@
         ]
       },
       {
-        "id": 103973,
-        "name": "Eagle's Accuracy",
+        "id": 103978,
+        "name": "Small Game Hunter",
         "type": "single",
         "posX": 13800,
         "posY": 5700,
@@ -55397,20 +54118,20 @@
           103979
         ],
         "prev": [
-          103978,
+          103974,
           110574,
-          110573
+          110691
         ],
         "entries": [
           {
-            "id": 128395,
-            "definitionId": 133201,
+            "id": 128400,
+            "definitionId": 133206,
             "maxRanks": 2,
             "type": "passive",
-            "name": "Eagle's Accuracy",
-            "spellId": 473369,
-            "icon": "ability_hunter_silenthunter",
-            "index": 100
+            "name": "Small Game Hunter",
+            "spellId": 459802,
+            "icon": "inv_rabbit2_darkmoon",
+            "index": 200
           }
         ]
       },
@@ -55450,8 +54171,7 @@
         "reqPoints": 20,
         "maxRanks": 1,
         "next": [
-          107290,
-          109938
+          107290
         ],
         "prev": [
           103958,
@@ -55478,9 +54198,7 @@
         "posY": 6300,
         "reqPoints": 20,
         "maxRanks": 1,
-        "next": [
-          109938
-        ],
+        "next": [],
         "prev": [
           103958
         ],
@@ -55506,12 +54224,11 @@
         "reqPoints": 20,
         "maxRanks": 1,
         "next": [
-          109938,
           103960
         ],
         "prev": [
           103958,
-          103973
+          103978
         ],
         "entries": [
           {
@@ -55538,7 +54255,7 @@
           104095
         ],
         "prev": [
-          103973
+          103978
         ],
         "entries": [
           {
@@ -55580,7 +54297,7 @@
       },
       {
         "id": 107290,
-        "name": "Incendiary Ammunition",
+        "name": "Accuracy By Volume",
         "type": "single",
         "posX": 12000,
         "posY": 6900,
@@ -55596,36 +54313,9 @@
             "definitionId": 136996,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Incendiary Ammunition",
+            "name": "Accuracy By Volume",
             "spellId": 471428,
             "icon": "inv12_ability_hunter_fierymunitions",
-            "index": 200
-          }
-        ]
-      },
-      {
-        "id": 109938,
-        "name": "Double Tap",
-        "type": "single",
-        "posX": 12600,
-        "posY": 6900,
-        "reqPoints": 20,
-        "maxRanks": 1,
-        "next": [],
-        "prev": [
-          103966,
-          103956,
-          103962
-        ],
-        "entries": [
-          {
-            "id": 136232,
-            "definitionId": 141005,
-            "maxRanks": 1,
-            "type": "passive",
-            "name": "Double Tap",
-            "spellId": 473370,
-            "icon": "ability_hunter_crossfire",
             "index": 200
           }
         ]
@@ -56688,7 +55378,6 @@
       102336,
       102337,
       102338,
-      102339,
       102340,
       102341,
       102342,
@@ -56765,8 +55454,6 @@
       103962,
       103964,
       103966,
-      103972,
-      103973,
       103974,
       103975,
       103977,
@@ -56821,7 +55508,6 @@
       109804,
       109805,
       109807,
-      109938,
       109961,
       110028,
       110152,
@@ -56843,7 +55529,10 @@
       110572,
       110573,
       110574,
-      110575
+      110575,
+      110688,
+      110691,
+      110692
     ]
   },
   {
@@ -56852,95 +55541,6 @@
     "classId": 3,
     "specName": "Survival",
     "specId": 255,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 102381,
@@ -58422,6 +57022,7 @@
         "maxRanks": 1,
         "next": [
           102279,
+          109305,
           110163
         ],
         "prev": [
@@ -58542,7 +57143,7 @@
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [
-          109305
+          110159
         ],
         "prev": [
           109324,
@@ -58562,6 +57163,33 @@
         ]
       },
       {
+        "id": 109305,
+        "name": "Sic 'Em",
+        "type": "single",
+        "posX": 13800,
+        "posY": 3900,
+        "reqPoints": 8,
+        "maxRanks": 1,
+        "next": [
+          110159
+        ],
+        "prev": [
+          109321
+        ],
+        "entries": [
+          {
+            "id": 135496,
+            "definitionId": 140253,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Sic 'Em",
+            "spellId": 1253137,
+            "icon": "ability_hunter_sickem",
+            "index": 100
+          }
+        ]
+      },
+      {
         "id": 110163,
         "name": "Two Against Many",
         "type": "single",
@@ -58570,7 +57198,7 @@
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [
-          109305
+          110159
         ],
         "prev": [
           109321
@@ -58685,8 +57313,8 @@
         ]
       },
       {
-        "id": 109305,
-        "name": "Sic 'Em",
+        "id": 110159,
+        "name": "Primal Surge",
         "type": "single",
         "posX": 13800,
         "posY": 4500,
@@ -58694,22 +57322,22 @@
         "maxRanks": 1,
         "next": [
           102282,
-          109304,
           109306
         ],
         "prev": [
+          109305,
           110163,
           102279
         ],
         "entries": [
           {
-            "id": 135496,
-            "definitionId": 140253,
+            "id": 136680,
+            "definitionId": 141452,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Sic 'Em",
-            "spellId": 1253137,
-            "icon": "ability_hunter_sickem",
+            "name": "Primal Surge",
+            "spellId": 1272154,
+            "icon": "ability_hunter_longevity",
             "index": 100
           }
         ]
@@ -58848,8 +57476,8 @@
           109312
         ],
         "prev": [
-          109305,
-          109319
+          109319,
+          110159
         ],
         "entries": [
           {
@@ -58875,33 +57503,6 @@
         ]
       },
       {
-        "id": 109304,
-        "name": "Shower of Blood",
-        "type": "single",
-        "posX": 13800,
-        "posY": 5100,
-        "reqPoints": 8,
-        "maxRanks": 2,
-        "next": [
-          109312
-        ],
-        "prev": [
-          109305
-        ],
-        "entries": [
-          {
-            "id": 135495,
-            "definitionId": 140252,
-            "maxRanks": 2,
-            "type": "passive",
-            "name": "Shower of Blood",
-            "spellId": 1253053,
-            "icon": "spell_druid_bloodythrash",
-            "index": 100
-          }
-        ]
-      },
-      {
         "id": 109306,
         "name": "Outland Venom",
         "type": "single",
@@ -58913,7 +57514,7 @@
           109312
         ],
         "prev": [
-          109305
+          110159
         ],
         "entries": [
           {
@@ -58999,7 +57600,6 @@
           102268
         ],
         "prev": [
-          109304,
           109306,
           102282
         ],
@@ -59018,7 +57618,7 @@
       },
       {
         "id": 102252,
-        "name": "Flamefang Pitch",
+        "name": "Bombardier",
         "type": "single",
         "posX": 11400,
         "posY": 6300,
@@ -59036,10 +57636,10 @@
             "id": 126311,
             "definitionId": 131137,
             "maxRanks": 1,
-            "type": "active",
-            "name": "Flamefang Pitch",
-            "spellId": 1251592,
-            "icon": "inv_10_blacksmithing_craftedoptional_blacksmithdye_fire",
+            "type": "passive",
+            "name": "Bombardier",
+            "spellId": 1311963,
+            "icon": "inv_misc_blackironbomb",
             "index": 100
           }
         ]
@@ -59108,7 +57708,7 @@
         "maxRanks": 1,
         "next": [
           102257,
-          110159
+          109304
         ],
         "prev": [
           109312
@@ -59228,26 +57828,26 @@
         ]
       },
       {
-        "id": 110159,
-        "name": "Primal Surge",
+        "id": 109304,
+        "name": "Razor Edge",
         "type": "single",
         "posX": 14400,
         "posY": 6900,
         "reqPoints": 20,
-        "maxRanks": 1,
+        "maxRanks": 2,
         "next": [],
         "prev": [
           102268
         ],
         "entries": [
           {
-            "id": 136680,
-            "definitionId": 141452,
-            "maxRanks": 1,
+            "id": 135495,
+            "definitionId": 140252,
+            "maxRanks": 2,
             "type": "passive",
-            "name": "Primal Surge",
-            "spellId": 1272154,
-            "icon": "ability_hunter_longevity",
+            "name": "Razor Edge",
+            "spellId": 1253053,
+            "icon": "spell_druid_bloodythrash",
             "index": 100
           }
         ]
@@ -60257,7 +58857,6 @@
       102336,
       102337,
       102338,
-      102339,
       102340,
       102341,
       102342,
@@ -60334,8 +58933,6 @@
       103962,
       103964,
       103966,
-      103972,
-      103973,
       103974,
       103975,
       103977,
@@ -60390,7 +58987,6 @@
       109804,
       109805,
       109807,
-      109938,
       109961,
       110028,
       110152,
@@ -60412,7 +59008,10 @@
       110572,
       110573,
       110574,
-      110575
+      110575,
+      110688,
+      110691,
+      110692
     ]
   },
   {
@@ -60421,95 +59020,6 @@
     "classId": 4,
     "specName": "Assassination",
     "specId": 259,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 90740,
@@ -61645,8 +60155,8 @@
       },
       {
         "id": 90756,
-        "name": "Thistle Tea",
-        "type": "single",
+        "name": "Thistle Tea / Thistle Tea",
+        "type": "choice",
         "posX": 2700,
         "posY": 6900,
         "reqPoints": 23,
@@ -61666,6 +60176,16 @@
             "visibleSpellId": 381623,
             "icon": "inv_drink_milk_05",
             "index": 100
+          },
+          {
+            "id": 137464,
+            "definitionId": 142224,
+            "maxRanks": 1,
+            "type": "active",
+            "name": "Thistle Tea",
+            "spellId": 1298826,
+            "icon": "inv_drink_milk_05",
+            "index": 200
           }
         ]
       },
@@ -62406,7 +60926,7 @@
       },
       {
         "id": 90771,
-        "name": "Systemic Failure",
+        "name": "Amplifying Poison",
         "type": "single",
         "posX": 11100,
         "posY": 5100,
@@ -62426,10 +60946,10 @@
             "id": 112664,
             "definitionId": 117669,
             "maxRanks": 1,
-            "type": "passive",
-            "name": "Systemic Failure",
-            "spellId": 381652,
-            "icon": "ability_skeer_bloodletting",
+            "type": "active",
+            "name": "Amplifying Poison",
+            "spellId": 381664,
+            "icon": "inv_misc_herb_fellotus",
             "index": 100
           }
         ]
@@ -62467,7 +60987,7 @@
       },
       {
         "id": 90777,
-        "name": "Amplifying Poison",
+        "name": "Systemic Failure",
         "type": "single",
         "posX": 13500,
         "posY": 5100,
@@ -62487,17 +61007,17 @@
             "id": 112670,
             "definitionId": 117675,
             "maxRanks": 1,
-            "type": "active",
-            "name": "Amplifying Poison",
-            "spellId": 381664,
-            "icon": "inv_misc_herb_fellotus",
+            "type": "passive",
+            "name": "Systemic Failure",
+            "spellId": 381652,
+            "icon": "ability_skeer_bloodletting",
             "index": 100
           }
         ]
       },
       {
         "id": 90786,
-        "name": "Blindside",
+        "name": "Dashing Scoundrel",
         "type": "single",
         "posX": 11100,
         "posY": 5700,
@@ -62515,9 +61035,9 @@
             "definitionId": 117684,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Blindside",
-            "spellId": 328085,
-            "icon": "ability_rogue_focusedattacks",
+            "name": "Dashing Scoundrel",
+            "spellId": 381797,
+            "icon": "ability_rogue_venomouswounds",
             "index": 100
           }
         ]
@@ -62610,7 +61130,7 @@
       },
       {
         "id": 90622,
-        "name": "Avulsion",
+        "name": "Blindside",
         "type": "single",
         "posX": 13500,
         "posY": 5700,
@@ -62628,9 +61148,9 @@
             "definitionId": 117512,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Avulsion",
-            "spellId": 1250358,
-            "icon": "inv_artifact_corruptedbloodofzakajz",
+            "name": "Blindside",
+            "spellId": 328085,
+            "icon": "ability_rogue_focusedattacks",
             "index": 100
           }
         ]
@@ -62727,7 +61247,7 @@
       },
       {
         "id": 90774,
-        "name": "Deadly Momentum",
+        "name": "Avulsion",
         "type": "single",
         "posX": 12900,
         "posY": 6300,
@@ -62744,9 +61264,9 @@
             "definitionId": 117672,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Deadly Momentum",
-            "spellId": 1250271,
-            "icon": "ability_rogue_deadlymomentum",
+            "name": "Avulsion",
+            "spellId": 1250358,
+            "icon": "inv_artifact_corruptedbloodofzakajz",
             "index": 100
           }
         ]
@@ -62781,7 +61301,7 @@
       },
       {
         "id": 90784,
-        "name": "Dashing Scoundrel",
+        "name": "Unstable Toxin",
         "type": "single",
         "posX": 11100,
         "posY": 6900,
@@ -62797,9 +61317,9 @@
             "definitionId": 117682,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Dashing Scoundrel",
-            "spellId": 381797,
-            "icon": "ability_rogue_venomouswounds",
+            "name": "Unstable Toxin",
+            "spellId": 1298812,
+            "icon": "rogue_venomzest",
             "index": 100
           }
         ]
@@ -64029,95 +62549,6 @@
     "classId": 4,
     "specName": "Outlaw",
     "specId": 260,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 90740,
@@ -65253,8 +63684,8 @@
       },
       {
         "id": 90756,
-        "name": "Thistle Tea",
-        "type": "single",
+        "name": "Thistle Tea / Thistle Tea",
+        "type": "choice",
         "posX": 2700,
         "posY": 6900,
         "reqPoints": 23,
@@ -65274,6 +63705,16 @@
             "visibleSpellId": 381623,
             "icon": "inv_drink_milk_05",
             "index": 100
+          },
+          {
+            "id": 137464,
+            "definitionId": 142224,
+            "maxRanks": 1,
+            "type": "active",
+            "name": "Thistle Tea",
+            "spellId": 1298826,
+            "icon": "inv_drink_milk_05",
+            "index": 200
           }
         ]
       },
@@ -65776,7 +64217,8 @@
         "maxRanks": 1,
         "next": [
           90678,
-          90641
+          90641,
+          90677
         ],
         "prev": [
           90679
@@ -65914,7 +64356,8 @@
         "maxRanks": 1,
         "next": [
           90668,
-          90669
+          90669,
+          90667
         ],
         "prev": [
           90663
@@ -66098,7 +64541,8 @@
         ],
         "prev": [
           90641,
-          90678
+          90678,
+          90680
         ],
         "entries": [
           {
@@ -66221,7 +64665,8 @@
         ],
         "prev": [
           90669,
-          90668
+          90668,
+          90671
         ],
         "entries": [
           {
@@ -67627,95 +66072,6 @@
     "classId": 4,
     "specName": "Subtlety",
     "specId": 261,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 90740,
@@ -68851,8 +67207,8 @@
       },
       {
         "id": 90756,
-        "name": "Thistle Tea",
-        "type": "single",
+        "name": "Thistle Tea / Thistle Tea",
+        "type": "choice",
         "posX": 2700,
         "posY": 6900,
         "reqPoints": 23,
@@ -68872,6 +67228,16 @@
             "visibleSpellId": 381623,
             "icon": "inv_drink_milk_05",
             "index": 100
+          },
+          {
+            "id": 137464,
+            "definitionId": 142224,
+            "maxRanks": 1,
+            "type": "active",
+            "name": "Thistle Tea",
+            "spellId": 1298826,
+            "icon": "inv_drink_milk_05",
+            "index": 200
           }
         ]
       },
@@ -69677,7 +68043,7 @@
       },
       {
         "id": 90735,
-        "name": "The First Dance",
+        "name": "Deepening Shadows",
         "type": "single",
         "posX": 11700,
         "posY": 5100,
@@ -69697,16 +68063,16 @@
             "definitionId": 117630,
             "maxRanks": 1,
             "type": "passive",
-            "name": "The First Dance",
-            "spellId": 382505,
-            "icon": "ability_rogue_shadowdance",
+            "name": "Deepening Shadows",
+            "spellId": 185314,
+            "icon": "spell_shadow_twilight",
             "index": 100
           }
         ]
       },
       {
         "id": 90724,
-        "name": "Deepening Shadows",
+        "name": "Goremaw's Bite",
         "type": "single",
         "posX": 12300,
         "posY": 5100,
@@ -69726,10 +68092,10 @@
             "id": 112612,
             "definitionId": 117617,
             "maxRanks": 1,
-            "type": "passive",
-            "name": "Deepening Shadows",
-            "spellId": 185314,
-            "icon": "spell_shadow_twilight",
+            "type": "active",
+            "name": "Goremaw's Bite",
+            "spellId": 426591,
+            "icon": "inv_knife_1h_artifactfangs_d_01",
             "index": 100
           }
         ]
@@ -70099,7 +68465,7 @@
       },
       {
         "id": 94581,
-        "name": "Goremaw's Bite",
+        "name": "The First Dance",
         "type": "single",
         "posX": 12900,
         "posY": 6900,
@@ -70115,10 +68481,10 @@
             "id": 117169,
             "definitionId": 122181,
             "maxRanks": 1,
-            "type": "active",
-            "name": "Goremaw's Bite",
-            "spellId": 426591,
-            "icon": "inv_knife_1h_artifactfangs_d_01",
+            "type": "passive",
+            "name": "The First Dance",
+            "spellId": 382505,
+            "icon": "ability_rogue_shadowdance",
             "index": 100
           }
         ]
@@ -71332,95 +69698,6 @@
     "classId": 7,
     "specName": "Elemental",
     "specId": 262,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 103588,
@@ -73686,7 +71963,7 @@
             "type": "active",
             "name": "Ascendance",
             "spellId": 114050,
-            "icon": "spell_fire_elementaldevastation",
+            "icon": "",
             "index": 100
           }
         ]
@@ -75003,7 +73280,6 @@
       81015,
       81016,
       81018,
-      81019,
       81021,
       81022,
       81024,
@@ -75160,7 +73436,8 @@
       110186,
       110401,
       110402,
-      110403
+      110403,
+      113376
     ]
   },
   {
@@ -75169,95 +73446,6 @@
     "classId": 7,
     "specName": "Enhancement",
     "specId": 263,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 103588,
@@ -77588,7 +75776,7 @@
             "type": "active",
             "name": "Ascendance",
             "spellId": 114051,
-            "icon": "spell_fire_elementaldevastation",
+            "icon": "",
             "index": 200
           }
         ]
@@ -78663,7 +76851,6 @@
       81015,
       81016,
       81018,
-      81019,
       81021,
       81022,
       81024,
@@ -78820,7 +77007,8 @@
       110186,
       110401,
       110402,
-      110403
+      110403,
+      113376
     ]
   },
   {
@@ -78829,95 +77017,6 @@
     "classId": 7,
     "specName": "Restoration",
     "specId": 264,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 103588,
@@ -80456,7 +78555,7 @@
             "type": "active",
             "name": "Ascendance",
             "spellId": 114052,
-            "icon": "spell_fire_elementaldevastation",
+            "icon": "",
             "index": 100
           },
           {
@@ -80598,7 +78697,7 @@
         "maxRanks": 1,
         "next": [
           81047,
-          81019
+          103427
         ],
         "prev": [
           81021,
@@ -80625,7 +78724,7 @@
         "posY": 3000,
         "maxRanks": 1,
         "next": [
-          81019,
+          103427,
           81048
         ],
         "prev": [
@@ -80706,13 +78805,13 @@
         ]
       },
       {
-        "id": 81019,
-        "name": "Calm Waters",
+        "id": 103427,
+        "name": "Wavespeaker's Blessing",
         "type": "single",
         "posX": 14400,
         "posY": 3600,
         "reqPoints": 8,
-        "maxRanks": 1,
+        "maxRanks": 2,
         "next": [
           81049,
           81046,
@@ -80724,14 +78823,14 @@
         ],
         "entries": [
           {
-            "id": 101896,
-            "definitionId": 106923,
-            "maxRanks": 1,
+            "id": 127671,
+            "definitionId": 132480,
+            "maxRanks": 2,
             "type": "passive",
-            "name": "Calm Waters",
-            "spellId": 1252841,
-            "icon": "inv_10_elementalshardfoozles_water",
-            "index": 300
+            "name": "Wavespeaker's Blessing",
+            "spellId": 381946,
+            "icon": "inv_alchemist_81_spiritedalchemiststone",
+            "index": 100
           }
         ]
       },
@@ -80890,7 +78989,7 @@
         ],
         "prev": [
           81047,
-          81019
+          103427
         ],
         "entries": [
           {
@@ -80919,7 +79018,7 @@
         ],
         "prev": [
           81048,
-          81019
+          103427
         ],
         "entries": [
           {
@@ -81062,8 +79161,8 @@
         ],
         "prev": [
           81046,
-          81019,
-          81049
+          81049,
+          103427
         ],
         "entries": [
           {
@@ -81159,7 +79258,7 @@
         "next": [
           81052,
           103915,
-          103427
+          113376
         ],
         "prev": [
           81044,
@@ -81188,7 +79287,7 @@
         "reqPoints": 20,
         "maxRanks": 1,
         "next": [
-          103427,
+          113376,
           81051
         ],
         "prev": [
@@ -81347,13 +79446,13 @@
         ]
       },
       {
-        "id": 103427,
-        "name": "Wavespeaker's Blessing",
+        "id": 113376,
+        "name": "Swelling Tides",
         "type": "single",
         "posX": 14400,
         "posY": 6000,
         "reqPoints": 20,
-        "maxRanks": 2,
+        "maxRanks": 1,
         "next": [
           81042,
           81051
@@ -81364,13 +79463,13 @@
         ],
         "entries": [
           {
-            "id": 127671,
-            "definitionId": 132480,
-            "maxRanks": 2,
+            "id": 140663,
+            "definitionId": 145345,
+            "maxRanks": 1,
             "type": "passive",
-            "name": "Wavespeaker's Blessing",
-            "spellId": 381946,
-            "icon": "inv_alchemist_81_spiritedalchemiststone",
+            "name": "Swelling Tides",
+            "spellId": 1312843,
+            "icon": "ability_shaman_manatidetotem",
             "index": 100
           }
         ]
@@ -81438,8 +79537,8 @@
         "next": [],
         "prev": [
           103915,
-          103427,
-          81052
+          81052,
+          113376
         ],
         "entries": [
           {
@@ -81464,8 +79563,8 @@
         "maxRanks": 1,
         "next": [],
         "prev": [
-          103427,
-          103430
+          103430,
+          113376
         ],
         "entries": [
           {
@@ -82503,7 +80602,6 @@
       81015,
       81016,
       81018,
-      81019,
       81021,
       81022,
       81024,
@@ -82660,7 +80758,8 @@
       110186,
       110401,
       110402,
-      110403
+      110403,
+      113376
     ]
   },
   {
@@ -82669,95 +80768,6 @@
     "classId": 2,
     "specName": "Holy",
     "specId": 65,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 81597,
@@ -86577,10 +84587,7 @@
       81469,
       81470,
       81471,
-      81472,
-      81473,
       81474,
-      81475,
       81476,
       81477,
       81479,
@@ -86603,7 +84610,6 @@
       81497,
       81498,
       81499,
-      81500,
       81501,
       81502,
       81503,
@@ -86683,7 +84689,6 @@
       81618,
       81621,
       81628,
-      81629,
       81630,
       81631,
       81632,
@@ -86810,7 +84815,8 @@
       110257,
       110417,
       110418,
-      110419
+      110419,
+      110862
     ]
   },
   {
@@ -86819,95 +84825,6 @@
     "classId": 2,
     "specName": "Protection",
     "specId": 66,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 81597,
@@ -88501,7 +86418,7 @@
         "maxRanks": 1,
         "next": [
           81487,
-          81494
+          81476
         ],
         "prev": [
           81502
@@ -88528,7 +86445,7 @@
         "maxRanks": 1,
         "next": [
           81487,
-          81498
+          81494
         ],
         "prev": [
           81502
@@ -88557,18 +86474,84 @@
         ]
       },
       {
-        "id": 81494,
-        "name": "Imbued Shield / Redoubt",
+        "id": 81476,
+        "name": "Valiant Crusade / Blessed Word",
         "type": "choice",
         "posX": 12000,
         "posY": 2700,
         "maxRanks": 1,
         "next": [
-          81486,
-          81476
+          110862,
+          81486
         ],
         "prev": [
           81489
+        ],
+        "entries": [
+          {
+            "id": 102439,
+            "definitionId": 107444,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Valiant Crusade",
+            "spellId": 1245979,
+            "icon": "ability_mount_alliancepvpmount",
+            "index": 100
+          },
+          {
+            "id": 137505,
+            "definitionId": 142265,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Blessed Word",
+            "spellId": 1301732,
+            "icon": "spell_paladin_divinecircle",
+            "index": 200
+          }
+        ]
+      },
+      {
+        "id": 81487,
+        "name": "Grand Crusader",
+        "type": "single",
+        "posX": 13200,
+        "posY": 2700,
+        "maxRanks": 1,
+        "next": [
+          110862,
+          81501,
+          81481
+        ],
+        "prev": [
+          81489,
+          81469
+        ],
+        "entries": [
+          {
+            "id": 102453,
+            "definitionId": 107458,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Grand Crusader",
+            "spellId": 85043,
+            "icon": "inv_helmet_74",
+            "index": 100
+          }
+        ]
+      },
+      {
+        "id": 81494,
+        "name": "Imbued Shield / Redoubt",
+        "type": "choice",
+        "posX": 14400,
+        "posY": 2700,
+        "maxRanks": 1,
+        "next": [
+          81501,
+          101927
+        ],
+        "prev": [
+          81469
         ],
         "entries": [
           {
@@ -88594,113 +86577,40 @@
         ]
       },
       {
-        "id": 81487,
-        "name": "Grand Crusader",
-        "type": "single",
-        "posX": 13200,
-        "posY": 2700,
-        "maxRanks": 1,
-        "next": [
-          81481,
-          81501,
-          81476
-        ],
-        "prev": [
-          81489,
-          81469
-        ],
-        "entries": [
-          {
-            "id": 102453,
-            "definitionId": 107458,
-            "maxRanks": 1,
-            "type": "passive",
-            "name": "Grand Crusader",
-            "spellId": 85043,
-            "icon": "inv_helmet_74",
-            "index": 100
-          }
-        ]
-      },
-      {
-        "id": 81498,
-        "name": "Seal of Charity",
-        "type": "single",
-        "posX": 14400,
-        "posY": 2700,
-        "maxRanks": 1,
-        "next": [
-          101927,
-          81501
-        ],
-        "prev": [
-          81469
-        ],
-        "entries": [
-          {
-            "id": 102467,
-            "definitionId": 107472,
-            "maxRanks": 1,
-            "type": "passive",
-            "name": "Seal of Charity",
-            "spellId": 384815,
-            "icon": "spell_priest_power_word",
-            "index": 100
-          }
-        ]
-      },
-      {
-        "id": 81486,
-        "name": "Refining Fire",
-        "type": "single",
-        "posX": 12000,
-        "posY": 3300,
-        "maxRanks": 1,
-        "next": [
-          81499,
-          81492,
-          81474
-        ],
-        "prev": [
-          81494
-        ],
-        "entries": [
-          {
-            "id": 102452,
-            "definitionId": 107457,
-            "maxRanks": 1,
-            "type": "passive",
-            "name": "Refining Fire",
-            "spellId": 469883,
-            "icon": "inv_everburningignition_yellow",
-            "index": 100
-          }
-        ]
-      },
-      {
-        "id": 81476,
-        "name": "Valiant Crusade",
-        "type": "single",
+        "id": 110862,
+        "name": "Blessing of Spellwarding / Uther's Counsel",
+        "type": "choice",
         "posX": 12600,
         "posY": 3300,
         "maxRanks": 1,
         "next": [
+          81486,
           81499
         ],
         "prev": [
           81487,
-          81494
+          81476
         ],
         "entries": [
           {
-            "id": 102439,
-            "definitionId": 107444,
+            "id": 111886,
+            "definitionId": 116891,
+            "maxRanks": 1,
+            "type": "active",
+            "name": "Blessing of Spellwarding",
+            "spellId": 204018,
+            "icon": "spell_holy_blessingofprotection",
+            "index": 100
+          },
+          {
+            "id": 137857,
+            "definitionId": 142611,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Valiant Crusade",
-            "spellId": 1245979,
-            "icon": "ability_mount_alliancepvpmount",
-            "index": 100
+            "name": "Uther's Counsel",
+            "spellId": 378425,
+            "icon": "spell_holy_greaterblessingofsalvation",
+            "index": 200
           }
         ]
       },
@@ -88713,8 +86623,8 @@
         "maxRanks": 1,
         "next": [
           81499,
-          81503,
-          90062
+          81483,
+          81503
         ],
         "prev": [
           81487
@@ -88734,17 +86644,18 @@
       },
       {
         "id": 81501,
-        "name": "Searing Sunlight",
-        "type": "single",
+        "name": "Searing Sunlight / Hand of the Protector",
+        "type": "choice",
         "posX": 13800,
         "posY": 3300,
         "maxRanks": 1,
         "next": [
-          81503
+          81503,
+          101927
         ],
         "prev": [
-          81487,
-          81498
+          81494,
+          81487
         ],
         "entries": [
           {
@@ -88756,62 +86667,45 @@
             "spellId": 1244070,
             "icon": "ability_essence_reapingflames",
             "index": 100
-          }
-        ]
-      },
-      {
-        "id": 101927,
-        "name": "Solace",
-        "type": "single",
-        "posX": 14400,
-        "posY": 3300,
-        "maxRanks": 1,
-        "next": [
-          81503,
-          81470,
-          81485
-        ],
-        "prev": [
-          81498
-        ],
-        "entries": [
+          },
           {
-            "id": 102451,
-            "definitionId": 107456,
+            "id": 137854,
+            "definitionId": 142608,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Solace",
-            "spellId": 1245891,
-            "icon": "spell_holy_prayerofmendingtga",
-            "index": 100
+            "name": "Hand of the Protector",
+            "spellId": 315924,
+            "icon": "ability_paladin_blessedhands",
+            "index": 200
           }
         ]
       },
       {
-        "id": 81492,
-        "name": "Undying Embers",
+        "id": 81486,
+        "name": "Refining Fire",
         "type": "single",
-        "posX": 11400,
+        "posX": 12000,
         "posY": 3900,
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [
           81474,
-          101928
+          81492
         ],
         "prev": [
-          81486
+          110862,
+          81476
         ],
         "entries": [
           {
-            "id": 102459,
-            "definitionId": 107464,
+            "id": 102452,
+            "definitionId": 107457,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Undying Embers",
-            "spellId": 1244019,
-            "icon": "inv_achievement_dungeon_darkflamecleft",
-            "index": 0
+            "name": "Refining Fire",
+            "spellId": 469883,
+            "icon": "inv_everburningignition_yellow",
+            "index": 100
           }
         ]
       },
@@ -88824,14 +86718,11 @@
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [
-          81474,
-          81506,
-          81483
+          81506
         ],
         "prev": [
-          81476,
           81481,
-          81486
+          110862
         ],
         "entries": [
           {
@@ -88847,39 +86738,32 @@
         ]
       },
       {
-        "id": 90062,
-        "name": "Improved Ardent Defender / Blessing of Spellwarding",
-        "type": "choice",
+        "id": 81483,
+        "name": "Avenging Wrath",
+        "type": "single",
         "posX": 13200,
         "posY": 3900,
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [
-          81483
+          81506,
+          90062,
+          81612
         ],
         "prev": [
           81481
         ],
         "entries": [
           {
-            "id": 111887,
-            "definitionId": 116892,
-            "maxRanks": 1,
-            "type": "passive",
-            "name": "Improved Ardent Defender",
-            "spellId": 393114,
-            "icon": "spell_holy_ardentdefender",
-            "index": 100
-          },
-          {
-            "id": 111886,
-            "definitionId": 116891,
+            "id": 102448,
+            "definitionId": 107453,
             "maxRanks": 1,
             "type": "active",
-            "name": "Blessing of Spellwarding",
-            "spellId": 204018,
-            "icon": "spell_holy_blessingofprotection",
-            "index": 200
+            "name": "Avenging Wrath",
+            "spellId": 31884,
+            "visibleSpellId": 31884,
+            "icon": "spell_holy_avenginewrath",
+            "index": 100
           }
         ]
       },
@@ -88892,14 +86776,12 @@
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [
-          81485,
-          81483,
-          81612
+          81612,
+          81470
         ],
         "prev": [
           81501,
-          81481,
-          101927
+          81481
         ],
         "entries": [
           {
@@ -88925,30 +86807,41 @@
         ]
       },
       {
-        "id": 81470,
-        "name": "Vision of Sanctity",
-        "type": "single",
-        "posX": 15000,
+        "id": 101927,
+        "name": "Solace / Instrument of the Divine",
+        "type": "choice",
+        "posX": 14400,
         "posY": 3900,
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [
-          81485,
-          81473
+          81470,
+          81485
         ],
         "prev": [
-          101927
+          81494,
+          81501
         ],
         "entries": [
           {
-            "id": 102432,
-            "definitionId": 107437,
+            "id": 102451,
+            "definitionId": 107456,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Vision of Sanctity",
-            "spellId": 1245354,
-            "icon": "ability_racial_orbitalstrike",
+            "name": "Solace",
+            "spellId": 1245891,
+            "icon": "spell_holy_prayerofmendingtga",
             "index": 100
+          },
+          {
+            "id": 102454,
+            "definitionId": 107459,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Instrument of the Divine",
+            "spellId": 1277162,
+            "icon": "ability_priest_archangel",
+            "index": 200
           }
         ]
       },
@@ -88956,18 +86849,15 @@
         "id": 81474,
         "name": "Tyr's Enforcer",
         "type": "single",
-        "posX": 12000,
+        "posX": 11400,
         "posY": 4500,
         "reqPoints": 8,
         "maxRanks": 2,
         "next": [
           101928,
-          81629,
-          81472
+          81493
         ],
         "prev": [
-          81499,
-          81492,
           81486
         ],
         "entries": [
@@ -88984,6 +86874,33 @@
         ]
       },
       {
+        "id": 81492,
+        "name": "Undying Embers",
+        "type": "single",
+        "posX": 12000,
+        "posY": 4500,
+        "reqPoints": 8,
+        "maxRanks": 1,
+        "next": [
+          101928
+        ],
+        "prev": [
+          81486
+        ],
+        "entries": [
+          {
+            "id": 102459,
+            "definitionId": 107464,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Undying Embers",
+            "spellId": 1244019,
+            "icon": "inv_achievement_dungeon_darkflamecleft",
+            "index": 0
+          }
+        ]
+      },
+      {
         "id": 81506,
         "name": "Relentless Inquisitor",
         "type": "single",
@@ -88992,10 +86909,12 @@
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [
-          81629
+          81490,
+          101928
         ],
         "prev": [
-          81499
+          81499,
+          81483
         ],
         "entries": [
           {
@@ -89011,44 +86930,38 @@
         ]
       },
       {
-        "id": 81483,
-        "name": "Avenging Wrath / Sentinel",
+        "id": 90062,
+        "name": "Improved Ardent Defender / Seal of Reprisal",
         "type": "choice",
         "posX": 13200,
         "posY": 4500,
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [
-          81490,
-          81629,
-          81475
+          81490
         ],
         "prev": [
-          81503,
-          81499,
-          90062
+          81483
         ],
         "entries": [
           {
-            "id": 102448,
-            "definitionId": 107453,
+            "id": 111887,
+            "definitionId": 116892,
             "maxRanks": 1,
-            "type": "active",
-            "name": "Avenging Wrath",
-            "spellId": 31884,
-            "visibleSpellId": 31884,
-            "icon": "spell_holy_avenginewrath",
+            "type": "passive",
+            "name": "Improved Ardent Defender",
+            "spellId": 393114,
+            "icon": "spell_holy_ardentdefender",
             "index": 100
           },
           {
-            "id": 102447,
-            "definitionId": 107452,
+            "id": 137855,
+            "definitionId": 142609,
             "maxRanks": 1,
-            "type": "active",
-            "name": "Sentinel",
-            "spellId": 389539,
-            "visibleSpellId": 389539,
-            "icon": "spell_holy_holynova",
+            "type": "passive",
+            "name": "Seal of Reprisal",
+            "spellId": 377053,
+            "icon": "spell_holy_sealoffury",
             "index": 200
           }
         ]
@@ -89062,9 +86975,11 @@
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [
-          81475
+          81490,
+          81488
         ],
         "prev": [
+          81483,
           81503
         ],
         "entries": [
@@ -89081,21 +86996,46 @@
         ]
       },
       {
-        "id": 81485,
-        "name": "Consecration in Flame",
+        "id": 81470,
+        "name": "Vision of Sanctity",
         "type": "single",
         "posX": 14400,
         "posY": 4500,
         "reqPoints": 8,
-        "maxRanks": 2,
+        "maxRanks": 1,
         "next": [
-          81475,
-          81473,
-          81500
+          81488
         ],
         "prev": [
-          81503,
-          81470,
+          101927,
+          81503
+        ],
+        "entries": [
+          {
+            "id": 102432,
+            "definitionId": 107437,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Vision of Sanctity",
+            "spellId": 1245354,
+            "icon": "ability_racial_orbitalstrike",
+            "index": 100
+          }
+        ]
+      },
+      {
+        "id": 81485,
+        "name": "Consecration in Flame",
+        "type": "single",
+        "posX": 15000,
+        "posY": 4500,
+        "reqPoints": 8,
+        "maxRanks": 2,
+        "next": [
+          81488,
+          81498
+        ],
+        "prev": [
           101927
         ],
         "entries": [
@@ -89113,19 +87053,20 @@
       },
       {
         "id": 101928,
-        "name": "Soaring Shield",
-        "type": "single",
-        "posX": 11400,
+        "name": "Soaring Shield / Focused Enmity",
+        "type": "choice",
+        "posX": 12000,
         "posY": 5100,
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [
-          81472,
-          81493
+          81493,
+          81482
         ],
         "prev": [
-          81474,
-          81492
+          81492,
+          81506,
+          81474
         ],
         "entries": [
           {
@@ -89137,35 +87078,16 @@
             "spellId": 378457,
             "icon": "spell_burningbladeshaman_lavaslash",
             "index": 100
-          }
-        ]
-      },
-      {
-        "id": 81629,
-        "name": "Seal of Reprisal",
-        "type": "single",
-        "posX": 12600,
-        "posY": 5100,
-        "reqPoints": 8,
-        "maxRanks": 1,
-        "next": [
-          81472
-        ],
-        "prev": [
-          81474,
-          81506,
-          81483
-        ],
-        "entries": [
+          },
           {
-            "id": 102621,
-            "definitionId": 107626,
+            "id": 137856,
+            "definitionId": 142610,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Seal of Reprisal",
-            "spellId": 377053,
-            "icon": "spell_holy_sealoffury",
-            "index": 100
+            "name": "Focused Enmity",
+            "spellId": 378845,
+            "icon": "ability_priest_flashoflight",
+            "index": 200
           }
         ]
       },
@@ -89183,7 +87105,9 @@
           81497
         ],
         "prev": [
-          81483
+          90062,
+          81612,
+          81506
         ],
         "entries": [
           {
@@ -89199,54 +87123,26 @@
         ]
       },
       {
-        "id": 81475,
-        "name": "Hand of the Protector",
-        "type": "single",
-        "posX": 13800,
-        "posY": 5100,
-        "reqPoints": 8,
-        "maxRanks": 1,
-        "next": [
-          81500
-        ],
-        "prev": [
-          81485,
-          81612,
-          81483
-        ],
-        "entries": [
-          {
-            "id": 102438,
-            "definitionId": 107443,
-            "maxRanks": 1,
-            "type": "passive",
-            "name": "Hand of the Protector",
-            "spellId": 315924,
-            "icon": "ability_paladin_blessedhands",
-            "index": 100
-          }
-        ]
-      },
-      {
-        "id": 81473,
+        "id": 81488,
         "name": "Sanctuary",
         "type": "single",
-        "posX": 15000,
+        "posX": 14400,
         "posY": 5100,
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [
-          81500,
-          81488
+          81498,
+          81471
         ],
         "prev": [
           81485,
-          81470
+          81470,
+          81612
         ],
         "entries": [
           {
-            "id": 102436,
-            "definitionId": 107441,
+            "id": 137858,
+            "definitionId": 142612,
             "maxRanks": 1,
             "type": "passive",
             "name": "Sanctuary",
@@ -89257,32 +87153,41 @@
         ]
       },
       {
-        "id": 81472,
-        "name": "Focused Enmity",
-        "type": "single",
-        "posX": 12000,
+        "id": 81493,
+        "name": "Strength in Adversity / Crusader's Resolve",
+        "type": "choice",
+        "posX": 11400,
         "posY": 5700,
         "reqPoints": 20,
         "maxRanks": 1,
         "next": [
-          81493,
-          81482
+          81482,
+          81505
         ],
         "prev": [
-          81474,
-          81629,
-          101928
+          101928,
+          81474
         ],
         "entries": [
           {
-            "id": 102435,
-            "definitionId": 107440,
+            "id": 102461,
+            "definitionId": 107466,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Focused Enmity",
-            "spellId": 378845,
-            "icon": "ability_priest_flashoflight",
+            "name": "Strength in Adversity",
+            "spellId": 393071,
+            "icon": "spell_holy_weaponmastery",
             "index": 100
+          },
+          {
+            "id": 102460,
+            "definitionId": 107465,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Crusader's Resolve",
+            "spellId": 380188,
+            "icon": "ability_priest_angelicbulwark",
+            "index": 200
           }
         ]
       },
@@ -89317,15 +87222,15 @@
       },
       {
         "id": 103877,
-        "name": "Sanctified Wrath",
+        "name": "Empyrean Authority",
         "type": "single",
         "posX": 13800,
         "posY": 5700,
         "reqPoints": 20,
         "maxRanks": 1,
         "next": [
-          81471,
           81497,
+          81471,
           81504
         ],
         "prev": [
@@ -89337,78 +87242,39 @@
             "definitionId": 133085,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Sanctified Wrath",
-            "spellId": 53376,
-            "icon": "ability_paladin_judgementsofthejust",
+            "name": "Empyrean Authority",
+            "spellId": 1246481,
+            "icon": "ability_paladin_empoweredsealsrighteous",
             "index": 100
           }
         ]
       },
       {
-        "id": 81500,
-        "name": "Uther's Counsel",
+        "id": 81498,
+        "name": "Seal of Charity",
         "type": "single",
-        "posX": 14400,
+        "posX": 15000,
         "posY": 5700,
         "reqPoints": 20,
         "maxRanks": 1,
         "next": [
           81471,
-          81488
+          81477
         ],
         "prev": [
-          81473,
-          81475,
+          81488,
           81485
         ],
         "entries": [
           {
-            "id": 102469,
-            "definitionId": 107474,
+            "id": 102467,
+            "definitionId": 107472,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Uther's Counsel",
-            "spellId": 378425,
-            "icon": "spell_holy_greaterblessingofsalvation",
+            "name": "Seal of Charity",
+            "spellId": 384815,
+            "icon": "spell_priest_power_word",
             "index": 100
-          }
-        ]
-      },
-      {
-        "id": 81493,
-        "name": "Strength in Adversity / Crusader's Resolve",
-        "type": "choice",
-        "posX": 11400,
-        "posY": 6300,
-        "reqPoints": 20,
-        "maxRanks": 1,
-        "next": [
-          81505
-        ],
-        "prev": [
-          81472,
-          101928
-        ],
-        "entries": [
-          {
-            "id": 102461,
-            "definitionId": 107466,
-            "maxRanks": 1,
-            "type": "passive",
-            "name": "Strength in Adversity",
-            "spellId": 393071,
-            "icon": "spell_holy_weaponmastery",
-            "index": 100
-          },
-          {
-            "id": 102460,
-            "definitionId": 107465,
-            "maxRanks": 1,
-            "type": "passive",
-            "name": "Crusader's Resolve",
-            "spellId": 380188,
-            "icon": "ability_priest_angelicbulwark",
-            "index": 200
           }
         ]
       },
@@ -89425,8 +87291,9 @@
           81491
         ],
         "prev": [
-          81472,
-          81484
+          81484,
+          101928,
+          81493
         ],
         "entries": [
           {
@@ -89443,7 +87310,7 @@
       },
       {
         "id": 81497,
-        "name": "Empyrean Authority",
+        "name": "Sentinel",
         "type": "single",
         "posX": 13200,
         "posY": 6300,
@@ -89455,18 +87322,18 @@
         ],
         "prev": [
           81490,
-          81484,
-          103877
+          103877,
+          81484
         ],
         "entries": [
           {
             "id": 102466,
             "definitionId": 107471,
             "maxRanks": 1,
-            "type": "passive",
-            "name": "Empyrean Authority",
-            "spellId": 1246481,
-            "icon": "ability_paladin_empoweredsealsrighteous",
+            "type": "active",
+            "name": "Sentinel",
+            "spellId": 389539,
+            "icon": "spell_holy_holynova",
             "index": 100
           }
         ]
@@ -89484,8 +87351,9 @@
           81477
         ],
         "prev": [
-          81500,
-          103877
+          103877,
+          81498,
+          81488
         ],
         "entries": [
           {
@@ -89496,34 +87364,6 @@
             "name": "Zealot's Paragon",
             "spellId": 391142,
             "icon": "ability_paladin_conviction",
-            "index": 100
-          }
-        ]
-      },
-      {
-        "id": 81488,
-        "name": "Instrument of the Divine",
-        "type": "single",
-        "posX": 15000,
-        "posY": 6300,
-        "reqPoints": 20,
-        "maxRanks": 1,
-        "next": [
-          81477
-        ],
-        "prev": [
-          81473,
-          81500
-        ],
-        "entries": [
-          {
-            "id": 102454,
-            "definitionId": 107459,
-            "maxRanks": 1,
-            "type": "passive",
-            "name": "Instrument of the Divine",
-            "spellId": 1277162,
-            "icon": "ability_priest_archangel",
             "index": 100
           }
         ]
@@ -89574,9 +87414,9 @@
         "maxRanks": 1,
         "next": [],
         "prev": [
-          81482,
+          81497,
           81484,
-          81497
+          81482
         ],
         "entries": [
           {
@@ -89629,7 +87469,7 @@
         "next": [],
         "prev": [
           81471,
-          81488
+          81498
         ],
         "entries": [
           {
@@ -90615,10 +88455,7 @@
       81469,
       81470,
       81471,
-      81472,
-      81473,
       81474,
-      81475,
       81476,
       81477,
       81479,
@@ -90641,7 +88478,6 @@
       81497,
       81498,
       81499,
-      81500,
       81501,
       81502,
       81503,
@@ -90721,7 +88557,6 @@
       81618,
       81621,
       81628,
-      81629,
       81630,
       81631,
       81632,
@@ -90848,7 +88683,8 @@
       110257,
       110417,
       110418,
-      110419
+      110419,
+      110862
     ]
   },
   {
@@ -90857,95 +88693,6 @@
     "classId": 2,
     "specName": "Retribution",
     "specId": 70,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 81597,
@@ -94474,10 +92221,7 @@
       81469,
       81470,
       81471,
-      81472,
-      81473,
       81474,
-      81475,
       81476,
       81477,
       81479,
@@ -94500,7 +92244,6 @@
       81497,
       81498,
       81499,
-      81500,
       81501,
       81502,
       81503,
@@ -94580,7 +92323,6 @@
       81618,
       81621,
       81628,
-      81629,
       81630,
       81631,
       81632,
@@ -94707,7 +92449,8 @@
       110257,
       110417,
       110418,
-      110419
+      110419,
+      110862
     ]
   },
   {
@@ -94716,95 +92459,6 @@
     "classId": 8,
     "specName": "Arcane",
     "specId": 62,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 62121,
@@ -95344,6 +92998,7 @@
         "maxRanks": 1,
         "next": [
           62127,
+          110597,
           62098
         ],
         "prev": [
@@ -95518,6 +93173,33 @@
         ]
       },
       {
+        "id": 110597,
+        "name": "Improved Warding",
+        "type": "single",
+        "posX": 3900,
+        "posY": 5100,
+        "reqPoints": 8,
+        "maxRanks": 1,
+        "next": [
+          62096
+        ],
+        "prev": [
+          108661
+        ],
+        "entries": [
+          {
+            "id": 137410,
+            "definitionId": 142170,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Improved Warding",
+            "spellId": 1297073,
+            "icon": "inv_cloth_raidmage_p_01helm",
+            "index": 100
+          }
+        ]
+      },
+      {
         "id": 62098,
         "name": "Tome of Antonidas",
         "type": "single",
@@ -95675,7 +93357,8 @@
         ],
         "prev": [
           62098,
-          62127
+          62127,
+          110597
         ],
         "entries": [
           {
@@ -96090,8 +93773,8 @@
         "posY": 2100,
         "maxRanks": 1,
         "next": [
-          102473,
-          102445
+          102445,
+          110850
         ],
         "prev": [
           102467
@@ -96117,7 +93800,7 @@
         "posY": 2100,
         "maxRanks": 1,
         "next": [
-          102445,
+          110850,
           102471
         ],
         "prev": [
@@ -96137,8 +93820,8 @@
         ]
       },
       {
-        "id": 102473,
-        "name": "Amplification",
+        "id": 102445,
+        "name": "Improved Clearcasting",
         "type": "single",
         "posX": 11100,
         "posY": 2700,
@@ -96151,20 +93834,20 @@
         ],
         "entries": [
           {
-            "id": 126543,
-            "definitionId": 131369,
+            "id": 126515,
+            "definitionId": 131341,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Amplification",
-            "spellId": 236628,
-            "icon": "spell_arcane_invocation",
+            "name": "Improved Clearcasting",
+            "spellId": 321420,
+            "icon": "spell_shadow_manaburn",
             "index": 100
           }
         ]
       },
       {
-        "id": 102445,
-        "name": "Improved Clearcasting",
+        "id": 110850,
+        "name": "Refractive Images",
         "type": "single",
         "posX": 12300,
         "posY": 2700,
@@ -96173,18 +93856,18 @@
           102449
         ],
         "prev": [
-          108538,
-          108539
+          108539,
+          108538
         ],
         "entries": [
           {
-            "id": 126515,
-            "definitionId": 131341,
+            "id": 137842,
+            "definitionId": 142596,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Improved Clearcasting",
-            "spellId": 321420,
-            "icon": "spell_shadow_manaburn",
+            "name": "Refractive Images",
+            "spellId": 1309497,
+            "icon": "inv_112_arcane_buff",
             "index": 100
           }
         ]
@@ -96227,7 +93910,7 @@
           102460
         ],
         "prev": [
-          102473
+          102445
         ],
         "entries": [
           {
@@ -96255,7 +93938,7 @@
           102469
         ],
         "prev": [
-          102445
+          110850
         ],
         "entries": [
           {
@@ -96334,6 +94017,7 @@
         "maxRanks": 1,
         "next": [
           102446,
+          110849,
           102468
         ],
         "prev": [
@@ -96471,6 +94155,31 @@
             "name": "Intuition",
             "spellId": 1223798,
             "icon": "spell_shadow_brainwash",
+            "index": 100
+          }
+        ]
+      },
+      {
+        "id": 110849,
+        "name": "Amplification",
+        "type": "single",
+        "posX": 11700,
+        "posY": 4500,
+        "reqPoints": 8,
+        "maxRanks": 1,
+        "next": [],
+        "prev": [
+          102460
+        ],
+        "entries": [
+          {
+            "id": 137841,
+            "definitionId": 142595,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Amplification",
+            "spellId": 236628,
+            "icon": "spell_arcane_invocation",
             "index": 100
           }
         ]
@@ -97087,7 +94796,7 @@
       },
       {
         "id": 110420,
-        "name": "Touch of the Archmage / Touch of the Archmage / Touch of the Archmage",
+        "name": "Prismatic Bolt / Prismatic Bolt / Prismatic Bolt",
         "type": "tiered",
         "posX": 12300,
         "posY": 7650,
@@ -97116,8 +94825,8 @@
             "definitionId": 141791,
             "maxRanks": 1,
             "type": "tierrank",
-            "name": "Touch of the Archmage",
-            "spellId": 1257942,
+            "name": "Prismatic Bolt",
+            "spellId": 1295923,
             "icon": "inv12_apextalent_mage_touchofthearchmage",
             "index": 100
           },
@@ -97126,9 +94835,9 @@
             "definitionId": 141790,
             "maxRanks": 2,
             "type": "tierrank",
-            "name": "Touch of the Archmage",
-            "spellId": 1257947,
-            "icon": "spell_holy_arcaneintellect",
+            "name": "Prismatic Bolt",
+            "spellId": 1295944,
+            "icon": "inv12_apextalent_mage_touchofthearchmage",
             "index": 200
           },
           {
@@ -97136,9 +94845,9 @@
             "definitionId": 141789,
             "maxRanks": 1,
             "type": "tierrank",
-            "name": "Touch of the Archmage",
-            "spellId": 1257950,
-            "icon": "spell_arcane_invocation",
+            "name": "Prismatic Bolt",
+            "spellId": 1295946,
+            "icon": "inv12_apextalent_mage_touchofthearchmage",
             "index": 300
           }
         ]
@@ -98158,7 +95867,6 @@
       102470,
       102471,
       102472,
-      102473,
       102474,
       102475,
       102476,
@@ -98244,7 +95952,10 @@
       110420,
       110422,
       110423,
-      110442
+      110442,
+      110597,
+      110849,
+      110850
     ]
   },
   {
@@ -98253,95 +95964,6 @@
     "classId": 8,
     "specName": "Fire",
     "specId": 63,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 62119,
@@ -98881,6 +96503,7 @@
         "maxRanks": 1,
         "next": [
           62127,
+          110597,
           62098
         ],
         "prev": [
@@ -99055,6 +96678,33 @@
         ]
       },
       {
+        "id": 110597,
+        "name": "Improved Warding",
+        "type": "single",
+        "posX": 3900,
+        "posY": 5100,
+        "reqPoints": 8,
+        "maxRanks": 1,
+        "next": [
+          62096
+        ],
+        "prev": [
+          108661
+        ],
+        "entries": [
+          {
+            "id": 137410,
+            "definitionId": 142170,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Improved Warding",
+            "spellId": 1297073,
+            "icon": "inv_cloth_raidmage_p_01helm",
+            "index": 100
+          }
+        ]
+      },
+      {
         "id": 62098,
         "name": "Tome of Antonidas",
         "type": "single",
@@ -99212,7 +96862,8 @@
         ],
         "prev": [
           62098,
-          62127
+          62127,
+          110597
         ],
         "entries": [
           {
@@ -101733,7 +99384,6 @@
       102470,
       102471,
       102472,
-      102473,
       102474,
       102475,
       102476,
@@ -101819,7 +99469,10 @@
       110420,
       110422,
       110423,
-      110442
+      110442,
+      110597,
+      110849,
+      110850
     ]
   },
   {
@@ -101828,95 +99481,6 @@
     "classId": 8,
     "specName": "Frost",
     "specId": 64,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 62117,
@@ -102456,6 +100020,7 @@
         "maxRanks": 1,
         "next": [
           62127,
+          110597,
           62098
         ],
         "prev": [
@@ -102630,6 +100195,33 @@
         ]
       },
       {
+        "id": 110597,
+        "name": "Improved Warding",
+        "type": "single",
+        "posX": 3900,
+        "posY": 5100,
+        "reqPoints": 8,
+        "maxRanks": 1,
+        "next": [
+          62096
+        ],
+        "prev": [
+          108661
+        ],
+        "entries": [
+          {
+            "id": 137410,
+            "definitionId": 142170,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Improved Warding",
+            "spellId": 1297073,
+            "icon": "inv_cloth_raidmage_p_01helm",
+            "index": 100
+          }
+        ]
+      },
+      {
         "id": 62098,
         "name": "Tome of Antonidas",
         "type": "single",
@@ -102787,7 +100379,8 @@
         ],
         "prev": [
           62098,
-          62127
+          62127,
+          110597
         ],
         "entries": [
           {
@@ -105326,7 +102919,6 @@
       102470,
       102471,
       102472,
-      102473,
       102474,
       102475,
       102476,
@@ -105412,7 +103004,10 @@
       110420,
       110422,
       110423,
-      110442
+      110442,
+      110597,
+      110849,
+      110850
     ]
   },
   {
@@ -105421,95 +103016,6 @@
     "classId": 1,
     "specName": "Arms",
     "specId": 71,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 90327,
@@ -106403,7 +103909,7 @@
             "type": "passive",
             "name": "Javelineer",
             "spellId": 1271948,
-            "icon": "inv_spear_01",
+            "icon": "",
             "index": 100
           }
         ]
@@ -107032,8 +104538,8 @@
       },
       {
         "id": 92614,
-        "name": "Overpowering Finish",
-        "type": "single",
+        "name": "Overpowering Finish / Mass Execution",
+        "type": "choice",
         "posX": 10800,
         "posY": 3900,
         "reqPoints": 8,
@@ -107055,6 +104561,16 @@
             "spellId": 400205,
             "icon": "ability_warrior_punishingblow",
             "index": 200
+          },
+          {
+            "id": 137473,
+            "definitionId": 142233,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Mass Execution",
+            "spellId": 1273075,
+            "icon": "warrior_talent_icon_mastercleaver",
+            "index": 300
           }
         ]
       },
@@ -107134,7 +104650,7 @@
         "maxRanks": 2,
         "next": [
           90291,
-          110175
+          109682
         ],
         "prev": [
           90292,
@@ -107162,7 +104678,6 @@
         "reqPoints": 8,
         "maxRanks": 1,
         "next": [
-          110175,
           109682
         ],
         "prev": [
@@ -107183,8 +104698,8 @@
       },
       {
         "id": 92536,
-        "name": "Improved Sweeping Strikes / Powerful Momentum",
-        "type": "choice",
+        "name": "Powerful Momentum",
+        "type": "single",
         "posX": 13800,
         "posY": 3900,
         "reqPoints": 8,
@@ -107196,16 +104711,6 @@
           90292
         ],
         "entries": [
-          {
-            "id": 114641,
-            "definitionId": 119647,
-            "maxRanks": 1,
-            "type": "passive",
-            "name": "Improved Sweeping Strikes",
-            "spellId": 383155,
-            "icon": "ability_rogue_slicedice",
-            "index": 100
-          },
           {
             "id": 114739,
             "definitionId": 119746,
@@ -107368,8 +104873,8 @@
         ]
       },
       {
-        "id": 110175,
-        "name": "Mass Execution",
+        "id": 109682,
+        "name": "Collateral Damage",
         "type": "single",
         "posX": 13200,
         "posY": 4500,
@@ -107379,36 +104884,9 @@
           90444
         ],
         "prev": [
-          90447,
-          90293
-        ],
-        "entries": [
-          {
-            "id": 136700,
-            "definitionId": 141472,
-            "maxRanks": 1,
-            "type": "passive",
-            "name": "Mass Execution",
-            "spellId": 1273075,
-            "icon": "warrior_talent_icon_mastercleaver",
-            "index": 100
-          }
-        ]
-      },
-      {
-        "id": 109682,
-        "name": "Collateral Damage",
-        "type": "single",
-        "posX": 13800,
-        "posY": 4500,
-        "reqPoints": 8,
-        "maxRanks": 1,
-        "next": [
-          90444
-        ],
-        "prev": [
           92536,
-          90293
+          90293,
+          90447
         ],
         "entries": [
           {
@@ -107506,7 +104984,6 @@
           90439
         ],
         "prev": [
-          110175,
           90291,
           109682
         ],
@@ -107525,7 +105002,7 @@
       },
       {
         "id": 92615,
-        "name": "Battlelord",
+        "name": "Master Tactician",
         "type": "single",
         "posX": 10200,
         "posY": 5700,
@@ -107543,9 +105020,9 @@
             "definitionId": 119747,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Battlelord",
-            "spellId": 386630,
-            "icon": "ability_pvp_hardiness",
+            "name": "Master Tactician",
+            "spellId": 1261057,
+            "icon": "ability_warrior_revenge",
             "index": 0
           }
         ]
@@ -107637,7 +105114,7 @@
       },
       {
         "id": 109679,
-        "name": "Master Tactician",
+        "name": "Battlelord",
         "type": "single",
         "posX": 10800,
         "posY": 6300,
@@ -107654,9 +105131,9 @@
             "definitionId": 140688,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Master Tactician",
-            "spellId": 1261057,
-            "icon": "ability_warrior_revenge",
+            "name": "Battlelord",
+            "spellId": 386630,
+            "icon": "ability_pvp_hardiness",
             "index": 100
           }
         ]
@@ -108869,13 +106346,14 @@
       109969,
       110118,
       110119,
-      110175,
       110176,
       110203,
       110330,
       110407,
       110411,
-      110412
+      110412,
+      110653,
+      110654
     ]
   },
   {
@@ -108884,95 +106362,6 @@
     "classId": 1,
     "specName": "Fury",
     "specId": 72,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 90325,
@@ -109037,7 +106426,7 @@
         "maxRanks": 1,
         "next": [
           90326,
-          109391
+          110654
         ],
         "prev": [
           90325
@@ -109146,7 +106535,7 @@
         "posY": 2100,
         "maxRanks": 1,
         "next": [
-          109391,
+          110654,
           90332,
           90352
         ],
@@ -109249,8 +106638,8 @@
         ]
       },
       {
-        "id": 109391,
-        "name": "Rend",
+        "id": 110654,
+        "name": "Storm of Blood",
         "type": "single",
         "posX": 1800,
         "posY": 2700,
@@ -109260,18 +106649,18 @@
           90351
         ],
         "prev": [
-          90344,
-          90326
+          90326,
+          90344
         ],
         "entries": [
           {
-            "id": 135597,
-            "definitionId": 140353,
+            "id": 137472,
+            "definitionId": 142232,
             "maxRanks": 1,
-            "type": "active",
-            "name": "Rend",
-            "spellId": 772,
-            "icon": "ability_gouge",
+            "type": "passive",
+            "name": "Storm of Blood",
+            "spellId": 1299025,
+            "icon": "ability_ironmaidens_whirlofblood",
             "index": 100
           }
         ]
@@ -109435,8 +106824,8 @@
           90348
         ],
         "prev": [
-          109391,
-          90352
+          90352,
+          110654
         ],
         "entries": [
           {
@@ -109572,7 +106961,7 @@
         ],
         "prev": [
           90375,
-          109391
+          110654
         ],
         "entries": [
           {
@@ -109866,7 +107255,7 @@
             "type": "passive",
             "name": "Javelineer",
             "spellId": 1271948,
-            "icon": "inv_spear_01",
+            "icon": "",
             "index": 100
           }
         ]
@@ -110707,8 +108096,8 @@
       },
       {
         "id": 109967,
-        "name": "Meat Cleaver",
-        "type": "single",
+        "name": "Meat Cleaver / Carving Blades",
+        "type": "choice",
         "posX": 13800,
         "posY": 3900,
         "reqPoints": 8,
@@ -110728,6 +108117,16 @@
             "spellId": 280392,
             "icon": "warrior_talent_icon_mastercleaver",
             "index": 100
+          },
+          {
+            "id": 137487,
+            "definitionId": 142247,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Carving Blades",
+            "spellId": 1300463,
+            "icon": "inv_knife_1h_goblinrogue_c_01",
+            "index": 200
           }
         ]
       },
@@ -112328,13 +109727,14 @@
       109969,
       110118,
       110119,
-      110175,
       110176,
       110203,
       110330,
       110407,
       110411,
-      110412
+      110412,
+      110653,
+      110654
     ]
   },
   {
@@ -112343,95 +109743,6 @@
     "classId": 1,
     "specName": "Protection",
     "specId": 73,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 90261,
@@ -112496,7 +109807,7 @@
         "maxRanks": 1,
         "next": [
           90326,
-          109391
+          110653
         ],
         "prev": [
           90261
@@ -112605,7 +109916,7 @@
         "posY": 2100,
         "maxRanks": 1,
         "next": [
-          109391,
+          110653,
           90332,
           90352
         ],
@@ -112708,8 +110019,8 @@
         ]
       },
       {
-        "id": 109391,
-        "name": "Rend",
+        "id": 110653,
+        "name": "Blood and Thunder",
         "type": "single",
         "posX": 1800,
         "posY": 2700,
@@ -112719,18 +110030,18 @@
           90351
         ],
         "prev": [
-          90344,
-          90326
+          90326,
+          90344
         ],
         "entries": [
           {
-            "id": 135597,
-            "definitionId": 140353,
+            "id": 137471,
+            "definitionId": 142231,
             "maxRanks": 1,
-            "type": "active",
-            "name": "Rend",
-            "spellId": 772,
-            "icon": "ability_gouge",
+            "type": "passive",
+            "name": "Blood and Thunder",
+            "spellId": 384277,
+            "icon": "warrior_talent_icon_bloodandthunder",
             "index": 100
           }
         ]
@@ -112884,8 +110195,8 @@
           90348
         ],
         "prev": [
-          109391,
-          90352
+          90352,
+          110653
         ],
         "entries": [
           {
@@ -113021,7 +110332,7 @@
         ],
         "prev": [
           90375,
-          109391
+          110653
         ],
         "entries": [
           {
@@ -113315,7 +110626,7 @@
             "type": "passive",
             "name": "Javelineer",
             "spellId": 1271948,
-            "icon": "inv_spear_01",
+            "icon": "",
             "index": 100
           }
         ]
@@ -115824,13 +113135,14 @@
       109969,
       110118,
       110119,
-      110175,
       110176,
       110203,
       110330,
       110407,
       110411,
-      110412
+      110412,
+      110653,
+      110654
     ]
   },
   {
@@ -115839,95 +113151,6 @@
     "classId": 9,
     "specName": "Affliction",
     "specId": 265,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 71931,
@@ -115975,7 +113198,7 @@
             "maxRanks": 1,
             "type": "passive",
             "name": "Soul Leech",
-            "spellId": 108370,
+            "spellId": 1311653,
             "icon": "warlock_siphonlife",
             "index": 100
           }
@@ -117933,7 +115156,7 @@
       },
       {
         "id": 109851,
-        "name": "Nocturnal Yield",
+        "name": "Impetuous Wrath",
         "type": "single",
         "posX": 14400,
         "posY": 5400,
@@ -117952,9 +115175,9 @@
             "definitionId": 140866,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Nocturnal Yield",
-            "spellId": 1260271,
-            "icon": "inv_nulllotus_shadow",
+            "name": "Impetuous Wrath",
+            "spellId": 1312998,
+            "icon": "spell_shadow_manaburn",
             "index": 100
           }
         ]
@@ -118122,7 +115345,7 @@
       },
       {
         "id": 109853,
-        "name": "Patient Zero",
+        "name": "Hedonic Gorging",
         "type": "single",
         "posX": 13200,
         "posY": 6600,
@@ -118138,9 +115361,9 @@
             "definitionId": 140868,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Patient Zero",
-            "spellId": 1260285,
-            "icon": "ability_warlock_soulswap",
+            "name": "Hedonic Gorging",
+            "spellId": 1311969,
+            "icon": "ability_soulrenderdormazain_hellscream",
             "index": 100
           }
         ]
@@ -119335,95 +116558,6 @@
     "classId": 9,
     "specName": "Demonology",
     "specId": 266,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 71931,
@@ -119471,7 +116605,7 @@
             "maxRanks": 1,
             "type": "passive",
             "name": "Soul Leech",
-            "spellId": 108370,
+            "spellId": 1311653,
             "icon": "warlock_siphonlife",
             "index": 100
           }
@@ -122893,95 +120027,6 @@
     "classId": 9,
     "specName": "Destruction",
     "specId": 267,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 71931,
@@ -123029,7 +120074,7 @@
             "maxRanks": 1,
             "type": "passive",
             "name": "Soul Leech",
-            "spellId": 108370,
+            "spellId": 1311653,
             "icon": "warlock_siphonlife",
             "index": 100
           }
@@ -126485,95 +123530,6 @@
     "classId": 10,
     "specName": "Brewmaster",
     "specId": 268,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 101143,
@@ -130659,95 +127615,6 @@
     "classId": 10,
     "specName": "Windwalker",
     "specId": 269,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 101143,
@@ -134817,95 +131684,6 @@
     "classId": 10,
     "specName": "Mistweaver",
     "specId": 270,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 101143,
@@ -137114,8 +133892,8 @@
       },
       {
         "id": 101112,
-        "name": "Dancing Mists",
-        "type": "single",
+        "name": "Dancing Mists / Vital Expenditure",
+        "type": "choice",
         "posX": 13200,
         "posY": 5100,
         "reqPoints": 8,
@@ -137138,6 +133916,16 @@
             "spellId": 388701,
             "icon": "ability_monk_serenity",
             "index": 100
+          },
+          {
+            "id": 137474,
+            "definitionId": 142234,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Vital Expenditure",
+            "spellId": 1299572,
+            "icon": "ability_monk_soothingmists",
+            "index": 200
           }
         ]
       },
@@ -138932,95 +135720,6 @@
     "classId": 12,
     "specName": "Havoc",
     "specId": 577,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 90942,
@@ -140306,7 +137005,7 @@
       },
       {
         "id": 93014,
-        "name": "Dash of Chaos",
+        "name": "Never Say Die",
         "type": "single",
         "posX": 10500,
         "posY": 2700,
@@ -140323,9 +137022,9 @@
             "definitionId": 120257,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Dash of Chaos",
+            "name": "Never Say Die",
             "spellId": 427794,
-            "icon": "inv_boots_cloth_35v3",
+            "icon": "inv_misc_food_legion_goosaporange_drop",
             "index": 100
           }
         ]
@@ -140971,8 +137670,8 @@
       },
       {
         "id": 91035,
-        "name": "Chaos Theory",
-        "type": "single",
+        "name": "Chaos Theory / Inner Demon",
+        "type": "choice",
         "posX": 11400,
         "posY": 5700,
         "reqPoints": 20,
@@ -140995,13 +137694,23 @@
             "spellId": 389687,
             "icon": "inv_glaive_1h_artifactaldrochi_d_03dual",
             "index": 100
+          },
+          {
+            "id": 137827,
+            "definitionId": 142581,
+            "maxRanks": 1,
+            "type": "passive",
+            "name": "Inner Demon",
+            "spellId": 389693,
+            "icon": "ability_demonhunter_glide",
+            "index": 200
           }
         ]
       },
       {
         "id": 91024,
-        "name": "Inner Demon / Chaotic Transformation",
-        "type": "choice",
+        "name": "Chaotic Transformation",
+        "type": "single",
         "posX": 12300,
         "posY": 5700,
         "reqPoints": 20,
@@ -141020,20 +137729,10 @@
             "definitionId": 117952,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Inner Demon",
-            "spellId": 389693,
-            "icon": "ability_demonhunter_glide",
-            "index": 100
-          },
-          {
-            "id": 117765,
-            "definitionId": 122777,
-            "maxRanks": 1,
-            "type": "passive",
             "name": "Chaotic Transformation",
             "spellId": 388112,
             "icon": "ability_demonhunter_glide",
-            "index": 200
+            "index": 100
           }
         ]
       },
@@ -142515,95 +139214,6 @@
     "classId": 12,
     "specName": "Vengeance",
     "specId": 581,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 90942,
@@ -144019,8 +140629,8 @@
       },
       {
         "id": 90988,
-        "name": "Roaring Fire / Sigil of Silence",
-        "type": "choice",
+        "name": "Feed the Demon",
+        "type": "single",
         "posX": 12300,
         "posY": 3300,
         "maxRanks": 1,
@@ -144038,20 +140648,10 @@
             "definitionId": 117910,
             "maxRanks": 1,
             "type": "passive",
-            "name": "Roaring Fire",
-            "spellId": 391178,
-            "icon": "spell_fire_felflamering",
+            "name": "Feed the Demon",
+            "spellId": 218612,
+            "icon": "spell_warlock_demonicempowerment",
             "index": 100
-          },
-          {
-            "id": 112904,
-            "definitionId": 117909,
-            "maxRanks": 1,
-            "type": "active",
-            "name": "Sigil of Silence",
-            "spellId": 202137,
-            "icon": "ability_demonhunter_sigilofsilence",
-            "index": 200
           }
         ]
       },
@@ -144168,7 +140768,7 @@
       },
       {
         "id": 90966,
-        "name": "Feed the Demon",
+        "name": "Sigil of Silence",
         "type": "single",
         "posX": 12300,
         "posY": 3900,
@@ -144187,10 +140787,10 @@
             "id": 112881,
             "definitionId": 117886,
             "maxRanks": 1,
-            "type": "passive",
-            "name": "Feed the Demon",
-            "spellId": 218612,
-            "icon": "spell_warlock_demonicempowerment",
+            "type": "active",
+            "name": "Sigil of Silence",
+            "spellId": 202137,
+            "icon": "ability_demonhunter_sigilofsilence",
             "index": 100
           }
         ]
@@ -144520,7 +141120,7 @@
       },
       {
         "id": 90954,
-        "name": "Sigil of Chains",
+        "name": "Roaring Fire",
         "type": "single",
         "posX": 12300,
         "posY": 5100,
@@ -144539,10 +141139,10 @@
             "id": 112867,
             "definitionId": 117872,
             "maxRanks": 1,
-            "type": "active",
-            "name": "Sigil of Chains",
-            "spellId": 202138,
-            "icon": "ability_demonhunter_sigilofchains",
+            "type": "passive",
+            "name": "Roaring Fire",
+            "spellId": 391178,
+            "icon": "spell_fire_felflamering",
             "index": 100
           }
         ]
@@ -146137,95 +142737,6 @@
     "classId": 12,
     "specName": "Devourer",
     "specId": 1480,
-    "pointLevels": {
-      "class": [
-        10,
-        12,
-        14,
-        16,
-        18,
-        20,
-        22,
-        24,
-        26,
-        28,
-        30,
-        32,
-        34,
-        36,
-        38,
-        40,
-        42,
-        44,
-        46,
-        48,
-        50,
-        52,
-        54,
-        56,
-        58,
-        60,
-        62,
-        64,
-        66,
-        68,
-        70,
-        82,
-        85,
-        88
-      ],
-      "spec": [
-        11,
-        13,
-        15,
-        17,
-        19,
-        21,
-        23,
-        25,
-        27,
-        29,
-        31,
-        33,
-        35,
-        37,
-        39,
-        41,
-        43,
-        45,
-        47,
-        49,
-        51,
-        53,
-        55,
-        57,
-        59,
-        61,
-        63,
-        65,
-        67,
-        69,
-        81,
-        84,
-        87,
-        90
-      ],
-      "hero": [
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        83,
-        86,
-        89
-      ]
-    },
     "classNodes": [
       {
         "id": 90942,

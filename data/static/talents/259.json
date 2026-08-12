@@ -417,6 +417,11 @@
       "icon": "inv_drink_milk_05",
       "spellId": 469779
     },
+    "142224": {
+      "name": "Thistle Tea",
+      "icon": "inv_drink_milk_05",
+      "spellId": 1298826
+    },
     "90748": {
       "name": "Cold Blooded Killer",
       "icon": "spell_ice_lament",
@@ -693,14 +698,14 @@
       "spellId": 255544
     },
     "90771": {
-      "name": "Systemic Failure",
-      "icon": "ability_skeer_bloodletting",
-      "spellId": 381652
+      "name": "Amplifying Poison",
+      "icon": "inv_misc_herb_fellotus",
+      "spellId": 381664
     },
     "117669": {
-      "name": "Systemic Failure",
-      "icon": "ability_skeer_bloodletting",
-      "spellId": 381652
+      "name": "Amplifying Poison",
+      "icon": "inv_misc_herb_fellotus",
+      "spellId": 381664
     },
     "90768": {
       "name": "Venomous Wounds",
@@ -713,24 +718,24 @@
       "spellId": 79134
     },
     "90777": {
-      "name": "Amplifying Poison",
-      "icon": "inv_misc_herb_fellotus",
-      "spellId": 381664
+      "name": "Systemic Failure",
+      "icon": "ability_skeer_bloodletting",
+      "spellId": 381652
     },
     "117675": {
-      "name": "Amplifying Poison",
-      "icon": "inv_misc_herb_fellotus",
-      "spellId": 381664
+      "name": "Systemic Failure",
+      "icon": "ability_skeer_bloodletting",
+      "spellId": 381652
     },
     "90786": {
-      "name": "Blindside",
-      "icon": "ability_rogue_focusedattacks",
-      "spellId": 328085
+      "name": "Dashing Scoundrel",
+      "icon": "ability_rogue_venomouswounds",
+      "spellId": 381797
     },
     "117684": {
-      "name": "Blindside",
-      "icon": "ability_rogue_focusedattacks",
-      "spellId": 328085
+      "name": "Dashing Scoundrel",
+      "icon": "ability_rogue_venomouswounds",
+      "spellId": 381797
     },
     "90770": {
       "name": "Kingsbane",
@@ -763,14 +768,14 @@
       "spellId": 385478
     },
     "90622": {
-      "name": "Avulsion",
-      "icon": "inv_artifact_corruptedbloodofzakajz",
-      "spellId": 1250358
+      "name": "Blindside",
+      "icon": "ability_rogue_focusedattacks",
+      "spellId": 328085
     },
     "117512": {
-      "name": "Avulsion",
-      "icon": "inv_artifact_corruptedbloodofzakajz",
-      "spellId": 1250358
+      "name": "Blindside",
+      "icon": "ability_rogue_focusedattacks",
+      "spellId": 328085
     },
     "90785": {
       "name": "Zoldyck Recipe",
@@ -808,14 +813,14 @@
       "spellId": 1250318
     },
     "90774": {
-      "name": "Deadly Momentum",
-      "icon": "ability_rogue_deadlymomentum",
-      "spellId": 1250271
+      "name": "Avulsion",
+      "icon": "inv_artifact_corruptedbloodofzakajz",
+      "spellId": 1250358
     },
     "117672": {
-      "name": "Deadly Momentum",
-      "icon": "ability_rogue_deadlymomentum",
-      "spellId": 1250271
+      "name": "Avulsion",
+      "icon": "inv_artifact_corruptedbloodofzakajz",
+      "spellId": 1250358
     },
     "90775": {
       "name": "Scent of Blood",
@@ -828,14 +833,14 @@
       "spellId": 381799
     },
     "90784": {
-      "name": "Dashing Scoundrel",
-      "icon": "ability_rogue_venomouswounds",
-      "spellId": 381797
+      "name": "Unstable Toxin",
+      "icon": "rogue_venomzest",
+      "spellId": 1298812
     },
     "117682": {
-      "name": "Dashing Scoundrel",
-      "icon": "ability_rogue_venomouswounds",
-      "spellId": 381797
+      "name": "Unstable Toxin",
+      "icon": "rogue_venomzest",
+      "spellId": 1298812
     },
     "94553": {
       "name": "Dragon-Tempered Blades",

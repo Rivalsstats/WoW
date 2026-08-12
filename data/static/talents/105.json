@@ -567,25 +567,25 @@
       "icon": "inv_relics_totemoflife",
       "spellId": 392410
     },
-    "108142": {
+    "142268": {
       "name": "Verdant Infusion",
       "icon": "inv_relics_totemoflife",
       "spellId": 392410
     },
-    "108141": {
+    "142267": {
       "name": "Prosperity",
       "icon": "ability_druid_giftoftheearthmother",
       "spellId": 200383
     },
     "82051": {
-      "name": "Nature's Splendor",
-      "icon": "spell_nature_spiritarmor",
-      "spellId": 392288
+      "name": "Overgrowth",
+      "icon": "ability_druid_overgrowth",
+      "spellId": 203651
     },
     "108108": {
-      "name": "Nature's Splendor",
-      "icon": "spell_nature_spiritarmor",
-      "spellId": 392288
+      "name": "Overgrowth",
+      "icon": "ability_druid_overgrowth",
+      "spellId": 203651
     },
     "108107": {
       "name": "Passing Seasons",
@@ -653,14 +653,14 @@
       "spellId": 102342
     },
     "82059": {
-      "name": "Verdancy",
-      "icon": "inv_10_herb_seed_magiccolor5",
-      "spellId": 392325
+      "name": "Germination",
+      "icon": "spell_druid_germination",
+      "spellId": 155675
     },
     "108118": {
-      "name": "Verdancy",
-      "icon": "inv_10_herb_seed_magiccolor5",
-      "spellId": 392325
+      "name": "Germination",
+      "icon": "spell_druid_germination",
+      "spellId": 155675
     },
     "103874": {
       "name": "Lifetreading",
@@ -683,14 +683,9 @@
       "spellId": 1226140
     },
     "82053": {
-      "name": "Inner Peace",
-      "icon": "ability_druid_dreamstate",
-      "spellId": 197073
-    },
-    "108112": {
-      "name": "Inner Peace",
-      "icon": "ability_druid_dreamstate",
-      "spellId": 197073
+      "name": "Flourish",
+      "icon": "spell_druid_wildburst",
+      "spellId": 197721
     },
     "108111": {
       "name": "Flourish",
@@ -698,14 +693,14 @@
       "spellId": 197721
     },
     "82056": {
-      "name": "Cultivation",
-      "icon": "spell_nature_healingtouch",
-      "spellId": 200390
+      "name": "Flash of Clarity",
+      "icon": "spell_nature_crystalball",
+      "spellId": 392220
     },
     "108115": {
-      "name": "Cultivation",
-      "icon": "spell_nature_healingtouch",
-      "spellId": 200390
+      "name": "Flash of Clarity",
+      "icon": "spell_nature_crystalball",
+      "spellId": 392220
     },
     "82045": {
       "name": "Improved Wild Growth",
@@ -781,6 +776,16 @@
       "name": "Power of the Archdruid",
       "icon": "spell_druid_rampantgrowth",
       "spellId": 392302
+    },
+    "110694": {
+      "name": "Cultivation",
+      "icon": "spell_nature_healingtouch",
+      "spellId": 200390
+    },
+    "142270": {
+      "name": "Cultivation",
+      "icon": "spell_nature_healingtouch",
+      "spellId": 200390
     },
     "82080": {
       "name": "Unstoppable Growth",
@@ -983,14 +988,14 @@
       "spellId": 392356
     },
     "82071": {
-      "name": "Germination",
-      "icon": "spell_druid_germination",
-      "spellId": 155675
+      "name": "Verdancy",
+      "icon": "inv_10_herb_seed_magiccolor5",
+      "spellId": 392325
     },
     "108132": {
-      "name": "Germination",
-      "icon": "spell_druid_germination",
-      "spellId": 155675
+      "name": "Verdancy",
+      "icon": "inv_10_herb_seed_magiccolor5",
+      "spellId": 392325
     },
     "110424": {
       "name": "Everbloom",

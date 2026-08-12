@@ -1,100 +1,104 @@
 {
-  "402": {
+  "588": {
     "name": {
-      "en_US": "Algeth'ar Academy",
-      "es_MX": "Academia Algeth'ar",
-      "pt_BR": "Academia Algeth'ar",
-      "de_DE": "Akademie von Algeth'ar",
-      "en_GB": "Algeth'ar Academy",
-      "es_ES": "Academia Algeth'ar",
-      "fr_FR": "Acad\u00e9mie d\u2019Algeth\u2019ar",
-      "it_IT": "Accademia di Algeth'ar",
-      "ru_RU": "\u0410\u043a\u0430\u0434\u0435\u043c\u0438\u044f \u0410\u043b\u0433\u0435\u0442'\u0430\u0440",
-      "ko_KR": "\uc54c\uac8c\ud0c0\ub974 \ub300\ud559",
-      "zh_TW": "\u963f\u723e\u84cb\u85a9\u5b78\u9662",
-      "zh_CN": "\u827e\u6770\u65af\u4e9a\u5b66\u9662"
+      "en_US": "Altar of Fangs",
+      "es_MX": "Altar de Colmillos",
+      "pt_BR": "Altar das Presas",
+      "de_DE": "Altar der F\u00e4nge",
+      "en_GB": "Altar of Fangs",
+      "es_ES": "Altar de los Colmillos",
+      "fr_FR": "Autel des crochets",
+      "it_IT": "Altare delle Zanne",
+      "ru_RU": "\u0410\u043b\u0442\u0430\u0440\u044c \u041a\u043b\u044b\u043a\u043e\u0432",
+      "ko_KR": "\uc1a1\uacf3\ub2c8\uc758 \uc81c\ub2e8",
+      "zh_TW": "\u6bd2\u7259\u796d\u58c7",
+      "zh_CN": "\u6bd2\u7259\u796d\u575b"
     },
-    "slug": "algethar-academy",
+    "slug": "altar-of-fangs",
     "keystone_upgrades": {
       "1": {
         "upgrade_level": 1,
-        "qualifying_duration": 1860000
+        "qualifying_duration": 1800000
       },
       "2": {
         "upgrade_level": 2,
-        "qualifying_duration": 1488000
+        "qualifying_duration": 1440000
       },
       "3": {
         "upgrade_level": 3,
-        "qualifying_duration": 1116000
+        "qualifying_duration": 1080000
       }
     },
-    "icon": "algethar-academy-small.jpg",
-    "raiderio_short_name": "AA",
+    "icon": "altar-of-fangs-small.jpg",
+    "raiderio_short_name": "AOF",
     "boss_npc_ids": [
-      191736,
-      190609,
-      196482,
-      194181
+      262398,
+      259445,
+      259446,
+      259447
     ],
-    "journal_instance_id": 1201
+    "journal_instance_id": 1322
   },
-  "558": {
+  "586": {
     "name": {
-      "en_US": "Magisters' Terrace",
-      "es_MX": "Bancal del Magister",
-      "pt_BR": "Terra\u00e7o dos Mag\u00edsteres",
-      "de_DE": "Terrasse der Magister",
-      "en_GB": "Magisters' Terrace",
-      "es_ES": "Bancal del Magister",
-      "fr_FR": "Terrasse des Magist\u00e8res",
-      "it_IT": "Terrazza dei Magistri",
-      "ru_RU": "\u0422\u0435\u0440\u0440\u0430\u0441\u0430 \u041c\u0430\u0433\u0438\u0441\u0442\u0440\u043e\u0432",
-      "ko_KR": "\ub9c8\ubc95\ud559\uc790\uc758 \uc815\uc6d0",
-      "zh_TW": "\u535a\u5b78\u8005\u6bbf\u5802",
-      "zh_CN": "\u9b54\u5bfc\u5e08\u5e73\u53f0"
+      "en_US": "Den of Nalorakk",
+      "es_MX": "Guarida de Nalorakk",
+      "pt_BR": "Covil de Nalorakk",
+      "de_DE": "Nalorakks Bau",
+      "en_GB": "Den of Nalorakk",
+      "es_ES": "Guarida de Nalorakk",
+      "fr_FR": "Antre de Nalorakk",
+      "it_IT": "Tana di Nalorakk",
+      "ru_RU": "\u0411\u0435\u0440\u043b\u043e\u0433\u0430 \u041d\u0430\u043b\u043e\u0440\u0430\u043a\u043a\u0430",
+      "ko_KR": "\ub0a0\ub85c\ub77c\ud06c\uc758 \uc18c\uad74",
+      "zh_TW": "\u7d0d\u7f85\u62c9\u514b\u4e4b\u7a74",
+      "zh_CN": "\u7eb3\u6d1b\u62c9\u514b\u7684\u6d1e\u7a74"
     },
-    "slug": "magisters-terrace",
+    "slug": "den-of-nalorakk",
     "keystone_upgrades": {
       "1": {
         "upgrade_level": 1,
-        "qualifying_duration": 2040000
+        "qualifying_duration": 1920000
       },
       "2": {
         "upgrade_level": 2,
-        "qualifying_duration": 1632000
+        "qualifying_duration": 1536000
       },
       "3": {
         "upgrade_level": 3,
-        "qualifying_duration": 1224000
+        "qualifying_duration": 1152000
       }
     },
-    "icon": "magisters-terrace-small.jpg",
-    "raiderio_short_name": "MT",
+    "icon": "den-of-nalorakk-small.jpg",
+    "raiderio_short_name": "DON",
     "boss_npc_ids": [
-      231865,
-      241397,
-      231861,
-      231863
+      244100,
+      246404,
+      247301,
+      241812,
+      245076,
+      251189,
+      244759,
+      244696
     ],
-    "journal_instance_id": 1300
+    "journal_instance_id": 1311
   },
-  "560": {
+  "249": {
     "name": {
-      "en_US": "Maisara Caverns",
-      "es_MX": "Cavernas de Maisara",
-      "pt_BR": "Cavernas de Maisara",
-      "de_DE": "Maisarakavernen",
-      "en_GB": "Maisara Caverns",
-      "es_ES": "Cavernas de Maisara",
-      "fr_FR": "Cavernes de Maisara",
-      "it_IT": "Caverne di Maisara",
-      "ru_RU": "\u041f\u0435\u0449\u0435\u0440\u044b \u041c\u0430\u0438\u0441\u0430\u0440\u0430",
-      "ko_KR": "\ub9c8\uc774\uc0ac\ub77c \ub3d9\uad74",
-      "zh_TW": "\u6885\u85a9\u62c9\u6d1e\u7a74",
-      "zh_CN": "\u8fc8\u8428\u62c9\u6d1e\u7a9f"
+      "en_US": "Kings' Rest",
+      "es_MX": "Reposo de los Reyes",
+      "pt_BR": "Repouso do Rei",
+      "de_DE": "Die K\u00f6nigsruh",
+      "en_GB": "Kings' Rest",
+      "es_ES": "Reposo de los Reyes",
+      "fr_FR": "Repos des rois",
+      "it_IT": "Requie dei Re",
+      "ru_RU": "\u0413\u0440\u043e\u0431\u043d\u0438\u0446\u0430 \u043a\u043e\u0440\u043e\u043b\u0435\u0439",
+      "ko_KR": "\uc655\ub4e4\uc758 \uc548\uc2dd\ucc98",
+      "zh_TW": "\u8af8\u738b\u4e4b\u7720",
+      "zh_CN": "\u8bf8\u738b\u4e4b\u7720"
     },
-    "slug": "maisara-caverns",
+    "slug": "kings-rest",
     "keystone_upgrades": {
       "1": {
         "upgrade_level": 1,
@@ -109,113 +113,37 @@
         "qualifying_duration": 1188000
       }
     },
-    "icon": "maisara-caverns-small.jpg",
-    "raiderio_short_name": "MC",
+    "icon": "kings-rest-small.jpg",
+    "raiderio_short_name": "KR",
     "boss_npc_ids": [
-      247570,
-      248595,
-      247572,
-      248605
+      136160,
+      135406,
+      269808,
+      134993,
+      269810,
+      269811,
+      136976,
+      136984,
+      135322
     ],
-    "journal_instance_id": 1315
+    "journal_instance_id": 1041
   },
-  "559": {
+  "587": {
     "name": {
-      "en_US": "Nexus-Point Xenas",
-      "es_MX": "Punto del Nexo Xenas",
-      "pt_BR": "Ponto de Nexus Xenas",
-      "de_DE": "Nexuspunkt Xenas",
-      "en_GB": "Nexus-Point Xenas",
-      "es_ES": "Punto de Nexo: Xenas",
-      "fr_FR": "Point-nexus Xenas",
-      "it_IT": "Punta del Nexus Xenas",
-      "ru_RU": "\u0423\u0437\u0435\u043b \u041d\u0435\u043a\u0441\u0443\u0441\u0430 \u0417\u0435\u043d\u0430\u0441",
-      "ko_KR": "\uacf5\uacb0\ud0d1 \uc81c\ub098\uc2a4",
-      "zh_TW": "\u5967\u6838\u9ede\u745f\u7d0d\u65af",
-      "zh_CN": "\u8282\u70b9\u5e0c\u7eb3\u65af"
+      "en_US": "Murder Row",
+      "es_MX": "El Frontal de la Muerte",
+      "pt_BR": "Travessa do Assassino",
+      "de_DE": "M\u00f6rdergasse",
+      "en_GB": "Murder Row",
+      "es_ES": "Frontal de la Muerte",
+      "fr_FR": "All\u00e9e du meurtre",
+      "it_IT": "Traversa degli Intrighi",
+      "ru_RU": "\u0417\u0430\u043a\u043e\u0443\u043b\u043e\u043a \u0434\u0443\u0448\u0435\u0433\u0443\u0431\u043e\u0432",
+      "ko_KR": "\uc8fd\uc74c\uc758 \uace8\ubaa9",
+      "zh_TW": "\u5147\u6bba\u8def",
+      "zh_CN": "\u5bc6\u8c0b\u5c0f\u5f84"
     },
-    "slug": "nexuspoint-xenas",
-    "keystone_upgrades": {
-      "1": {
-        "upgrade_level": 1,
-        "qualifying_duration": 1800000
-      },
-      "2": {
-        "upgrade_level": 2,
-        "qualifying_duration": 1440000
-      },
-      "3": {
-        "upgrade_level": 3,
-        "qualifying_duration": 1080000
-      }
-    },
-    "icon": "nexus-point-xenas-small.jpg",
-    "raiderio_short_name": "NPX",
-    "boss_npc_ids": [
-      241546,
-      241539,
-      241542
-    ],
-    "journal_instance_id": 1316
-  },
-  "556": {
-    "name": {
-      "en_US": "Pit of Saron",
-      "es_MX": "Foso de Saron",
-      "pt_BR": "Fosso de Saron",
-      "de_DE": "Grube von Saron",
-      "en_GB": "Pit of Saron",
-      "es_ES": "Foso de Saron",
-      "fr_FR": "Fosse de Saron",
-      "it_IT": "Fossa di Saron",
-      "ru_RU": "\u042f\u043c\u0430 \u0421\u0430\u0440\u043e\u043d\u0430",
-      "ko_KR": "\uc0ac\ub860\uc758 \uad6c\ub369\uc774",
-      "zh_TW": "\u85a9\u502b\u4e4b\u6df5",
-      "zh_CN": "\u8428\u9686\u77ff\u5751"
-    },
-    "slug": "pit-of-saron",
-    "keystone_upgrades": {
-      "1": {
-        "upgrade_level": 1,
-        "qualifying_duration": 1800000
-      },
-      "2": {
-        "upgrade_level": 2,
-        "qualifying_duration": 1440000
-      },
-      "3": {
-        "upgrade_level": 3,
-        "qualifying_duration": 1080000
-      }
-    },
-    "icon": "pit-of-saron-small.jpg",
-    "raiderio_short_name": "POS",
-    "boss_npc_ids": [
-      252648,
-      252621,
-      252653,
-      252625,
-      252635,
-      255037
-    ],
-    "journal_instance_id": 278
-  },
-  "239": {
-    "name": {
-      "en_US": "Seat of the Triumvirate",
-      "es_MX": "Trono del Triunvirato",
-      "pt_BR": "Sede do Triunvirato",
-      "de_DE": "Sitz des Triumvirats",
-      "en_GB": "Seat of the Triumvirate",
-      "es_ES": "Trono del Triunvirato",
-      "fr_FR": "Si\u00e8ge du triumvirat",
-      "it_IT": "Seggio del Triumvirato",
-      "ru_RU": "\u041f\u0440\u0435\u0441\u0442\u043e\u043b \u0422\u0440\u0438\u0443\u043c\u0432\u0438\u0440\u0430\u0442\u0430",
-      "ko_KR": "\uc0bc\ub450\uc815\uc758 \uad8c\uc88c",
-      "zh_TW": "\u4e09\u5091\u8b70\u6703\u4e4b\u5ea7",
-      "zh_CN": "\u6267\u653f\u56e2\u4e4b\u5ea7"
-    },
-    "slug": "seat-of-the-triumvirate",
+    "slug": "murder-row",
     "keystone_upgrades": {
       "1": {
         "upgrade_level": 1,
@@ -230,34 +158,33 @@
         "qualifying_duration": 1224000
       }
     },
-    "icon": "seat-of-the-triumvirate-small.jpg",
-    "raiderio_short_name": "SEAT",
+    "icon": "murder-row-small.jpg",
+    "raiderio_short_name": "MR",
     "boss_npc_ids": [
-      122056,
-      122313,
-      122316,
-      122319,
-      124729,
-      125340
+      234660,
+      234763,
+      234647,
+      234648,
+      234649
     ],
-    "journal_instance_id": 945
+    "journal_instance_id": 1304
   },
-  "161": {
+  "399": {
     "name": {
-      "en_US": "Skyreach",
-      "es_MX": "Trecho Celestial",
-      "pt_BR": "Beira-c\u00e9u",
-      "de_DE": "Die Himmelsnadel",
-      "en_GB": "Skyreach",
-      "es_ES": "Trecho Celestial",
-      "fr_FR": "Or\u00e9e-du-Ciel",
-      "it_IT": "Vetta dei Cieli",
-      "ru_RU": "\u041d\u0435\u0431\u0435\u0441\u043d\u044b\u0439 \u041f\u0443\u0442\u044c",
-      "ko_KR": "\ud558\ub298\ud0d1",
-      "zh_TW": "\u64ce\u5929\u5cf0",
-      "zh_CN": "\u901a\u5929\u5cf0"
+      "en_US": "Ruby Life Pools",
+      "es_MX": "Estanques de Vida Rub\u00ed",
+      "pt_BR": "Po\u00e7os da Vida Rubi",
+      "de_DE": "Rubinlebensbecken",
+      "en_GB": "Ruby Life Pools",
+      "es_ES": "Estanques de Vida Rub\u00ed",
+      "fr_FR": "Bassins de l\u2019Essence rubis",
+      "it_IT": "Pozze della Vita di Rubino",
+      "ru_RU": "\u0420\u0443\u0431\u0438\u043d\u043e\u0432\u044b\u0435 \u041e\u043c\u0443\u0442\u044b \u0416\u0438\u0437\u043d\u0438",
+      "ko_KR": "\ub8e8\ube44 \uc0dd\uba85\uc758 \uc6c5\ub369\uc774",
+      "zh_TW": "\u6676\u7d05\u751f\u547d\u4e4b\u6c60",
+      "zh_CN": "\u7ea2\u7389\u65b0\u751f\u6cd5\u6c60"
     },
-    "slug": "skyreach",
+    "slug": "ruby-life-pools",
     "keystone_upgrades": {
       "1": {
         "upgrade_level": 1,
@@ -272,55 +199,143 @@
         "qualifying_duration": 1008000
       }
     },
-    "icon": "skyreach-small.jpg",
-    "raiderio_short_name": "SR",
+    "icon": "ruby-life-pools-small.jpg",
+    "raiderio_short_name": "RLP",
     "boss_npc_ids": [
-      76266,
-      75964,
-      76141,
-      76143
+      189232,
+      190484,
+      190485,
+      188252,
+      189886
     ],
-    "journal_instance_id": 476
+    "journal_instance_id": 1202
   },
-  "557": {
+  "250": {
     "name": {
-      "en_US": "Windrunner Spire",
-      "es_MX": "Aguja Brisaveloz",
-      "pt_BR": "Pico dos Correventos",
-      "de_DE": "Windl\u00e4uferturm",
-      "en_GB": "Windrunner Spire",
-      "es_ES": "Aguja Brisaveloz",
-      "fr_FR": "Fl\u00e8che de Coursevent",
-      "it_IT": "Pinnacolo dei Ventolesto",
-      "ru_RU": "\u0428\u043f\u0438\u043b\u0438 \u0412\u0435\u0442\u0440\u043e\u043a\u0440\u044b\u043b\u044b\u0445",
-      "ko_KR": "\uc708\ub4dc\ub7ec\ub108 \ucca8\ud0d1",
-      "zh_TW": "\u98a8\u884c\u8005\u5854",
-      "zh_CN": "\u98ce\u884c\u8005\u4e4b\u5854"
+      "en_US": "Temple of Sethraliss",
+      "es_MX": "Templo de Sethraliss",
+      "pt_BR": "Templo de Sethraliss",
+      "de_DE": "Der Tempel von Sethraliss",
+      "en_GB": "Temple of Sethraliss",
+      "es_ES": "Templo de Sethraliss",
+      "fr_FR": "Temple de Sephraliss",
+      "it_IT": "Tempio di Sethraliss",
+      "ru_RU": "\u0425\u0440\u0430\u043c \u0421\u0435\u0442\u0440\u0430\u043b\u0438\u0441\u0441",
+      "ko_KR": "\uc138\uc2a4\ub784\ub9ac\uc2a4 \uc0ac\uc6d0",
+      "zh_TW": "\u745f\u6c99\u5229\u65af\u795e\u5edf",
+      "zh_CN": "\u585e\u5854\u91cc\u65af\u795e\u5e99"
     },
-    "slug": "windrunner-spire",
+    "slug": "temple-of-sethraliss",
     "keystone_upgrades": {
       "1": {
         "upgrade_level": 1,
-        "qualifying_duration": 1980000
+        "qualifying_duration": 1920000
       },
       "2": {
         "upgrade_level": 2,
-        "qualifying_duration": 1584000
+        "qualifying_duration": 1536000
       },
       "3": {
         "upgrade_level": 3,
-        "qualifying_duration": 1188000
+        "qualifying_duration": 1152000
       }
     },
-    "icon": "windrunner-spire-small.jpg",
-    "raiderio_short_name": "WS",
+    "icon": "temple-of-sethraliss-small.jpg",
+    "raiderio_short_name": "TOS",
     "boss_npc_ids": [
-      231626,
-      231629,
-      231631,
-      231636,
-      231606
+      262530,
+      262822,
+      133384,
+      263658,
+      268747,
+      268364,
+      263181,
+      133392,
+      134388,
+      135445,
+      134487,
+      263383,
+      139131
     ],
-    "journal_instance_id": 1299
+    "journal_instance_id": 1030
+  },
+  "584": {
+    "name": {
+      "en_US": "The Blinding Vale",
+      "es_MX": "El Valle Enceguecedor",
+      "pt_BR": "O Vale Ofuscante",
+      "de_DE": "Das blendende Tal",
+      "en_GB": "The Blinding Vale",
+      "es_ES": "El Valle Cegador",
+      "fr_FR": "Le val Aveuglant",
+      "it_IT": "Valle Accecante",
+      "ru_RU": "\u0421\u043b\u0435\u043f\u044f\u0449\u0430\u044f \u0434\u043e\u043b\u0438\u043d\u0430",
+      "ko_KR": "\ub208\ubd80\uc2e0 \uace8\uc9dc\uae30",
+      "zh_TW": "\u76f2\u76ee\u8c37\u5730",
+      "zh_CN": "\u593a\u76ee\u8c37"
+    },
+    "slug": "the-blinding-vale",
+    "keystone_upgrades": {
+      "1": {
+        "upgrade_level": 1,
+        "qualifying_duration": 1800000
+      },
+      "2": {
+        "upgrade_level": 2,
+        "qualifying_duration": 1440000
+      },
+      "3": {
+        "upgrade_level": 3,
+        "qualifying_duration": 1080000
+      }
+    },
+    "icon": "the-blinding-vale-small.jpg",
+    "raiderio_short_name": "BV",
+    "boss_npc_ids": [
+      245912,
+      247676,
+      243028,
+      244887
+    ],
+    "journal_instance_id": 1309
+  },
+  "585": {
+    "name": {
+      "en_US": "Voidscar Arena",
+      "es_MX": "Arena Rajavac\u00edo",
+      "pt_BR": "Arena da Chaga do Caos",
+      "de_DE": "Arena der Leerennarbe",
+      "en_GB": "Voidscar Arena",
+      "es_ES": "Arena Lacravacua",
+      "fr_FR": "Ar\u00e8ne de la Cicatrice du Vide",
+      "it_IT": "Arena Sfregiavuoto",
+      "ru_RU": "\u0410\u0440\u0435\u043d\u0430 \u0428\u0440\u0430\u043c\u0430 \u0411\u0435\u0437\u0434\u043d\u044b",
+      "ko_KR": "\uacf5\ud5c8\ud749\ud130 \ud22c\uae30\uc7a5",
+      "zh_TW": "\u865b\u7121\u4e4b\u75d5\u7af6\u6280\u5834",
+      "zh_CN": "\u865a\u7a7a\u4e4b\u75d5\u7ade\u6280\u573a"
+    },
+    "slug": "voidscar-arena",
+    "keystone_upgrades": {
+      "1": {
+        "upgrade_level": 1,
+        "qualifying_duration": 1800000
+      },
+      "2": {
+        "upgrade_level": 2,
+        "qualifying_duration": 1440000
+      },
+      "3": {
+        "upgrade_level": 3,
+        "qualifying_duration": 1080000
+      }
+    },
+    "icon": "voidscar-arena-small.jpg",
+    "raiderio_short_name": "VSA",
+    "boss_npc_ids": [
+      239008,
+      238887,
+      239167
+    ],
+    "journal_instance_id": 1313
   }
 }

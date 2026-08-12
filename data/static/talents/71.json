@@ -304,12 +304,12 @@
     },
     "110118": {
       "name": "Javelineer",
-      "icon": "inv_spear_01",
+      "icon": "",
       "spellId": 1271948
     },
     "141397": {
       "name": "Javelineer",
-      "icon": "inv_spear_01",
+      "icon": "",
       "spellId": 1271948
     },
     "108685": {
@@ -552,6 +552,11 @@
       "icon": "ability_warrior_punishingblow",
       "spellId": 400205
     },
+    "142233": {
+      "name": "Mass Execution",
+      "icon": "warrior_talent_icon_mastercleaver",
+      "spellId": 1273075
+    },
     "109687": {
       "name": "Strength of Arms",
       "icon": "inv_gauntlets_26",
@@ -598,14 +603,9 @@
       "spellId": 845
     },
     "92536": {
-      "name": "Improved Sweeping Strikes",
-      "icon": "ability_rogue_slicedice",
-      "spellId": 383155
-    },
-    "119647": {
-      "name": "Improved Sweeping Strikes",
-      "icon": "ability_rogue_slicedice",
-      "spellId": 383155
+      "name": "Powerful Momentum",
+      "icon": "inv_1115_warrior_crushingblow",
+      "spellId": 1261050
     },
     "119746": {
       "name": "Powerful Momentum",
@@ -667,16 +667,6 @@
       "icon": "inv_axe_2h_orcwarrior_c_01",
       "spellId": 281001
     },
-    "110175": {
-      "name": "Mass Execution",
-      "icon": "warrior_talent_icon_mastercleaver",
-      "spellId": 1273075
-    },
-    "141472": {
-      "name": "Mass Execution",
-      "icon": "warrior_talent_icon_mastercleaver",
-      "spellId": 1273075
-    },
     "109682": {
       "name": "Collateral Damage",
       "icon": "ability_warrior_incite",
@@ -723,14 +713,14 @@
       "spellId": 389306
     },
     "92615": {
-      "name": "Battlelord",
-      "icon": "ability_pvp_hardiness",
-      "spellId": 386630
+      "name": "Master Tactician",
+      "icon": "ability_warrior_revenge",
+      "spellId": 1261057
     },
     "119747": {
-      "name": "Battlelord",
-      "icon": "ability_pvp_hardiness",
-      "spellId": 386630
+      "name": "Master Tactician",
+      "icon": "ability_warrior_revenge",
+      "spellId": 1261057
     },
     "90438": {
       "name": "Bloodletting",
@@ -763,14 +753,14 @@
       "spellId": 383703
     },
     "109679": {
-      "name": "Master Tactician",
-      "icon": "ability_warrior_revenge",
-      "spellId": 1261057
+      "name": "Battlelord",
+      "icon": "ability_pvp_hardiness",
+      "spellId": 386630
     },
     "140688": {
-      "name": "Master Tactician",
-      "icon": "ability_warrior_revenge",
-      "spellId": 1261057
+      "name": "Battlelord",
+      "icon": "ability_pvp_hardiness",
+      "spellId": 386630
     },
     "109685": {
       "name": "Mortal Wounds",

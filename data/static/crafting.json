@@ -2135,7 +2135,9 @@
         244604,
         248130,
         251489,
-        251490
+        251490,
+        273065,
+        273066
       ]
     },
     "390": {
@@ -2156,7 +2158,9 @@
         245877,
         245878,
         245873,
-        245874
+        245874,
+        273059,
+        273060
       ]
     },
     "391": {
@@ -2175,7 +2179,11 @@
         240167,
         240164,
         240165,
-        248130
+        248130,
+        270898,
+        270899,
+        273068,
+        273069
       ]
     },
     "392": {
@@ -2183,7 +2191,9 @@
       "name": "Infuse with Power",
       "reagentIds": [
         3345,
-        3347
+        3347,
+        3445,
+        3446
       ]
     },
     "393": {
@@ -2232,7 +2242,8 @@
       "reagentSlotId": 401,
       "name": "Spark",
       "reagentIds": [
-        232875
+        232875,
+        274476
       ]
     },
     "402": {
@@ -2376,7 +2387,9 @@
       "name": "Socket",
       "reagentIds": [
         246211,
-        246212
+        246212,
+        274478,
+        274479
       ]
     },
     "428": {
@@ -2384,7 +2397,9 @@
       "name": "Socket",
       "reagentIds": [
         246211,
-        246212
+        246212,
+        274478,
+        274479
       ]
     },
     "430": {
@@ -2542,7 +2557,9 @@
       "name": "Empower",
       "reagentIds": [
         3383,
-        3341
+        3341,
+        3442,
+        3443
       ]
     },
     "470": {
@@ -2550,7 +2567,9 @@
       "name": "Empower",
       "reagentIds": [
         3383,
-        3341
+        3341,
+        3442,
+        3443
       ]
     },
     "471": {
@@ -2559,7 +2578,10 @@
       "reagentIds": [
         256559,
         256607,
-        256608
+        256608,
+        275380,
+        275383,
+        275385
       ]
     },
     "476": {
@@ -2588,7 +2610,8 @@
       "reagentSlotId": 500,
       "name": "Spark",
       "reagentIds": [
-        232875
+        232875,
+        274476
       ]
     },
     "501": {
@@ -2612,7 +2635,9 @@
         245877,
         245878,
         245873,
-        245874
+        245874,
+        273062,
+        273063
       ]
     },
     "502": {
@@ -13466,6 +13491,23 @@
       "reagentType": "item"
     },
     {
+      "id": 274476,
+      "name": "Spark of Tides",
+      "icon": "inv_12_profession_questandcrafting_sparkwhole_green",
+      "quality": 4,
+      "itemClass": 7,
+      "itemSubClass": 11,
+      "itemLevel": 90,
+      "craftingBonusIds": [
+        13751
+      ],
+      "craftingCategoryId": 909,
+      "expansion": 11,
+      "squishEra": 2,
+      "itemId": 274476,
+      "reagentType": "item"
+    },
+    {
       "id": 244603,
       "name": "Blessed Pango Charm",
       "icon": "inv_jewelry_necklace_139",
@@ -13756,6 +13798,98 @@
       "expansion": 11,
       "squishEra": 2,
       "itemId": 248130,
+      "reagentType": "item"
+    },
+    {
+      "id": 270898,
+      "name": "Snakeskin Lining",
+      "icon": "inv_121_professions_fishing_curseworm_red",
+      "quality": 3,
+      "itemClass": 7,
+      "itemSubClass": 18,
+      "itemLevel": 72,
+      "itemLimit": {
+        "category": 512,
+        "quantity": 2
+      },
+      "craftingQuality": 1,
+      "craftingBonusIds": [
+        8960,
+        13764
+      ],
+      "craftingCategoryId": 914,
+      "expansion": 11,
+      "squishEra": 2,
+      "itemId": 270898,
+      "reagentType": "item"
+    },
+    {
+      "id": 270899,
+      "name": "Snakeskin Lining",
+      "icon": "inv_121_professions_fishing_curseworm_red",
+      "quality": 3,
+      "itemClass": 7,
+      "itemSubClass": 18,
+      "itemLevel": 72,
+      "itemLimit": {
+        "category": 512,
+        "quantity": 2
+      },
+      "craftingQuality": 2,
+      "craftingBonusIds": [
+        8960,
+        13764
+      ],
+      "craftingCategoryId": 914,
+      "expansion": 11,
+      "squishEra": 2,
+      "itemId": 270899,
+      "reagentType": "item"
+    },
+    {
+      "id": 273068,
+      "name": "Adorned Fang",
+      "icon": "inv_knife_1h_ulatek_d_01",
+      "quality": 3,
+      "itemClass": 7,
+      "itemSubClass": 18,
+      "itemLevel": 72,
+      "itemLimit": {
+        "category": 512,
+        "quantity": 2
+      },
+      "craftingQuality": 1,
+      "craftingBonusIds": [
+        13767,
+        8960
+      ],
+      "craftingCategoryId": 917,
+      "expansion": 11,
+      "squishEra": 2,
+      "itemId": 273068,
+      "reagentType": "item"
+    },
+    {
+      "id": 273069,
+      "name": "Adorned Fang",
+      "icon": "inv_knife_1h_ulatek_d_01",
+      "quality": 3,
+      "itemClass": 7,
+      "itemSubClass": 18,
+      "itemLevel": 72,
+      "itemLimit": {
+        "category": 512,
+        "quantity": 2
+      },
+      "craftingQuality": 2,
+      "craftingBonusIds": [
+        13767,
+        8960
+      ],
+      "craftingCategoryId": 917,
+      "expansion": 11,
+      "squishEra": 2,
+      "itemId": 273069,
       "reagentType": "item"
     },
     {
@@ -14301,6 +14435,52 @@
       "reagentType": "item"
     },
     {
+      "id": 273059,
+      "name": "Hunter's Ritual Stone",
+      "icon": "inv_12_profession_blacksmithing_weightstone_green",
+      "quality": 3,
+      "itemClass": 7,
+      "itemSubClass": 18,
+      "itemLevel": 80,
+      "itemLimit": {
+        "category": 512,
+        "quantity": 2
+      },
+      "craftingQuality": 1,
+      "craftingBonusIds": [
+        13771,
+        8960
+      ],
+      "craftingCategoryId": 920,
+      "expansion": 11,
+      "squishEra": 2,
+      "itemId": 273059,
+      "reagentType": "item"
+    },
+    {
+      "id": 273060,
+      "name": "Hunter's Ritual Stone",
+      "icon": "inv_12_profession_blacksmithing_weightstone_green",
+      "quality": 3,
+      "itemClass": 7,
+      "itemSubClass": 18,
+      "itemLevel": 80,
+      "itemLimit": {
+        "category": 512,
+        "quantity": 2
+      },
+      "craftingQuality": 2,
+      "craftingBonusIds": [
+        13771,
+        8960
+      ],
+      "craftingCategoryId": 920,
+      "expansion": 11,
+      "squishEra": 2,
+      "itemId": 273060,
+      "reagentType": "item"
+    },
+    {
       "id": 256559,
       "name": "Galactic Combatant's Heraldry",
       "icon": "inv_competition_placement_ribbon_green",
@@ -14361,6 +14541,72 @@
       "craftingCategoryId": 880,
       "expansion": 11,
       "itemId": 256608,
+      "reagentType": "item"
+    },
+    {
+      "id": 275380,
+      "name": "Venomous Combatant's Heraldry",
+      "icon": "inv_competition_placement_ribbon_green",
+      "quality": 2,
+      "itemClass": 7,
+      "itemSubClass": 11,
+      "itemLevel": 70,
+      "craftingBonusIds": [
+        13763,
+        13762
+      ],
+      "craftingCategoryId": 913,
+      "expansion": 11,
+      "squishEra": 2,
+      "itemId": 275380,
+      "reagentType": "item"
+    },
+    {
+      "id": 275383,
+      "name": "Venomous Aspirant's Heraldry",
+      "icon": "inv_competition_placement_ribbon_blue",
+      "quality": 3,
+      "itemClass": 7,
+      "itemSubClass": 11,
+      "itemLevel": 70,
+      "sources": [
+        {
+          "instanceId": -94,
+          "encounterId": -94
+        }
+      ],
+      "craftingBonusIds": [
+        13765,
+        13657
+      ],
+      "craftingCategoryId": 915,
+      "expansion": 11,
+      "squishEra": 2,
+      "itemId": 275383,
+      "reagentType": "item"
+    },
+    {
+      "id": 275385,
+      "name": "Venomous Gladiator's Heraldry",
+      "icon": "inv_competition_placement_ribbon_purple",
+      "quality": 4,
+      "itemClass": 7,
+      "itemSubClass": 11,
+      "itemLevel": 70,
+      "sources": [
+        {
+          "instanceId": -95,
+          "encounterId": -95
+        }
+      ],
+      "craftingBonusIds": [
+        13766,
+        13658
+      ],
+      "craftingCategoryId": 916,
+      "expansion": 11,
+      "squishEra": 2,
+      "itemId": 275385,
       "reagentType": "item"
     },
     {
@@ -14665,7 +14911,7 @@
     },
     {
       "id": 242788,
-      "name": "Duskshrouded Stone",
+      "name": "Dusk-Shrouded Stone",
       "icon": "inv_12_profession_jewelcrafting_stone_reagent_raw_purple",
       "quality": 1,
       "itemClass": 7,
@@ -14680,7 +14926,7 @@
     },
     {
       "id": 242789,
-      "name": "Duskshrouded Stone",
+      "name": "Dusk-Shrouded Stone",
       "icon": "inv_12_profession_jewelcrafting_stone_reagent_raw_purple",
       "quality": 1,
       "itemClass": 7,
@@ -14737,6 +14983,52 @@
       "expansion": 11,
       "squishEra": 2,
       "itemId": 251488,
+      "reagentType": "item"
+    },
+    {
+      "id": 273065,
+      "name": "Polished Ammolite",
+      "icon": "jewelcrafting_cut_epic_gem_color1",
+      "quality": 3,
+      "itemClass": 7,
+      "itemSubClass": 18,
+      "itemLevel": 72,
+      "itemLimit": {
+        "category": 512,
+        "quantity": 2
+      },
+      "craftingQuality": 1,
+      "craftingBonusIds": [
+        13768,
+        8960
+      ],
+      "craftingCategoryId": 918,
+      "expansion": 11,
+      "squishEra": 2,
+      "itemId": 273065,
+      "reagentType": "item"
+    },
+    {
+      "id": 273066,
+      "name": "Polished Ammolite",
+      "icon": "inv_jewelcrafting_cut_epic_gem_color1",
+      "quality": 3,
+      "itemClass": 7,
+      "itemSubClass": 18,
+      "itemLevel": 72,
+      "itemLimit": {
+        "category": 512,
+        "quantity": 2
+      },
+      "craftingQuality": 2,
+      "craftingBonusIds": [
+        13768,
+        8960
+      ],
+      "craftingCategoryId": 918,
+      "expansion": 11,
+      "squishEra": 2,
+      "itemId": 273066,
       "reagentType": "item"
     },
     {
@@ -15814,11 +16106,57 @@
       "reagentType": "item"
     },
     {
+      "id": 273062,
+      "name": "Coiled Snake-Eye",
+      "icon": "inv_10_engineering_scope_color3",
+      "quality": 3,
+      "itemClass": 7,
+      "itemSubClass": 18,
+      "itemLevel": 72,
+      "itemLimit": {
+        "category": 512,
+        "quantity": 2
+      },
+      "craftingQuality": 1,
+      "craftingBonusIds": [
+        13769,
+        8960
+      ],
+      "craftingCategoryId": 919,
+      "expansion": 11,
+      "squishEra": 2,
+      "itemId": 273062,
+      "reagentType": "item"
+    },
+    {
+      "id": 273063,
+      "name": "Coiled Snake-Eye",
+      "icon": "inv_10_engineering_scope_color3",
+      "quality": 3,
+      "itemClass": 7,
+      "itemSubClass": 18,
+      "itemLevel": 72,
+      "itemLimit": {
+        "category": 512,
+        "quantity": 2
+      },
+      "craftingQuality": 2,
+      "craftingBonusIds": [
+        13769,
+        8960
+      ],
+      "craftingCategoryId": 919,
+      "expansion": 11,
+      "squishEra": 2,
+      "itemId": 273063,
+      "reagentType": "item"
+    },
+    {
       "id": 3345,
       "name": "Hero Dawncrest",
       "icon": "inv_120_crest_hero",
       "quality": 4,
-      "expansion": 11,
+      "expansion": 0,
       "craftingBonusIds": [
         13621
       ],
@@ -15837,7 +16175,7 @@
       "name": "Myth Dawncrest",
       "icon": "inv_120_crest_myth",
       "quality": 4,
-      "expansion": 11,
+      "expansion": 0,
       "craftingBonusIds": [
         13622
       ],
@@ -15852,11 +16190,49 @@
       "reagentType": "currency"
     },
     {
+      "id": 3445,
+      "name": "Hero Mistcrest",
+      "icon": "inv_121_crest_hero",
+      "quality": 4,
+      "expansion": 11,
+      "craftingBonusIds": [
+        13835
+      ],
+      "craftingCategoryId": 911,
+      "craftingPrereqs": [
+        {
+          "itemId": 274476,
+          "bonusId": 13751
+        }
+      ],
+      "currencyId": 3445,
+      "reagentType": "currency"
+    },
+    {
+      "id": 3446,
+      "name": "Myth Mistcrest",
+      "icon": "inv_121_crest_myth",
+      "quality": 4,
+      "expansion": 11,
+      "craftingBonusIds": [
+        13836
+      ],
+      "craftingCategoryId": 911,
+      "craftingPrereqs": [
+        {
+          "itemId": 274476,
+          "bonusId": 13751
+        }
+      ],
+      "currencyId": 3446,
+      "reagentType": "currency"
+    },
+    {
       "id": 3383,
       "name": "Adventurer Dawncrest",
       "icon": "inv_120_crest_adventurer",
       "quality": 3,
-      "expansion": 11,
+      "expansion": 0,
       "craftingBonusIds": [
         13623
       ],
@@ -15870,13 +16246,41 @@
       "name": "Veteran Dawncrest",
       "icon": "inv_120_crest_veteran",
       "quality": 4,
-      "expansion": 11,
+      "expansion": 0,
       "craftingBonusIds": [
         13620
       ],
       "craftingCategoryId": 902,
       "craftingPrereqs": null,
       "currencyId": 3341,
+      "reagentType": "currency"
+    },
+    {
+      "id": 3442,
+      "name": "Adventurer Mistcrest",
+      "icon": "inv_121_crest_adventurer",
+      "quality": 3,
+      "expansion": 11,
+      "craftingBonusIds": [
+        13849
+      ],
+      "craftingCategoryId": 902,
+      "craftingPrereqs": null,
+      "currencyId": 3442,
+      "reagentType": "currency"
+    },
+    {
+      "id": 3443,
+      "name": "Veteran Mistcrest",
+      "icon": "inv_121_crest_veteran",
+      "quality": 4,
+      "expansion": 11,
+      "craftingBonusIds": [
+        13850
+      ],
+      "craftingCategoryId": 902,
+      "craftingPrereqs": null,
+      "currencyId": 3443,
       "reagentType": "currency"
     }
   ]

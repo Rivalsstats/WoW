@@ -464,12 +464,12 @@
     },
     "103982": {
       "name": "Aimed Shot",
-      "icon": "inv_spear_07",
+      "icon": "",
       "spellId": 19434
     },
     "133210": {
       "name": "Aimed Shot",
-      "icon": "inv_spear_07",
+      "icon": "",
       "spellId": 19434
     },
     "103961": {
@@ -502,6 +502,21 @@
       "icon": "ability_rogue_pistolshot",
       "spellId": 459794
     },
+    "104127": {
+      "name": "Avian Specialization",
+      "icon": "inv_111_hunter_ability_eyesinthesky",
+      "spellId": 466867
+    },
+    "133512": {
+      "name": "Avian Specialization",
+      "icon": "inv_111_hunter_ability_eyesinthesky",
+      "spellId": 466867
+    },
+    "134420": {
+      "name": "Unbreakable Bond",
+      "icon": "ability_hunter_separationanxiety",
+      "spellId": 1223323
+    },
     "107289": {
       "name": "Lock and Load",
       "icon": "ability_hunter_lockandload",
@@ -522,20 +537,30 @@
       "icon": "ability_hunter_resistanceisfutile",
       "spellId": 391559
     },
-    "104127": {
-      "name": "Avian Specialization",
-      "icon": "inv_111_hunter_ability_eyesinthesky",
-      "spellId": 466867
+    "103986": {
+      "name": "Tenacious",
+      "icon": "ability_druid_demoralizingroar",
+      "spellId": 474456
     },
-    "133512": {
-      "name": "Avian Specialization",
-      "icon": "inv_111_hunter_ability_eyesinthesky",
-      "spellId": 466867
+    "133214": {
+      "name": "Tenacious",
+      "icon": "ability_druid_demoralizingroar",
+      "spellId": 474456
     },
-    "134420": {
-      "name": "Unbreakable Bond",
-      "icon": "ability_hunter_separationanxiety",
-      "spellId": 1223323
+    "133217": {
+      "name": "Cunning",
+      "icon": "ability_eyeoftheowl",
+      "spellId": 474440
+    },
+    "103964": {
+      "name": "Penetrating Shots",
+      "icon": "achievement_guildperk_reinforce_rank2",
+      "spellId": 459783
+    },
+    "133192": {
+      "name": "Penetrating Shots",
+      "icon": "achievement_guildperk_reinforce_rank2",
+      "spellId": 459783
     },
     "103957": {
       "name": "Trick Shots",
@@ -567,40 +592,25 @@
       "icon": "ability_hunter_blindingshot",
       "spellId": 471348
     },
-    "103964": {
-      "name": "Penetrating Shots",
-      "icon": "achievement_guildperk_reinforce_rank2",
-      "spellId": 459783
+    "110572": {
+      "name": "No Scope",
+      "icon": "inv_eng_crowsnestscope",
+      "spellId": 473385
     },
-    "133192": {
-      "name": "Penetrating Shots",
-      "icon": "achievement_guildperk_reinforce_rank2",
-      "spellId": 459783
+    "142135": {
+      "name": "No Scope",
+      "icon": "inv_eng_crowsnestscope",
+      "spellId": 473385
     },
-    "103986": {
-      "name": "Tenacious",
-      "icon": "ability_druid_demoralizingroar",
-      "spellId": 474456
+    "110575": {
+      "name": "Explosive Shot",
+      "icon": "ability_hunter_explosiveshot",
+      "spellId": 212431
     },
-    "133214": {
-      "name": "Tenacious",
-      "icon": "ability_druid_demoralizingroar",
-      "spellId": 474456
-    },
-    "133217": {
-      "name": "Cunning",
-      "icon": "ability_eyeoftheowl",
-      "spellId": 474440
-    },
-    "103974": {
-      "name": "Master Marksman",
-      "icon": "ability_hunter_mastermarksman",
-      "spellId": 260309
-    },
-    "133202": {
-      "name": "Master Marksman",
-      "icon": "ability_hunter_mastermarksman",
-      "spellId": 260309
+    "142138": {
+      "name": "Explosive Shot",
+      "icon": "ability_hunter_explosiveshot",
+      "spellId": 212431
     },
     "107288": {
       "name": "Light Ammo",
@@ -622,16 +632,6 @@
       "icon": "ability_hunter_assassinate2",
       "spellId": 53351
     },
-    "110572": {
-      "name": "No Scope",
-      "icon": "inv_eng_crowsnestscope",
-      "spellId": 473385
-    },
-    "142135": {
-      "name": "No Scope",
-      "icon": "inv_eng_crowsnestscope",
-      "spellId": 473385
-    },
     "103947": {
       "name": "Trueshot",
       "icon": "ability_trueshot",
@@ -641,6 +641,31 @@
       "name": "Trueshot",
       "icon": "ability_trueshot",
       "spellId": 288613
+    },
+    "110573": {
+      "name": "Tactical Reload",
+      "icon": "ability_ironmaidens_bombardment",
+      "spellId": 1301406
+    },
+    "142136": {
+      "name": "Tactical Reload",
+      "icon": "ability_ironmaidens_bombardment",
+      "spellId": 1301406
+    },
+    "142392": {
+      "name": "Unstable Trigger",
+      "icon": "spell_sandexplosion",
+      "spellId": 473520
+    },
+    "110574": {
+      "name": "Precision Detonation",
+      "icon": "ability_hunter_explosiveshot",
+      "spellId": 471369
+    },
+    "142137": {
+      "name": "Precision Detonation",
+      "icon": "ability_hunter_explosiveshot",
+      "spellId": 471369
     },
     "103955": {
       "name": "Critical Precision",
@@ -652,16 +677,6 @@
       "icon": "ability_impalingbolt",
       "spellId": 1277572
     },
-    "110575": {
-      "name": "Explosive Shot",
-      "icon": "ability_hunter_explosiveshot",
-      "spellId": 212431
-    },
-    "142138": {
-      "name": "Explosive Shot",
-      "icon": "ability_hunter_explosiveshot",
-      "spellId": 212431
-    },
     "109491": {
       "name": "Deathblow",
       "icon": "ability_hunter_runningshot",
@@ -672,15 +687,10 @@
       "icon": "ability_hunter_runningshot",
       "spellId": 343248
     },
-    "103972": {
-      "name": "Headshot",
-      "icon": "ability_marksmanship",
-      "spellId": 471363
-    },
-    "133200": {
-      "name": "Headshot",
-      "icon": "ability_marksmanship",
-      "spellId": 471363
+    "110688": {
+      "name": "Deadeye",
+      "icon": "spell_hunter_focusingshot",
+      "spellId": 321460
     },
     "133517": {
       "name": "Deadeye",
@@ -707,35 +717,25 @@
       "icon": "inv_111_hunter_ability_featheredfrenzy",
       "spellId": 470943
     },
-    "103978": {
-      "name": "Small Game Hunter",
-      "icon": "inv_rabbit2_darkmoon",
-      "spellId": 459802
+    "103974": {
+      "name": "Master Marksman",
+      "icon": "ability_hunter_mastermarksman",
+      "spellId": 260309
     },
-    "133206": {
-      "name": "Small Game Hunter",
-      "icon": "inv_rabbit2_darkmoon",
-      "spellId": 459802
+    "133202": {
+      "name": "Master Marksman",
+      "icon": "ability_hunter_mastermarksman",
+      "spellId": 260309
     },
-    "110574": {
-      "name": "Precision Detonation",
-      "icon": "ability_hunter_explosiveshot",
-      "spellId": 471369
+    "110691": {
+      "name": "Eagle's Accuracy",
+      "icon": "ability_hunter_silenthunter",
+      "spellId": 473369
     },
-    "142137": {
-      "name": "Precision Detonation",
-      "icon": "ability_hunter_explosiveshot",
-      "spellId": 471369
-    },
-    "110573": {
-      "name": "Shrapnel Shot",
-      "icon": "spell_sandexplosion",
-      "spellId": 473520
-    },
-    "142136": {
-      "name": "Shrapnel Shot",
-      "icon": "spell_sandexplosion",
-      "spellId": 473520
+    "142266": {
+      "name": "Eagle's Accuracy",
+      "icon": "ability_hunter_silenthunter",
+      "spellId": 473369
     },
     "103950": {
       "name": "Unmatched Precision",
@@ -762,15 +762,15 @@
       "icon": "spell_hunter_exoticmunitions_frozen",
       "spellId": 474738
     },
-    "103973": {
-      "name": "Eagle's Accuracy",
-      "icon": "ability_hunter_silenthunter",
-      "spellId": 473369
+    "103978": {
+      "name": "Small Game Hunter",
+      "icon": "inv_rabbit2_darkmoon",
+      "spellId": 459802
     },
-    "133201": {
-      "name": "Eagle's Accuracy",
-      "icon": "ability_hunter_silenthunter",
-      "spellId": 473369
+    "133206": {
+      "name": "Small Game Hunter",
+      "icon": "inv_rabbit2_darkmoon",
+      "spellId": 459802
     },
     "103987": {
       "name": "Focused Aim",
@@ -833,24 +833,14 @@
       "spellId": 473523
     },
     "107290": {
-      "name": "Incendiary Ammunition",
+      "name": "Accuracy By Volume",
       "icon": "inv12_ability_hunter_fierymunitions",
       "spellId": 471428
     },
     "136996": {
-      "name": "Incendiary Ammunition",
+      "name": "Accuracy By Volume",
       "icon": "inv12_ability_hunter_fierymunitions",
       "spellId": 471428
-    },
-    "109938": {
-      "name": "Double Tap",
-      "icon": "ability_hunter_crossfire",
-      "spellId": 473370
-    },
-    "141005": {
-      "name": "Double Tap",
-      "icon": "ability_hunter_crossfire",
-      "spellId": 473370
     },
     "103960": {
       "name": "Salvo",
