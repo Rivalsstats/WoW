@@ -43,15 +43,6 @@ on:
           Requires data/static/seasonInfo.prev.json to describe this season.
         required: false
         default: ''
-      chain_static:
-        description: >-
-          When 'true', dispatch "Gather Static WoW data" after this build's
-          archive step succeeds. seasonRolloverArchive.yml sets this on a rollover
-          week so the outgoing season is archived (while its static files are
-          still on disk) BEFORE getStaticData overwrites them and flips
-          seasonInfo.json. Leave empty for every normal build.
-        required: false
-        default: ''
   workflow_run:
     workflows: ["Gather Static WoW data"]
     types:
@@ -66,9 +57,6 @@ permissions:
   contents: read
   pages: write
   id-token: write
-  # needed for the chain_static dispatch of "Gather Static WoW data" after a
-  # rollover archive build (see the last step of the assemble job)
-  actions: write
 jobs:
   # ----------------------------------------------------------------------
   # Which season is this build for? Normally seasonInfo.json. A season_override
@@ -83,6 +71,7 @@ jobs:
       season_id: ${{ steps.resolve.outputs.season_id }}
       season_info: ${{ steps.resolve.outputs.season_info }}
       is_override: ${{ steps.resolve.outputs.is_override }}
+      has_data: ${{ steps.datacheck.outputs.has_data }}
     steps:
       - name: Clone project
         uses: actions/checkout@v7
@@ -124,12 +113,39 @@ jobs:
             echo "This run archives only — it does NOT deploy, so the live site keeps showing season $CURRENT.";
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install mysql-connector-python
+
+      # Gate: does the resolved season have any runs? During the pre-season gap
+      # (and just after a wipe) it does not, and the generators crash on empty
+      # aggregates. When false, prepare-sims (and the whole build via its needs)
+      # is skipped, so the workflow succeeds without deploying a broken site.
+      - name: Check the target season has data
+        id: datacheck
+        env:
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORT }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+        run: python backend_scripts/seasonHasData.py --season "${{ steps.resolve.outputs.season_id }}"
+
   # ----------------------------------------------------------------------
   # SimulationCraft tierlist sims (run on every trigger, in parallel with the
   # page build — they finish well before the pages do).
   # ----------------------------------------------------------------------
   prepare-sims:
     needs: [resolve-season]
+    # Skip the entire build when the season has no runs yet (pre-season gap /
+    # post-wipe). build-simc, simulate, buildPages, assemble and deploy all need
+    # prepare-sims (directly or transitively), so they cascade-skip and the run
+    # ends green without touching the live site.
+    if: ${{ needs.resolve-season.outputs.has_data == 'true' }}
     env:
       MYTHISTONE_SEASON_INFO: ${{ needs.resolve-season.outputs.season_info }}
     runs-on: ubuntu-latest
@@ -638,13 +654,10 @@ jobs:
           SEASON_JSON="${MYTHISTONE_SEASON_INFO:-data/static/seasonInfo.json}"
           SEASON_ID=$(jq -r .blizzard_season_id "$SEASON_JSON")
           SLUG=$(jq -r .slug "$SEASON_JSON")
-          # US region end date for this season, or null while it is running.
-          # seasonRolloverWipe.yml uses this plus snapshot_utc to tell a FINAL
-          # snapshot from a mid-season one before it lets the DB be wiped. Keyed
-          # to the US reset (the earliest, and the one detectSeasonRollover keys
-          # off) so a Wednesday-morning rollover archive is stamped after the US
-          # season end. Trailing later-region data is intentionally not waited for.
-          SEASON_ENDS=$(jq -r '.ends.us // ""' "$SEASON_JSON")
+          # Latest region end date for this season, or null while it is running.
+          # Recorded in SNAPSHOT.json for provenance; every build archives, so the
+          # wipe just needs the branch to exist (see seasonRolloverWipe.yml).
+          SEASON_ENDS=$(jq -r '[(.ends // {})[] | select(. != null)] | max // ""' "$SEASON_JSON")
           NOW=$(date -u +%FT%TZ)
           if [ "$SEASON_ID" != "$TARGET_SEASON_ID" ]; then
             echo "::error::archive season $SEASON_ID != resolved target $TARGET_SEASON_ID"
@@ -672,20 +685,6 @@ jobs:
           git add -A
           git commit -q -m "Snapshot ${SLUG} (season ${SEASON_ID}) @ ${NOW}"
           git push --force "$ARCHIVE_REPO" "season-${SEASON_ID}"
-
-      # Rollover only: now that the outgoing season's FINAL archive is safely
-      # pushed, hand off to the static refresh that flips seasonInfo.json to the
-      # new season. Explicit success() because a custom `if` drops the implicit
-      # one — we must never trigger the flip if the archive above failed.
-      - name: Chain the static data refresh (rollover)
-        if: ${{ success() && inputs.chain_static == 'true' }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          echo "Archive of season ${TARGET_SEASON_ID} pushed; dispatching Gather Static WoW data." \
-            >> "$GITHUB_STEP_SUMMARY"
-          gh workflow run getStaticData.yml
 
   deploy:
     environment:

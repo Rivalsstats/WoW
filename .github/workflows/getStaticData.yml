@@ -1,11 +1,8 @@
 name: Gather Static WoW data
 
 on:
-  # No schedule of its own: this flips seasonInfo.json + overwrites the static
-  # reference files, which must not happen before the outgoing season is
-  # archived on a rollover week. It is dispatched by seasonRolloverArchive.yml
-  # (Wed) — directly on a normal week, or after the rollover archive build
-  # (buildPages chain_static) on a rollover week.
+  schedule:
+    - cron: '0 8 * * WED'
   workflow_dispatch:
 
 jobs:

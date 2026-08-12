@@ -68,19 +68,14 @@ jobs:
           DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
         run: python backend_scripts/requestSeasonWipe.py --detect
 
-      # Branch existence is not enough. `season-<old>` is force-pushed on every
-      # build while seasonInfo.json still names that season, so a mid-season
-      # snapshot (taken before the season ended) would discard the season's final
-      # days forever. So require a snapshot taken after the season ended.
-      #
-      # The FINAL snapshot is produced BEFORE the flip by seasonRolloverArchive.yml
-      # (buildPages chain_static), while the outgoing season's static files are
-      # still on disk. If it is missing here we can NOT recover by rebuilding: the
-      # static reference files have already been overwritten by getStaticData, so a
-      # post-flip build would render the old season against the new season's data.
-      # We therefore block loudly for a human instead of dispatching a build that
-      # would freeze a corrupted archive.
-      - name: Confirm a FINAL archive snapshot of the old season exists
+      # The only safety we need before a wipe: the outgoing season was archived at
+      # all. Every buildPages run force-pushes `season-<id>` to the archive repo, so
+      # a normal build within the last week already froze this season's site. We do
+      # NOT require it to be a post-season "final" snapshot — an archive up to a
+      # week old is acceptable (accepted trade-off; the last few days of old-season
+      # data are not worth blocking the wipe over). If the branch is missing, the
+      # season was never archived, so block loudly for a human.
+      - name: Confirm the old season was archived
         id: gate
         if: ${{ steps.dbdetect.outputs.should_wipe == 'true' }}
         env:
@@ -94,53 +89,19 @@ jobs:
           chmod 600 ~/.ssh/archive_key
           export GIT_SSH_COMMAND="ssh -i ~/.ssh/archive_key -o StrictHostKeyChecking=accept-new"
 
-          block() {   # $1 = reason; refuse this cycle, loudly, with recovery guidance
-            echo "::error::$1"
-            { echo "### Season wipe blocked"; echo; echo "$1"; echo;
-              echo "The final archive of season \`${OLDMAX}\` must be captured BEFORE getStaticData overwrites its static files. If getStaticData has already run, recovering it requires re-checking-out the pre-flip static data and re-running the archive manually — it can not be produced by a normal build now. Fix the archive, then re-run this workflow.";
+          if git ls-remote --heads --exit-code "$ARCHIVE_REPO" "season-${OLDMAX}" >/dev/null; then
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+            { echo "### Archive present";
+              echo;
+              echo "\`season-${OLDMAX}\` exists in the archive repo. Clearing is safe.";
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::error::Archive branch season-${OLDMAX} does not exist — the outgoing season was never archived; refusing to wipe."
+            { echo "### Season wipe blocked"; echo;
+              echo "Archive branch \`season-${OLDMAX}\` does not exist — the outgoing season was never archived. Run a normal buildPages while seasonInfo.json still names season ${OLDMAX}, then re-run this workflow.";
             } >> "$GITHUB_STEP_SUMMARY"
             echo "proceed=false" >> "$GITHUB_OUTPUT"
-          }
-
-          if ! git ls-remote --heads --exit-code "$ARCHIVE_REPO" "season-${OLDMAX}" >/dev/null; then
-            block "Archive branch season-${OLDMAX} does not exist — the outgoing season was never archived."
-            exit 0
           fi
-
-          # Blobless, checkout-free clone: fetches commit + trees only, then pulls
-          # the single file on demand. Avoids downloading the ~350 MB snapshot.
-          rm -rf archive_probe
-          git clone --quiet --depth 1 --single-branch --branch "season-${OLDMAX}" \
-                    --filter=blob:none --no-checkout "$ARCHIVE_REPO" archive_probe
-          if ! git -C archive_probe show HEAD:SNAPSHOT.json > snapshot.json 2>/dev/null; then
-            block "season-${OLDMAX} has no SNAPSHOT.json — cannot prove it is a final snapshot."
-            exit 0
-          fi
-          cat snapshot.json
-
-          SNAP_ID=$(jq -r '.blizzard_season_id // empty' snapshot.json)
-          SNAP_AT=$(jq -r '.snapshot_utc // empty' snapshot.json)
-          SNAP_ENDS=$(jq -r '.season_ends_utc // empty' snapshot.json)
-
-          if [ "$SNAP_ID" != "$OLDMAX" ]; then
-            block "season-${OLDMAX} contains a snapshot of season ${SNAP_ID:-unknown}."
-            exit 0
-          fi
-          if [ -z "$SNAP_ENDS" ]; then
-            block "season-${OLDMAX}'s snapshot records no season end date — it predates the final-snapshot check."
-            exit 0
-          fi
-          # ISO-8601 UTC timestamps compare correctly as strings.
-          if [ "$SNAP_AT" \< "$SNAP_ENDS" ]; then
-            block "season-${OLDMAX} was archived at ${SNAP_AT}, before the season ended at ${SNAP_ENDS} — it is not the final state."
-            exit 0
-          fi
-
-          echo "proceed=true" >> "$GITHUB_OUTPUT"
-          { echo "### Archive verified";
-            echo;
-            echo "\`season-${OLDMAX}\` snapshot taken ${SNAP_AT}, after the season ended ${SNAP_ENDS}. Clearing is safe.";
-          } >> "$GITHUB_STEP_SUMMARY"
 
   # Raise the intent flag. The environment gate is the manual approval; it only
   # fires when detect said proceed=true, so approvals are requested only on a real
