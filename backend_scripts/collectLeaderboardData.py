@@ -267,6 +267,23 @@ enqueued_profiles: dict[str, dict[str, Path]] = {}
 
 CURRENT_SEASON = ""
 
+# --- Partial-rollover season floor (see database.sql wipe_control) ---
+# US resets first and triggers the rollover wipe while EU/KR/TW are still finishing
+# the old season. Each region resolves its OWN current season independently, so
+# after the wipe (which advances wipe_control.done_season to the NEW season and then
+# restarts the collector) the lagging regions would resolve the OLD season and
+# re-insert old-season runs into the freshly-cleared tables — and since done_season
+# now blocks any further wipe, those rows would survive the whole new season.
+#
+# SEASON_FLOOR is that done_season: the collector refuses to collect or write any
+# run whose season is strictly below it. 0 means "no floor" — the wipe feature is
+# not deployed, or no wipe has ever run — so this is a no-op on older DBs. It is
+# resolved once at startup like season/period; a completed wipe restarts the
+# process, so a fresh value is always read on the next launch, and a lagging region
+# is picked up automatically on a later restart once it too rolls over.
+SEASON_FLOOR = 0
+
+
 # Utilities and route fetch logic
 def aggregate_talents(talents_list: list) -> list:
     counts = defaultdict(int)
@@ -1957,6 +1974,18 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
 
     # Try to insert each run individually, skip if already exists
     for r in batch:
+        # Belt-and-suspenders against the partial-rollover hazard: never write a
+        # run for a season the DB has already been wiped past (see SEASON_FLOOR).
+        # The per-region skip in main() normally keeps these out of the queue, so
+        # this only catches a stale in-flight item; mark it seen and move on.
+        try:
+            if SEASON_FLOOR and int(r["season"]) < SEASON_FLOOR:
+                process_group(
+                    r["region"], r["season"], r["period_id"], r["realm"], r["run_hash"]
+                )
+                continue
+        except (TypeError, ValueError):
+            pass
         try:
             # INSERT IGNORE will skip duplicates (requires IGNORE keyword)
             databaseConnector.insert_run(
@@ -2404,10 +2433,20 @@ async def main():
         # before wipe_watch's first poll). This has to happen before the first
         # writer task is created: every `await` below yields the loop, and a task
         # created earlier would sail straight through its pause_point().
+        global SEASON_FLOOR
         try:
             _wipe_state = await asyncio.get_running_loop().run_in_executor(
                 None, databaseConnector.read_wipe_control
             )
+            if _wipe_state:
+                # The season the DB was last wiped INTO: never collect/write a
+                # region still on an older season (see SEASON_FLOOR docs).
+                SEASON_FLOOR = int(_wipe_state.get("done_season") or 0)
+                if SEASON_FLOOR:
+                    GLOBAL_STATS.console_log(
+                        f"Season floor set to {SEASON_FLOOR} from wipe_control; "
+                        "regions below it will be skipped until they roll over"
+                    )
             if _wipe_state and _wipe_state["request_season"] > _wipe_state["done_season"]:
                 WRITE_GATE.pause()
                 GLOBAL_STATS.console_log(
@@ -2425,6 +2464,18 @@ async def main():
             current_season = await get_current_season_id(session, region)
             if current_season is None:
                 GLOBAL_STATS.console_log(f"{region} - no season data, skipping")
+                continue
+
+            # Partial-rollover guard: a region still on a season the DB has already
+            # been wiped past must not be collected — its old-season runs would
+            # repopulate the cleared tables and outlive the new season (done_season
+            # blocks any further wipe). It is picked up on a later restart once it
+            # too rolls over. See SEASON_FLOOR.
+            if SEASON_FLOOR and int(current_season) < SEASON_FLOOR:
+                GLOBAL_STATS.console_log(
+                    f"{region} - still on season {current_season}, below wiped "
+                    f"season floor {SEASON_FLOOR}; skipping until it rolls over"
+                )
                 continue
 
             # anything under data/runs/<region>/*/<season> that isn't current_season, 0 or "nil" can go
