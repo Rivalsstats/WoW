@@ -8,10 +8,19 @@ name: Season Rollover DB Wipe
 # full handshake.
 
 on:
-  # Run after a successful site build+deploy, so the archive snapshot is fresh.
+  # Fire on the season flip: getStaticData is what advances seasonInfo.json to the
+  # new season, so its completion is exactly when detect() should re-evaluate
+  # (current = new season, oldmax = the lingering old one). It is NOT gated on a
+  # successful new-season buildPages, which fails during the pre-season gap and
+  # used to block the wipe forever. The archive is verified independently in the
+  # gate step below.
   workflow_run:
-    workflows: ["Build Jinja Pages"]
+    workflows: ["Gather Static WoW data"]
     types: [completed]
+  # Weekly self-guarding fallback in case the flip's completion event is missed;
+  # detect() is a no-op when there is nothing to wipe.
+  schedule:
+    - cron: '0 10 * * WED'
   workflow_dispatch:
 
 concurrency:
@@ -20,16 +29,15 @@ concurrency:
 
 permissions:
   contents: read
-  # needed to dispatch the one-off final-snapshot build when the archive is stale
-  actions: write
 
 jobs:
   # Detect whether a rollover wipe should be requested. No environment here, so a
   # no-op run never triggers the approval prompt.
   detect:
     runs-on: ubuntu-latest
-    # Only proceed on a successful build (or a manual run).
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    # Run on any trigger/conclusion: detect() reads the (already-committed)
+    # seasonInfo.json + the DB and is a no-op when there is nothing to wipe, so a
+    # failed getStaticData simply yields no action rather than blocking the wipe.
     outputs:
       proceed: ${{ steps.gate.outputs.proceed }}
       current: ${{ steps.dbdetect.outputs.current }}
@@ -61,11 +69,17 @@ jobs:
         run: python backend_scripts/requestSeasonWipe.py --detect
 
       # Branch existence is not enough. `season-<old>` is force-pushed on every
-      # build while seasonInfo.json still names that season, so the branch is
-      # normally last written by the last build BEFORE the Wednesday flip —
-      # typically a day or two before the season actually ended. Wiping then
-      # would discard the season's final days forever. So require a snapshot
-      # taken after the season ended, and if there isn't one, go make one.
+      # build while seasonInfo.json still names that season, so a mid-season
+      # snapshot (taken before the season ended) would discard the season's final
+      # days forever. So require a snapshot taken after the season ended.
+      #
+      # The FINAL snapshot is produced BEFORE the flip by seasonRolloverArchive.yml
+      # (buildPages chain_static), while the outgoing season's static files are
+      # still on disk. If it is missing here we can NOT recover by rebuilding: the
+      # static reference files have already been overwritten by getStaticData, so a
+      # post-flip build would render the old season against the new season's data.
+      # We therefore block loudly for a human instead of dispatching a build that
+      # would freeze a corrupted archive.
       - name: Confirm a FINAL archive snapshot of the old season exists
         id: gate
         if: ${{ steps.dbdetect.outputs.should_wipe == 'true' }}
@@ -73,7 +87,6 @@ jobs:
           ARCHIVE_DEPLOY_KEY: ${{ secrets.ARCHIVE_DEPLOY_KEY }}
           ARCHIVE_REPO: git@github.com:MythiStone/Mythistone_Archive.git
           OLDMAX: ${{ steps.dbdetect.outputs.oldmax }}
-          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           mkdir -p ~/.ssh
@@ -81,35 +94,16 @@ jobs:
           chmod 600 ~/.ssh/archive_key
           export GIT_SSH_COMMAND="ssh -i ~/.ssh/archive_key -o StrictHostKeyChecking=accept-new"
 
-          block() {   # $1 = reason; refuse this cycle, loudly
+          block() {   # $1 = reason; refuse this cycle, loudly, with recovery guidance
             echo "::error::$1"
-            { echo "### Season wipe blocked"; echo; echo "$1"; } >> "$GITHUB_STEP_SUMMARY"
+            { echo "### Season wipe blocked"; echo; echo "$1"; echo;
+              echo "The final archive of season \`${OLDMAX}\` must be captured BEFORE getStaticData overwrites its static files. If getStaticData has already run, recovering it requires re-checking-out the pre-flip static data and re-running the archive manually — it can not be produced by a normal build now. Fix the archive, then re-run this workflow.";
+            } >> "$GITHUB_STEP_SUMMARY"
             echo "proceed=false" >> "$GITHUB_OUTPUT"
-          }
-
-          request_final_build() {
-            # One-off dispatch that rebuilds the OUTGOING season from
-            # seasonInfo.prev.json and force-pushes it to season-$OLDMAX. Skip if
-            # a build is already running, so a failing build can't turn every
-            # cycle into a fresh dispatch.
-            BUSY=$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/buildPages.yml/runs?per_page=20" \
-                     --jq '[.workflow_runs[] | select(.status != "completed")] | length' 2>/dev/null || echo 0)
-            if [ "${BUSY:-0}" -gt 0 ]; then
-              echo "A Build Jinja Pages run is already in flight; not dispatching another." \
-                >> "$GITHUB_STEP_SUMMARY"
-              return
-            fi
-            if gh workflow run buildPages.yml -f "season_override=${OLDMAX}"; then
-              echo "Dispatched a final-snapshot build for season \`${OLDMAX}\`; the wipe will be re-evaluated when it finishes." \
-                >> "$GITHUB_STEP_SUMMARY"
-            else
-              echo "::error::Could not dispatch the final-snapshot build for season ${OLDMAX}."
-            fi
           }
 
           if ! git ls-remote --heads --exit-code "$ARCHIVE_REPO" "season-${OLDMAX}" >/dev/null; then
             block "Archive branch season-${OLDMAX} does not exist — the outgoing season was never archived."
-            request_final_build
             exit 0
           fi
 
@@ -120,7 +114,6 @@ jobs:
                     --filter=blob:none --no-checkout "$ARCHIVE_REPO" archive_probe
           if ! git -C archive_probe show HEAD:SNAPSHOT.json > snapshot.json 2>/dev/null; then
             block "season-${OLDMAX} has no SNAPSHOT.json — cannot prove it is a final snapshot."
-            request_final_build
             exit 0
           fi
           cat snapshot.json
@@ -131,18 +124,15 @@ jobs:
 
           if [ "$SNAP_ID" != "$OLDMAX" ]; then
             block "season-${OLDMAX} contains a snapshot of season ${SNAP_ID:-unknown}."
-            request_final_build
             exit 0
           fi
           if [ -z "$SNAP_ENDS" ]; then
             block "season-${OLDMAX}'s snapshot records no season end date — it predates the final-snapshot check."
-            request_final_build
             exit 0
           fi
           # ISO-8601 UTC timestamps compare correctly as strings.
           if [ "$SNAP_AT" \< "$SNAP_ENDS" ]; then
             block "season-${OLDMAX} was archived at ${SNAP_AT}, before the season ended at ${SNAP_ENDS} — it is not the final state."
-            request_final_build
             exit 0
           fi
 

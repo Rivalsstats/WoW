@@ -268,6 +268,24 @@ async def _alert(reporter, stats, title, message, level="error", throttle_key=No
             _log(f"failed to send discord alert: {e}")
 
 
+async def _oneshot_alert(reporter, stats, key, title, message, level="warning"):
+    """Log and (best-effort) push a one-shot alert: sent once per key until the
+    condition recovers (clear_oneshot_alert) or the process restarts. Console
+    logging is gated on the same one-shot so an expected idle state (e.g. a
+    season with no data during the pre-season gap) doesn't spam the logs either.
+    Without a reporter there is no state holder, so it logs each call."""
+    if reporter is None:
+        _stat_log(stats, f"simc ALERT[{level}] {title}: {message}")
+        return
+    try:
+        sent = await reporter.send_oneshot_alert(key, title, message, level=level)
+    except Exception as e:
+        _log(f"failed to send discord alert: {e}")
+        return
+    if sent:
+        _stat_log(stats, f"simc ALERT[{level}] {title}: {message}")
+
+
 def slug(name):
     return (name or "").lower().replace("'", "").strip()
 
@@ -2173,6 +2191,29 @@ async def run_simc_bis(session, cancel_event=None, stats=None, get_season=None,
                     )
                     await asyncio.sleep(SIMC_SPEC_SLEEP)
                     continue
+
+                # Pre-season gap: the season has been resolved (Blizzard flipped
+                # it) but no runs/gear have been collected + aggregated yet, so
+                # every spec would fail gather_candidates with "no candidate
+                # items". Emit a single "no data yet" alert instead of one failure
+                # per spec, and idle until data appears. The one-shot re-arms on a
+                # collector restart (in-memory) and on recovery below.
+                no_data_key = f"simc_no_season_data_{season}"
+                if not databaseConnector.simc_season_has_gear_data(conn, cursor, season):
+                    await _oneshot_alert(
+                        reporter, stats, no_data_key,
+                        f"SimC: no gear data for season {season} yet",
+                        f"Season {season} has no aggregated gear data yet (pre-season "
+                        "gap). Pausing BiS simulations until data is collected. This "
+                        "alert repeats only on a collector restart.",
+                        level="warning",
+                    )
+                    await asyncio.sleep(SIMC_SPEC_SLEEP)
+                    continue
+                # Season is ready: re-arm the one-shot so a later empty season (same
+                # process) alerts again.
+                if reporter is not None:
+                    reporter.clear_oneshot_alert(no_data_key)
 
                 picked = _select_target_spec(conn, cursor, specs, season)
                 if not picked:

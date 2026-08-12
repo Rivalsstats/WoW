@@ -77,6 +77,10 @@ class DiscordReporter:
         self.bot_token = os.getenv("WEBHOOK_TOKEN")
         self.channel_id = os.getenv("WEBHOOK_CHANNEL")
         self._low_space_warn_sent: dict[str, bool] = {}
+        # keyed one-shot alerts: sent once per key until explicitly cleared (or a
+        # process restart resets the dict). Used for expected-but-noisy states
+        # such as "the season has no data yet" during the pre-season gap.
+        self._oneshot_sent: dict[str, bool] = {}
         self._disk_warn_pct = float(os.getenv("DISK_WARN_PCT", "5.0"))  # percent free
         self._disk_warn_bytes = int(
             os.getenv("DISK_WARN_BYTES", str(1 * 1024**3))
@@ -418,6 +422,26 @@ class DiscordReporter:
                 self.stats.console_log(f"DiscordReporter.send_alert failed: {e}")
             except Exception:
                 pass
+
+    async def send_oneshot_alert(self, key, title, message, level="warning"):
+        """Send an alert exactly once per key, then stay silent until
+        clear_oneshot_alert(key) is called. The flag is in-memory, so a process
+        restart re-arms it (the alert fires again once) — the intended behaviour
+        for an expected-but-recurring state like a season with no data yet.
+
+        Returns True if this call sent (first time for the key), False if it was
+        suppressed — the caller can gate its own console logging on that too."""
+        if self._oneshot_sent.get(key):
+            return False
+        self._oneshot_sent[key] = True
+        # No throttle_key: the one-shot flag above is the whole dedup mechanism.
+        await self.send_alert(title, message, level=level)
+        return True
+
+    def clear_oneshot_alert(self, key):
+        """Re-arm a one-shot alert so it can fire again once the condition
+        recovers and later recurs within the same process."""
+        self._oneshot_sent.pop(key, None)
 
     # -------------------------
     # Persistence

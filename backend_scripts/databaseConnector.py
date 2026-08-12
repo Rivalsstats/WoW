@@ -676,6 +676,28 @@ def fetch_slot_totals(connection, cursor, spec_id, season):
     return {r[0]: int(r[1]) for r in rows}
 
 
+# Cheap "is this season ready for simc BiS" probe. gather_candidates ultimately
+# reads global_aggregated_equipment; if the season has no rows there yet (the
+# pre-season gap, before any new-season runs are collected and aggregated) then
+# every spec would fail with "no candidate items". The simc collector uses this
+# to skip the per-spec loop and emit a single "no data yet" alert instead of one
+# failure alert per spec. LIMIT 1 keeps it O(1).
+SIMC_SEASON_HAS_GEAR_DATA_SQL = """
+SELECT 1
+  FROM Mythistone.global_aggregated_equipment
+ WHERE season = %s
+ LIMIT 1;
+"""
+
+
+def simc_season_has_gear_data(connection, cursor, season):
+    """True if any aggregated gear data exists for the season (i.e. the season is
+    ready for BiS simulation). Reads under the same relaxed isolation the rest of
+    the simc reads use (configure_read_session on the connection)."""
+    rows = fetch_with_retry(connection, cursor, SIMC_SEASON_HAS_GEAR_DATA_SQL, (season,))
+    return bool(rows)
+
+
 # Every item id that appears in some spec page's top-10 gear list, computed in
 # one sweep. Must stay in lockstep with the top_items CTEs of
 # FETCH_TOP_ITEMS_BY_SLOT[_GROUP]_WITH_BONUS_SQL above: same table, same
