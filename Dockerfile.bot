@@ -52,7 +52,8 @@ RUN pip install --no-cache-dir \
     aiohttp \
     python-dotenv \
     mysql-connector-python \
-    matplotlib
+    matplotlib \
+    requests
 
 # Guard 1: every import in the flat /app modules resolves.
 RUN python ${APP_DIR}/verifyImageImports.py ${APP_DIR}
