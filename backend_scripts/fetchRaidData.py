@@ -33,6 +33,7 @@ import re
 import json
 import time
 import requests
+import commonUtils
 from collections import defaultdict
 from aggregateData import get_access_token
 
@@ -100,14 +101,10 @@ def fetch_icon(iid, token):
 
 
 def main():
-    # Current expansion id, derived from the live client build the same way
-    # fetchDungeonData.py does (major client version - 1). Items in
-    # equippable-items.json carry this value in their "expansion" field.
-    meta = requests.get("https://www.raidbots.com/static/data/live/metadata.json")
-    meta.raise_for_status()
-    wow_build = meta.json().get("wowBuild")            # e.g. "12.1.0.68914"
-    expansion_id = int(wow_build.split(".", 1)[0]) - 1
-    print(f"Derived expansion_id = {expansion_id} (wowBuild {wow_build})")
+    # Current expansion id, derived from the live client build (major client
+    # version - 1). Items in equippable-items.json carry this value in their
+    # "expansion" field.
+    expansion_id = commonUtils.derive_expansion_id()
 
     with open(os.path.join(LOOKUP_DIR, "dungeons.json"), encoding="utf-8") as f:
         dungeons = json.load(f)

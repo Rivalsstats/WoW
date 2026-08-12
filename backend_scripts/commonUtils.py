@@ -80,6 +80,34 @@ def current_season_id(lookup_dir=None):
     return int(load_season_info(lookup_dir)["blizzard_season_id"])
 
 
+# Raidbots mirrors the live retail client build; the collector reads the current
+# expansion id off it instead of hardcoding a constant each expansion.
+RAIDBOTS_METADATA_URL = "https://www.raidbots.com/static/data/live/metadata.json"
+
+
+def derive_expansion_id():
+    """Current WoW expansion id, derived from the live client build.
+
+    The expansion id is the client's major version minus one (e.g. client 12.x
+    -> expansion 11). This is the exact value Raider.IO's ``expansion_id``
+    parameter and the ``expansion`` field on Raidbots' equippable-items.json both
+    use, so every fetcher agrees on one derivation.
+
+    Raises on a missing/malformed build rather than falling back to a stale id.
+    """
+    # Local import keeps commonUtils' import-time footprint to stdlib +
+    # databaseConnector; requests is only needed by the offline data fetchers
+    # that call this, never by the page/image generators that import this module.
+    import requests
+
+    resp = requests.get(RAIDBOTS_METADATA_URL, timeout=60)
+    resp.raise_for_status()
+    wow_build = resp.json().get("wowBuild")  # e.g. "12.1.0.68914"
+    expansion_id = int(wow_build.split(".", 1)[0]) - 1
+    print(f"Derived expansion_id = {expansion_id} (wowBuild {wow_build})")
+    return expansion_id
+
+
 # Weapon itemSubClass values that occupy both hands the way inventoryType 17
 # (two-hand) does: bows, guns and crossbows are ranged mainhands with no
 # off-hand.

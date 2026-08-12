@@ -3,6 +3,7 @@ import json
 import time
 import requests
 import databaseConnector
+import commonUtils
 from contextlib import closing
 from aggregateData import get_current_season_id, get_access_token, fetch_json
 
@@ -25,14 +26,7 @@ databaseConnector.init_connection_pool(
 )
 
 
-meta_url = "https://www.raidbots.com/static/data/live/metadata.json"
-mresp = requests.get(meta_url)
-mresp.raise_for_status()
-wow_build = mresp.json().get("wowBuild")  # e.g. "11.1.7.61559"
-major = int(wow_build.split(".", 1)[0])  # e.g. 11
-expansion_id = major - 1  # → 10
-
-print(f"Derived expansion_id = {expansion_id}")
+expansion_id = commonUtils.derive_expansion_id()
 
 static_url = "https://raider.io/api/v1/mythic-plus/static-data"
 static_params = {"access_key": RAIDERIO_API_KEY, "expansion_id": expansion_id}

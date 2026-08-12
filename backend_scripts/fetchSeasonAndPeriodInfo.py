@@ -8,6 +8,7 @@ import io
 from collections import Counter
 from datetime import datetime, timezone
 import databaseConnector
+import commonUtils
 
 # List of Blizzard API regions to process
 regions = ["us", "eu", "kr", "tw"]
@@ -35,7 +36,6 @@ period_details_url = (
 CLIENT_ID = os.getenv("BLIZ_CLIENT_ID")
 CLIENT_SECRET = os.getenv("BLIZ_CLIENT_SECRET")
 RAIDERIO_API_KEY = os.getenv("RAIDERIO_API_KEY")
-CURRENT_EXPANSION_ID = 11  # MIDNIGHT
 
 SEASON_INFO_JSON = os.path.join("data", "static", "seasonInfo.json")
 # The season this file described before the most recent flip; see the write below.
@@ -59,8 +59,8 @@ def blizzard_get(url, params=None, token=None):
     return resp.json()
 
 
-def fetch_rio_season():
-    rio_season_url = f"https://raider.io/api/v1/mythic-plus/static-data?expansion_id={CURRENT_EXPANSION_ID}"
+def fetch_rio_season(expansion_id):
+    rio_season_url = f"https://raider.io/api/v1/mythic-plus/static-data?expansion_id={expansion_id}"
     resp = requests.get(rio_season_url, {"access_key": RAIDERIO_API_KEY})
     resp.raise_for_status()
     return resp.json().get("seasons", [])
@@ -201,7 +201,7 @@ def main():
             databaseConnector.commit_changes(conn)
         all_regions_data[region] = {"season_id": season_id, "periods": region_periods}
 
-    season_info = fetch_rio_season()
+    season_info = fetch_rio_season(commonUtils.derive_expansion_id())
     print(season_info)
     CURRENT_SEASON = None
     max_season_id = max(s.get("blizzard_season_id", 0) for s in season_info)

@@ -1,27 +1,37 @@
 name: Season Rollover DB Wipe
 
-# Requests a blanket DB wipe at a WoW season rollover — but only after the old
-# season's site snapshot exists in the archive repo, and only after a human
-# approves. This workflow does NOT delete anything itself: it raises an intent
-# flag (wipe_control.request_season) that the paused collector + the MySQL event
-# ev_season_wipe act on. See backend_scripts/database.sql and the plan for the
-# full handshake.
+# Requests a blanket DB wipe at a WoW season rollover. This workflow does NOT
+# delete anything itself: it raises an intent flag (wipe_control.request_season)
+# that the paused collector + the MySQL event ev_season_wipe act on. See
+# backend_scripts/database.sql for the handshake.
+#
+# FAIL-CLOSED human gate (hardened 2026-08-13 after an unattended wipe): the
+# automated triggers below ONLY detect a pending rollover and post an alert — they
+# can never raise the flag. The destructive `--commit` runs solely on a manual
+# workflow_dispatch whose `confirm` input matches the detected season. The
+# production-wipe environment is kept as an OPTIONAL second gate, but nothing here
+# relies on it: a GitHub environment with no required-reviewers rule runs
+# immediately (fails open), which is exactly how the earlier wipe slipped through.
 
 on:
-  # Fire on the season flip: getStaticData is what advances seasonInfo.json to the
-  # new season, so its completion is exactly when detect() should re-evaluate
-  # (current = new season, oldmax = the lingering old one). It is NOT gated on a
-  # successful new-season buildPages, which fails during the pre-season gap and
-  # used to block the wipe forever. The archive is verified independently in the
-  # gate step below.
+  # Fire on the season flip (getStaticData advances seasonInfo.json). Detect-and-
+  # notify only — never commits.
   workflow_run:
     workflows: ["Gather Static WoW data"]
     types: [completed]
-  # Weekly self-guarding fallback in case the flip's completion event is missed;
-  # detect() is a no-op when there is nothing to wipe.
+  # Weekly self-guarding fallback in case the flip's completion event is missed.
   schedule:
     - cron: '0 10 * * WED'
+  # The ONLY path that can raise the wipe request. Requires typing the season id.
   workflow_dispatch:
+    inputs:
+      confirm:
+        description: >-
+          Type the season id you are rolling INTO (the "current" season detect
+          reports, e.g. 18) to authorize the DESTRUCTIVE blanket wipe of all
+          older-season data. Any other value aborts and wipes nothing.
+        required: true
+        type: string
 
 concurrency:
   group: "season-wipe"
@@ -31,16 +41,14 @@ permissions:
   contents: read
 
 jobs:
-  # Detect whether a rollover wipe should be requested. No environment here, so a
-  # no-op run never triggers the approval prompt.
+  # Detect whether a rollover wipe is pending and that the old season is archived.
+  # Read-only; runs on every trigger and is a no-op when there is nothing to wipe.
   detect:
     runs-on: ubuntu-latest
-    # Run on any trigger/conclusion: detect() reads the (already-committed)
-    # seasonInfo.json + the DB and is a no-op when there is nothing to wipe, so a
-    # failed getStaticData simply yields no action rather than blocking the wipe.
     outputs:
       proceed: ${{ steps.gate.outputs.proceed }}
       current: ${{ steps.dbdetect.outputs.current }}
+      oldmax: ${{ steps.dbdetect.outputs.oldmax }}
     steps:
       - name: Clone project
         uses: actions/checkout@v7
@@ -68,13 +76,10 @@ jobs:
           DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
         run: python backend_scripts/requestSeasonWipe.py --detect
 
-      # The only safety we need before a wipe: the outgoing season was archived at
-      # all. Every buildPages run force-pushes `season-<id>` to the archive repo, so
-      # a normal build within the last week already froze this season's site. We do
-      # NOT require it to be a post-season "final" snapshot — an archive up to a
-      # week old is acceptable (accepted trade-off; the last few days of old-season
-      # data are not worth blocking the wipe over). If the branch is missing, the
-      # season was never archived, so block loudly for a human.
+      # The only pre-wipe safety: the outgoing season was archived at all. Every
+      # buildPages run force-pushes `season-<id>` to the archive repo, so a normal
+      # build within the last week already froze this season's site. If the branch
+      # is missing, the season was never archived, so block loudly.
       - name: Confirm the old season was archived
         id: gate
         if: ${{ steps.dbdetect.outputs.should_wipe == 'true' }}
@@ -103,12 +108,70 @@ jobs:
             echo "proceed=false" >> "$GITHUB_OUTPUT"
           fi
 
-  # Raise the intent flag. The environment gate is the manual approval; it only
-  # fires when detect said proceed=true, so approvals are requested only on a real
-  # rollover.
-  request-wipe:
+  # Automated triggers stop here: alert a human that a wipe is pending and MUST be
+  # authorized by hand. Never commits.
+  notify:
     needs: detect
-    if: ${{ needs.detect.outputs.proceed == 'true' }}
+    if: ${{ github.event_name != 'workflow_dispatch' && needs.detect.outputs.proceed == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Alert that a wipe is pending manual authorization
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          CURRENT: ${{ needs.detect.outputs.current }}
+          OLDMAX: ${{ needs.detect.outputs.oldmax }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/workflows/seasonRolloverWipe.yml
+        run: |
+          set -euo pipefail
+          MSG="🚨 Season rollover ready: season ${OLDMAX} data is archived and pending a BLANKET DB wipe (rolling into season ${CURRENT}). Nothing has been wiped. To proceed, manually run the 'Season Rollover DB Wipe' workflow with confirm=${CURRENT}: ${RUN_URL}"
+          { echo "### Wipe pending manual authorization"; echo; echo "$MSG"; } >> "$GITHUB_STEP_SUMMARY"
+          if [ -n "${DISCORD_WEBHOOK:-}" ]; then
+            jq -n --arg c "$MSG" '{content: $c}' \
+              | curl -sS -X POST -H "Content-Type: application/json" -d @- "$DISCORD_WEBHOOK" \
+              || echo "::warning::Discord notification failed; the job summary still carries the notice."
+          else
+            echo "::warning::DISCORD_WEBHOOK not set; only the job summary carries the wipe-pending notice."
+          fi
+
+  # Manual dispatch only: validate the typed confirmation before anything with DB
+  # access runs. A mismatch fails the run loudly and wipes nothing.
+  authorize:
+    needs: detect
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    outputs:
+      authorized: ${{ steps.check.outputs.authorized }}
+    steps:
+      - name: Validate manual confirmation
+        id: check
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+          CURRENT: ${{ needs.detect.outputs.current }}
+          PROCEED: ${{ needs.detect.outputs.proceed }}
+        run: |
+          set -euo pipefail
+          if [ "${PROCEED}" != "true" ]; then
+            echo "authorized=false" >> "$GITHUB_OUTPUT"
+            echo "::error::No wipe is pending — detect did not clear the rollover/archive gate. Nothing to authorize."
+            exit 1
+          fi
+          if [ "${CONFIRM}" != "${CURRENT}" ]; then
+            echo "authorized=false" >> "$GITHUB_OUTPUT"
+            echo "::error::Confirmation mismatch: you typed '${CONFIRM}', expected the current season '${CURRENT}'. Aborting — nothing was wiped."
+            exit 1
+          fi
+          echo "authorized=true" >> "$GITHUB_OUTPUT"
+          { echo "### Wipe authorized";
+            echo;
+            echo "Confirmation \`${CONFIRM}\` matches the current season. Proceeding to raise the wipe request.";
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # Raise the intent flag. Reached ONLY after a human dispatched the workflow and
+  # the typed confirmation matched. The production-wipe environment is an optional
+  # second (reviewer) gate; it is not relied upon for safety.
+  request-wipe:
+    needs: [detect, authorize]
+    if: ${{ needs.authorize.outputs.authorized == 'true' }}
     runs-on: ubuntu-latest
     environment: production-wipe
     steps:
@@ -136,8 +199,8 @@ jobs:
           DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
           DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
         # Re-derive the season from seasonInfo.json rather than trusting the value
-        # captured before the approval — that approval can sit pending for days,
-        # and committing a stale, lower boundary would mark the wrong one cleared
-        # and permanently block the real one. --expect-season makes any drift a
-        # hard failure instead of a silent mistake.
+        # captured at detect time — a manual dispatch may happen days later, and
+        # committing a stale, lower boundary would mark the wrong one cleared and
+        # permanently block the real one. --expect-season makes any drift a hard
+        # failure instead of a silent mistake.
         run: python backend_scripts/requestSeasonWipe.py --commit --expect-season "${{ needs.detect.outputs.current }}"
