@@ -8,7 +8,7 @@ import aiohttp
 import discord
 from discord.ext import commands, tasks
 
-from . import cache, cogs, config, db, emojis, errors, site_data
+from . import cache, cogs, config, db, emojis, errors, guards, site_data
 
 log = logging.getLogger("mythistone.bot")
 
@@ -27,6 +27,9 @@ class MythistoneBot(commands.Bot):
         for module in cogs.COG_MODULES:
             await self.load_extension(f"discord_bot.cogs.{module}")
         self.tree.on_error = errors.on_app_command_error
+        # Global gate: during the pre-season gap / just after a wipe, every command
+        # short-circuits to the "season hasn't started" embed instead of erroring.
+        self.tree.interaction_check = guards.season_guard
         await self._sync_tree()
         self.prune_loop.start()
 

@@ -40,8 +40,7 @@ def has_runs(season):
     conn = databaseConnector.get_connection()
     try:
         cur = conn.cursor()
-        cur.execute("SELECT 1 FROM runs WHERE season = %s LIMIT 1", (season,))
-        found = cur.fetchone() is not None
+        found = databaseConnector.season_has_runs(conn, cur, season)
         cur.close()
         conn.commit()
     finally:

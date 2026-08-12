@@ -1,7 +1,5 @@
 """/season — current season overview."""
 
-import datetime
-
 import commonUtils
 import databaseConnector
 import discord
@@ -21,14 +19,6 @@ async def _get_max_key_run():
     return await db.run(databaseConnector.fetch_max_key_run, config.SEASON)
 
 
-def _discord_ts(iso: str, style: str = "D") -> str:
-    """ISO 8601 -> a Discord timestamp tag that renders in the viewer's timezone."""
-    if not iso:
-        return "—"
-    ts = int(datetime.datetime.fromisoformat(iso.replace("Z", "+00:00")).timestamp())
-    return f"<t:{ts}:{style}>"
-
-
 def build_season_embed(total_runs, max_run) -> discord.Embed:
     info = config.SEASON_INFO
     title = config.SEASON_NAME
@@ -39,7 +29,8 @@ def build_season_embed(total_runs, max_run) -> discord.Embed:
     starts = info.get("starts", {})
     ends = info.get("ends", {})
     schedule = "\n".join(
-        f"{region.upper()}: {_discord_ts(starts.get(region))} → {_discord_ts(ends.get(region))}"
+        f"{region.upper()}: {embeds.discord_ts(starts.get(region), 'D')} → "
+        f"{embeds.discord_ts(ends.get(region), 'D')}"
         for region in ("us", "eu", "kr")
         if region in starts
     )

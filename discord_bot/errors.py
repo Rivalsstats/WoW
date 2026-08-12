@@ -49,6 +49,15 @@ class SiteDataError(BotError):
     )
 
 
+class SeasonNotStarted(app_commands.CheckFailure):
+    """The current season has no runs yet (pre-season gap / just after a wipe).
+
+    Raised by the global season guard so every command short-circuits to a
+    friendly "season hasn't started" embed instead of erroring on empty data. It
+    subclasses CheckFailure so discord.py routes it to on_app_command_error.
+    """
+
+
 def error_embed(exc: Exception) -> discord.Embed:
     message = getattr(exc, "user_message", None) or BotError.user_message
     return discord.Embed(
@@ -86,6 +95,13 @@ async def on_app_command_error(
     # Unwrap the wrapper discord.py puts around exceptions raised inside a command.
     if isinstance(error, app_commands.CommandInvokeError):
         error = error.original
+
+    # Pre-season gap / post-wipe: show the season schedule instead of an error.
+    if isinstance(error, SeasonNotStarted):
+        from . import embeds  # local import: embeds imports config/emojis, not errors
+
+        await _respond(interaction, embeds.season_not_started_embed(), ephemeral=False)
+        return
 
     if isinstance(error, app_commands.CommandOnCooldown):
         embed = discord.Embed(

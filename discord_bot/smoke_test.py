@@ -211,6 +211,10 @@ def test_resolvers():
 def test_season():
     assert_embed(season.build_season_embed(1_500_000, fx_top_run()), "season.info")
     assert_embed(season.build_season_embed(0, None), "season.info (empty)")
+    ns = embeds.season_not_started_embed()
+    assert_embed(ns, "season.not_started")
+    # the friendly gap embed must surface live Discord timestamps for the start
+    check("<t:" in "".join(f.value for f in ns.fields), "not_started missing discord timestamps")
 
 
 def test_spec():

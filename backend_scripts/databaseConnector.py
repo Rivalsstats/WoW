@@ -1552,6 +1552,18 @@ def fetch_total_season_runs(connection, cursor, season):
     return total_runs
 
 
+SEASON_HAS_RUNS_SQL = "SELECT 1 FROM runs WHERE season = %s LIMIT 1"
+
+
+def season_has_runs(connection, cursor, season):
+    """True if the season has any recorded runs — i.e. it is underway. False
+    during the pre-season gap or just after a season wipe, when the runs table
+    holds nothing for it yet. LIMIT 1 keeps it O(1). Used by the buildPages
+    preflight (seasonHasData.py) and the Discord bot's season-not-started guard."""
+    rows = fetch_with_retry(connection, cursor, SEASON_HAS_RUNS_SQL, (season,))
+    return bool(rows)
+
+
 FETCH_SEASON_RUNS_FOR_SPEC_SQL = """
 SELECT SUM(run_count) AS total_runs
 FROM aggregated_spec

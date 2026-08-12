@@ -115,6 +115,44 @@ def _note_truncated(embed: discord.Embed):
         embed.description = (desc + "\n" + note).strip()
 
 
+def discord_ts(iso: str, style: str = "F") -> str:
+    """ISO 8601 -> a Discord timestamp tag that renders in the viewer's own
+    timezone (e.g. ``<t:1699999999:F>``). Style ``F`` = full date-time, ``R`` =
+    relative ("in 3 days"), ``D`` = date only."""
+    if not iso:
+        return "—"
+    ts = int(datetime.datetime.fromisoformat(iso.replace("Z", "+00:00")).timestamp())
+    return f"<t:{ts}:{style}>"
+
+
+def season_not_started_embed() -> discord.Embed:
+    """Shown in place of any command output during the pre-season gap / just after
+    a season wipe, when the current season has no runs yet. Surfaces the per-region
+    start times as live Discord timestamps so each viewer sees their local time."""
+    info = config.SEASON_INFO
+    title = config.SEASON_NAME
+    if config.SEASON_SHORT:
+        title = f"{title} ({config.SEASON_SHORT})"
+    embed = base_embed(
+        title,
+        url=f"{config.SITE_BASE}/pages/dashboard",
+        description=(
+            "This season hasn't started yet, so there are no Mythic+ runs to show. "
+            "Stats will light up once the first keys are logged."
+        ),
+    )
+    starts = (info or {}).get("starts", {})
+    lines = [
+        f"{region.upper()}: {discord_ts(starts.get(region), 'F')} "
+        f"({discord_ts(starts.get(region), 'R')})"
+        for region in ("us", "eu", "kr")
+        if starts.get(region)
+    ]
+    if lines:
+        add_fields_capped(embed, [("Season starts", "\n".join(lines), False)])
+    return embed
+
+
 def spec_embed_header(spec_id) -> discord.Embed:
     sid = str(spec_id)
     cid = str(lookups.SPECS.get(sid, {}).get("classID", ""))
