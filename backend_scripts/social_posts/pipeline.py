@@ -10,13 +10,15 @@ import json
 import os
 import random
 import time
+from contextlib import closing
 from datetime import datetime
 
 from PIL import Image, ImageDraw, ImageFont
 
 import aggregateData
 import databaseConnector
-from commonUtils import get_dungeon_lookup, get_spec_lookup, load_json
+import season_gate
+from commonUtils import get_dungeon_lookup, get_spec_lookup, load_json, load_season_info
 from image_generation import config
 from image_generation.pil_helpers import apply_watermark_to_canvas
 from social_posts.links import build_site_link
@@ -28,6 +30,7 @@ from social_posts.posts import (
     create_dungeon_popularity_vs_ease,
     create_dungeon_tierlist,
     create_overall_spec_popularity,
+    create_season_countdown,
     create_spec_popularity_by_level,
     create_spec_popularity_vs_performance,
 )
@@ -60,6 +63,31 @@ def create_socials_post(donesocials, api_key, url):
         os.environ["CLIENT_ID"], os.environ["CLIENT_SECRET"]
     )
     current_season_id = aggregateData.get_current_season_id(access_token)
+
+    # Pre-season gate: during the gap between seasons (DB wiped, no runs logged
+    # for the current season yet) every normal generator would render an empty
+    # "0 total runs tracked" card. Detect that the same way the Discord bot's
+    # season-not-started guard does (season_gate) and post a release countdown
+    # instead. Once the first keys are logged this flips back automatically.
+    with closing(databaseConnector.get_connection()) as conn:
+        cursor = conn.cursor()
+        try:
+            started = season_gate.season_has_started(conn, cursor, current_season_id)
+        finally:
+            cursor.close()
+    if not started:
+        print("Season has no runs yet: posting release countdown instead of data.")
+        post = create_season_countdown(
+            config.OUTPUT_DIR, donesocials, url, load_season_info()
+        )
+        if post and post.get("bundle"):
+            out_path = post["out_path"]
+            if out_path not in donesocials:
+                record = bundle_to_record(post)
+                donesocials[out_path] = record
+                return {"out_path": out_path, **record}
+        # Countdown for today already recorded (or unbuildable): nothing new to post.
+        return None
 
     # Create spec-specific generators
     spec_generators = []

@@ -6,7 +6,7 @@ types for legacy socials.json entries."""
 
 import os
 from contextlib import closing
-from datetime import datetime
+from datetime import datetime, timezone
 
 import databaseConnector
 from commonUtils import format_comp_names, get_spec_lookup
@@ -18,9 +18,74 @@ from image_generation.mplus_run import create_MplusImage, get_run_data
 from image_generation.spec_distribution_by_level import create_spec_popularity_by_level_img
 from image_generation.spec_overview import createSpecOverviewImg
 from image_generation.spec_popularity_performance import create_spec_popularity_vs_performance_img
+from image_generation.season_countdown import create_season_countdown_img
 from image_generation.spec_popularity_tierlist import create_spec_tierlist_img
 from social_posts.links import build_site_link, dungeon_page_link, spec_page_link, time_ago
 from social_posts.llm import build_bundle, get_openai_client
+
+
+def _launch_phrase(earliest_iso):
+    """A human relative sentence for the earliest season start, e.g.
+    "The first keys go live August 18 (in 3 days)." Kept deterministic (no LLM)
+    and free of em dashes / trailing semicolons per house style."""
+    if not earliest_iso:
+        return "Launch is coming soon."
+    try:
+        dt = datetime.fromisoformat(earliest_iso)
+    except ValueError:
+        return "Launch is coming soon."
+    now = datetime.now(dt.tzinfo or timezone.utc)
+    date_str = dt.strftime("%B %d")
+    secs = (dt - now).total_seconds()
+    if secs <= 0:
+        return "The first region is going live right now."
+    days = int(secs // 86400)
+    hours = int((secs % 86400) // 3600)
+    if days >= 1:
+        rel = "tomorrow" if days == 1 else f"in {days} days"
+        return f"The first keys go live {date_str} ({rel})."
+    if hours >= 1:
+        return f"The first keys go live {date_str}, in {hours} hour{'s' if hours != 1 else ''}."
+    return f"The first keys go live {date_str}, in a matter of minutes."
+
+
+def create_season_countdown(output_dir, donesocials, url, season_info):
+    """Pre-season release-countdown post, used during the gap between seasons
+    (DB wiped, no runs yet) in place of the normal data cards. No DB, no Blizzard
+    API and no LLM: the image and its on-brand copy are built from seasonInfo.json
+    alone. The filename carries today's date so a fresh countdown posts once per
+    day of the gap and stops on its own once the season has runs again."""
+    today = datetime.now().strftime("%Y-%m-%d")
+    slug = season_info.get("slug", "season")
+    out_path = os.path.join(output_dir, f"season_countdown_{slug}_{today}.png")
+    if out_path in donesocials:
+        return None
+
+    fields = create_season_countdown_img(out_path, season_info)
+
+    name = fields.get("season_name", "The new season")
+    short = fields.get("season_short")
+    title = f"{name} ({short})" if short else name
+    when = _launch_phrase(fields.get("earliest_start"))
+
+    link = build_site_link(url, "pages/dashboard")
+    social = (
+        f"{title} is almost here. {when} A fresh dungeon pool, new keys, and the "
+        f"meta resets to zero. We will be tracking every run from day one at "
+        f"{link} #WoW #MythicPlus"
+    )
+    blog = (
+        f"{title} has not started yet, so there are no Mythic+ runs to show. {when} "
+        "Once the first keys are logged the dashboards light back up with live spec, "
+        "dungeon, and comp data. Check back at launch."
+    )
+    bundle = {"title": f"{title} release countdown", "social": social, "blog": blog}
+    return {
+        "out_path": out_path,
+        "bundle": bundle,
+        "post_type": "season_countdown",
+        "link": link,
+    }
 
 
 def create_MplusRun(run, season, donesocials, api_key, url):

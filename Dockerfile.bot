@@ -16,6 +16,7 @@ COPY backend_scripts/databaseConnector.py ${APP_DIR}/databaseConnector.py
 COPY backend_scripts/commonUtils.py       ${APP_DIR}/commonUtils.py
 COPY backend_scripts/chartData.py         ${APP_DIR}/chartData.py
 COPY backend_scripts/tierMath.py          ${APP_DIR}/tierMath.py
+COPY backend_scripts/season_gate.py       ${APP_DIR}/season_gate.py
 
 # The bot package itself.
 COPY discord_bot/ ${APP_DIR}/discord_bot/

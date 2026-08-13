@@ -28,6 +28,7 @@ POST_TYPE_META = {
     "highest_run": ("Run Highlight", "bg-gradient-danger"),
     "longest_run": ("Run Highlight", "bg-gradient-danger"),
     "shortest_run": ("Run Highlight", "bg-gradient-danger"),
+    "season_countdown": ("Season Countdown", "bg-gradient-primary"),
 }
 DEFAULT_TYPE_META = ("Data Spotlight", "bg-gradient-secondary")
 
@@ -45,6 +46,7 @@ FILENAME_TYPE_PATTERNS = [
     ("highest_run_mplus_", "highest_run"),
     ("longest_run_mplus_", "longest_run"),
     ("shortest_run_mplus_", "shortest_run"),
+    ("season_countdown_", "season_countdown"),
 ]
 
 STATIC_TITLES = {

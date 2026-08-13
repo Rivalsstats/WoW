@@ -9,7 +9,7 @@ instead. The check is cached briefly so it does not query the DB on every comman
 
 import logging
 
-import databaseConnector
+import season_gate
 
 from . import cache, config, db
 from .errors import SeasonNotStarted
@@ -19,7 +19,9 @@ log = logging.getLogger("mythistone.bot")
 
 @cache.ttl_cache(300)
 async def _season_has_runs() -> bool:
-    return bool(await db.run(databaseConnector.season_has_runs, config.SEASON))
+    # Shared gate with the social auto-poster (backend_scripts/season_gate.py) so
+    # both flip to their "season not started yet" presentations on the same query.
+    return bool(await db.run(season_gate.season_has_started, config.SEASON))
 
 
 async def season_guard(interaction) -> bool:
