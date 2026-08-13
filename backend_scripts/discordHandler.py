@@ -81,10 +81,14 @@ class DiscordReporter:
         # process restart resets the dict). Used for expected-but-noisy states
         # such as "the season has no data yet" during the pre-season gap.
         self._oneshot_sent: dict[str, bool] = {}
-        self._disk_warn_pct = float(os.getenv("DISK_WARN_PCT", "5.0"))  # percent free
+        # Warn on a low free-space floor. The percent arm was lowered from 5% to 2%
+        # because on a large volume 5% is several GB, which spammed the channel while
+        # gigabytes were still free. Set DISK_WARN_PCT=0 to disable the percent arm and
+        # rely on the absolute byte floor alone.
+        self._disk_warn_pct = float(os.getenv("DISK_WARN_PCT", "2.0"))  # percent free
         self._disk_warn_bytes = int(
             os.getenv("DISK_WARN_BYTES", str(1 * 1024**3))
-        )  # bytes
+        )  # bytes (1 GiB)
 
         # mode selection
         if self.webhook_url:
