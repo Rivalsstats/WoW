@@ -68,7 +68,7 @@ def create_season_countdown(output_dir, donesocials, url, season_info):
     title = f"{name} ({short})" if short else name
     when = _launch_phrase(fields.get("earliest_start"))
 
-    link = build_site_link(url, "pages/dashboard")
+    link = build_site_link(url)
     social = (
         f"{title} is almost here. {when} A fresh dungeon pool, new keys, and the "
         f"meta resets to zero. We will be tracking every run from day one at "
