@@ -553,6 +553,32 @@
   padding: 0.35em 0.5em;
 }
 
+/* Loot-source badges lead the stat row, telling players where a gear piece
+   drops. A muted surface + border reads as metadata, distinct from the coloured
+   stat abbreviations that follow. Dungeon links stay neutral (the common case);
+   raid and crafted get a light tint so they stand out. */
+.item-source-badge {
+  font-size: 0.65rem;
+  padding: 0.35em 0.5em;
+  font-weight: 600;
+  border: 1px solid var(--mythi-border-strong);
+  background: var(--mythi-surface-sunken);
+  color: var(--mythi-text-muted);
+  text-decoration: none;
+}
+a.item-source-badge:hover {
+  color: var(--mythi-overlay-color);
+  border-color: var(--mythi-text-muted);
+}
+.item-source-badge-raid {
+  color: var(--mythi-text-warning);
+  border-color: var(--mythi-text-warning);
+}
+.item-source-badge-crafted {
+  color: var(--mythi-text-success);
+  border-color: var(--mythi-text-success);
+}
+
 .item-secondary-icons {
   min-height: 16px;
   flex-wrap: wrap;
@@ -660,7 +686,8 @@
     min-height: 0;
   }
 
-  .item-stat-badge {
+  .item-stat-badge,
+  .item-source-badge {
     font-size: 0.6rem;
     padding: 0.25em 0.4em;
   }
