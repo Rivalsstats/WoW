@@ -1952,6 +1952,12 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
     # item_id -> URL slug for linking to the dedicated item pages (/items/<slug>).
     # Derived from item names; matches the map generateItemPages.py builds.
     item_slug_map = build_item_slug_map(item_lookup)
+    # item_id -> {source_dungeons, source_raids, crafted} for the loot-source
+    # badges on each gear row. raids.json may be absent early season (mirrors the
+    # item page's optional load); raid sources then simply won't appear.
+    raids_path = os.path.join(LOOKUP_DIR, "raids.json")
+    raids_json = load_json(raids_path) if os.path.exists(raids_path) else {}
+    item_sources = build_item_source_map(item_lookup, dungeon_lookup, raids_json)
     set_members = defaultdict(list)
     for iid, itm in item_lookup.items():
         sid = itm.get("itemSetId")
@@ -2840,6 +2846,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 spec_lookup=spec_lookup,
                 item_lookup=item_lookup,
                 item_slug_map=item_slug_map,
+                item_sources=item_sources,
                 notifications=notifications,
                 reagent_lookup=reagent_lookup,
                 dungeon_lookup=dungeon_lookup,

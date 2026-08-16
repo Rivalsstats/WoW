@@ -64,9 +64,25 @@
     {% set display_stats = entry.crafted_stats if (not display_stats or display_stats|length == 0) and
     entry.crafted_stats else display_stats %}
 
+    {% set src = item_sources.get(entry.id) if item_sources else none %}
     <div class="my-1 item-stats-container">
-      {% if display_stats %}
+      {% if display_stats or src %}
       <div class="d-flex flex-wrap gap-1">
+        {# Loot-source badges lead the row: where this item drops. #}
+        {% if src %}
+          {% for d in src.source_dungeons %}
+          <a href="/dungeons/{{ d.slug }}" class="badge item-source-badge item-source-badge-dungeon"
+            data-bs-toggle="tooltip" data-bs-container="body" title="Drops from {{ d.name }}">{{ d.short }}</a>
+          {% endfor %}
+          {% for r in src.source_raids %}
+          <span class="badge item-source-badge item-source-badge-raid" data-bs-toggle="tooltip" data-bs-container="body"
+            title="Drops in {{ r.name }}{% if r.bosses %} ({{ r.bosses | map(attribute='name') | join(', ') }}){% endif %}">{{ r.name }}</span>
+          {% endfor %}
+          {% if src.crafted %}
+          <span class="badge item-source-badge item-source-badge-crafted" data-bs-toggle="tooltip" data-bs-container="body"
+            title="Craftable">Crafted</span>
+          {% endif %}
+        {% endif %}
         {% for stat in display_stats %}
         <span class="badge stat-{{ stat.type }} item-stat-badge">
           {{ stat_display_name(stat.type) }}

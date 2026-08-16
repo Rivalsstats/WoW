@@ -55,6 +55,176 @@ def build_item_slug_map(item_lookup):
         for iid, slug in base.items()
     }
 
+
+# Synthetic Raidbots instance ids shared by every item of their kind rather than
+# pointing at a real journal instance.
+TIER_SET_INSTANCE_ID = -87  # tier set pieces
+PVP_INSTANCE_ID = -85       # PvP / gladiator gear
+
+
+def build_source_lookups(item_lookup, dungeon_lookup, raids_json):
+    """Classify every item's Raidbots ``sources`` into dungeon keys / raid ids
+    plus a flat token set, shared by the item pages and the spec pages so the two
+    never drift.
+
+    Returns ``(dungeons_map, raids_map, source_dungeons_by_item,
+    source_raids_by_item, source_tokens_by_item)``:
+
+    - ``dungeons_map`` / ``raids_map`` flatten the locale ``name`` dicts to
+      ``en_US`` and expose ``slug`` (+ dungeon ``short``, raid ``bosses``) for
+      resolving display objects.
+    - ``source_dungeons_by_item`` maps ``int item_id -> [dungeon_key, ...]``.
+    - ``source_raids_by_item`` maps ``int item_id -> {raid_id: [encounter_id_str, ...]}``.
+    - ``source_tokens_by_item`` maps ``int item_id -> [token, ...]`` for the
+      browse-page filter (``d:<key>`` / ``r:<rid>`` / ``b:<rid>:<enc>`` /
+      ``crafted`` / ``tier`` / ``pvp`` / ``other``).
+
+    ``raids_json`` may be an empty dict (raids.json absent early season); raid
+    sources simply won't appear.
+    """
+    dungeons_map = {}
+    for did, d in dungeon_lookup.items():
+        name = d.get("name")
+        if isinstance(name, dict):
+            name = name.get("en_US") or next(iter(name.values()), did)
+        dungeons_map[str(did)] = {
+            "name": name,
+            "slug": d.get("slug"),
+            # dungeons.json carries the abbreviation under raiderio_short_name.
+            "short": d.get("raiderio_short_name") or d.get("short_name") or name,
+            "icon": d.get("icon"),
+        }
+
+    raids_map = {}
+    for rid, r in (raids_json or {}).items():
+        name = r.get("name")
+        if isinstance(name, dict):
+            name = name.get("en_US") or next(iter(name.values()), rid)
+        bosses = {}
+        for enc_id, b in (r.get("bosses") or {}).items():
+            bname = b.get("name")
+            if isinstance(bname, dict):
+                bname = bname.get("en_US") or next(iter(bname.values()), enc_id)
+            bosses[str(enc_id)] = {"name": bname, "slug": b.get("slug")}
+        raids_map[str(rid)] = {
+            "name": name,
+            "slug": r.get("slug"),
+            "icon": r.get("icon"),
+            "order": r.get("order", 0),
+            "bosses": bosses,
+        }
+
+    # Each Raidbots "sources" entry carries an instanceId (dungeon or raid journal
+    # instance) and an encounterId (the boss). Resolve those to our dungeon keys /
+    # raid ids and emit a flat set of source tokens per item, which the browse-page
+    # filter matches by set intersection. Keyed by int item id to match slug_map.
+    instance_to_dungeon = {}
+    for did, d in dungeon_lookup.items():
+        jii = d.get("journal_instance_id")
+        if jii is not None:
+            instance_to_dungeon[int(jii)] = str(did)
+
+    source_dungeons_by_item = {}
+    source_raids_by_item = {}
+    source_tokens_by_item = {}
+    for iid, itm in item_lookup.items():
+        dids = []
+        raids_for_item = {}   # raid id -> set(encounter id)
+        tokens = []
+        for src in itm.get("sources", []) or []:
+            inst = src.get("instanceId")
+            did = instance_to_dungeon.get(inst)
+            if did:
+                if did not in dids:
+                    dids.append(did)
+                tok = f"d:{did}"
+                if tok not in tokens:
+                    tokens.append(tok)
+                continue
+            rid = str(inst) if inst is not None and str(inst) in raids_map else None
+            if rid:
+                rtok = f"r:{rid}"
+                if rtok not in tokens:
+                    tokens.append(rtok)
+                bucket = raids_for_item.setdefault(rid, set())
+                enc = src.get("encounterId")
+                if enc is not None and str(enc) in raids_map[rid]["bosses"]:
+                    bucket.add(str(enc))
+                    btok = f"b:{rid}:{enc}"
+                    if btok not in tokens:
+                        tokens.append(btok)
+
+        crafted = "profession" in itm
+        if crafted:
+            tokens.append("crafted")
+        is_tier = any(src.get("instanceId") == TIER_SET_INSTANCE_ID
+                      for src in (itm.get("sources", []) or []))
+        if is_tier:
+            tokens.append("tier")
+        is_pvp = any(src.get("instanceId") == PVP_INSTANCE_ID
+                     for src in (itm.get("sources", []) or []))
+        if is_pvp:
+            tokens.append("pvp")
+        if not dids and not raids_for_item and not crafted and not is_tier and not is_pvp:
+            tokens.append("other")
+
+        if dids:
+            source_dungeons_by_item[iid] = dids
+        if raids_for_item:
+            source_raids_by_item[iid] = {r: sorted(encs) for r, encs in raids_for_item.items()}
+        source_tokens_by_item[iid] = tokens
+
+    return (dungeons_map, raids_map, source_dungeons_by_item,
+            source_raids_by_item, source_tokens_by_item)
+
+
+def resolve_item_sources(iid, item_lookup, dungeons_map, raids_map,
+                         source_dungeons_by_item, source_raids_by_item):
+    """Resolve one item's classified sources into the display objects the
+    templates consume: ``{source_dungeons, source_raids, crafted}``. ``iid`` must
+    be the int item id used by ``build_source_lookups``."""
+    source_dungeons = [
+        {"id": did, "name": dungeons_map[did]["name"],
+         "slug": dungeons_map[did]["slug"], "short": dungeons_map[did]["short"]}
+        for did in source_dungeons_by_item.get(iid, [])
+        if did in dungeons_map
+    ]
+    source_raids = []
+    for rid, enc_ids in source_raids_by_item.get(iid, {}).items():
+        if rid not in raids_map:
+            continue
+        rinfo = raids_map[rid]
+        source_raids.append({
+            "id": rid,
+            "name": rinfo["name"],
+            "slug": rinfo["slug"],
+            "bosses": [
+                {"id": e, "name": rinfo["bosses"][e]["name"], "slug": rinfo["bosses"][e]["slug"]}
+                for e in enc_ids if e in rinfo["bosses"]
+            ],
+        })
+    crafted = "profession" in item_lookup.get(iid, {})
+    return {"source_dungeons": source_dungeons, "source_raids": source_raids, "crafted": crafted}
+
+
+def build_item_source_map(item_lookup, dungeon_lookup, raids_json):
+    """Spec-page convenience: ``int item_id -> {source_dungeons, source_raids,
+    crafted}`` for every item that has a displayable source (a dungeon, a raid, or
+    a profession). Items with no loot source are omitted so the map stays small
+    and ``item_sources.get(id)`` is falsy for them."""
+    (dungeons_map, raids_map, source_dungeons_by_item,
+     source_raids_by_item, _tokens) = build_source_lookups(
+        item_lookup, dungeon_lookup, raids_json)
+    out = {}
+    for iid, itm in item_lookup.items():
+        if (iid in source_dungeons_by_item or iid in source_raids_by_item
+                or "profession" in itm):
+            out[iid] = resolve_item_sources(
+                iid, item_lookup, dungeons_map, raids_map,
+                source_dungeons_by_item, source_raids_by_item)
+    return out
+
+
 def generateDungeonNav(dungeons):
     dungeon_nav = []
     for d_id, d_data in dungeons.items():

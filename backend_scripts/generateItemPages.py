@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 import databaseConnector
-from pageGeneration import generateSpecNav, generateDungeonNav, build_item_slug_map, build_global_trends
+from pageGeneration import generateSpecNav, generateDungeonNav, build_item_slug_map, build_global_trends, build_source_lookups
 from generateSpecPages import (
     LOOKUP_DIR, load_json, load_season_info, BLIZZARD_STAT_MAP,
     LEFT_ORDER, RIGHT_ORDER, WEAPON_SLOTS, TRINKET_SLOTS, MULTI_SLOT_GROUPS,
@@ -495,18 +495,6 @@ def load_static_lookups():
             "color": _class_color(c.get("color")),
             "page": f"/classes/{ROLE_FOLDERS.get(role, 'Dps')}/{spec_name}_{class_name}",
         }
-    dungeons_map = {}
-    for did, d in dungeon_lookup.items():
-        name = d.get("name")
-        if isinstance(name, dict):
-            name = name.get("en_US") or next(iter(name.values()), did)
-        dungeons_map[str(did)] = {
-            "name": name,
-            "slug": d.get("slug"),
-            "short": d.get("short_name"),
-            "icon": d.get("icon"),
-        }
-
     # Raids are auto-discovered into raids.json (see fetchRaidData.py); the file
     # may be absent early in a season before any raid ships, which is fine — raid
     # sources simply won't appear. Shape mirrors dungeons.json, keyed by raid
@@ -515,99 +503,15 @@ def load_static_lookups():
     raids_json = load_json(raids_path) if os.path.exists(raids_path) else {}
     if not raids_json:
         print("raids.json not found or empty; raid loot sources will be unavailable")
-    raids_map = {}
-    for rid, r in raids_json.items():
-        name = r.get("name")
-        if isinstance(name, dict):
-            name = name.get("en_US") or next(iter(name.values()), rid)
-        bosses = {}
-        for enc_id, b in (r.get("bosses") or {}).items():
-            bname = b.get("name")
-            if isinstance(bname, dict):
-                bname = bname.get("en_US") or next(iter(bname.values()), enc_id)
-            bosses[str(enc_id)] = {"name": bname, "slug": b.get("slug")}
-        raids_map[str(rid)] = {
-            "name": name,
-            "slug": r.get("slug"),
-            "icon": r.get("icon"),
-            "order": r.get("order", 0),
-            "bosses": bosses,
-        }
 
-    # Loot source classification. Each Raidbots "sources" entry carries an
-    # instanceId (dungeon or raid journal instance) and an encounterId (the boss).
-    # We resolve those to our dungeon keys / raid ids and emit a flat set of
-    # source tokens per item, which the browse-page filter matches by set
-    # intersection:
-    #   d:<dungeonKey>            drops in that dungeon
-    #   r:<raidInstanceId>        drops somewhere in that raid
-    #   b:<raidInstanceId>:<enc>  drops from that specific boss
-    #   crafted                   craftable (has a profession)
-    #   tier                      tier set piece (synthetic -87 Raidbots source)
-    #   pvp                       PvP/gladiator gear (synthetic -85 Raidbots source)
-    #   other                     has source rows that resolved to nothing, or no
-    #                             source at all and none of the above (world/vendor)
-    # source_dungeons_by_item / source_raids_by_item feed the richer item-page
-    # "Drops from" display. All keyed by int item id to match slug_map/item_lookup.
-    TIER_SET_INSTANCE_ID = -87  # synthetic Raidbots source shared by all tier pieces
-    PVP_INSTANCE_ID = -85       # synthetic Raidbots source shared by all PvP gear
-    instance_to_dungeon = {}
-    for did, d in dungeon_lookup.items():
-        jii = d.get("journal_instance_id")
-        if jii is not None:
-            instance_to_dungeon[int(jii)] = str(did)
-
-    source_dungeons_by_item = {}
-    source_raids_by_item = {}
-    source_tokens_by_item = {}
-    for iid, itm in item_lookup.items():
-        dids = []
-        raids_for_item = {}   # raid id -> set(encounter id)
-        tokens = []
-        for src in itm.get("sources", []) or []:
-            inst = src.get("instanceId")
-            did = instance_to_dungeon.get(inst)
-            if did:
-                if did not in dids:
-                    dids.append(did)
-                tok = f"d:{did}"
-                if tok not in tokens:
-                    tokens.append(tok)
-                continue
-            rid = str(inst) if inst is not None and str(inst) in raids_map else None
-            if rid:
-                rtok = f"r:{rid}"
-                if rtok not in tokens:
-                    tokens.append(rtok)
-                bucket = raids_for_item.setdefault(rid, set())
-                enc = src.get("encounterId")
-                if enc is not None and str(enc) in raids_map[rid]["bosses"]:
-                    bucket.add(str(enc))
-                    btok = f"b:{rid}:{enc}"
-                    if btok not in tokens:
-                        tokens.append(btok)
-
-        crafted = "profession" in itm
-        if crafted:
-            tokens.append("crafted")
-        # Tier set pieces all carry the same synthetic Raidbots source (-87 / -87)
-        # rather than a real instance, so group them as their own "tier" category.
-        is_tier = any(src.get("instanceId") == TIER_SET_INSTANCE_ID
-                      for src in (itm.get("sources", []) or []))
-        if is_tier:
-            tokens.append("tier")
-        is_pvp = any(src.get("instanceId") == PVP_INSTANCE_ID
-                     for src in (itm.get("sources", []) or []))
-        if is_pvp:
-            tokens.append("pvp")
-        if not dids and not raids_for_item and not crafted and not is_tier and not is_pvp:
-            tokens.append("other")
-
-        if dids:
-            source_dungeons_by_item[iid] = dids
-        if raids_for_item:
-            source_raids_by_item[iid] = {r: sorted(encs) for r, encs in raids_for_item.items()}
-        source_tokens_by_item[iid] = tokens
+    # Loot source classification. Resolves each Raidbots "sources" entry to our
+    # dungeon keys / raid ids and emits a flat token set per item for the
+    # browse-page filter (d:/r:/b:/crafted/tier/pvp/other). Shared with the spec
+    # pages so both surface identical sources; see
+    # pageGeneration.build_source_lookups.
+    (dungeons_map, raids_map, source_dungeons_by_item,
+     source_raids_by_item, source_tokens_by_item) = build_source_lookups(
+        item_lookup, dungeon_lookup, raids_json)
 
     return {
         "season_info": season_info,
