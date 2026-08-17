@@ -13,6 +13,57 @@ def fetch_talents():
         return json.load(f)
 
 
+def build_decode_nodes(spec):
+    """Ordered decode data for a spec's talent loadout string.
+
+    ``fullNodeOrder`` is the node id sequence the Blizzard loadout bitstream walks
+    (verbatim from Raidbots' talents.json). ``nodes`` maps every node id to the
+    metadata the client-side decoder needs: its ``entries`` in *choice order* (the
+    2-bit choice index in the stream indexes into this list), plus ``type`` /
+    ``maxRanks`` and, for hero nodes, the ``subTreeId`` so the client can tell
+    which hero tree a decoded build sits in.
+
+    Unlike the ``talents`` display map below, this includes free/granted nodes:
+    the decoder reads bits for *every* node in ``fullNodeOrder`` regardless of
+    whether it is shown, so its lookup must be complete.
+    """
+    nodes = {}
+    # ``g`` tags the tree a node belongs to so the client can group the decoded
+    # build into Class / Spec / Hero panes; "sub" is the hero-tree selection node.
+    groups = {
+        "classNodes": "class", "specNodes": "spec",
+        "heroNodes": "hero", "subTreeNodes": "sub",
+    }
+    for node_key, group in groups.items():
+        for node in spec.get(node_key, []):
+            entries = []
+            for entry in node.get("entries", []):
+                entries.append({
+                    "name": entry.get("name", node.get("name", "")),
+                    # subTree selection entries carry atlasMemberName, not icon.
+                    "icon": entry.get("icon", entry.get("atlasMemberName", "")),
+                    "spellId": entry.get("spellId", 0),
+                    # active vs passive drives the client node shape (square vs circle).
+                    "type": entry.get("type", ""),
+                    "subTreeId": entry.get("traitSubTreeId"),
+                })
+            nodes[node["id"]] = {
+                "name": node.get("name", ""),
+                "g": group,
+                "type": node.get("type", "single"),
+                "maxRanks": node.get("maxRanks", 1),
+                "subTreeId": node.get("subTreeId"),
+                "free": bool(node.get("freeNode")),
+                # Grid position + child links so the client can lay the tree out
+                # and draw connector edges exactly like the spec page does.
+                "x": node.get("posX", 0),
+                "y": node.get("posY", 0),
+                "next": node.get("next", []),
+                "entries": entries,
+            }
+    return spec.get("fullNodeOrder", []), nodes
+
+
 def build_lookup(talents_data):
     """
     Given the full JSON, returns a dict:
@@ -26,6 +77,7 @@ def build_lookup(talents_data):
         mapping["className"] = spec.get("className", "")
         mapping["talents"] = {}
         mapping["subTrees"] = {}
+        mapping["fullNodeOrder"], mapping["nodes"] = build_decode_nodes(spec)
         for node_key in NODE_TYPES:
             for node in spec.get(node_key, []):
                 node_id = node["id"]

@@ -29,6 +29,8 @@ import random
 import databaseConnector as db
 from commonUtils import load_json
 
+from loadout_codec import encode_loadout
+
 from table_registry import (
     EQUIPMENT_SLOTS,
     SLOT_GROUP_MAP,
@@ -106,6 +108,19 @@ class StaticData:
             self._talents_raw = {str(s["specId"]): s for s in load_json(path)}
         return self._talents_raw.get(str(spec_id))
 
+    def _processed_talents(self, spec_id):
+        """The processed data/static/talents/<specId>.json doc, cached, or None."""
+        if not hasattr(self, "_processed_cache"):
+            self._processed_cache = {}
+        if spec_id not in self._processed_cache:
+            try:
+                self._processed_cache[spec_id] = load_json(
+                    os.path.join(self.dir, "talents", f"{spec_id}.json")
+                )
+            except FileNotFoundError:
+                self._processed_cache[spec_id] = None
+        return self._processed_cache[spec_id]
+
     def processed_talents_for(self, spec_id):
         """The render lookup for a spec: (valid talent node ids, valid hero subtree ids).
 
@@ -115,13 +130,22 @@ class StaticData:
         or the template raises UndefinedError. processTalents drops some raw nodes, so the
         raw talents.json partition is a superset we must intersect against this.
         """
-        try:
-            proc = load_json(os.path.join(self.dir, "talents", f"{spec_id}.json"))
-        except FileNotFoundError:
+        proc = self._processed_talents(spec_id)
+        if not proc:
             return set(), set()
         valid = {int(k) for k in proc.get("talents", {})}
         subtrees = {int(k) for k in proc.get("subTrees", {})}
         return valid, subtrees
+
+    def tree_geometry_for(self, spec_id):
+        """(fullNodeOrder, nodes) from the processed talent file -- the decode
+        order + node metadata (entries/free) the loadout encoder needs to emit a
+        real Blizzard v2 string. Returns ([], {}) when the spec has no tree fields.
+        """
+        proc = self._processed_talents(spec_id)
+        if not proc:
+            return [], {}
+        return proc.get("fullNodeOrder", []), proc.get("nodes", {})
 
 
 def _enchant_pools_by_group(static):
@@ -208,16 +232,34 @@ def _build_variants(static, spec_id, rng, count=4):
     # 50/50 across trees: ~70% of variants take the dominant tree, the rest split the others.
     tree_assign = _skewed_tree_assignment(sub_list, count, rng)
 
+    # Tree geometry for the real Blizzard v2 loadout string. Entries let us pick a
+    # valid choice index per selected choice node; free nodes the encoder forces in.
+    full_node_order, node_meta = static.tree_geometry_for(spec_id)
+
+    def _entry_index(nid):
+        entries = (node_meta.get(str(nid)) or {}).get("entries") or []
+        return rng.randrange(len(entries)) if len(entries) > 1 else 0
+
     variants = []
     for i in range(count):
         hero_tree = tree_assign[i]
         hero_nodes = subtrees.get(hero_tree, [])
+        class_sample = rng.sample(class_ids, max(1, int(len(class_ids) * 0.7))) if class_ids else []
+        spec_sample = rng.sample(spec_ids, max(1, int(len(spec_ids) * 0.6))) if spec_ids else []
+        # Real v2 loadout string over the sampled build: {node_id: entry_index}
+        # for every purchased node (free nodes the encoder adds itself). Decodes
+        # through analyzer.js so members.loadout is the meta build the analyzer
+        # compares a pasted export against.
+        selected = {int(nid): _entry_index(nid)
+                    for nid in (class_sample + spec_sample + hero_nodes)}
+        loadout = encode_loadout(spec_id, selected, full_node_order, node_meta) \
+            if full_node_order and node_meta else None
         variants.append({
-            "class": rng.sample(class_ids, max(1, int(len(class_ids) * 0.7))) if class_ids else [],
-            "spec": rng.sample(spec_ids, max(1, int(len(spec_ids) * 0.6))) if spec_ids else [],
+            "class": class_sample,
+            "spec": spec_sample,
             "hero_tree": int(hero_tree),
             "hero": hero_nodes,
-            "loadout": f"seed-{spec_id}-{rng.randrange(10**6):06d}",
+            "loadout": loadout,
         })
     return variants
 
@@ -453,8 +495,10 @@ def seed_runs(conn, cursor, static, rng, cfg, pools):
     _insert_many(conn, cursor,
         "INSERT INTO equipment (slot, item_id, item_level, member, equipment_id) "
         "VALUES (%s,%s,%s,%s,%s)", equipment)
+    # A random bonus draw can collide with an embellishment/missive draw on the
+    # same equipment; bonus_ids is a (equipment_id, bonus_id) set, so drop dupes.
     _insert_many(conn, cursor,
-        "INSERT INTO bonus_ids (equipment_id, bonus_id) VALUES (%s,%s)", bonus_ids)
+        "INSERT IGNORE INTO bonus_ids (equipment_id, bonus_id) VALUES (%s,%s)", bonus_ids)
     _insert_many(conn, cursor,
         "INSERT INTO sockets (socket_type, socket_item_id, equipment_id) VALUES (%s,%s,%s)", sockets)
     _insert_many(conn, cursor,
