@@ -25,6 +25,9 @@
   {% include "header_imports.html" %}
   <!-- Rarity border/text classes + the --quality-* variables analyzer.js's icons use -->
   <link rel="stylesheet" href="/assets/css/stat-colors.css">
+  <!-- Talent-tree .tt-* classes, shared with the spec page so the analyzer's
+       decoded build renders as the same positioned tree (not a flat list). -->
+  <link rel="stylesheet" href="/assets/css/spec-page.css">
   <link rel="stylesheet" href="/assets/css/analyzer.css?v={{ generated_at | int }}">
 </head>
 
@@ -46,9 +49,10 @@
         </div>
       </div>
 
+      <!-- Row 1: character input, full width. -->
       <div class="row">
-        <div class="col-lg-5 col-md-12 mb-4">
-          <div class="card h-100">
+        <div class="col-12 mb-4">
+          <div class="card">
             <div class="card-header pb-0 p-3">
               <h6 class="mb-0">Your character</h6>
               <p class="text-sm mb-0">
@@ -57,7 +61,7 @@
             </div>
             <div class="card-body p-3">
               <label class="form-label text-xs text-uppercase text-secondary" for="simc-input">SimC export</label>
-              <textarea id="simc-input" class="form-control analyzer-input custom-scrollbar" rows="10" spellcheck="false"
+              <textarea id="simc-input" class="form-control analyzer-input custom-scrollbar" rows="8" spellcheck="false"
                 placeholder="# Fire Mage&#10;mage=&quot;Yourname&quot;&#10;level=80&#10;spec=fire&#10;head=,id=212018,bonus_id=...,enchant_id=...&#10;..."></textarea>
               <div class="d-flex gap-2 mt-3">
                 <button id="analyze-btn" class="btn btn-primary mb-0">Analyze</button>
@@ -70,12 +74,16 @@
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="col-lg-7 col-md-12 mb-4">
-          <div class="card h-100">
+      <!-- Row 2: results, full width. render() splits it into a gear column
+           (left) and a talents column (right) inside #analyzer-results. -->
+      <div class="row">
+        <div class="col-12 mb-4">
+          <div class="card">
             <div class="card-header pb-0 p-3">
               <h6 class="mb-0">Results</h6>
-              <p class="text-sm mb-0">Slot-by-slot comparison against the meta and SimulationCraft BiS.</p>
+              <p class="text-sm mb-0">Your gear, gems and enchants versus the meta on the left; your talents on the right.</p>
             </div>
             <div class="card-body p-3">
               <div id="analyzer-results">

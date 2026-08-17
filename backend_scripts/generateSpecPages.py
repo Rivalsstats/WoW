@@ -16,6 +16,7 @@ from pageGeneration import (
     generateSpecNav,
     generateDungeonNav,
     build_item_slug_map,
+    build_item_source_map,
     build_trends,
     trend_feeds_for_spec,
 )
@@ -847,11 +848,52 @@ def build_multiset_comps(raw_rows, lookup, threshold, limit=10, slot_rank=None):
     return ranked
 
 
+def build_talent_meta(talent_lookup, loadouts, node_pct=None):
+    """Meta-loadout payload for the analyzer, folded into the spec meta JSON.
+
+    ``meta_by_hero`` gives analyzer.js the most-run meta loadout string *per hero
+    tree* (aggregateData.get_loadout), so it can compare a pasted build against
+    the meta build for the player's own hero tree and offer a switch to the
+    others; ``popular_hero`` is the tree it defaults its "you're on the off-meta
+    tree" note against. ``node_pct`` maps node id -> meta pick-rate percent (int),
+    so the analyzer draws the same per-node popularity badges the spec page does.
+
+    The tree *geometry* it decodes and draws against (fullNodeOrder + positioned
+    nodes) is NOT baked here — generateAnalyzerPage bakes it, credential-free,
+    into assets/json/talent_trees/<spec>.json so it tracks the game data without
+    waiting on this DB-driven rebuild. Returns ``None`` when the spec has no meta
+    loadouts yet, or when its talent data predates the tree fields (nothing for
+    the client to compare against/decode)."""
+    if not talent_lookup.get("fullNodeOrder") or not talent_lookup.get("nodes"):
+        return None
+
+    meta_by_hero = {}
+    popular_hero = None
+    popular_count = -1
+    for hero_id, info in (loadouts or {}).items():
+        code = info.get("loadout")
+        if not code:
+            continue
+        count = int(info.get("count") or 0)
+        meta_by_hero[str(hero_id)] = {"loadout": code, "count": count}
+        if count > popular_count:
+            popular_count = count
+            popular_hero = str(hero_id)
+
+    if not meta_by_hero:
+        return None
+    payload = {"meta_by_hero": meta_by_hero, "popular_hero": popular_hero}
+    if node_pct:
+        payload["node_pct"] = {str(nid): int(pct) for nid, pct in node_pct.items()}
+    return payload
+
+
 def build_spec_meta_json(
     spec_id, spec_data, class_data,
     left_slots, right_slots, weapon_slots, trinket_slots,
     enchant_slots, enchant_lookup, item_lookup, item_slug_map,
     bis_summary, socket_lookup,
+    talent_lookup=None, loadouts=None, node_pct=None,
 ):
     """Compact, machine-readable meta snapshot for one spec, consumed by the
     client-side "Am I meta?" analyzer (assets/js/analyzer.js). Built entirely
@@ -1008,7 +1050,7 @@ def build_spec_meta_json(
         if grp:
             enchant_group_expected[grp] = enchant_group_expected.get(grp, 0) + e["qty"]
 
-    return {
+    meta = {
         "spec_id": int(spec_id),
         "spec": spec_data.get("name"),
         "class": class_data.get("name"),
@@ -1017,6 +1059,10 @@ def build_spec_meta_json(
         "enchant_combo": enchant_combo,
         "enchant_group_expected": enchant_group_expected,
     }
+    talents = build_talent_meta(talent_lookup or {}, loadouts or {}, node_pct or {})
+    if talents:
+        meta["talents"] = talents
+    return meta
 
 
 def write_analyzer_gem_enchant_index(enchant_lookup_all):
@@ -2128,6 +2174,16 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 hero_by_tree = aggregateData.get_hero_talent_differences_by_hero_tree(
                     conn, cursor, spec_id, current_season_id, valid_talents
                 )
+                # Spec-wide (all hero trees pooled) class/spec pick rates, so the
+                # analyzer's per-node badges show one spec-wide number for the
+                # class + spec trees (hero nodes stay per-tree, from hero_by_tree).
+                class_pop_all = aggregateData.get_class_talent_differences(
+                    conn, cursor, spec_id, current_season_id, valid_talents
+                )
+                spec_pop_all = aggregateData.get_spec_talent_differences(
+                    conn, cursor, spec_id, current_season_id, valid_talents,
+                    rows=spec_talent_rows,
+                )
                 hero_tree_difs = aggregateData.get_hero_tree_differences(
                     conn, cursor, spec_id, current_season_id, valid_subtrees
                 )
@@ -2335,6 +2391,25 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 # hero node -> hero tree, so the loadouts can be split by the
                 # hero tree they run (per-tree per-dungeon talent deviations)
                 tree_nodes = tree_by_spec.get(int(spec_id), {})
+                # Per-node meta pick rate for the analyzer tree badges. Class/spec
+                # nodes use the spec-wide rate; hero nodes use the rate within
+                # their own tree. build_ui_tree gives the same freeNode=100 math
+                # the spec page renders, so both pages agree on the number.
+                node_pct = {}
+                for _n in build_ui_tree(
+                    tree_nodes.get("classNodes", []), class_pop_all
+                )["nodes"]:
+                    node_pct[int(_n["id"])] = int(round(_n["pct_val"]))
+                for _n in build_ui_tree(
+                    tree_nodes.get("specNodes", []), spec_pop_all
+                )["nodes"]:
+                    node_pct[int(_n["id"])] = int(round(_n["pct_val"]))
+                for _tid, _hero_pop in hero_by_tree.items():
+                    for _n in build_ui_tree(
+                        tree_nodes.get("heroNodes", []), _hero_pop,
+                        is_hero=True, pop_hero_tree_id=_tid,
+                    )["nodes"]:
+                        node_pct[int(_n["id"])] = int(round(_n["pct_val"]))
                 hero_node_subtree = {
                     int(hn["id"]): int(hn["subTreeId"])
                     for hn in tree_nodes.get("heroNodes", [])
@@ -2787,6 +2862,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
                 left_slots, right_slots, weapon_slots, trinket_slots,
                 enchant_slots, enchant_lookup, item_lookup, item_slug_map,
                 bis_summary, socket_lookup,
+                talent_lookup=talent_lookup, loadouts=loadouts, node_pct=node_pct,
             )
             spec_meta_dir = os.path.join("assets", "json", "spec_meta")
             os.makedirs(spec_meta_dir, exist_ok=True)

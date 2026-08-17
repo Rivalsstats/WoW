@@ -174,7 +174,12 @@
 }
 
 .an-col {
-  flex: 1 1 230px;
+  /* basis 0, not 230px: the panes must NOT wrap on their own width (that fired
+     the Gear card into single-column at ~472px, before the Talents tree stacked,
+     which read as Gear going narrow first). They stay two-up and share the width
+     until the shared @container an-results rule stacks them in lockstep with the
+     tree. */
+  flex: 1 1 0;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -546,4 +551,355 @@
   color: #fff;
   border: 1px solid var(--mythi-border-strong);
   pointer-events: none;
+}
+
+/* === Talents ===
+   Decoded from the export's `talents=` line (analyzer.js) and diffed against the
+   most-run meta build for the player's hero tree. Reuses the gear ring for the
+   match figure and the tile colour language (green = matches meta, amber = your
+   off-meta pick, red = the meta build runs it and you don't). */
+/* Both report sides read as matching titled cards, siblings of the header band
+   (same border/radius/surface as .an-match-header) rather than a gear block with
+   a bolted-on talents divider. */
+.an-card {
+  border: 1px solid var(--mythi-border-strong);
+  border-radius: 10px;
+  background: var(--mythi-surface-sunken, rgba(255, 255, 255, 0.02));
+  padding: 0.9rem 1.1rem;
+  height: 100%;
+}
+.an-card-head {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--bs-emphasis-color);
+}
+.an-card > .an-card-head,
+.an-card > .an-tt-headrow {
+  margin-bottom: 0.7rem;
+}
+/* Both cards' narrow-mode switch is driven off the SHARED results row
+   (#analyzer-results, the `an-results` container) at one threshold — see the
+   @container an-results rule below — NOT off each card's own width. Per-card
+   measurement can't stay in lockstep across the 5/7 split, where the Gear card
+   (col-xl-5) is narrower than the Talents card (col-xl-7): the Gear card would
+   hit its threshold first and go narrow while the Talents tree is still wide.
+   Keying both off the row width flips them together in both the split and the
+   stacked (col-12) regimes. The row width is also the reliable measure here:
+   the sidenav makes the card width not track the viewport, so a media query
+   would not. */
+.an-tt-headrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.an-tt-head {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--bs-emphasis-color);
+}
+/* A smaller sibling of the gear ring for the talent-match figure. */
+.an-tt-score { display: flex; flex-direction: column; align-items: center; }
+.an-tt-score .an-ring { width: 60px; height: 60px; }
+.an-tt-score .an-ring-pct { font-size: 1rem; }
+
+/* The hero tree is switched by clicking the glowing middle hero icon (the
+   .an-tt-hero-btn handler hook lives on that icon in analyzer.js); the old pill
+   button row was a redundant second switch and has been removed. */
+.an-tt-note {
+  color: var(--mythi-text-muted);
+  background: rgba(255, 167, 38, 0.08);
+  border-left: 3px solid #ffa726;
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+}
+
+.an-tt-build { display: flex; flex-direction: column; gap: 0.7rem; }
+.an-tt-group-head {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mythi-text-muted);
+  margin-bottom: 0.35rem;
+}
+.an-tt-talents { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+
+/* One talent: small icon + name, tinted by its state vs the meta build. */
+.an-tt-talent {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: 100%;
+  padding: 0.2rem 0.5rem 0.2rem 0.25rem;
+  border-radius: 6px;
+  border: 1px solid var(--mythi-border-strong);
+  border-left-width: 3px;
+  text-decoration: none;
+  color: var(--bs-emphasis-color);
+  background: rgba(255, 255, 255, 0.02);
+  line-height: 1.1;
+}
+.an-tt-talent:hover { background: rgba(255, 255, 255, 0.06); }
+.an-tt-talent img {
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  flex: 0 0 auto;
+}
+.an-tt-name {
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.an-tt-rank { color: var(--mythi-text-muted); font-weight: 700; }
+
+.an-tt-match { border-left-color: #66bb6a; }
+.an-tt-off   { border-left-color: #ffa726; background: rgba(255, 167, 38, 0.06); }
+.an-tt-plain { border-left-color: var(--mythi-border-strong); }
+
+/* --- Talent tree (positioned, reuses spec-page.css .tt-* classes) ---------- */
+/* Class tree | hero choice column | Spec tree, side by side like the spec page,
+   so the section stays ~one tree tall. The columns are fluid: they share the
+   card width and their nodes scale down via the shared .tt-tree-column cqw clamp
+   (spec-page.css), so the tree fits with no horizontal scrollbar. */
+.an-tt-wrapper {
+  flex-direction: row;
+  justify-content: center;
+  /* Centre the columns vertically, exactly like the spec page's wrapper
+     (.talent-tree-wrapper align-items-center): the hero column is shorter than
+     the class/spec trees, so this floats it to the middle instead of the top. */
+  align-items: center;
+  gap: 0.75rem;
+  padding: 8px 0;
+}
+.an-tt-wrapper .tt-tree-column {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* Hero tree centre, spec-page style: a big glowing hero-tree icon with its meta
+   pick-share and a switch affordance, then the tree's choice nodes stacked below
+   (the .tt-hero-switch* affordance classes live in spec-page.css). */
+.an-tt-hero-column {
+  /* Reserve a firm width and never shrink. The class/spec trees are flex:1 1 0
+     (basis 0), so they carry all the shrink; if this column were shrinkable it
+     would be the ONLY item to collapse when the row tightens, and its icon would
+     spill into the neighbours. A fixed footprint keeps the three columns clear
+     until the stacking query takes over. */
+  flex: 0 0 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.35rem;
+  /* Query container so the hero icon + choice nodes scale with the column. */
+  container-type: inline-size;
+}
+.an-tt-hero-head { text-align: center; }
+.tt-hero-icon {
+  width: clamp(48px, 62cqw, 84px);
+  height: clamp(48px, 62cqw, 84px);
+  /* Never wider than its column, whatever the cqw clamp resolves to. */
+  max-width: 100%;
+  border-radius: 50%;
+  border: 3px solid #ffb000;
+  box-shadow: 0 0 15px rgba(255, 176, 0, 0.4);
+  object-fit: cover;
+}
+.tt-hero-share {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--mythi-overlay-bg);
+  color: var(--mythi-overlay-color);
+  padding: 1px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid #ffb000;
+  white-space: nowrap;
+}
+.an-tt-hero-name {
+  margin-top: 0.9rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--bs-emphasis-color);
+}
+.an-tt-hero-nodes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: 0.4rem;
+}
+
+/* Shared analyzer narrow-mode threshold, keyed off the RESULTS ROW width
+   (#analyzer-results, container-name an-results) so both cards flip together in
+   both layouts: the col-xl-5 / col-xl-7 side-by-side split AND the stacked
+   col-12 regime below xl. In the split the two cards are different fractions of
+   the row (5/12 Gear, 7/12 Talents), so keying each card off its OWN width let
+   the narrower Gear card go single-column while the wider Talents tree was still
+   three columns — the reported mismatch. Keying BOTH off the one row width fixes
+   that. The threshold is the binding constraint of the two: Gear's col-5 pane
+   stays a clean two-up only down to ~230px per pane (below that a tile's swap
+   row wraps), i.e. Gear card ~510px = 5/12 of ~1260px of row; at that same row
+   the 7/12 Talents card is ~735px, comfortably a full three-column tree. Above
+   1260: Talents full tree + Gear two panes, both clean. Below: both go narrow at
+   once — tree stacked, Gear single column. The row is also the only reliable
+   measure here — the sidenav makes neither card width track the viewport, so a
+   media query would not. */
+@container an-results (max-width: 1260px) {
+  /* Talents: three side-by-side columns crowd the nodes down to their clamp
+     floor, so stack them vertically, each at full card width. Row-gap pulls the
+     class tree / hero section / spec tree well apart; the row-mode gap (0.75rem)
+     is untouched. */
+  .an-tt-wrapper { flex-direction: column; align-items: center; row-gap: 4rem; }
+  .an-tt-wrapper .tt-tree-column,
+  .an-tt-wrapper .an-tt-hero-column {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 460px;
+  }
+  /* Gear: stack the two panes in every .an-block, in lockstep with the tree. */
+  .an-gear-card .an-col { flex-basis: 100%; }
+}
+/* One hero choice node: an octagon, reusing the tree node's badges + state
+   colours (data-ntype="choice" an-ttn, coloured via .tt-octagon-border below). */
+.an-tt-hnode { position: relative; width: clamp(26px, 28cqw, 38px); height: clamp(26px, 28cqw, 38px); max-width: 100%; }
+
+/* Choice nodes reuse the spec-page octagon, whose colour is the octagon-border
+   backing (the icon itself carries no border), so the analyzer state tint lives
+   on that backing rather than on the img. an-have sits before match/off so a
+   scored node still wins its green/amber. */
+.an-ttn[data-ntype="choice"] .tt-octagon-border { background: var(--mythi-border-strong); }
+.an-ttn.an-free[data-ntype="choice"] .tt-octagon-border { background: #8a6d1a; }
+.an-ttn.an-have[data-ntype="choice"] .tt-octagon-border { background: #ffb000; }
+.an-ttn.an-match[data-ntype="choice"] .tt-octagon-border { background: #66bb6a; box-shadow: 0 0 6px rgba(102, 187, 106, 0.55); }
+.an-ttn.an-off[data-ntype="choice"] .tt-octagon-border { background: #ffa726; box-shadow: 0 0 6px rgba(255, 167, 38, 0.55); }
+.an-ttn.an-miss[data-ntype="choice"] .tt-octagon-border { background: #ef5350; box-shadow: 0 0 6px rgba(239, 83, 80, 0.6); }
+.an-ttn.an-dim[data-ntype="choice"] .tt-octagon-border { background: #3a3a3a; }
+.an-ttn.an-miss[data-ntype="choice"] .tt-octagon { opacity: 0.55; filter: grayscale(70%); }
+.an-ttn.an-dim[data-ntype="choice"] .tt-octagon { opacity: 0.28; filter: grayscale(100%); }
+
+/* Meta pick-rate badge, sized down for the analyzer's small nodes (reuses the
+   spec-page .tt-badge look, bottom-centre). */
+.an-tt-wrapper .tt-badge {
+  bottom: -12px;
+  font-size: 9px;
+  padding: 0 4px;
+  border-radius: 8px;
+}
+
+/* Node states, scoped to analyzer tree nodes (.an-ttn) so the short state names
+   can't collide with anything else. */
+.an-ttn.an-dim img {
+  opacity: 0.25;
+  filter: grayscale(100%);
+  border-color: #3a3a3a;
+  box-shadow: none;
+}
+.an-ttn.an-free img { border-color: #8a6d1a; }
+.an-ttn.an-have img { border-width: 2px; }
+.an-ttn.an-match img { border-color: #66bb6a; box-shadow: 0 0 6px rgba(102, 187, 106, 0.55); }
+.an-ttn.an-off img { border-color: #ffa726; box-shadow: 0 0 6px rgba(255, 167, 38, 0.55); }
+.an-ttn.an-miss img {
+  opacity: 0.55;
+  filter: grayscale(55%);
+  border-color: #ef5350;
+  box-shadow: 0 0 6px rgba(239, 83, 80, 0.6);
+}
+.an-ttn { cursor: pointer; }
+.an-ttn-rank {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: var(--mythi-surface-raised);
+  border: 1px solid var(--mythi-border-strong);
+  color: var(--bs-emphasis-color);
+  font-size: 10px;
+  padding: 0 3px;
+  border-radius: 3px;
+  z-index: 5;
+}
+.an-ttn-miss {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  background: #ef5350;
+  color: #2a0b0a;
+  font-weight: 800;
+  font-size: 10px;
+  line-height: 1;
+  padding: 1px 4px;
+  border-radius: 4px;
+  z-index: 5;
+}
+
+/* Legend above the tree. */
+.an-tt-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.9rem;
+  margin: 0.6rem 0 0.2rem;
+  font-size: 0.66rem;
+  color: var(--mythi-text-muted);
+}
+.an-tt-key { display: inline-flex; align-items: center; }
+.an-tt-key::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  margin-right: 0.35rem;
+  border: 2px solid;
+}
+.an-key-match::before { border-color: #66bb6a; }
+.an-key-off::before { border-color: #ffa726; }
+.an-key-miss::before { border-color: #ef5350; }
+
+/* === Shared "meta match" header ===
+   One band across the top of the results: spec identity on the left, and three
+   rings — small Gear, big overall (gear+talents 50/50), small Talents. */
+.an-match-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  padding: 0.85rem 1.1rem;
+  margin-bottom: 1.1rem;
+  border: 1px solid var(--mythi-border-strong);
+  border-radius: 10px;
+  background: var(--mythi-surface-sunken, rgba(255, 255, 255, 0.02));
+}
+.an-mh-id { display: flex; align-items: center; gap: 0.75rem; min-width: 0; }
+.an-mh-icon { width: 46px; height: 46px; border-radius: 8px; flex: 0 0 auto; }
+.an-mh-spec {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--bs-emphasis-color);
+  line-height: 1.15;
+}
+.an-mh-rings { display: flex; align-items: center; gap: 1.4rem; margin-left: auto; }
+.an-mh-ring { display: flex; flex-direction: column; align-items: center; }
+.an-mh-big .an-ring { width: 96px; height: 96px; }
+.an-mh-big .an-ring-pct { font-size: 1.5rem; }
+.an-mh-small .an-ring { width: 58px; height: 58px; }
+.an-mh-small .an-ring-pct { font-size: 0.92rem; }
+/* Muted ring when a half of the score doesn't apply (no gear / no talents). */
+.an-score-none { --an-ring-color: #6c757d; }
+.an-score-none .an-ring-pct { color: var(--mythi-text-muted); }
+
+@media (max-width: 575.98px) {
+  .an-match-header { justify-content: center; }
+  .an-mh-rings { margin-left: 0; gap: 1rem; }
+  .an-mh-big .an-ring { width: 80px; height: 80px; }
+  .an-mh-big .an-ring-pct { font-size: 1.25rem; }
 }

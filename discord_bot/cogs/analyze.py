@@ -202,7 +202,10 @@ def build_analyze_embed(spec_id, spec_meta, parsed) -> discord.Embed:
     matched = scored - len(off)
 
     if not off and not missing_ench and not off_ench and not bad_gems:
-        embed.description = "✅ **Fully meta** — every slot, enchant and gem matches the top build."
+        embed.description = (
+            "✅ **Fully meta** — every slot, enchant and gem matches the top build.\n"
+            f"See the [website]({config.SITE_BASE}/pages/analyzer) for a talent comparison too."
+        )
         return embed
 
     embed.description = f"**{matched}/{scored}** gear slots match the meta. Details below."
@@ -225,8 +228,15 @@ def build_analyze_embed(spec_id, spec_meta, parsed) -> discord.Embed:
         fields.append(("Enchants", "\n".join(ench_notes), False))
     if bad_gems:
         fields.append(("Gems", f"{bad_gems} gem(s) aren't in the popular combo", True))
-    # Rendered last so the site link is the final line before the footer.
-    fields.append((_ZWSP, f"Full breakdown on the [website]({config.SITE_BASE}/pages/analyzer).", False))
+    # Rendered last so the site link is the final line before the footer. The
+    # website additionally decodes and compares your talents, which the bot
+    # doesn't — so point people there for the full picture.
+    fields.append((
+        _ZWSP,
+        f"Full breakdown, including a **talent comparison**, on the "
+        f"[website]({config.SITE_BASE}/pages/analyzer).",
+        False,
+    ))
     embeds.add_fields_capped(embed, fields)
     return embed
 

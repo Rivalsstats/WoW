@@ -9,6 +9,12 @@ MAX_LOCK_WAIT_RETRIES = 5
 LOCK_WAIT_BACKOFF_MIN = 0.2
 LOCK_WAIT_BACKOFF_MAX = 1
 
+# The shared pool, set by init_connection_pool(). Defined here so get_connection's
+# ``CONNECTION_POOL is None`` guard raises the intended RuntimeError (rather than a
+# NameError) in credential-free generators that never initialise a pool — e.g. the
+# analyzer page, where build_global_trends() catches it and just hides the bar.
+CONNECTION_POOL = None
+
 
 def get_connection():
     """

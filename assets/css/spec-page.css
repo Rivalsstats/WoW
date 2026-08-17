@@ -57,8 +57,11 @@
 .tt-node {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 44px;
-  height: 44px;
+  /* Node centres are %-positioned, so only the icon footprint needs to scale.
+     Size it against the column width (cqw) so it shrinks continuously and never
+     collides, capped at the readable 44px page size. */
+  width: clamp(24px, 9.5cqw, 44px);
+  height: clamp(24px, 9.5cqw, 44px);
 }
 .tt-node img {
   width: 100%;
@@ -105,6 +108,9 @@
 }
 .tt-badge.high { color: var(--mythi-text-success); border-color: var(--mythi-text-success); }
 .tt-badge.med { color: var(--mythi-text-warning); border-color: var(--mythi-text-warning); }
+/* Track the node scaling so the pick-rate label never overpowers a shrunken
+   node in a narrow column. */
+.tt-tree-column .tt-badge { font-size: clamp(7px, 2.3cqw, 10px); }
 
 /* Talent "TOP" highlight — flags nodes/hero trees where the top-50 verified
    players diverge from the general population. Gold, matching the gear TOP
@@ -260,6 +266,9 @@
   aspect-ratio: 0.65;
   max-height: 900px;
   margin: 0 auto;
+  /* Own query container so nodes size to the actual column width (page column,
+     analyzer card, dungeon modal) instead of the viewport. */
+  container-type: inline-size;
 }
 
 .tt-hero-column {
@@ -316,19 +325,11 @@
   }
 }
 
-/* Talent tree: scale node icons down on smaller screens.
-   Node centers are %-positioned so edges stay aligned; only the icon
-   footprint shrinks, preventing overlap when the column is narrow. */
-@media (max-width: 991.98px) {
-  #static-talent-tree .tt-node { width: 38px; height: 38px; }
-  #static-talent-tree .tt-node img { width: 28px; height: 28px; }
-  #static-talent-tree .tt-badge,
-  #static-talent-tree .tt-maxrank { font-size: 9px; }
-  #static-talent-tree .tt-top-badge { font-size: 8px; top: -7px; left: -7px; padding: 1px 3px; }
-}
+/* Node icons now scale continuously against their column width via the cqw
+   clamp on .tt-node (above), so the old viewport size-steps are gone. The
+   phone-width hero-choice shrink stays: the hero column is not a query
+   container and its choice octagons are fixed-px. */
 @media (max-width: 575.98px) {
-  #static-talent-tree .tt-node { width: 32px; height: 32px; }
-  #static-talent-tree .tt-node img { width: 24px; height: 24px; }
   #static-talent-tree .tt-top-badge { font-size: 7px; top: -6px; left: -6px; padding: 1px 2px; }
   .tt-hero .tt-choice-wrapper { width: 40px !important; height: 40px !important; }
   .tt-hero .tt-hero-choice-inner { width: 40px !important; height: 40px !important; }

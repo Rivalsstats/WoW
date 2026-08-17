@@ -8,15 +8,25 @@ class/spec tokens into a spec_id, plus the sharded item icon index it falls back
 to for gear outside the site's popular-items manifest — no DB access required.
 """
 import os
+import glob
 import json
 import shutil
 import argparse
 from datetime import datetime, timezone
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+import databaseConnector
 from pageGeneration import generateSpecNav, generateDungeonNav, build_global_trends
 from commonUtils import LOOKUP_DIR, load_json, load_season_info, occupies_both_hands
 
 TEMPLATE_PATH = "templates"
+
+# Per-spec talent-tree geometry (fullNodeOrder + positioned nodes) the analyzer
+# decodes and draws its build tree from. Baked here, credential-free, straight
+# from processTalents' output so the tree stays in step with the game data
+# without waiting on the DB-driven spec_meta rebuild (which only carries the
+# per-hero-tree meta loadout strings). See write_talent_trees.
+TALENT_SRC_DIR = os.path.join("data", "static", "talents")
+TALENT_TREE_DIR = os.path.join("assets", "json", "talent_trees")
 
 # Item ids per icon-index shard. analyzer.js only ever needs the handful of
 # buckets its equipped ids land in, so a small bucket keeps the fetch tiny; 1000
@@ -140,7 +150,71 @@ def write_bonus_quality_map():
     )
 
 
+def write_talent_trees():
+    """Bake the per-spec talent-tree geometry analyzer.js positions its build on,
+    from processTalents' ``data/static/talents/<spec>.json`` files.
+
+    Only ``fullNodeOrder`` + ``nodes`` (id -> {name, icon/spellId per entry, x, y,
+    next, type, maxRanks, subTreeId, g group, free}) + the hero-tree ``subTrees``
+    name map go out — the fields the client needs to lay out and label the tree.
+    The meta *loadout strings* to compare against stay in spec_meta (they need the
+    DB). data/static isn't deployed, so re-emit under assets/json, which the build
+    artifact carries. Rebuilt from scratch so a dropped spec can't leave a stale
+    tree behind."""
+    files = sorted(glob.glob(os.path.join(TALENT_SRC_DIR, "*.json")))
+    if not files:
+        raise FileNotFoundError(
+            f"No per-spec talent files in {TALENT_SRC_DIR}; run processTalents.py first."
+        )
+    shutil.rmtree(TALENT_TREE_DIR, ignore_errors=True)
+    os.makedirs(TALENT_TREE_DIR, exist_ok=True)
+    written = 0
+    for path in files:
+        spec_id = os.path.splitext(os.path.basename(path))[0]
+        data = load_json(path)
+        if not data.get("fullNodeOrder") or not data.get("nodes"):
+            # A spec whose talent file predates the tree fields — skip rather than
+            # ship an un-layoutable tree (the client falls back to a flat list).
+            continue
+        tree = {
+            "fullNodeOrder": data["fullNodeOrder"],
+            "nodes": data["nodes"],
+            "subTrees": data.get("subTrees", {}),
+        }
+        with open(os.path.join(TALENT_TREE_DIR, f"{spec_id}.json"), "w", encoding="utf-8") as f:
+            json.dump(tree, f, separators=(",", ":"), ensure_ascii=False)
+        written += 1
+    print(
+        f"[{datetime.now(timezone.utc).isoformat()}] wrote {written} talent tree files"
+    )
+
+
+def maybe_init_db_pool():
+    """The analyzer page itself needs no DB, but the shared trends bar does
+    (build_global_trends opens a pooled connection). The other page generators
+    init the pool from DATABASE_* env vars; do the same best-effort here so the
+    bar shows in the real build, and hide it (as before) when creds are absent."""
+    if not (
+        os.environ.get("DATABASE_HOST")
+        and os.environ.get("DATABASE_USER")
+        and os.environ.get("DATABASE_PASSWORD")
+    ):
+        return
+    try:
+        databaseConnector.init_connection_pool(
+            os.environ.get("DATABASE_HOST"),
+            os.environ.get("DATABASE_USER"),
+            os.environ.get("DATABASE_PASSWORD"),
+            os.environ.get("DATABASE_NAME", "Mythistone"),
+            os.environ.get("DATABASE_PORT", "3306"),
+            1,
+        )
+    except Exception as exc:  # pragma: no cover - trends just stay hidden
+        print(f"[analyzer] DB pool init failed ({exc}); trends bar will hide.")
+
+
 def main(template_path, output_dir):
+    maybe_init_db_pool()
     spec_lookup = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
     dungeon_lookup = load_json(os.path.join(LOOKUP_DIR, "dungeons.json"))
@@ -150,6 +224,7 @@ def main(template_path, output_dir):
     spec_index, spec_display = build_spec_index(spec_lookup, class_lookup)
     item_icon_buckets = write_item_icon_shards()
     write_bonus_quality_map()
+    write_talent_trees()
 
     env = Environment(
         loader=FileSystemLoader(os.path.dirname(template_path) or TEMPLATE_PATH),

@@ -217,7 +217,7 @@
   // owned-upgrade check.
   function parseSimc(text) {
     var lines = text.split(/\r?\n/);
-    var out = { classId: null, specToken: null, slots: {}, bags: {}, hasBags: false };
+    var out = { classId: null, specToken: null, slots: {}, bags: {}, hasBags: false, talents: null };
     var inBags = false;
 
     function parseGear(rest) {
@@ -270,6 +270,13 @@
       }
       if (key === "spec") {
         out.specToken = rest.replace(/"/g, "").trim().toLowerCase();
+        return;
+      }
+      // The active loadout is the first bare `talents=` line. Saved loadouts are
+      // commented (`# talents=`) and handled by the `#` branch above; the
+      // separate `omnium_talents=` line is a different key and never matches.
+      if (key === "talents") {
+        if (out.talents == null) out.talents = rest.trim();
         return;
       }
       if (Object.prototype.hasOwnProperty.call(SLOT_MAP, key)) {
@@ -646,7 +653,480 @@
     }).join("");
   }
 
-  function render(meta, parsed) {
+  // ---- Talents -----------------------------------------------------------
+  //
+  // The player's talents come as a Blizzard loadout string on the export's
+  // `talents=` line. We decode it in the browser against the per-spec tree data
+  // (fullNodeOrder + nodes) baked into meta.talents by generateSpecPages.py, and
+  // compare it to the most-run meta build for the player's hero tree.
+  //
+  // The decode is Blizzard's stable "serialization version 2" bitstream (see
+  // Blizzard_ClassTalentImportExport.lua): a header of an 8-bit version, a 16-bit
+  // spec id and a 128-bit tree hash (ignored — a zero hash is valid), then, for
+  // every node in fullNodeOrder, a `selected` bit and, when set, a `purchased`
+  // bit, an optional 6-bit partial rank and an optional 2-bit choice index. All
+  // that changes patch to patch is the tree data, which we pull from Raidbots.
+  var TALENT_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  var TALENT_CHAR_IDX = (function () {
+    var m = {};
+    for (var i = 0; i < TALENT_CHARS.length; i++) m[TALENT_CHARS.charAt(i)] = i;
+    return m;
+  })();
+  var LOADOUT_VERSION = 2;
+
+  // Decode a loadout string against a tree ({fullNodeOrder, nodes}). Returns
+  // { version, specId, selected: {nodeId: {entryIndex, rank, purchased}} }, or
+  // { version, unsupported: true } when the format version is one we don't read,
+  // or null when the string is malformed.
+  function decodeLoadout(code, tree) {
+    if (!code || !tree || !tree.fullNodeOrder) return null;
+    var bits = [];
+    for (var i = 0; i < code.length; i++) {
+      var v = TALENT_CHAR_IDX[code.charAt(i)];
+      if (v == null) return null; // not a loadout string (invalid char)
+      for (var b = 0; b < 6; b++) bits.push((v >> b) & 1); // 6 bits per char, LSB first
+    }
+    var p = 0;
+    function read(n) {
+      var r = 0;
+      for (var i = 0; i < n; i++) {
+        if (p >= bits.length) return null; // ran past the end
+        r |= bits[p++] << i;
+      }
+      return r;
+    }
+    var version = read(8);
+    if (version !== LOADOUT_VERSION) return { version: version, unsupported: true };
+    var specId = read(16);
+    for (var h = 0; h < 16; h++) read(8); // tree hash, not validated
+    var selected = {};
+    var order = tree.fullNodeOrder;
+    for (var n = 0; n < order.length; n++) {
+      var isSel = read(1);
+      if (isSel == null) break; // tolerate a truncated tail rather than throwing
+      if (!isSel) continue;
+      var isPurchased = read(1);
+      var rank = null, entryIndex = 0;
+      if (isPurchased) {
+        if (read(1)) rank = read(6);     // partially ranked
+        if (read(1)) entryIndex = read(2); // choice node: which entry
+      }
+      selected[order[n]] = { entryIndex: entryIndex || 0, rank: rank, purchased: !!isPurchased };
+    }
+    return { version: version, specId: specId, selected: selected };
+  }
+
+  function ttNode(tree, nid) { return tree.nodes[nid] || tree.nodes[String(nid)] || null; }
+  function ttEntry(node, idx) {
+    if (!node || !node.entries || !node.entries.length) return null;
+    return node.entries[idx] || node.entries[0];
+  }
+
+  // Purchased picks as {nodeId: entryIndex}. Excludes free/granted nodes and the
+  // hero-tree selection node so the comparison reflects real talent choices.
+  function ttTaken(decoded, tree) {
+    var out = {};
+    var sel = (decoded && decoded.selected) || {};
+    Object.keys(sel).forEach(function (nid) {
+      if (!sel[nid].purchased) return;
+      var node = ttNode(tree, nid);
+      if (!node || node.free || node.g === "sub") return;
+      out[nid] = sel[nid].entryIndex || 0;
+    });
+    return out;
+  }
+
+  // Which hero tree a build sits in: the subTreeId most of its picks belong to.
+  function ttHeroTree(decoded, tree) {
+    var sel = (decoded && decoded.selected) || {};
+    var counts = {};
+    Object.keys(sel).forEach(function (nid) {
+      if (!sel[nid].purchased) return;
+      var node = ttNode(tree, nid);
+      if (node && node.subTreeId != null) {
+        var k = String(node.subTreeId);
+        counts[k] = (counts[k] || 0) + 1;
+      }
+    });
+    var best = null, bc = 0;
+    Object.keys(counts).forEach(function (k) { if (counts[k] > bc) { bc = counts[k]; best = k; } });
+    return best;
+  }
+
+  // One talent icon+name, coloured by its state vs the meta build.
+  function ttTalentEl(entry, node, stateCls) {
+    var icon = entry && entry.icon ? "/data/icons/" + esc(entry.icon) + ".png" : QUESTION;
+    var sp = entry && entry.spellId;
+    var href = sp ? "https://www.wowhead.com/spell=" + sp : "#";
+    var wh = sp ? ' data-wowhead="spell=' + sp + '"' : "";
+    var rank = "";
+    if (node && node.maxRanks > 1) rank = ' <span class="an-tt-rank">' + node.maxRanks + "/" + node.maxRanks + "</span>";
+    return '<a class="an-tt-talent ' + stateCls + '" target="_blank" rel="noopener" href="' + href + '"' + wh + '>' +
+      '<img src="' + icon + '" alt="" loading="lazy" onerror="this.src=\'' + QUESTION + '\'">' +
+      '<span class="an-tt-name">' + esc(entry ? entry.name : "?") + rank + "</span></a>";
+  }
+
+  var TT_GROUP_LABEL = { class: "Class", spec: "Spec", hero: "Hero" };
+
+  function heroTreeName(T, h) {
+    var st = (T.subTrees || {})[h] || (T.subTrees || {})[String(h)];
+    return st && st.name ? st.name : "Hero tree";
+  }
+
+  // Decode the pasted build + the chosen meta build and diff them. Pure data so
+  // render() can read the talent score for the shared header, and the card can be
+  // re-rendered on a hero switch. Returns null when the spec has no talent data,
+  // { error } when the string can't be used, else the diff.
+  function talentDiff(meta, parsed, T, compareHero) {
+    if (!T || !T.nodes) return null;
+    if (!parsed.talents) return { error: "No talent string found in your export." };
+    var pd = decodeLoadout(parsed.talents, T);
+    if (!pd) return { error: "Couldn't read your talent string." };
+    if (pd.unsupported) return { error: "Your talent string uses a newer format we can't read yet." };
+    if (pd.specId && meta.spec_id && pd.specId !== meta.spec_id) {
+      return { error: "Your talent string is for a different spec than your gear." };
+    }
+    var playerTaken = ttTaken(pd, T);
+    var playerHero = ttHeroTree(pd, T);
+    var popular = T.popular_hero != null ? String(T.popular_hero) : null;
+    var byHero = T.meta_by_hero || {};
+    // Which meta build to compare against: the caller's pick, else the player's
+    // own hero tree, else the popular one.
+    var hero = compareHero != null ? String(compareHero) : null;
+    if (!hero || !byHero[hero]) hero = (playerHero && byHero[playerHero]) ? playerHero : popular;
+    var metaTaken = {};
+    if (hero && byHero[hero] && byHero[hero].loadout) {
+      var md = decodeLoadout(byHero[hero].loadout, T);
+      if (md && !md.unsupported) metaTaken = ttTaken(md, T);
+    }
+    var metaIds = Object.keys(metaTaken);
+    var matches = 0, missing = [];
+    metaIds.forEach(function (nid) {
+      if (Object.prototype.hasOwnProperty.call(playerTaken, nid) && playerTaken[nid] === metaTaken[nid]) matches++;
+      else missing.push(nid);
+    });
+    var haveScore = metaIds.length > 0;
+    return {
+      playerTaken: playerTaken, metaTaken: metaTaken, playerHero: playerHero, hero: hero,
+      popular: popular, byHero: byHero, matches: matches, missing: missing,
+      haveScore: haveScore, score: haveScore ? Math.round((matches / metaIds.length) * 100) : null,
+    };
+  }
+
+  // Render the talents card from a precomputed diff. The match figure lives in
+  // the shared header now, so the card carries the hero-tree switch, a copy-meta-
+  // loadout button, the build (Class tree | hero choice column | Spec tree, the
+  // hero tree drawn spec-page style as just its choice nodes), and the missing list.
+  function talentCardHtml(meta, parsed, T, diff) {
+    function wrap(inner) { return '<div class="an-card an-talents-card">' + inner + "</div>"; }
+    if (!T || !T.nodes || !diff) return "";
+    if (diff.error) {
+      return wrap('<div class="an-card-head">Talents</div>' +
+        '<p class="text-xs text-secondary mb-0">' + esc(diff.error) + "</p>");
+    }
+    var playerTaken = diff.playerTaken, metaTaken = diff.metaTaken, playerHero = diff.playerHero;
+    var hero = diff.hero, popular = diff.popular, byHero = diff.byHero;
+    var haveScore = diff.haveScore, missing = diff.missing;
+    function heroName(h) { return heroTreeName(T, h); }
+
+    // Head: title + copy-meta-loadout button.
+    var copyBtn = "";
+    if (hero && byHero[hero] && byHero[hero].loadout) {
+      copyBtn = '<button type="button" class="btn btn-sm btn-outline-secondary mb-0 an-tt-copy"' +
+        ' data-loadout="' + esc(byHero[hero].loadout) + '">' +
+        '<i class="material-symbols-rounded align-middle text-sm me-1">content_copy</i>Copy meta loadout</button>';
+    }
+    var head = '<div class="an-tt-headrow"><div class="an-card-head">Talents</div>' + copyBtn + "</div>";
+
+    var heroKeys = Object.keys(byHero);
+
+    var heroNote = "";
+    if (playerHero && popular && playerHero !== popular) {
+      heroNote = '<p class="an-tt-note text-xs mb-2">' +
+        '<i class="material-symbols-rounded align-middle me-1">info</i>' +
+        "You're playing <strong>" + esc(heroName(playerHero)) + "</strong>. Most meta " +
+        esc(meta.spec || "") + " players run <strong>" + esc(heroName(popular)) +
+        "</strong> — you're being compared to the " + esc(heroName(hero)) + " build.</p>";
+    }
+
+    function has(o, k) { return Object.prototype.hasOwnProperty.call(o, k); }
+    function isActive(nid) { var n = ttNode(T, nid); return !!(n && (n.free || has(playerTaken, nid))); }
+    function nodeState(nid, node) {
+      if (node.free) return "an-free an-have";
+      if (has(playerTaken, nid)) {
+        if (!haveScore) return "an-have";
+        return metaTaken[nid] === playerTaken[nid] ? "an-have an-match" : "an-have an-off";
+      }
+      if (haveScore && has(metaTaken, nid)) return "an-miss";
+      return "an-dim";
+    }
+    function ntypeOf(node) {
+      if (node.type === "tiered") return "passive";
+      if (node.entries && node.entries.length > 1) return "choice";
+      var e = node.entries && node.entries[0];
+      return (e && e.type) || "passive";
+    }
+    // Meta pick-rate badge for a node (spec-page style: hidden for free nodes,
+    // absent when spec_meta carries no percentage for the id).
+    var nodePct = T.node_pct || {};
+    function pctBadge(nid, node) {
+      if (node.free) return "";
+      var p = nodePct[nid] != null ? nodePct[nid] : nodePct[String(nid)];
+      if (p == null) return "";
+      return '<span class="tt-badge">' + p + "%</span>";
+    }
+    // The icon + badges for a node, drawn spec-page style: choice nodes get the
+    // octagon-border + arrows, passive/active/tiered keep the round/tiered icon
+    // (border-radius comes from the outer .tt-node[data-ntype] rule). The
+    // analyzer state class (an-match/off/miss/...) is layered on the wrapper.
+    function nodeInner(nid, node) {
+      var have = has(playerTaken, nid);
+      var idx = have ? playerTaken[nid] : (metaTaken[nid] != null ? metaTaken[nid] : 0);
+      var entry = ttEntry(node, idx);
+      var icon = entry && entry.icon ? "/data/icons/" + esc(entry.icon) + ".png" : QUESTION;
+      var sp = entry && entry.spellId;
+      var href = sp ? "https://www.wowhead.com/spell=" + sp : "#";
+      var wh = sp ? ' data-wowhead="spell=' + sp + '"' : "";
+      var alt = esc(entry ? entry.name : "");
+      var rankBadge = node.maxRanks > 1 ? '<span class="an-ttn-rank">' + node.maxRanks + "</span>" : "";
+      var missBadge = nodeState(nid, node) === "an-miss" ? '<span class="an-ttn-miss">+</span>' : "";
+      var badges = rankBadge + missBadge + pctBadge(nid, node);
+      if (ntypeOf(node) === "choice") {
+        return '<div class="tt-choice-wrapper" style="--border-color:#ffb000;width:100%;height:100%;">' +
+          '<div class="arrow-left"></div>' +
+          '<div class="tt-octagon-border" style="width:100%;height:100%;">' +
+          '<a href="' + href + '" target="_blank" rel="noopener"' + wh + '>' +
+          '<img class="tt-octagon" src="' + icon + '" alt="' + alt +
+          '" loading="lazy" onerror="this.src=\'' + QUESTION + '\'"></a>' +
+          '</div><div class="arrow-right"></div></div>' + badges;
+      }
+      return '<a href="' + href + '" target="_blank" rel="noopener"' + wh + '>' +
+        '<img src="' + icon + '" alt="' + alt +
+        '" loading="lazy" onerror="this.src=\'' + QUESTION + '\'"></a>' + badges;
+    }
+    // A positioned class/spec tree column with connector edges.
+    function ttColumn(ids, extraCls) {
+      var ns = ids.map(function (id) { return { id: String(id), node: ttNode(T, id) }; })
+                  .filter(function (o) { return o.node; });
+      if (!ns.length) return "";
+      var xs = ns.map(function (o) { return o.node.x; }), ys = ns.map(function (o) { return o.node.y; });
+      var minx = Math.min.apply(null, xs) - 150, maxx = Math.max.apply(null, xs) + 150;
+      var miny = Math.min.apply(null, ys) - 150, maxy = Math.max.apply(null, ys) + 150;
+      var w = Math.max(1, maxx - minx), h = Math.max(1, maxy - miny);
+      var L = function (x) { return (x - minx) / w * 100; }, Tp = function (y) { return (y - miny) / h * 100; };
+      var inGroup = {}; ns.forEach(function (o) { inGroup[o.id] = true; });
+      var lines = ns.map(function (o) {
+        return (o.node.next || []).map(function (cid) {
+          var c = ttNode(T, cid);
+          if (!c || !inGroup[String(cid)]) return "";
+          var active = isActive(o.id) && isActive(String(cid));
+          return '<line x1="' + L(o.node.x) + '%" y1="' + Tp(o.node.y) + '%" x2="' + L(c.x) +
+            '%" y2="' + Tp(c.y) + '%" stroke="' + (active ? "#ffb000" : "#555") + '" stroke-width="2"></line>';
+        }).join("");
+      }).join("");
+      var nodesHtml = ns.map(function (o) {
+        return '<div class="tt-node an-ttn ' + nodeState(o.id, o.node) + '" data-ntype="' + ntypeOf(o.node) +
+          '" style="left:' + L(o.node.x) + "%;top:" + Tp(o.node.y) + '%">' + nodeInner(o.id, o.node) + "</div>";
+      }).join("");
+      return '<div class="tt-column tt-tree-column ' + (extraCls || "") + '">' +
+        '<svg class="tt-edges">' + lines + "</svg>" + nodesHtml + "</div>";
+    }
+    // Hero tree centre, spec-page style: a big glowing hero-tree icon with its
+    // meta pick-share, a switch affordance (reuses the .an-tt-hero-btn handler by
+    // cycling to the next tree), then the tree's CHOICE nodes stacked below.
+    function heroColumn(ids) {
+      var st = (T.subTrees || {})[hero] || (T.subTrees || {})[String(hero)] || {};
+      var icon = st.icon ? "/data/icons/" + esc(st.icon) + ".png" : QUESTION;
+      var total = 0, mine = 0;
+      heroKeys.forEach(function (h) { total += (byHero[h] && byHero[h].count) || 0; });
+      mine = (byHero[hero] && byHero[hero].count) || 0;
+      var share = total > 0 ? Math.round(mine / total * 100) : null;
+      var multi = heroKeys.length > 1;
+      var nextHero = multi ? heroKeys[(heroKeys.indexOf(hero) + 1) % heroKeys.length] : null;
+      var sharePill = share != null
+        ? '<div class="tt-hero-share" title="' + share + '% of meta builds run this tree">' + share + "%</div>"
+        : "";
+      var hint = multi
+        ? '<span class="tt-hero-switch-hint" aria-hidden="true" title="Click to switch hero tree">' +
+          '<i class="material-symbols-rounded">swap_horiz</i></span>'
+        : "";
+      var switchAttrs = multi
+        ? ' class="tt-hero-switch tt-hero-switch-active an-tt-hero-btn" role="button" tabindex="0"' +
+          ' data-hero="' + esc(nextHero) + '" title="Click to switch hero tree"'
+        : ' class="tt-hero-switch"';
+      var choice = ids.map(function (id) { return { id: String(id), node: ttNode(T, id) }; })
+        .filter(function (o) { return o.node && o.node.entries && o.node.entries.length > 1; })
+        .sort(function (a, b) { return (a.node.y - b.node.y) || (a.node.x - b.node.x); });
+      var nodesHtml = choice.map(function (o) {
+        return '<div class="an-tt-hnode an-ttn ' + nodeState(o.id, o.node) + '" data-ntype="choice">' +
+          nodeInner(o.id, o.node) + "</div>";
+      }).join("");
+      var heroLabel = esc(st.name || "Hero tree");
+      return '<div class="tt-column tt-hero-column an-tt-hero-column">' +
+        '<div class="an-tt-hero-head">' +
+        '<div class="position-relative d-inline-block">' +
+        '<div' + switchAttrs + '>' +
+        '<img class="tt-hero-icon" src="' + icon + '" alt="' + heroLabel +
+        '" onerror="this.src=\'' + QUESTION + '\'">' + sharePill + hint + "</div></div>" +
+        '<div class="an-tt-hero-name">' + heroLabel + "</div></div>" +
+        '<div class="an-tt-hero-nodes">' + nodesHtml + "</div></div>";
+    }
+
+    var classIds = [], specIds = [], heroIds = [];
+    var shownHero = hero;
+    Object.keys(T.nodes).forEach(function (nid) {
+      var n = T.nodes[nid];
+      if (n.g === "class") classIds.push(nid);
+      else if (n.g === "spec") specIds.push(nid);
+      else if (n.g === "hero" && String(n.subTreeId) === String(shownHero)) heroIds.push(nid);
+    });
+    var legend =
+      '<div class="an-tt-legend">' +
+      '<span class="an-tt-key an-key-match">Matches meta</span>' +
+      '<span class="an-tt-key an-key-off">Your off-meta pick</span>' +
+      '<span class="an-tt-key an-key-miss">Meta runs, you don\'t</span></div>';
+
+    // Positioned tree when nodes carry coordinates; flat chip fallback otherwise.
+    var hasCoords = Object.keys(T.nodes).some(function (nid) {
+      var n = T.nodes[nid];
+      return n && isFinite(n.x) && isFinite(n.y) && (n.x !== 0 || n.y !== 0);
+    });
+    var buildSection;
+    if (hasCoords) {
+      buildSection = legend +
+        '<div id="static-talent-tree" class="talent-tree-wrapper an-tt-wrapper">' +
+          ttColumn(classIds, "") + heroColumn(heroIds) + ttColumn(specIds, "") +
+        "</div>";
+    } else {
+      var chipGroups = { class: [], spec: [], hero: [] };
+      Object.keys(playerTaken).forEach(function (nid) {
+        var node = ttNode(T, nid);
+        if (!node) return;
+        var g = node.g === "hero" ? "hero" : node.g === "spec" ? "spec" : "class";
+        var entry = ttEntry(node, playerTaken[nid]);
+        var st = !haveScore ? "an-tt-plain" : (metaTaken[nid] === playerTaken[nid] ? "an-tt-match" : "an-tt-off");
+        chipGroups[g].push({ html: ttTalentEl(entry, node, st), name: entry ? entry.name : "" });
+      });
+      buildSection = legend + ["class", "spec", "hero"].map(function (g) {
+        if (!chipGroups[g].length) return "";
+        chipGroups[g].sort(function (a, b) { return a.name.localeCompare(b.name); });
+        return '<div class="an-tt-group"><div class="an-tt-group-head">' + TT_GROUP_LABEL[g] +
+          '</div><div class="an-tt-talents">' + chipGroups[g].map(function (x) { return x.html; }).join("") + "</div></div>";
+      }).join("");
+    }
+
+    return wrap(head + heroNote + buildSection);
+  }
+
+  // Shared "meta match" header rings: a small Gear ring, a big overall ring
+  // (gear and talents weighted 50/50), and a small Talents ring. A null score
+  // renders a muted dash.
+  function scoreClassOf(pct) {
+    return pct == null ? "an-score-none" : pct >= 80 ? "an-score-hi" : pct >= 50 ? "an-score-mid" : "an-score-lo";
+  }
+  function ringEl(pct, label, sizeCls) {
+    var txt = pct == null ? "—" : pct + "%";
+    return '<div class="an-mh-ring ' + sizeCls + " " + scoreClassOf(pct) + '">' +
+      '<div class="an-ring" style="--an-pct:' + (pct || 0) + '" role="img" aria-label="' + esc(label) + " " + txt + '">' +
+        '<span class="an-ring-arc"></span><span class="an-ring-pct">' + txt + "</span></div>" +
+      '<div class="an-ring-label">' + esc(label) + "</div></div>";
+  }
+  function combineScore(gear, tal) {
+    var p = [];
+    if (gear != null) p.push(gear);
+    if (tal != null) p.push(tal);
+    return p.length ? Math.round(p.reduce(function (a, b) { return a + b; }, 0) / p.length) : null;
+  }
+  function matchRings(gear, tal) {
+    return '<div class="an-mh-rings">' +
+      ringEl(gear, "Gear", "an-mh-small") +
+      ringEl(combineScore(gear, tal), "Meta match", "an-mh-big") +
+      ringEl(tal, "Talents", "an-mh-small") +
+      "</div>";
+  }
+
+  // Wire the hero-tree switch once: a click re-renders just the talents card
+  // against the chosen tree, using the context stashed by the last render().
+  var talentCtx = null;
+  // Hero-tree switch: re-diff against the chosen tree, re-render the card, and
+  // update the shared header's Talents + overall rings (gear is unaffected).
+  results.addEventListener("click", function (ev) {
+    var btn = ev.target.closest && ev.target.closest(".an-tt-hero-btn");
+    if (!btn || !talentCtx) return;
+    var diff = talentDiff(talentCtx.meta, talentCtx.parsed, talentCtx.tree, btn.getAttribute("data-hero"));
+    var host = document.getElementById("an-talents");
+    if (host) {
+      host.innerHTML = talentCardHtml(talentCtx.meta, talentCtx.parsed, talentCtx.tree, diff);
+      refreshTalentTooltips(host);
+    }
+    var talentScore = diff && diff.haveScore ? diff.score : null;
+    var ringsBox = results.querySelector(".an-mh-rings");
+    if (ringsBox) ringsBox.outerHTML = matchRings(talentCtx.gearScore, talentScore);
+  });
+
+  // Copy the currently-compared meta loadout string to the clipboard.
+  results.addEventListener("click", function (ev) {
+    var btn = ev.target.closest && ev.target.closest(".an-tt-copy");
+    if (!btn) return;
+    var code = btn.getAttribute("data-loadout") || "";
+    function flash() {
+      if (btn.dataset.flashing) return;
+      btn.dataset.flashing = "1";
+      var prev = btn.innerHTML;
+      btn.innerHTML = '<i class="material-symbols-rounded align-middle text-sm me-1">check</i>Copied!';
+      setTimeout(function () { btn.innerHTML = prev; delete btn.dataset.flashing; }, 1500);
+    }
+    function fallbackCopy() {
+      var ta = document.createElement("textarea");
+      ta.value = code; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); } catch (e) { /* best-effort */ }
+      document.body.removeChild(ta);
+    }
+    // Try the async clipboard API; on any failure (e.g. a sandboxed frame that
+    // blocks it) fall back to execCommand. Either way the user gets feedback.
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).then(flash, function () { fallbackCopy(); flash(); });
+    } else {
+      fallbackCopy(); flash();
+    }
+  });
+
+  // The tree geometry (fullNodeOrder + positioned nodes) comes from the fresh,
+  // credential-free /assets/json/talent_trees/<spec>.json; the meta loadout
+  // strings to compare against come from spec_meta.talents. Merge so the tree
+  // stays correct even when spec_meta was baked before the geometry existed.
+  function buildTalentTree(meta, treeFile) {
+    var mt = meta.talents || null;
+    if (treeFile && treeFile.nodes) {
+      return {
+        fullNodeOrder: treeFile.fullNodeOrder || (mt && mt.fullNodeOrder) || [],
+        nodes: treeFile.nodes,
+        subTrees: treeFile.subTrees || (mt && mt.subTrees) || {},
+        meta_by_hero: (mt && mt.meta_by_hero) || {},
+        popular_hero: mt ? mt.popular_hero : null,
+        node_pct: (mt && mt.node_pct) || {},
+      };
+    }
+    // No separate tree file (older deploy): fall back to whatever spec_meta holds.
+    if (mt && mt.nodes) return mt;
+    return null;
+  }
+
+  // Per-spec talent tree geometry. Tolerant: a miss just means no tree section.
+  function loadTalentTree(specId) {
+    return fetch("/assets/json/talent_trees/" + specId + ".json")
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; });
+  }
+
+  function refreshTalentTooltips(host) {
+    if (window.$WowheadPower && typeof window.$WowheadPower.refreshLinks === "function") {
+      try { window.$WowheadPower.refreshLinks(); } catch (e) { /* best-effort */ }
+    }
+  }
+
+  function render(meta, parsed, treeFile) {
     var specId = meta.spec_id;
     var disp = (window.SPEC_DISPLAY || {})[specId] || { name: meta.spec, class: meta.class, icon: null };
     // Keyed by slot, not a flat list: the scoring loop below walks SLOT_ORDER,
@@ -876,28 +1356,38 @@
       return;
     }
 
-    var score = Math.round((good / comparable) * 100);
-    var iconHtml = disp.icon ? '<img src="/data/icons/' + esc(disp.icon) + '.jpg" class="an-spec-icon me-3" alt="">' : "";
+    // Gear match now folds in gems and enchants, not just slots: each required
+    // gem/enchant instance in the meta combo the player satisfies counts toward
+    // the score alongside each scored slot they hit.
+    var gemMet = 0, gemNeed = 0;
+    Object.keys(gemBudget).forEach(function (id) {
+      gemNeed += gemBudget[id];
+      gemMet += Math.min(counts.gems[id] || 0, gemBudget[id]);
+    });
+    var enchMet = 0, enchNeed = 0;
+    Object.keys(enchBudget).forEach(function (id) {
+      enchNeed += enchBudget[id];
+      enchMet += Math.min(counts.enchants[id] || 0, enchBudget[id]);
+    });
+    var gearTotal = comparable + gemNeed + enchNeed;
+    var gearScore = gearTotal ? Math.round((good + gemMet + enchMet) / gearTotal * 100) : null;
 
-    // The page asks one question, so its answer gets its own band: the score as
-    // a progress ring, big enough to read before anything else on the card.
-    // The same hi/mid/lo class drives the ring colour and the figure, so the
-    // thresholds stay defined in one place (analyzer.css).
-    var scoreClass = score >= 80 ? "an-score-hi" : score >= 50 ? "an-score-mid" : "an-score-lo";
-    var summary =
-      '<div class="an-summary ' + scoreClass + '">' +
-        '<div class="an-summary-id">' + iconHtml +
-          '<div><div class="an-summary-spec">' + esc(disp.name) + " " + esc(disp.class) + "</div>" +
-          '<div class="text-xs text-secondary">' + good + " of " + comparable +
-            " scored slots on a meta pick</div></div>" +
-        "</div>" +
-        '<div class="an-summary-score">' +
-          '<div class="an-ring" style="--an-pct:' + score + '" role="img"' +
-            ' aria-label="' + score + '% meta match">' +
-            '<span class="an-ring-arc"></span>' +
-            '<span class="an-ring-pct">' + score + "%</span></div>" +
-          '<div class="an-ring-label">meta match</div>' +
-        "</div>" +
+    var iconHtml = disp.icon ? '<img src="/data/icons/' + esc(disp.icon) + '.jpg" class="an-mh-icon" alt="">' : "";
+
+    // Talents: decode + diff up front so its score feeds the shared header.
+    var talentTree = buildTalentTree(meta, treeFile);
+    var diff = talentTree ? talentDiff(meta, parsed, talentTree, null) : null;
+    var talentScore = diff && diff.haveScore ? diff.score : null;
+    talentCtx = { meta: meta, parsed: parsed, tree: talentTree, gearScore: gearScore };
+
+    // One shared "meta match" header for the whole report: spec identity plus a
+    // small Gear ring, a big overall ring (gear + talents 50/50) and a small
+    // Talents ring.
+    var header =
+      '<div class="an-match-header">' +
+        '<div class="an-mh-id">' + iconHtml +
+          '<div class="an-mh-spec">' + esc(disp.name) + " " + esc(disp.class) + "</div></div>" +
+        matchRings(gearScore, talentScore) +
       "</div>";
 
     // Width of the modifier zone, in icon slots: the busiest slot's gem count
@@ -905,14 +1395,25 @@
     // either, and `an-has-mods` drops the zone (and its divider) entirely.
     var modSlots = maxGems + (anyEnch ? 1 : 0);
 
+    var talentsHtml = '<div id="an-talents">' +
+      (talentTree ? talentCardHtml(meta, parsed, talentTree, diff) : "") + "</div>";
+
+    // Two columns below the header: gear (grid + gem/enchant combos) on the left,
+    // talents on the right. They stack on smaller screens and split from xl.
+    var gearHtml =
+      '<div class="an-card an-gear-card"><div class="an-card-head">Gear</div>' +
+        '<div class="an-grid' + (modSlots ? " an-has-mods" : "") +
+          '" style="--an-mod-slots:' + modSlots + '">' + layout(tilesBySlot) + "</div>" +
+        comboSection(meta.gem_combo, counts.gems, "gem", meta) +
+        comboSection(meta.enchant_combo, counts.enchants, "enchant", meta) +
+      "</div>";
+
     results.innerHTML =
-      summary +
-      '<div class="an-grid' + (modSlots ? " an-has-mods" : "") +
-        '" style="--an-mod-slots:' + modSlots + '">' + layout(tilesBySlot) + "</div>" +
-      comboSection(meta.gem_combo, counts.gems, "gem", meta) +
-      comboSection(meta.enchant_combo, counts.enchants, "enchant", meta) +
-      '<p class="text-xxs text-secondary mt-2 mb-0">' +
-        'Talents aren’t compared yet.</p>';
+      header +
+      '<div class="row g-4 an-results-row">' +
+        '<div class="col-12 col-xl-5 an-col-gear">' + gearHtml + "</div>" +
+        '<div class="col-12 col-xl-7 an-col-talents">' + talentsHtml + "</div>" +
+      "</div>";
 
     if (window.$WowheadPower && typeof window.$WowheadPower.refreshLinks === "function") {
       try { window.$WowheadPower.refreshLinks(); } catch (e) { /* tooltips are best-effort */ }
@@ -958,9 +1459,11 @@
       loadItemsIndex(),
       loadGemEnchantIndex(),
       loadBonusQuality(),
+      loadTalentTree(specId),
     ])
       .then(function (out) {
         var meta = out[0];
+        var treeFile = out[4];
         // Second hop, now that we know which equipped items the popular-items
         // manifest doesn't cover: pull just those items' icon shards. Bag items
         // are never drawn, so they need no icons.
@@ -976,7 +1479,7 @@
             if (p && p.id != null) wanted.push(p.id);
           });
         }
-        return loadIconShards(wanted).then(function () { render(meta, parsed); });
+        return loadIconShards(wanted).then(function () { render(meta, parsed, treeFile); });
       })
       .catch(function (err) {
         showError(err && err.dataError
