@@ -241,3 +241,33 @@ select.selectpicker option {
   color: var(--bs-body-color);
   background-color: var(--bs-body-bg);
 }
+
+/* ---------- Modals over the fixed sidenav / ad rail ---------- */
+/* material-dashboard.css pins .sidenav.fixed-start (left nav) and
+   .sidenav.fixed-end (right ad rail) to z-index: 9999 !important, but only at
+   min-width:1200px (below that the ad rail is hidden and the left nav is an
+   offcanvas). Bootstrap's modal layer is only 1055 (dialog) / 1040 (backdrop),
+   so on the ~1200-1500px band — where a centered modal-xl is wide enough to
+   reach under the 14rem rails — the rails painted on top of the open modal.
+   Scope the fix to the same breakpoint the bug lives in. */
+@media (min-width: 1200px) {
+  /* While a modal is open (Bootstrap adds .modal-open to <body>), drop both
+     rails below the backdrop so they dim behind it like the rest of the page.
+     Needs the base rule's !important plus the extra specificity to win. */
+  body.modal-open .sidenav.fixed-start,
+  body.modal-open .sidenav.fixed-end {
+    z-index: 1030 !important;
+  }
+
+  /* .sidenav carries `transition: all 0.2s`, which would animate the z-index
+     swap above. An animated integer z-index counts down from 9999, so it
+     lingers above the 1055 modal for most of the transition (a flash on open)
+     and gets stuck at the interim value, leaving the rail below its normal 9999
+     after close. The rails are statically pinned here (the slide-in transition
+     only applies to the <1200px offcanvas), so drop the transition to make the
+     swap snap cleanly in both directions. */
+  .sidenav.fixed-start,
+  .sidenav.fixed-end {
+    transition: none;
+  }
+}
