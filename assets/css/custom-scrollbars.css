@@ -8,6 +8,7 @@
 pre::-webkit-scrollbar,
 code::-webkit-scrollbar,
 .custom-scrollbar::-webkit-scrollbar,
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar,
 #sidenav-collapse-main::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -18,6 +19,7 @@ code::-webkit-scrollbar,
 pre::-webkit-scrollbar-track,
 code::-webkit-scrollbar-track,
 .custom-scrollbar::-webkit-scrollbar-track,
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar-track,
 #sidenav-collapse-main::-webkit-scrollbar-track {
   background: var(--mythi-scrollbar-track);
   border-radius: 4px;
@@ -28,6 +30,7 @@ code::-webkit-scrollbar-track,
 pre::-webkit-scrollbar-thumb,
 code::-webkit-scrollbar-thumb,
 .custom-scrollbar::-webkit-scrollbar-thumb,
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar-thumb,
 #sidenav-collapse-main::-webkit-scrollbar-thumb {
   background: var(--mythi-scrollbar-thumb);
   border-radius: 4px;
@@ -38,6 +41,7 @@ code::-webkit-scrollbar-thumb,
 pre::-webkit-scrollbar-thumb:hover,
 code::-webkit-scrollbar-thumb:hover,
 .custom-scrollbar::-webkit-scrollbar-thumb:hover,
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar-thumb:hover,
 #sidenav-collapse-main::-webkit-scrollbar-thumb:hover {
   background: var(--mythi-scrollbar-thumb-hover);
 }
@@ -48,6 +52,7 @@ code::-webkit-scrollbar-thumb:hover,
 pre,
 code,
 .custom-scrollbar,
+.modal-dialog-scrollable .modal-body,
 #sidenav-collapse-main {
   scrollbar-width: thin;
   scrollbar-color: var(--mythi-scrollbar-thumb) var(--mythi-scrollbar-track);
