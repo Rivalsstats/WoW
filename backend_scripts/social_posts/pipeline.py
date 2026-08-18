@@ -15,7 +15,6 @@ from datetime import datetime
 
 from PIL import Image, ImageDraw, ImageFont
 
-import aggregateData
 import databaseConnector
 import season_gate
 from commonUtils import get_dungeon_lookup, get_spec_lookup, load_json, load_season_info
@@ -59,10 +58,7 @@ def create_socials_post(donesocials, api_key, url):
     elif isinstance(dungeon_lookup, list):
         dungeons = [d.get("id") for d in dungeon_lookup]
 
-    access_token = aggregateData.get_access_token(
-        os.environ["CLIENT_ID"], os.environ["CLIENT_SECRET"]
-    )
-    current_season_id = aggregateData.get_current_season_id(access_token)
+    current_season_id = int(load_season_info()["blizzard_season_id"])
 
     # Pre-season gate: during the gap between seasons (DB wiped, no runs logged
     # for the current season yet) every normal generator would render an empty
