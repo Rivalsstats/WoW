@@ -180,7 +180,7 @@ def print_env_exports(host_port):
         print(f'  export {k}={v}')
     print("\nThen e.g.:")
     print("  python backend_scripts/generateSpecPages.py --template templates/spec_page.html \\")
-    print("    --output_dir classes --CLIENT_ID <blizz_id> --CLIENT_SECRET <blizz_secret>")
+    print("    --output_dir classes")
     print("  python backend_scripts/generateDungeonPages.py --template templates/dungeon_page.html --output_dir dungeons")
     print("=" * 70)
 

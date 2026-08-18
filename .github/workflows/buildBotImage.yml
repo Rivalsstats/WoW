@@ -29,7 +29,41 @@ permissions:
   packages: write
 
 jobs:
+  # Gate the image build on a DB-backed smoke test that drives the bot's real
+  # data paths against a throwaway seeded MySQL (the localDev seeder). This can't
+  # run inside `docker build` (no reachable MySQL there), so it lives here.
+  db-smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          # Seeder + bot-test runtime deps. Source B (comps/items/spec_meta/simdps
+          # JSON) is fetched live from mythistone.com and soft-skips off-season.
+          pip install mysql-connector-python "discord.py>=2.4" aiohttp matplotlib requests
+
+      - name: Seed throwaway test DB
+        run: python backend_scripts/localDev/seed_test_db.py
+
+      - name: Run DB-backed smoke test
+        env:
+          DATABASE_HOST: 127.0.0.1
+          DATABASE_PORT: '3399'
+          DATABASE_USER: Test
+          DATABASE_PASSWORD: test
+          DATABASE_NAME: Mythistone
+        run: python -m discord_bot.db_smoke_test
+
   build-and-push:
+    needs: db-smoke-test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

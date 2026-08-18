@@ -209,6 +209,14 @@ def _skewed_tree_assignment(trees, n, rng):
     return assign
 
 
+def _synthetic_loadout(spec_id, variant_idx, hero_tree, selected):
+    """A deterministic, clearly-synthetic loadout string for seeds whose committed
+    talent files carry no tree geometry. Not a decodable Blizzard build -- just a stable,
+    unique-per-variant token so the loadout aggregates populate."""
+    node_sig = "".join(f"{nid:x}" for nid in sorted(selected))
+    return f"SEEDBUILD-{spec_id}-{int(hero_tree)}-{variant_idx}-{node_sig}"[:255]
+
+
 def _build_variants(static, spec_id, rng, count=4):
     """A few fixed talent builds per spec so talent aggregates concentrate.
 
@@ -252,8 +260,16 @@ def _build_variants(static, spec_id, rng, count=4):
         # compares a pasted export against.
         selected = {int(nid): _entry_index(nid)
                     for nid in (class_sample + spec_sample + hero_nodes)}
-        loadout = encode_loadout(spec_id, selected, full_node_order, node_meta) \
-            if full_node_order and node_meta else None
+        if full_node_order and node_meta:
+            loadout = encode_loadout(spec_id, selected, full_node_order, node_meta)
+        else:
+            # No processed tree geometry (fullNodeOrder/nodes) in the committed
+            # data/static/talents/<spec>.json, so we can't emit a real Blizzard v2
+            # string. Fall back to a deterministic synthetic placeholder so the loadout
+            # aggregates still populate -- the bot's /spec talents fetch_top_loadout path
+            # and the spec page's meta-by-hero read them. Same non-decodable synthetic
+            # string the README already flags for the analyzer meta build.
+            loadout = _synthetic_loadout(spec_id, i, hero_tree, selected)
         variants.append({
             "class": class_sample,
             "spec": spec_sample,
