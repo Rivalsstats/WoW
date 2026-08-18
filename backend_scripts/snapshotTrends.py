@@ -38,14 +38,11 @@ import random
 from contextlib import closing
 
 import databaseConnector
-from aggregateData import get_access_token, get_current_season_id
+from commonUtils import current_season_id
 from compArchetypes import build_dungeon_archetypes, collapse_comps
 from tierMath import build_buff_tiers, build_ckmeans_tiers, build_spec_tiers
 from generateSpecPages import LOOKUP_DIR, load_json
 from pageGeneration import TRENDS_LIVE_PATH
-
-CLIENT_ID = os.environ["BLIZ_CLIENT_ID"]
-CLIENT_SECRET = os.environ["BLIZ_CLIENT_SECRET"]
 
 databaseConnector.init_connection_pool(
     os.environ.get("DATABASE_HOST"),
@@ -338,8 +335,7 @@ def main():
     if args.season is not None:
         season = args.season
     else:
-        token = get_access_token(CLIENT_ID, CLIENT_SECRET)
-        season = get_current_season_id(token)
+        season = current_season_id()
 
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()

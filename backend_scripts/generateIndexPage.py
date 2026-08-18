@@ -12,7 +12,6 @@ from pageGeneration import (
     build_trends,
     trend_feeds_for_index,
 )
-from aggregateData import get_current_season_id, get_access_token
 from generateSpecPages import (
     LOOKUP_DIR,
     humanize_number,
@@ -22,10 +21,6 @@ from generateSpecPages import (
     load_json,
     load_season_info,
 )
-
-# config
-CLIENT_ID = os.environ["BLIZ_CLIENT_ID"]
-CLIENT_SECRET = os.environ["BLIZ_CLIENT_SECRET"]
 
 databaseConnector.init_connection_pool(
     os.environ.get("DATABASE_HOST"),
@@ -61,8 +56,7 @@ def main(template_path, output_dir):
     dungeon_nav = generateDungeonNav(dungeon_lookup)
     template = env.get_template(os.path.basename(template_path))
 
-    token = get_access_token(CLIENT_ID, CLIENT_SECRET)
-    current_season = get_current_season_id(token)
+    current_season = int(season_info["blizzard_season_id"])
     print(f"Fetching database data {current_season}...")
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()

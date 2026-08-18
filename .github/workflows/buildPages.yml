@@ -401,8 +401,6 @@ jobs:
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORT }}
           DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
           DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
-          BLIZ_CLIENT_ID: ${{ secrets.BLIZ_CLIENT_ID }}
-          BLIZ_CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
         run: |
           python backend_scripts/snapshotTrends.py
 
@@ -413,8 +411,6 @@ jobs:
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORT }}
           DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
           DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
-          CLIENT_ID: ${{ secrets.BLIZ_CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
         run: |
           python backend_scripts/generateDashboardPage.py \
             --template templates/dashboard.html \
@@ -427,8 +423,6 @@ jobs:
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORT }}
           DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
           DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
-          BLIZ_CLIENT_ID: ${{ secrets.BLIZ_CLIENT_ID }}
-          BLIZ_CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
           RAIDERIO_API_KEY: ${{ secrets.RAIDERIO_API_KEY }}
         run: |
           python backend_scripts/generateIndexPage.py \
@@ -454,8 +448,6 @@ jobs:
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORT }}
           DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
           DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
-          BLIZ_CLIENT_ID: ${{ secrets.BLIZ_CLIENT_ID }}
-          BLIZ_CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
         run: |
           python backend_scripts/generateCompPage.py \
             --output_dir pages \
@@ -485,8 +477,6 @@ jobs:
           DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
         run: |
           python backend_scripts/generateSpecPages.py \
-            --CLIENT_ID ${{secrets.BLIZ_CLIENT_ID}} \
-            --CLIENT_SECRET ${{secrets.BLIZ_CLIENT_SECRET}} \
             --template templates/spec_page.html \
             --output_dir classes
 

@@ -4,7 +4,6 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from collections import OrderedDict, defaultdict
 from datetime import datetime, timezone
 from contextlib import closing
-import aggregateData
 import argparse
 import databaseConnector
 from collections import defaultdict, Counter
@@ -537,10 +536,7 @@ def main(template_path, output_dir):
 
     template = env.get_template(os.path.basename(template_path))
     print("Fetching data from database...")
-    access_token = aggregateData.get_access_token(
-        os.environ["CLIENT_ID"], os.environ["CLIENT_SECRET"]
-    )
-    current_season_id = aggregateData.get_current_season_id(access_token)
+    current_season_id = int(season_info["blizzard_season_id"])
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()
         databaseConnector.configure_read_session(conn, cursor)

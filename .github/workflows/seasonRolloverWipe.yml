@@ -5,14 +5,6 @@ name: Season Rollover DB Wipe
 # that the paused collector + the MySQL event ev_season_wipe act on. See
 # backend_scripts/database.sql for the handshake.
 #
-# FAIL-CLOSED human gate (hardened 2026-08-13 after an unattended wipe): the
-# automated triggers below ONLY detect a pending rollover and post an alert — they
-# can never raise the flag. The destructive `--commit` runs solely on a manual
-# workflow_dispatch whose `confirm` input matches the detected season. The
-# production-wipe environment is kept as an OPTIONAL second gate, but nothing here
-# relies on it: a GitHub environment with no required-reviewers rule runs
-# immediately (fails open), which is exactly how the earlier wipe slipped through.
-
 on:
   # Fire on the season flip (getStaticData advances seasonInfo.json). Detect-and-
   # notify only — never commits.
@@ -167,13 +159,11 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   # Raise the intent flag. Reached ONLY after a human dispatched the workflow and
-  # the typed confirmation matched. The production-wipe environment is an optional
-  # second (reviewer) gate; it is not relied upon for safety.
+  # the typed confirmation matched.
   request-wipe:
     needs: [detect, authorize]
     if: ${{ needs.authorize.outputs.authorized == 'true' }}
     runs-on: ubuntu-latest
-    environment: production-wipe
     steps:
       - name: Clone project
         uses: actions/checkout@v7

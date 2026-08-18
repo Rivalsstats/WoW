@@ -1933,7 +1933,7 @@ def convert_slots(
                                     break
 
 
-def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=None):
+def main(template_path, output_dir, debug=False, spec=None):
     # local import: keeps PIL/matplotlib out of the import path for the many
     # modules that only need this file's helpers
     from image_generation.spec_overview import createSpecOverviewImg
@@ -2057,8 +2057,7 @@ def main(template_path, output_dir, CLIENT_ID, CLIENT_SECRET, debug=False, spec=
     spec_nav = generateSpecNav(spec_lookup, class_lookup)
     dungeon_nav = generateDungeonNav(dungeon_lookup)
 
-    access_token = aggregateData.get_access_token(CLIENT_ID, CLIENT_SECRET)
-    current_season_id = aggregateData.get_current_season_id(access_token)
+    current_season_id = int(season_info["blizzard_season_id"])
     print(
         f"[{datetime.now(timezone.utc).isoformat()}] Current season ID: {current_season_id}"
     )
@@ -3035,8 +3034,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "--output_dir", required=True, help="Directory to write generated HTML pages"
     )
-    parser.add_argument("--CLIENT_ID", required=True)
-    parser.add_argument("--CLIENT_SECRET", required=True)
     parser.add_argument("--debug", required=False)
     parser.add_argument("--spec", required=False)
 
@@ -3055,8 +3052,6 @@ if __name__ == "__main__":
     main(
         args.template,
         args.output_dir,
-        args.CLIENT_ID,
-        args.CLIENT_SECRET,
         args.debug,
         args.spec,
     )
