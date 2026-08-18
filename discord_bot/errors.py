@@ -58,6 +58,16 @@ class SeasonNotStarted(app_commands.CheckFailure):
     """
 
 
+class SeasonJustStarted(app_commands.CheckFailure):
+    """The season started within the last 24h (launch day): at least one region is
+    live but the data is still too sparse for real command output.
+
+    Raised by the global season guard so every command short-circuits to a
+    friendly "season has started" embed instead of erroring on incomplete data. It
+    subclasses CheckFailure so discord.py routes it to on_app_command_error.
+    """
+
+
 def error_embed(exc: Exception) -> discord.Embed:
     message = getattr(exc, "user_message", None) or BotError.user_message
     return discord.Embed(
@@ -95,6 +105,16 @@ async def on_app_command_error(
     # Unwrap the wrapper discord.py puts around exceptions raised inside a command.
     if isinstance(error, app_commands.CommandInvokeError):
         error = error.original
+
+    # Launch day (first 24h): show the "season has started" embed instead of an
+    # error on sparse data. Checked before SeasonNotStarted so the launch-day
+    # presentation wins once a region is live. embeds is imported locally: it
+    # imports config/emojis, not errors.
+    if isinstance(error, SeasonJustStarted):
+        from . import embeds
+
+        await _respond(interaction, embeds.season_started_embed(), ephemeral=False)
+        return
 
     # Pre-season gap / post-wipe: show the season schedule instead of an error.
     if isinstance(error, SeasonNotStarted):

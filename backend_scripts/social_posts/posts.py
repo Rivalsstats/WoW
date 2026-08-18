@@ -18,7 +18,10 @@ from image_generation.mplus_run import create_MplusImage, get_run_data
 from image_generation.spec_distribution_by_level import create_spec_popularity_by_level_img
 from image_generation.spec_overview import createSpecOverviewImg
 from image_generation.spec_popularity_performance import create_spec_popularity_vs_performance_img
-from image_generation.season_countdown import create_season_countdown_img
+from image_generation.season_countdown import (
+    create_season_countdown_img,
+    create_season_launch_img,
+)
 from image_generation.spec_popularity_tierlist import create_spec_tierlist_img
 from social_posts.links import build_site_link, dungeon_page_link, spec_page_link, time_ago
 from social_posts.llm import build_bundle, get_openai_client
@@ -84,6 +87,88 @@ def create_season_countdown(output_dir, donesocials, url, season_info):
         "out_path": out_path,
         "bundle": bundle,
         "post_type": "season_countdown",
+        "link": link,
+    }
+
+
+def _join_and(items):
+    """Human list join: ["US"] -> "US", ["US","EU"] -> "US and EU",
+    ["US","EU","KR"] -> "US, EU and KR". No Oxford comma, matching house copy."""
+    items = list(items)
+    if not items:
+        return ""
+    if len(items) == 1:
+        return items[0]
+    return ", ".join(items[:-1]) + " and " + items[-1]
+
+
+def _upcoming_sentence(upcoming):
+    """One sentence for the regions that have not started yet, e.g.
+    "EU goes live in 13 hours and KR in 1 day." ``upcoming`` is a list of
+    ``(REGION, "in 13 hours")`` tuples. Empty string when nothing is upcoming."""
+    if not upcoming:
+        return ""
+    first_region, first_until = upcoming[0]
+    frags = [f"{first_region} goes live {first_until}"]
+    frags += [f"{region} {until}" for region, until in upcoming[1:]]
+    return _join_and(frags) + "."
+
+
+def create_season_launch(output_dir, donesocials, url, season_info):
+    """Launch-day "season has started" post. Fired during the first 24h after the
+    earliest regional start, when at least one region is live but the data is still
+    too sparse (or absent) for the normal cards, which would otherwise error. No
+    DB, no Blizzard API and no LLM: the image and its on-brand copy are built from
+    seasonInfo.json alone. The filename carries today's date so it posts once on
+    launch day and the pipeline flips back to data cards once the season has data."""
+    today = datetime.now().strftime("%Y-%m-%d")
+    slug = season_info.get("slug", "season")
+    out_path = os.path.join(output_dir, f"season_launch_{slug}_{today}.png")
+    if out_path in donesocials:
+        return None
+
+    fields = create_season_launch_img(out_path, season_info)
+
+    name = fields.get("season_name", "The new season")
+    short = fields.get("season_short")
+    title = f"{name} ({short})" if short else name
+    live = fields.get("live", [])
+    upcoming = fields.get("upcoming", [])
+
+    link = build_site_link(url)
+
+    social_parts = [f"{title} has started!"]
+    if live:
+        social_parts.append(f"Keys are now live in {_join_and(live)}.")
+    else:
+        social_parts.append("The first keys are going live right now.")
+    if upcoming:
+        social_parts.append(_upcoming_sentence(upcoming))
+    social_parts.append("A fresh dungeon pool and the meta resets to zero.")
+    social_parts.append(f"We are tracking every run from day one at {link}.")
+    social_parts.append("See you in the dungeons. #WoW #MythicPlus")
+    social = " ".join(social_parts)
+
+    blog_parts = [f"{title} has officially started."]
+    if live:
+        blog_parts.append(f"Mythic+ keys are now live in {_join_and(live)}.")
+    if upcoming:
+        blog_parts.append(_upcoming_sentence(upcoming))
+    blog_parts.append(
+        "The first runs are only just coming in, so the dashboards will fill out "
+        "over the next few hours as the data lands."
+    )
+    blog_parts.append(
+        "A fresh dungeon pool is in rotation and the meta resets to zero. "
+        "See you in the dungeons."
+    )
+    blog = " ".join(blog_parts)
+
+    bundle = {"title": f"{title} has started", "social": social, "blog": blog}
+    return {
+        "out_path": out_path,
+        "bundle": bundle,
+        "post_type": "season_launch",
         "link": link,
     }
 

@@ -153,6 +153,51 @@ def season_not_started_embed() -> discord.Embed:
     return embed
 
 
+def season_started_embed() -> discord.Embed:
+    """Shown in place of any command output during the season's first 24h (launch
+    day), when at least one region is live but the data is still too sparse for the
+    normal command output to be meaningful (barely any runs yet, later regions not
+    even started). Splits the regions into those already live and those still to
+    come, surfacing the latter as live Discord timestamps so each viewer sees their
+    own local time. Mirrors the social auto-poster's launch-day post
+    (backend_scripts/social_posts/posts.create_season_launch)."""
+    info = config.SEASON_INFO
+    title = config.SEASON_NAME
+    if config.SEASON_SHORT:
+        title = f"{title} ({config.SEASON_SHORT})"
+    embed = base_embed(
+        title,
+        url=f"{config.SITE_BASE}/pages/dashboard",
+        description=(
+            "This season has started! The first runs are only just coming in, so "
+            "the stats will fill out over the next few hours as the data lands. "
+            "See you in the dungeons."
+        ),
+    )
+    starts = (info or {}).get("starts", {})
+    now = datetime.datetime.now(datetime.timezone.utc)
+    live, upcoming = [], []
+    for region in ("us", "eu", "kr"):
+        iso = starts.get(region)
+        if not iso:
+            continue
+        started = datetime.datetime.fromisoformat(iso.replace("Z", "+00:00")) <= now
+        if started:
+            live.append(f"{region.upper()}: live now")
+        else:
+            upcoming.append(
+                f"{region.upper()}: {discord_ts(iso, 'F')} ({discord_ts(iso, 'R')})"
+            )
+    fields = []
+    if live:
+        fields.append(("Live now", "\n".join(live), False))
+    if upcoming:
+        fields.append(("Starts soon", "\n".join(upcoming), False))
+    if fields:
+        add_fields_capped(embed, fields)
+    return embed
+
+
 def spec_embed_header(spec_id) -> discord.Embed:
     sid = str(spec_id)
     cid = str(lookups.SPECS.get(sid, {}).get("classID", ""))

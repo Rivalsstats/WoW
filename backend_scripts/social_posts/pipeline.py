@@ -20,6 +20,7 @@ import season_gate
 from commonUtils import get_dungeon_lookup, get_spec_lookup, load_json, load_season_info
 from image_generation import config
 from image_generation.pil_helpers import apply_watermark_to_canvas
+from image_generation.season_countdown import in_launch_window
 from social_posts.links import build_site_link
 from social_posts.posts import (
     createCompOverview,
@@ -30,6 +31,7 @@ from social_posts.posts import (
     create_dungeon_tierlist,
     create_overall_spec_popularity,
     create_season_countdown,
+    create_season_launch,
     create_spec_popularity_by_level,
     create_spec_popularity_vs_performance,
 )
@@ -58,7 +60,27 @@ def create_socials_post(donesocials, api_key, url):
     elif isinstance(dungeon_lookup, list):
         dungeons = [d.get("id") for d in dungeon_lookup]
 
-    current_season_id = int(load_season_info()["blizzard_season_id"])
+    season_info = load_season_info()
+    current_season_id = int(season_info["blizzard_season_id"])
+
+    # Launch-day gate: for the first 24h after the earliest regional start, at
+    # least one region is live but the season is so fresh that the normal data
+    # generators would error or render near-empty cards (barely any runs yet, and
+    # the later regions have not even started). Post a "season has started"
+    # announcement naming the live regions and how long until the rest instead.
+    # Pure time + seasonInfo (no DB), so it runs before the DB gate below.
+    if in_launch_window(season_info):
+        print("Launch day: posting 'season has started' announcement instead of data.")
+        post = create_season_launch(config.OUTPUT_DIR, donesocials, url, season_info)
+        if post and post.get("bundle"):
+            out_path = post["out_path"]
+            if out_path not in donesocials:
+                record = bundle_to_record(post)
+                donesocials[out_path] = record
+                return {"out_path": out_path, **record}
+        # Announcement for today already recorded (or unbuildable): nothing new.
+        # Do NOT fall through to the data generators, which are not ready today.
+        return None
 
     # Pre-season gate: during the gap between seasons (DB wiped, no runs logged
     # for the current season yet) every normal generator would render an empty
@@ -74,7 +96,7 @@ def create_socials_post(donesocials, api_key, url):
     if not started:
         print("Season has no runs yet: posting release countdown instead of data.")
         post = create_season_countdown(
-            config.OUTPUT_DIR, donesocials, url, load_season_info()
+            config.OUTPUT_DIR, donesocials, url, season_info
         )
         if post and post.get("bundle"):
             out_path = post["out_path"]
