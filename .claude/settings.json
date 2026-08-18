@@ -1,0 +1,58 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python backend_scripts/localDev/seed_test_db.py:*)",
+      "Bash(python -m http.server:*)",
+      "Bash(python backend_scripts/generateDungeonPages.py:*)",
+      "Bash(python backend_scripts/generateItemPages.py:*)",
+      "Bash(python backend_scripts/generateCompPage.py:*)",
+      "Bash(python backend_scripts/generateRoutesPage.py:*)",
+      "Bash(python backend_scripts/generateAnalyzerPage.py:*)",
+      "Bash(python backend_scripts/generateTierlistPage.py:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker exec mythistone-testdb:*)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git show:*)",
+    ],
+    "deny": [
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git add:*)",
+      "Bash(git reset:*)",
+      "Bash(git checkout:*)",
+      "Bash(git rebase:*)",
+      "Bash(git merge:*)",
+      "Bash(git cherry-pick:*)",
+      "Bash(git revert:*)",
+      "Bash(git stash:*)",
+      "Bash(git branch:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/block-git-write.py\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/remind-test-render.py\""
+          }
+        ]
+      }
+    ]
+  }
+}
