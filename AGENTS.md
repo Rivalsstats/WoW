@@ -104,6 +104,30 @@ template uses.
 - **KISS and DRY.** Smallest change that fits the existing pipeline; reuse/modify existing helpers,
   macros, and lookups before adding code.
 
+## Recording new knowledge (always apply)
+
+When you finish a task that produced newly gained durable knowledge or important findings
+(non-obvious mechanics, cross-file coupling, gotchas, corrected assumptions), **ask the user for
+permission to record it** — as the **last line of your final message** for that task. Do not record
+first and ask later, and do not record silently: the user decides. Only once they agree, store it as
+a narrow skill under `.claude/skills/` (one gotcha per skill; update an existing skill rather than
+duplicating it) or a section of this file. Never use a tool's private auto-memory — it does not
+transfer across machines or tools; only in-repo notes do.
+
+- **Phrase the ask as a short recap of what is worth recording, then the question.** Briefly name
+  what you found, confirmed, or changed so the user can judge, then ask. For example:
+
+  > While working this task I found that X and Y, we confirmed Z, and changed Z2. Would you like me
+  > to record this knowledge in the knowledgebase?
+
+- **Skip the ask entirely when there is nothing new to record:** planning-only work that changed
+  nothing, or a bug / wrong behavior whose mechanics are **already documented** in the knowledgebase.
+- **Gauge "new" against the knowledgebase, not the code.** Something is worth offering to record when
+  the knowledgebase (this file + the skills) does not already capture it — *not* merely when it is
+  absent from the repo/code. The knowledgebase was freshly initialized and much of the codebase is
+  still undocumented; we build it up incrementally, one task at a time, so a finding being derivable
+  from the code is not a reason to skip it if the knowledgebase does not yet capture it.
+
 ## Verifying page work
 
 Any change to a `templates/*.html`, a `backend_scripts/generate*.py`,
