@@ -29,7 +29,7 @@ CREATE TABLE `agg_pipeline_log` (
   `error` text,
   PRIMARY KEY (`id`),
   KEY `idx_agg_pipeline_log_step` (`step`,`started_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=239 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=705 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.aggregated_bonus_lists definition
@@ -561,7 +561,7 @@ CREATE TABLE `members` (
   `loadout` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `hero_talent_id` int DEFAULT NULL,
   PRIMARY KEY (`member`)
-) /*!50100 TABLESPACE `members` */ ENGINE=InnoDB AUTO_INCREMENT=138988766 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) /*!50100 TABLESPACE `members` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.missives definition
@@ -596,36 +596,6 @@ CREATE TABLE `season_periods` (
   `end_timestamp` bigint unsigned NOT NULL,
   `season` int NOT NULL,
   PRIMARY KEY (`region`,`period_id`,`season`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
--- Mythistone.trend_snapshot definition
---
--- Weekly per-entity snapshot that powers the "Top Trends" bar. One row per
--- (reset week, feed, group, entity); rewritten each page build for the current
--- `week_id` (idempotent upsert) so a week's row freezes once the reset advances.
--- `feed` names what is trended ('spec','dungeon','buff','talent','item','gem',
--- 'embellishment','crafted','set_combo','crafted_combo','embellishment_combo',
--- 'archetype'); `group_key` scopes per-spec / per-dungeon feeds (empty for global
--- feeds; 'all' or a dungeon id for the archetype feed). The retired 'comp' feed
--- (raw per-dungeon comps) was replaced by 'archetype' (clustered team-comp
--- families). Spec/dungeon feeds carry an S..F `tier` (0=S) and `score`
--- (tierMath lb_ci); the rest carry a within-group `rank_pos`. `popularity` is a
--- share-of-runs %. Kept for the current season only; pruned by the writer and
--- blanket-cleared on season rollover (see sp_season_wipe).
-CREATE TABLE `trend_snapshot` (
-  `week_id` int unsigned NOT NULL,
-  `feed` varchar(24) NOT NULL,
-  `group_key` varchar(100) NOT NULL DEFAULT '',
-  `entity_key` varchar(128) NOT NULL,
-  `label` varchar(255) DEFAULT NULL,
-  `tier` tinyint DEFAULT NULL,
-  `rank_pos` smallint DEFAULT NULL,
-  `score` double DEFAULT NULL,
-  `popularity` double NOT NULL DEFAULT '0',
-  `run_count` bigint unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`week_id`,`feed`,`group_key`,`entity_key`),
-  KEY `idx_trend_feed_group_week` (`feed`,`group_key`,`week_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -707,6 +677,38 @@ CREATE TABLE `top_player_loadouts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
+-- Mythistone.trend_snapshot definition
+
+CREATE TABLE `trend_snapshot` (
+  `week_id` int unsigned NOT NULL,
+  `feed` varchar(24) NOT NULL,
+  `group_key` varchar(100) NOT NULL DEFAULT '',
+  `entity_key` varchar(128) NOT NULL,
+  `label` varchar(255) DEFAULT NULL,
+  `tier` tinyint DEFAULT NULL,
+  `rank_pos` smallint DEFAULT NULL,
+  `score` double DEFAULT NULL,
+  `popularity` double NOT NULL DEFAULT '0',
+  `run_count` bigint unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`week_id`,`feed`,`group_key`,`entity_key`),
+  KEY `idx_trend_feed_group_week` (`feed`,`group_key`,`week_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- Mythistone.wipe_control definition
+
+CREATE TABLE `wipe_control` (
+  `id` tinyint NOT NULL DEFAULT '1',
+  `request_season` int NOT NULL DEFAULT '0',
+  `done_season` int NOT NULL DEFAULT '0',
+  `collector_paused` tinyint NOT NULL DEFAULT '0',
+  `collector_beat` bigint NOT NULL DEFAULT '0',
+  `requested_at` bigint NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  CONSTRAINT `chk_wipe_control_single_row` CHECK ((`id` = 1))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
 -- Mythistone.character_stats definition
 
 CREATE TABLE `character_stats` (
@@ -742,7 +744,7 @@ CREATE TABLE `equipment` (
   PRIMARY KEY (`equipment_id`),
   KEY `equipment_run_members_FK` (`member`),
   CONSTRAINT `equipment_run_members_FK` FOREIGN KEY (`member`) REFERENCES `members` (`member`) ON DELETE CASCADE ON UPDATE CASCADE
-) /*!50100 TABLESPACE `equipments` */ ENGINE=InnoDB AUTO_INCREMENT=412674997 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) /*!50100 TABLESPACE `equipments` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.hero_talents definition
@@ -764,7 +766,7 @@ CREATE TABLE `route_pulls` (
   PRIMARY KEY (`pull_id`,`route_key`),
   KEY `route_pulls_route_data_FK` (`route_key`),
   CONSTRAINT `route_pulls_route_data_FK` FOREIGN KEY (`route_key`) REFERENCES `route_data` (`route_key`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=435047 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.route_specs definition
@@ -776,7 +778,7 @@ CREATE TABLE `route_specs` (
   PRIMARY KEY (`id`),
   KEY `idx_route_key` (`route_key`),
   CONSTRAINT `route_specs_route_data_FK` FOREIGN KEY (`route_key`) REFERENCES `route_data` (`route_key`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=144530 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.runs definition
@@ -793,7 +795,7 @@ CREATE TABLE `runs` (
   PRIMARY KEY (`run_id`),
   UNIQUE KEY `runs_unique` (`dungeon_id`,`keystone_level`,`duration`,`timestamp`,`faction`,`region`,`season`),
   CONSTRAINT `runs_dungeon_data_FK` FOREIGN KEY (`dungeon_id`) REFERENCES `dungeon_data` (`dungeon_id`)
-) /*!50100 TABLESPACE `ts_runs` */ ENGINE=InnoDB AUTO_INCREMENT=68565764 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) /*!50100 TABLESPACE `ts_runs` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.simc_bis_items definition
@@ -842,7 +844,7 @@ CREATE TABLE `sockets` (
   PRIMARY KEY (`socket_id_pk`),
   KEY `sockets_equipment_FK` (`equipment_id`),
   CONSTRAINT `sockets_equipment_FK` FOREIGN KEY (`equipment_id`) REFERENCES `equipment` (`equipment_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=50775691 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.spec_talents definition
@@ -937,7 +939,7 @@ CREATE TABLE `enchantments` (
   PRIMARY KEY (`enchantment_id_pk`),
   KEY `enchantments_equipment_FK` (`equipment_id`),
   CONSTRAINT `enchantments_equipment_FK` FOREIGN KEY (`equipment_id`) REFERENCES `equipment` (`equipment_id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=119299144 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.pull_enemies definition
@@ -2645,6 +2647,69 @@ BEGIN
    WHERE id = v_log_id;
 END;
 
+CREATE DEFINER=`Test`@`%` PROCEDURE `Mythistone`.`sp_season_wipe`()
+BEGIN
+  DECLARE v_done INT DEFAULT 0;
+  DECLARE v_tname VARCHAR(128);
+  -- `_new` / `_old` are sp_swap_public_table's shadow tables. They match the
+  -- prefixes but are owned by the swap, so leave them alone rather than racing it;
+  -- sp_truncate_with_retry tolerates one disappearing anyway.
+  DECLARE cur CURSOR FOR
+    SELECT table_name
+    FROM information_schema.tables
+    WHERE table_schema = 'Mythistone'
+      AND table_type = 'BASE TABLE'
+      AND ( table_name LIKE 'aggregated\_%'
+         OR table_name LIKE 'global\_aggregated\_%'
+         OR table_name LIKE 'simc\_bis\_%'
+         OR table_name LIKE 'top\_player\_%' )
+      AND table_name NOT LIKE '%\_new'
+      AND table_name NOT LIKE '%\_old';
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = 1;
+
+  SET FOREIGN_KEY_CHECKS = 0;
+
+  -- raw tables (explicit)
+  CALL `Mythistone`.`sp_truncate_with_retry`('runs');
+  CALL `Mythistone`.`sp_truncate_with_retry`('run_members');
+  CALL `Mythistone`.`sp_truncate_with_retry`('members');
+  CALL `Mythistone`.`sp_truncate_with_retry`('equipment');
+  CALL `Mythistone`.`sp_truncate_with_retry`('sockets');
+  CALL `Mythistone`.`sp_truncate_with_retry`('enchantments');
+  CALL `Mythistone`.`sp_truncate_with_retry`('bonus_ids');
+  CALL `Mythistone`.`sp_truncate_with_retry`('character_stats');
+  CALL `Mythistone`.`sp_truncate_with_retry`('class_talents');
+  CALL `Mythistone`.`sp_truncate_with_retry`('hero_talents');
+  CALL `Mythistone`.`sp_truncate_with_retry`('spec_talents');
+  CALL `Mythistone`.`sp_truncate_with_retry`('route_data');
+  CALL `Mythistone`.`sp_truncate_with_retry`('route_pulls');
+  CALL `Mythistone`.`sp_truncate_with_retry`('route_specs');
+  CALL `Mythistone`.`sp_truncate_with_retry`('pull_enemies');
+  CALL `Mythistone`.`sp_truncate_with_retry`('pull_spells');
+  -- trend bar snapshots are period-keyed and season-specific; last season's
+  -- weeks are meaningless once the raw data is gone, so clear them too.
+  CALL `Mythistone`.`sp_truncate_with_retry`('trend_snapshot');
+
+  -- derived tables (by prefix)
+  OPEN cur;
+  wipe_loop: LOOP
+    FETCH cur INTO v_tname;
+    IF v_done = 1 THEN
+      LEAVE wipe_loop;
+    END IF;
+    CALL `Mythistone`.`sp_truncate_with_retry`(v_tname);
+  END LOOP wipe_loop;
+  CLOSE cur;
+
+  SET FOREIGN_KEY_CHECKS = 1;
+
+  -- reset moving-pointer watermarks so the purge events / top-items rollup
+  -- recompute cleanly against the now-empty tables
+  UPDATE `Mythistone`.`summary_meta`
+    SET last_run_id = 0
+  WHERE name IN ('purge_member_pointer', 'purge_routes_pointer', 'aggregated_top_items');
+END;
+
 CREATE DEFINER=`Test`@`%` PROCEDURE `Mythistone`.`sp_swap_public_table`(IN p_base VARCHAR(128))
 BEGIN
   -- Atomically swap Mythistone.<p_base>_new into place as Mythistone.<p_base>.
@@ -2689,6 +2754,65 @@ BEGIN
       SET v_done = 1;                                   -- non-retryable; leave _new for next run
     END IF;
   END WHILE;
+END;
+
+CREATE DEFINER=`Test`@`%` PROCEDURE `Mythistone`.`sp_truncate_with_retry`(IN p_table VARCHAR(128))
+BEGIN
+  -- TRUNCATE needs an EXCLUSIVE metadata lock, and an MDL wait is governed by
+  -- lock_wait_timeout (default 31536000 = one YEAR), not innodb_lock_wait_timeout.
+  -- Without an explicit budget, one session sitting idle in a transaction that
+  -- touched the table blocks the wipe effectively forever -- while the caller
+  -- holds GET_LOCK('agg_pipeline'), which would also stall the nightly pipeline
+  -- and the member purge with no error ever raised. So: escalate the budget, log
+  -- the blocker, then kill idle holders, exactly as sp_swap_public_table does for
+  -- its RENAME. A table that vanished mid-wipe (a shadow table renamed away by a
+  -- concurrent swap) is not an error -- there is nothing left to clear.
+  DECLARE v_attempt      INT DEFAULT 0;
+  DECLARE v_max_attempts INT DEFAULT 4;
+  DECLARE v_kill_after   INT DEFAULT 2;
+  DECLARE v_done         INT DEFAULT 0;
+  DECLARE v_errno        INT DEFAULT 0;
+
+  trunc_scope: BEGIN
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+    BEGIN
+      GET DIAGNOSTICS CONDITION 1 v_errno = MYSQL_ERRNO;
+    END;
+
+    WHILE v_done = 0 AND v_attempt < v_max_attempts DO
+      SET v_attempt = v_attempt + 1;
+      SET v_errno   = 0;
+      SET SESSION lock_wait_timeout = LEAST(30 * v_attempt, 120);
+
+      SET @trunc_sql = CONCAT('TRUNCATE TABLE `Mythistone`.`', p_table, '`');
+      PREPARE trunc_stmt FROM @trunc_sql;
+      EXECUTE trunc_stmt;
+      DEALLOCATE PREPARE trunc_stmt;
+
+      IF v_errno = 0 THEN
+        SET v_done = 1;                                  -- cleared
+      ELSEIF v_errno = 1205 THEN
+        CALL sp_capture_lock_holders('season_wipe', p_table);
+        IF v_attempt >= v_kill_after THEN
+          CALL sp_kill_lock_holders(p_table);            -- last resort: idle holders only
+        END IF;
+        DO SLEEP(5);
+      ELSEIF v_errno IN (1146, 1051, 1243) THEN
+        SET v_done  = 1;                                 -- table is gone; nothing to clear
+        SET v_errno = 0;
+      ELSE
+        SET v_done = 1;                                  -- non-retryable
+      END IF;
+    END WHILE;
+  END trunc_scope;
+
+  -- Surface an unresolved lock timeout to the caller. The event's EXIT HANDLER
+  -- then releases agg_pipeline and leaves request_season raised, so the next tick
+  -- retries -- far better than blocking forever holding the shared lock.
+  IF v_errno = 1205 THEN
+    SET @wipe_err = CONCAT('season wipe: could not get an exclusive lock on ', p_table);
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @wipe_err;
+  END IF;
 END;
 
 CREATE DEFINER=`Test`@`%` PROCEDURE `Mythistone`.`update_aggregated_top_items_proc`()
@@ -2914,175 +3038,9 @@ DO purge_block: BEGIN
 
 END purge_block;
 
--- ============================================================================
--- Season-rollover blanket wipe
--- ----------------------------------------------------------------------------
--- At a WoW season rollover the whole raw + derived dataset is cleared to reclaim
--- storage. Coordination is a two-actor handshake so this never fights the
--- collector or the nightly pipeline:
---   * CI (archive-gated + manual approval) raises `wipe_control.request_season`.
---   * The always-on collector sees request > done, pauses its writers and sets
---     `collector_paused = 1` once its in-flight work has drained.
---   * `ev_season_wipe` runs only when a request is pending AND the collector has
---     acked the pause AND it can take GET_LOCK('agg_pipeline') (the same lock the
---     nightly pipeline / member purge use) — then CALL sp_season_wipe() and mark
---     the request done, which lets the collector resume and re-collect the new
---     season from scratch.
--- The wipe keys off the CI-supplied season id (seasonInfo.json), NOT
--- MAX(runs.season), because the collector flips runs.season before the archive
--- branch flips; see the plan/notes for the timing hazard this avoids.
--- ============================================================================
-
-CREATE TABLE IF NOT EXISTS `Mythistone`.`wipe_control` (
-  id                TINYINT      NOT NULL DEFAULT 1,   -- single-row guard
-  request_season    INT          NOT NULL DEFAULT 0,   -- CI: clear everything for the boundary INTO this season
-  done_season       INT          NOT NULL DEFAULT 0,   -- event: last season boundary already cleared
-  collector_paused  TINYINT      NOT NULL DEFAULT 0,   -- collector ack: 1 = writers quiesced
-  collector_beat    BIGINT       NOT NULL DEFAULT 0,   -- collector heartbeat (unix ms) for observability/failsafe
-  requested_at      BIGINT       NOT NULL DEFAULT 0,   -- when CI raised the request (unix ms)
-  PRIMARY KEY (id),
-  CONSTRAINT chk_wipe_control_single_row CHECK (id = 1)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-INSERT IGNORE INTO `Mythistone`.`wipe_control` (id) VALUES (1);
-
-CREATE DEFINER=`Test`@`%` PROCEDURE `Mythistone`.`sp_truncate_with_retry`(IN p_table VARCHAR(128))
-BEGIN
-  -- TRUNCATE needs an EXCLUSIVE metadata lock, and an MDL wait is governed by
-  -- lock_wait_timeout (default 31536000 = one YEAR), not innodb_lock_wait_timeout.
-  -- Without an explicit budget, one session sitting idle in a transaction that
-  -- touched the table blocks the wipe effectively forever -- while the caller
-  -- holds GET_LOCK('agg_pipeline'), which would also stall the nightly pipeline
-  -- and the member purge with no error ever raised. So: escalate the budget, log
-  -- the blocker, then kill idle holders, exactly as sp_swap_public_table does for
-  -- its RENAME. A table that vanished mid-wipe (a shadow table renamed away by a
-  -- concurrent swap) is not an error -- there is nothing left to clear.
-  DECLARE v_attempt      INT DEFAULT 0;
-  DECLARE v_max_attempts INT DEFAULT 4;
-  DECLARE v_kill_after   INT DEFAULT 2;
-  DECLARE v_done         INT DEFAULT 0;
-  DECLARE v_errno        INT DEFAULT 0;
-
-  trunc_scope: BEGIN
-    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
-    BEGIN
-      GET DIAGNOSTICS CONDITION 1 v_errno = MYSQL_ERRNO;
-    END;
-
-    WHILE v_done = 0 AND v_attempt < v_max_attempts DO
-      SET v_attempt = v_attempt + 1;
-      SET v_errno   = 0;
-      SET SESSION lock_wait_timeout = LEAST(30 * v_attempt, 120);
-
-      SET @trunc_sql = CONCAT('TRUNCATE TABLE `Mythistone`.`', p_table, '`');
-      PREPARE trunc_stmt FROM @trunc_sql;
-      EXECUTE trunc_stmt;
-      DEALLOCATE PREPARE trunc_stmt;
-
-      IF v_errno = 0 THEN
-        SET v_done = 1;                                  -- cleared
-      ELSEIF v_errno = 1205 THEN
-        CALL sp_capture_lock_holders('season_wipe', p_table);
-        IF v_attempt >= v_kill_after THEN
-          CALL sp_kill_lock_holders(p_table);            -- last resort: idle holders only
-        END IF;
-        DO SLEEP(5);
-      ELSEIF v_errno IN (1146, 1051, 1243) THEN
-        SET v_done  = 1;                                 -- table is gone; nothing to clear
-        SET v_errno = 0;
-      ELSE
-        SET v_done = 1;                                  -- non-retryable
-      END IF;
-    END WHILE;
-  END trunc_scope;
-
-  -- Surface an unresolved lock timeout to the caller. The event's EXIT HANDLER
-  -- then releases agg_pipeline and leaves request_season raised, so the next tick
-  -- retries -- far better than blocking forever holding the shared lock.
-  IF v_errno = 1205 THEN
-    SET @wipe_err = CONCAT('season wipe: could not get an exclusive lock on ', p_table);
-    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @wipe_err;
-  END IF;
-END;
-
--- Blanket clear. Raw tables are truncated by explicit name; every derived table is
--- swept by prefix (aggregated_%, global_aggregated_%, simc_bis_%, top_player_%) so
--- the ~40 derived tables — including aggregated_top_items, which is created
--- out-of-band and so is not listed in this file — are all covered. No static /
--- reference table (dungeon_data, season_periods, slot_group_map, bloodlust_spells,
--- crafted_item_ids, embellishments, missives, tier_set_items) nor any control/log
--- table (summary_meta, wipe_control, agg_pipeline_log, agg_lock_diag) matches those
--- prefixes, so they are preserved. If a future reference table starts with one of
--- these prefixes, add an explicit exclusion to the cursor's WHERE.
---
--- Not atomic: TRUNCATE implicitly commits, so a failure part-way leaves a
--- half-cleared DB. That is deliberate — the caller leaves request_season raised,
--- so the next tick re-runs and truncating an already-empty table is a no-op.
-CREATE DEFINER=`Test`@`%` PROCEDURE `Mythistone`.`sp_season_wipe`()
-BEGIN
-  DECLARE v_done INT DEFAULT 0;
-  DECLARE v_tname VARCHAR(128);
-  -- `_new` / `_old` are sp_swap_public_table's shadow tables. They match the
-  -- prefixes but are owned by the swap, so leave them alone rather than racing it;
-  -- sp_truncate_with_retry tolerates one disappearing anyway.
-  DECLARE cur CURSOR FOR
-    SELECT table_name
-    FROM information_schema.tables
-    WHERE table_schema = 'Mythistone'
-      AND table_type = 'BASE TABLE'
-      AND ( table_name LIKE 'aggregated\_%'
-         OR table_name LIKE 'global\_aggregated\_%'
-         OR table_name LIKE 'simc\_bis\_%'
-         OR table_name LIKE 'top\_player\_%' )
-      AND table_name NOT LIKE '%\_new'
-      AND table_name NOT LIKE '%\_old';
-  DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = 1;
-
-  SET FOREIGN_KEY_CHECKS = 0;
-
-  -- raw tables (explicit)
-  CALL `Mythistone`.`sp_truncate_with_retry`('runs');
-  CALL `Mythistone`.`sp_truncate_with_retry`('run_members');
-  CALL `Mythistone`.`sp_truncate_with_retry`('members');
-  CALL `Mythistone`.`sp_truncate_with_retry`('equipment');
-  CALL `Mythistone`.`sp_truncate_with_retry`('sockets');
-  CALL `Mythistone`.`sp_truncate_with_retry`('enchantments');
-  CALL `Mythistone`.`sp_truncate_with_retry`('bonus_ids');
-  CALL `Mythistone`.`sp_truncate_with_retry`('character_stats');
-  CALL `Mythistone`.`sp_truncate_with_retry`('class_talents');
-  CALL `Mythistone`.`sp_truncate_with_retry`('hero_talents');
-  CALL `Mythistone`.`sp_truncate_with_retry`('spec_talents');
-  CALL `Mythistone`.`sp_truncate_with_retry`('route_data');
-  CALL `Mythistone`.`sp_truncate_with_retry`('route_pulls');
-  CALL `Mythistone`.`sp_truncate_with_retry`('route_specs');
-  CALL `Mythistone`.`sp_truncate_with_retry`('pull_enemies');
-  CALL `Mythistone`.`sp_truncate_with_retry`('pull_spells');
-  -- trend bar snapshots are period-keyed and season-specific; last season's
-  -- weeks are meaningless once the raw data is gone, so clear them too.
-  CALL `Mythistone`.`sp_truncate_with_retry`('trend_snapshot');
-
-  -- derived tables (by prefix)
-  OPEN cur;
-  wipe_loop: LOOP
-    FETCH cur INTO v_tname;
-    IF v_done = 1 THEN
-      LEAVE wipe_loop;
-    END IF;
-    CALL `Mythistone`.`sp_truncate_with_retry`(v_tname);
-  END LOOP wipe_loop;
-  CLOSE cur;
-
-  SET FOREIGN_KEY_CHECKS = 1;
-
-  -- reset moving-pointer watermarks so the purge events / top-items rollup
-  -- recompute cleanly against the now-empty tables
-  UPDATE `Mythistone`.`summary_meta`
-    SET last_run_id = 0
-  WHERE name IN ('purge_member_pointer', 'purge_routes_pointer', 'aggregated_top_items');
-END;
-
 CREATE EVENT ev_season_wipe
 ON SCHEDULE EVERY 10 MINUTE
+STARTS '2026-08-07 14:10:04.000'
 ON COMPLETION PRESERVE
 ENABLE
 COMMENT 'Blanket season-rollover clear; runs only when CI raised a request and the collector has paused'
