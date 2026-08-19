@@ -35,6 +35,41 @@ from image_generation.pil_helpers import (
 )
 
 
+def _load_panel_icon(
+    icon,
+    size,
+    *,
+    spec_id,
+    panel_label,
+    entry_name,
+    entry_id=None,
+    spell_id=None,
+):
+    """Open a bottom-panel icon, failing loudly when it is empty or missing.
+
+    An empty ``icon`` comes from static talent data that shipped without one
+    (e.g. Raidbots omitting the icon for a talent). Rather than silently skip an
+    iconless entry and let it reach a finished page, raise so the build stops
+    with a message naming the exact offender (spec, panel, talent, spell).
+    """
+    who_parts = [f"spec {spec_id}", f"panel '{panel_label}'", f"entry '{entry_name}'"]
+    ids = []
+    if entry_id is not None:
+        ids.append(f"id {entry_id}")
+    if spell_id:
+        ids.append(f"spellId {spell_id}")
+    if ids:
+        who_parts.append("(" + ", ".join(ids) + ")")
+    who = " ".join(who_parts)
+
+    if not icon:
+        raise ValueError(f"{who} has an empty icon")
+    path = os.path.join(config.ICON_DIR, f"{icon}.png")
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"{who} icon file is missing: {path}")
+    return Image.open(path).convert("RGBA").resize((size, size), LANCZOS)
+
+
 def createSpecOverviewImg(
     tmpdir,
     out_path,
@@ -676,6 +711,7 @@ def createSpecOverviewImg(
                     "pick_rate": pick_rate,
                     "icon": tl.get("icon"),
                     "name": tl.get("name", f"Talent {t['talent_id']}"),
+                    "spellId": tl.get("spellId"),
                 }
             )
     # sort by pick_rate
@@ -827,10 +863,14 @@ def createSpecOverviewImg(
 
         # best block
         for t in best:
-            img = (
-                Image.open(os.path.join(config.ICON_DIR, f"{t['icon']}.png"))
-                .convert("RGBA")
-                .resize((icon_sz, icon_sz), LANCZOS)
+            img = _load_panel_icon(
+                t.get("icon"),
+                icon_sz,
+                spec_id=spec_id,
+                panel_label=label,
+                entry_name=t["name"],
+                entry_id=t.get("id"),
+                spell_id=t.get("spellId"),
             )
             canvas.paste(img, (x + pad, y), img)
             name = t["name"] if len(t["name"]) < 40 else t["name"][:17] + "..."
@@ -853,10 +893,14 @@ def createSpecOverviewImg(
 
         # worst block
         for t in worst:
-            img = (
-                Image.open(os.path.join(config.ICON_DIR, f"{t['icon']}.png"))
-                .convert("RGBA")
-                .resize((icon_sz, icon_sz), LANCZOS)
+            img = _load_panel_icon(
+                t.get("icon"),
+                icon_sz,
+                spec_id=spec_id,
+                panel_label=label,
+                entry_name=t["name"],
+                entry_id=t.get("id"),
+                spell_id=t.get("spellId"),
             )
             canvas.paste(img, (x + pad, y), img)
             name = t["name"] if len(t["name"]) < 40 else t["name"][:17] + "..."

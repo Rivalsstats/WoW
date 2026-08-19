@@ -62,6 +62,13 @@ jobs:
         run: |
           python backend_scripts/downloadItemIcons.py
 
+      - name: Backfill missing talent icons
+        env:
+          BLIZ_CLIENT_ID:     ${{ secrets.BLIZ_CLIENT_ID }}
+          BLIZ_CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
+        run: |
+          python backend_scripts/backfillTalentIcons.py
+
       - name: Process Talents
         run: |
           python backend_scripts/processTalents.py

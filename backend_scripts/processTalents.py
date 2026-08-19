@@ -86,19 +86,29 @@ def build_lookup(talents_data):
                 for entry in node.get("entries", []):
                     # Avoid overwriting if duplicate across node types
                     if node_id not in mapping["talents"]:
-                        mapping["talents"][node_id] = {
-                            "name": entry.get("name", node.get("name")),
-                            "icon": entry.get("icon", node.get("icon", "")),
-                            "spellId": entry.get("spellId", node.get("spellId", 0)),
-                        }
-                    
+                        node_icon = entry.get("icon", node.get("icon", ""))
+                        node_spell = entry.get("spellId", node.get("spellId", 0))
+                        # Drop nameless selection placeholders that carry neither an
+                        # icon nor a spell (e.g. the hero-tree selection stubs). They
+                        # never render in the talent display and would only produce a
+                        # broken data/icons/.png lookup in the spec overview image.
+                        if node_icon or node_spell:
+                            mapping["talents"][node_id] = {
+                                "name": entry.get("name", node.get("name")),
+                                "icon": node_icon,
+                                "spellId": node_spell,
+                            }
+
                     e_id = entry.get("definitionId")
                     if e_id and e_id not in mapping["talents"]:
-                        mapping["talents"][e_id] = {
-                            "name": entry.get("name", ""),
-                            "icon": entry.get("icon", ""),
-                            "spellId": entry.get("spellId", 0),
-                        }
+                        e_icon = entry.get("icon", "")
+                        e_spell = entry.get("spellId", 0)
+                        if e_icon or e_spell:
+                            mapping["talents"][e_id] = {
+                                "name": entry.get("name", ""),
+                                "icon": e_icon,
+                                "spellId": e_spell,
+                            }
                         
         for subtree in spec.get("subTreeNodes", []):
             for entry in subtree.get("entries", []):
