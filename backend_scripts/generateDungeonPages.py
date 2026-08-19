@@ -309,7 +309,33 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                 # Only throw a validation error if there is actually lust data available
                 if lust_timeline and len(lust_timeline) > 0 and not has_boss_lust:
                     raise RuntimeError(f"Dungeon {dungeon_data['name']['en_US']} ({dungeon_id}) has no lust pull marked as a boss. This indicates missing boss NPC data in data/boss_npcs.json.")
-                
+
+                # Every NPC in a "Most Lusted Pulls" composition must resolve to a name via
+                # npcs.json, otherwise the template silently renders the raw id (e.g. 261552).
+                # A miss means npcs.json is stale relative to the seeded/collected pull_enemies
+                # ids: fail loudly here rather than shipping a page full of bare numbers.
+                npc_names = npcs_lookup.get('en_US', {})
+                missing_npc_ids = set()
+                for pull in lust_timeline:
+                    top_npcs_str = pull.get('top_npcs', '')
+                    if top_npcs_str:
+                        for n in str(top_npcs_str).split(','):
+                            n = n.strip()
+                            if n and n not in npc_names:
+                                missing_npc_ids.add(n)
+                if missing_npc_ids:
+                    raise RuntimeError(
+                        f"NPC name lookup is out of date: dungeon '{dungeon_data['name']['en_US']}' "
+                        f"({dungeon_id}) has 'Most Lusted Pulls' NPC(s) with no entry in "
+                        f"data/static/npcs.json, so the page would render bare ids instead of names: "
+                        f"{sorted(int(n) for n in missing_npc_ids)}. "
+                        f"data/static/npcs.json only covers the NPC ids known at its last refresh and "
+                        f"is now behind the current pull_enemies data. "
+                        f"Fix: run 'python backend_scripts/fetchNpcInfo.py' (with the DATABASE_* env "
+                        f"vars pointing at the DB holding these ids) to rebuild npcs.json, then "
+                        f"re-run this generator."
+                    )
+
                 # Fetch Overall Stats
                 d_id_str = str(dungeon_id)
                 overall_stats = dungeon_runs_lookup.get(d_id_str, {})

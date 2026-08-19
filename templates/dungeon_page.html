@@ -572,6 +572,7 @@
                                 without hurting the comp.
                             </p>
                             <div class="p-0">
+                                {% if team_comp_families %}
                                 <table id="popular-comps-table" class="table align-items-center mb-0 w-100">
                                     <thead>
                                         <tr>
@@ -607,13 +608,12 @@
                                                     "{:,}".format(fam.runs) }}</span>
                                             </td>
                                         </tr>
-                                        {% else %}
-                                        <tr>
-                                            <td colspan="4" class="text-center text-sm p-3">No comps logged yet.</td>
-                                        </tr>
                                         {% endfor %}
                                     </tbody>
                                 </table>
+                                {% else %}
+                                <p class="text-center text-sm text-secondary p-3 mb-0">No comps logged yet.</p>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -724,6 +724,7 @@
                         </div>
                         <div class="card-body px-0 pb-2">
                             <div class="p-0 custom-scrollbar" style="max-height: 320px; overflow-y: auto; overflow-x: hidden;">
+                                {% if skip_rates %}
                                 <table id="skip-npcs-table" class="table align-items-center mb-0 w-100">
                                     <thead class="sticky-top" style="z-index: 10; background-color: var(--mythi-surface-raised);">
                                         <tr>
@@ -795,19 +796,17 @@
                                                 {% endif %}
                                             </td>
                                         </tr>
-                                        {% else %}
-                                        <tr>
-                                            <td colspan="4" class="text-center py-4">
-                                                yet.</td>
-                                        </tr>
                                         {% endfor %}
                                     </tbody>
                                 </table>
+                                {% else %}
+                                <p class="text-center text-sm text-secondary p-3 mb-0">No skip data yet.</p>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Keystone Success Rates Chart -->
                 <div class="col-lg-6 col-md-12 mb-4">
                     <div class="card h-100" id="dungeon-success-rate" data-share>
