@@ -109,32 +109,13 @@ template uses.
 When you finish a task that produced newly gained durable knowledge or important findings
 (non-obvious mechanics, cross-file coupling, gotchas, corrected assumptions), **ask the user for
 permission to record it** — as the **last line of your final message** for that task. Do not record
-first and ask later, and do not record silently: the user decides. Only once they agree, store it as
-a narrow skill under `.claude/skills/` (one gotcha per skill; update an existing skill rather than
-duplicating it) or a section of this file. Never use a tool's private auto-memory — it does not
-transfer across machines or tools; only in-repo notes do.
+first and ask later, and do not record silently: the user decides. Store agreed knowledge as a narrow
+skill under `.claude/skills/` or a section of this file. Never use a tool's private auto-memory — it
+does not transfer across machines or tools; only in-repo notes do.
 
-- **Phrase the ask as a short recap of what is worth recording, then the question.** Briefly name
-  what you found, confirmed, or changed so the user can judge, then ask. For example:
-
-  > While working this task I found that X and Y, we confirmed Z, and changed Z2. Would you like me
-  > to record this knowledge in the knowledgebase?
-
-- **State only the current truth, never history.** Skills and this file describe how the project
-  works *right now* and what caveats exist *right now*. Do not write "this used to work like X and we
-  changed it to Y", changelog entries, migration notes, or dated "verified/changed on <date>" lines.
-  When something changes, edit the affected notes so they read as if the new behavior was always the
-  behavior, and delete any prose that only existed to contrast against the old way.
-- **No line-number references.** Never anchor a note to a line ("around line 182", "line 20"). Lines
-  shift and the reference rots into noise. Identify code by stable names instead: file, function,
-  proc, SQL constant, class, or CSS selector.
-- **Skip the ask entirely when there is nothing new to record:** planning-only work that changed
-  nothing, or a bug / wrong behavior whose mechanics are **already documented** in the knowledgebase.
-- **Gauge "new" against the knowledgebase, not the code.** Something is worth offering to record when
-  the knowledgebase (this file + the skills) does not already capture it — *not* merely when it is
-  absent from the repo/code. The knowledgebase was freshly initialized and much of the codebase is
-  still undocumented; we build it up incrementally, one task at a time, so a finding being derivable
-  from the code is not a reason to skip it if the knowledgebase does not yet capture it.
+See the `knowledgebase-authoring` skill for the full protocol: when to skip the ask, how to gauge
+"new" against the knowledgebase, and the writing rules (present-tense only, no history/dates, no
+line-number references).
 
 ## Verifying page work
 
