@@ -1,6 +1,7 @@
 import os
 import glob
 import json
+import asyncio
 import argparse
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
@@ -18,6 +19,7 @@ from pageGeneration import (
 )
 from generateSpecPages import format_duration, format_utc_timestamp, format_iso_timestamp, load_json, load_season_info, upgrade_info
 from generateItemPages import slot_for_item
+from fetchNpcInfo import get_npc_names_retail
 from image_generation.dungeon_overview import createDungeonOverviewImg, fetch_route_thumbnail
 
 LOOKUP_DIR = "data/static"
@@ -86,6 +88,91 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
         os.path.basename(p)[len("npc_"):-len(".png")]
         for p in glob.glob(os.path.join("data", "icons", "npc_*.png"))
     }
+
+    # npcs.json and the npc icons are refreshed only by the weekly static-data run,
+    # which keys off the npc ids recorded in the DB's pulls. In the first week of a
+    # season that run can fire before the collector has recorded a dungeon's routes,
+    # leaving the ids the page references with no name (a hard crash) and no portrait
+    # (a silent text fallback). Rather than wait for the next weekly run, self-heal on
+    # demand: fetch the live Wowhead name dataset / MDT display map once and backfill.
+    npcs_path = os.path.join(LOOKUP_DIR, "npcs.json")
+    npc_name_cache = {"loaded": False, "data": {}}
+    # MDT npc_id->displayId map + the persisted display-id record, both loaded lazily
+    # on the first icon self-heal (the fetchNpcIcons pipeline is only imported then, so
+    # the generator does not hard-depend on aiohttp/Pillow unless a heal is needed).
+    npc_icon_cache = {"loaded": False, "display_map": {}, "prev": {}, "mod": None}
+
+    def resolve_missing_npc_names(missing_ids):
+        """Resolve npc ids absent from npcs.json against the live Wowhead dataset,
+        persist them into npcs_lookup / npcs.json, and return the ids still unresolved."""
+        if not missing_ids:
+            return set()
+        if not npc_name_cache["loaded"]:
+            try:
+                npc_name_cache["data"] = get_npc_names_retail()
+            except Exception as e:
+                print(f"  WARNING: could not fetch live NPC names to self-heal npcs.json: {e}")
+                npc_name_cache["data"] = {}
+            npc_name_cache["loaded"] = True
+
+        resolved = set()
+        changed = False
+        for locale, id_map in npc_name_cache["data"].items():
+            dest = npcs_lookup.setdefault(locale, {})
+            for nid in missing_ids:
+                if str(nid) in dest:
+                    continue
+                name = id_map.get(int(nid))
+                if name is not None:
+                    dest[str(nid)] = str(name)
+                    changed = True
+                    resolved.add(nid)
+        if changed:
+            with open(npcs_path, "w", encoding="utf-8") as f:
+                json.dump(npcs_lookup, f, indent=2, ensure_ascii=False)
+            print(f"  Self-healed npcs.json with {len(resolved)} newly-resolved npc name(s).")
+        return set(missing_ids) - resolved
+
+    def resolve_missing_npc_icons(missing_ids, icon_set):
+        """Download portraits for referenced npc ids that have no icon yet, reusing the
+        fetchNpcIcons pipeline (MDT displayId map -> Wowhead webthumb). Adds any id whose
+        file now exists to icon_set (mutated in place) so the template renders it."""
+        if not missing_ids:
+            return
+        if not npc_icon_cache["loaded"]:
+            npc_icon_cache["loaded"] = True
+            try:
+                import fetchNpcIcons as _icons
+                npc_icon_cache["mod"] = _icons
+                npc_icon_cache["display_map"] = _icons.build_display_map(None)
+                npc_icon_cache["prev"] = _icons.load_json(_icons.DISPLAY_IDS_PATH, {})
+            except Exception as e:
+                print(f"  WARNING: could not load MDT display map to self-heal npc icons: {e}")
+                npc_icon_cache["mod"] = None
+
+        icons = npc_icon_cache["mod"]
+        if icons is None:
+            return
+        display_map = npc_icon_cache["display_map"]
+        prev = npc_icon_cache["prev"]
+        subset = {nid: display_map[nid] for nid in missing_ids if nid in display_map}
+        if not subset:
+            return
+        try:
+            asyncio.run(icons.download_images(subset, prev))
+        except Exception as e:
+            print(f"  WARNING: npc icon download failed during self-heal: {e}")
+            return
+
+        healed = 0
+        for nid, display_id in subset.items():
+            if os.path.exists(os.path.join("data", "icons", f"npc_{nid}.png")):
+                icon_set.add(str(nid))
+                prev[nid] = display_id
+                healed += 1
+        if healed:
+            icons.save_display_ids(prev)
+            print(f"  Self-healed {healed} newly-downloaded npc icon(s).")
 
     # Item metadata (from Raidbots) drives the "Best Loot" card: name/icon/ilvl/slot
     # plus the "sources" array that says which dungeon each item drops in.
@@ -318,27 +405,48 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                 if lust_timeline and len(lust_timeline) > 0 and not has_boss_lust:
                     raise RuntimeError(f"Dungeon {dungeon_data['name']['en_US']} ({dungeon_id}) has no lust pull marked as a boss. This indicates missing boss NPC data in data/boss_npcs.json.")
 
-                # Every NPC in a "Most Lusted Pulls" composition must resolve to a name via
-                # npcs.json, otherwise the template silently renders the raw id (e.g. 261552).
-                # A miss means npcs.json is stale relative to the seeded/collected pull_enemies
-                # ids: fail loudly here rather than shipping a page full of bare numbers.
+                # Every NPC the page shows (the "Most Lusted Pulls" compositions and the
+                # "Least Played NPCs" skip table) needs a name via npcs.json (else the template
+                # renders the raw id / "Unknown NPC") and, ideally, a portrait icon. A miss
+                # usually means npcs.json / the icon set is stale relative to the collected
+                # pull_enemies ids (the week-1-of-season race, see resolve_missing_* above), so
+                # self-heal both on demand instead of shipping a broken page or waiting a week.
                 npc_names = npcs_lookup.get('en_US', {})
-                missing_npc_ids = set()
+                referenced_npc_ids = set()
                 for pull in lust_timeline:
                     top_npcs_str = pull.get('top_npcs', '')
                     if top_npcs_str:
                         for n in str(top_npcs_str).split(','):
                             n = n.strip()
-                            if n and n not in npc_names:
-                                missing_npc_ids.add(n)
-                if missing_npc_ids:
-                    raise ValueError(
-                        f"NPC name lookup is out of date: dungeon '{dungeon_data['name']['en_US']}' "
-                        f"({dungeon_id}) has 'Most Lusted Pulls' NPC(s) with no entry in "
-                        f"data/static/npcs.json, so the page would render bare ids instead of names: "
-                        f"{sorted(int(n) for n in missing_npc_ids)}. "
-                        f"Fix: run 'python backend_scripts/fetchNpcInfo.py' first before running this generator."
-                    )
+                            if n:
+                                referenced_npc_ids.add(n)
+                for skip in skip_rates:
+                    n = str(skip.get('npc_id', '')).strip()
+                    if n:
+                        referenced_npc_ids.add(n)
+
+                missing_name_ids = {n for n in referenced_npc_ids if n not in npc_names}
+                if missing_name_ids:
+                    still_missing = resolve_missing_npc_names(missing_name_ids)
+                    if still_missing:
+                        # On-demand self-heal already ran against the live Wowhead
+                        # npc-names dataset and these ids are still unknown, so this is a
+                        # genuine data gap (not the week-1 ordering race): the ids exist in
+                        # collected pulls but neither npcs.json nor the live dataset knows
+                        # them. Fail loudly rather than render bare numeric ids.
+                        raise ValueError(
+                            f"dungeon '{dungeon_data['name']['en_US']}' ({dungeon_id}) "
+                            f"references NPC id(s) with no name in npcs.json or the live "
+                            f"Wowhead npc-names dataset even after on-demand self-heal was "
+                            f"attempted: {sorted(int(n) for n in still_missing)}. These ids "
+                            f"come from collected pulls but are unknown to Wowhead, so this "
+                            f"is a genuine data gap, not the week-1 ordering race "
+                            f"(re-running fetchNpcInfo.py will not fix it)."
+                        )
+
+                missing_icon_ids = {n for n in referenced_npc_ids if n not in npc_icons}
+                if missing_icon_ids:
+                    resolve_missing_npc_icons(missing_icon_ids, npc_icons)
 
                 # Fetch Overall Stats
                 d_id_str = str(dungeon_id)

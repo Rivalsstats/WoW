@@ -110,8 +110,12 @@ def mdt_lua_urls():
     return [RAW_URL.format(repo=MDT_REPO, branch=MDT_BRANCH, path=p) for p in lua_paths]
 
 
-def build_display_map(npc_id_set):
-    """npc_id -> displayId for the npcs we render, harvested from MDT dungeon files."""
+def build_display_map(npc_id_set=None):
+    """npc_id -> displayId harvested from MDT dungeon files.
+
+    Pass an npc_id_set to keep only those npcs; pass None to return the full map
+    (used by on-demand callers that filter afterwards).
+    """
     result = {}
     session = requests.Session()
     session.headers.update({"User-Agent": "mythistone-npc-icons"})
@@ -119,7 +123,7 @@ def build_display_map(npc_id_set):
         resp = session.get(url, timeout=60)
         resp.raise_for_status()
         for npc_id, display_id in parse_lua(resp.text).items():
-            if npc_id in npc_id_set:
+            if npc_id_set is None or npc_id in npc_id_set:
                 result[npc_id] = display_id
     return result
 

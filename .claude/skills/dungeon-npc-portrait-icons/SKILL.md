@@ -63,4 +63,24 @@ for that set) → commit `data/`. Locally the seeder samples skip/pull npc_ids f
 match the npc_ids on the page and it looks icon-less (a red herring that is NOT the source
 being wrong).
 
+## On-demand self-heal in the dungeon generator
+`npcs.json` and the icons are refreshed only by the weekly `getStaticData.yml`, keyed off the
+npc ids the DB has recorded in pulls. In week 1 of a season that weekly run can fire before the
+collector has recorded any routes, so it writes an empty/partial set — then the daily page build
+references ids that have no name (which used to be a hard `ValueError`) or no icon. So
+`generateDungeonPages.py` self-heals per dungeon: for the ids the Most Lusted / Least Played cards
+reference, it fetches missing names from the live Wowhead `npc-names` dataset (rewriting
+`npcs.json`) and missing portraits via the `fetchNpcIcons` pipeline (`build_display_map(None)` →
+webthumb), adding them to the in-memory icon set. Both are gated on a missing set, so in steady
+state (populated `npcs.json` + present icons) neither fires and there is zero extra network. It
+imports `fetchNpcIcons` lazily and needs `aiohttp` in the build env (added to `buildPages.yml`).
+
+Name and icon self-heal diverge on failure. A name id that is STILL unresolved after the
+on-demand fetch (absent from both `npcs.json` and the live Wowhead npc-names dataset) is a genuine
+data gap, not the week-1 race, so the generator hard-fails the build with a `ValueError` naming the
+dungeon and the unresolved ids — self-heal removes the ordering race, it does not mask genuinely
+missing data. Icons degrade gracefully: a still-missing icon falls back to text and never fails the
+build. Self-heal does NOT remove the local-test order above: running the two fetchers after seeding
+is still the fast, offline-friendly path.
+
 Related: [[keystone-guru-mapping-data]].

@@ -6,15 +6,6 @@ import json
 from contextlib import closing
 import databaseConnector
 
-databaseConnector.init_connection_pool(
-    os.environ.get("DATABASE_HOST"),
-    os.environ.get("DATABASE_USER"),
-    os.environ.get("DATABASE_PASSWORD"),
-    os.environ.get("DATABASE_NAME"),
-    os.environ.get("DATABASE_PORT"),
-    1,
-)
-
 
 def get_npc_names_retail(timeout: int = 10) -> Dict[str, Dict[int, str]]:
     """
@@ -117,6 +108,14 @@ def save_npc_names_for_db_ids(connection, cursor):
 
 
 if __name__ == "__main__":
+    databaseConnector.init_connection_pool(
+        os.environ.get("DATABASE_HOST"),
+        os.environ.get("DATABASE_USER"),
+        os.environ.get("DATABASE_PASSWORD"),
+        os.environ.get("DATABASE_NAME"),
+        os.environ.get("DATABASE_PORT"),
+        1,
+    )
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()
         print("fetching data..")
