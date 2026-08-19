@@ -38,6 +38,15 @@ jobs:
           pip install --upgrade pip
           pip install openai Pillow matplotlib pandas jinja2 mysql-connector-python requests
 
+      # Checked out BEFORE generation: socials.json (the text records) lives on
+      # this branch alongside the images, so the pipeline reads and updates it
+      # there instead of in the main repo.
+      - name: Checkout social-images branch
+        uses: actions/checkout@v4
+        with:
+          ref: social-images
+          path: social-images
+
       - name: Generate M+ social post
         id: gen_social
         env:
@@ -50,12 +59,13 @@ jobs:
           KEYSTONE_GURU_SECRET: ${{ secrets.KEYSTONE_GURU_SECRET }}
           KEYSTONE_GURU_PW: ${{ secrets.KEYSTONE_GURU_PW }}
         # we run your create_socials_post entrypoint, which should:
-        #  - read data/socials.json
+        #  - read + update social-images/socials.json (the text records)
         #  - write a JSON dict {"out_path": "...png", "post": "…"} to stdout
         run: |
           python -u backend_scripts/generateSocialsPost.py \
             --api-key "${{ secrets.OPENROUTER_API_KEY }}" \
-            --url "https://mythistone.com/"
+            --url "https://mythistone.com/" \
+            --socials-file social-images/socials.json
 
           social_text=$(jq -r .post    "${{ env.OUTPUT_DIR }}/post.json")
           image_path=$(jq -r  .out_path "${{ env.OUTPUT_DIR }}/post.json")
@@ -74,13 +84,9 @@ jobs:
           echo "filename=$filename" >> $GITHUB_OUTPUT
 
 
-      - name: Checkout social-images branch
-        uses: actions/checkout@v4
-        with:
-          ref: social-images
-          path: social-images
-
-      - name: Commit image to social-images branch
+      # Commit the image AND the updated text records together onto the branch,
+      # keeping both halves of a post in one place and in sync.
+      - name: Commit image and socials.json to social-images branch
         run: |
           sudo apt-get update && sudo apt-get install -y pngquant
           image_path=$(jq -r .out_path "${{ env.OUTPUT_DIR }}/post.json")
@@ -91,15 +97,7 @@ jobs:
           cd social-images
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add "$filename"
-          git commit -m "chore: add social image $filename" || echo "no changes to commit"
-          git push
-
-      - name: Commit updated socials.json back to repo
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/socials.json
+          git add "$filename" socials.json
           git commit -m "chore: record socials for ${{ steps.get_time.outputs.start_date }}" || echo "no changes to commit"
           git push
 

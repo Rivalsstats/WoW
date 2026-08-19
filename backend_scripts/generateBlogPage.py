@@ -193,6 +193,12 @@ def main():
     )
     parser.add_argument("--output_dir", default="pages")
     parser.add_argument("--per_page", type=int, default=12)
+    parser.add_argument(
+        "--socials_file",
+        default=None,
+        help="explicit path to socials.json; defaults to <images_dir>/socials.json "
+        "then data/socials.json",
+    )
     args = parser.parse_args()
 
     env = Environment(
@@ -207,7 +213,14 @@ def main():
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
     notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
     dungeon_lookup = load_json(os.path.join(LOOKUP_DIR, "dungeons.json"))
-    raw_posts = load_json(os.path.join("data", "socials.json"))
+
+    # The text records live alongside the images on the social-images branch,
+    # checked out into --images_dir in CI. Read socials.json from there; fall
+    # back to the in-repo copy for local renders that pass no branch checkout.
+    socials_file = args.socials_file or os.path.join(args.images_dir, "socials.json")
+    if not os.path.exists(socials_file):
+        socials_file = os.path.join("data", "socials.json")
+    raw_posts = load_json(socials_file)
 
     # look in the requested dir first, then fall back to the local default so
     # running with the CI flag (--images_dir social-images) still finds

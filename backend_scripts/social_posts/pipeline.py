@@ -36,6 +36,10 @@ from social_posts.posts import (
     create_spec_popularity_vs_performance,
 )
 
+# Default location of the text records. In CI this is overridden with
+# --socials-file so the records live alongside the images on the social-images
+# branch (see .github/workflows/automatedSocialMediaPosts.yml); the local default
+# keeps debug/test posts self-contained in the repo.
 SOCIALS_FILE = os.path.join("data", "socials.json")
 POST_FILE = os.path.join(config.OUTPUT_DIR, "post.json")
 
@@ -287,6 +291,12 @@ def main():
         action="store_true",
         help="generate an offline test post (no DB, no Blizzard API, no OpenRouter) to preview on the blog page",
     )
+    p.add_argument(
+        "--socials-file",
+        default=SOCIALS_FILE,
+        help="path to the socials.json text records to read and update "
+        "(CI points this at the social-images branch checkout)",
+    )
     args = p.parse_args()
     if not args.debug and not args.api_key:
         p.error("--api-key is required unless --debug is set")
@@ -304,8 +314,9 @@ def main():
         )
     config.ensure_output_dir()
 
-    if os.path.exists(SOCIALS_FILE):
-        donesocials = load_json(SOCIALS_FILE)
+    socials_file = args.socials_file
+    if os.path.exists(socials_file):
+        donesocials = load_json(socials_file)
     else:
         donesocials = {}
     if args.debug:
@@ -317,7 +328,8 @@ def main():
     else:
         post = create_socials_post(donesocials, args.api_key, args.url)
     print(f"Generated post: {post}")
-    with open(SOCIALS_FILE, "w") as f:
+    os.makedirs(os.path.dirname(socials_file) or ".", exist_ok=True)
+    with open(socials_file, "w") as f:
         json.dump(donesocials, f, indent=4)
     with open(POST_FILE, "w") as f:
         json.dump(post, f, indent=4)
