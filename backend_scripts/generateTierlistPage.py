@@ -4,7 +4,7 @@ Ranks every simulated spec (DPS and tanks separately; healers are never
 simmed) by SimulationCraft DPS produced in the build pipeline's matrix sim jobs
 (see generateSimcProfiles.py + .github/workflows/buildPages.yml). Every spec is
 simmed in one batch on a single simc build at four target counts (1/3/5/8) in
-the LightMovement fight style — single-target fights run 3 minutes, multi-target
+the Patchwerk fight style — single-target fights run 3 minutes, multi-target
 fights (3/5/8) run 1 minute — in two gear sets:
 
   * ``popular``  — the spec-page baseline set (most-popular items/enchants/gems

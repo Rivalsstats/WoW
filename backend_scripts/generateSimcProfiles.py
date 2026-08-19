@@ -60,7 +60,7 @@ def tierlist_sim_options(target_error):
         "single_actor_batch=1",
         f"target_error={target_error}",
         "max_time=300",
-        "fight_style=LightMovement",
+        "fight_style=Patchwerk",
         "desired_targets=5",
         "report_details=0",
         "optimize_expressions=1",
