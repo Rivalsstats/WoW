@@ -1,4 +1,5 @@
 import os
+import glob
 import json
 import argparse
 from collections import defaultdict
@@ -78,6 +79,13 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
     season_info = load_season_info(LOOKUP_DIR)
     notifications = load_json(os.path.join(LOOKUP_DIR, "notifications.json"))
     npcs_lookup = load_json(os.path.join(LOOKUP_DIR, "npcs.json"))
+    # NPC model thumbnails downloaded by fetchNpcIcons.py -> data/icons/npc_<id>.png.
+    # Set of npc_id strings that actually have an icon file, so the template only
+    # renders <img> for npcs we have art for; the rest fall back to text.
+    npc_icons = {
+        os.path.basename(p)[len("npc_"):-len(".png")]
+        for p in glob.glob(os.path.join("data", "icons", "npc_*.png"))
+    }
 
     # Item metadata (from Raidbots) drives the "Best Loot" card: name/icon/ilvl/slot
     # plus the "sources" array that says which dungeon each item drops in.
@@ -365,6 +373,7 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                     bloodlust_spell_ids=bloodlust_spell_ids,
                     skip_rates=skip_rates,
                     npcs=npcs_lookup,
+                    npc_icons=npc_icons,
                     bosses=bosses_lookup.get(dungeon_id, []),
                     top_routes=top_routes,
                     team_comp_families=team_comp_families,

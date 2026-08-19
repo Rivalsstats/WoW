@@ -30,7 +30,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install pandas
-        run: pip install pandas requests aiohttp aiofiles aiolimiter mysql-connector-python
+        run: pip install pandas requests aiohttp aiofiles aiolimiter mysql-connector-python pillow
 
       - name: Create data directory
         run: mkdir -p data
@@ -121,6 +121,12 @@ jobs:
           DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
         run: |
           python backend_scripts/fetchNpcInfo.py
+
+      - name: Fetch npc icons
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python backend_scripts/fetchNpcIcons.py
 
       - name: Fetch spell data
         env:

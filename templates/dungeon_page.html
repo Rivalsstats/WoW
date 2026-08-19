@@ -481,10 +481,13 @@
                                                     {% set name = npcs.get('en_US', {}).get(n, n) %}
                                                     {% set is_boss = n|int in bosses %}
                                                     <li class="mb-1">
+                                                        {% if n in npc_icons %}
+                                                        <img src="/data/icons/npc_{{ n }}.png"
+                                                            alt="{{ name }}" class="me-1 img-fluid align-middle"
+                                                            style="width:30px;height:30px;object-fit:contain;"
+                                                            {% if is_boss %}data-wowhead="npc={{ n }}"{% else %}data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="right" data-bs-title="<img src='/data/icons/npc_{{ n }}.png' width='150'>"{% endif %}>
+                                                        {% endif %}
                                                         {% if is_boss %}
-                                                        <span
-                                                            class="material-symbols-rounded text-danger text-sm align-middle mb-1"
-                                                            style="font-size: 16px;">skull</span>
                                                         <a href="https://www.wowhead.com/npc={{ n }}"
                                                             class="text-warning font-weight-bolder align-middle"
                                                             target="_blank" data-wowhead="npc={{ n }}">{{ name }}</a>
@@ -745,10 +748,17 @@
                                         {% for skip in skip_rates[:15] %}
                                         <tr>
                                             <td>
-                                                <div class="d-flex px-2 py-1">
+                                                {% set npc_name = npcs.get('en_US', {}).get(skip.npc_id|string,
+                                                'Unknown NPC') %}
+                                                <div class="d-flex px-2 py-1 align-items-center">
+                                                    {% if skip.npc_id|string in npc_icons %}
+                                                    {% set skip_is_boss = skip.npc_id|int in bosses %}
+                                                    <img src="/data/icons/npc_{{ skip.npc_id }}.png"
+                                                        alt="{{ npc_name }}" class="me-2 img-fluid"
+                                                        style="width:44px;height:44px;object-fit:contain;"
+                                                        {% if skip_is_boss %}data-wowhead="npc={{ skip.npc_id }}"{% else %}data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="right" data-bs-title="<img src='/data/icons/npc_{{ skip.npc_id }}.png' width='150'>"{% endif %}>
+                                                    {% endif %}
                                                     <div>
-                                                        {% set npc_name = npcs.get('en_US', {}).get(skip.npc_id|string,
-                                                        'Unknown NPC') %}
                                                         <h6 class="mb-0 text-sm"><a
                                                                 href="https://www.wowhead.com/npc={{ skip.npc_id }}"
                                                                 class="text-body-emphasis" target="_blank"
