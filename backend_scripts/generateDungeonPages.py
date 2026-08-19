@@ -324,16 +324,12 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                             if n and n not in npc_names:
                                 missing_npc_ids.add(n)
                 if missing_npc_ids:
-                    raise RuntimeError(
+                    raise ValueError(
                         f"NPC name lookup is out of date: dungeon '{dungeon_data['name']['en_US']}' "
                         f"({dungeon_id}) has 'Most Lusted Pulls' NPC(s) with no entry in "
                         f"data/static/npcs.json, so the page would render bare ids instead of names: "
                         f"{sorted(int(n) for n in missing_npc_ids)}. "
-                        f"data/static/npcs.json only covers the NPC ids known at its last refresh and "
-                        f"is now behind the current pull_enemies data. "
-                        f"Fix: run 'python backend_scripts/fetchNpcInfo.py' (with the DATABASE_* env "
-                        f"vars pointing at the DB holding these ids) to rebuild npcs.json, then "
-                        f"re-run this generator."
+                        f"Fix: run 'python backend_scripts/fetchNpcInfo.py' first before running this generator."
                     )
 
                 # Fetch Overall Stats
