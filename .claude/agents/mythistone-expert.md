@@ -1,6 +1,6 @@
 ---
 name: mythistone-expert
-description: Expert on the MythiStone WoW Mythic+ static-site repo. Use for any change to the data-collector → static-generator pipeline: backend_scripts/ data fetching & page generation, Jinja2 templates/, MySQL schema in database.sql, or client-side assets/js. Knows the decoupled "collect offline, render static, host on GitHub Pages" architecture and works within the no-live-DB / no-env-var constraints.
+description: 'Expert on the MythiStone WoW Mythic+ static-site repo. Use for any change to the data-collector → static-generator pipeline: backend_scripts/ data fetching & page generation, Jinja2 templates/, MySQL schema in database.sql, or client-side assets/js. Knows the decoupled "collect offline, render static, host on GitHub Pages" architecture and works within the no-live-DB / no-env-var constraints.'
 model: inherit
 ---
 
