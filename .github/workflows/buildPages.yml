@@ -2,8 +2,11 @@ name: Build Jinja Pages
 
 on:
   schedule:
-    # TUE, THU, SAT, SUN
-    - cron: '0 8 * * MON,FRI' #skip wednesday as we run full update on wednesday
+    # Every day except Wed (Wed is covered by the getStaticData workflow_run).
+    # A cadence gate in resolve-season decides whether a given scheduled day
+    # actually builds, from days since the most recent content update
+    # (patches.json / season start). See backend_scripts/computeBuildPhase.py.
+    - cron: '0 8 * * SUN,MON,TUE,THU,FRI,SAT'
   push:
     paths:
       - 'templates/**'
@@ -72,6 +75,7 @@ jobs:
       season_info: ${{ steps.resolve.outputs.season_info }}
       is_override: ${{ steps.resolve.outputs.is_override }}
       has_data: ${{ steps.datacheck.outputs.has_data }}
+      should_build: ${{ steps.cadence.outputs.should_build }}
     steps:
       - name: Clone project
         uses: actions/checkout@v7
@@ -135,6 +139,16 @@ jobs:
           DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
         run: python backend_scripts/seasonHasData.py --season "${{ steps.resolve.outputs.season_id }}"
 
+      # Cadence gate: on a `schedule` run, decide whether today builds based on
+      # days since the most recent content update (season start or a .5/.7 patch).
+      # Non-schedule events (push / dispatch / the Wednesday workflow_run) always
+      # build. See backend_scripts/computeBuildPhase.py.
+      - name: Decide cadence (phase gate)
+        id: cadence
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+        run: python backend_scripts/computeBuildPhase.py
+
   # ----------------------------------------------------------------------
   # SimulationCraft tierlist sims (run on every trigger, in parallel with the
   # page build — they finish well before the pages do).
@@ -142,10 +156,11 @@ jobs:
   prepare-sims:
     needs: [resolve-season]
     # Skip the entire build when the season has no runs yet (pre-season gap /
-    # post-wipe). build-simc, simulate, buildPages, assemble and deploy all need
-    # prepare-sims (directly or transitively), so they cascade-skip and the run
-    # ends green without touching the live site.
-    if: ${{ needs.resolve-season.outputs.has_data == 'true' }}
+    # post-wipe) OR when the cadence gate skips this scheduled day (see
+    # computeBuildPhase.py). build-simc, simulate, buildPages, assemble and deploy
+    # all need prepare-sims (directly or transitively), so they cascade-skip and
+    # the run ends green without touching the live site.
+    if: ${{ needs.resolve-season.outputs.has_data == 'true' && needs.resolve-season.outputs.should_build == 'true' }}
     env:
       MYTHISTONE_SEASON_INFO: ${{ needs.resolve-season.outputs.season_info }}
     runs-on: ubuntu-latest
