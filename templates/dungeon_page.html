@@ -453,6 +453,7 @@
                         </div>
                         <div class="card-body px-0 pb-2">
                             <div class="p-0 custom-scrollbar" style="max-height: 435px; overflow-y: auto; overflow-x: hidden;">
+                                {% if lust_timeline %}
                                 <table id="lust-table" class="table align-items-center mb-0 w-100">
                                     <thead class="sticky-top" style="z-index: 10; background-color: var(--mythi-surface-raised);">
                                         <tr>
@@ -539,13 +540,11 @@
                                             </td>
                                         </tr>
                                         {% endfor %}
-                                        {% if lust_timeline | length == 0 %}
-                                        <tr>
-                                            <td colspan="4" class="text-center text-sm p-3">No lust data available.</td>
-                                        </tr>
-                                        {% endif %}
                                     </tbody>
                                 </table>
+                                {% else %}
+                                <p class="text-center text-sm text-secondary p-3 mb-0">No lust data available.</p>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
