@@ -1112,5 +1112,2715 @@
       "name": "Slayer",
       "icon": "talents-heroclass-warrior-slayer"
     }
+  },
+  "fullNodeOrder": [
+    90261,
+    90264,
+    90265,
+    90267,
+    90269,
+    90270,
+    90271,
+    90273,
+    90274,
+    90276,
+    90277,
+    90279,
+    90282,
+    90283,
+    90285,
+    90290,
+    90291,
+    90292,
+    90293,
+    90295,
+    90296,
+    90297,
+    90298,
+    90299,
+    90300,
+    90301,
+    90302,
+    90303,
+    90304,
+    90305,
+    90306,
+    90308,
+    90309,
+    90310,
+    90311,
+    90312,
+    90313,
+    90314,
+    90315,
+    90317,
+    90318,
+    90319,
+    90320,
+    90322,
+    90324,
+    90325,
+    90326,
+    90327,
+    90328,
+    90329,
+    90330,
+    90331,
+    90332,
+    90337,
+    90343,
+    90344,
+    90346,
+    90347,
+    90348,
+    90351,
+    90352,
+    90353,
+    90355,
+    90360,
+    90366,
+    90368,
+    90371,
+    90373,
+    90374,
+    90375,
+    90378,
+    90380,
+    90381,
+    90382,
+    90385,
+    90387,
+    90388,
+    90390,
+    90391,
+    90392,
+    90394,
+    90395,
+    90396,
+    90397,
+    90398,
+    90399,
+    90401,
+    90402,
+    90403,
+    90405,
+    90406,
+    90407,
+    90408,
+    90410,
+    90412,
+    90415,
+    90421,
+    90425,
+    90427,
+    90428,
+    90429,
+    90430,
+    90432,
+    90433,
+    90434,
+    90435,
+    90438,
+    90439,
+    90441,
+    90444,
+    90445,
+    90447,
+    90448,
+    90449,
+    90450,
+    90451,
+    92536,
+    92537,
+    92538,
+    92614,
+    92615,
+    94784,
+    94785,
+    94786,
+    94787,
+    94788,
+    94789,
+    94792,
+    94793,
+    94794,
+    94795,
+    94796,
+    94797,
+    94798,
+    94799,
+    94800,
+    94801,
+    94803,
+    94805,
+    94806,
+    94807,
+    94808,
+    94809,
+    94810,
+    94811,
+    94812,
+    94813,
+    94814,
+    94815,
+    94816,
+    94817,
+    94818,
+    94819,
+    94820,
+    95956,
+    95959,
+    99851,
+    99852,
+    99853,
+    107575,
+    107576,
+    107577,
+    107578,
+    107579,
+    108542,
+    108543,
+    108544,
+    108674,
+    108676,
+    108685,
+    108686,
+    108705,
+    109391,
+    109679,
+    109680,
+    109681,
+    109682,
+    109683,
+    109684,
+    109685,
+    109686,
+    109687,
+    109809,
+    109810,
+    109811,
+    109812,
+    109813,
+    109814,
+    109815,
+    109816,
+    109817,
+    109962,
+    109963,
+    109964,
+    109965,
+    109966,
+    109967,
+    109968,
+    109969,
+    110118,
+    110119,
+    110176,
+    110203,
+    110330,
+    110407,
+    110411,
+    110412,
+    110653,
+    110654
+  ],
+  "nodes": {
+    "90325": {
+      "name": "Berserker Stance",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": true,
+      "x": 2400,
+      "y": 900,
+      "next": [
+        90344,
+        90328
+      ],
+      "entries": [
+        {
+          "name": "Berserker Stance",
+          "icon": "ability_racial_avatar",
+          "spellId": 386196,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "92538": {
+      "name": "Defensive Stance",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": true,
+      "x": 4800,
+      "y": 900,
+      "next": [
+        90343,
+        90371
+      ],
+      "entries": [
+        {
+          "name": "Defensive Stance",
+          "icon": "ability_warrior_defensivestance",
+          "spellId": 386208,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90344": {
+      "name": "Fast Footwork",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 1800,
+      "y": 1500,
+      "next": [
+        90326,
+        110654
+      ],
+      "entries": [
+        {
+          "name": "Fast Footwork",
+          "icon": "ability_hunter_posthaste",
+          "spellId": 382260,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90328": {
+      "name": "War Machine",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 1500,
+      "next": [
+        90326,
+        90346,
+        90352
+      ],
+      "entries": [
+        {
+          "name": "War Machine",
+          "icon": "ability_hunter_rapidkilling",
+          "spellId": 262231,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90343": {
+      "name": "Thunder Clap",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 1500,
+      "next": [
+        90346,
+        95959,
+        90337
+      ],
+      "entries": [
+        {
+          "name": "Thunder Clap",
+          "icon": "spell_nature_thunderclap",
+          "spellId": 6343,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90371": {
+      "name": "Leeching Strikes",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 1500,
+      "next": [
+        90337,
+        108674
+      ],
+      "entries": [
+        {
+          "name": "Leeching Strikes",
+          "icon": "inv_artifact_bloodoftheassassinated",
+          "spellId": 382258,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90326": {
+      "name": "Impending Victory",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2400,
+      "y": 2100,
+      "next": [
+        110654,
+        90332,
+        90352
+      ],
+      "entries": [
+        {
+          "name": "Impending Victory",
+          "icon": "spell_impending_victory",
+          "spellId": 202168,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90346": {
+      "name": "Heroic Leap",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 2100,
+      "next": [
+        90352,
+        90355,
+        90353
+      ],
+      "entries": [
+        {
+          "name": "Heroic Leap",
+          "icon": "ability_heroicleap",
+          "spellId": 6544,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95959": {
+      "name": "Crackling Thunder",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 2100,
+      "next": [],
+      "entries": [
+        {
+          "name": "Crackling Thunder",
+          "icon": "ability_thunderking_overcharge",
+          "spellId": 203201,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90337": {
+      "name": "Storm Bolt",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4800,
+      "y": 2100,
+      "next": [
+        90353,
+        108674
+      ],
+      "entries": [
+        {
+          "name": "Storm Bolt",
+          "icon": "warrior_talent_icon_stormbolt",
+          "spellId": 107570,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110654": {
+      "name": "Storm of Blood",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 1800,
+      "y": 2700,
+      "next": [
+        90375,
+        90351
+      ],
+      "entries": [
+        {
+          "name": "Storm of Blood",
+          "icon": "ability_ironmaidens_whirlofblood",
+          "spellId": 1299025,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90332": {
+      "name": "Second Wind",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2400,
+      "y": 2700,
+      "next": [],
+      "entries": [
+        {
+          "name": "Second Wind",
+          "icon": "ability_hunter_harass",
+          "spellId": 29838,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90352": {
+      "name": "Frothing Berserker",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 2700,
+      "next": [
+        90375,
+        90378,
+        90331
+      ],
+      "entries": [
+        {
+          "name": "Frothing Berserker",
+          "icon": "warrior_talent_icon_furyintheblood",
+          "spellId": 392792,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90355": {
+      "name": "Bounding Stride",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 2700,
+      "next": [],
+      "entries": [
+        {
+          "name": "Bounding Stride",
+          "icon": "ability_heroicleap",
+          "spellId": 202163,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90353": {
+      "name": "Pain and Gain",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 2700,
+      "next": [
+        90331,
+        110119,
+        90385
+      ],
+      "entries": [
+        {
+          "name": "Pain and Gain",
+          "icon": "spell_holy_painsupression",
+          "spellId": 382549,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108674": {
+      "name": "Intervene / Interpose",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 2700,
+      "next": [
+        90385,
+        95956
+      ],
+      "entries": [
+        {
+          "name": "Intervene",
+          "icon": "ability_warrior_victoryrush",
+          "spellId": 3411,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Interpose",
+          "icon": "ability_paladin_speedoflight",
+          "spellId": 1244088,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90375": {
+      "name": "Shockwave",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2400,
+      "y": 3300,
+      "next": [
+        90351,
+        90374,
+        90348
+      ],
+      "entries": [
+        {
+          "name": "Shockwave",
+          "icon": "ability_warrior_shockwave",
+          "spellId": 46968,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90378": {
+      "name": "Overwhelming Rage",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 3300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Overwhelming Rage",
+          "icon": "racial_orc_berserkerstrength",
+          "spellId": 382767,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90331": {
+      "name": "Rallying Cry",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 3300,
+      "next": [
+        90348,
+        108705
+      ],
+      "entries": [
+        {
+          "name": "Rallying Cry",
+          "icon": "ability_warrior_rallyingcry",
+          "spellId": 97462,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110119": {
+      "name": "Field Dressing",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 3300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Field Dressing",
+          "icon": "inv_misc_bandage_08",
+          "spellId": 1271926,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90385": {
+      "name": "Spell Reflection",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4800,
+      "y": 3300,
+      "next": [
+        108705,
+        95956
+      ],
+      "entries": [
+        {
+          "name": "Spell Reflection",
+          "icon": "ability_warrior_shieldreflection",
+          "spellId": 23920,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90351": {
+      "name": "Wrecking Throw / Shattering Throw",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 1800,
+      "y": 3900,
+      "next": [
+        90366
+      ],
+      "entries": [
+        {
+          "name": "Wrecking Throw",
+          "icon": "warrior_talent_icon_mastercleaver",
+          "spellId": 384110,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Shattering Throw",
+          "icon": "ability_warrior_shatteringthrow",
+          "spellId": 64382,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90374": {
+      "name": "Rumbling Earth",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2400,
+      "y": 3900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Rumbling Earth",
+          "icon": "spell_shaman_earthquake",
+          "spellId": 275339,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90348": {
+      "name": "Berserker Shout / Fearless",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 3900,
+      "next": [
+        90366,
+        90382
+      ],
+      "entries": [
+        {
+          "name": "Berserker Shout",
+          "icon": "spell_nature_ancestralguardian",
+          "spellId": 384100,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Fearless",
+          "icon": "ability_warrior_endlessrage",
+          "spellId": 1271925,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108705": {
+      "name": "Intimidating Shout / Piercing Howl",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 3900,
+      "next": [
+        90368,
+        90382
+      ],
+      "entries": [
+        {
+          "name": "Intimidating Shout",
+          "icon": "ability_golemthunderclap",
+          "spellId": 5246,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Piercing Howl",
+          "icon": "spell_shadow_deathscream",
+          "spellId": 12323,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95956": {
+      "name": "Honed Reflexes",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 3900,
+      "next": [
+        90368
+      ],
+      "entries": [
+        {
+          "name": "Honed Reflexes",
+          "icon": "spell_holy_borrowedtime",
+          "spellId": 391271,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90366": {
+      "name": "Armored to the Teeth",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 2400,
+      "y": 4500,
+      "next": [
+        90347,
+        110118
+      ],
+      "entries": [
+        {
+          "name": "Armored to the Teeth",
+          "icon": "inv_shoulder_22",
+          "spellId": 384124,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90382": {
+      "name": "Double Time",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 4500,
+      "next": [
+        110118,
+        108685
+      ],
+      "entries": [
+        {
+          "name": "Double Time",
+          "icon": "inv_misc_horn_04",
+          "spellId": 103827,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90368": {
+      "name": "Reinforced Plates",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 4800,
+      "y": 4500,
+      "next": [
+        108685,
+        108686
+      ],
+      "entries": [
+        {
+          "name": "Reinforced Plates",
+          "icon": "inv_chest_plate04",
+          "spellId": 382939,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90347": {
+      "name": "Barbaric Training",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 1800,
+      "y": 5100,
+      "next": [
+        90381
+      ],
+      "entries": [
+        {
+          "name": "Barbaric Training",
+          "icon": "ability_garrosh_whirling_corruption",
+          "spellId": 383082,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110118": {
+      "name": "Javelineer",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 5100,
+      "next": [
+        90381,
+        90373
+      ],
+      "entries": [
+        {
+          "name": "Javelineer",
+          "icon": "",
+          "spellId": 1271948,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108685": {
+      "name": "Resonant Voice",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 5100,
+      "next": [
+        90373,
+        90360
+      ],
+      "entries": [
+        {
+          "name": "Resonant Voice",
+          "icon": "warrior_disruptingshout",
+          "spellId": 1243660,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108686": {
+      "name": "Crushing Force",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 5100,
+      "next": [
+        90360
+      ],
+      "entries": [
+        {
+          "name": "Crushing Force",
+          "icon": "spell_shadow_unholystrength",
+          "spellId": 382764,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90381": {
+      "name": "Cruel Strikes",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 2400,
+      "y": 5700,
+      "next": [
+        108543,
+        90380
+      ],
+      "entries": [
+        {
+          "name": "Cruel Strikes",
+          "icon": "ability_criticalstrike",
+          "spellId": 392777,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90373": {
+      "name": "Dual Wield Specialization",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 5700,
+      "next": [
+        90380,
+        108542
+      ],
+      "entries": [
+        {
+          "name": "Dual Wield Specialization",
+          "icon": "ability_dualwield",
+          "spellId": 382900,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90360": {
+      "name": "Wild Strikes",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 4800,
+      "y": 5700,
+      "next": [
+        108542,
+        108544
+      ],
+      "entries": [
+        {
+          "name": "Wild Strikes",
+          "icon": "ability_rogue_sprint",
+          "spellId": 382946,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108543": {
+      "name": "Anger Management",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 1800,
+      "y": 6300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Anger Management",
+          "icon": "warrior_talent_icon_angermanagement",
+          "spellId": 152278,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90380": {
+      "name": "Champion's Spear",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 6300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Champion's Spear",
+          "icon": "inv_ability_warrior_championsspear",
+          "spellId": 376079,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108542": {
+      "name": "Stance Mastery",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 6300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Stance Mastery",
+          "icon": "crest_warrior",
+          "spellId": 1280961,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108544": {
+      "name": "Battlefield Commander",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 6300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Battlefield Commander",
+          "icon": "ability_warrior_commandingshout",
+          "spellId": 424742,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90392": {
+      "name": "Bloodthirst",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 900,
+      "next": [
+        90396
+      ],
+      "entries": [
+        {
+          "name": "Bloodthirst",
+          "icon": "spell_nature_bloodlust",
+          "spellId": 23881,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90396": {
+      "name": "Raging Blow",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 1500,
+      "next": [
+        90430,
+        90398,
+        90429
+      ],
+      "entries": [
+        {
+          "name": "Raging Blow",
+          "icon": "warrior_wild_strike",
+          "spellId": 85288,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90430": {
+      "name": "Sudden Death",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10800,
+      "y": 2100,
+      "next": [
+        90403,
+        90395
+      ],
+      "entries": [
+        {
+          "name": "Sudden Death",
+          "icon": "ability_warrior_improveddisciplines",
+          "spellId": 29725,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90398": {
+      "name": "Frenzied Enrage / Powerful Enrage",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 2100,
+      "next": [
+        90395,
+        90394
+      ],
+      "entries": [
+        {
+          "name": "Frenzied Enrage",
+          "icon": "spell_shadow_unholyfrenzy",
+          "spellId": 383848,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Powerful Enrage",
+          "icon": "ability_warrior_strengthofarms",
+          "spellId": 440277,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90429": {
+      "name": "Improved Execute",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 2100,
+      "next": [
+        90394,
+        90427
+      ],
+      "entries": [
+        {
+          "name": "Improved Execute",
+          "icon": "inv_sword_48",
+          "spellId": 316402,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90403": {
+      "name": "Focus in Chaos",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10200,
+      "y": 2700,
+      "next": [
+        90410,
+        90399
+      ],
+      "entries": [
+        {
+          "name": "Focus in Chaos",
+          "icon": "ability_hunter_mastermarksman",
+          "spellId": 383486,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90395": {
+      "name": "Enraged Regeneration",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11400,
+      "y": 2700,
+      "next": [
+        90399,
+        110330,
+        90408
+      ],
+      "entries": [
+        {
+          "name": "Enraged Regeneration",
+          "icon": "ability_warrior_focusedrage",
+          "spellId": 184364,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90394": {
+      "name": "Warpaint",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 2700,
+      "next": [
+        90390,
+        90408
+      ],
+      "entries": [
+        {
+          "name": "Warpaint",
+          "icon": "ability_rogue_preparation",
+          "spellId": 208154,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90427": {
+      "name": "Improved Whirlwind",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 2700,
+      "next": [
+        90390,
+        90391
+      ],
+      "entries": [
+        {
+          "name": "Improved Whirlwind",
+          "icon": "ability_whirlwind",
+          "spellId": 12950,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90410": {
+      "name": "Massacre",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10200,
+      "y": 3300,
+      "next": [
+        109966
+      ],
+      "entries": [
+        {
+          "name": "Massacre",
+          "icon": "inv_axe_2h_orcwarrior_c_01",
+          "spellId": 206315,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90399": {
+      "name": "Fresh Meat",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10800,
+      "y": 3300,
+      "next": [
+        109966,
+        90397
+      ],
+      "entries": [
+        {
+          "name": "Fresh Meat",
+          "icon": "ability_deathwing_bloodcorruption_death",
+          "spellId": 215568,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110330": {
+      "name": "Invigorating Fury",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11400,
+      "y": 3300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Invigorating Fury",
+          "icon": "spell_misc_emotionangry",
+          "spellId": 383468,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90408": {
+      "name": "Rampage",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12010,
+      "y": 3300,
+      "next": [
+        109969,
+        109965,
+        90407
+      ],
+      "entries": [
+        {
+          "name": "Rampage",
+          "icon": "ability_warrior_rampage",
+          "spellId": 184367,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90390": {
+      "name": "Improved Raging Blow",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 3300,
+      "next": [
+        90428,
+        109967
+      ],
+      "entries": [
+        {
+          "name": "Improved Raging Blow",
+          "icon": "warrior_wild_strike",
+          "spellId": 383854,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90391": {
+      "name": "Rampaging Ruin",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 3300,
+      "next": [
+        109967
+      ],
+      "entries": [
+        {
+          "name": "Rampaging Ruin",
+          "icon": "ability_warrior_trauma",
+          "spellId": 1265357,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109966": {
+      "name": "Deep Wounds",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10200,
+      "y": 3900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Deep Wounds",
+          "icon": "ability_backstab",
+          "spellId": 1261060,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90397": {
+      "name": "Spite",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 10800,
+      "y": 3900,
+      "next": [
+        90402,
+        109962
+      ],
+      "entries": [
+        {
+          "name": "Spite",
+          "icon": "warrior_talent_icon_furyintheblood",
+          "spellId": 383852,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109969": {
+      "name": "Scent of Blood",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11400,
+      "y": 3900,
+      "next": [
+        90412,
+        109962
+      ],
+      "entries": [
+        {
+          "name": "Scent of Blood",
+          "icon": "ability_hunter_harass",
+          "spellId": 1265355,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109965": {
+      "name": "Kill or Be Killed",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 3900,
+      "next": [
+        90412
+      ],
+      "entries": [
+        {
+          "name": "Kill or Be Killed",
+          "icon": "inv12_ability_warrior_fury",
+          "spellId": 1265361,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90407": {
+      "name": "Hack and Slash",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 3900,
+      "next": [
+        90412,
+        90405
+      ],
+      "entries": [
+        {
+          "name": "Hack and Slash",
+          "icon": "ability_rogue_rollthebones02",
+          "spellId": 383877,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90428": {
+      "name": "Cruelty",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 3900,
+      "next": [
+        90405,
+        90387
+      ],
+      "entries": [
+        {
+          "name": "Cruelty",
+          "icon": "spell_nature_focusedmind",
+          "spellId": 392931,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109967": {
+      "name": "Meat Cleaver / Carving Blades",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 3900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Meat Cleaver",
+          "icon": "warrior_talent_icon_mastercleaver",
+          "spellId": 280392,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Carving Blades",
+          "icon": "inv_knife_1h_goblinrogue_c_01",
+          "spellId": 1300463,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90402": {
+      "name": "Cold Steel, Hot Blood",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10200,
+      "y": 4500,
+      "next": [
+        90421
+      ],
+      "entries": [
+        {
+          "name": "Cold Steel, Hot Blood",
+          "icon": "ability_rogue_hungerforblood",
+          "spellId": 383959,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109962": {
+      "name": "Ragedrinker",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11400,
+      "y": 4500,
+      "next": [
+        90421,
+        90406
+      ],
+      "entries": [
+        {
+          "name": "Ragedrinker",
+          "icon": "spell_nzinsanity_bloodthirst",
+          "spellId": 1265356,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90412": {
+      "name": "Recklessness",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 4500,
+      "next": [
+        90406
+      ],
+      "entries": [
+        {
+          "name": "Recklessness",
+          "icon": "warrior_talent_icon_innerrage",
+          "spellId": 1719,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90405": {
+      "name": "Bloodcraze",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 4500,
+      "next": [
+        90406,
+        90425
+      ],
+      "entries": [
+        {
+          "name": "Bloodcraze",
+          "icon": "ability_creature_cursed_02",
+          "spellId": 393950,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90387": {
+      "name": "Wrath and Fury",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 4500,
+      "next": [
+        90425
+      ],
+      "entries": [
+        {
+          "name": "Wrath and Fury",
+          "icon": "inv_sword_2h_artifactarathor_d_03",
+          "spellId": 392936,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90421": {
+      "name": "Deft Experience",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 10800,
+      "y": 5100,
+      "next": [
+        109963,
+        110203
+      ],
+      "entries": [
+        {
+          "name": "Deft Experience",
+          "icon": "inv_misc_book_07",
+          "spellId": 383295,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90406": {
+      "name": "Frenzy",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 5100,
+      "next": [
+        110203,
+        90401
+      ],
+      "entries": [
+        {
+          "name": "Frenzy",
+          "icon": "ability_rogue_bloodyeye",
+          "spellId": 335077,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90425": {
+      "name": "Critical Thinking",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 5100,
+      "next": [
+        90401,
+        109964
+      ],
+      "entries": [
+        {
+          "name": "Critical Thinking",
+          "icon": "ability_criticalstrike",
+          "spellId": 383297,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109963": {
+      "name": "Vicious Contempt",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10200,
+      "y": 5700,
+      "next": [
+        109968
+      ],
+      "entries": [
+        {
+          "name": "Vicious Contempt",
+          "icon": "ability_ironmaidens_sorkasprey",
+          "spellId": 383885,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110203": {
+      "name": "Odyn's Fury",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11400,
+      "y": 5700,
+      "next": [
+        109968,
+        90388
+      ],
+      "entries": [
+        {
+          "name": "Odyn's Fury",
+          "icon": "inv_sword_1h_artifactvigfus_d_01",
+          "spellId": 385059,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90401": {
+      "name": "Bloodborne",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 5700,
+      "next": [
+        90388,
+        90415
+      ],
+      "entries": [
+        {
+          "name": "Bloodborne",
+          "icon": "inv_artifact_bloodoftheassassinated",
+          "spellId": 385703,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109964": {
+      "name": "Surge of Adrenaline",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 5700,
+      "next": [
+        90415
+      ],
+      "entries": [
+        {
+          "name": "Surge of Adrenaline",
+          "icon": "inv_1115_warrior_fasterreflexes",
+          "spellId": 1265359,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109968": {
+      "name": "Executioner's Wrath",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10800,
+      "y": 6300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Executioner's Wrath",
+          "icon": "inv_12_nonmasculinecharacter_human",
+          "spellId": 1265570,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90388": {
+      "name": "Reckless Abandon",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 6300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Reckless Abandon",
+          "icon": "spell_fire_incinerate",
+          "spellId": 396749,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90415": {
+      "name": "Avatar / Bladestorm",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 6300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Avatar",
+          "icon": "warrior_talent_icon_avatar",
+          "spellId": 107574,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Bladestorm",
+          "icon": "ability_warrior_bladestorm",
+          "spellId": 227847,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110412": {
+      "name": "Rampaging Berserker / Rampaging Berserker / Rampaging Berserker",
+      "g": "spec",
+      "type": "tiered",
+      "maxRanks": 4,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 7050,
+      "next": [],
+      "entries": [
+        {
+          "name": "Rampaging Berserker",
+          "icon": "inv12_apextalent_warrior_rampagingberserker2",
+          "spellId": 1269308,
+          "type": "tierrank",
+          "subTreeId": null
+        },
+        {
+          "name": "Rampaging Berserker",
+          "icon": "inv12_apextalent_warrior_rampagingberserker2",
+          "spellId": 1269309,
+          "type": "tierrank",
+          "subTreeId": null
+        },
+        {
+          "name": "Rampaging Berserker",
+          "icon": "inv12_apextalent_warrior_rampagingberserker2",
+          "spellId": 1269310,
+          "type": "tierrank",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94803": {
+      "name": "Lightning Strikes",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 61,
+      "free": true,
+      "x": 15000,
+      "y": 300,
+      "next": [
+        94816,
+        94800,
+        94808,
+        109811
+      ],
+      "entries": [
+        {
+          "name": "Lightning Strikes",
+          "icon": "ability_vehicle_electrocharge",
+          "spellId": 434969,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94816": {
+      "name": "Crashing Thunder",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 61,
+      "free": false,
+      "x": 14080,
+      "y": 890,
+      "next": [
+        94785
+      ],
+      "entries": [
+        {
+          "name": "Crashing Thunder",
+          "icon": "spell_nature_thunderclap",
+          "spellId": 436707,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94800": {
+      "name": "Ground Current",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 61,
+      "free": false,
+      "x": 14700,
+      "y": 900,
+      "next": [
+        94817
+      ],
+      "entries": [
+        {
+          "name": "Ground Current",
+          "icon": "warrior_talent_icon_thunderstruck",
+          "spellId": 436148,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94808": {
+      "name": "Strength of the Mountain",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 61,
+      "free": false,
+      "x": 15310,
+      "y": 900,
+      "next": [
+        94798
+      ],
+      "entries": [
+        {
+          "name": "Strength of the Mountain",
+          "icon": "ability_warrior_titansgrip",
+          "spellId": 437068,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109811": {
+      "name": "Storm Surge",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 61,
+      "free": false,
+      "x": 15900,
+      "y": 900,
+      "next": [
+        109810
+      ],
+      "entries": [
+        {
+          "name": "Storm Surge",
+          "icon": "ability_racial_avatar",
+          "spellId": 275336,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94814": {
+      "name": "Slayer's Dominance",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 60,
+      "free": true,
+      "x": 7850,
+      "y": 1250,
+      "next": [
+        94788,
+        94810,
+        94795,
+        109817
+      ],
+      "entries": [
+        {
+          "name": "Slayer's Dominance",
+          "icon": "inv_ability_slayerwarrior_slayersdominance",
+          "spellId": 444767,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94785": {
+      "name": "Thunder Blast",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 61,
+      "free": false,
+      "x": 14100,
+      "y": 1500,
+      "next": [
+        94797
+      ],
+      "entries": [
+        {
+          "name": "Thunder Blast",
+          "icon": "warrior_talent_icon_bloodandthunder",
+          "spellId": 435607,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94817": {
+      "name": "Storm Bolts / Storm Shield",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 61,
+      "free": false,
+      "x": 14700,
+      "y": 1500,
+      "next": [
+        94792
+      ],
+      "entries": [
+        {
+          "name": "Storm Bolts",
+          "icon": "warrior_talent_icon_stormbolt",
+          "spellId": 436162,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Storm Shield",
+          "icon": "spell_winston_bubble",
+          "spellId": 438597,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94798": {
+      "name": "Keep Your Feet on the Ground / Steadfast as the Peaks",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 61,
+      "free": false,
+      "x": 15310,
+      "y": 1500,
+      "next": [
+        94807
+      ],
+      "entries": [
+        {
+          "name": "Keep Your Feet on the Ground",
+          "icon": "ability_thunderking_overcharge",
+          "spellId": 438590,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Steadfast as the Peaks",
+          "icon": "ability_warrior_devastate",
+          "spellId": 434970,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109810": {
+      "name": "Conductivity",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 61,
+      "free": false,
+      "x": 15900,
+      "y": 1500,
+      "next": [
+        109809
+      ],
+      "entries": [
+        {
+          "name": "Conductivity",
+          "icon": "spell_shaman_thunderstorm",
+          "spellId": 1270723,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94788": {
+      "name": "Imminent Demise",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 60,
+      "free": false,
+      "x": 6900,
+      "y": 1800,
+      "next": [
+        94813
+      ],
+      "entries": [
+        {
+          "name": "Imminent Demise",
+          "icon": "ability_warrior_improveddisciplines",
+          "spellId": 444769,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94810": {
+      "name": "Overwhelming Blades",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 60,
+      "free": false,
+      "x": 7500,
+      "y": 1800,
+      "next": [
+        94786
+      ],
+      "entries": [
+        {
+          "name": "Overwhelming Blades",
+          "icon": "inv_10_specialization_blacksmithing_blades_color1",
+          "spellId": 444772,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94795": {
+      "name": "Relentless Pursuit / Vicious Agility",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 60,
+      "free": false,
+      "x": 8100,
+      "y": 1800,
+      "next": [
+        94787
+      ],
+      "entries": [
+        {
+          "name": "Relentless Pursuit",
+          "icon": "ability_rogue_sprint",
+          "spellId": 444776,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Vicious Agility",
+          "icon": "ability_paladin_speedoflight",
+          "spellId": 444777,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109817": {
+      "name": "Violent Euphoria",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 60,
+      "free": false,
+      "x": 8700,
+      "y": 1800,
+      "next": [
+        109816
+      ],
+      "entries": [
+        {
+          "name": "Violent Euphoria",
+          "icon": "ability_butcher_exsanguination",
+          "spellId": 1270717,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94797": {
+      "name": "Flashing Skies / Snap Induction",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 61,
+      "free": false,
+      "x": 14100,
+      "y": 2100,
+      "next": [
+        94805
+      ],
+      "entries": [
+        {
+          "name": "Flashing Skies",
+          "icon": "spell_lightning_lightningbolt01",
+          "spellId": 437079,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Snap Induction",
+          "icon": "ability_thunderking_thunderstruck",
+          "spellId": 456270,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94792": {
+      "name": "Gathering Clouds / Thorim's Might",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 61,
+      "free": false,
+      "x": 14700,
+      "y": 2100,
+      "next": [
+        94805
+      ],
+      "entries": [
+        {
+          "name": "Gathering Clouds",
+          "icon": "spell_nature_stormreach",
+          "spellId": 436201,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Thorim's Might",
+          "icon": "inv_ability_mountainthanewarrior_thorimsmight",
+          "spellId": 436152,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94807": {
+      "name": "Burst of Power",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 61,
+      "free": false,
+      "x": 15300,
+      "y": 2100,
+      "next": [
+        94805
+      ],
+      "entries": [
+        {
+          "name": "Burst of Power",
+          "icon": "shaman_pvp_thundercharge",
+          "spellId": 437118,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109809": {
+      "name": "Capacitance",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 61,
+      "free": false,
+      "x": 15900,
+      "y": 2100,
+      "next": [
+        94805
+      ],
+      "entries": [
+        {
+          "name": "Capacitance",
+          "icon": "spell_nature_purge",
+          "spellId": 1270724,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94813": {
+      "name": "Death Drive",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 60,
+      "free": false,
+      "x": 6900,
+      "y": 2400,
+      "next": [
+        94784
+      ],
+      "entries": [
+        {
+          "name": "Death Drive",
+          "icon": "ability_warrior_focusedrage",
+          "spellId": 444770,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94786": {
+      "name": "Culling Cyclone / Brutal Finish",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 60,
+      "free": false,
+      "x": 7500,
+      "y": 2400,
+      "next": [
+        94809
+      ],
+      "entries": [
+        {
+          "name": "Culling Cyclone",
+          "icon": "ability_warrior_bladestorm",
+          "spellId": 444778,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Brutal Finish",
+          "icon": "ability_revendreth_warrior",
+          "spellId": 446085,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94787": {
+      "name": "Fierce Followthrough / Opportunist",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 60,
+      "free": false,
+      "x": 8100,
+      "y": 2400,
+      "next": [
+        94801
+      ],
+      "entries": [
+        {
+          "name": "Fierce Followthrough",
+          "icon": "spell_deathknight_butcher2",
+          "spellId": 444773,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Opportunist",
+          "icon": "ability_warrior_weaponmastery",
+          "spellId": 444774,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109816": {
+      "name": "Deadly Focus",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 60,
+      "free": false,
+      "x": 8700,
+      "y": 2400,
+      "next": [
+        109815
+      ],
+      "entries": [
+        {
+          "name": "Deadly Focus",
+          "icon": "spell_hunter_focusingshot",
+          "spellId": 1270718,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94805": {
+      "name": "Avatar of the Storm",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 61,
+      "free": false,
+      "x": 15010,
+      "y": 2710,
+      "next": [],
+      "entries": [
+        {
+          "name": "Avatar of the Storm",
+          "icon": "achievement_dungeon_blackrockcaverns_ascendantlordobsidius",
+          "spellId": 437134,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94784": {
+      "name": "Show No Mercy",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 60,
+      "free": false,
+      "x": 6900,
+      "y": 3000,
+      "next": [
+        94820
+      ],
+      "entries": [
+        {
+          "name": "Show No Mercy",
+          "icon": "warrior_talent_icon_lambstotheslaughter",
+          "spellId": 444771,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94809": {
+      "name": "Reap the Storm",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 60,
+      "free": false,
+      "x": 7500,
+      "y": 3000,
+      "next": [
+        94820
+      ],
+      "entries": [
+        {
+          "name": "Reap the Storm",
+          "icon": "ability_arakkoa_spinning_blade",
+          "spellId": 444775,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94801": {
+      "name": "Slayer's Malice",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 60,
+      "free": false,
+      "x": 8100,
+      "y": 3000,
+      "next": [
+        94820
+      ],
+      "entries": [
+        {
+          "name": "Slayer's Malice",
+          "icon": "ability_warrior_revenge",
+          "spellId": 444779,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109815": {
+      "name": "Unhinged",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 60,
+      "free": false,
+      "x": 8700,
+      "y": 3000,
+      "next": [
+        94820
+      ],
+      "entries": [
+        {
+          "name": "Unhinged",
+          "icon": "spell_shadow_spectralsight",
+          "spellId": 386628,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94820": {
+      "name": "Unrelenting Onslaught",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 60,
+      "free": false,
+      "x": 7850,
+      "y": 3650,
+      "next": [],
+      "entries": [
+        {
+          "name": "Unrelenting Onslaught",
+          "icon": "ability_warrior_commandingshout",
+          "spellId": 444780,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "99852": {
+      "name": "Mountain Thane / Slayer",
+      "g": "sub",
+      "type": "subtree",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 7800,
+      "y": 600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Mountain Thane",
+          "icon": "talents-heroclass-warrior-mountainthane",
+          "spellId": 0,
+          "type": "subtree",
+          "subTreeId": 61
+        },
+        {
+          "name": "Slayer",
+          "icon": "talents-heroclass-warrior-slayer",
+          "spellId": 0,
+          "type": "subtree",
+          "subTreeId": 60
+        }
+      ]
+    }
   }
 }

@@ -1222,5 +1222,3011 @@
       "name": "Voidweaver",
       "icon": "talents-heroclass-priest-voidweaver"
     }
+  },
+  "fullNodeOrder": [
+    82552,
+    82553,
+    82554,
+    82555,
+    82556,
+    82558,
+    82559,
+    82560,
+    82563,
+    82564,
+    82566,
+    82567,
+    82568,
+    82569,
+    82570,
+    82571,
+    82572,
+    82573,
+    82575,
+    82576,
+    82577,
+    82578,
+    82579,
+    82580,
+    82581,
+    82582,
+    82583,
+    82585,
+    82586,
+    82587,
+    82588,
+    82589,
+    82590,
+    82591,
+    82592,
+    82593,
+    82594,
+    82595,
+    82596,
+    82597,
+    82598,
+    82599,
+    82600,
+    82601,
+    82602,
+    82603,
+    82604,
+    82606,
+    82607,
+    82608,
+    82609,
+    82610,
+    82611,
+    82612,
+    82613,
+    82614,
+    82615,
+    82616,
+    82617,
+    82618,
+    82619,
+    82620,
+    82621,
+    82622,
+    82623,
+    82627,
+    82628,
+    82629,
+    82630,
+    82631,
+    82632,
+    82633,
+    82634,
+    82635,
+    82636,
+    82637,
+    82638,
+    82639,
+    82640,
+    82641,
+    82642,
+    82643,
+    82644,
+    82645,
+    82646,
+    82647,
+    82648,
+    82649,
+    82651,
+    82653,
+    82654,
+    82655,
+    82656,
+    82657,
+    82658,
+    82659,
+    82660,
+    82662,
+    82663,
+    82665,
+    82666,
+    82667,
+    82668,
+    82669,
+    82670,
+    82671,
+    82672,
+    82673,
+    82674,
+    82675,
+    82676,
+    82677,
+    82678,
+    82679,
+    82680,
+    82682,
+    82684,
+    82685,
+    82686,
+    82687,
+    82690,
+    82693,
+    82695,
+    82696,
+    82697,
+    82699,
+    82701,
+    82702,
+    82703,
+    82704,
+    82705,
+    82708,
+    82710,
+    82711,
+    82712,
+    82713,
+    82715,
+    82716,
+    82717,
+    82718,
+    82719,
+    86730,
+    92225,
+    93170,
+    93171,
+    94668,
+    94669,
+    94670,
+    94673,
+    94674,
+    94675,
+    94676,
+    94677,
+    94678,
+    94679,
+    94680,
+    94681,
+    94683,
+    94684,
+    94685,
+    94686,
+    94687,
+    94688,
+    94689,
+    94690,
+    94691,
+    94692,
+    94693,
+    94694,
+    94695,
+    94696,
+    94697,
+    94698,
+    94699,
+    94700,
+    94702,
+    94703,
+    99800,
+    99801,
+    99802,
+    100212,
+    103900,
+    103901,
+    103914,
+    103916,
+    104097,
+    108006,
+    108007,
+    108029,
+    108031,
+    108147,
+    108152,
+    108153,
+    108724,
+    108730,
+    108731,
+    109005,
+    109006,
+    109009,
+    109010,
+    109011,
+    109012,
+    109014,
+    109015,
+    109017,
+    109018,
+    109019,
+    109020,
+    109021,
+    109775,
+    109776,
+    109777,
+    109778,
+    109779,
+    109780,
+    109781,
+    109782,
+    109783,
+    109890,
+    109917,
+    110008,
+    110277,
+    110278,
+    110408,
+    110409,
+    110410,
+    110648
+  ],
+  "nodes": {
+    "82717": {
+      "name": "Improved Flash Heal",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": true,
+      "x": 3300,
+      "y": 1500,
+      "next": [
+        82718,
+        109009
+      ],
+      "entries": [
+        {
+          "name": "Improved Flash Heal",
+          "icon": "spell_holy_heal",
+          "spellId": 393870,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82703": {
+      "name": "Angelic Feather",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 1500,
+      "next": [
+        109009,
+        82672
+      ],
+      "entries": [
+        {
+          "name": "Angelic Feather",
+          "icon": "ability_priest_angelicfeather",
+          "spellId": 121536,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82713": {
+      "name": "Mind Blast",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": true,
+      "x": 5700,
+      "y": 1500,
+      "next": [
+        82672,
+        82701
+      ],
+      "entries": [
+        {
+          "name": "Mind Blast",
+          "icon": "spell_shadow_unholyfrenzy",
+          "spellId": 8092,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82718": {
+      "name": "Holy Nova",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 2100,
+      "next": [
+        82719,
+        82715,
+        82716
+      ],
+      "entries": [
+        {
+          "name": "Holy Nova",
+          "icon": "spell_holy_holynova",
+          "spellId": 132157,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109009": {
+      "name": "Dispel Magic",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 2100,
+      "next": [
+        82715,
+        82705,
+        82556
+      ],
+      "entries": [
+        {
+          "name": "Dispel Magic",
+          "icon": "spell_nature_nullifydisease",
+          "spellId": 528,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82672": {
+      "name": "Spiritual Guidance",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 2100,
+      "next": [
+        82556,
+        109006
+      ],
+      "entries": [
+        {
+          "name": "Spiritual Guidance",
+          "icon": "spell_holy_spiritualguidence",
+          "spellId": 1250818,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82701": {
+      "name": "Psychic Scream",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6300,
+      "y": 2100,
+      "next": [
+        109006,
+        82695,
+        82710
+      ],
+      "entries": [
+        {
+          "name": "Psychic Scream",
+          "icon": "spell_shadow_psychicscream",
+          "spellId": 8122,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82719": {
+      "name": "Lightburst",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2100,
+      "y": 2700,
+      "next": [],
+      "entries": [
+        {
+          "name": "Lightburst",
+          "icon": "inv_ability_holyfire_nova",
+          "spellId": 1246549,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82715": {
+      "name": "Leap of Faith",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 2700,
+      "next": [
+        82716,
+        109917,
+        109890
+      ],
+      "entries": [
+        {
+          "name": "Leap of Faith",
+          "icon": "priest_spell_leapoffaith_a",
+          "spellId": 73325,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82705": {
+      "name": "Improved Purify",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 2700,
+      "next": [
+        109890
+      ],
+      "entries": [
+        {
+          "name": "Improved Purify",
+          "icon": "spell_holy_nullifydisease",
+          "spellId": 390632,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82556": {
+      "name": "Power Infusion",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 2700,
+      "next": [
+        109890,
+        108731,
+        82687
+      ],
+      "entries": [
+        {
+          "name": "Power Infusion",
+          "icon": "spell_holy_powerinfusion",
+          "spellId": 10060,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109006": {
+      "name": "Painful Invocation",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 2700,
+      "next": [
+        82687,
+        82710
+      ],
+      "entries": [
+        {
+          "name": "Painful Invocation",
+          "icon": "spell_holy_mindsooth",
+          "spellId": 1251030,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82695": {
+      "name": "Sheer Terror / Petrifying Scream",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6900,
+      "y": 2700,
+      "next": [
+        82708
+      ],
+      "entries": [
+        {
+          "name": "Sheer Terror",
+          "icon": "spell_nzinsanity_fearofdeath",
+          "spellId": 390919,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Petrifying Scream",
+          "icon": "spell_shadow_psychichorrors",
+          "spellId": 55676,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82716": {
+      "name": "Surge of Light",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 3300,
+      "next": [
+        82702
+      ],
+      "entries": [
+        {
+          "name": "Surge of Light",
+          "icon": "spell_holy_surgeoflight",
+          "spellId": 109186,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109917": {
+      "name": "Body and Soul",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 3300,
+      "next": [
+        82699
+      ],
+      "entries": [
+        {
+          "name": "Body and Soul",
+          "icon": "spell_holy_symbolofhope",
+          "spellId": 64129,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109890": {
+      "name": "Mass Dispel",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 3300,
+      "next": [
+        109019,
+        82690
+      ],
+      "entries": [
+        {
+          "name": "Mass Dispel",
+          "icon": "spell_arcane_massdispel",
+          "spellId": 32375,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108731": {
+      "name": "Twins of the Sun Priestess",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 3300,
+      "next": [
+        82690
+      ],
+      "entries": [
+        {
+          "name": "Twins of the Sun Priestess",
+          "icon": "spell_fire_felflamering_red",
+          "spellId": 373466,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82687": {
+      "name": "Strength of Resolve",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 3300,
+      "next": [
+        82690,
+        109020
+      ],
+      "entries": [
+        {
+          "name": "Strength of Resolve",
+          "icon": "spell_holy_ashestoashes",
+          "spellId": 1250820,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82710": {
+      "name": "Mind Control / Dominate Mind",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6300,
+      "y": 3300,
+      "next": [
+        109020,
+        109005,
+        82693
+      ],
+      "entries": [
+        {
+          "name": "Mind Control",
+          "icon": "spell_shadow_shadowworddominate",
+          "spellId": 605,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Dominate Mind",
+          "icon": "spell_priest_void_flay",
+          "spellId": 205364,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82708": {
+      "name": "Psychic Voice / Void Tendrils",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6900,
+      "y": 3300,
+      "next": [
+        82693
+      ],
+      "entries": [
+        {
+          "name": "Psychic Voice",
+          "icon": "ability_warrior_commandingshout",
+          "spellId": 196704,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Void Tendrils",
+          "icon": "spell_priest_voidtendrils",
+          "spellId": 1250691,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82702": {
+      "name": "Everlasting Light",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 3900,
+      "next": [
+        82696
+      ],
+      "entries": [
+        {
+          "name": "Everlasting Light",
+          "icon": "spell_holy_greaterheal",
+          "spellId": 1249233,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82699": {
+      "name": "Move with Grace",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 3900,
+      "next": [
+        82696,
+        82678
+      ],
+      "entries": [
+        {
+          "name": "Move with Grace",
+          "icon": "ability_priest_savinggrace",
+          "spellId": 390620,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109019": {
+      "name": "Mental Agility",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 3900,
+      "next": [
+        82678
+      ],
+      "entries": [
+        {
+          "name": "Mental Agility",
+          "icon": "spell_holy_dispelmagic",
+          "spellId": 341167,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82690": {
+      "name": "Twin Disciplines",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 3900,
+      "next": [
+        82678,
+        82712
+      ],
+      "entries": [
+        {
+          "name": "Twin Disciplines",
+          "icon": "ability_priest_innerlightandshadow",
+          "spellId": 1251077,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109020": {
+      "name": "Dark Enlightenment",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 3900,
+      "next": [
+        82712,
+        109021
+      ],
+      "entries": [
+        {
+          "name": "Dark Enlightenment",
+          "icon": "ability_priest_darkness",
+          "spellId": 1250835,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109005": {
+      "name": "False Autonomy",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6300,
+      "y": 3900,
+      "next": [
+        109021
+      ],
+      "entries": [
+        {
+          "name": "False Autonomy",
+          "icon": "spell_arcane_mindmastery",
+          "spellId": 1250806,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82693": {
+      "name": "Shackle Horror",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6900,
+      "y": 3900,
+      "next": [
+        109021
+      ],
+      "entries": [
+        {
+          "name": "Shackle Horror",
+          "icon": "spell_nature_slow",
+          "spellId": 9484,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82696": {
+      "name": "Inspiration",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 4500,
+      "next": [
+        109012
+      ],
+      "entries": [
+        {
+          "name": "Inspiration",
+          "icon": "spell_holy_layonhands",
+          "spellId": 390676,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82678": {
+      "name": "Binding Heals",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 4500,
+      "next": [
+        109012,
+        82684
+      ],
+      "entries": [
+        {
+          "name": "Binding Heals",
+          "icon": "spell_holy_blindingheal",
+          "spellId": 368275,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82712": {
+      "name": "Shadow Word: Death",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 4500,
+      "next": [
+        82684,
+        82711,
+        109015
+      ],
+      "entries": [
+        {
+          "name": "Shadow Word: Death",
+          "icon": "spell_shadow_demonicfortitude",
+          "spellId": 32379,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109021": {
+      "name": "Sanguine Teachings",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6300,
+      "y": 4500,
+      "next": [
+        109015
+      ],
+      "entries": [
+        {
+          "name": "Sanguine Teachings",
+          "icon": "inv_archaeology_80_zandalari_sanguinetotem",
+          "spellId": 373218,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109012": {
+      "name": "Desperate Prayer",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 5100,
+      "next": [
+        82682,
+        82677
+      ],
+      "entries": [
+        {
+          "name": "Desperate Prayer",
+          "icon": "spell_holy_testoffaith",
+          "spellId": 19236,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82684": {
+      "name": "Twist of Fate",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 5100,
+      "next": [
+        82677,
+        109011
+      ],
+      "entries": [
+        {
+          "name": "Twist of Fate",
+          "icon": "spell_shadow_mindtwisting",
+          "spellId": 390972,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82711": {
+      "name": "Tithe Evasion",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 5100,
+      "next": [
+        109011
+      ],
+      "entries": [
+        {
+          "name": "Tithe Evasion",
+          "icon": "spell_nzinsanity_bloodthirst",
+          "spellId": 373223,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109015": {
+      "name": "Fade",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 5100,
+      "next": [
+        109011,
+        109014,
+        82686
+      ],
+      "entries": [
+        {
+          "name": "Fade",
+          "icon": "spell_magic_lesserinvisibilty",
+          "spellId": 586,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82682": {
+      "name": "Angel's Mercy",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 5700,
+      "next": [
+        82679,
+        82697
+      ],
+      "entries": [
+        {
+          "name": "Angel's Mercy",
+          "icon": "spell_holy_testoffaith",
+          "spellId": 238100,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82677": {
+      "name": "Protective Light",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 5700,
+      "next": [
+        82697,
+        109010
+      ],
+      "entries": [
+        {
+          "name": "Protective Light",
+          "icon": "spell_holy_holyprotection",
+          "spellId": 193063,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109011": {
+      "name": "Mindpierce",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 5700,
+      "next": [
+        109010
+      ],
+      "entries": [
+        {
+          "name": "Mindpierce",
+          "icon": "spell_shadow_mindshear",
+          "spellId": 1251029,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109014": {
+      "name": "Spectral Illusion",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 5700,
+      "next": [
+        82674
+      ],
+      "entries": [
+        {
+          "name": "Spectral Illusion",
+          "icon": "spell_priest_spectralguise",
+          "spellId": 1250378,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82686": {
+      "name": "Improved Fade",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 6300,
+      "y": 5700,
+      "next": [
+        82674,
+        82685
+      ],
+      "entries": [
+        {
+          "name": "Improved Fade",
+          "icon": "spell_magic_lesserinvisibilty",
+          "spellId": 390670,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82679": {
+      "name": "Light's Inspiration",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 6300,
+      "next": [
+        82675
+      ],
+      "entries": [
+        {
+          "name": "Light's Inspiration",
+          "icon": "spell_holy_restoration",
+          "spellId": 373450,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82697": {
+      "name": "Unwavering Will",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 6300,
+      "next": [
+        82675,
+        82676
+      ],
+      "entries": [
+        {
+          "name": "Unwavering Will",
+          "icon": "ability_warrior_unrelentingassault",
+          "spellId": 373456,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109010": {
+      "name": "Spell Warding",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 6300,
+      "next": [
+        82676,
+        82673
+      ],
+      "entries": [
+        {
+          "name": "Spell Warding",
+          "icon": "spell_holy_spellwarding",
+          "spellId": 390667,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82674": {
+      "name": "Phantasm",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 6300,
+      "next": [
+        82673,
+        82685
+      ],
+      "entries": [
+        {
+          "name": "Phantasm",
+          "icon": "ability_priest_phantasm",
+          "spellId": 108942,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82675": {
+      "name": "Angelic Bulwark",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Angelic Bulwark",
+          "icon": "ability_priest_angelicbulwark",
+          "spellId": 108945,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82676": {
+      "name": "Benevolence / Focused Power",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Benevolence",
+          "icon": "ability_priest_spiritoftheredeemer",
+          "spellId": 415416,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Focused Power",
+          "icon": "ability_priest_focusedwill",
+          "spellId": 1249230,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82673": {
+      "name": "Phantom Reach",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Phantom Reach",
+          "icon": "spell_shadow_chilltouch",
+          "spellId": 459559,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82685": {
+      "name": "Translucent Image",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6300,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Translucent Image",
+          "icon": "spell_shadow_twistedfaith",
+          "spellId": 373446,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82594": {
+      "name": "Atonement",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 1500,
+      "next": [
+        82593,
+        82587,
+        82595
+      ],
+      "entries": [
+        {
+          "name": "Atonement",
+          "icon": "ability_priest_atonement",
+          "spellId": 81749,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82593": {
+      "name": "Power Word: Radiance",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 2100,
+      "next": [
+        82592,
+        92225
+      ],
+      "entries": [
+        {
+          "name": "Power Word: Radiance",
+          "icon": "spell_priest_power_word",
+          "spellId": 194509,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82587": {
+      "name": "Pain Suppression",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 2100,
+      "next": [
+        92225,
+        82588
+      ],
+      "entries": [
+        {
+          "name": "Pain Suppression",
+          "icon": "spell_holy_painsupression",
+          "spellId": 33206,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82595": {
+      "name": "Power of the Dark Side",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 2100,
+      "next": [
+        82596,
+        82579
+      ],
+      "entries": [
+        {
+          "name": "Power of the Dark Side",
+          "icon": "inv_artifact_powerofthedarkside",
+          "spellId": 198068,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82592": {
+      "name": "Light's Promise",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 2700,
+      "next": [
+        82591,
+        82589
+      ],
+      "entries": [
+        {
+          "name": "Light's Promise",
+          "icon": "spell_priest_power_word",
+          "spellId": 322115,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "92225": {
+      "name": "Sanctuary",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 2700,
+      "next": [
+        82589,
+        82564
+      ],
+      "entries": [
+        {
+          "name": "Sanctuary",
+          "icon": "spell_holy_holysmite",
+          "spellId": 231682,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82588": {
+      "name": "Pain Transformation / Protector of the Frail",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 2700,
+      "next": [
+        82564
+      ],
+      "entries": [
+        {
+          "name": "Pain Transformation",
+          "icon": "spell_holy_blessedrecovery",
+          "spellId": 372991,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Protector of the Frail",
+          "icon": "ability_racial_forceshield",
+          "spellId": 373035,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82596": {
+      "name": "Dark Indulgence",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 2700,
+      "next": [
+        82564,
+        82597
+      ],
+      "entries": [
+        {
+          "name": "Dark Indulgence",
+          "icon": "spell_shadow_unholyfrenzy",
+          "spellId": 372972,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82579": {
+      "name": "Encroaching Shadows",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14100,
+      "y": 2700,
+      "next": [
+        82597,
+        82580,
+        82581
+      ],
+      "entries": [
+        {
+          "name": "Encroaching Shadows",
+          "icon": "spell_shadow_painspike",
+          "spellId": 472568,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82591": {
+      "name": "Bright Pupil / Enduring Luminescence",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 3300,
+      "next": [
+        82590
+      ],
+      "entries": [
+        {
+          "name": "Bright Pupil",
+          "icon": "spell_holy_surgeoflight",
+          "spellId": 390684,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Enduring Luminescence",
+          "icon": "ability_priest_holybolts01",
+          "spellId": 390685,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82589": {
+      "name": "Shield Discipline",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 3300,
+      "next": [
+        82590,
+        82598
+      ],
+      "entries": [
+        {
+          "name": "Shield Discipline",
+          "icon": "spell_holy_divineprotection",
+          "spellId": 197045,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82564": {
+      "name": "Ultimate Penitence / Power Word: Barrier",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 3300,
+      "next": [
+        82598
+      ],
+      "entries": [
+        {
+          "name": "Ultimate Penitence",
+          "icon": "ability_priest_ascendance",
+          "spellId": 421453,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Power Word: Barrier",
+          "icon": "spell_holy_powerwordbarrier",
+          "spellId": 62618,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82597": {
+      "name": "Painful Punishment",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 3300,
+      "next": [
+        82598,
+        82581
+      ],
+      "entries": [
+        {
+          "name": "Painful Punishment",
+          "icon": "ability_priest_clarityofpower",
+          "spellId": 390686,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82580": {
+      "name": "Revel in Darkness",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14700,
+      "y": 3300,
+      "next": [
+        82581
+      ],
+      "entries": [
+        {
+          "name": "Revel in Darkness",
+          "icon": "ability_rogue_envelopingshadows",
+          "spellId": 373003,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82590": {
+      "name": "Holy Ray",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 3900,
+      "next": [
+        82566,
+        82575
+      ],
+      "entries": [
+        {
+          "name": "Holy Ray",
+          "icon": "ability_paladin_infusionoflight",
+          "spellId": 372969,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82598": {
+      "name": "Lenience",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 3900,
+      "next": [
+        82575,
+        82576,
+        82578
+      ],
+      "entries": [
+        {
+          "name": "Lenience",
+          "icon": "ability_priest_atonement",
+          "spellId": 238063,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82581": {
+      "name": "Shadow Tap",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14100,
+      "y": 3900,
+      "next": [
+        82578,
+        82582
+      ],
+      "entries": [
+        {
+          "name": "Shadow Tap",
+          "icon": "ability_creature_disease_05",
+          "spellId": 1235211,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82566": {
+      "name": "Purge the Wicked",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 4500,
+      "next": [
+        82600
+      ],
+      "entries": [
+        {
+          "name": "Purge the Wicked",
+          "icon": "ability_mage_firestarter",
+          "spellId": 1250218,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82575": {
+      "name": "Castigation",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 4500,
+      "next": [
+        82600,
+        82577
+      ],
+      "entries": [
+        {
+          "name": "Castigation",
+          "icon": "spell_holy_searinglightpriest",
+          "spellId": 193134,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82576": {
+      "name": "Indemnity",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 4500,
+      "next": [
+        82577
+      ],
+      "entries": [
+        {
+          "name": "Indemnity",
+          "icon": "ability_priest_clarityofwill",
+          "spellId": 373049,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82578": {
+      "name": "Pain and Suffering",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 4500,
+      "next": [
+        82577,
+        82583
+      ],
+      "entries": [
+        {
+          "name": "Pain and Suffering",
+          "icon": "spell_shadow_shadowwordpain",
+          "spellId": 390689,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82582": {
+      "name": "Occultist",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14700,
+      "y": 4500,
+      "next": [
+        82583
+      ],
+      "entries": [
+        {
+          "name": "Occultist",
+          "icon": "ability_priest_touchofdecay",
+          "spellId": 1250293,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82600": {
+      "name": "Harsh Discipline",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 5100,
+      "next": [
+        82599,
+        82601
+      ],
+      "entries": [
+        {
+          "name": "Harsh Discipline",
+          "icon": "ability_paladin_handoflight",
+          "spellId": 373180,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82577": {
+      "name": "Evangelism",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 5100,
+      "next": [
+        82601,
+        82571,
+        82567
+      ],
+      "entries": [
+        {
+          "name": "Evangelism",
+          "icon": "spell_holy_divineillumination",
+          "spellId": 472433,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82583": {
+      "name": "Abyssal Reverie",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 14100,
+      "y": 5100,
+      "next": [
+        82567,
+        82570
+      ],
+      "entries": [
+        {
+          "name": "Abyssal Reverie",
+          "icon": "ability_priest_surgeofdarkness",
+          "spellId": 373054,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82599": {
+      "name": "Divine Procession",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 5700,
+      "next": [
+        82569,
+        82602
+      ],
+      "entries": [
+        {
+          "name": "Divine Procession",
+          "icon": "ability_priest_evangelism",
+          "spellId": 472361,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82601": {
+      "name": "Inner Focus",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 5700,
+      "next": [
+        82602,
+        82572
+      ],
+      "entries": [
+        {
+          "name": "Inner Focus",
+          "icon": "spell_frost_windwalkon",
+          "spellId": 390693,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82571": {
+      "name": "Archangel / Mindbender",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 5700,
+      "next": [
+        82572,
+        82568
+      ],
+      "entries": [
+        {
+          "name": "Archangel",
+          "icon": "ability_priest_archangel",
+          "spellId": 197862,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Mindbender",
+          "icon": "spell_shadow_soulleech_3",
+          "spellId": 1280137,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82567": {
+      "name": "Shadow Mend",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 5700,
+      "next": [
+        82568,
+        110648,
+        110277
+      ],
+      "entries": [
+        {
+          "name": "Shadow Mend",
+          "icon": "spell_shadow_shadowmend",
+          "spellId": 1252217,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82570": {
+      "name": "Shadowfiend",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14700,
+      "y": 5700,
+      "next": [
+        110277,
+        110278
+      ],
+      "entries": [
+        {
+          "name": "Shadowfiend",
+          "icon": "spell_shadow_shadowfiend",
+          "spellId": 34433,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82569": {
+      "name": "Greater Smite",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 6300,
+      "next": [
+        86730
+      ],
+      "entries": [
+        {
+          "name": "Greater Smite",
+          "icon": "spell_paladin_inquisition",
+          "spellId": 1253724,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82602": {
+      "name": "Divine Aegis",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 6300,
+      "next": [
+        86730
+      ],
+      "entries": [
+        {
+          "name": "Divine Aegis",
+          "icon": "spell_holy_devineaegis",
+          "spellId": 47515,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82572": {
+      "name": "Borrowed Time",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 6300,
+      "next": [
+        86730,
+        82573
+      ],
+      "entries": [
+        {
+          "name": "Borrowed Time",
+          "icon": "spell_holy_borrowedtime",
+          "spellId": 390691,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82568": {
+      "name": "Blaze of Light",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 6300,
+      "next": [
+        82586
+      ],
+      "entries": [
+        {
+          "name": "Blaze of Light",
+          "icon": "spell_holy_searinglight",
+          "spellId": 215768,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110648": {
+      "name": "Grim Deliverance",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 6300,
+      "next": [
+        82586,
+        82585
+      ],
+      "entries": [
+        {
+          "name": "Grim Deliverance",
+          "icon": "spell_bastion_priest_shadow",
+          "spellId": 1298779,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110277": {
+      "name": "Death's Torment",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14100,
+      "y": 6300,
+      "next": [
+        82585
+      ],
+      "entries": [
+        {
+          "name": "Death's Torment",
+          "icon": "spell_shadow_deathsembrace",
+          "spellId": 1240364,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110278": {
+      "name": "Inescapable Torment",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14700,
+      "y": 6300,
+      "next": [
+        82585
+      ],
+      "entries": [
+        {
+          "name": "Inescapable Torment",
+          "icon": "spell_shadow_chilltouch",
+          "spellId": 373427,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "86730": {
+      "name": "Eternal Barrier",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Eternal Barrier",
+          "icon": "spell_holy_powerwordshield",
+          "spellId": 238135,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82573": {
+      "name": "Weal and Woe",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Weal and Woe",
+          "icon": "spell_priest_burningwill",
+          "spellId": 390786,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82586": {
+      "name": "Searing Light",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Searing Light",
+          "icon": "spell_holy_penance",
+          "spellId": 1280131,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82585": {
+      "name": "Expiation",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 14100,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Expiation",
+          "icon": "spell_shadow_shadowpower",
+          "spellId": 390832,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110410": {
+      "name": "Master the Darkness / Master the Darkness / Master the Darkness",
+      "g": "spec",
+      "type": "tiered",
+      "maxRanks": 4,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 7650,
+      "next": [],
+      "entries": [
+        {
+          "name": "Master the Darkness",
+          "icon": "inv12_apextalent_priest_voidshield",
+          "spellId": 1253590,
+          "type": "tierrank",
+          "subTreeId": null
+        },
+        {
+          "name": "Master the Darkness",
+          "icon": "inv12_apextalent_priest_voidshield",
+          "spellId": 1253845,
+          "type": "tierrank",
+          "subTreeId": null
+        },
+        {
+          "name": "Master the Darkness",
+          "icon": "inv12_apextalent_priest_voidshield",
+          "spellId": 1253827,
+          "type": "tierrank",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94683": {
+      "name": "Guiding Light",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 20,
+      "free": true,
+      "x": 8700,
+      "y": 1500,
+      "next": [
+        94698,
+        94674,
+        94679,
+        109782
+      ],
+      "entries": [
+        {
+          "name": "Guiding Light",
+          "icon": "ability_priest_holywordlife",
+          "spellId": 1248423,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94698": {
+      "name": "Preventive Measures",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 20,
+      "free": false,
+      "x": 7800,
+      "y": 2100,
+      "next": [
+        94691
+      ],
+      "entries": [
+        {
+          "name": "Preventive Measures",
+          "icon": "spell_holy_powerwordshield",
+          "spellId": 440662,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94674": {
+      "name": "Preemptive Care",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 20,
+      "free": false,
+      "x": 8400,
+      "y": 2100,
+      "next": [
+        94675
+      ],
+      "entries": [
+        {
+          "name": "Preemptive Care",
+          "icon": "spell_holy_renew",
+          "spellId": 440671,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94679": {
+      "name": "Waste No Time",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 20,
+      "free": false,
+      "x": 9000,
+      "y": 2100,
+      "next": [
+        94689
+      ],
+      "entries": [
+        {
+          "name": "Waste No Time",
+          "icon": "spell_nature_timestop",
+          "spellId": 440681,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109782": {
+      "name": "Words of the Wise",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 20,
+      "free": false,
+      "x": 9600,
+      "y": 2100,
+      "next": [
+        109783
+      ],
+      "entries": [
+        {
+          "name": "Words of the Wise",
+          "icon": "spell_priest_power_word",
+          "spellId": 1272352,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94691": {
+      "name": "Assured Safety",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 20,
+      "free": false,
+      "x": 7800,
+      "y": 2700,
+      "next": [
+        94690
+      ],
+      "entries": [
+        {
+          "name": "Assured Safety",
+          "icon": "spell_holy_prayerofmendingtga",
+          "spellId": 440766,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94675": {
+      "name": "Divine Feathers / Save the Day",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 20,
+      "free": false,
+      "x": 8400,
+      "y": 2700,
+      "next": [
+        94673
+      ],
+      "entries": [
+        {
+          "name": "Divine Feathers",
+          "icon": "ability_priest_angelicfeather",
+          "spellId": 440670,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Save the Day",
+          "icon": "priest_spell_leapoffaith_a",
+          "spellId": 440669,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94689": {
+      "name": "Foreseen Circumstances",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 20,
+      "free": false,
+      "x": 9000,
+      "y": 2700,
+      "next": [
+        94700
+      ],
+      "entries": [
+        {
+          "name": "Foreseen Circumstances",
+          "icon": "spell_holy_painsupression",
+          "spellId": 440738,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109783": {
+      "name": "Prophet's Insight",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 20,
+      "free": false,
+      "x": 9600,
+      "y": 2700,
+      "next": [
+        109781
+      ],
+      "entries": [
+        {
+          "name": "Prophet's Insight",
+          "icon": "spell_priest_pontifex",
+          "spellId": 1272359,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94690": {
+      "name": "Prophet's Will / Desperate Measures",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 20,
+      "free": false,
+      "x": 7800,
+      "y": 3300,
+      "next": [
+        94687
+      ],
+      "entries": [
+        {
+          "name": "Prophet's Will",
+          "icon": "ability_priest_clarityofpurpose",
+          "spellId": 433905,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Desperate Measures",
+          "icon": "spell_holy_testoffaith",
+          "spellId": 458718,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94673": {
+      "name": "Prompt Prognosis",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 20,
+      "free": false,
+      "x": 8400,
+      "y": 3300,
+      "next": [
+        94687
+      ],
+      "entries": [
+        {
+          "name": "Prompt Prognosis",
+          "icon": "spell_holy_blessedlife",
+          "spellId": 1246799,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94700": {
+      "name": "Piety",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 20,
+      "free": false,
+      "x": 9000,
+      "y": 3300,
+      "next": [
+        94687
+      ],
+      "entries": [
+        {
+          "name": "Piety",
+          "icon": "inv_ability_oraclepriest_premonitionpiety",
+          "spellId": 1246802,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109781": {
+      "name": "Unfolding Vision",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 20,
+      "free": false,
+      "x": 9600,
+      "y": 3300,
+      "next": [
+        94687
+      ],
+      "entries": [
+        {
+          "name": "Unfolding Vision",
+          "icon": "spell_holy_mindvision",
+          "spellId": 1272363,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94687": {
+      "name": "Twinsight",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 20,
+      "free": false,
+      "x": 8700,
+      "y": 3900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Twinsight",
+          "icon": "inv_ability_oraclepriest_clairvoyance",
+          "spellId": 440742,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110008": {
+      "name": "Entropic Rift",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 18,
+      "free": true,
+      "x": 8700,
+      "y": 4500,
+      "next": [
+        94693,
+        94703,
+        94670,
+        109780
+      ],
+      "entries": [
+        {
+          "name": "Entropic Rift",
+          "icon": "inv_ability_voidweaverpriest_entropicrift",
+          "spellId": 447444,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94693": {
+      "name": "No Escape / Dark Energy",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 18,
+      "free": false,
+      "x": 7800,
+      "y": 5100,
+      "next": [
+        94668
+      ],
+      "entries": [
+        {
+          "name": "No Escape",
+          "icon": "spell_fire_twilighthellfire",
+          "spellId": 451204,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Dark Energy",
+          "icon": "achievement_boss_triumvirate_darknaaru",
+          "spellId": 451018,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94703": {
+      "name": "Void Blast",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 18,
+      "free": false,
+      "x": 8400,
+      "y": 5100,
+      "next": [
+        94695
+      ],
+      "entries": [
+        {
+          "name": "Void Blast",
+          "icon": "inv_cosmicvoid_missile",
+          "spellId": 450405,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94670": {
+      "name": "Inner Quietus",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 18,
+      "free": false,
+      "x": 9000,
+      "y": 5100,
+      "next": [
+        100212
+      ],
+      "entries": [
+        {
+          "name": "Inner Quietus",
+          "icon": "inv_cosmicvoid_buff",
+          "spellId": 448278,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109780": {
+      "name": "Voidheart",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 18,
+      "free": false,
+      "x": 9600,
+      "y": 5100,
+      "next": [
+        109779
+      ],
+      "entries": [
+        {
+          "name": "Voidheart",
+          "icon": "inv_cosmicvoid_orb",
+          "spellId": 449880,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94668": {
+      "name": "Devour Matter",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 18,
+      "free": false,
+      "x": 7800,
+      "y": 5700,
+      "next": [
+        94692
+      ],
+      "entries": [
+        {
+          "name": "Devour Matter",
+          "icon": "spell_holy_consumemagic",
+          "spellId": 451840,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94695": {
+      "name": "Void Empowerment / Darkening Horizon",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 18,
+      "free": false,
+      "x": 8400,
+      "y": 5700,
+      "next": [
+        94669
+      ],
+      "entries": [
+        {
+          "name": "Void Empowerment",
+          "icon": "inv_cosmicvoid_nova",
+          "spellId": 450138,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Darkening Horizon",
+          "icon": "inv_misc_83_voidfocus",
+          "spellId": 449912,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "100212": {
+      "name": "Voidwraith",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 18,
+      "free": false,
+      "x": 9000,
+      "y": 5700,
+      "next": [
+        94696
+      ],
+      "entries": [
+        {
+          "name": "Voidwraith",
+          "icon": "warlock_curse_shadow",
+          "spellId": 451234,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109779": {
+      "name": "Touch of the Void",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 18,
+      "free": false,
+      "x": 9600,
+      "y": 5700,
+      "next": [
+        109778
+      ],
+      "entries": [
+        {
+          "name": "Touch of the Void",
+          "icon": "inv_112_raidtrinkets_blobofswirlingvoid_purple",
+          "spellId": 1266856,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94692": {
+      "name": "Quickened Pulse",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 18,
+      "free": false,
+      "x": 7800,
+      "y": 6300,
+      "next": [
+        94694
+      ],
+      "entries": [
+        {
+          "name": "Quickened Pulse",
+          "icon": "ability_rogue_sanguinaryvein",
+          "spellId": 1266845,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94669": {
+      "name": "Void Infusion",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 18,
+      "free": false,
+      "x": 8400,
+      "y": 6300,
+      "next": [
+        94694
+      ],
+      "entries": [
+        {
+          "name": "Void Infusion",
+          "icon": "inv_misc_volatileshadow",
+          "spellId": 450612,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94696": {
+      "name": "Void Leech / Embrace the Shadow",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 18,
+      "free": false,
+      "x": 9000,
+      "y": 6300,
+      "next": [
+        94694
+      ],
+      "entries": [
+        {
+          "name": "Void Leech",
+          "icon": "spell_shadow_soulleech_2",
+          "spellId": 451311,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Embrace the Shadow",
+          "icon": "spell_shadow_shadesofdarkness",
+          "spellId": 451569,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109778": {
+      "name": "Overwhelming Shadows",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 18,
+      "free": false,
+      "x": 9600,
+      "y": 6300,
+      "next": [
+        94694
+      ],
+      "entries": [
+        {
+          "name": "Overwhelming Shadows",
+          "icon": "inv_shadowelementalmount",
+          "spellId": 1266883,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94694": {
+      "name": "Collapsing Void",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 18,
+      "free": false,
+      "x": 8700,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Collapsing Void",
+          "icon": "inv_cosmicvoid_groundsate",
+          "spellId": 448403,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "99801": {
+      "name": "Oracle / Voidweaver",
+      "g": "sub",
+      "type": "subtree",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 8400,
+      "y": 900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Oracle",
+          "icon": "talents-heroclass-priest-oracle",
+          "spellId": 0,
+          "type": "subtree",
+          "subTreeId": 20
+        },
+        {
+          "name": "Voidweaver",
+          "icon": "talents-heroclass-priest-voidweaver",
+          "spellId": 0,
+          "type": "subtree",
+          "subTreeId": 18
+        }
+      ]
+    }
   }
 }

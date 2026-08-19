@@ -1132,5 +1132,2737 @@
       "name": "Soul Harvester",
       "icon": "talents-heroclass-warlock-soulharvester"
     }
+  },
+  "fullNodeOrder": [
+    71916,
+    71917,
+    71918,
+    71922,
+    71923,
+    71924,
+    71926,
+    71930,
+    71931,
+    71932,
+    71933,
+    71936,
+    71937,
+    71938,
+    71941,
+    71942,
+    71944,
+    71947,
+    71948,
+    71949,
+    71950,
+    71952,
+    71954,
+    71955,
+    71956,
+    71957,
+    71960,
+    71961,
+    71964,
+    71965,
+    71966,
+    71968,
+    71969,
+    71971,
+    71972,
+    71973,
+    71974,
+    71975,
+    71979,
+    71980,
+    71982,
+    71983,
+    71985,
+    71987,
+    72032,
+    72033,
+    72034,
+    72037,
+    72041,
+    72045,
+    72046,
+    72047,
+    72049,
+    72050,
+    72051,
+    72054,
+    72055,
+    72058,
+    72059,
+    72060,
+    72061,
+    72062,
+    72064,
+    72065,
+    72066,
+    72067,
+    72068,
+    72069,
+    94821,
+    94822,
+    94823,
+    94824,
+    94825,
+    94826,
+    94829,
+    94830,
+    94831,
+    94832,
+    94833,
+    94834,
+    94835,
+    94836,
+    94837,
+    94838,
+    94840,
+    94842,
+    94843,
+    94844,
+    94845,
+    94846,
+    94847,
+    94848,
+    94849,
+    94850,
+    94851,
+    94852,
+    94853,
+    94854,
+    94855,
+    94856,
+    94857,
+    99848,
+    99849,
+    99850,
+    100941,
+    101886,
+    101887,
+    101888,
+    101891,
+    101892,
+    101893,
+    101894,
+    101895,
+    101903,
+    101905,
+    101908,
+    101909,
+    101914,
+    101917,
+    101920,
+    101923,
+    101992,
+    101993,
+    101994,
+    102003,
+    102031,
+    102247,
+    102427,
+    108678,
+    108680,
+    108681,
+    109241,
+    109244,
+    109248,
+    109249,
+    109250,
+    109251,
+    109252,
+    109253,
+    109257,
+    109831,
+    109832,
+    109833,
+    109834,
+    109835,
+    109836,
+    109837,
+    109838,
+    109839,
+    109840,
+    109841,
+    109842,
+    109843,
+    109844,
+    109845,
+    109846,
+    109847,
+    109848,
+    109849,
+    109850,
+    109851,
+    109852,
+    109853,
+    109854,
+    109855,
+    109857,
+    109858,
+    109859,
+    109860,
+    109861,
+    109862,
+    109863,
+    109864,
+    109865,
+    109866,
+    109934,
+    109936,
+    110071,
+    110072,
+    110073,
+    110074,
+    110075,
+    110076,
+    110191,
+    110192,
+    110193,
+    110194,
+    110195,
+    110196,
+    110197,
+    110198,
+    110199,
+    110200,
+    110201,
+    110269,
+    110270,
+    110280,
+    110281,
+    110282,
+    110404,
+    110405,
+    110406
+  ],
+  "nodes": {
+    "71931": {
+      "name": "Fel Domination",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 1200,
+      "next": [
+        71932,
+        71952
+      ],
+      "entries": [
+        {
+          "name": "Fel Domination",
+          "icon": "spell_shadow_felmending",
+          "spellId": 333889,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71933": {
+      "name": "Soul Leech",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": true,
+      "x": 4200,
+      "y": 1200,
+      "next": [
+        71952,
+        71950
+      ],
+      "entries": [
+        {
+          "name": "Soul Leech",
+          "icon": "warlock_siphonlife",
+          "spellId": 1311653,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71949": {
+      "name": "Burning Rush",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 1200,
+      "next": [
+        71950,
+        71948
+      ],
+      "entries": [
+        {
+          "name": "Burning Rush",
+          "icon": "ability_deathwing_sealarmorbreachtga",
+          "spellId": 111400,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71932": {
+      "name": "Fel Pact",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 1800,
+      "next": [
+        71930
+      ],
+      "entries": [
+        {
+          "name": "Fel Pact",
+          "icon": "spell_shadow_impphaseshift",
+          "spellId": 386113,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71952": {
+      "name": "Demon Skin",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 1800,
+      "next": [
+        71930,
+        71916
+      ],
+      "entries": [
+        {
+          "name": "Demon Skin",
+          "icon": "spell_shadow_ragingscream",
+          "spellId": 219272,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71950": {
+      "name": "Fel Armor",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 4800,
+      "y": 1800,
+      "next": [
+        71916,
+        71922
+      ],
+      "entries": [
+        {
+          "name": "Fel Armor",
+          "icon": "spell_shadow_felarmour",
+          "spellId": 386124,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71948": {
+      "name": "Fiendish Stride",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 1800,
+      "next": [
+        71922
+      ],
+      "entries": [
+        {
+          "name": "Fiendish Stride",
+          "icon": "inv_misc_moosehoof_fel",
+          "spellId": 386110,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71930": {
+      "name": "Demonic Embrace",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 2400,
+      "next": [
+        71944,
+        109847
+      ],
+      "entries": [
+        {
+          "name": "Demonic Embrace",
+          "icon": "spell_shadow_metamorphosis",
+          "spellId": 288843,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71916": {
+      "name": "Nightmare / Horrify",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 2400,
+      "next": [
+        109847,
+        109846
+      ],
+      "entries": [
+        {
+          "name": "Nightmare",
+          "icon": "spell_shadow_possession",
+          "spellId": 386648,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Horrify",
+          "icon": "spell_nzinsanity_bloodthirst",
+          "spellId": 56244,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71922": {
+      "name": "Demonic Fortitude",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 2400,
+      "next": [
+        109846,
+        109844,
+        71942
+      ],
+      "entries": [
+        {
+          "name": "Demonic Fortitude",
+          "icon": "spell_warlock_summonimpoutland",
+          "spellId": 386617,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71944": {
+      "name": "Banish",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2400,
+      "y": 3000,
+      "next": [
+        110071
+      ],
+      "entries": [
+        {
+          "name": "Banish",
+          "icon": "spell_shadow_cripple",
+          "spellId": 710,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109847": {
+      "name": "Curse of Exhaustion",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 3000,
+      "next": [
+        110071,
+        100941
+      ],
+      "entries": [
+        {
+          "name": "Curse of Exhaustion",
+          "icon": "spell_shadow_grimward",
+          "spellId": 334275,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109846": {
+      "name": "Curse of Tongues",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4800,
+      "y": 3000,
+      "next": [
+        100941,
+        110072
+      ],
+      "entries": [
+        {
+          "name": "Curse of Tongues",
+          "icon": "spell_shadow_curseoftounges",
+          "spellId": 1714,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109844": {
+      "name": "Infernal Beneficiary",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 3000,
+      "next": [
+        110072
+      ],
+      "entries": [
+        {
+          "name": "Infernal Beneficiary",
+          "icon": "achievement_general_raidrepresentation",
+          "spellId": 1265810,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71942": {
+      "name": "Mortal Coil",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6000,
+      "y": 3000,
+      "next": [
+        110072,
+        109845
+      ],
+      "entries": [
+        {
+          "name": "Mortal Coil",
+          "icon": "ability_warlock_mortalcoil",
+          "spellId": 6789,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110071": {
+      "name": "Pact of the Annihilan",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 3600,
+      "next": [
+        71936,
+        109840,
+        110075
+      ],
+      "entries": [
+        {
+          "name": "Pact of the Annihilan",
+          "icon": "inv_misc_magtheridonshead",
+          "spellId": 1270693,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "100941": {
+      "name": "Demonic Circle",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 3600,
+      "next": [
+        110075,
+        71954,
+        110074
+      ],
+      "entries": [
+        {
+          "name": "Demonic Circle",
+          "icon": "spell_shadow_demoniccirclesummon",
+          "spellId": 268358,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110072": {
+      "name": "Pact of the Satyr",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 3600,
+      "next": [
+        110074,
+        71938,
+        71923
+      ],
+      "entries": [
+        {
+          "name": "Pact of the Satyr",
+          "icon": "spell_shadow_mindshear",
+          "spellId": 1270691,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109845": {
+      "name": "Improved Mortal Coil",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6000,
+      "y": 3600,
+      "next": [
+        71923
+      ],
+      "entries": [
+        {
+          "name": "Improved Mortal Coil",
+          "icon": "spell_warlock_harvestoflife",
+          "spellId": 1265816,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71936": {
+      "name": "Dark Pact",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2400,
+      "y": 4200,
+      "next": [
+        71937
+      ],
+      "entries": [
+        {
+          "name": "Dark Pact",
+          "icon": "spell_shadow_deathpact",
+          "spellId": 108416,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109840": {
+      "name": "Foul Mouth",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 4200,
+      "next": [
+        109843
+      ],
+      "entries": [
+        {
+          "name": "Foul Mouth",
+          "icon": "ability_creature_cursed_02",
+          "spellId": 1265813,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110075": {
+      "name": "Empowered Healthstone",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 4200,
+      "next": [
+        109843
+      ],
+      "entries": [
+        {
+          "name": "Empowered Healthstone",
+          "icon": "inv_raid_creepingcoagulum_blue",
+          "spellId": 1271699,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71954": {
+      "name": "Abyss Walker",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 4200,
+      "next": [
+        109843,
+        110073
+      ],
+      "entries": [
+        {
+          "name": "Abyss Walker",
+          "icon": "achievement_explore_argus",
+          "spellId": 389609,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110074": {
+      "name": "Fortified Soul",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4800,
+      "y": 4200,
+      "next": [
+        110073,
+        71917
+      ],
+      "entries": [
+        {
+          "name": "Fortified Soul",
+          "icon": "spell_warlock_demonsoul",
+          "spellId": 1271694,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71938": {
+      "name": "Teachings of the Black Harvest",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 4200,
+      "next": [
+        71917
+      ],
+      "entries": [
+        {
+          "name": "Teachings of the Black Harvest",
+          "icon": "inv_misc_codexofxerrath_nochains",
+          "spellId": 385881,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71923": {
+      "name": "Gorefiend's Avarice",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6000,
+      "y": 4200,
+      "next": [
+        71917,
+        110076
+      ],
+      "entries": [
+        {
+          "name": "Gorefiend's Avarice",
+          "icon": "inv_helmet_90",
+          "spellId": 1270701,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71937": {
+      "name": "Ichor of Devils / Frequent Donor",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2400,
+      "y": 4800,
+      "next": [
+        71956
+      ],
+      "entries": [
+        {
+          "name": "Ichor of Devils",
+          "icon": "spell_yorsahj_bloodboil_greenoil",
+          "spellId": 386664,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Frequent Donor",
+          "icon": "ability_ironmaidens_bloodritual",
+          "spellId": 386686,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109843": {
+      "name": "Pact of the Eredar",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 4800,
+      "next": [
+        71956,
+        71955
+      ],
+      "entries": [
+        {
+          "name": "Pact of the Eredar",
+          "icon": "achievement_boss_argus_femaleeredar",
+          "spellId": 1270695,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110073": {
+      "name": "Pact of the Nathrezim",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4800,
+      "y": 4800,
+      "next": [
+        71955,
+        71947
+      ],
+      "entries": [
+        {
+          "name": "Pact of the Nathrezim",
+          "icon": "ability_physical_taunt_purple",
+          "spellId": 1270690,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71917": {
+      "name": "Demonic Resilience",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 4800,
+      "next": [
+        71947
+      ],
+      "entries": [
+        {
+          "name": "Demonic Resilience",
+          "icon": "ability_warlock_avoidance",
+          "spellId": 389590,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110076": {
+      "name": "Empowered Drain Life",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6000,
+      "y": 4800,
+      "next": [
+        71947
+      ],
+      "entries": [
+        {
+          "name": "Empowered Drain Life",
+          "icon": "spell_shadow_lifedrain02_purple",
+          "spellId": 1271689,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71956": {
+      "name": "Strength of Will / Dark Accord",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 5400,
+      "next": [
+        71918,
+        109842
+      ],
+      "entries": [
+        {
+          "name": "Strength of Will",
+          "icon": "spell_shadow_demonictactics",
+          "spellId": 317138,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Dark Accord",
+          "icon": "ability_warlock_improveddemonictactics",
+          "spellId": 386659,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71955": {
+      "name": "Demonic Gateway",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 5400,
+      "next": [
+        109842,
+        109841,
+        71924
+      ],
+      "entries": [
+        {
+          "name": "Demonic Gateway",
+          "icon": "spell_warlock_demonicportal_green",
+          "spellId": 111771,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71947": {
+      "name": "Howl of Terror / Shadowfury",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 5400,
+      "next": [
+        71924,
+        71941
+      ],
+      "entries": [
+        {
+          "name": "Howl of Terror",
+          "icon": "ability_warlock_howlofterror",
+          "spellId": 5484,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Shadowfury",
+          "icon": "ability_warlock_shadowfurytga",
+          "spellId": 30283,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71918": {
+      "name": "Swift Artifice",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2400,
+      "y": 6000,
+      "next": [
+        71926
+      ],
+      "entries": [
+        {
+          "name": "Swift Artifice",
+          "icon": "spell_shadow_destructivesoul",
+          "spellId": 452902,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109842": {
+      "name": "Soul Link",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 6000,
+      "next": [
+        71926,
+        71957
+      ],
+      "entries": [
+        {
+          "name": "Soul Link",
+          "icon": "ability_warlock_soullink",
+          "spellId": 108415,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109841": {
+      "name": "Frequent Traveler",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 6000,
+      "next": [
+        71957
+      ],
+      "entries": [
+        {
+          "name": "Frequent Traveler",
+          "icon": "achievement_dungeon_outland_dungeonmaster",
+          "spellId": 1265801,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71924": {
+      "name": "Fel Synergy",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 4800,
+      "y": 6000,
+      "next": [
+        71957,
+        109848
+      ],
+      "entries": [
+        {
+          "name": "Fel Synergy",
+          "icon": "inv_sword_1h_felfireraid_d_01",
+          "spellId": 389367,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71941": {
+      "name": "Oppressive Darkness",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6000,
+      "y": 6000,
+      "next": [
+        109848
+      ],
+      "entries": [
+        {
+          "name": "Oppressive Darkness",
+          "icon": "spell_shadow_shadowfury",
+          "spellId": 1270255,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71926": {
+      "name": "Pact of Gluttony",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 6600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Pact of Gluttony",
+          "icon": "warlock__bloodstone",
+          "spellId": 386689,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71957": {
+      "name": "Soulburn",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 6600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Soulburn",
+          "icon": "spell_warlock_soulburn",
+          "spellId": 385899,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109848": {
+      "name": "Blight of Weakness / Blight of Tongues",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 6600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Blight of Weakness",
+          "icon": "warlock_curse_weakness_amplified",
+          "spellId": 1265799,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Blight of Tongues",
+          "icon": "spell_shadow_curseoftongues_amplified",
+          "spellId": 1271802,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "72049": {
+      "name": "Agony",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 1200,
+      "next": [
+        109862,
+        72050
+      ],
+      "entries": [
+        {
+          "name": "Agony",
+          "icon": "spell_shadow_curseofsargeras",
+          "spellId": 980,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109862": {
+      "name": "Unstable Affliction",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 1800,
+      "next": [
+        72047,
+        72032
+      ],
+      "entries": [
+        {
+          "name": "Unstable Affliction",
+          "icon": "spell_shadow_unstableaffliction_3",
+          "spellId": 1259790,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "72050": {
+      "name": "Seed of Corruption",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 1800,
+      "next": [
+        72032,
+        109861
+      ],
+      "entries": [
+        {
+          "name": "Seed of Corruption",
+          "icon": "spell_shadow_seedofdestruction",
+          "spellId": 27243,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "72047": {
+      "name": "Nightfall",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11400,
+      "y": 2400,
+      "next": [
+        72045
+      ],
+      "entries": [
+        {
+          "name": "Nightfall",
+          "icon": "spell_shadow_twilight",
+          "spellId": 108558,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "72032": {
+      "name": "Haunt",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 2400,
+      "next": [
+        102031
+      ],
+      "entries": [
+        {
+          "name": "Haunt",
+          "icon": "ability_warlock_haunt",
+          "spellId": 48181,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109861": {
+      "name": "Shared Agony",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 2400,
+      "next": [
+        72051
+      ],
+      "entries": [
+        {
+          "name": "Shared Agony",
+          "icon": "spell_shadow_curseofsargeras",
+          "spellId": 1259825,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "72045": {
+      "name": "Improved Shadow Bolt / Drain Soul",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11400,
+      "y": 3000,
+      "next": [
+        72054,
+        72055
+      ],
+      "entries": [
+        {
+          "name": "Improved Shadow Bolt",
+          "icon": "spell_shadow_shadowbolt",
+          "spellId": 453080,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Drain Soul",
+          "icon": "spell_shadow_haunting",
+          "spellId": 388667,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102031": {
+      "name": "Improved Haunt",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 3000,
+      "next": [
+        72055,
+        72058
+      ],
+      "entries": [
+        {
+          "name": "Improved Haunt",
+          "icon": "ability_warlock_haunt",
+          "spellId": 458034,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "72051": {
+      "name": "Absolute Corruption / Siphon Life",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 3000,
+      "next": [
+        72058,
+        109860
+      ],
+      "entries": [
+        {
+          "name": "Absolute Corruption",
+          "icon": "ability_bossmannoroth_empoweredmannorothsgaze",
+          "spellId": 196103,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Siphon Life",
+          "icon": "spell_shadow_requiem",
+          "spellId": 452999,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "72054": {
+      "name": "Cunning Cruelty",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10800,
+      "y": 3600,
+      "next": [
+        110269
+      ],
+      "entries": [
+        {
+          "name": "Cunning Cruelty",
+          "icon": "inv_misc_coin_09",
+          "spellId": 453172,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "72055": {
+      "name": "Withering Bolt",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 3600,
+      "next": [
+        110269,
+        72034
+      ],
+      "entries": [
+        {
+          "name": "Withering Bolt",
+          "icon": "spell_shadow_shadowbolt",
+          "spellId": 386976,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "72058": {
+      "name": "Creeping Death",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 3600,
+      "next": [
+        72034,
+        72037
+      ],
+      "entries": [
+        {
+          "name": "Creeping Death",
+          "icon": "ability_creature_cursed_03",
+          "spellId": 264000,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109860": {
+      "name": "Dark Harvest",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14400,
+      "y": 3600,
+      "next": [
+        72037,
+        109859
+      ],
+      "entries": [
+        {
+          "name": "Dark Harvest",
+          "icon": "inv_ability_warlock_soulrot",
+          "spellId": 1257052,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110269": {
+      "name": "Practiced Pestilence",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11400,
+      "y": 4200,
+      "next": [
+        72046,
+        109849
+      ],
+      "entries": [
+        {
+          "name": "Practiced Pestilence",
+          "icon": "spell_nature_agitatingtotem",
+          "spellId": 1259811,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "72034": {
+      "name": "Summon Darkglare",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 4200,
+      "next": [
+        110270,
+        109858,
+        71987
+      ],
+      "entries": [
+        {
+          "name": "Summon Darkglare",
+          "icon": "inv_beholderwarlock",
+          "spellId": 205180,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "72037": {
+      "name": "Summoner's Embrace / Grimoire of Sacrifice",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 4200,
+      "next": [
+        109850,
+        72041
+      ],
+      "entries": [
+        {
+          "name": "Summoner's Embrace",
+          "icon": "spell_shadow_unsummonbuilding",
+          "spellId": 453105,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Grimoire of Sacrifice",
+          "icon": "warlock_grimoireofsacrifice",
+          "spellId": 108503,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109859": {
+      "name": "Cull the Weak",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14400,
+      "y": 4200,
+      "next": [
+        72041
+      ],
+      "entries": [
+        {
+          "name": "Cull the Weak",
+          "icon": "ability_warlock_soulsiphon",
+          "spellId": 1259886,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "72046": {
+      "name": "Malediction",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10800,
+      "y": 4800,
+      "next": [
+        109857
+      ],
+      "entries": [
+        {
+          "name": "Malediction",
+          "icon": "spell_shadow_curseofachimonde",
+          "spellId": 453087,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109849": {
+      "name": "Sudden Onset",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11400,
+      "y": 4800,
+      "next": [
+        109857,
+        109863
+      ],
+      "entries": [
+        {
+          "name": "Sudden Onset",
+          "icon": "spell_shadow_curseofsargeras",
+          "spellId": 1260209,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110270": {
+      "name": "Eye Contract",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 4800,
+      "next": [
+        109863
+      ],
+      "entries": [
+        {
+          "name": "Eye Contract",
+          "icon": "inv_misc_scrollunrolled01c",
+          "spellId": 1279521,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109858": {
+      "name": "Malefic Grasp",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 4800,
+      "next": [
+        109863,
+        109864
+      ],
+      "entries": [
+        {
+          "name": "Malefic Grasp",
+          "icon": "ability_warlock_everlastingaffliction",
+          "spellId": 1261149,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "71987": {
+      "name": "Nether Plating",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 4800,
+      "next": [
+        109864
+      ],
+      "entries": [
+        {
+          "name": "Nether Plating",
+          "icon": "inv_antorus_orange",
+          "spellId": 1280733,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109850": {
+      "name": "Sacrolash's Dark Strike",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 4800,
+      "next": [
+        109864,
+        109851
+      ],
+      "entries": [
+        {
+          "name": "Sacrolash's Dark Strike",
+          "icon": "spell_nzinsanity_fearofdeath",
+          "spellId": 386986,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "72041": {
+      "name": "Contagion",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14400,
+      "y": 4800,
+      "next": [
+        109851
+      ],
+      "entries": [
+        {
+          "name": "Contagion",
+          "icon": "spell_shadow_creepingplague",
+          "spellId": 453096,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109857": {
+      "name": "Shard Instability",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10800,
+      "y": 5400,
+      "next": [
+        109865
+      ],
+      "entries": [
+        {
+          "name": "Shard Instability",
+          "icon": "spell_warlock_focusshadow",
+          "spellId": 1260264,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109863": {
+      "name": "Niskaran Methods",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 5400,
+      "next": [
+        109865,
+        102247
+      ],
+      "entries": [
+        {
+          "name": "Niskaran Methods",
+          "icon": "inv_lightforgedmatrixability_felheartofargus",
+          "spellId": 1279510,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109864": {
+      "name": "Potent Soul Shards",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 5400,
+      "next": [
+        102247,
+        109866
+      ],
+      "entries": [
+        {
+          "name": "Potent Soul Shards",
+          "icon": "inv_misc_gem_amethyst_02",
+          "spellId": 1259815,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109851": {
+      "name": "Impetuous Wrath",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14400,
+      "y": 5400,
+      "next": [
+        109866
+      ],
+      "entries": [
+        {
+          "name": "Impetuous Wrath",
+          "icon": "spell_shadow_manaburn",
+          "spellId": 1312998,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109865": {
+      "name": "Xavius' Gambit",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 11400,
+      "y": 6000,
+      "next": [
+        109852,
+        109855
+      ],
+      "entries": [
+        {
+          "name": "Xavius' Gambit",
+          "icon": "spell_shadow_mindshear",
+          "spellId": 416615,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102247": {
+      "name": "Ravenous Afflictions",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 6000,
+      "next": [
+        72033
+      ],
+      "entries": [
+        {
+          "name": "Ravenous Afflictions",
+          "icon": "ability_warlock_improvedsoulleech",
+          "spellId": 459440,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109866": {
+      "name": "Seeds of Destruction",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 6000,
+      "next": [
+        109853,
+        109854
+      ],
+      "entries": [
+        {
+          "name": "Seeds of Destruction",
+          "icon": "sha_inv_elemental_primal_shadow_nightmare",
+          "spellId": 1259838,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109852": {
+      "name": "Fatal Echoes",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10800,
+      "y": 6600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Fatal Echoes",
+          "icon": "spell_shadow_unstableaffliction_3_purple",
+          "spellId": 1260229,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109855": {
+      "name": "Cascading Calamity",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 6600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Cascading Calamity",
+          "icon": "spell_shadow_unstableafllictions",
+          "spellId": 1261124,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "72033": {
+      "name": "Death's Embrace",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 6600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Death's Embrace",
+          "icon": "spell_shadow_deathsembrace",
+          "spellId": 234876,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109853": {
+      "name": "Hedonic Gorging",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 6600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Hedonic Gorging",
+          "icon": "ability_soulrenderdormazain_hellscream",
+          "spellId": 1311969,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109854": {
+      "name": "Sow the Seeds",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14400,
+      "y": 6600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Sow the Seeds",
+          "icon": "spell_shadow_seedofdestruction",
+          "spellId": 196226,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110405": {
+      "name": "Shadow of Nathreza / Shadow of Nathreza / Shadow of Nathreza",
+      "g": "spec",
+      "type": "tiered",
+      "maxRanks": 4,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 7350,
+      "next": [],
+      "entries": [
+        {
+          "name": "Shadow of Nathreza",
+          "icon": "inv12_apextalent_warlock_shadowsofnathreza",
+          "spellId": 1261984,
+          "type": "tierrank",
+          "subTreeId": null
+        },
+        {
+          "name": "Shadow of Nathreza",
+          "icon": "inv12_apextalent_warlock_shadowsofnathreza",
+          "spellId": 1261990,
+          "type": "tierrank",
+          "subTreeId": null
+        },
+        {
+          "name": "Shadow of Nathreza",
+          "icon": "inv12_apextalent_warlock_shadowsofnathreza",
+          "spellId": 1261992,
+          "type": "tierrank",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94840": {
+      "name": "Wither",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 58,
+      "free": true,
+      "x": 15900,
+      "y": 600,
+      "next": [
+        94853,
+        94837,
+        94845,
+        109836
+      ],
+      "entries": [
+        {
+          "name": "Wither",
+          "icon": "inv_ability_hellcallerwarlock_wither",
+          "spellId": 445465,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94853": {
+      "name": "Xalan's Ferocity",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 58,
+      "free": false,
+      "x": 15000,
+      "y": 1200,
+      "next": [
+        94822
+      ],
+      "entries": [
+        {
+          "name": "Xalan's Ferocity",
+          "icon": "spell_fire_felfire",
+          "spellId": 440044,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94837": {
+      "name": "Blackened Soul",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 58,
+      "free": false,
+      "x": 15600,
+      "y": 1200,
+      "next": [
+        94854
+      ],
+      "entries": [
+        {
+          "name": "Blackened Soul",
+          "icon": "spell_nzinsanity_chasedbyshadows",
+          "spellId": 440043,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94845": {
+      "name": "Xalan's Cruelty",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 58,
+      "free": false,
+      "x": 16200,
+      "y": 1200,
+      "next": [
+        94835
+      ],
+      "entries": [
+        {
+          "name": "Xalan's Cruelty",
+          "icon": "spell_shadow_demonicempathy",
+          "spellId": 440040,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109836": {
+      "name": "Through the Felvine",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 58,
+      "free": false,
+      "x": 16800,
+      "y": 1200,
+      "next": [
+        109835
+      ],
+      "entries": [
+        {
+          "name": "Through the Felvine",
+          "icon": "spell_nature_thorns_nightmare",
+          "spellId": 1266799,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94851": {
+      "name": "Demonic Soul",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 57,
+      "free": true,
+      "x": 8150,
+      "y": 1250,
+      "next": [
+        94825,
+        94847,
+        94832,
+        109839
+      ],
+      "entries": [
+        {
+          "name": "Demonic Soul",
+          "icon": "inv_ability_soulharvesterwarlock_demonicsoul",
+          "spellId": 449614,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94825": {
+      "name": "Necrolyte Teachings",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 57,
+      "free": false,
+      "x": 7200,
+      "y": 1800,
+      "next": [
+        94850
+      ],
+      "entries": [
+        {
+          "name": "Necrolyte Teachings",
+          "icon": "spell_necro_deathall",
+          "spellId": 449620,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94847": {
+      "name": "Soul Anathema",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 57,
+      "free": false,
+      "x": 7800,
+      "y": 1800,
+      "next": [
+        94823
+      ],
+      "entries": [
+        {
+          "name": "Soul Anathema",
+          "icon": "spell_necro_inevitableend",
+          "spellId": 449624,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94832": {
+      "name": "Demoniac's Fervor",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 57,
+      "free": false,
+      "x": 8400,
+      "y": 1800,
+      "next": [
+        94824
+      ],
+      "entries": [
+        {
+          "name": "Demoniac's Fervor",
+          "icon": "inv_helm_mask_zulgurub_d_01",
+          "spellId": 449629,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109839": {
+      "name": "Manifested Avarice",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 57,
+      "free": false,
+      "x": 9000,
+      "y": 1800,
+      "next": [
+        109838
+      ],
+      "entries": [
+        {
+          "name": "Manifested Avarice",
+          "icon": "ability_priest_shadowyapparition",
+          "spellId": 1268884,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94822": {
+      "name": "Curse of the Satyr / Aura of Enfeeblement",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 58,
+      "free": false,
+      "x": 15000,
+      "y": 1800,
+      "next": [
+        94834
+      ],
+      "entries": [
+        {
+          "name": "Curse of the Satyr",
+          "icon": "inv_fabric_felrag",
+          "spellId": 440057,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Aura of Enfeeblement",
+          "icon": "warlock_curse_weakness_aura",
+          "spellId": 440059,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94854": {
+      "name": "Hatefury Rituals / Bleakheart Tactics",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 58,
+      "free": false,
+      "x": 15600,
+      "y": 1800,
+      "next": [
+        94829
+      ],
+      "entries": [
+        {
+          "name": "Hatefury Rituals",
+          "icon": "70_inscription_glyph_demonhunter_minor",
+          "spellId": 440048,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Bleakheart Tactics",
+          "icon": "spell_shadow_mindshear",
+          "spellId": 440051,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94835": {
+      "name": "Zevrim's Resilience / Illhoof's Design",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 58,
+      "free": false,
+      "x": 16200,
+      "y": 1800,
+      "next": [
+        94844
+      ],
+      "entries": [
+        {
+          "name": "Zevrim's Resilience",
+          "icon": "ability_warrior_intensifyrage",
+          "spellId": 440065,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Illhoof's Design",
+          "icon": "sha_spell_fire_felfireward_nightmare",
+          "spellId": 440070,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109835": {
+      "name": "Devil Fruit",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 58,
+      "free": false,
+      "x": 16800,
+      "y": 1800,
+      "next": [
+        109834
+      ],
+      "entries": [
+        {
+          "name": "Devil Fruit",
+          "icon": "inv_112_raidtrinkets_blobofswirlingvoid_terra",
+          "spellId": 1266805,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94850": {
+      "name": "Gorebound Fortitude / Friends In Dark Places",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 57,
+      "free": false,
+      "x": 7200,
+      "y": 2400,
+      "next": [
+        94821
+      ],
+      "entries": [
+        {
+          "name": "Gorebound Fortitude",
+          "icon": "spell_holy_consumemagic",
+          "spellId": 449701,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Friends In Dark Places",
+          "icon": "spell_shadow_deathpact",
+          "spellId": 449703,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94823": {
+      "name": "Shared Fate / Feast of Souls",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 57,
+      "free": false,
+      "x": 7800,
+      "y": 2400,
+      "next": [
+        94846
+      ],
+      "entries": [
+        {
+          "name": "Shared Fate",
+          "icon": "ability_warlock_soullink",
+          "spellId": 449704,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Feast of Souls",
+          "icon": "ability_warlock_improvedsoulleech",
+          "spellId": 449706,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94824": {
+      "name": "Eternal Servitude / Gorefiend's Resolve",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 57,
+      "free": false,
+      "x": 8400,
+      "y": 2400,
+      "next": [
+        94838
+      ],
+      "entries": [
+        {
+          "name": "Eternal Servitude",
+          "icon": "ability_demonhunter_infernalchains",
+          "spellId": 449707,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Gorefiend's Resolve",
+          "icon": "ability_rogue_masterofsubtlety",
+          "spellId": 389623,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109838": {
+      "name": "Shared Vessel",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 57,
+      "free": false,
+      "x": 9000,
+      "y": 2400,
+      "next": [
+        109837
+      ],
+      "entries": [
+        {
+          "name": "Shared Vessel",
+          "icon": "inv_ability_priest_mindgames",
+          "spellId": 1268889,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94834": {
+      "name": "Mark of Xavius",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 58,
+      "free": false,
+      "x": 15000,
+      "y": 2400,
+      "next": [
+        94842
+      ],
+      "entries": [
+        {
+          "name": "Mark of Xavius",
+          "icon": "warlock_curse_shadow_aura",
+          "spellId": 440046,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94829": {
+      "name": "Seeds of Their Demise",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 58,
+      "free": false,
+      "x": 15600,
+      "y": 2400,
+      "next": [
+        94842
+      ],
+      "entries": [
+        {
+          "name": "Seeds of Their Demise",
+          "icon": "ability_warlock_moltencoregreen",
+          "spellId": 440055,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94844": {
+      "name": "Mark of Peroth'arn",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 58,
+      "free": false,
+      "x": 16200,
+      "y": 2400,
+      "next": [
+        94842
+      ],
+      "entries": [
+        {
+          "name": "Mark of Peroth'arn",
+          "icon": "70_inscription_vantus_rune_tomb",
+          "spellId": 440045,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109834": {
+      "name": "Alzzin's Iniquity",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 58,
+      "free": false,
+      "x": 16800,
+      "y": 2400,
+      "next": [
+        94842
+      ],
+      "entries": [
+        {
+          "name": "Alzzin's Iniquity",
+          "icon": "spell_shadow_improvedvampiricembrace",
+          "spellId": 1266803,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94821": {
+      "name": "Wicked Reaping",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 57,
+      "free": false,
+      "x": 7200,
+      "y": 3000,
+      "next": [
+        94857
+      ],
+      "entries": [
+        {
+          "name": "Wicked Reaping",
+          "icon": "inv_staff_2h_artifactdeadwind_d_05",
+          "spellId": 449631,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94846": {
+      "name": "Quietus",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 57,
+      "free": false,
+      "x": 7800,
+      "y": 3000,
+      "next": [
+        94857
+      ],
+      "entries": [
+        {
+          "name": "Quietus",
+          "icon": "spell_necro_conclave",
+          "spellId": 449634,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94838": {
+      "name": "Sataiel's Volition",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 57,
+      "free": false,
+      "x": 8400,
+      "y": 3000,
+      "next": [
+        94857
+      ],
+      "entries": [
+        {
+          "name": "Sataiel's Volition",
+          "icon": "spell_necro_deathlyecho",
+          "spellId": 449637,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109837": {
+      "name": "Eternal Hunger",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 57,
+      "free": false,
+      "x": 9000,
+      "y": 3000,
+      "next": [
+        94857
+      ],
+      "entries": [
+        {
+          "name": "Eternal Hunger",
+          "icon": "ability_creature_poison_01_purple",
+          "spellId": 1268903,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94842": {
+      "name": "Malevolence",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 58,
+      "free": false,
+      "x": 15900,
+      "y": 3000,
+      "next": [],
+      "entries": [
+        {
+          "name": "Malevolence",
+          "icon": "inv_ability_hellcallerwarlock_malevolence",
+          "spellId": 430014,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94857": {
+      "name": "Shadow of Death",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 57,
+      "free": false,
+      "x": 8150,
+      "y": 3650,
+      "next": [],
+      "entries": [
+        {
+          "name": "Shadow of Death",
+          "icon": "spell_arcane_prismaticcloak",
+          "spellId": 449638,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "99850": {
+      "name": "Hellcaller / Soul Harvester",
+      "g": "sub",
+      "type": "subtree",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6900,
+      "y": 600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Hellcaller",
+          "icon": "talents-heroclass-warlock-hellcaller",
+          "spellId": 0,
+          "type": "subtree",
+          "subTreeId": 58
+        },
+        {
+          "name": "Soul Harvester",
+          "icon": "talents-heroclass-warlock-soulharvester",
+          "spellId": 0,
+          "type": "subtree",
+          "subTreeId": 57
+        }
+      ]
+    }
   }
 }

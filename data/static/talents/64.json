@@ -1177,5 +1177,2831 @@
       "name": "Spellslinger",
       "icon": "talents-heroclass-mage-spellslinger"
     }
+  },
+  "fullNodeOrder": [
+    62084,
+    62085,
+    62086,
+    62087,
+    62088,
+    62091,
+    62092,
+    62094,
+    62096,
+    62098,
+    62100,
+    62102,
+    62104,
+    62105,
+    62107,
+    62110,
+    62112,
+    62114,
+    62115,
+    62116,
+    62117,
+    62119,
+    62121,
+    62122,
+    62123,
+    62124,
+    62125,
+    62127,
+    62129,
+    62150,
+    62151,
+    62153,
+    62157,
+    62163,
+    62164,
+    62170,
+    62173,
+    62174,
+    62176,
+    62177,
+    62178,
+    62179,
+    62180,
+    62181,
+    62182,
+    62184,
+    62185,
+    81468,
+    93524,
+    94632,
+    94633,
+    94634,
+    94635,
+    94636,
+    94637,
+    94638,
+    94639,
+    94640,
+    94641,
+    94642,
+    94643,
+    94644,
+    94645,
+    94646,
+    94647,
+    94648,
+    94649,
+    94650,
+    94651,
+    94652,
+    94653,
+    94654,
+    94655,
+    94656,
+    94657,
+    94658,
+    94659,
+    94660,
+    94661,
+    94662,
+    94663,
+    94664,
+    99828,
+    99829,
+    99830,
+    100989,
+    100995,
+    100998,
+    100999,
+    101004,
+    101007,
+    101009,
+    101015,
+    101016,
+    101019,
+    101021,
+    101024,
+    101027,
+    101029,
+    101883,
+    102438,
+    102439,
+    102440,
+    102441,
+    102445,
+    102446,
+    102449,
+    102451,
+    102453,
+    102454,
+    102460,
+    102462,
+    102465,
+    102467,
+    102468,
+    102469,
+    102470,
+    102471,
+    102472,
+    102474,
+    102475,
+    102476,
+    102480,
+    103771,
+    104113,
+    108535,
+    108536,
+    108537,
+    108538,
+    108539,
+    108541,
+    108551,
+    108653,
+    108654,
+    108655,
+    108656,
+    108657,
+    108658,
+    108659,
+    108660,
+    108661,
+    108662,
+    108664,
+    108665,
+    108849,
+    108850,
+    108851,
+    108852,
+    108853,
+    108855,
+    108857,
+    108858,
+    108859,
+    108860,
+    108863,
+    108864,
+    109002,
+    109393,
+    109394,
+    109395,
+    109396,
+    109397,
+    109398,
+    109399,
+    109400,
+    109401,
+    109402,
+    109403,
+    109404,
+    109406,
+    109407,
+    109408,
+    109409,
+    109411,
+    109412,
+    109478,
+    109667,
+    109668,
+    109669,
+    109670,
+    109671,
+    109672,
+    109673,
+    109674,
+    109675,
+    109915,
+    109916,
+    109956,
+    110078,
+    110079,
+    110080,
+    110081,
+    110082,
+    110086,
+    110087,
+    110088,
+    110089,
+    110258,
+    110283,
+    110321,
+    110322,
+    110420,
+    110422,
+    110423,
+    110442,
+    110597,
+    110849,
+    110850
+  ],
+  "nodes": {
+    "62117": {
+      "name": "Ice Barrier",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": true,
+      "x": 3900,
+      "y": 1500,
+      "next": [
+        62115,
+        62122
+      ],
+      "entries": [
+        {
+          "name": "Ice Barrier",
+          "icon": "spell_ice_lament",
+          "spellId": 11426,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62115": {
+      "name": "Alter Time",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 2100,
+      "next": [
+        108654,
+        62102
+      ],
+      "entries": [
+        {
+          "name": "Alter Time",
+          "icon": "spell_mage_altertime",
+          "spellId": 342245,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62122": {
+      "name": "Ice Block",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 2100,
+      "next": [
+        62123,
+        62107
+      ],
+      "entries": [
+        {
+          "name": "Ice Block",
+          "icon": "spell_frost_frost",
+          "spellId": 45438,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108654": {
+      "name": "Time Walk / Temporal Realignment",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 2700,
+      "next": [
+        62114
+      ],
+      "entries": [
+        {
+          "name": "Time Walk",
+          "icon": "warrior_doubletime",
+          "spellId": 1244087,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Temporal Realignment",
+          "icon": "ability_evoker_timedilation",
+          "spellId": 1244090,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62102": {
+      "name": "Master of Time",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 2700,
+      "next": [
+        62114,
+        108660
+      ],
+      "entries": [
+        {
+          "name": "Master of Time",
+          "icon": "inv_belt_armor_waistoftime_d_01",
+          "spellId": 342249,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62123": {
+      "name": "Winter's Protection",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 2700,
+      "next": [
+        108660,
+        62124
+      ],
+      "entries": [
+        {
+          "name": "Winter's Protection",
+          "icon": "spell_ice_rune",
+          "spellId": 382424,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62107": {
+      "name": "Frost Conditioning",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 2700,
+      "next": [
+        62124
+      ],
+      "entries": [
+        {
+          "name": "Frost Conditioning",
+          "icon": "spell_frost_icefloes",
+          "spellId": 1250315,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62114": {
+      "name": "Arcane Warding",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 3300,
+      "next": [
+        62084,
+        62104
+      ],
+      "entries": [
+        {
+          "name": "Arcane Warding",
+          "icon": "spell_arcane_arcaneresilience",
+          "spellId": 383092,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108660": {
+      "name": "Inspired Intellect",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 3300,
+      "next": [
+        62104,
+        101883,
+        62116
+      ],
+      "entries": [
+        {
+          "name": "Inspired Intellect",
+          "icon": "spell_holy_arcaneintellect",
+          "spellId": 458437,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62124": {
+      "name": "Mirror Image",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 3300,
+      "next": [
+        62116,
+        108662
+      ],
+      "entries": [
+        {
+          "name": "Mirror Image",
+          "icon": "spell_magic_lesserinvisibilty",
+          "spellId": 55342,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62084": {
+      "name": "Spellsteal",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2100,
+      "y": 3900,
+      "next": [
+        110082,
+        62105
+      ],
+      "entries": [
+        {
+          "name": "Spellsteal",
+          "icon": "spell_arcane_arcane02",
+          "spellId": 30449,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62104": {
+      "name": "Quick Witted",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 3900,
+      "next": [
+        62105,
+        110079,
+        108661
+      ],
+      "entries": [
+        {
+          "name": "Quick Witted",
+          "icon": "ability_priest_surgeofdarkness",
+          "spellId": 382297,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "101883": {
+      "name": "Dragon's Breath / Supernova",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 3900,
+      "next": [
+        108661
+      ],
+      "entries": [
+        {
+          "name": "Dragon's Breath",
+          "icon": "inv_misc_head_dragon_01",
+          "spellId": 31661,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Supernova",
+          "icon": "spell_mage_supernova",
+          "spellId": 157980,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62116": {
+      "name": "Remove Curse",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 3900,
+      "next": [
+        108661,
+        110078,
+        93524
+      ],
+      "entries": [
+        {
+          "name": "Remove Curse",
+          "icon": "spell_nature_removecurse",
+          "spellId": 475,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108662": {
+      "name": "Improved Conjuration",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 3900,
+      "next": [
+        93524
+      ],
+      "entries": [
+        {
+          "name": "Improved Conjuration",
+          "icon": "spell_arcane_focusedpower",
+          "spellId": 1244025,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110082": {
+      "name": "Improved Spellsteal",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2100,
+      "y": 4500,
+      "next": [
+        62110
+      ],
+      "entries": [
+        {
+          "name": "Improved Spellsteal",
+          "icon": "spell_arcane_arcane02",
+          "spellId": 1270827,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62105": {
+      "name": "Shimmer / Improved Blink",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 4500,
+      "next": [
+        62110,
+        62125,
+        62127
+      ],
+      "entries": [
+        {
+          "name": "Shimmer",
+          "icon": "spell_arcane_massdispel",
+          "spellId": 212653,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Improved Blink",
+          "icon": "spell_arcane_blink",
+          "spellId": 1244340,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110079": {
+      "name": "Improved Counterspell",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 4500,
+      "next": [
+        62127
+      ],
+      "entries": [
+        {
+          "name": "Improved Counterspell",
+          "icon": "inv_1115_mage_counterspell",
+          "spellId": 1270865,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108661": {
+      "name": "Overflowing Energy",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 4500,
+      "next": [
+        62127,
+        110597,
+        62098
+      ],
+      "entries": [
+        {
+          "name": "Overflowing Energy",
+          "icon": "spell_arcane_manatap",
+          "spellId": 390218,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110078": {
+      "name": "Improved Remove Curse",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 4500,
+      "next": [
+        62098
+      ],
+      "entries": [
+        {
+          "name": "Improved Remove Curse",
+          "icon": "spell_nature_removecurse",
+          "spellId": 1270847,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93524": {
+      "name": "Greater Invisibility",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 4500,
+      "next": [
+        62098,
+        62112,
+        108659
+      ],
+      "entries": [
+        {
+          "name": "Greater Invisibility",
+          "icon": "ability_mage_greaterinvisibility",
+          "spellId": 110959,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62110": {
+      "name": "Improved Frost Nova / Ice Ward",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2100,
+      "y": 5100,
+      "next": [
+        108658
+      ],
+      "entries": [
+        {
+          "name": "Improved Frost Nova",
+          "icon": "spell_frost_frostnova",
+          "spellId": 343183,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Ice Ward",
+          "icon": "spell_frost_frostward",
+          "spellId": 205036,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62125": {
+      "name": "Captured Thoughts",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 5100,
+      "next": [
+        108658
+      ],
+      "entries": [
+        {
+          "name": "Captured Thoughts",
+          "icon": "spell_nature_elementalabsorption",
+          "spellId": 1270872,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62127": {
+      "name": "Tome of Rhonin",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 5100,
+      "next": [
+        108658,
+        110081,
+        62096
+      ],
+      "entries": [
+        {
+          "name": "Tome of Rhonin",
+          "icon": "inv_misc_book_04",
+          "spellId": 382493,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110597": {
+      "name": "Improved Warding",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 5100,
+      "next": [
+        62096
+      ],
+      "entries": [
+        {
+          "name": "Improved Warding",
+          "icon": "inv_cloth_raidmage_p_01helm",
+          "spellId": 1297073,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62098": {
+      "name": "Tome of Antonidas",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 5100,
+      "next": [
+        62096,
+        110080,
+        108657
+      ],
+      "entries": [
+        {
+          "name": "Tome of Antonidas",
+          "icon": "inv_misc_book_18",
+          "spellId": 382490,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62112": {
+      "name": "Incantation of Swiftness",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 5100,
+      "next": [
+        108657
+      ],
+      "entries": [
+        {
+          "name": "Incantation of Swiftness",
+          "icon": "rogue_burstofspeed",
+          "spellId": 382293,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108659": {
+      "name": "Master of Escape",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 5100,
+      "next": [
+        108657
+      ],
+      "entries": [
+        {
+          "name": "Master of Escape",
+          "icon": "ability_mage_invisibility",
+          "spellId": 210476,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108658": {
+      "name": "Charm of Aegwynn",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 5700,
+      "next": [
+        62086,
+        62087,
+        62129
+      ],
+      "entries": [
+        {
+          "name": "Charm of Aegwynn",
+          "icon": "inv_nerubian_necklace_02_color5",
+          "spellId": 1244105,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110081": {
+      "name": "Brainstorm",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 5700,
+      "next": [
+        62129
+      ],
+      "entries": [
+        {
+          "name": "Brainstorm",
+          "icon": "ability_kaztik_dominatemind",
+          "spellId": 461261,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62096": {
+      "name": "Flow of Time",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 5700,
+      "next": [
+        62129,
+        62088,
+        62100
+      ],
+      "entries": [
+        {
+          "name": "Flow of Time",
+          "icon": "spell_arcane_blink",
+          "spellId": 382268,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110080": {
+      "name": "Mana Confluence",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 5700,
+      "next": [
+        62100
+      ],
+      "entries": [
+        {
+          "name": "Mana Confluence",
+          "icon": "spell_shaman_blessingoftheeternals",
+          "spellId": 1270845,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108657": {
+      "name": "Charm of Medivh",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 5700,
+      "next": [
+        62100,
+        62092,
+        62091
+      ],
+      "entries": [
+        {
+          "name": "Charm of Medivh",
+          "icon": "inv_nerubian_necklace_02_color1",
+          "spellId": 1244107,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62086": {
+      "name": "Permafrost Bauble",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2100,
+      "y": 6300,
+      "next": [
+        62085
+      ],
+      "entries": [
+        {
+          "name": "Permafrost Bauble",
+          "icon": "inv_10_dungeonjewelry_primalist_necklace_2_frost",
+          "spellId": 1265517,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62087": {
+      "name": "Freezing Cold / Ice Nova",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 6300,
+      "next": [
+        62085
+      ],
+      "entries": [
+        {
+          "name": "Freezing Cold",
+          "icon": "spell_frost_glacier",
+          "spellId": 386763,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Ice Nova",
+          "icon": "spell_mage_icenova",
+          "spellId": 157997,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62129": {
+      "name": "Time Manipulation",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 6300,
+      "next": [
+        62085,
+        62094
+      ],
+      "entries": [
+        {
+          "name": "Time Manipulation",
+          "icon": "spell_nature_timestop",
+          "spellId": 387807,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62088": {
+      "name": "Ring of Frost / Mass Polymorph",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 6300,
+      "next": [
+        62094
+      ],
+      "entries": [
+        {
+          "name": "Ring of Frost",
+          "icon": "spell_frost_ring_of_frost",
+          "spellId": 113724,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Mass Polymorph",
+          "icon": "spell_nature_doublepolymorph1",
+          "spellId": 383121,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62100": {
+      "name": "Energized Barriers",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 6300,
+      "next": [
+        62094,
+        108655
+      ],
+      "entries": [
+        {
+          "name": "Energized Barriers",
+          "icon": "spell_mage_temporalshield",
+          "spellId": 386828,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62092": {
+      "name": "Mass Invisibility",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 6300,
+      "next": [
+        108655
+      ],
+      "entries": [
+        {
+          "name": "Mass Invisibility",
+          "icon": "ability_mage_massinvisibility",
+          "spellId": 414664,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62091": {
+      "name": "Barrier Diffusion",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 6300,
+      "next": [
+        108655
+      ],
+      "entries": [
+        {
+          "name": "Barrier Diffusion",
+          "icon": "spell_mage_evanesce",
+          "spellId": 455428,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62085": {
+      "name": "Ice Cold",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Ice Cold",
+          "icon": "spell_fire_bluefire",
+          "spellId": 414659,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62094": {
+      "name": "Spatial Manipulation / Reflection",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Spatial Manipulation",
+          "icon": "spell_mage_overpowered",
+          "spellId": 1244031,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Reflection",
+          "icon": "ability_hunter_displacement",
+          "spellId": 1270829,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108655": {
+      "name": "Improved Ice Barrier",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Improved Ice Barrier",
+          "icon": "spell_ice_lament",
+          "spellId": 1244069,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62176": {
+      "name": "Ice Lance",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 1500,
+      "next": [
+        108864,
+        62164
+      ],
+      "entries": [
+        {
+          "name": "Ice Lance",
+          "icon": "spell_frost_frostblast",
+          "spellId": 30455,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108864": {
+      "name": "Blizzard / Blizzard",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 2100,
+      "next": [
+        62157
+      ],
+      "entries": [
+        {
+          "name": "Blizzard",
+          "icon": "spell_frost_icestorm",
+          "spellId": 190356,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Blizzard",
+          "icon": "spell_frost_icestorm",
+          "spellId": 1248829,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62164": {
+      "name": "Fingers of Frost",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 2100,
+      "next": [
+        109915
+      ],
+      "entries": [
+        {
+          "name": "Fingers of Frost",
+          "icon": "ability_mage_wintersgrasp",
+          "spellId": 112965,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62157": {
+      "name": "Frostbite",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 2700,
+      "next": [
+        62178,
+        108653
+      ],
+      "entries": [
+        {
+          "name": "Frostbite",
+          "icon": "spell_frost_frostarmor",
+          "spellId": 1248825,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109915": {
+      "name": "Icicles",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 2700,
+      "next": [
+        108653,
+        62177
+      ],
+      "entries": [
+        {
+          "name": "Icicles",
+          "icon": "ability_mage_glacialspike",
+          "spellId": 1246832,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62178": {
+      "name": "Flurry",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 3300,
+      "next": [
+        62179,
+        62181
+      ],
+      "entries": [
+        {
+          "name": "Flurry",
+          "icon": "ability_deathknight_chillstreak",
+          "spellId": 44614,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108653": {
+      "name": "Cold Snap / Glacial Bulwark",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 3300,
+      "next": [
+        62153
+      ],
+      "entries": [
+        {
+          "name": "Cold Snap",
+          "icon": "spell_frost_wizardmark",
+          "spellId": 235219,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Glacial Bulwark",
+          "icon": "spell_frost_chillingarmor",
+          "spellId": 1244110,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62177": {
+      "name": "Frozen Orb",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 3300,
+      "next": [
+        81468,
+        62170
+      ],
+      "entries": [
+        {
+          "name": "Frozen Orb",
+          "icon": "spell_frost_frozenorb",
+          "spellId": 84714,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62179": {
+      "name": "Brain Freeze",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10500,
+      "y": 3900,
+      "next": [
+        62180,
+        62163
+      ],
+      "entries": [
+        {
+          "name": "Brain Freeze",
+          "icon": "ability_mage_brainfreeze",
+          "spellId": 190447,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62181": {
+      "name": "Piercing Cold",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 3900,
+      "next": [
+        62163,
+        108851
+      ],
+      "entries": [
+        {
+          "name": "Piercing Cold",
+          "icon": "spell_frost_frostbolt",
+          "spellId": 378919,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62153": {
+      "name": "Ray of Frost",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 3900,
+      "next": [
+        108851,
+        103771,
+        62150
+      ],
+      "entries": [
+        {
+          "name": "Ray of Frost",
+          "icon": "ability_mage_rayoffrost",
+          "spellId": 205021,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81468": {
+      "name": "Everlasting Frost",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 3900,
+      "next": [
+        62150,
+        108860
+      ],
+      "entries": [
+        {
+          "name": "Everlasting Frost",
+          "icon": "spell_frost_chillingbolt",
+          "spellId": 385167,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62170": {
+      "name": "Permafrost Lances",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14100,
+      "y": 3900,
+      "next": [
+        108860,
+        62174
+      ],
+      "entries": [
+        {
+          "name": "Permafrost Lances",
+          "icon": "spell_fire_bluerainoffire",
+          "spellId": 460590,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62180": {
+      "name": "Frozen Touch",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10500,
+      "y": 4500,
+      "next": [
+        62151
+      ],
+      "entries": [
+        {
+          "name": "Frozen Touch",
+          "icon": "ability_mage_burstofcold",
+          "spellId": 205030,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62163": {
+      "name": "Splitting Ice",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 4500,
+      "next": [
+        62151
+      ],
+      "entries": [
+        {
+          "name": "Splitting Ice",
+          "icon": "spell_frost_ice_shards",
+          "spellId": 56377,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108851": {
+      "name": "Flash Freeze",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 4500,
+      "next": [
+        62151,
+        108859
+      ],
+      "entries": [
+        {
+          "name": "Flash Freeze",
+          "icon": "spell_hunter_icetrap",
+          "spellId": 379993,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103771": {
+      "name": "Splintering Ray / Frigid Focus",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 4500,
+      "next": [
+        108859,
+        110258
+      ],
+      "entries": [
+        {
+          "name": "Splintering Ray",
+          "icon": "spell_fire_blueflamestrike",
+          "spellId": 418733,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Frigid Focus",
+          "icon": "ability_deathknight_shroudofwinter",
+          "spellId": 1247055,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62150": {
+      "name": "Winter's Blessing",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 4500,
+      "next": [
+        110258,
+        62173
+      ],
+      "entries": [
+        {
+          "name": "Winter's Blessing",
+          "icon": "spell_frost_wisp",
+          "spellId": 417489,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108860": {
+      "name": "Freezing Rain",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 4500,
+      "next": [
+        62173
+      ],
+      "entries": [
+        {
+          "name": "Freezing Rain",
+          "icon": "spell_frost_frozenorb",
+          "spellId": 270233,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62174": {
+      "name": "Cone of Frost",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14100,
+      "y": 4500,
+      "next": [
+        62173
+      ],
+      "entries": [
+        {
+          "name": "Cone of Frost",
+          "icon": "ability_mage_chilledtothebone",
+          "spellId": 1247090,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62151": {
+      "name": "Fractured Frost",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 5100,
+      "next": [
+        108858
+      ],
+      "entries": [
+        {
+          "name": "Fractured Frost",
+          "icon": "spell_fire_frostresistancetotem",
+          "spellId": 378448,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108859": {
+      "name": "Improved Shatter",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 5100,
+      "next": [
+        108858,
+        109916
+      ],
+      "entries": [
+        {
+          "name": "Improved Shatter",
+          "icon": "spell_frost_frostshock",
+          "spellId": 1246811,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110258": {
+      "name": "Deep Shatter",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 5100,
+      "next": [
+        109916,
+        108852
+      ],
+      "entries": [
+        {
+          "name": "Deep Shatter",
+          "icon": "inv_misc_frostemblem_01",
+          "spellId": 1247025,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62173": {
+      "name": "Wintertide / White Out",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 5100,
+      "next": [
+        108852
+      ],
+      "entries": [
+        {
+          "name": "Wintertide",
+          "icon": "ability_deathknight_frozencenter",
+          "spellId": 378406,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "White Out",
+          "icon": "spell_frost_frostblast",
+          "spellId": 1281638,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108858": {
+      "name": "Glacial Attunement",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 5700,
+      "next": [
+        108853,
+        108855,
+        108849
+      ],
+      "entries": [
+        {
+          "name": "Glacial Attunement",
+          "icon": "ability_hunter_glacialtrap",
+          "spellId": 1247759,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109916": {
+      "name": "Heart of Ice",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 5700,
+      "next": [
+        108849,
+        110283,
+        108850
+      ],
+      "entries": [
+        {
+          "name": "Heart of Ice",
+          "icon": "inv_10_dungeonjewelry_primalist_necklace_1_frost",
+          "spellId": 1247799,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108852": {
+      "name": "Rimecaster",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 5700,
+      "next": [
+        108850,
+        108863,
+        108857
+      ],
+      "entries": [
+        {
+          "name": "Rimecaster",
+          "icon": "spell_frost_manarecharge",
+          "spellId": 1247743,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108853": {
+      "name": "Freezing Winds",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10500,
+      "y": 6300,
+      "next": [
+        62182
+      ],
+      "entries": [
+        {
+          "name": "Freezing Winds",
+          "icon": "spell_fire_blueflamering",
+          "spellId": 1216953,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108855": {
+      "name": "Improved Flurry",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 6300,
+      "next": [
+        62182
+      ],
+      "entries": [
+        {
+          "name": "Improved Flurry",
+          "icon": "ability_warlock_burningembersblue",
+          "spellId": 1247769,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108849": {
+      "name": "Glacial Assault",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 6300,
+      "next": [
+        62184
+      ],
+      "entries": [
+        {
+          "name": "Glacial Assault",
+          "icon": "inv_staff_15",
+          "spellId": 378947,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110283": {
+      "name": "Crystalline Refraction",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 6300,
+      "next": [
+        62184
+      ],
+      "entries": [
+        {
+          "name": "Crystalline Refraction",
+          "icon": "inv_10_enchanting_crystal_color3",
+          "spellId": 1247544,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108850": {
+      "name": "Summon Water Elemental / Lonely Winter",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 6300,
+      "next": [
+        62184
+      ],
+      "entries": [
+        {
+          "name": "Summon Water Elemental",
+          "icon": "spell_frost_summonwaterelemental_2",
+          "spellId": 31687,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Lonely Winter",
+          "icon": "achievement_dungeon_frozenthrone",
+          "spellId": 205024,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108863": {
+      "name": "Glacial Chill / Glacial Shatter",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 6300,
+      "next": [
+        62185
+      ],
+      "entries": [
+        {
+          "name": "Glacial Chill",
+          "icon": "spell_frost_iceshard",
+          "spellId": 1280779,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Glacial Shatter",
+          "icon": "artifactability_frostmage_ebonbolt",
+          "spellId": 1280780,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "108857": {
+      "name": "Hailstones",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14100,
+      "y": 6300,
+      "next": [
+        62185
+      ],
+      "entries": [
+        {
+          "name": "Hailstones",
+          "icon": "artifactability_frostmage_blackicicles",
+          "spellId": 1247742,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62182": {
+      "name": "Thermal Void",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Thermal Void",
+          "icon": "spell_mage_thermalvoid",
+          "spellId": 1247729,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62184": {
+      "name": "Glaciate",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Glaciate",
+          "icon": "spell_frost_frozencore",
+          "spellId": 1247798,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "62185": {
+      "name": "Comet Storm",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Comet Storm",
+          "icon": "spell_mage_cometstorm2",
+          "spellId": 1247777,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110422": {
+      "name": "Hand of Frost / Hand of Frost / Hand of Frost",
+      "g": "spec",
+      "type": "tiered",
+      "maxRanks": 4,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 7650,
+      "next": [],
+      "entries": [
+        {
+          "name": "Hand of Frost",
+          "icon": "inv12_apextalent_mage_handoffrost",
+          "spellId": 1262935,
+          "type": "tierrank",
+          "subTreeId": null
+        },
+        {
+          "name": "Hand of Frost",
+          "icon": "spell_frost_piercing_chill",
+          "spellId": 1262981,
+          "type": "tierrank",
+          "subTreeId": null
+        },
+        {
+          "name": "Hand of Frost",
+          "icon": "ability_mage_rayoffrost",
+          "spellId": 1263249,
+          "type": "tierrank",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94636": {
+      "name": "Frostfire Bolt",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 41,
+      "free": true,
+      "x": 15000,
+      "y": 1500,
+      "next": [
+        94642,
+        94641,
+        94633,
+        109672
+      ],
+      "entries": [
+        {
+          "name": "Frostfire Bolt",
+          "icon": "inv_ability_frostfiremage_frostfirebolt",
+          "spellId": 431044,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94664": {
+      "name": "Splintering Sorcery",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 40,
+      "free": true,
+      "x": 7800,
+      "y": 2100,
+      "next": [
+        94662,
+        94663,
+        94661,
+        109669
+      ],
+      "entries": [
+        {
+          "name": "Splintering Sorcery",
+          "icon": "achievement_dungeon_arcanevaults",
+          "spellId": 443739,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94642": {
+      "name": "Imbued Warding / Meltdown",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 41,
+      "free": false,
+      "x": 14100,
+      "y": 2100,
+      "next": [
+        94638
+      ],
+      "entries": [
+        {
+          "name": "Imbued Warding",
+          "icon": "inv_10_jewelcrafting_gem3primal_fire_cut_blue",
+          "spellId": 431066,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Meltdown",
+          "icon": "spell_frost_arcticwinds",
+          "spellId": 431131,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94641": {
+      "name": "Frostfire Empowerment",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 41,
+      "free": false,
+      "x": 14700,
+      "y": 2100,
+      "next": [
+        94640
+      ],
+      "entries": [
+        {
+          "name": "Frostfire Empowerment",
+          "icon": "spell_frostfire_orb",
+          "spellId": 431176,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94633": {
+      "name": "Elemental Affinity / Flame and Frost",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 41,
+      "free": false,
+      "x": 15300,
+      "y": 2100,
+      "next": [
+        94634
+      ],
+      "entries": [
+        {
+          "name": "Elemental Affinity",
+          "icon": "inv_10_dungeonjewelry_dragon_trinket_5_red",
+          "spellId": 431067,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Flame and Frost",
+          "icon": "spell_firefrost_orb",
+          "spellId": 431112,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109672": {
+      "name": "Duality",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 41,
+      "free": false,
+      "x": 15900,
+      "y": 2100,
+      "next": [
+        109671
+      ],
+      "entries": [
+        {
+          "name": "Duality",
+          "icon": "ability_mage_frostfirebolt",
+          "spellId": 1262843,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94662": {
+      "name": "Augury Abounds",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 40,
+      "free": false,
+      "x": 6900,
+      "y": 2700,
+      "next": [
+        94659
+      ],
+      "entries": [
+        {
+          "name": "Augury Abounds",
+          "icon": "spell_arcane_arcanepotency",
+          "spellId": 1280165,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94663": {
+      "name": "Force of Will",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 40,
+      "free": false,
+      "x": 7500,
+      "y": 2700,
+      "next": [
+        94656
+      ],
+      "entries": [
+        {
+          "name": "Force of Will",
+          "icon": "spell_mage_overpowered",
+          "spellId": 444719,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94661": {
+      "name": "Splintering Orbs",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 40,
+      "free": false,
+      "x": 8100,
+      "y": 2700,
+      "next": [
+        94660
+      ],
+      "entries": [
+        {
+          "name": "Splintering Orbs",
+          "icon": "item_azereansphere",
+          "spellId": 444256,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109669": {
+      "name": "Attuned Familiar / Shifting Shards",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 40,
+      "free": false,
+      "x": 8700,
+      "y": 2700,
+      "next": [
+        109668
+      ],
+      "entries": [
+        {
+          "name": "Attuned Familiar",
+          "icon": "ability_socererking_arcanemines",
+          "spellId": 1261106,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Shifting Shards",
+          "icon": "ability_mage_freeze",
+          "spellId": 444675,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94638": {
+      "name": "Heat Sink",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 41,
+      "free": false,
+      "x": 14100,
+      "y": 2700,
+      "next": [
+        94639
+      ],
+      "entries": [
+        {
+          "name": "Heat Sink",
+          "icon": "spell_fire_masterofelements",
+          "spellId": 1248002,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94640": {
+      "name": "Thermal Conditioning / Severe Temperatures",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 41,
+      "free": false,
+      "x": 14700,
+      "y": 2700,
+      "next": [
+        94632
+      ],
+      "entries": [
+        {
+          "name": "Thermal Conditioning",
+          "icon": "spell_fireresistancetotem_01",
+          "spellId": 431117,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Severe Temperatures",
+          "icon": "inv_magemount_fire",
+          "spellId": 431189,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94634": {
+      "name": "Dualcasting Adept",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 41,
+      "free": false,
+      "x": 15300,
+      "y": 2700,
+      "next": [
+        94637
+      ],
+      "entries": [
+        {
+          "name": "Dualcasting Adept",
+          "icon": "ability_dualwieldspecialization",
+          "spellId": 1248014,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109671": {
+      "name": "Molten Chill",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 41,
+      "free": false,
+      "x": 15900,
+      "y": 2700,
+      "next": [
+        109670
+      ],
+      "entries": [
+        {
+          "name": "Molten Chill",
+          "icon": "spell_fire_incinerate",
+          "spellId": 1262844,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94659": {
+      "name": "Slippery Slinging / Look Again",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 40,
+      "free": false,
+      "x": 6900,
+      "y": 3300,
+      "next": [
+        94658
+      ],
+      "entries": [
+        {
+          "name": "Slippery Slinging",
+          "icon": "ability_mage_icyfeet",
+          "spellId": 444752,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Look Again",
+          "icon": "achievement_bg_tophealer_av",
+          "spellId": 444756,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94656": {
+      "name": "Controlled Instincts",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 40,
+      "free": false,
+      "x": 7500,
+      "y": 3300,
+      "next": [
+        94657
+      ],
+      "entries": [
+        {
+          "name": "Controlled Instincts",
+          "icon": "spell_frost_ice_shards",
+          "spellId": 444483,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94660": {
+      "name": "Reactive Barrier / Phantasmal Image",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 40,
+      "free": false,
+      "x": 8100,
+      "y": 3300,
+      "next": [
+        94655
+      ],
+      "entries": [
+        {
+          "name": "Reactive Barrier",
+          "icon": "ability_racial_forceshield",
+          "spellId": 444827,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Phantasmal Image",
+          "icon": "spell_arcane_prismaticcloak",
+          "spellId": 444784,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109668": {
+      "name": "Infused Splinters",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 40,
+      "free": false,
+      "x": 8700,
+      "y": 3300,
+      "next": [
+        109667
+      ],
+      "entries": [
+        {
+          "name": "Infused Splinters",
+          "icon": "spell_mage_focusingcrystal",
+          "spellId": 1261080,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94639": {
+      "name": "Frostfire Infusion",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 41,
+      "free": false,
+      "x": 14100,
+      "y": 3300,
+      "next": [
+        94635
+      ],
+      "entries": [
+        {
+          "name": "Frostfire Infusion",
+          "icon": "inv_10_blacksmithing_craftedbar_frostfirealloy",
+          "spellId": 431166,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94632": {
+      "name": "Flash Freezeburn",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 41,
+      "free": false,
+      "x": 14700,
+      "y": 3300,
+      "next": [
+        94635
+      ],
+      "entries": [
+        {
+          "name": "Flash Freezeburn",
+          "icon": "spell_fire_elementaldevastation",
+          "spellId": 431178,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94637": {
+      "name": "Blast Radius",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 41,
+      "free": false,
+      "x": 15300,
+      "y": 3300,
+      "next": [
+        94635
+      ],
+      "entries": [
+        {
+          "name": "Blast Radius",
+          "icon": "spell_frostresistancetotem_01",
+          "spellId": 1248016,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109670": {
+      "name": "Elemental Conduit",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 41,
+      "free": false,
+      "x": 15900,
+      "y": 3300,
+      "next": [
+        94635
+      ],
+      "entries": [
+        {
+          "name": "Elemental Conduit",
+          "icon": "inv_ability_shaman_primordialwave",
+          "spellId": 1262845,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94658": {
+      "name": "Archmage's Wrath",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 40,
+      "free": false,
+      "x": 6900,
+      "y": 3900,
+      "next": [
+        94654
+      ],
+      "entries": [
+        {
+          "name": "Archmage's Wrath",
+          "icon": "spell_arcane_arcane03",
+          "spellId": 444968,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94657": {
+      "name": "Signature Spell",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 40,
+      "free": false,
+      "x": 7500,
+      "y": 3900,
+      "next": [
+        94654
+      ],
+      "entries": [
+        {
+          "name": "Signature Spell",
+          "icon": "inv_enchanting_815_drustwand",
+          "spellId": 470021,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94655": {
+      "name": "Spellfrost Teachings",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 40,
+      "free": false,
+      "x": 8100,
+      "y": 3900,
+      "next": [
+        94654
+      ],
+      "entries": [
+        {
+          "name": "Spellfrost Teachings",
+          "icon": "70_inscription_vantus_rune_azure",
+          "spellId": 444986,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109667": {
+      "name": "Polished Focus",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 40,
+      "free": false,
+      "x": 8700,
+      "y": 3900,
+      "next": [
+        94654
+      ],
+      "entries": [
+        {
+          "name": "Polished Focus",
+          "icon": "inv_misc_orb_blue",
+          "spellId": 1261082,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94635": {
+      "name": "Isothermic Core",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 41,
+      "free": false,
+      "x": 15000,
+      "y": 3900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Isothermic Core",
+          "icon": "inv12_ability_mage_isothermiccore",
+          "spellId": 431095,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94654": {
+      "name": "Splinterstorm",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 40,
+      "free": false,
+      "x": 7800,
+      "y": 4500,
+      "next": [],
+      "entries": [
+        {
+          "name": "Splinterstorm",
+          "icon": "ability_mage_burstofcold",
+          "spellId": 443783,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "99828": {
+      "name": "Frostfire / Spellslinger",
+      "g": "sub",
+      "type": "subtree",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 8700,
+      "y": 1500,
+      "next": [],
+      "entries": [
+        {
+          "name": "Frostfire",
+          "icon": "talents-heroclass-mage-frostfire",
+          "spellId": 0,
+          "type": "subtree",
+          "subTreeId": 41
+        },
+        {
+          "name": "Spellslinger",
+          "icon": "talents-heroclass-mage-spellslinger",
+          "spellId": 0,
+          "type": "subtree",
+          "subTreeId": 40
+        }
+      ]
+    }
   }
 }

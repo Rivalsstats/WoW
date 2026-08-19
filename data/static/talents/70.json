@@ -1227,5 +1227,3017 @@
       "name": "Templar",
       "icon": "talents-heroclass-paladin-templar"
     }
+  },
+  "fullNodeOrder": [
+    81469,
+    81470,
+    81471,
+    81474,
+    81476,
+    81477,
+    81479,
+    81481,
+    81482,
+    81483,
+    81484,
+    81485,
+    81486,
+    81487,
+    81488,
+    81489,
+    81490,
+    81491,
+    81492,
+    81493,
+    81494,
+    81495,
+    81496,
+    81497,
+    81498,
+    81499,
+    81501,
+    81502,
+    81503,
+    81504,
+    81505,
+    81506,
+    81507,
+    81508,
+    81510,
+    81512,
+    81521,
+    81523,
+    81525,
+    81526,
+    81527,
+    81532,
+    81533,
+    81534,
+    81537,
+    81541,
+    81542,
+    81543,
+    81544,
+    81545,
+    81549,
+    81554,
+    81555,
+    81556,
+    81557,
+    81558,
+    81560,
+    81561,
+    81562,
+    81564,
+    81565,
+    81566,
+    81567,
+    81568,
+    81569,
+    81570,
+    81571,
+    81573,
+    81574,
+    81575,
+    81576,
+    81578,
+    81579,
+    81580,
+    81581,
+    81583,
+    81584,
+    81585,
+    81587,
+    81588,
+    81589,
+    81590,
+    81591,
+    81592,
+    81593,
+    81594,
+    81595,
+    81597,
+    81598,
+    81600,
+    81603,
+    81604,
+    81605,
+    81607,
+    81608,
+    81609,
+    81612,
+    81613,
+    81614,
+    81615,
+    81616,
+    81617,
+    81618,
+    81621,
+    81628,
+    81630,
+    81631,
+    81632,
+    90062,
+    92220,
+    92686,
+    92689,
+    92838,
+    92839,
+    92854,
+    92860,
+    92952,
+    93008,
+    93009,
+    93010,
+    93160,
+    93161,
+    93164,
+    93165,
+    93168,
+    93173,
+    93174,
+    93180,
+    93181,
+    93187,
+    93188,
+    93189,
+    93190,
+    93191,
+    93192,
+    93357,
+    93520,
+    93521,
+    93522,
+    93523,
+    93927,
+    95069,
+    95071,
+    95072,
+    95073,
+    95080,
+    95086,
+    95094,
+    95095,
+    95098,
+    95099,
+    95105,
+    95177,
+    95178,
+    95179,
+    95180,
+    95181,
+    95182,
+    95183,
+    95184,
+    95185,
+    95186,
+    95187,
+    95228,
+    95229,
+    95230,
+    95231,
+    95232,
+    95233,
+    95234,
+    95235,
+    95236,
+    95237,
+    95238,
+    99837,
+    99838,
+    99839,
+    101927,
+    101928,
+    102502,
+    103831,
+    103850,
+    103851,
+    103852,
+    103853,
+    103854,
+    103855,
+    103856,
+    103857,
+    103858,
+    103859,
+    103860,
+    103861,
+    103862,
+    103863,
+    103864,
+    103865,
+    103866,
+    103867,
+    103868,
+    103877,
+    108034,
+    108099,
+    109368,
+    109369,
+    109370,
+    109371,
+    109372,
+    109373,
+    109374,
+    109742,
+    109743,
+    109744,
+    109745,
+    109746,
+    109747,
+    109748,
+    109749,
+    109750,
+    109867,
+    109997,
+    109998,
+    109999,
+    110006,
+    110012,
+    110091,
+    110092,
+    110093,
+    110257,
+    110417,
+    110418,
+    110419,
+    110862
+  ],
+  "nodes": {
+    "81597": {
+      "name": "Lay on Hands",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 1500,
+      "next": [
+        103859,
+        109999,
+        81507
+      ],
+      "entries": [
+        {
+          "name": "Lay on Hands",
+          "icon": "spell_holy_layonhands",
+          "spellId": 633,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81600": {
+      "name": "Auras of the Resolute",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": true,
+      "x": 4800,
+      "y": 1500,
+      "next": [
+        109999,
+        81598,
+        81632
+      ],
+      "entries": [
+        {
+          "name": "Auras of the Resolute",
+          "icon": "spell_holy_devotionaura",
+          "spellId": 385633,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81510": {
+      "name": "Hammer of Wrath",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": true,
+      "x": 6000,
+      "y": 1500,
+      "next": [
+        81598,
+        93010,
+        81603
+      ],
+      "entries": [
+        {
+          "name": "Hammer of Wrath",
+          "icon": "inv12_ability_paladin_hammerofwrath",
+          "spellId": 1241288,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81507": {
+      "name": "Cleanse Toxins",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 2100,
+      "next": [
+        103858,
+        93189
+      ],
+      "entries": [
+        {
+          "name": "Cleanse Toxins",
+          "icon": "spell_holy_renew",
+          "spellId": 213644,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103859": {
+      "name": "Empyreal Ward",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 2100,
+      "next": [
+        93189
+      ],
+      "entries": [
+        {
+          "name": "Empyreal Ward",
+          "icon": "spell_holy_layonhands",
+          "spellId": 387791,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109999": {
+      "name": "Fist of Justice",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 2100,
+      "next": [
+        93189,
+        110012,
+        81632
+      ],
+      "entries": [
+        {
+          "name": "Fist of Justice",
+          "icon": "spell_holy_fistofjustice",
+          "spellId": 234299,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81598": {
+      "name": "Blinding Light",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 2100,
+      "next": [
+        81632,
+        103854,
+        81603
+      ],
+      "entries": [
+        {
+          "name": "Blinding Light",
+          "icon": "ability_paladin_blindinglight",
+          "spellId": 115750,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93010": {
+      "name": "Turn Evil",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6600,
+      "y": 2100,
+      "next": [
+        103855
+      ],
+      "entries": [
+        {
+          "name": "Turn Evil",
+          "icon": "ability_paladin_turnevil",
+          "spellId": 10326,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103858": {
+      "name": "A Just Reward",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 2700,
+      "next": [
+        103860
+      ],
+      "entries": [
+        {
+          "name": "A Just Reward",
+          "icon": "spell_holy_blindingheal",
+          "spellId": 469411,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93189": {
+      "name": "Afterimage / Healing Hands",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 2700,
+      "next": [
+        103860,
+        109867
+      ],
+      "entries": [
+        {
+          "name": "Afterimage",
+          "icon": "spell_holy_aspiration",
+          "spellId": 385414,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Healing Hands",
+          "icon": "ability_paladin_infusionoflight",
+          "spellId": 326734,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110012": {
+      "name": "Guided Prayer",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 2700,
+      "next": [
+        109867
+      ],
+      "entries": [
+        {
+          "name": "Guided Prayer",
+          "icon": "ability_crown_of_the_heavens_icon",
+          "spellId": 404357,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81632": {
+      "name": "Divine Steed",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4800,
+      "y": 2700,
+      "next": [
+        103857,
+        81631,
+        81605
+      ],
+      "entries": [
+        {
+          "name": "Divine Steed",
+          "icon": "ability_paladin_divinesteed",
+          "spellId": 190784,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103854": {
+      "name": "Light's Countenance",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 2700,
+      "next": [],
+      "entries": [
+        {
+          "name": "Light's Countenance",
+          "icon": "inv_shoulder_raidpaladindragon_d_01",
+          "spellId": 469325,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81603": {
+      "name": "Greater Judgment",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": true,
+      "x": 6000,
+      "y": 2700,
+      "next": [
+        110093,
+        93009
+      ],
+      "entries": [
+        {
+          "name": "Greater Judgment",
+          "icon": "spell_holy_righteousfury",
+          "spellId": 231663,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103855": {
+      "name": "Wrench Evil / Stand Against Evil",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6600,
+      "y": 2700,
+      "next": [
+        110093
+      ],
+      "entries": [
+        {
+          "name": "Wrench Evil",
+          "icon": "ability_paladin_turnevil",
+          "spellId": 460720,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Stand Against Evil",
+          "icon": "spell_holy_excorcism",
+          "spellId": 469317,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103860": {
+      "name": "Holy Reprieve",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 3300,
+      "next": [
+        81630,
+        93168
+      ],
+      "entries": [
+        {
+          "name": "Holy Reprieve",
+          "icon": "spell_holy_sealofsalvation",
+          "spellId": 469445,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109867": {
+      "name": "Shield of Vengeance",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 3300,
+      "next": [
+        81630
+      ],
+      "entries": [
+        {
+          "name": "Shield of Vengeance",
+          "icon": "ability_paladin_shieldofthetemplar",
+          "spellId": 1261562,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81605": {
+      "name": "Cavalier",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 3300,
+      "next": [
+        81630,
+        109368,
+        81614
+      ],
+      "entries": [
+        {
+          "name": "Cavalier",
+          "icon": "ability_paladin_divinesteed",
+          "spellId": 230332,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103857": {
+      "name": "Divine Spurs",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4800,
+      "y": 3300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Divine Spurs",
+          "icon": "ability_mount_charger",
+          "spellId": 469409,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81631": {
+      "name": "Steed of Liberty / Blessing of Freedom",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 3300,
+      "next": [
+        109368,
+        93174,
+        93009
+      ],
+      "entries": [
+        {
+          "name": "Steed of Liberty",
+          "icon": "spell_holy_crusaderaura",
+          "spellId": 469304,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Blessing of Freedom",
+          "icon": "spell_holy_sealofvalor",
+          "spellId": 1044,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110093": {
+      "name": "Rebuke",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6600,
+      "y": 3300,
+      "next": [
+        93009,
+        110091
+      ],
+      "entries": [
+        {
+          "name": "Rebuke",
+          "icon": "spell_holy_rebuke",
+          "spellId": 96231,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81630": {
+      "name": "Obduracy",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 3900,
+      "next": [
+        93168,
+        109998,
+        81614
+      ],
+      "entries": [
+        {
+          "name": "Obduracy",
+          "icon": "ability_paladin_speedoflight",
+          "spellId": 385427,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109368": {
+      "name": "Divine Toll",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4800,
+      "y": 3900,
+      "next": [
+        93181,
+        81614,
+        81616
+      ],
+      "entries": [
+        {
+          "name": "Divine Toll",
+          "icon": "inv_ability_paladin_divinetoll",
+          "spellId": 375576,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93174": {
+      "name": "Unbound Freedom",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 3900,
+      "next": [
+        81616
+      ],
+      "entries": [
+        {
+          "name": "Unbound Freedom",
+          "icon": "spell_holy_sealofvalor",
+          "spellId": 305394,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93009": {
+      "name": "Sanctified Plates",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 6000,
+      "y": 3900,
+      "next": [
+        109997,
+        81543,
+        81616
+      ],
+      "entries": [
+        {
+          "name": "Sanctified Plates",
+          "icon": "inv_chest_plate_raidpaladin_s_01",
+          "spellId": 402964,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110091": {
+      "name": "Punishment",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6600,
+      "y": 3900,
+      "next": [
+        81543
+      ],
+      "entries": [
+        {
+          "name": "Punishment",
+          "icon": "spell_holy_rebuke",
+          "spellId": 403530,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93168": {
+      "name": "Divine Reach",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 4500,
+      "next": [
+        81609,
+        93008
+      ],
+      "entries": [
+        {
+          "name": "Divine Reach",
+          "icon": "spell_holy_mindvision",
+          "spellId": 469476,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109998": {
+      "name": "Brought to Light",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 4500,
+      "next": [
+        81609
+      ],
+      "entries": [
+        {
+          "name": "Brought to Light",
+          "icon": "paladin_holy",
+          "spellId": 1265549,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81614": {
+      "name": "Blessing of Sacrifice",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 4500,
+      "next": [
+        81607,
+        81609,
+        81618
+      ],
+      "entries": [
+        {
+          "name": "Blessing of Sacrifice",
+          "icon": "spell_holy_sealofsacrifice",
+          "spellId": 6940,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93181": {
+      "name": "Divine Resonance / Quickened Invocation",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4800,
+      "y": 4500,
+      "next": [],
+      "entries": [
+        {
+          "name": "Divine Resonance",
+          "icon": "ability_mount_goatmountwhite",
+          "spellId": 384027,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Quickened Invocation",
+          "icon": "spell_holy_pureofheart",
+          "spellId": 379391,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81616": {
+      "name": "Blessing of Protection",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 4500,
+      "next": [
+        81617,
+        81618,
+        81615
+      ],
+      "entries": [
+        {
+          "name": "Blessing of Protection",
+          "icon": "spell_holy_sealofprotection",
+          "spellId": 1022,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109997": {
+      "name": "Fear No Evil",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6000,
+      "y": 4500,
+      "next": [
+        81615
+      ],
+      "entries": [
+        {
+          "name": "Fear No Evil",
+          "icon": "inv_bracer_plate_raidpaladin_r_01mythic",
+          "spellId": 1265541,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81543": {
+      "name": "Consecrated Ground",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6600,
+      "y": 4500,
+      "next": [
+        81615,
+        81608
+      ],
+      "entries": [
+        {
+          "name": "Consecrated Ground",
+          "icon": "ability_paladin_righteousvengeance",
+          "spellId": 204054,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81609": {
+      "name": "Holy Aegis",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 5100,
+      "next": [
+        93008,
+        103867
+      ],
+      "entries": [
+        {
+          "name": "Holy Aegis",
+          "icon": "ability_paladin_touchedbylight",
+          "spellId": 385515,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81607": {
+      "name": "Sacrifice of the Just / Recompense",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 5100,
+      "next": [
+        103867,
+        103865,
+        103866
+      ],
+      "entries": [
+        {
+          "name": "Sacrifice of the Just",
+          "icon": "spell_holy_sealofsacrifice",
+          "spellId": 384820,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Recompense",
+          "icon": "ability_racial_foregedinflames",
+          "spellId": 384914,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81618": {
+      "name": "Sacred Strength / Divine Purpose",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4800,
+      "y": 5100,
+      "next": [
+        103866,
+        103868
+      ],
+      "entries": [
+        {
+          "name": "Sacred Strength",
+          "icon": "spell_holy_righteousnessaura",
+          "spellId": 469337,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Divine Purpose",
+          "icon": "spell_holy_divinepurpose",
+          "spellId": 408459,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81617": {
+      "name": "Improved Blessing of Protection",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 5100,
+      "next": [
+        103868,
+        103864
+      ],
+      "entries": [
+        {
+          "name": "Improved Blessing of Protection",
+          "icon": "spell_holy_sealofprotection",
+          "spellId": 384909,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81615": {
+      "name": "Unbreakable Spirit",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6000,
+      "y": 5100,
+      "next": [
+        103864,
+        81608
+      ],
+      "entries": [
+        {
+          "name": "Unbreakable Spirit",
+          "icon": "spell_holy_holyguidance",
+          "spellId": 114154,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93008": {
+      "name": "Lightforged Blessing",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 5700,
+      "next": [
+        81495
+      ],
+      "entries": [
+        {
+          "name": "Lightforged Blessing",
+          "icon": "spell_holy_circleofrenewal",
+          "spellId": 403479,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103867": {
+      "name": "Lead the Charge",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 5700,
+      "next": [
+        81495,
+        103862,
+        81621
+      ],
+      "entries": [
+        {
+          "name": "Lead the Charge",
+          "icon": "inv_helm_plate_raidpaladin_r_01mythic",
+          "spellId": 469780,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103865": {
+      "name": "Worthy Sacrifice / Righteous Protection",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 5700,
+      "next": [
+        81621
+      ],
+      "entries": [
+        {
+          "name": "Worthy Sacrifice",
+          "icon": "ability_paladin_handoflight",
+          "spellId": 469279,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Righteous Protection",
+          "icon": "spell_holy_blessingofprotection",
+          "spellId": 469321,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103866": {
+      "name": "Holy Ritual",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4800,
+      "y": 5700,
+      "next": [
+        81621,
+        103851
+      ],
+      "entries": [
+        {
+          "name": "Holy Ritual",
+          "icon": "inv_relics_libramoftruth",
+          "spellId": 199422,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103868": {
+      "name": "Blessed Calling",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 5700,
+      "next": [
+        103851
+      ],
+      "entries": [
+        {
+          "name": "Blessed Calling",
+          "icon": "ability_paladin_judgementofthepure",
+          "spellId": 469770,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103864": {
+      "name": "Inspired Guard",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6000,
+      "y": 5700,
+      "next": [
+        103851,
+        81628,
+        103856
+      ],
+      "entries": [
+        {
+          "name": "Inspired Guard",
+          "icon": "spell_holy_divineprotection",
+          "spellId": 469439,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81608": {
+      "name": "Light's Revocation",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6600,
+      "y": 5700,
+      "next": [
+        103856
+      ],
+      "entries": [
+        {
+          "name": "Light's Revocation",
+          "icon": "spell_holy_divineshield",
+          "spellId": 146956,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81495": {
+      "name": "Faith's Armor",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 6300,
+      "next": [
+        93357
+      ],
+      "entries": [
+        {
+          "name": "Faith's Armor",
+          "icon": "inv_shield_1h_newplayer_a_01",
+          "spellId": 406101,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103862": {
+      "name": "Stoicism",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 6300,
+      "next": [
+        93357
+      ],
+      "entries": [
+        {
+          "name": "Stoicism",
+          "icon": "spell_magic_magearmor",
+          "spellId": 469316,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81621": {
+      "name": "Seal of Might",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 6300,
+      "next": [
+        93357,
+        103861
+      ],
+      "entries": [
+        {
+          "name": "Seal of Might",
+          "icon": "spell_holy_sealofwrath",
+          "spellId": 385450,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103851": {
+      "name": "Vengeful Wrath",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 6300,
+      "next": [
+        103861,
+        103863
+      ],
+      "entries": [
+        {
+          "name": "Vengeful Wrath",
+          "icon": "spell_paladin_hammerofwrath",
+          "spellId": 1241958,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81628": {
+      "name": "Eye for an Eye",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6000,
+      "y": 6300,
+      "next": [
+        103863
+      ],
+      "entries": [
+        {
+          "name": "Eye for an Eye",
+          "icon": "spell_holy_eyeforaneye",
+          "spellId": 469309,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103856": {
+      "name": "Golden Path / Selfless Healer",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6600,
+      "y": 6300,
+      "next": [
+        103863
+      ],
+      "entries": [
+        {
+          "name": "Golden Path",
+          "icon": "ability_priest_cascade",
+          "spellId": 377128,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Selfless Healer",
+          "icon": "ability_paladin_gaurdedbythelight",
+          "spellId": 469434,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93357": {
+      "name": "Blessing of Dawn",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Blessing of Dawn",
+          "icon": "achievement_zone_valeofeternalblossoms",
+          "spellId": 183416,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103861": {
+      "name": "Lightbearer",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4800,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Lightbearer",
+          "icon": "spell_paladin_clarityofpurpose",
+          "spellId": 469416,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103863": {
+      "name": "Blessing of Dusk",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6000,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Blessing of Dusk",
+          "icon": "achievement_zone_newshadowmoonvalley",
+          "spellId": 1241945,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81526": {
+      "name": "Blade of Justice",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 1500,
+      "next": [
+        81527,
+        92689
+      ],
+      "entries": [
+        {
+          "name": "Blade of Justice",
+          "icon": "ability_paladin_bladeofjustice",
+          "spellId": 184575,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81527": {
+      "name": "Divine Storm",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 2100,
+      "next": [
+        81521,
+        93161
+      ],
+      "entries": [
+        {
+          "name": "Divine Storm",
+          "icon": "ability_paladin_divinestorm",
+          "spellId": 53385,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "92689": {
+      "name": "Expurgation",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 2100,
+      "next": [
+        93161,
+        81544
+      ],
+      "entries": [
+        {
+          "name": "Expurgation",
+          "icon": "ability_paladin_bladeofjusticeblue",
+          "spellId": 383344,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81521": {
+      "name": "Swift Justice / Light of Justice",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 2700,
+      "next": [
+        81532,
+        92838
+      ],
+      "entries": [
+        {
+          "name": "Swift Justice",
+          "icon": "ability_paladin_judgementofthepure",
+          "spellId": 383228,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Light of Justice",
+          "icon": "inv_offhand_1h_ulduarraid_d_01",
+          "spellId": 404436,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93161": {
+      "name": "Judgment of Justice",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 2700,
+      "next": [
+        92838
+      ],
+      "entries": [
+        {
+          "name": "Judgment of Justice",
+          "icon": "ability_paladin_judgementblue",
+          "spellId": 403495,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81544": {
+      "name": "Avenging Wrath",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 2700,
+      "next": [
+        92838,
+        81523
+      ],
+      "entries": [
+        {
+          "name": "Avenging Wrath",
+          "icon": "spell_holy_avenginewrath",
+          "spellId": 31884,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81532": {
+      "name": "Final Verdict",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 3300,
+      "next": [
+        81542,
+        109372,
+        81533
+      ],
+      "entries": [
+        {
+          "name": "Final Verdict",
+          "icon": "spell_paladin_templarsverdict",
+          "spellId": 383328,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "92838": {
+      "name": "Improved Blade of Justice / Holy Blade",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 3300,
+      "next": [
+        109372,
+        81512,
+        109370
+      ],
+      "entries": [
+        {
+          "name": "Improved Blade of Justice",
+          "icon": "ability_paladin_bladeofjustice",
+          "spellId": 403745,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Holy Blade",
+          "icon": "ability_paladin_lightoftheprotector",
+          "spellId": 383342,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81523": {
+      "name": "Righteous Cause / Art of War",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14400,
+      "y": 3300,
+      "next": [
+        109370,
+        109371,
+        81545
+      ],
+      "entries": [
+        {
+          "name": "Righteous Cause",
+          "icon": "inv_sword_133",
+          "spellId": 402912,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Art of War",
+          "icon": "ability_paladin_artofwar",
+          "spellId": 406064,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81542": {
+      "name": "Jurisdiction",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11400,
+      "y": 3900,
+      "next": [
+        81533,
+        92860
+      ],
+      "entries": [
+        {
+          "name": "Jurisdiction",
+          "icon": "ability_paladin_longarmofthelaw",
+          "spellId": 402971,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109372": {
+      "name": "Tempest of the Lightbringer",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 3900,
+      "next": [
+        81533,
+        92952
+      ],
+      "entries": [
+        {
+          "name": "Tempest of the Lightbringer",
+          "icon": "ability_malkorok_blightofyshaarj_yellow",
+          "spellId": 383396,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81512": {
+      "name": "Rush of Light",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 3900,
+      "next": [
+        92952,
+        93190
+      ],
+      "entries": [
+        {
+          "name": "Rush of Light",
+          "icon": "spell_holy_borrowedtime",
+          "spellId": 407067,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109370": {
+      "name": "Sanctify",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 3900,
+      "next": [
+        93190,
+        81545
+      ],
+      "entries": [
+        {
+          "name": "Sanctify",
+          "icon": "achievement_zone_firelands",
+          "spellId": 382536,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109371": {
+      "name": "Holy Flames",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 15000,
+      "y": 3900,
+      "next": [
+        81545,
+        92839
+      ],
+      "entries": [
+        {
+          "name": "Holy Flames",
+          "icon": "ability_warlock_inferno",
+          "spellId": 406545,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81533": {
+      "name": "Improved Judgment / Boundless Judgment",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 4500,
+      "next": [
+        92860,
+        81534
+      ],
+      "entries": [
+        {
+          "name": "Improved Judgment",
+          "icon": "spell_holy_righteousfury",
+          "spellId": 405461,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Boundless Judgment",
+          "icon": "ability_paladin_judgementofthewise",
+          "spellId": 405278,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "92952": {
+      "name": "Zealot's Fervor",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 4500,
+      "next": [
+        81534,
+        109374
+      ],
+      "entries": [
+        {
+          "name": "Zealot's Fervor",
+          "icon": "spell_holy_weaponmastery",
+          "spellId": 403509,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93190": {
+      "name": "Heart of the Crusader",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 4500,
+      "next": [
+        109374,
+        81541
+      ],
+      "entries": [
+        {
+          "name": "Heart of the Crusader",
+          "icon": "spell_brokenheart",
+          "spellId": 406154,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81545": {
+      "name": "Blade of Vengeance",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14400,
+      "y": 4500,
+      "next": [
+        81541,
+        92839
+      ],
+      "entries": [
+        {
+          "name": "Blade of Vengeance",
+          "icon": "ability_paladin_bladeofjustice",
+          "spellId": 403826,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "92860": {
+      "name": "Empyrean Power",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11400,
+      "y": 5100,
+      "next": [
+        93164
+      ],
+      "entries": [
+        {
+          "name": "Empyrean Power",
+          "icon": "ability_paladin_sheathoflight",
+          "spellId": 326732,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81534": {
+      "name": "Highlord's Wrath",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 5100,
+      "next": [
+        93164,
+        81525
+      ],
+      "entries": [
+        {
+          "name": "Highlord's Wrath",
+          "icon": "ability_paladin_judgementred",
+          "spellId": 404512,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109374": {
+      "name": "Templar Strikes / Crusading Strikes",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 5100,
+      "next": [
+        81525
+      ],
+      "entries": [
+        {
+          "name": "Templar Strikes",
+          "icon": "inv_sword_2h_artifactashbringer_d_01",
+          "spellId": 406646,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Crusading Strikes",
+          "icon": "inv_sword_08",
+          "spellId": 404542,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81541": {
+      "name": "Blessed Champion",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 5100,
+      "next": [
+        81525,
+        93160
+      ],
+      "entries": [
+        {
+          "name": "Blessed Champion",
+          "icon": "achievement_bg_trueavshutout",
+          "spellId": 403010,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "92839": {
+      "name": "Burning Crusade",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 15000,
+      "y": 5100,
+      "next": [
+        93160
+      ],
+      "entries": [
+        {
+          "name": "Burning Crusade",
+          "icon": "spell_fire_sealoffire",
+          "spellId": 403026,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93164": {
+      "name": "Blades of Light",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 5700,
+      "next": [
+        109373
+      ],
+      "entries": [
+        {
+          "name": "Blades of Light",
+          "icon": "achievement_arena_3v3_7",
+          "spellId": 403664,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81525": {
+      "name": "Wake of Ashes",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 5700,
+      "next": [
+        92854
+      ],
+      "entries": [
+        {
+          "name": "Wake of Ashes",
+          "icon": "inv_sword_2h_artifactashbringerfire_d_03",
+          "spellId": 255937,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93160": {
+      "name": "Divine Wrath",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 14400,
+      "y": 5700,
+      "next": [
+        93173
+      ],
+      "entries": [
+        {
+          "name": "Divine Wrath",
+          "icon": "spell_holy_greaterblessingofkings",
+          "spellId": 406872,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109373": {
+      "name": "Execution Sentence",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 6300,
+      "next": [
+        81537
+      ],
+      "entries": [
+        {
+          "name": "Execution Sentence",
+          "icon": "spell_paladin_executionsentence",
+          "spellId": 343527,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "92854": {
+      "name": "Seething Flames",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 6300,
+      "next": [
+        81549,
+        92686
+      ],
+      "entries": [
+        {
+          "name": "Seething Flames",
+          "icon": "ability_mage_flamecannon",
+          "spellId": 405355,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93173": {
+      "name": "Empyrean Legacy",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14400,
+      "y": 6300,
+      "next": [
+        109369
+      ],
+      "entries": [
+        {
+          "name": "Empyrean Legacy",
+          "icon": "item_holyspark",
+          "spellId": 387170,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81537": {
+      "name": "Judge, Jury and Executioner",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Judge, Jury and Executioner",
+          "icon": "spell_holy_sealofblood",
+          "spellId": 406157,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81549": {
+      "name": "Radiant Glory",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Radiant Glory",
+          "icon": "achievement_dungeon_gloryoftheraider",
+          "spellId": 458359,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "92686": {
+      "name": "Burn to Ash",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Burn to Ash",
+          "icon": "spell_burningsoul",
+          "spellId": 446663,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109369": {
+      "name": "Crusade",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14400,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Crusade",
+          "icon": "ability_paladin_sanctifiedwrath",
+          "spellId": 1253598,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110419": {
+      "name": "Light Within / Light Within / Light Within",
+      "g": "spec",
+      "type": "tiered",
+      "maxRanks": 4,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 7650,
+      "next": [],
+      "entries": [
+        {
+          "name": "Light Within",
+          "icon": "inv12_apextalent_paladin_lightwithin",
+          "spellId": 1261113,
+          "type": "tierrank",
+          "subTreeId": null
+        },
+        {
+          "name": "Light Within",
+          "icon": "inv_ability_holyfire_buff",
+          "spellId": 1261111,
+          "type": "tierrank",
+          "subTreeId": null
+        },
+        {
+          "name": "Light Within",
+          "icon": "inv_ability_holyfire_buff",
+          "spellId": 1261159,
+          "type": "tierrank",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95180": {
+      "name": "Light's Guidance",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 48,
+      "free": true,
+      "x": 16200,
+      "y": 900,
+      "next": [
+        95187,
+        109747,
+        95183,
+        95177
+      ],
+      "entries": [
+        {
+          "name": "Light's Guidance",
+          "icon": "ability_paladin_longarmofthelaw",
+          "spellId": 427445,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95099": {
+      "name": "Dawnlight",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 50,
+      "free": true,
+      "x": 9000,
+      "y": 1200,
+      "next": [
+        95073,
+        95095,
+        95080,
+        109748
+      ],
+      "entries": [
+        {
+          "name": "Dawnlight",
+          "icon": "inv_ability_heraldofthesunpaladin_dawnlight",
+          "spellId": 431377,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95183": {
+      "name": "Zealous Vindication",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 48,
+      "free": false,
+      "x": 15300,
+      "y": 1500,
+      "next": [
+        95179
+      ],
+      "entries": [
+        {
+          "name": "Zealous Vindication",
+          "icon": "spell_holy_surgeoflight",
+          "spellId": 431463,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95187": {
+      "name": "Shake the Heavens",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 48,
+      "free": false,
+      "x": 15900,
+      "y": 1500,
+      "next": [
+        95178
+      ],
+      "entries": [
+        {
+          "name": "Shake the Heavens",
+          "icon": "ability_priest_holybolts01",
+          "spellId": 431533,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95177": {
+      "name": "Wrathful Descent",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 48,
+      "free": false,
+      "x": 16500,
+      "y": 1500,
+      "next": [
+        95181
+      ],
+      "entries": [
+        {
+          "name": "Wrathful Descent",
+          "icon": "ability_paladin_intercession",
+          "spellId": 431551,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109747": {
+      "name": "Divine Hammer",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 48,
+      "free": false,
+      "x": 17100,
+      "y": 1500,
+      "next": [
+        109746
+      ],
+      "entries": [
+        {
+          "name": "Divine Hammer",
+          "icon": "classicon_paladin",
+          "spellId": 432929,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95073": {
+      "name": "Morning Star / Gleaming Rays",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 50,
+      "free": false,
+      "x": 8100,
+      "y": 1800,
+      "next": [
+        95098
+      ],
+      "entries": [
+        {
+          "name": "Morning Star",
+          "icon": "spell_holy_persecution",
+          "spellId": 431482,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Gleaming Rays",
+          "icon": "spell_priest_power_word",
+          "spellId": 431480,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95095": {
+      "name": "Eternal Flame",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 50,
+      "free": false,
+      "x": 8700,
+      "y": 1800,
+      "next": [
+        95071
+      ],
+      "entries": [
+        {
+          "name": "Eternal Flame",
+          "icon": "inv_torch_thrown",
+          "spellId": 156322,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95080": {
+      "name": "Luminosity",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 50,
+      "free": false,
+      "x": 9300,
+      "y": 1800,
+      "next": [
+        95072
+      ],
+      "entries": [
+        {
+          "name": "Luminosity",
+          "icon": "inv_qirajidol_sun",
+          "spellId": 431402,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109748": {
+      "name": "Endless Gleam",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 50,
+      "free": false,
+      "x": 9900,
+      "y": 1800,
+      "next": [
+        109750
+      ],
+      "entries": [
+        {
+          "name": "Endless Gleam",
+          "icon": "spell_paladin_inquisition",
+          "spellId": 1263787,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95179": {
+      "name": "Sacrosanct Crusade",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 48,
+      "free": false,
+      "x": 15300,
+      "y": 2100,
+      "next": [
+        95185
+      ],
+      "entries": [
+        {
+          "name": "Sacrosanct Crusade",
+          "icon": "inv_plate_raidpaladinprimalist_d_01_cape",
+          "spellId": 431730,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95178": {
+      "name": "Higher Calling",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 48,
+      "free": false,
+      "x": 15900,
+      "y": 2100,
+      "next": [
+        95184
+      ],
+      "entries": [
+        {
+          "name": "Higher Calling",
+          "icon": "ability_paladin_toweroflight",
+          "spellId": 431687,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95181": {
+      "name": "Bonds of Fellowship / Unrelenting Charger",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 48,
+      "free": false,
+      "x": 16500,
+      "y": 2100,
+      "next": [
+        95186
+      ],
+      "entries": [
+        {
+          "name": "Bonds of Fellowship",
+          "icon": "spell_holy_crusade",
+          "spellId": 432992,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Unrelenting Charger",
+          "icon": "ability_mount_mawhorsespikes_yellow",
+          "spellId": 432990,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109746": {
+      "name": "Light's Judicator",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 48,
+      "free": false,
+      "x": 17100,
+      "y": 2100,
+      "next": [
+        109745
+      ],
+      "entries": [
+        {
+          "name": "Light's Judicator",
+          "icon": "ability_paladin_judgementofthepure",
+          "spellId": 1261525,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95098": {
+      "name": "Illumine / Will of the Dawn",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 50,
+      "free": false,
+      "x": 8100,
+      "y": 2400,
+      "next": [
+        95069
+      ],
+      "entries": [
+        {
+          "name": "Illumine",
+          "icon": "spell_holy_divineillumination",
+          "spellId": 431423,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Will of the Dawn",
+          "icon": "spell_holy_divineprovidence",
+          "spellId": 431406,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95071": {
+      "name": "Blessing of An'she / Lingering Radiance",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 50,
+      "free": false,
+      "x": 8700,
+      "y": 2400,
+      "next": [
+        95094
+      ],
+      "entries": [
+        {
+          "name": "Blessing of An'she",
+          "icon": "inv_ability_holyfire_orb",
+          "spellId": 445200,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Lingering Radiance",
+          "icon": "spell_holy_mindvision",
+          "spellId": 431407,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95072": {
+      "name": "Sun Sear",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 50,
+      "free": false,
+      "x": 9300,
+      "y": 2400,
+      "next": [
+        95086
+      ],
+      "entries": [
+        {
+          "name": "Sun Sear",
+          "icon": "spell_priest_burningwill",
+          "spellId": 431413,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109750": {
+      "name": "Solar Grace",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 50,
+      "free": false,
+      "x": 9900,
+      "y": 2400,
+      "next": [
+        109749
+      ],
+      "entries": [
+        {
+          "name": "Solar Grace",
+          "icon": "ability_malkorok_blightofyshaarj_yellow",
+          "spellId": 431404,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95185": {
+      "name": "Endless Wrath / Sanctification",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 48,
+      "free": false,
+      "x": 15290,
+      "y": 2700,
+      "next": [
+        95182
+      ],
+      "entries": [
+        {
+          "name": "Endless Wrath",
+          "icon": "spell_holy_divinepurpose",
+          "spellId": 432615,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Sanctification",
+          "icon": "ability_paladin_blessedhands",
+          "spellId": 432977,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95184": {
+      "name": "Hammerfall",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 48,
+      "free": false,
+      "x": 15900,
+      "y": 2700,
+      "next": [
+        95182
+      ],
+      "entries": [
+        {
+          "name": "Hammerfall",
+          "icon": "ability_paladin_enlightenedjudgements",
+          "spellId": 432463,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95186": {
+      "name": "Undisputed Ruling",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 48,
+      "free": false,
+      "x": 16500,
+      "y": 2700,
+      "next": [
+        95182
+      ],
+      "entries": [
+        {
+          "name": "Undisputed Ruling",
+          "icon": "spell_holy_righteousfury",
+          "spellId": 432626,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109745": {
+      "name": "Divine Exaction / Seal of the Templar",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 48,
+      "free": false,
+      "x": 17100,
+      "y": 2700,
+      "next": [
+        95182
+      ],
+      "entries": [
+        {
+          "name": "Divine Exaction",
+          "icon": "inv_ability_paladin_divinetoll",
+          "spellId": 1260429,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Seal of the Templar",
+          "icon": "spell_paladin_templarsverdict",
+          "spellId": 1263252,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95069": {
+      "name": "Aurora",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 50,
+      "free": false,
+      "x": 8100,
+      "y": 3000,
+      "next": [
+        95105
+      ],
+      "entries": [
+        {
+          "name": "Aurora",
+          "icon": "spell_holy_rune",
+          "spellId": 439760,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95094": {
+      "name": "Walk Into Light",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 50,
+      "free": false,
+      "x": 8700,
+      "y": 3000,
+      "next": [
+        95105
+      ],
+      "entries": [
+        {
+          "name": "Walk Into Light",
+          "icon": "ability_paladin_sheathoflight",
+          "spellId": 1263782,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95086": {
+      "name": "Second Sunrise",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 50,
+      "free": false,
+      "x": 9300,
+      "y": 3000,
+      "next": [
+        95105
+      ],
+      "entries": [
+        {
+          "name": "Second Sunrise",
+          "icon": "ability_priest_halo",
+          "spellId": 431474,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109749": {
+      "name": "Born in Sunlight",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 50,
+      "free": false,
+      "x": 9900,
+      "y": 3000,
+      "next": [
+        95105
+      ],
+      "entries": [
+        {
+          "name": "Born in Sunlight",
+          "icon": "spell_paladin_lightofdawn",
+          "spellId": 1263920,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95182": {
+      "name": "Light's Deliverance",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 48,
+      "free": false,
+      "x": 16200,
+      "y": 3300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Light's Deliverance",
+          "icon": "inv_glove_plate_raidpaladinmythic_q_01",
+          "spellId": 425518,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95105": {
+      "name": "Sun's Avatar",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 50,
+      "free": false,
+      "x": 9000,
+      "y": 3600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Sun's Avatar",
+          "icon": "ability_paladin_holyavenger",
+          "spellId": 431425,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "99837": {
+      "name": "Herald of the Sun / Templar",
+      "g": "sub",
+      "type": "subtree",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 9600,
+      "y": 600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Herald of the Sun",
+          "icon": "talents-heroclass-paladin-heraldofthesun",
+          "spellId": 0,
+          "type": "subtree",
+          "subTreeId": 50
+        },
+        {
+          "name": "Templar",
+          "icon": "talents-heroclass-paladin-templar",
+          "spellId": 0,
+          "type": "subtree",
+          "subTreeId": 48
+        }
+      ]
+    }
   }
 }

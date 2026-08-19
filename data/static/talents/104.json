@@ -1282,5 +1282,3157 @@
       "name": "Elune's Chosen",
       "icon": "talents-heroclass-druid-eluneschosen"
     }
+  },
+  "fullNodeOrder": [
+    82043,
+    82045,
+    82046,
+    82047,
+    82048,
+    82049,
+    82050,
+    82051,
+    82052,
+    82053,
+    82054,
+    82055,
+    82056,
+    82057,
+    82058,
+    82059,
+    82060,
+    82062,
+    82063,
+    82064,
+    82065,
+    82066,
+    82067,
+    82068,
+    82069,
+    82070,
+    82071,
+    82072,
+    82073,
+    82074,
+    82075,
+    82076,
+    82077,
+    82079,
+    82080,
+    82081,
+    82082,
+    82083,
+    82085,
+    82086,
+    82088,
+    82090,
+    82091,
+    82092,
+    82093,
+    82094,
+    82095,
+    82096,
+    82098,
+    82099,
+    82100,
+    82101,
+    82102,
+    82103,
+    82104,
+    82105,
+    82106,
+    82107,
+    82108,
+    82109,
+    82110,
+    82111,
+    82112,
+    82113,
+    82114,
+    82115,
+    82116,
+    82117,
+    82118,
+    82119,
+    82120,
+    82121,
+    82122,
+    82123,
+    82124,
+    82126,
+    82127,
+    82129,
+    82131,
+    82134,
+    82135,
+    82136,
+    82137,
+    82138,
+    82140,
+    82142,
+    82143,
+    82144,
+    82145,
+    82146,
+    82147,
+    82148,
+    82149,
+    82152,
+    82153,
+    82154,
+    82156,
+    82157,
+    82159,
+    82160,
+    82161,
+    82198,
+    82199,
+    82200,
+    82201,
+    82202,
+    82205,
+    82206,
+    82207,
+    82208,
+    82209,
+    82210,
+    82211,
+    82214,
+    82217,
+    82218,
+    82219,
+    82220,
+    82221,
+    82222,
+    82223,
+    82224,
+    82225,
+    82227,
+    82228,
+    82229,
+    82230,
+    82231,
+    82232,
+    82233,
+    82234,
+    82235,
+    82236,
+    82237,
+    82239,
+    82240,
+    82241,
+    82242,
+    82243,
+    82244,
+    82246,
+    88200,
+    88201,
+    88202,
+    88203,
+    88204,
+    88206,
+    88207,
+    88208,
+    88209,
+    88210,
+    88212,
+    88213,
+    88214,
+    88215,
+    88216,
+    88218,
+    88219,
+    88220,
+    88221,
+    88222,
+    88223,
+    88224,
+    88225,
+    88226,
+    88227,
+    88228,
+    88231,
+    88232,
+    88234,
+    88235,
+    88236,
+    91044,
+    91046,
+    91047,
+    91048,
+    92226,
+    92227,
+    92229,
+    92585,
+    92586,
+    92587,
+    92588,
+    92641,
+    92674,
+    93714,
+    94535,
+    94585,
+    94586,
+    94587,
+    94588,
+    94590,
+    94591,
+    94592,
+    94593,
+    94594,
+    94595,
+    94596,
+    94597,
+    94598,
+    94599,
+    94600,
+    94601,
+    94602,
+    94604,
+    94605,
+    94606,
+    94607,
+    94608,
+    94609,
+    94610,
+    94611,
+    94612,
+    94613,
+    94614,
+    94615,
+    94616,
+    94618,
+    94619,
+    94620,
+    94621,
+    94622,
+    94623,
+    94624,
+    94625,
+    94626,
+    94627,
+    94628,
+    94629,
+    94630,
+    94631,
+    99805,
+    99806,
+    99807,
+    99808,
+    100173,
+    100174,
+    100175,
+    100176,
+    100177,
+    100223,
+    103846,
+    103847,
+    103873,
+    103874,
+    103876,
+    104078,
+    104079,
+    104080,
+    104081,
+    104082,
+    104083,
+    104084,
+    104085,
+    104125,
+    108032,
+    108033,
+    109275,
+    109302,
+    109375,
+    109376,
+    109377,
+    109378,
+    109379,
+    109712,
+    109713,
+    109714,
+    109715,
+    109716,
+    109717,
+    109718,
+    109719,
+    109720,
+    109721,
+    109722,
+    109723,
+    110279,
+    110421,
+    110424,
+    110426,
+    110431,
+    110694
+  ],
+  "nodes": {
+    "82199": {
+      "name": "Rake",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2100,
+      "y": 1500,
+      "next": [
+        82239,
+        82223,
+        82222
+      ],
+      "entries": [
+        {
+          "name": "Rake",
+          "icon": "ability_druid_disembowel",
+          "spellId": 1822,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82220": {
+      "name": "Frenzied Regeneration",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": true,
+      "x": 3300,
+      "y": 1500,
+      "next": [
+        82223,
+        82219,
+        82218
+      ],
+      "entries": [
+        {
+          "name": "Frenzied Regeneration",
+          "icon": "ability_bullrush",
+          "spellId": 22842,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82217": {
+      "name": "Rejuvenation",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 1500,
+      "next": [
+        82219,
+        82205,
+        82241
+      ],
+      "entries": [
+        {
+          "name": "Rejuvenation",
+          "icon": "spell_nature_rejuvenation",
+          "spellId": 774,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "91044": {
+      "name": "Starfire",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 1500,
+      "next": [
+        82200,
+        82208
+      ],
+      "entries": [
+        {
+          "name": "Starfire",
+          "icon": "spell_arcane_starfire",
+          "spellId": 197628,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82239": {
+      "name": "Grievous Wounds",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 1500,
+      "y": 2100,
+      "next": [],
+      "entries": [
+        {
+          "name": "Grievous Wounds",
+          "icon": "ability_xavius_tormentingswipe",
+          "spellId": 474526,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82223": {
+      "name": "Swipe",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": true,
+      "x": 2700,
+      "y": 2100,
+      "next": [
+        82218,
+        82225
+      ],
+      "entries": [
+        {
+          "name": "Swipe",
+          "icon": "inv_misc_monsterclaw_03",
+          "spellId": 213764,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82219": {
+      "name": "Ursoc's Spirit",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 2100,
+      "next": [
+        82218,
+        82241,
+        104085
+      ],
+      "entries": [
+        {
+          "name": "Ursoc's Spirit",
+          "icon": "spell_nature_spiritarmor",
+          "spellId": 449182,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82205": {
+      "name": "Wild Growth",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 2100,
+      "next": [
+        82214
+      ],
+      "entries": [
+        {
+          "name": "Wild Growth",
+          "icon": "ability_druid_flourish",
+          "spellId": 48438,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82200": {
+      "name": "Starsurge",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6300,
+      "y": 2100,
+      "next": [],
+      "entries": [
+        {
+          "name": "Starsurge",
+          "icon": "spell_arcane_arcane03",
+          "spellId": 197626,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82222": {
+      "name": "Rip",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2100,
+      "y": 2700,
+      "next": [
+        82225,
+        82221
+      ],
+      "entries": [
+        {
+          "name": "Rip",
+          "icon": "ability_ghoulfrenzy",
+          "spellId": 1079,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82218": {
+      "name": "Verdant Heart",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": true,
+      "x": 3300,
+      "y": 2700,
+      "next": [
+        82225,
+        82227,
+        104085
+      ],
+      "entries": [
+        {
+          "name": "Verdant Heart",
+          "icon": "ability_bullrush",
+          "spellId": 301768,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82241": {
+      "name": "Remove Corruption",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 2700,
+      "next": [
+        104085,
+        82211,
+        82214
+      ],
+      "entries": [
+        {
+          "name": "Remove Corruption",
+          "icon": "spell_holy_removecurse",
+          "spellId": 2782,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82208": {
+      "name": "Moonkin Form",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 2700,
+      "next": [
+        82214,
+        93714
+      ],
+      "entries": [
+        {
+          "name": "Moonkin Form",
+          "icon": "spell_nature_forceofnature",
+          "spellId": 24858,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82221": {
+      "name": "Maim",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 1500,
+      "y": 3300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Maim",
+          "icon": "ability_druid_mangle.tga",
+          "spellId": 22570,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82225": {
+      "name": "Killer Instinct",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 3300,
+      "next": [
+        82224,
+        82228,
+        82198
+      ],
+      "entries": [
+        {
+          "name": "Killer Instinct",
+          "icon": "ability_druid_predatoryinstincts",
+          "spellId": 108299,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82227": {
+      "name": "Ironfur",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 3300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Ironfur",
+          "icon": "ability_druid_ironfur",
+          "spellId": 192081,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "104085": {
+      "name": "Improved Barkskin",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 3300,
+      "next": [
+        82228,
+        82242,
+        82206
+      ],
+      "entries": [
+        {
+          "name": "Improved Barkskin",
+          "icon": "spell_nature_stoneclawtotem",
+          "spellId": 327993,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82211": {
+      "name": "Hibernate",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 3300,
+      "next": [
+        82206
+      ],
+      "entries": [
+        {
+          "name": "Hibernate",
+          "icon": "spell_nature_sleep",
+          "spellId": 2637,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82214": {
+      "name": "Nurturing Instinct",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 3300,
+      "next": [
+        82206,
+        82210,
+        82232
+      ],
+      "entries": [
+        {
+          "name": "Nurturing Instinct",
+          "icon": "ability_druid_healinginstincts",
+          "spellId": 33873,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93714": {
+      "name": "Sunfire",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6300,
+      "y": 3300,
+      "next": [
+        100223
+      ],
+      "entries": [
+        {
+          "name": "Sunfire",
+          "icon": "ability_mage_firestarter",
+          "spellId": 93402,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82224": {
+      "name": "Primal Fury",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2100,
+      "y": 3900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Primal Fury",
+          "icon": "ability_racial_cannibalize",
+          "spellId": 159286,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82228": {
+      "name": "Thick Hide",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 3900,
+      "next": [
+        82198,
+        82229,
+        100177
+      ],
+      "entries": [
+        {
+          "name": "Thick Hide",
+          "icon": "inv_misc_pelt_bear_03",
+          "spellId": 16931,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82242": {
+      "name": "Skull Bash",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 3900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Skull Bash",
+          "icon": "inv_bone_skull_04",
+          "spellId": 106839,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82206": {
+      "name": "Natural Recovery",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 3900,
+      "next": [
+        82232,
+        82229,
+        82240
+      ],
+      "entries": [
+        {
+          "name": "Natural Recovery",
+          "icon": "ability_druid_naturalperfection",
+          "spellId": 377796,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82210": {
+      "name": "Astral Influence",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 3900,
+      "next": [
+        100223
+      ],
+      "entries": [
+        {
+          "name": "Astral Influence",
+          "icon": "ability_skyreach_lens_flare",
+          "spellId": 197524,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82198": {
+      "name": "Wild Charge / Tiger Dash",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 4500,
+      "next": [
+        82236,
+        82235,
+        100177
+      ],
+      "entries": [
+        {
+          "name": "Wild Charge",
+          "icon": "spell_druid_wildcharge",
+          "spellId": 102401,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Tiger Dash",
+          "icon": "ability_druid_dash_orange",
+          "spellId": 252216,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82229": {
+      "name": "Soothe / Cyclone",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 4500,
+      "next": [
+        82234
+      ],
+      "entries": [
+        {
+          "name": "Soothe",
+          "icon": "ability_hunter_beastsoothe",
+          "spellId": 2908,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Cyclone",
+          "icon": "spell_nature_earthbind",
+          "spellId": 33786,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82232": {
+      "name": "Aessina's Renewal",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 4500,
+      "next": [
+        82240,
+        82209,
+        82207
+      ],
+      "entries": [
+        {
+          "name": "Aessina's Renewal",
+          "icon": "spell_nature_healingtouch",
+          "spellId": 474678,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "100223": {
+      "name": "Starlight Conduit",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6300,
+      "y": 4500,
+      "next": [],
+      "entries": [
+        {
+          "name": "Starlight Conduit",
+          "icon": "spell_arcane_arcane01",
+          "spellId": 451211,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82236": {
+      "name": "Feline Swiftness",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2100,
+      "y": 5100,
+      "next": [
+        100176
+      ],
+      "entries": [
+        {
+          "name": "Feline Swiftness",
+          "icon": "ability_druid_dash",
+          "spellId": 131768,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82235": {
+      "name": "Well-Honed Instincts",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 5100,
+      "next": [
+        100176,
+        104082
+      ],
+      "entries": [
+        {
+          "name": "Well-Honed Instincts",
+          "icon": "ability_druid_tigersroar",
+          "spellId": 377847,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "100177": {
+      "name": "Matted Fur",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 5100,
+      "next": [],
+      "entries": [
+        {
+          "name": "Matted Fur",
+          "icon": "inv_misc_pelt_15",
+          "spellId": 385786,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82234": {
+      "name": "Stampeding Roar",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 5100,
+      "next": [
+        104081,
+        82233,
+        104080
+      ],
+      "entries": [
+        {
+          "name": "Stampeding Roar",
+          "icon": "spell_druid_stampedingroar_cat",
+          "spellId": 106898,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82240": {
+      "name": "Lingering Healing",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 5100,
+      "next": [],
+      "entries": [
+        {
+          "name": "Lingering Healing",
+          "icon": "spell_nature_rejuvenation",
+          "spellId": 231040,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82209": {
+      "name": "Typhoon",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 5100,
+      "next": [
+        104079,
+        100175
+      ],
+      "entries": [
+        {
+          "name": "Typhoon",
+          "icon": "ability_druid_typhoon",
+          "spellId": 132469,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82207": {
+      "name": "Mass Entanglement / Ursol's Vortex",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 5100,
+      "next": [
+        100175
+      ],
+      "entries": [
+        {
+          "name": "Mass Entanglement",
+          "icon": "spell_druid_massentanglement",
+          "spellId": 102359,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Ursol's Vortex",
+          "icon": "spell_druid_ursolsvortex",
+          "spellId": 102793,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "100176": {
+      "name": "Oakskin",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2100,
+      "y": 5700,
+      "next": [
+        82237,
+        100174,
+        82246
+      ],
+      "entries": [
+        {
+          "name": "Oakskin",
+          "icon": "spell_nature_stoneclawtotem",
+          "spellId": 449191,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "104082": {
+      "name": "Perfectly-Honed Instincts",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 5700,
+      "next": [],
+      "entries": [
+        {
+          "name": "Perfectly-Honed Instincts",
+          "icon": "ability_druid_tigersroar",
+          "spellId": 1213597,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "104081": {
+      "name": "Instincts of the Claw",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 5700,
+      "next": [],
+      "entries": [
+        {
+          "name": "Instincts of the Claw",
+          "icon": "spell_shadow_vampiricaura",
+          "spellId": 449184,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82233": {
+      "name": "Lycara's Teachings",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 5700,
+      "next": [
+        82230,
+        104078,
+        92229
+      ],
+      "entries": [
+        {
+          "name": "Lycara's Teachings",
+          "icon": "inv_trinket_ardenweald_02_green",
+          "spellId": 378988,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "104080": {
+      "name": "Lore of the Grove",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 5700,
+      "next": [],
+      "entries": [
+        {
+          "name": "Lore of the Grove",
+          "icon": "spell_nature_starfall",
+          "spellId": 449185,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "104079": {
+      "name": "Gale Winds / Incessant Tempest",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 5700,
+      "next": [],
+      "entries": [
+        {
+          "name": "Gale Winds",
+          "icon": "ability_druid_galewinds",
+          "spellId": 400142,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Incessant Tempest",
+          "icon": "ability_skyreach_wind",
+          "spellId": 400140,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "100175": {
+      "name": "Gift of the Wild",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 5700,
+      "next": [
+        100173,
+        82243,
+        82244
+      ],
+      "entries": [
+        {
+          "name": "Gift of the Wild",
+          "icon": "spell_nature_giftofthewild",
+          "spellId": 1262034,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82237": {
+      "name": "Incapacitating Roar / Mighty Bash",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 1500,
+      "y": 6300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Incapacitating Roar",
+          "icon": "ability_druid_demoralizingroar",
+          "spellId": 99,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Mighty Bash",
+          "icon": "ability_druid_bash",
+          "spellId": 5211,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "100174": {
+      "name": "Ursine Vigor",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 6300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Ursine Vigor",
+          "icon": "ability_druid_markofursol",
+          "spellId": 377842,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82230": {
+      "name": "Improved Stampeding Roar",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 6300,
+      "next": [
+        82231
+      ],
+      "entries": [
+        {
+          "name": "Improved Stampeding Roar",
+          "icon": "spell_druid_stamedingroar",
+          "spellId": 288826,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "104078": {
+      "name": "Circle of the Wild / Circle of the Heavens",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 6300,
+      "next": [
+        82231
+      ],
+      "entries": [
+        {
+          "name": "Circle of the Wild",
+          "icon": "ability_druid_disembowel",
+          "spellId": 474530,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Circle of the Heavens",
+          "icon": "spell_druid_equinox",
+          "spellId": 474541,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "92229": {
+      "name": "Lycara's Inspiration",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 6300,
+      "next": [
+        82231
+      ],
+      "entries": [
+        {
+          "name": "Lycara's Inspiration",
+          "icon": "inv_trinket_ardenweald_02_yellow",
+          "spellId": 1232897,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "100173": {
+      "name": "Symbiotic Relationship",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 6300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Symbiotic Relationship",
+          "icon": "ability_druid_focusedgrowth",
+          "spellId": 474750,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82243": {
+      "name": "Forestwalk",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 6300,
+      "y": 6300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Forestwalk",
+          "icon": "spell_lifegivingspeed",
+          "spellId": 400129,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82246": {
+      "name": "Fluid Form",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2100,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Fluid Form",
+          "icon": "ability_druid_mastershapeshifter",
+          "spellId": 449193,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82231": {
+      "name": "Heart of the Wild",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Heart of the Wild",
+          "icon": "spell_holy_blessingofagility",
+          "spellId": 1261867,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82244": {
+      "name": "Innervate",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Innervate",
+          "icon": "spell_nature_lightning",
+          "spellId": 29166,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82127": {
+      "name": "Maul",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 1500,
+      "next": [
+        82129,
+        82126
+      ],
+      "entries": [
+        {
+          "name": "Maul",
+          "icon": "ability_druid_maul",
+          "spellId": 6807,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82126": {
+      "name": "Gore",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 2100,
+      "next": [
+        109275,
+        92227
+      ],
+      "entries": [
+        {
+          "name": "Gore",
+          "icon": "spell_druid_bearhug",
+          "spellId": 210706,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82129": {
+      "name": "Survival Instincts",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 2100,
+      "next": [
+        92585,
+        109376
+      ],
+      "entries": [
+        {
+          "name": "Survival Instincts",
+          "icon": "ability_druid_tigersroar",
+          "spellId": 61336,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109275": {
+      "name": "Front of the Pack",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 2700,
+      "next": [
+        82160
+      ],
+      "entries": [
+        {
+          "name": "Front of the Pack",
+          "icon": "spell_druid_stampedingroar_cat",
+          "spellId": 377835,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "92227": {
+      "name": "Persistence",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 2700,
+      "next": [
+        82160,
+        82149
+      ],
+      "entries": [
+        {
+          "name": "Persistence",
+          "icon": "inv_1115_druid_bearstanding",
+          "spellId": 1251406,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "92585": {
+      "name": "Dream of Cenarius / Dream Guide",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 2700,
+      "next": [
+        82149,
+        82131
+      ],
+      "entries": [
+        {
+          "name": "Dream of Cenarius",
+          "icon": "ability_druid_dreamstate",
+          "spellId": 372119,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Dream Guide",
+          "icon": "achievement_reputation_guardiansofcenarius",
+          "spellId": 1278886,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109376": {
+      "name": "Infected Wounds",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 2700,
+      "next": [
+        82131
+      ],
+      "entries": [
+        {
+          "name": "Infected Wounds",
+          "icon": "ability_druid_infectedwound",
+          "spellId": 345208,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82160": {
+      "name": "Innate Resolve",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 3300,
+      "next": [
+        82143,
+        82157
+      ],
+      "entries": [
+        {
+          "name": "Innate Resolve",
+          "icon": "spell_nature_healingway",
+          "spellId": 377811,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82149": {
+      "name": "Berserk",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 3300,
+      "next": [
+        82157,
+        82140,
+        82144
+      ],
+      "entries": [
+        {
+          "name": "Berserk",
+          "icon": "ability_druid_berserk",
+          "spellId": 50334,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82131": {
+      "name": "Vulnerable Flesh",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 3300,
+      "next": [
+        82144,
+        82146
+      ],
+      "entries": [
+        {
+          "name": "Vulnerable Flesh",
+          "icon": "ability_druid_primalagression",
+          "spellId": 372618,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82143": {
+      "name": "Survival of the Fittest",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 10500,
+      "y": 3900,
+      "next": [
+        109378,
+        92226
+      ],
+      "entries": [
+        {
+          "name": "Survival of the Fittest",
+          "icon": "ability_druid_enrage",
+          "spellId": 203965,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82157": {
+      "name": "Reinvigoration",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 3900,
+      "next": [
+        92226,
+        82156
+      ],
+      "entries": [
+        {
+          "name": "Reinvigoration",
+          "icon": "ability_druid_overgrowth",
+          "spellId": 372945,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82140": {
+      "name": "After the Wildfire",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 3900,
+      "next": [
+        82156,
+        82161,
+        109377
+      ],
+      "entries": [
+        {
+          "name": "After the Wildfire",
+          "icon": "inv12_ability_druid_afterthewildfire",
+          "spellId": 371905,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82144": {
+      "name": "Memory of Ysera",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 3900,
+      "next": [
+        109377,
+        109375
+      ],
+      "entries": [
+        {
+          "name": "Memory of Ysera",
+          "icon": "spell_nature_regeneration_02",
+          "spellId": 1250906,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82146": {
+      "name": "Scintillating Moonlight",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 14100,
+      "y": 3900,
+      "next": [
+        109375,
+        82148
+      ],
+      "entries": [
+        {
+          "name": "Scintillating Moonlight",
+          "icon": "spell_fire_twilightfireward",
+          "spellId": 238049,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109378": {
+      "name": "Ward of the Forest / Brambles",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10500,
+      "y": 4500,
+      "next": [
+        82152,
+        82159
+      ],
+      "entries": [
+        {
+          "name": "Ward of the Forest",
+          "icon": "achievement_zone_grizzlyhills_01",
+          "spellId": 1250923,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Brambles",
+          "icon": "inv_misc_thornnecklace",
+          "spellId": 203953,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "92226": {
+      "name": "Soul of the Forest",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 4500,
+      "next": [
+        82152
+      ],
+      "entries": [
+        {
+          "name": "Soul of the Forest",
+          "icon": "ability_druid_manatree",
+          "spellId": 158477,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82156": {
+      "name": "Natural Resilience",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 4500,
+      "next": [
+        82152,
+        82137
+      ],
+      "entries": [
+        {
+          "name": "Natural Resilience",
+          "icon": "spell_lfieblood",
+          "spellId": 1278789,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82161": {
+      "name": "Reinforced Fur / Bristling Fur",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 4500,
+      "next": [
+        82137
+      ],
+      "entries": [
+        {
+          "name": "Reinforced Fur",
+          "icon": "spell_nature_spiritarmor",
+          "spellId": 393618,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Bristling Fur",
+          "icon": "spell_druid_bristlingfur",
+          "spellId": 155835,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109377": {
+      "name": "Gift of an Ancient Guardian / Guardian of Elune",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 4500,
+      "next": [
+        82137,
+        92587
+      ],
+      "entries": [
+        {
+          "name": "Gift of an Ancient Guardian",
+          "icon": "inv_relics_idolofhealth",
+          "spellId": 1251876,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Guardian of Elune",
+          "icon": "spell_druid_guardianofelune",
+          "spellId": 155578,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109375": {
+      "name": "Ursoc's Endurance / Gory Fur",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 4500,
+      "next": [
+        92587
+      ],
+      "entries": [
+        {
+          "name": "Ursoc's Endurance",
+          "icon": "ability_hunter_pet_bear",
+          "spellId": 393611,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Gory Fur",
+          "icon": "artifactability_guardiandruid_goryfur",
+          "spellId": 200854,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82148": {
+      "name": "Ursol's Warding",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14100,
+      "y": 4500,
+      "next": [
+        92587,
+        82147
+      ],
+      "entries": [
+        {
+          "name": "Ursol's Warding",
+          "icon": "spell_nature_natureresistancetotem",
+          "spellId": 471492,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82152": {
+      "name": "Rend and Tear / Untamed Savagery",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 5100,
+      "next": [
+        82159,
+        82154,
+        82142
+      ],
+      "entries": [
+        {
+          "name": "Rend and Tear",
+          "icon": "ability_druid_swipe",
+          "spellId": 204053,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Untamed Savagery",
+          "icon": "spell_druid_bloodythrash",
+          "spellId": 372943,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82137": {
+      "name": "Raze",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 5100,
+      "next": [
+        82142,
+        92586,
+        82136
+      ],
+      "entries": [
+        {
+          "name": "Raze",
+          "icon": "ability_druid_lacerate",
+          "spellId": 400254,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "92587": {
+      "name": "Lunar Beam",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 5100,
+      "next": [
+        92586,
+        82138,
+        82147
+      ],
+      "entries": [
+        {
+          "name": "Lunar Beam",
+          "icon": "spell_nature_moonglow",
+          "spellId": 204066,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82159": {
+      "name": "Ursoc's Fury",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10500,
+      "y": 5700,
+      "next": [
+        109379,
+        82153
+      ],
+      "entries": [
+        {
+          "name": "Ursoc's Fury",
+          "icon": "achievement_emeraldnightmare_ursoc",
+          "spellId": 377210,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82154": {
+      "name": "Flashing Claws",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 5700,
+      "next": [
+        109379
+      ],
+      "entries": [
+        {
+          "name": "Flashing Claws",
+          "icon": "spell_druid_thrash",
+          "spellId": 393427,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82142": {
+      "name": "Blood Frenzy",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 5700,
+      "next": [
+        82136,
+        109379
+      ],
+      "entries": [
+        {
+          "name": "Blood Frenzy",
+          "icon": "ability_druid_primaltenacity",
+          "spellId": 203962,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "92586": {
+      "name": "Moonless Night",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 5700,
+      "next": [
+        82136,
+        82134
+      ],
+      "entries": [
+        {
+          "name": "Moonless Night",
+          "icon": "artifactability_balancedruid_newmoon",
+          "spellId": 400278,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82138": {
+      "name": "Fury of Nature",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 5700,
+      "next": [
+        82134
+      ],
+      "entries": [
+        {
+          "name": "Fury of Nature",
+          "icon": "ability_druid_cresentburn",
+          "spellId": 370695,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82147": {
+      "name": "Twin Moonfire / Red Moon",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14100,
+      "y": 5700,
+      "next": [
+        82134,
+        82145
+      ],
+      "entries": [
+        {
+          "name": "Twin Moonfire",
+          "icon": "spell_nature_starfall",
+          "spellId": 372567,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Red Moon",
+          "icon": "sha_ability_mage_firestarter_nightmare",
+          "spellId": 1252871,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109379": {
+      "name": "Harnessed Rage",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 6300,
+      "next": [
+        82153,
+        92588
+      ],
+      "entries": [
+        {
+          "name": "Harnessed Rage",
+          "icon": "inv_misc_bearclaw_nightmare",
+          "spellId": 1253035,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82136": {
+      "name": "Incarnation: Guardian of Ursoc / Convoke the Spirits",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 6300,
+      "next": [
+        82135,
+        109302,
+        92588
+      ],
+      "entries": [
+        {
+          "name": "Incarnation: Guardian of Ursoc",
+          "icon": "spell_druid_incarnation",
+          "spellId": 102558,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Convoke the Spirits",
+          "icon": "inv_ability_druid_convokethespirits",
+          "spellId": 391528,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82134": {
+      "name": "Elune's Favored",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 6300,
+      "next": [
+        109302,
+        82145
+      ],
+      "entries": [
+        {
+          "name": "Elune's Favored",
+          "icon": "spell_holy_elunesgrace",
+          "spellId": 370586,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82153": {
+      "name": "Killing Blow",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10500,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Killing Blow",
+          "icon": "artifactability_feraldruid_ashamanesbite",
+          "spellId": 1252994,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "92588": {
+      "name": "Sundering Roar",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Sundering Roar",
+          "icon": "artifactability_feraldruid_openwounds",
+          "spellId": 1253799,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82135": {
+      "name": "Ursoc's Guidance",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Ursoc's Guidance",
+          "icon": "inv_ability_druid_convokethespirits",
+          "spellId": 393414,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109302": {
+      "name": "Waking Nightmare",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Waking Nightmare",
+          "icon": "sha_spell_shadow_shadesofdarkness_nightmare",
+          "spellId": 1253461,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "82145": {
+      "name": "Galactic Guardian",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14100,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Galactic Guardian",
+          "icon": "spell_frost_iceclaw",
+          "spellId": 203964,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110431": {
+      "name": "Wild Guardian / Wild Guardian / Wild Guardian",
+      "g": "spec",
+      "type": "tiered",
+      "maxRanks": 4,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 7650,
+      "next": [],
+      "entries": [
+        {
+          "name": "Wild Guardian",
+          "icon": "inv12_apextalent_druid_wildguardian",
+          "spellId": 1269614,
+          "type": "tierrank",
+          "subTreeId": null
+        },
+        {
+          "name": "Wild Guardian",
+          "icon": "inv12_apextalent_druid_wildguardian",
+          "spellId": 1269617,
+          "type": "tierrank",
+          "subTreeId": null
+        },
+        {
+          "name": "Wild Guardian",
+          "icon": "inv12_apextalent_druid_wildguardian",
+          "spellId": 1269619,
+          "type": "tierrank",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94608": {
+      "name": "Boundless Moonlight",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 24,
+      "free": true,
+      "x": 8100,
+      "y": 1500,
+      "next": [
+        94598,
+        94588,
+        94594,
+        109720
+      ],
+      "entries": [
+        {
+          "name": "Boundless Moonlight",
+          "icon": "inv_ability_eluneschosendruid_boundlessmoonlight",
+          "spellId": 424058,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94598": {
+      "name": "Moon Guardian",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 24,
+      "free": false,
+      "x": 7200,
+      "y": 2100,
+      "next": [
+        94596
+      ],
+      "entries": [
+        {
+          "name": "Moon Guardian",
+          "icon": "spell_nature_moonglow",
+          "spellId": 429520,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94588": {
+      "name": "Lunar Insight",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 24,
+      "free": false,
+      "x": 7800,
+      "y": 2100,
+      "next": [
+        94607
+      ],
+      "entries": [
+        {
+          "name": "Lunar Insight",
+          "icon": "spell_nature_starfall",
+          "spellId": 429530,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94594": {
+      "name": "Glistening Fur",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 24,
+      "free": false,
+      "x": 8400,
+      "y": 2100,
+      "next": [
+        94597
+      ],
+      "entries": [
+        {
+          "name": "Glistening Fur",
+          "icon": "ability_druid_ironfur",
+          "spellId": 429533,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109720": {
+      "name": "Star Cascade",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 24,
+      "free": false,
+      "x": 9000,
+      "y": 2100,
+      "next": [
+        109719
+      ],
+      "entries": [
+        {
+          "name": "Star Cascade",
+          "icon": "spell_arcane_arcane03",
+          "spellId": 1271206,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94596": {
+      "name": "Stellar Command",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 24,
+      "free": false,
+      "x": 7200,
+      "y": 2700,
+      "next": [
+        94590
+      ],
+      "entries": [
+        {
+          "name": "Stellar Command",
+          "icon": "artifactability_balancedruid_moonandstars",
+          "spellId": 429668,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94607": {
+      "name": "Atmospheric Exposure",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 24,
+      "free": false,
+      "x": 7800,
+      "y": 2700,
+      "next": [
+        94585
+      ],
+      "entries": [
+        {
+          "name": "Atmospheric Exposure",
+          "icon": "inv_cosmicvoid_nova",
+          "spellId": 429532,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94597": {
+      "name": "Moondust / Elune's Grace",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 24,
+      "free": false,
+      "x": 8400,
+      "y": 2700,
+      "next": [
+        94586
+      ],
+      "entries": [
+        {
+          "name": "Moondust",
+          "icon": "inv_enchant_dust",
+          "spellId": 429538,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Elune's Grace",
+          "icon": "spell_druid_wildcharge",
+          "spellId": 443046,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109719": {
+      "name": "Penumbral Swell",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 24,
+      "free": false,
+      "x": 9000,
+      "y": 2700,
+      "next": [
+        109718
+      ],
+      "entries": [
+        {
+          "name": "Penumbral Swell",
+          "icon": "ability_druid_eclipse",
+          "spellId": 1271261,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94590": {
+      "name": "Lunar Calling",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 24,
+      "free": false,
+      "x": 7200,
+      "y": 3300,
+      "next": [
+        94587
+      ],
+      "entries": [
+        {
+          "name": "Lunar Calling",
+          "icon": "ability_druid_cresentburn",
+          "spellId": 429523,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94585": {
+      "name": "The Light of Elune / Astral Insight",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 24,
+      "free": false,
+      "x": 7800,
+      "y": 3300,
+      "next": [
+        94587
+      ],
+      "entries": [
+        {
+          "name": "The Light of Elune",
+          "icon": "ability_druid_dreamstate",
+          "spellId": 428655,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Astral Insight",
+          "icon": "spell_druid_incarnation",
+          "spellId": 429536,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94586": {
+      "name": "Arcane Affinity / Lunation",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 24,
+      "free": false,
+      "x": 8400,
+      "y": 3300,
+      "next": [
+        94587
+      ],
+      "entries": [
+        {
+          "name": "Arcane Affinity",
+          "icon": "spell_arcane_arcane01",
+          "spellId": 429540,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Lunation",
+          "icon": "spell_nature_moonglow",
+          "spellId": 429539,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109718": {
+      "name": "Bask in Moonlight",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 24,
+      "free": false,
+      "x": 9000,
+      "y": 3300,
+      "next": [
+        94587
+      ],
+      "entries": [
+        {
+          "name": "Bask in Moonlight",
+          "icon": "spell_holy_elunesgrace",
+          "spellId": 1271305,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94587": {
+      "name": "The Eternal Moon",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 24,
+      "free": false,
+      "x": 8100,
+      "y": 3900,
+      "next": [],
+      "entries": [
+        {
+          "name": "The Eternal Moon",
+          "icon": "artifactability_balancedruid_newmoon",
+          "spellId": 424113,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94609": {
+      "name": "Ravage",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 21,
+      "free": true,
+      "x": 1500,
+      "y": 5100,
+      "next": [
+        94620,
+        94611,
+        109722,
+        94618
+      ],
+      "entries": [
+        {
+          "name": "Ravage",
+          "icon": "inv_ability_druidoftheclawdruid_ravage",
+          "spellId": 441583,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94618": {
+      "name": "Fount of Strength",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 21,
+      "free": false,
+      "x": 600,
+      "y": 5700,
+      "next": [
+        94610
+      ],
+      "entries": [
+        {
+          "name": "Fount of Strength",
+          "icon": "spell_nature_unyeildingstamina",
+          "spellId": 441675,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94620": {
+      "name": "Dreadful Wound",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 21,
+      "free": false,
+      "x": 1200,
+      "y": 5700,
+      "next": [
+        94619
+      ],
+      "entries": [
+        {
+          "name": "Dreadful Wound",
+          "icon": "artifactability_feraldruid_openwounds",
+          "spellId": 441809,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94611": {
+      "name": "Bestial Strength",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 21,
+      "free": false,
+      "x": 1800,
+      "y": 5700,
+      "next": [
+        94615
+      ],
+      "entries": [
+        {
+          "name": "Bestial Strength",
+          "icon": "spell_nature_spiritarmor",
+          "spellId": 441841,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109722": {
+      "name": "Limb from Limb",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 21,
+      "free": false,
+      "x": 2400,
+      "y": 5700,
+      "next": [
+        109723
+      ],
+      "entries": [
+        {
+          "name": "Limb from Limb",
+          "icon": "artifactability_feraldruid_ashamanesbite",
+          "spellId": 1271540,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94610": {
+      "name": "Wildshape Mastery",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 21,
+      "free": false,
+      "x": 600,
+      "y": 6300,
+      "next": [
+        94612
+      ],
+      "entries": [
+        {
+          "name": "Wildshape Mastery",
+          "icon": "ability_druid_mastershapeshifter",
+          "spellId": 441678,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94619": {
+      "name": "Exacerbating Wounds",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 21,
+      "free": false,
+      "x": 1200,
+      "y": 6300,
+      "next": [
+        94616
+      ],
+      "entries": [
+        {
+          "name": "Exacerbating Wounds",
+          "icon": "inv_artifact_bloodoftheassassinated",
+          "spellId": 1271839,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94615": {
+      "name": "Pack's Endurance",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 21,
+      "free": false,
+      "x": 1800,
+      "y": 6300,
+      "next": [
+        94614
+      ],
+      "entries": [
+        {
+          "name": "Pack's Endurance",
+          "icon": "spell_druid_stampedingroar_cat",
+          "spellId": 441844,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109723": {
+      "name": "Ruthless Aggression / Killing Strikes",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 21,
+      "free": false,
+      "x": 2400,
+      "y": 6300,
+      "next": [
+        109721
+      ],
+      "entries": [
+        {
+          "name": "Ruthless Aggression",
+          "icon": "ability_druid_rake",
+          "spellId": 441814,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Killing Strikes",
+          "icon": "ability_druid_kingofthejungle",
+          "spellId": 441824,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94612": {
+      "name": "Empowered Shapeshifting / Wildpower Surge",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 21,
+      "free": false,
+      "x": 600,
+      "y": 6900,
+      "next": [
+        94613
+      ],
+      "entries": [
+        {
+          "name": "Empowered Shapeshifting",
+          "icon": "spell_druid_primaltenacity",
+          "spellId": 441689,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Wildpower Surge",
+          "icon": "ability_druid_ravage",
+          "spellId": 441691,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94616": {
+      "name": "Aggravate Wounds",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 21,
+      "free": false,
+      "x": 1200,
+      "y": 6900,
+      "next": [
+        94613
+      ],
+      "entries": [
+        {
+          "name": "Aggravate Wounds",
+          "icon": "artifactability_guardiandruid_goryfur",
+          "spellId": 441829,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94614": {
+      "name": "Strike for the Heart / Tear Down the Mighty",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 21,
+      "free": false,
+      "x": 1800,
+      "y": 6900,
+      "next": [
+        94613
+      ],
+      "entries": [
+        {
+          "name": "Strike for the Heart",
+          "icon": "ability_druid_primalagression",
+          "spellId": 441845,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Tear Down the Mighty",
+          "icon": "inv_1115_druid_jaguar",
+          "spellId": 441846,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109721": {
+      "name": "Twin Claw",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 21,
+      "free": false,
+      "x": 2400,
+      "y": 6900,
+      "next": [
+        94613
+      ],
+      "entries": [
+        {
+          "name": "Twin Claw",
+          "icon": "ability_druid_swipe",
+          "spellId": 1271635,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94613": {
+      "name": "Claw Rampage",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 21,
+      "free": false,
+      "x": 1500,
+      "y": 7500,
+      "next": [],
+      "entries": [
+        {
+          "name": "Claw Rampage",
+          "icon": "ability_xavius_tormentingswipe",
+          "spellId": 441835,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "99807": {
+      "name": "Druid of the Claw / Elune's Chosen",
+      "g": "sub",
+      "type": "subtree",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 8700,
+      "y": 900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Druid of the Claw",
+          "icon": "talents-heroclass-druid-druidoftheclaw",
+          "spellId": 0,
+          "type": "subtree",
+          "subTreeId": 21
+        },
+        {
+          "name": "Elune's Chosen",
+          "icon": "talents-heroclass-druid-eluneschosen",
+          "spellId": 0,
+          "type": "subtree",
+          "subTreeId": 24
+        }
+      ]
+    }
   }
 }

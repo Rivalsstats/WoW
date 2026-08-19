@@ -1177,5 +1177,2885 @@
       "name": "Scalecommander",
       "icon": "talents-heroclass-evoker-scalecommander"
     }
+  },
+  "fullNodeOrder": [
+    93195,
+    93196,
+    93197,
+    93198,
+    93199,
+    93200,
+    93201,
+    93202,
+    93203,
+    93205,
+    93206,
+    93207,
+    93208,
+    93209,
+    93210,
+    93211,
+    93212,
+    93213,
+    93215,
+    93217,
+    93218,
+    93219,
+    93220,
+    93221,
+    93222,
+    93223,
+    93225,
+    93226,
+    93227,
+    93229,
+    93230,
+    93231,
+    93232,
+    93234,
+    93235,
+    93236,
+    93237,
+    93238,
+    93239,
+    93240,
+    93241,
+    93242,
+    93243,
+    93245,
+    93246,
+    93247,
+    93248,
+    93249,
+    93250,
+    93251,
+    93252,
+    93253,
+    93254,
+    93255,
+    93256,
+    93257,
+    93258,
+    93259,
+    93260,
+    93261,
+    93262,
+    93263,
+    93264,
+    93265,
+    93266,
+    93267,
+    93268,
+    93269,
+    93270,
+    93271,
+    93272,
+    93273,
+    93274,
+    93275,
+    93276,
+    93277,
+    93278,
+    93279,
+    93280,
+    93281,
+    93282,
+    93283,
+    93284,
+    93285,
+    93286,
+    93287,
+    93288,
+    93289,
+    93290,
+    93291,
+    93292,
+    93293,
+    93294,
+    93295,
+    93297,
+    93298,
+    93299,
+    93300,
+    93301,
+    93302,
+    93304,
+    93305,
+    93306,
+    93307,
+    93308,
+    93309,
+    93310,
+    93311,
+    93312,
+    93313,
+    93314,
+    93315,
+    93316,
+    93317,
+    93318,
+    93319,
+    93320,
+    93321,
+    93322,
+    93323,
+    93324,
+    93325,
+    93326,
+    93327,
+    93328,
+    93329,
+    93330,
+    93331,
+    93332,
+    93333,
+    93334,
+    93335,
+    93336,
+    93337,
+    93338,
+    93339,
+    93340,
+    93341,
+    93342,
+    93343,
+    93344,
+    93345,
+    93346,
+    93347,
+    93348,
+    93349,
+    93350,
+    93351,
+    93352,
+    93353,
+    93354,
+    93355,
+    93358,
+    93359,
+    93360,
+    93365,
+    93366,
+    93367,
+    93368,
+    93369,
+    93382,
+    93715,
+    94920,
+    94921,
+    94922,
+    94923,
+    94925,
+    94928,
+    94929,
+    94930,
+    94931,
+    94932,
+    94933,
+    94934,
+    94935,
+    94936,
+    94937,
+    94939,
+    94941,
+    94942,
+    94943,
+    94944,
+    94945,
+    94946,
+    94947,
+    94948,
+    94949,
+    94950,
+    94951,
+    94952,
+    94953,
+    94954,
+    94955,
+    94956,
+    98931,
+    99803,
+    99804,
+    99825,
+    99826,
+    99827,
+    99857,
+    102248,
+    102249,
+    103843,
+    103844,
+    109508,
+    109509,
+    109510,
+    109793,
+    109794,
+    109795,
+    109796,
+    109797,
+    109798,
+    110064,
+    110065,
+    110413,
+    110414,
+    110415
+  ],
+  "nodes": {
+    "93305": {
+      "name": "Landslide",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": true,
+      "x": 2700,
+      "y": 1500,
+      "next": [
+        93312
+      ],
+      "entries": [
+        {
+          "name": "Landslide",
+          "icon": "ability_earthen_pillar",
+          "spellId": 358385,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93304": {
+      "name": "Obsidian Scales",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 1500,
+      "next": [
+        103843
+      ],
+      "entries": [
+        {
+          "name": "Obsidian Scales",
+          "icon": "inv_artifact_dragonscales",
+          "spellId": 363916,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93306": {
+      "name": "Expunge",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 1500,
+      "next": [
+        93341
+      ],
+      "entries": [
+        {
+          "name": "Expunge",
+          "icon": "ability_evoker_fontofmagic_green",
+          "spellId": 365585,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93312": {
+      "name": "Natural Convergence",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": true,
+      "x": 2700,
+      "y": 2100,
+      "next": [
+        93270,
+        93302,
+        93311
+      ],
+      "entries": [
+        {
+          "name": "Natural Convergence",
+          "icon": "spell_frost_frostblast",
+          "spellId": 369913,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103843": {
+      "name": "Heavy Wingbeats",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 2100,
+      "next": [
+        93302,
+        93289,
+        93295
+      ],
+      "entries": [
+        {
+          "name": "Heavy Wingbeats",
+          "icon": "ability_racial_wingbuffet",
+          "spellId": 368838,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93341": {
+      "name": "Verdant Embrace",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 2100,
+      "next": [
+        93295,
+        93340,
+        93294
+      ],
+      "entries": [
+        {
+          "name": "Verdant Embrace",
+          "icon": "ability_evoker_rescue",
+          "spellId": 360995,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93270": {
+      "name": "Forger of Mountains",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2100,
+      "y": 2700,
+      "next": [],
+      "entries": [
+        {
+          "name": "Forger of Mountains",
+          "icon": "ability_earthen_pillar",
+          "spellId": 375528,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93302": {
+      "name": "Innate Magic",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 2700,
+      "next": [
+        93311,
+        93301,
+        103844
+      ],
+      "entries": [
+        {
+          "name": "Innate Magic",
+          "icon": "ability_evoker_innatemagic4",
+          "spellId": 375520,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93289": {
+      "name": "Obsidian Bulwark",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 2700,
+      "next": [],
+      "entries": [
+        {
+          "name": "Obsidian Bulwark",
+          "icon": "inv_shield_1h_revenantfire_d_01",
+          "spellId": 375406,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93295": {
+      "name": "Enkindled",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 2700,
+      "next": [
+        103844,
+        93290,
+        93294
+      ],
+      "entries": [
+        {
+          "name": "Enkindled",
+          "icon": "ability_evoker_livingflame",
+          "spellId": 375554,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93340": {
+      "name": "Scarlet Adaptation",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 2700,
+      "next": [],
+      "entries": [
+        {
+          "name": "Scarlet Adaptation",
+          "icon": "inv_bijou_red",
+          "spellId": 372469,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93311": {
+      "name": "Inner Radiance",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 3300,
+      "next": [
+        93271,
+        93310
+      ],
+      "entries": [
+        {
+          "name": "Inner Radiance",
+          "icon": "spell_holy_spellwarding",
+          "spellId": 386405,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93301": {
+      "name": "Recall",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 3300,
+      "next": [
+        93355
+      ],
+      "entries": [
+        {
+          "name": "Recall",
+          "icon": "ability_evoker_recall",
+          "spellId": 371806,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103844": {
+      "name": "Clobbering Sweep",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 3300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Clobbering Sweep",
+          "icon": "ability_racial_tailswipe",
+          "spellId": 375443,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93290": {
+      "name": "Tailwind",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 3300,
+      "next": [
+        93349
+      ],
+      "entries": [
+        {
+          "name": "Tailwind",
+          "icon": "ability_skyreach_wind",
+          "spellId": 375556,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93294": {
+      "name": "Cauterizing Flame",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 3300,
+      "next": [
+        93292,
+        93293
+      ],
+      "entries": [
+        {
+          "name": "Cauterizing Flame",
+          "icon": "ability_evoker_fontofmagic_red",
+          "spellId": 374251,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93271": {
+      "name": "Ancient Flame",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2100,
+      "y": 3900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Ancient Flame",
+          "icon": "inv_elemental_mote_fire01",
+          "spellId": 369990,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93310": {
+      "name": "Instinctive Arcana",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 3900,
+      "next": [
+        110064
+      ],
+      "entries": [
+        {
+          "name": "Instinctive Arcana",
+          "icon": "spell_arcane_studentofmagic",
+          "spellId": 376164,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93350": {
+      "name": "Tip the Scales",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 3900,
+      "next": [
+        93355,
+        93300,
+        93349
+      ],
+      "entries": [
+        {
+          "name": "Tip the Scales",
+          "icon": "ability_evoker_tipthescales",
+          "spellId": 370553,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93292": {
+      "name": "Attuned to the Dream",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 3900,
+      "next": [
+        93291
+      ],
+      "entries": [
+        {
+          "name": "Attuned to the Dream",
+          "icon": "ability_rogue_imrovedrecuperate",
+          "spellId": 376930,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93293": {
+      "name": "Sleep Walk",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 3900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Sleep Walk",
+          "icon": "ability_xavius_dreamsimulacrum",
+          "spellId": 360806,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110064": {
+      "name": "Protracted Talons",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 4500,
+      "next": [
+        93353,
+        93309
+      ],
+      "entries": [
+        {
+          "name": "Protracted Talons",
+          "icon": "ability_evoker_azurestrike",
+          "spellId": 369909,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93355": {
+      "name": "Inherent Resistance",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 4500,
+      "next": [
+        93309,
+        93299
+      ],
+      "entries": [
+        {
+          "name": "Inherent Resistance",
+          "icon": "inv_misc_rubysanctum1",
+          "spellId": 375544,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93300": {
+      "name": "Draconic Legacy",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 4500,
+      "next": [
+        93354
+      ],
+      "entries": [
+        {
+          "name": "Draconic Legacy",
+          "icon": "inv_helm_mail_dracthyrquest_b_02",
+          "spellId": 376166,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93349": {
+      "name": "Extended Flight",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 4500,
+      "next": [
+        93286,
+        93348
+      ],
+      "entries": [
+        {
+          "name": "Extended Flight",
+          "icon": "ability_evoker_hover",
+          "spellId": 375517,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93291": {
+      "name": "Bountiful Bloom",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 4500,
+      "next": [
+        93348
+      ],
+      "entries": [
+        {
+          "name": "Bountiful Bloom",
+          "icon": "ability_evoker_emeraldblossom",
+          "spellId": 370886,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93353": {
+      "name": "Regenerative Magic",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2100,
+      "y": 5100,
+      "next": [],
+      "entries": [
+        {
+          "name": "Regenerative Magic",
+          "icon": "spell_frost_manarecharge",
+          "spellId": 387787,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93309": {
+      "name": "Blast Furnace",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 5100,
+      "next": [
+        93308,
+        93307,
+        93298
+      ],
+      "entries": [
+        {
+          "name": "Blast Furnace",
+          "icon": "ability_evoker_firebreath",
+          "spellId": 375510,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93299": {
+      "name": "Exuberance",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 5100,
+      "next": [
+        93298
+      ],
+      "entries": [
+        {
+          "name": "Exuberance",
+          "icon": "ability_evoker_hover2",
+          "spellId": 375542,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93354": {
+      "name": "Renewing Blaze",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 5100,
+      "next": [
+        93298,
+        93345,
+        93288
+      ],
+      "entries": [
+        {
+          "name": "Renewing Blaze",
+          "icon": "ability_evoker_masterylifebinder_red",
+          "spellId": 374348,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93286": {
+      "name": "Walloping Blow",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 5100,
+      "next": [
+        93288
+      ],
+      "entries": [
+        {
+          "name": "Walloping Blow",
+          "icon": "inv_misc_monsterscales_06",
+          "spellId": 387341,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93348": {
+      "name": "Panacea",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 5100,
+      "next": [
+        93288,
+        93347,
+        93344
+      ],
+      "entries": [
+        {
+          "name": "Panacea",
+          "icon": "ability_druid_protectionofthegrove",
+          "spellId": 387761,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93308": {
+      "name": "Stretch Time",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2100,
+      "y": 5700,
+      "next": [
+        110065,
+        93343
+      ],
+      "entries": [
+        {
+          "name": "Stretch Time",
+          "icon": "ability_evoker_timedilation",
+          "spellId": 410352,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93307": {
+      "name": "Unravel",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 5700,
+      "next": [
+        93343
+      ],
+      "entries": [
+        {
+          "name": "Unravel",
+          "icon": "ability_evoker_unravel",
+          "spellId": 1264378,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93298": {
+      "name": "Oppressing Roar",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 5700,
+      "next": [
+        93343,
+        93297,
+        93352
+      ],
+      "entries": [
+        {
+          "name": "Oppressing Roar",
+          "icon": "ability_evoker_oppressingroar",
+          "spellId": 372048,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93345": {
+      "name": "Foci of Life",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 5700,
+      "next": [
+        93352
+      ],
+      "entries": [
+        {
+          "name": "Foci of Life",
+          "icon": "spell_fire_incinerate",
+          "spellId": 375574,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93288": {
+      "name": "Rescue",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 5700,
+      "next": [
+        93352,
+        93287
+      ],
+      "entries": [
+        {
+          "name": "Rescue",
+          "icon": "ability_evoker_flywithme",
+          "spellId": 370665,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93347": {
+      "name": "Lush Growth",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 5700,
+      "next": [
+        93346
+      ],
+      "entries": [
+        {
+          "name": "Lush Growth",
+          "icon": "inv_staff_2h_bloodelf_c_01",
+          "spellId": 375561,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93344": {
+      "name": "Source of Magic",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 5700,
+      "next": [
+        93715
+      ],
+      "entries": [
+        {
+          "name": "Source of Magic",
+          "icon": "ability_evoker_blue_01",
+          "spellId": 369459,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110065": {
+      "name": "Strike from Above",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2100,
+      "y": 6300,
+      "next": [
+        93342
+      ],
+      "entries": [
+        {
+          "name": "Strike from Above",
+          "icon": "ability_racial_glide",
+          "spellId": 1267206,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93343": {
+      "name": "Leaping Flames",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 6300,
+      "next": [
+        93342
+      ],
+      "entries": [
+        {
+          "name": "Leaping Flames",
+          "icon": "ability_evoker_pupilofalexstraza",
+          "spellId": 369939,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93297": {
+      "name": "Overawe",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 6300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Overawe",
+          "icon": "ability_evoker_oppressingroar2",
+          "spellId": 374346,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93352": {
+      "name": "Aerial Mastery",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 6300,
+      "next": [
+        93351
+      ],
+      "entries": [
+        {
+          "name": "Aerial Mastery",
+          "icon": "ability_evoker_aerialmastery",
+          "spellId": 365933,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93287": {
+      "name": "Twin Guardian",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 6300,
+      "next": [
+        93346
+      ],
+      "entries": [
+        {
+          "name": "Twin Guardian",
+          "icon": "inv_misc_volatileair",
+          "spellId": 370888,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93715": {
+      "name": "Potent Mana",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 6300,
+      "next": [
+        93346
+      ],
+      "entries": [
+        {
+          "name": "Potent Mana",
+          "icon": "spell_magic_managain",
+          "spellId": 418101,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93342": {
+      "name": "Terror of the Skies",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Terror of the Skies",
+          "icon": "ability_evoker_terroroftheskies",
+          "spellId": 371032,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93351": {
+      "name": "Time Spiral / Spatial Paradox",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Time Spiral",
+          "icon": "ability_evoker_timespiral",
+          "spellId": 374968,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Spatial Paradox",
+          "icon": "ability_evoker_stretchtime",
+          "spellId": 406732,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93346": {
+      "name": "Zephyr",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Zephyr",
+          "icon": "ability_evoker_hoverblack",
+          "spellId": 374227,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93196": {
+      "name": "",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 16640,
+      "y": -320,
+      "next": [],
+      "entries": [
+        {
+          "name": "",
+          "icon": "",
+          "spellId": 0,
+          "type": "",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93334": {
+      "name": "Pyre",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 1500,
+      "next": [
+        93285,
+        93333
+      ],
+      "entries": [
+        {
+          "name": "Pyre",
+          "icon": "ability_evoker_pyre",
+          "spellId": 357211,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93285": {
+      "name": "Ruby Essence Burst",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 2100,
+      "next": [
+        93284,
+        93332
+      ],
+      "entries": [
+        {
+          "name": "Ruby Essence Burst",
+          "icon": "ability_evoker_essenceburst4",
+          "spellId": 376872,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93333": {
+      "name": "Azure Essence Burst",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 2100,
+      "next": [
+        93332,
+        93275
+      ],
+      "entries": [
+        {
+          "name": "Azure Essence Burst",
+          "icon": "ability_evoker_essenceburst2",
+          "spellId": 375721,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93284": {
+      "name": "Lay Waste",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 2700,
+      "next": [
+        93283,
+        93276
+      ],
+      "entries": [
+        {
+          "name": "Lay Waste",
+          "icon": "ability_evoker_deepbreath",
+          "spellId": 371034,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93332": {
+      "name": "Quell",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 2700,
+      "next": [
+        93331
+      ],
+      "entries": [
+        {
+          "name": "Quell",
+          "icon": "ability_evoker_quell",
+          "spellId": 351338,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93275": {
+      "name": "Eternity Surge",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 2700,
+      "next": [
+        93273,
+        93274
+      ],
+      "entries": [
+        {
+          "name": "Eternity Surge",
+          "icon": "ability_evoker_eternitysurge",
+          "spellId": 359073,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93283": {
+      "name": "Volatility",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 10500,
+      "y": 3300,
+      "next": [
+        93282
+      ],
+      "entries": [
+        {
+          "name": "Volatility",
+          "icon": "spell_fire_ragnaros_lavabolt",
+          "spellId": 369089,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93276": {
+      "name": "Power Nexus",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 3300,
+      "next": [
+        93282
+      ],
+      "entries": [
+        {
+          "name": "Power Nexus",
+          "icon": "ability_evoker_powernexus",
+          "spellId": 369908,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93331": {
+      "name": "Dragonrage",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 3300,
+      "next": [
+        93330
+      ],
+      "entries": [
+        {
+          "name": "Dragonrage",
+          "icon": "ability_evoker_dragonrage",
+          "spellId": 375087,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93273": {
+      "name": "Azure Sweep",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 3300,
+      "next": [
+        93319
+      ],
+      "entries": [
+        {
+          "name": "Azure Sweep",
+          "icon": "inv_10_skinning_dragonscales_blue",
+          "spellId": 1265867,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93274": {
+      "name": "Arcane Intensity",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 14100,
+      "y": 3300,
+      "next": [
+        93319
+      ],
+      "entries": [
+        {
+          "name": "Arcane Intensity",
+          "icon": "ability_evoker_disintegrate",
+          "spellId": 375618,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93282": {
+      "name": "Ruby Embers",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 3900,
+      "next": [
+        93278,
+        93281
+      ],
+      "entries": [
+        {
+          "name": "Ruby Embers",
+          "icon": "inv_tradeskillitem_lessersorcerersfire",
+          "spellId": 365937,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93330": {
+      "name": "Animosity",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 3900,
+      "next": [
+        93281,
+        93329
+      ],
+      "entries": [
+        {
+          "name": "Animosity",
+          "icon": "spell_nature_shamanrage",
+          "spellId": 375797,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93319": {
+      "name": "Essence Attunement",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 3900,
+      "next": [
+        93329,
+        93320,
+        93318
+      ],
+      "entries": [
+        {
+          "name": "Essence Attunement",
+          "icon": "ability_evoker_essenceburststacks",
+          "spellId": 375722,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93278": {
+      "name": "Engulfing Blaze",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10500,
+      "y": 4500,
+      "next": [
+        93280,
+        93277
+      ],
+      "entries": [
+        {
+          "name": "Engulfing Blaze",
+          "icon": "inv_inscription_pigment_ruby",
+          "spellId": 370837,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93281": {
+      "name": "Heat Wave",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 4500,
+      "next": [
+        93280,
+        93328
+      ],
+      "entries": [
+        {
+          "name": "Heat Wave",
+          "icon": "spell_fire_moltenblood",
+          "spellId": 375725,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93329": {
+      "name": "Honed Aggression",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 4500,
+      "next": [
+        93328,
+        93317
+      ],
+      "entries": [
+        {
+          "name": "Honed Aggression",
+          "icon": "spell_fire_blueimmolation",
+          "spellId": 371038,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93320": {
+      "name": "Eternity's Span",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 4500,
+      "next": [],
+      "entries": [
+        {
+          "name": "Eternity's Span",
+          "icon": "spell_arcane_arcanetorrent",
+          "spellId": 375757,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93318": {
+      "name": "Eye of Infinity / Event Horizon",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14100,
+      "y": 4500,
+      "next": [
+        93317,
+        93316
+      ],
+      "entries": [
+        {
+          "name": "Eye of Infinity",
+          "icon": "ability_evoker_dragonrage2_blue",
+          "spellId": 411165,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Event Horizon",
+          "icon": "ability_priest_cascade_shadow",
+          "spellId": 411164,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93280": {
+      "name": "Catalyze",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 5100,
+      "next": [
+        93314
+      ],
+      "entries": [
+        {
+          "name": "Catalyze",
+          "icon": "spell_fire_masterofelements",
+          "spellId": 386283,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93328": {
+      "name": "Tyranny",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 5100,
+      "next": [
+        93314,
+        93327,
+        93323
+      ],
+      "entries": [
+        {
+          "name": "Tyranny",
+          "icon": "ability_evoker_dragonrage2",
+          "spellId": 376888,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93317": {
+      "name": "Charged Blast",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 5100,
+      "next": [
+        93323
+      ],
+      "entries": [
+        {
+          "name": "Charged Blast",
+          "icon": "spell_arcane_arcanepotency",
+          "spellId": 370455,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93316": {
+      "name": "Shattering Stars",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14100,
+      "y": 5100,
+      "next": [
+        93315
+      ],
+      "entries": [
+        {
+          "name": "Shattering Stars",
+          "icon": "ability_evoker_chargedblast",
+          "spellId": 1265802,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93277": {
+      "name": "Feed the Flames",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10500,
+      "y": 5700,
+      "next": [
+        93326
+      ],
+      "entries": [
+        {
+          "name": "Feed the Flames",
+          "icon": "mace_1h_blacksmithing_d_04_icon",
+          "spellId": 369846,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93314": {
+      "name": "Burnout",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 5700,
+      "next": [
+        93326,
+        93279,
+        93272
+      ],
+      "entries": [
+        {
+          "name": "Burnout",
+          "icon": "spell_fire_soulburn",
+          "spellId": 375801,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93327": {
+      "name": "Onyx Legacy",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 5700,
+      "next": [],
+      "entries": [
+        {
+          "name": "Onyx Legacy",
+          "icon": "inv_misc_head_dragon_black",
+          "spellId": 386348,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93323": {
+      "name": "Spellweaver's Dominance",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 5700,
+      "next": [
+        93272,
+        93325,
+        93322
+      ],
+      "entries": [
+        {
+          "name": "Spellweaver's Dominance",
+          "icon": "spell_shaman_shockinglava",
+          "spellId": 370845,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93315": {
+      "name": "Star Salvo",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14100,
+      "y": 5700,
+      "next": [
+        93322
+      ],
+      "entries": [
+        {
+          "name": "Star Salvo",
+          "icon": "inv12_ability_mage_arcanesalvo",
+          "spellId": 1265826,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93326": {
+      "name": "Imminent Destruction",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 6300,
+      "next": [
+        93313
+      ],
+      "entries": [
+        {
+          "name": "Imminent Destruction",
+          "icon": "spell_burningbladeshaman_blazing_radiance",
+          "spellId": 370781,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93279": {
+      "name": "Font of Magic",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 6300,
+      "next": [
+        93365
+      ],
+      "entries": [
+        {
+          "name": "Font of Magic",
+          "icon": "ability_evoker_fontofmagic",
+          "spellId": 411212,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93272": {
+      "name": "Titanic Wrath",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 6300,
+      "next": [
+        93366
+      ],
+      "entries": [
+        {
+          "name": "Titanic Wrath",
+          "icon": "spell_fireresistancetotem_01",
+          "spellId": 386272,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93325": {
+      "name": "Azure Celerity",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 6300,
+      "next": [
+        93324
+      ],
+      "entries": [
+        {
+          "name": "Azure Celerity",
+          "icon": "ability_evoker_masterylifebinder_blue",
+          "spellId": 1219723,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93322": {
+      "name": "Power Swell",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 6300,
+      "next": [
+        93321
+      ],
+      "entries": [
+        {
+          "name": "Power Swell",
+          "icon": "ability_evoker_powernexus2",
+          "spellId": 370839,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93313": {
+      "name": "Strafing Run",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10500,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Strafing Run",
+          "icon": "ability_evoker_blackattunementalt",
+          "spellId": 1266151,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93365": {
+      "name": "Scorching Embers",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Scorching Embers",
+          "icon": "spell_fire_burnout",
+          "spellId": 370819,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93366": {
+      "name": "Causality",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Causality",
+          "icon": "spell_azerite_essence_16",
+          "spellId": 375777,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93324": {
+      "name": "Scintillation",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Scintillation",
+          "icon": "spell_arcane_arcane03",
+          "spellId": 370821,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "93321": {
+      "name": "Iridescence",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14100,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Iridescence",
+          "icon": "ability_evoker_powerswell",
+          "spellId": 370867,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110414": {
+      "name": "Rising Fury / Rising Fury / Rising Fury",
+      "g": "spec",
+      "type": "tiered",
+      "maxRanks": 4,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 7650,
+      "next": [],
+      "entries": [
+        {
+          "name": "Rising Fury",
+          "icon": "inv12_apextalent_evoker_risingfury",
+          "spellId": 1271687,
+          "type": "tierrank",
+          "subTreeId": null
+        },
+        {
+          "name": "Rising Fury",
+          "icon": "inv12_apextalent_evoker_risingfury",
+          "spellId": 1271796,
+          "type": "tierrank",
+          "subTreeId": null
+        },
+        {
+          "name": "Rising Fury",
+          "icon": "inv12_apextalent_evoker_risingfury",
+          "spellId": 1271788,
+          "type": "tierrank",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94939": {
+      "name": "Mass Disintegrate",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 36,
+      "free": true,
+      "x": 15300,
+      "y": 600,
+      "next": [
+        94952,
+        94936,
+        94944,
+        109795
+      ],
+      "entries": [
+        {
+          "name": "Mass Disintegrate",
+          "icon": "inv_1205_ability_evoker_massdisintegration",
+          "spellId": 436335,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94950": {
+      "name": "Legacy of the Lifebinder",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 37,
+      "free": true,
+      "x": 8100,
+      "y": 1200,
+      "next": [
+        94937,
+        99857,
+        94956,
+        109797
+      ],
+      "entries": [
+        {
+          "name": "Legacy of the Lifebinder",
+          "icon": "ability_evoker_dragonrage2",
+          "spellId": 1264269,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94952": {
+      "name": "Might of the Black Dragonflight",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 36,
+      "free": false,
+      "x": 14400,
+      "y": 1200,
+      "next": [
+        94921
+      ],
+      "entries": [
+        {
+          "name": "Might of the Black Dragonflight",
+          "icon": "ability_evoker_blackattunementalt",
+          "spellId": 441705,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94936": {
+      "name": "Bombardments",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 36,
+      "free": false,
+      "x": 15000,
+      "y": 1200,
+      "next": [
+        94953
+      ],
+      "entries": [
+        {
+          "name": "Bombardments",
+          "icon": "inv_ability_scalecommanderevoker_bombardments",
+          "spellId": 434300,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94944": {
+      "name": "Onslaught",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 36,
+      "free": false,
+      "x": 15600,
+      "y": 1200,
+      "next": [
+        94934
+      ],
+      "entries": [
+        {
+          "name": "Onslaught",
+          "icon": "spell_fire_soulburn",
+          "spellId": 441245,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109795": {
+      "name": "Command Squadron",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 36,
+      "free": false,
+      "x": 16200,
+      "y": 1200,
+      "next": [
+        109794
+      ],
+      "entries": [
+        {
+          "name": "Command Squadron",
+          "icon": "ability_dragonriding_dynamicflight01",
+          "spellId": 1260745,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94937": {
+      "name": "Trailblazer / Shape of Flame",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 37,
+      "free": false,
+      "x": 7200,
+      "y": 1800,
+      "next": [
+        94949
+      ],
+      "entries": [
+        {
+          "name": "Trailblazer",
+          "icon": "ability_deathwing_fierygrip",
+          "spellId": 444849,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Shape of Flame",
+          "icon": "ability_mage_flamecannon",
+          "spellId": 445074,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "99857": {
+      "name": "Ashes in Motion",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 37,
+      "free": false,
+      "x": 7800,
+      "y": 1800,
+      "next": [
+        94946
+      ],
+      "entries": [
+        {
+          "name": "Ashes in Motion",
+          "icon": "inv_ability_flameshaperevoker_engulf",
+          "spellId": 1264365,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94956": {
+      "name": "Enkindle / Expanded Lungs",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 37,
+      "free": false,
+      "x": 8400,
+      "y": 1800,
+      "next": [
+        94923
+      ],
+      "entries": [
+        {
+          "name": "Enkindle",
+          "icon": "inv_10_elementalcombinedfoozles_purifiedshadowflame",
+          "spellId": 444016,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Expanded Lungs",
+          "icon": "inv_fyrakk_dragonbreath",
+          "spellId": 444845,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109797": {
+      "name": "Essence Well",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 37,
+      "free": false,
+      "x": 9000,
+      "y": 1800,
+      "next": [
+        109798
+      ],
+      "entries": [
+        {
+          "name": "Essence Well",
+          "icon": "ability_evoker_essenceburst4",
+          "spellId": 1265993,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94921": {
+      "name": "Melt Armor",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 36,
+      "free": false,
+      "x": 14400,
+      "y": 1800,
+      "next": [
+        94933
+      ],
+      "entries": [
+        {
+          "name": "Melt Armor",
+          "icon": "inv_10_gearupgrade_drakesshadowflameenhancedcrest",
+          "spellId": 441176,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94953": {
+      "name": "Wingleader",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 36,
+      "free": false,
+      "x": 15000,
+      "y": 1800,
+      "next": [
+        94928
+      ],
+      "entries": [
+        {
+          "name": "Wingleader",
+          "icon": "ability_racial_soar",
+          "spellId": 441206,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94934": {
+      "name": "Unrelenting Siege",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 36,
+      "free": false,
+      "x": 15600,
+      "y": 1800,
+      "next": [
+        94943
+      ],
+      "entries": [
+        {
+          "name": "Unrelenting Siege",
+          "icon": "ability_siege_engineer_superheated",
+          "spellId": 441246,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109794": {
+      "name": "Concentrated Power",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 36,
+      "free": false,
+      "x": 16200,
+      "y": 1800,
+      "next": [
+        109793
+      ],
+      "entries": [
+        {
+          "name": "Concentrated Power",
+          "icon": "inv_10_dungeonjewelry_dragon_trinket_1arcanemagical_blue",
+          "spellId": 1261448,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94949": {
+      "name": "Conduit of Flame",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 37,
+      "free": false,
+      "x": 7200,
+      "y": 2400,
+      "next": [
+        94920
+      ],
+      "entries": [
+        {
+          "name": "Conduit of Flame",
+          "icon": "ability_evoker_innatemagic5",
+          "spellId": 444843,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94946": {
+      "name": "Burning Adrenaline",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 37,
+      "free": false,
+      "x": 7800,
+      "y": 2400,
+      "next": [
+        94945
+      ],
+      "entries": [
+        {
+          "name": "Burning Adrenaline",
+          "icon": "inv_gauntlets_03",
+          "spellId": 444020,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94923": {
+      "name": "Fulminous Roar",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 37,
+      "free": false,
+      "x": 8400,
+      "y": 2400,
+      "next": [
+        94931
+      ],
+      "entries": [
+        {
+          "name": "Fulminous Roar",
+          "icon": "ability_evoker_oppressingroar2",
+          "spellId": 1218447,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109798": {
+      "name": "Twin Flame",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 37,
+      "free": false,
+      "x": 9000,
+      "y": 2400,
+      "next": [
+        109796
+      ],
+      "entries": [
+        {
+          "name": "Twin Flame",
+          "icon": "ability_evoker_infernosblessing",
+          "spellId": 1265979,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94933": {
+      "name": "Hardened Scales / Menacing Presence",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 36,
+      "free": false,
+      "x": 14400,
+      "y": 2400,
+      "next": [
+        94941
+      ],
+      "entries": [
+        {
+          "name": "Hardened Scales",
+          "icon": "inv_10_skinning_scales_black",
+          "spellId": 441180,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Menacing Presence",
+          "icon": "ability_racial_wingbuffet",
+          "spellId": 441181,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94928": {
+      "name": "Extended Battle / Diverted Power",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 36,
+      "free": false,
+      "x": 15000,
+      "y": 2400,
+      "next": [
+        94941
+      ],
+      "entries": [
+        {
+          "name": "Extended Battle",
+          "icon": "ability_evoker_divideandconquer",
+          "spellId": 441212,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Diverted Power",
+          "icon": "ability_evoker_powerswell",
+          "spellId": 441219,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94943": {
+      "name": "Nimble Flyer / Slipstream",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 36,
+      "free": false,
+      "x": 15600,
+      "y": 2400,
+      "next": [
+        94941
+      ],
+      "entries": [
+        {
+          "name": "Nimble Flyer",
+          "icon": "ability_evoker_hover",
+          "spellId": 441253,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Slipstream",
+          "icon": "ability_dragonriding_barrelroll01",
+          "spellId": 441257,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109793": {
+      "name": "Refined Essence",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 36,
+      "free": false,
+      "x": 16200,
+      "y": 2400,
+      "next": [
+        94941
+      ],
+      "entries": [
+        {
+          "name": "Refined Essence",
+          "icon": "ability_evoker_essenceburststacks",
+          "spellId": 1261452,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94920": {
+      "name": "Titanic Precision",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 37,
+      "free": false,
+      "x": 7200,
+      "y": 3000,
+      "next": [
+        94922
+      ],
+      "entries": [
+        {
+          "name": "Titanic Precision",
+          "icon": "inv_10_misc_titansspark_shadowflame",
+          "spellId": 445625,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94945": {
+      "name": "Deep Exhalation",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 37,
+      "free": false,
+      "x": 7800,
+      "y": 3000,
+      "next": [
+        94922
+      ],
+      "entries": [
+        {
+          "name": "Deep Exhalation",
+          "icon": "ability_evoker_firebreath",
+          "spellId": 1264321,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94931": {
+      "name": "Lifecinders / Draconic Instincts",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 37,
+      "free": false,
+      "x": 8400,
+      "y": 3000,
+      "next": [
+        94922
+      ],
+      "entries": [
+        {
+          "name": "Lifecinders",
+          "icon": "inv_misc_herb_cinderbloom_petal",
+          "spellId": 444322,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Draconic Instincts",
+          "icon": "inv_misc_scales_basilliskorange",
+          "spellId": 445958,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109796": {
+      "name": "Fire Torrent",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 37,
+      "free": false,
+      "x": 9000,
+      "y": 3000,
+      "next": [
+        94922
+      ],
+      "entries": [
+        {
+          "name": "Fire Torrent",
+          "icon": "spell_shaman_stormearthfire",
+          "spellId": 1265992,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94941": {
+      "name": "Maneuverability",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 36,
+      "free": false,
+      "x": 15300,
+      "y": 3000,
+      "next": [],
+      "entries": [
+        {
+          "name": "Maneuverability",
+          "icon": "ability_evoker_deepbreath",
+          "spellId": 433871,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94922": {
+      "name": "Consume Flame",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 37,
+      "free": false,
+      "x": 8100,
+      "y": 3600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Consume Flame",
+          "icon": "inv_shadowflames_wave",
+          "spellId": 444088,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "99827": {
+      "name": "Flameshaper / Scalecommander",
+      "g": "sub",
+      "type": "subtree",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6900,
+      "y": 600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Flameshaper",
+          "icon": "talents-heroclass-evoker-flameshaper",
+          "spellId": 0,
+          "type": "subtree",
+          "subTreeId": 37
+        },
+        {
+          "name": "Scalecommander",
+          "icon": "talents-heroclass-evoker-scalecommander",
+          "spellId": 0,
+          "type": "subtree",
+          "subTreeId": 36
+        }
+      ]
+    }
   }
 }

@@ -1222,5 +1222,2914 @@
       "name": "Trickster",
       "icon": "talents-heroclass-rogue-trickster"
     }
+  },
+  "fullNodeOrder": [
+    90622,
+    90624,
+    90625,
+    90626,
+    90628,
+    90630,
+    90633,
+    90634,
+    90635,
+    90636,
+    90637,
+    90638,
+    90639,
+    90640,
+    90641,
+    90643,
+    90644,
+    90645,
+    90647,
+    90648,
+    90649,
+    90651,
+    90652,
+    90653,
+    90654,
+    90655,
+    90656,
+    90659,
+    90661,
+    90662,
+    90663,
+    90664,
+    90665,
+    90666,
+    90667,
+    90668,
+    90669,
+    90670,
+    90671,
+    90673,
+    90675,
+    90676,
+    90677,
+    90678,
+    90679,
+    90680,
+    90681,
+    90683,
+    90684,
+    90686,
+    90687,
+    90688,
+    90690,
+    90691,
+    90692,
+    90695,
+    90697,
+    90698,
+    90699,
+    90700,
+    90701,
+    90703,
+    90704,
+    90705,
+    90706,
+    90707,
+    90709,
+    90710,
+    90713,
+    90714,
+    90715,
+    90716,
+    90717,
+    90718,
+    90719,
+    90720,
+    90721,
+    90722,
+    90723,
+    90724,
+    90726,
+    90727,
+    90728,
+    90730,
+    90731,
+    90732,
+    90733,
+    90734,
+    90735,
+    90737,
+    90738,
+    90739,
+    90740,
+    90741,
+    90742,
+    90743,
+    90744,
+    90745,
+    90746,
+    90747,
+    90748,
+    90749,
+    90750,
+    90751,
+    90752,
+    90753,
+    90754,
+    90755,
+    90756,
+    90757,
+    90758,
+    90759,
+    90760,
+    90762,
+    90763,
+    90764,
+    90766,
+    90767,
+    90768,
+    90769,
+    90770,
+    90771,
+    90772,
+    90774,
+    90775,
+    90776,
+    90777,
+    90779,
+    90780,
+    90783,
+    90784,
+    90785,
+    90786,
+    94536,
+    94551,
+    94552,
+    94553,
+    94554,
+    94555,
+    94556,
+    94557,
+    94561,
+    94562,
+    94563,
+    94565,
+    94567,
+    94580,
+    94581,
+    94582,
+    95106,
+    95107,
+    95108,
+    95109,
+    95110,
+    95111,
+    95114,
+    95115,
+    95116,
+    95117,
+    95118,
+    95119,
+    95120,
+    95121,
+    95122,
+    95123,
+    95125,
+    95127,
+    95128,
+    95129,
+    95130,
+    95131,
+    95132,
+    95133,
+    95134,
+    95135,
+    95136,
+    95137,
+    95138,
+    95139,
+    95140,
+    95141,
+    95142,
+    99842,
+    99843,
+    99844,
+    101713,
+    101714,
+    101715,
+    109003,
+    109004,
+    109760,
+    109761,
+    109762,
+    109763,
+    109764,
+    109765,
+    109766,
+    109767,
+    109768,
+    110323,
+    110324,
+    110325,
+    110432,
+    110433,
+    110434,
+    110576
+  ],
+  "nodes": {
+    "90740": {
+      "name": "Shiv",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 1500,
+      "next": [
+        110325,
+        90764
+      ],
+      "entries": [
+        {
+          "name": "Shiv",
+          "icon": "inv_throwingknife_04",
+          "spellId": 5938,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90684": {
+      "name": "Blind",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 1500,
+      "next": [
+        90764,
+        90741,
+        90695
+      ],
+      "entries": [
+        {
+          "name": "Blind",
+          "icon": "spell_shadow_mindsteal",
+          "spellId": 2094,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90697": {
+      "name": "Cloak of Shadows",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": true,
+      "x": 5100,
+      "y": 1500,
+      "next": [
+        90695,
+        110324
+      ],
+      "entries": [
+        {
+          "name": "Cloak of Shadows",
+          "icon": "spell_shadow_nethercloak",
+          "spellId": 31224,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110325": {
+      "name": "Toxic Stiletto",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2100,
+      "y": 2100,
+      "next": [
+        90636
+      ],
+      "entries": [
+        {
+          "name": "Toxic Stiletto",
+          "icon": "ability_rogue_poisonedknife",
+          "spellId": 1267182,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90764": {
+      "name": "Fleet Footed",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 2100,
+      "next": [
+        90636,
+        90742
+      ],
+      "entries": [
+        {
+          "name": "Fleet Footed",
+          "icon": "ability_rogue_quickrecovery",
+          "spellId": 378813,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90741": {
+      "name": "Gouge / Airborne Irritant",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 2100,
+      "next": [
+        90742
+      ],
+      "entries": [
+        {
+          "name": "Gouge",
+          "icon": "ability_gouge",
+          "spellId": 1776,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Airborne Irritant",
+          "icon": "ability_rogue_bloodyeye",
+          "spellId": 200733,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90695": {
+      "name": "Thrill Seeking",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 2100,
+      "next": [
+        90742,
+        90686
+      ],
+      "entries": [
+        {
+          "name": "Thrill Seeking",
+          "icon": "inv_ragnaros_heart_shadowflame",
+          "spellId": 394931,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110324": {
+      "name": "Shadowrunner",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 2100,
+      "next": [
+        90686
+      ],
+      "entries": [
+        {
+          "name": "Shadowrunner",
+          "icon": "ability_stealth",
+          "spellId": 378807,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90636": {
+      "name": "Master Poisoner",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 2700,
+      "next": [
+        90637,
+        90745
+      ],
+      "entries": [
+        {
+          "name": "Master Poisoner",
+          "icon": "ability_creature_poison_06",
+          "spellId": 378436,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90742": {
+      "name": "Elusiveness / Cheat Death",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 2700,
+      "next": [
+        110323
+      ],
+      "entries": [
+        {
+          "name": "Elusiveness",
+          "icon": "ability_rogue_turnthetables",
+          "spellId": 79008,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Cheat Death",
+          "icon": "ability_rogue_cheatdeath",
+          "spellId": 31230,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90686": {
+      "name": "Tricks of the Trade / Blackjack",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 2700,
+      "next": [
+        90746,
+        90687
+      ],
+      "entries": [
+        {
+          "name": "Tricks of the Trade",
+          "icon": "ability_rogue_tricksofthetrade",
+          "spellId": 57934,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Blackjack",
+          "icon": "ability_rogue_blackjack",
+          "spellId": 379005,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90637": {
+      "name": "Improved Wound Poison",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2100,
+      "y": 3300,
+      "next": [
+        94567,
+        90762
+      ],
+      "entries": [
+        {
+          "name": "Improved Wound Poison",
+          "icon": "inv_misc_herb_16",
+          "spellId": 319066,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90745": {
+      "name": "Nimble Fingers",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 3300,
+      "next": [
+        90762,
+        90744,
+        90747
+      ],
+      "entries": [
+        {
+          "name": "Nimble Fingers",
+          "icon": "ability_rogue_crimsonvial",
+          "spellId": 378427,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110323": {
+      "name": "Deadened Nerves",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 3300,
+      "next": [
+        90747
+      ],
+      "entries": [
+        {
+          "name": "Deadened Nerves",
+          "icon": "ability_rogue_nervesofsteel",
+          "spellId": 231719,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90746": {
+      "name": "Quick Fingers",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 3300,
+      "next": [
+        90747,
+        94563,
+        90754
+      ],
+      "entries": [
+        {
+          "name": "Quick Fingers",
+          "icon": "ability_rogue_improvedrecuperate",
+          "spellId": 1267210,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90687": {
+      "name": "Improved Sprint",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 3300,
+      "next": [
+        90754,
+        101714
+      ],
+      "entries": [
+        {
+          "name": "Improved Sprint",
+          "icon": "ability_rogue_sprint",
+          "spellId": 231691,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94567": {
+      "name": "Superior Mixture",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2100,
+      "y": 3900,
+      "next": [
+        90763
+      ],
+      "entries": [
+        {
+          "name": "Superior Mixture",
+          "icon": "inv_misc_potionsete",
+          "spellId": 423701,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90762": {
+      "name": "Evasion",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 3900,
+      "next": [
+        90763,
+        90743
+      ],
+      "entries": [
+        {
+          "name": "Evasion",
+          "icon": "spell_shadow_shadowward",
+          "spellId": 5277,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90744": {
+      "name": "Iron Stomach",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 3900,
+      "next": [
+        90743
+      ],
+      "entries": [
+        {
+          "name": "Iron Stomach",
+          "icon": "inv_misc_organ_11",
+          "spellId": 193546,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90747": {
+      "name": "Virulent Poisons",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 3900,
+      "next": [
+        90743,
+        110576,
+        94562
+      ],
+      "entries": [
+        {
+          "name": "Virulent Poisons",
+          "icon": "ability_creature_poison_06",
+          "spellId": 381543,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94563": {
+      "name": "Stillshroud",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 3900,
+      "next": [
+        94562
+      ],
+      "entries": [
+        {
+          "name": "Stillshroud",
+          "icon": "ability_rogue_shroudofconcealment",
+          "spellId": 423662,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90754": {
+      "name": "Graceful Guile",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 3900,
+      "next": [
+        94562,
+        94561
+      ],
+      "entries": [
+        {
+          "name": "Graceful Guile",
+          "icon": "ability_rogue_ghostpirate",
+          "spellId": 423647,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "101714": {
+      "name": "Featherfoot",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 3900,
+      "next": [
+        94561
+      ],
+      "entries": [
+        {
+          "name": "Featherfoot",
+          "icon": "spell_magic_featherfall",
+          "spellId": 423683,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90763": {
+      "name": "Numbing Poison / Atrophic Poison",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 4500,
+      "next": [
+        90760
+      ],
+      "entries": [
+        {
+          "name": "Numbing Poison",
+          "icon": "spell_nature_nullifydisease",
+          "spellId": 5761,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Atrophic Poison",
+          "icon": "ability_rogue_nervesofsteel",
+          "spellId": 381637,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90743": {
+      "name": "Deadly Precision",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 4500,
+      "next": [
+        90760,
+        90752
+      ],
+      "entries": [
+        {
+          "name": "Deadly Precision",
+          "icon": "ability_rogue_deadenednerves",
+          "spellId": 381542,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110576": {
+      "name": "Sanguine Vial",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 4500,
+      "next": [
+        90752
+      ],
+      "entries": [
+        {
+          "name": "Sanguine Vial",
+          "icon": "inv_misc_potiona5",
+          "spellId": 1293135,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94562": {
+      "name": "Deep Cuts",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 4500,
+      "next": [
+        90752,
+        90692
+      ],
+      "entries": [
+        {
+          "name": "Deep Cuts",
+          "icon": "inv_1115_firstkilloftheday_firstkilloftheday",
+          "spellId": 1267216,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94561": {
+      "name": "Unbreakable Stride",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 4500,
+      "next": [
+        90692
+      ],
+      "entries": [
+        {
+          "name": "Unbreakable Stride",
+          "icon": "ability_rogue_trip",
+          "spellId": 400804,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90760": {
+      "name": "Danger Sense",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 5100,
+      "next": [
+        90758,
+        90749
+      ],
+      "entries": [
+        {
+          "name": "Danger Sense",
+          "icon": "ability_rogue_wrongfullyaccused",
+          "spellId": 1267220,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90752": {
+      "name": "Swift Slasher",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 5100,
+      "next": [
+        90749,
+        90640,
+        90751
+      ],
+      "entries": [
+        {
+          "name": "Swift Slasher",
+          "icon": "ability_rogue_slicedice",
+          "spellId": 381988,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90692": {
+      "name": "Improved Ambush / Tight Spender",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 5100,
+      "next": [
+        90751,
+        90691
+      ],
+      "entries": [
+        {
+          "name": "Improved Ambush",
+          "icon": "ability_rogue_ambush",
+          "spellId": 381620,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Tight Spender",
+          "icon": "inv_misc_coin_03",
+          "spellId": 381621,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90758": {
+      "name": "Leeching Poison",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 5700,
+      "next": [
+        90759
+      ],
+      "entries": [
+        {
+          "name": "Leeching Poison",
+          "icon": "rogue_leeching_poison",
+          "spellId": 280716,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90749": {
+      "name": "Lethality",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 5700,
+      "next": [
+        90748
+      ],
+      "entries": [
+        {
+          "name": "Lethality",
+          "icon": "ability_criticalstrike",
+          "spellId": 382238,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90640": {
+      "name": "Recuperator",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 5700,
+      "next": [
+        90639
+      ],
+      "entries": [
+        {
+          "name": "Recuperator",
+          "icon": "inv_gizmo_runichealthinjector",
+          "spellId": 378996,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90751": {
+      "name": "Alacrity",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 5700,
+      "next": [
+        90750
+      ],
+      "entries": [
+        {
+          "name": "Alacrity",
+          "icon": "ability_paladin_speedoflight",
+          "spellId": 193539,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90691": {
+      "name": "Soothing Darkness",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 5700,
+      "next": [
+        90688
+      ],
+      "entries": [
+        {
+          "name": "Soothing Darkness",
+          "icon": "spell_shadow_twilight",
+          "spellId": 393970,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90759": {
+      "name": "Vigor",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 6300,
+      "next": [
+        90756
+      ],
+      "entries": [
+        {
+          "name": "Vigor",
+          "icon": "ability_rogue_vigor",
+          "spellId": 14983,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90639": {
+      "name": "Supercharger",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 6300,
+      "next": [
+        90638
+      ],
+      "entries": [
+        {
+          "name": "Supercharger",
+          "icon": "inv_engineering_90_electrifiedether",
+          "spellId": 470347,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90688": {
+      "name": "Subterfuge",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 6300,
+      "next": [
+        101713
+      ],
+      "entries": [
+        {
+          "name": "Subterfuge",
+          "icon": "rogue_subterfuge",
+          "spellId": 108208,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90756": {
+      "name": "Thistle Tea / Thistle Tea",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Thistle Tea",
+          "icon": "inv_drink_milk_05",
+          "spellId": 469779,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Thistle Tea",
+          "icon": "inv_drink_milk_05",
+          "spellId": 1298826,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90748": {
+      "name": "Cold Blooded Killer",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Cold Blooded Killer",
+          "icon": "spell_ice_lament",
+          "spellId": 382245,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90638": {
+      "name": "Echoing Reprimand / Forced Induction",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Echoing Reprimand",
+          "icon": "inv_ability_rogue_echoingreprimand",
+          "spellId": 470669,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Forced Induction",
+          "icon": "inv_misc_enggizmos_06",
+          "spellId": 470668,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90750": {
+      "name": "Deeper Stratagem",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Deeper Stratagem",
+          "icon": "archaeology_5_0_changkiboard",
+          "spellId": 193531,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "101713": {
+      "name": "Without a Trace",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Without a Trace",
+          "icon": "ability_vanish",
+          "spellId": 382513,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90690": {
+      "name": "Find Weakness",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 1500,
+      "next": [
+        90739,
+        90726,
+        90710
+      ],
+      "entries": [
+        {
+          "name": "Find Weakness",
+          "icon": "ability_rogue_findweakness",
+          "spellId": 91023,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90739": {
+      "name": "Improved Backstab",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 2100,
+      "next": [
+        90700
+      ],
+      "entries": [
+        {
+          "name": "Improved Backstab",
+          "icon": "ability_backstab",
+          "spellId": 319949,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90726": {
+      "name": "Shadow Blades",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 2100,
+      "next": [
+        90728
+      ],
+      "entries": [
+        {
+          "name": "Shadow Blades",
+          "icon": "inv_knife_1h_grimbatolraid_d_03",
+          "spellId": 121471,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90710": {
+      "name": "Improved Shuriken Storm",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 2100,
+      "next": [
+        94582
+      ],
+      "entries": [
+        {
+          "name": "Improved Shuriken Storm",
+          "icon": "ability_rogue_shuriken_storm",
+          "spellId": 319951,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90700": {
+      "name": "Premeditation",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 2700,
+      "next": [
+        90698,
+        90701
+      ],
+      "entries": [
+        {
+          "name": "Premeditation",
+          "icon": "spell_shadow_possession",
+          "spellId": 343160,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90728": {
+      "name": "Quick Decisions / Ephemeral Bond",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 2700,
+      "next": [
+        90701,
+        90733
+      ],
+      "entries": [
+        {
+          "name": "Quick Decisions",
+          "icon": "inv_misc_hook_01",
+          "spellId": 382503,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Ephemeral Bond",
+          "icon": "ability_warlock_soullink",
+          "spellId": 426563,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94582": {
+      "name": "Silent Storm",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 2700,
+      "next": [
+        90733,
+        90714
+      ],
+      "entries": [
+        {
+          "name": "Silent Storm",
+          "icon": "ability_rogue_shuriken_storm",
+          "spellId": 385722,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90698": {
+      "name": "Shrouded in Darkness",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10500,
+      "y": 3300,
+      "next": [
+        90727
+      ],
+      "entries": [
+        {
+          "name": "Shrouded in Darkness",
+          "icon": "ability_rogue_envelopingshadows",
+          "spellId": 382507,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90701": {
+      "name": "Shot in the Dark / Exhilarating Execution",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 3300,
+      "next": [
+        90727,
+        90699,
+        90734
+      ],
+      "entries": [
+        {
+          "name": "Shot in the Dark",
+          "icon": "ability_cheapshot",
+          "spellId": 257505,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Exhilarating Execution",
+          "icon": "inv_weapon_hand_04",
+          "spellId": 428486,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90733": {
+      "name": "Cloaked in Shadows / Fade to Nothing",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 3300,
+      "next": [
+        90734,
+        90715,
+        90709
+      ],
+      "entries": [
+        {
+          "name": "Cloaked in Shadows",
+          "icon": "inv_helm_cloth_shadowmoonclan_b_01",
+          "spellId": 382515,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Fade to Nothing",
+          "icon": "ability_warlock_everlastingaffliction",
+          "spellId": 382514,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90714": {
+      "name": "Night Terrors / Terrifying Pace",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14100,
+      "y": 3300,
+      "next": [
+        90709
+      ],
+      "entries": [
+        {
+          "name": "Night Terrors",
+          "icon": "spell_shadow_shadesofdarkness",
+          "spellId": 277953,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Terrifying Pace",
+          "icon": "ability_druid_typhoon",
+          "spellId": 428387,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90727": {
+      "name": "Master of Shadows",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 3900,
+      "next": [
+        90737,
+        90703,
+        101715
+      ],
+      "entries": [
+        {
+          "name": "Master of Shadows",
+          "icon": "spell_shadow_charm",
+          "spellId": 196976,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90699": {
+      "name": "Gloomblade",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 3900,
+      "next": [
+        101715
+      ],
+      "entries": [
+        {
+          "name": "Gloomblade",
+          "icon": "ability_ironmaidens_convulsiveshadows",
+          "spellId": 200758,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90734": {
+      "name": "Shadow Focus",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 3900,
+      "next": [
+        101715,
+        90723
+      ],
+      "entries": [
+        {
+          "name": "Shadow Focus",
+          "icon": "rogue_shadowfocus",
+          "spellId": 108209,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90715": {
+      "name": "Improved Secret Technique",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 3900,
+      "next": [
+        90723
+      ],
+      "entries": [
+        {
+          "name": "Improved Secret Technique",
+          "icon": "ability_rogue_sinistercalling",
+          "spellId": 1279444,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90709": {
+      "name": "Relentless Strikes",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 3900,
+      "next": [
+        90723,
+        90722,
+        90717
+      ],
+      "entries": [
+        {
+          "name": "Relentless Strikes",
+          "icon": "ability_warrior_decisivestrike",
+          "spellId": 58423,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90737": {
+      "name": "Weaponmaster",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10500,
+      "y": 4500,
+      "next": [
+        90738
+      ],
+      "entries": [
+        {
+          "name": "Weaponmaster",
+          "icon": "ability_ironmaidens_bladerush",
+          "spellId": 193537,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90703": {
+      "name": "Planned Execution / Warning Signs",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 4500,
+      "next": [
+        90738,
+        90735
+      ],
+      "entries": [
+        {
+          "name": "Planned Execution",
+          "icon": "ability_creature_cursed_02",
+          "spellId": 382508,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Warning Signs",
+          "icon": "achievement_bg_kill_flag_carrier",
+          "spellId": 426555,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "101715": {
+      "name": "Double Dance",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 4500,
+      "next": [
+        90735,
+        90724
+      ],
+      "entries": [
+        {
+          "name": "Double Dance",
+          "icon": "warrior_doubletime",
+          "spellId": 394930,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90723": {
+      "name": "Shadowed Finishers",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 4500,
+      "next": [
+        90724,
+        90713
+      ],
+      "entries": [
+        {
+          "name": "Shadowed Finishers",
+          "icon": "ability_rogue_eviscerate",
+          "spellId": 382511,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90722": {
+      "name": "Secret Stratagem",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 4500,
+      "next": [
+        90713,
+        90716
+      ],
+      "entries": [
+        {
+          "name": "Secret Stratagem",
+          "icon": "archaeology_5_0_changkiboard",
+          "spellId": 394320,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90717": {
+      "name": "Shuriken Tornado",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14100,
+      "y": 4500,
+      "next": [
+        90716
+      ],
+      "entries": [
+        {
+          "name": "Shuriken Tornado",
+          "icon": "ability_rogue_throwingspecialization",
+          "spellId": 1264764,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90738": {
+      "name": "Umbral Edge",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10500,
+      "y": 5100,
+      "next": [
+        90704
+      ],
+      "entries": [
+        {
+          "name": "Umbral Edge",
+          "icon": "ability_rogue_nightblade",
+          "spellId": 1281468,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90735": {
+      "name": "Deepening Shadows",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 5100,
+      "next": [
+        90704,
+        90707
+      ],
+      "entries": [
+        {
+          "name": "Deepening Shadows",
+          "icon": "spell_shadow_twilight",
+          "spellId": 185314,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90724": {
+      "name": "Goremaw's Bite",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 5100,
+      "next": [
+        90707,
+        90731,
+        90721
+      ],
+      "entries": [
+        {
+          "name": "Goremaw's Bite",
+          "icon": "inv_knife_1h_artifactfangs_d_01",
+          "spellId": 426591,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90713": {
+      "name": "Veiltouched",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 5100,
+      "next": [
+        90721,
+        90718
+      ],
+      "entries": [
+        {
+          "name": "Veiltouched",
+          "icon": "spell_arcane_prismaticcloak",
+          "spellId": 382017,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90716": {
+      "name": "Replicating Shadows",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14100,
+      "y": 5100,
+      "next": [
+        90718
+      ],
+      "entries": [
+        {
+          "name": "Replicating Shadows",
+          "icon": "spell_deathknight_strangulate",
+          "spellId": 382506,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90704": {
+      "name": "Improved Find Weakness",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 5700,
+      "next": [
+        90706
+      ],
+      "entries": [
+        {
+          "name": "Improved Find Weakness",
+          "icon": "ability_rogue_findweakness",
+          "spellId": 382512,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90707": {
+      "name": "Perforated Veins",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 5700,
+      "next": [
+        90706,
+        90732
+      ],
+      "entries": [
+        {
+          "name": "Perforated Veins",
+          "icon": "ability_warrior_bloodfrenzy",
+          "spellId": 382518,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90731": {
+      "name": "Lingering Shadow",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 5700,
+      "next": [
+        90732
+      ],
+      "entries": [
+        {
+          "name": "Lingering Shadow",
+          "icon": "spell_fire_twilightnova",
+          "spellId": 382524,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90721": {
+      "name": "Deeper Daggers",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 5700,
+      "next": [
+        90732,
+        90720
+      ],
+      "entries": [
+        {
+          "name": "Deeper Daggers",
+          "icon": "inv_weapon_shortblade_15",
+          "spellId": 382517,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90718": {
+      "name": "Potent Powder",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 5700,
+      "next": [
+        90720
+      ],
+      "entries": [
+        {
+          "name": "Potent Powder",
+          "icon": "spell_priest_divinestar_shadow",
+          "spellId": 1265952,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90706": {
+      "name": "Death Perception",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 6300,
+      "next": [
+        90705,
+        94580
+      ],
+      "entries": [
+        {
+          "name": "Death Perception",
+          "icon": "spell_nzinsanity_shortsighted",
+          "spellId": 469642,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90732": {
+      "name": "Dark Shadow",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 6300,
+      "next": [
+        94580,
+        90730,
+        94581
+      ],
+      "entries": [
+        {
+          "name": "Dark Shadow",
+          "icon": "spell_warlock_demonsoul",
+          "spellId": 245687,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90720": {
+      "name": "Finality",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 6300,
+      "next": [
+        94581,
+        90719
+      ],
+      "entries": [
+        {
+          "name": "Finality",
+          "icon": "ability_rogue_eviscerate",
+          "spellId": 382525,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90705": {
+      "name": "The Rotten",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11100,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "The Rotten",
+          "icon": "spell_shadow_nightofthedead",
+          "spellId": 382015,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94580": {
+      "name": "Shadowcraft",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11700,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Shadowcraft",
+          "icon": "spell_shadow_sealofkings",
+          "spellId": 426594,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90730": {
+      "name": "Danse Macabre",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Danse Macabre",
+          "icon": "ability_deathwing_bloodcorruption_death",
+          "spellId": 382528,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94581": {
+      "name": "The First Dance",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12900,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "The First Dance",
+          "icon": "ability_rogue_shadowdance",
+          "spellId": 382505,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "90719": {
+      "name": "Dark Brew",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13500,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Dark Brew",
+          "icon": "spell_nature_slowpoison",
+          "spellId": 382504,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110432": {
+      "name": "Ancient Arts / Ancient Arts / Ancient Arts",
+      "g": "spec",
+      "type": "tiered",
+      "maxRanks": 4,
+      "subTreeId": null,
+      "free": false,
+      "x": 12300,
+      "y": 7650,
+      "next": [],
+      "entries": [
+        {
+          "name": "Ancient Arts",
+          "icon": "inv12_apextalent_rogue_ancientarts",
+          "spellId": 1268932,
+          "type": "tierrank",
+          "subTreeId": null
+        },
+        {
+          "name": "Ancient Arts",
+          "icon": "inv12_apextalent_rogue_ancientarts",
+          "spellId": 1268936,
+          "type": "tierrank",
+          "subTreeId": null
+        },
+        {
+          "name": "Ancient Arts",
+          "icon": "inv12_apextalent_rogue_ancientarts",
+          "spellId": 1268939,
+          "type": "tierrank",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95136": {
+      "name": "Deathstalker's Mark",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 53,
+      "free": true,
+      "x": 8100,
+      "y": 1200,
+      "next": [
+        95110,
+        95132,
+        95117,
+        109762
+      ],
+      "entries": [
+        {
+          "name": "Deathstalker's Mark",
+          "icon": "inv_ability_deathstalkerrogue_deathstalkersmark",
+          "spellId": 457052,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95110": {
+      "name": "Clear the Witnesses",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 53,
+      "free": false,
+      "x": 7200,
+      "y": 1800,
+      "next": [
+        95135
+      ],
+      "entries": [
+        {
+          "name": "Clear the Witnesses",
+          "icon": "ability_rogue_fanofknives",
+          "spellId": 1248793,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95132": {
+      "name": "Hunt Them Down",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 53,
+      "free": false,
+      "x": 7800,
+      "y": 1800,
+      "next": [
+        95108
+      ],
+      "entries": [
+        {
+          "name": "Hunt Them Down",
+          "icon": "ability_rogue_creepingvenom",
+          "spellId": 457054,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95117": {
+      "name": "Singular Focus",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 53,
+      "free": false,
+      "x": 8400,
+      "y": 1800,
+      "next": [
+        95109
+      ],
+      "entries": [
+        {
+          "name": "Singular Focus",
+          "icon": "spell_hunter_focusingshot",
+          "spellId": 457055,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109762": {
+      "name": "Precise Killer",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 53,
+      "free": false,
+      "x": 9000,
+      "y": 1800,
+      "next": [
+        109761
+      ],
+      "entries": [
+        {
+          "name": "Precise Killer",
+          "icon": "inv_tradeskillitem_sorcererswind",
+          "spellId": 1272989,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95135": {
+      "name": "Unshakeable Drive",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 53,
+      "free": false,
+      "x": 7200,
+      "y": 2400,
+      "next": [
+        95106
+      ],
+      "entries": [
+        {
+          "name": "Unshakeable Drive",
+          "icon": "ability_warrior_deepcuts",
+          "spellId": 1248774,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95108": {
+      "name": "Corrupt the Blood",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 53,
+      "free": false,
+      "x": 7800,
+      "y": 2400,
+      "next": [
+        95131
+      ],
+      "entries": [
+        {
+          "name": "Corrupt the Blood",
+          "icon": "ability_ironmaidens_bloodritual",
+          "spellId": 1248785,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95109": {
+      "name": "Lingering Darkness / Symbolic Victory",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 53,
+      "free": false,
+      "x": 8400,
+      "y": 2400,
+      "next": [
+        95123
+      ],
+      "entries": [
+        {
+          "name": "Lingering Darkness",
+          "icon": "ability_rogue_envelopingshadows",
+          "spellId": 457056,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Symbolic Victory",
+          "icon": "ability_priest_surgeofdarkness",
+          "spellId": 457062,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109761": {
+      "name": "Quietus Celeris",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 53,
+      "free": false,
+      "x": 9000,
+      "y": 2400,
+      "next": [
+        109760
+      ],
+      "entries": [
+        {
+          "name": "Quietus Celeris",
+          "icon": "ability_argus_deathfog",
+          "spellId": 1273017,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95106": {
+      "name": "Ethereal Cloak / Bait and Switch",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 53,
+      "free": false,
+      "x": 7200,
+      "y": 3000,
+      "next": [
+        95142
+      ],
+      "entries": [
+        {
+          "name": "Ethereal Cloak",
+          "icon": "spell_arcane_prismaticcloak",
+          "spellId": 457022,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Bait and Switch",
+          "icon": "ability_druid_earthandsky",
+          "spellId": 457034,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95131": {
+      "name": "Momentum of Despair / Follow the Blood",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 53,
+      "free": false,
+      "x": 7800,
+      "y": 3000,
+      "next": [
+        95142
+      ],
+      "entries": [
+        {
+          "name": "Momentum of Despair",
+          "icon": "spell_shadow_shadesofdarkness",
+          "spellId": 457067,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Follow the Blood",
+          "icon": "sha_ability_rogue_bloodyeye_nightmare",
+          "spellId": 457068,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95123": {
+      "name": "Shadewalker / Shroud of Night",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 53,
+      "free": false,
+      "x": 8400,
+      "y": 3000,
+      "next": [
+        95142
+      ],
+      "entries": [
+        {
+          "name": "Shadewalker",
+          "icon": "rogue_shadow_reflection",
+          "spellId": 457057,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Shroud of Night",
+          "icon": "spell_holy_elunesgrace",
+          "spellId": 457063,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109760": {
+      "name": "Mass Casualty",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 53,
+      "free": false,
+      "x": 9000,
+      "y": 3000,
+      "next": [
+        95142
+      ],
+      "entries": [
+        {
+          "name": "Mass Casualty",
+          "icon": "ability_hunter_rapidkilling",
+          "spellId": 1273035,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95142": {
+      "name": "Darkest Night",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 53,
+      "free": false,
+      "x": 8100,
+      "y": 3600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Darkest Night",
+          "icon": "spell_shadow_twilight",
+          "spellId": 457058,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95140": {
+      "name": "Unseen Blade",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 51,
+      "free": true,
+      "x": 8100,
+      "y": 4200,
+      "next": [
+        95141,
+        95111,
+        95121,
+        109765
+      ],
+      "entries": [
+        {
+          "name": "Unseen Blade",
+          "icon": "inv_weapon_shortblade_55",
+          "spellId": 441146,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95121": {
+      "name": "Surprising Strikes",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 51,
+      "free": false,
+      "x": 7200,
+      "y": 4800,
+      "next": [
+        95134
+      ],
+      "entries": [
+        {
+          "name": "Surprising Strikes",
+          "icon": "ability_rogue_surpriseattack2",
+          "spellId": 441273,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95141": {
+      "name": "Smoke / Mirrors",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 51,
+      "free": false,
+      "x": 7800,
+      "y": 4800,
+      "next": [
+        95133
+      ],
+      "entries": [
+        {
+          "name": "Smoke",
+          "icon": "rogue_dirtytricks",
+          "spellId": 441247,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Mirrors",
+          "icon": "trade_archaeology_highbornesoulmirror",
+          "spellId": 441250,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95111": {
+      "name": "Flawless Form",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 51,
+      "free": false,
+      "x": 8400,
+      "y": 4800,
+      "next": [
+        95137
+      ],
+      "entries": [
+        {
+          "name": "Flawless Form",
+          "icon": "inv_qiraj_jewelblessed",
+          "spellId": 441321,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109765": {
+      "name": "Hoodwink",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 51,
+      "free": false,
+      "x": 9000,
+      "y": 4800,
+      "next": [
+        109764
+      ],
+      "entries": [
+        {
+          "name": "Hoodwink",
+          "icon": "spell_holy_dizzy",
+          "spellId": 1276626,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95134": {
+      "name": "So Tricky / Don't Be Suspicious",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 51,
+      "free": false,
+      "x": 7200,
+      "y": 5400,
+      "next": [
+        95118
+      ],
+      "entries": [
+        {
+          "name": "So Tricky",
+          "icon": "ability_rogue_tricksofthetrade",
+          "spellId": 441403,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Don't Be Suspicious",
+          "icon": "ability_rogue_disguise",
+          "spellId": 441415,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95133": {
+      "name": "Devious Distractions",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 51,
+      "free": false,
+      "x": 7800,
+      "y": 5400,
+      "next": [
+        95116
+      ],
+      "entries": [
+        {
+          "name": "Devious Distractions",
+          "icon": "ability_rogue_ghostpirate",
+          "spellId": 441263,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95137": {
+      "name": "Thousand Cuts / Flickerstrike",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 51,
+      "free": false,
+      "x": 8400,
+      "y": 5400,
+      "next": [
+        95128
+      ],
+      "entries": [
+        {
+          "name": "Thousand Cuts",
+          "icon": "inv_10_specialization_blacksmithing_blades_color1",
+          "spellId": 441346,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Flickerstrike",
+          "icon": "spell_nature_invisibilty",
+          "spellId": 441359,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109764": {
+      "name": "Flashing Steel",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 51,
+      "free": false,
+      "x": 9000,
+      "y": 5400,
+      "next": [
+        109763
+      ],
+      "entries": [
+        {
+          "name": "Flashing Steel",
+          "icon": "inv_1115_warrior_fastermeleeattacks",
+          "spellId": 1276630,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95118": {
+      "name": "Disorienting Strikes",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 51,
+      "free": false,
+      "x": 7200,
+      "y": 6000,
+      "next": [
+        95115
+      ],
+      "entries": [
+        {
+          "name": "Disorienting Strikes",
+          "icon": "petbattle_speed",
+          "spellId": 441274,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95116": {
+      "name": "Cloud Cover / No Scruples",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 51,
+      "free": false,
+      "x": 7800,
+      "y": 6000,
+      "next": [
+        95115
+      ],
+      "entries": [
+        {
+          "name": "Cloud Cover",
+          "icon": "ability_rogue_smoke",
+          "spellId": 441429,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "No Scruples",
+          "icon": "ability_rogue_surpriseattack",
+          "spellId": 441398,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95128": {
+      "name": "Nimble Flurry",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 51,
+      "free": false,
+      "x": 8400,
+      "y": 6000,
+      "next": [
+        95115
+      ],
+      "entries": [
+        {
+          "name": "Nimble Flurry",
+          "icon": "ability_rogue_bladetwisting",
+          "spellId": 441367,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109763": {
+      "name": "Clever Combatant",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 51,
+      "free": false,
+      "x": 9000,
+      "y": 6000,
+      "next": [
+        95115
+      ],
+      "entries": [
+        {
+          "name": "Clever Combatant",
+          "icon": "ability_rogue_versatility",
+          "spellId": 1276679,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "95115": {
+      "name": "Coup de Grace",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 51,
+      "free": false,
+      "x": 8100,
+      "y": 6600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Coup de Grace",
+          "icon": "inv_ability_tricksterrogue_coupdegrace",
+          "spellId": 441423,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "99842": {
+      "name": "Deathstalker / Trickster",
+      "g": "sub",
+      "type": "subtree",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 8100,
+      "y": 600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Deathstalker",
+          "icon": "talents-heroclass-rogue-deathstalker",
+          "spellId": 0,
+          "type": "subtree",
+          "subTreeId": 53
+        },
+        {
+          "name": "Trickster",
+          "icon": "talents-heroclass-rogue-trickster",
+          "spellId": 0,
+          "type": "subtree",
+          "subTreeId": 51
+        }
+      ]
+    }
   }
 }

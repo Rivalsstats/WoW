@@ -1262,5 +1262,3009 @@
       "name": "Stormbringer",
       "icon": "talents-heroclass-shaman-stormbringer"
     }
+  },
+  "fullNodeOrder": [
+    80938,
+    80939,
+    80941,
+    80942,
+    80943,
+    80944,
+    80945,
+    80947,
+    80948,
+    80949,
+    80950,
+    80951,
+    80953,
+    80954,
+    80958,
+    80959,
+    80960,
+    80961,
+    80962,
+    80963,
+    80964,
+    80967,
+    80968,
+    80969,
+    80973,
+    80974,
+    80975,
+    80976,
+    80978,
+    80981,
+    80983,
+    80984,
+    80985,
+    80988,
+    80989,
+    80990,
+    80991,
+    80992,
+    80993,
+    80995,
+    80996,
+    80997,
+    80998,
+    80999,
+    81000,
+    81002,
+    81003,
+    81004,
+    81005,
+    81007,
+    81008,
+    81010,
+    81012,
+    81015,
+    81016,
+    81018,
+    81021,
+    81022,
+    81024,
+    81027,
+    81031,
+    81032,
+    81033,
+    81037,
+    81038,
+    81039,
+    81040,
+    81041,
+    81042,
+    81043,
+    81044,
+    81046,
+    81047,
+    81048,
+    81049,
+    81050,
+    81051,
+    81052,
+    81055,
+    81073,
+    92219,
+    92675,
+    92677,
+    94858,
+    94859,
+    94860,
+    94861,
+    94862,
+    94863,
+    94866,
+    94867,
+    94868,
+    94869,
+    94870,
+    94871,
+    94872,
+    94873,
+    94874,
+    94875,
+    94877,
+    94879,
+    94880,
+    94881,
+    94882,
+    94883,
+    94884,
+    94885,
+    94886,
+    94887,
+    94888,
+    94889,
+    94890,
+    94891,
+    94892,
+    94893,
+    94894,
+    99845,
+    99846,
+    99847,
+    103427,
+    103428,
+    103429,
+    103430,
+    103432,
+    103433,
+    103434,
+    103436,
+    103579,
+    103581,
+    103582,
+    103583,
+    103584,
+    103585,
+    103586,
+    103587,
+    103588,
+    103590,
+    103591,
+    103593,
+    103594,
+    103596,
+    103598,
+    103599,
+    103600,
+    103601,
+    103602,
+    103605,
+    103606,
+    103607,
+    103608,
+    103610,
+    103611,
+    103612,
+    103613,
+    103614,
+    103615,
+    103616,
+    103617,
+    103618,
+    103620,
+    103622,
+    103623,
+    103624,
+    103625,
+    103626,
+    103627,
+    103628,
+    103630,
+    103631,
+    103632,
+    103633,
+    103634,
+    103635,
+    103636,
+    103637,
+    103638,
+    103639,
+    103640,
+    103641,
+    103642,
+    103871,
+    103915,
+    104124,
+    109190,
+    109191,
+    109192,
+    109193,
+    109194,
+    109301,
+    109386,
+    109387,
+    109388,
+    109389,
+    109492,
+    109493,
+    109724,
+    109725,
+    109726,
+    109727,
+    109728,
+    109729,
+    109730,
+    109731,
+    109732,
+    109909,
+    110066,
+    110083,
+    110084,
+    110085,
+    110186,
+    110401,
+    110402,
+    110403,
+    113376
+  ],
+  "nodes": {
+    "103588": {
+      "name": "Chain Heal",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 1200,
+      "next": [
+        103596,
+        103610
+      ],
+      "entries": [
+        {
+          "name": "Chain Heal",
+          "icon": "inv_1115_shaman_chainheal",
+          "spellId": 1064,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103598": {
+      "name": "Lava Burst",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": true,
+      "x": 4500,
+      "y": 1200,
+      "next": [
+        103610,
+        103605,
+        103581
+      ],
+      "entries": [
+        {
+          "name": "Lava Burst",
+          "icon": "spell_shaman_lavaburst",
+          "spellId": 51505,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103583": {
+      "name": "Chain Lightning",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 1200,
+      "next": [
+        103581,
+        109492
+      ],
+      "entries": [
+        {
+          "name": "Chain Lightning",
+          "icon": "spell_nature_chainlightning",
+          "spellId": 188443,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103596": {
+      "name": "Earth Shield",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 1800,
+      "next": [
+        103602,
+        103591
+      ],
+      "entries": [
+        {
+          "name": "Earth Shield",
+          "icon": "spell_nature_skinofearth",
+          "spellId": 974,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103610": {
+      "name": "Ancestral Wolf Affinity",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 1800,
+      "next": [
+        103591,
+        103616
+      ],
+      "entries": [
+        {
+          "name": "Ancestral Wolf Affinity",
+          "icon": "spell_beastmaster_wolf",
+          "spellId": 382197,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103605": {
+      "name": "Fire and Ice",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 1800,
+      "next": [
+        103616
+      ],
+      "entries": [
+        {
+          "name": "Fire and Ice",
+          "icon": "spell_firefrost_orb",
+          "spellId": 382886,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103581": {
+      "name": "Spirit Wolf / Thunderous Paws",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 1800,
+      "next": [
+        103616,
+        103613
+      ],
+      "entries": [
+        {
+          "name": "Spirit Wolf",
+          "icon": "spell_hunter_lonewolf",
+          "spellId": 260878,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Thunderous Paws",
+          "icon": "ability_hunter_longevity",
+          "spellId": 378075,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109492": {
+      "name": "Frost Shock",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6300,
+      "y": 1800,
+      "next": [
+        103613,
+        109493
+      ],
+      "entries": [
+        {
+          "name": "Frost Shock",
+          "icon": "spell_frost_frostshock",
+          "spellId": 196840,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103602": {
+      "name": "Elemental Orbit",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 2400,
+      "next": [
+        103590
+      ],
+      "entries": [
+        {
+          "name": "Elemental Orbit",
+          "icon": "ability_mage_shattershield",
+          "spellId": 383010,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103591": {
+      "name": "Spirit Walk / Gust of Wind",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 2400,
+      "next": [
+        103590,
+        103614
+      ],
+      "entries": [
+        {
+          "name": "Spirit Walk",
+          "icon": "ability_tracking",
+          "spellId": 58875,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Gust of Wind",
+          "icon": "inv_misc_volatileair",
+          "spellId": 192063,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103616": {
+      "name": "Astral Shift",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 2400,
+      "next": [
+        103614,
+        103611,
+        103582
+      ],
+      "entries": [
+        {
+          "name": "Astral Shift",
+          "icon": "ability_shaman_astralshift",
+          "spellId": 108271,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103613": {
+      "name": "Nature's Guardian",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 2400,
+      "next": [
+        103582,
+        103615
+      ],
+      "entries": [
+        {
+          "name": "Nature's Guardian",
+          "icon": "spell_nature_natureguardian",
+          "spellId": 30884,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109493": {
+      "name": "Encasing Cold / Arctic Snowstorm",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6300,
+      "y": 2400,
+      "next": [
+        103615
+      ],
+      "entries": [
+        {
+          "name": "Encasing Cold",
+          "icon": "ability_mage_coldasice",
+          "spellId": 462762,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Arctic Snowstorm",
+          "icon": "spell_frost_glacier",
+          "spellId": 462764,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103590": {
+      "name": "Healing Stream Totem",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 3000,
+      "next": [
+        103601,
+        103622
+      ],
+      "entries": [
+        {
+          "name": "Healing Stream Totem",
+          "icon": "inv_spear_04",
+          "spellId": 392915,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103614": {
+      "name": "Winds of Al'Akir",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 3000,
+      "next": [
+        103622,
+        103579
+      ],
+      "entries": [
+        {
+          "name": "Winds of Al'Akir",
+          "icon": "ability_druid_galewinds",
+          "spellId": 382215,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103611": {
+      "name": "Planes Traveler / Astral Bulwark",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 3000,
+      "next": [
+        103579,
+        110085
+      ],
+      "entries": [
+        {
+          "name": "Planes Traveler",
+          "icon": "spell_shaman_astralshift",
+          "spellId": 381647,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Astral Bulwark",
+          "icon": "spell_shaman_ancestralawakening",
+          "spellId": 377933,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103582": {
+      "name": "Brimming with Life",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 3000,
+      "next": [
+        110085,
+        103606
+      ],
+      "entries": [
+        {
+          "name": "Brimming with Life",
+          "icon": "inv_jewelry_talisman_06",
+          "spellId": 381689,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103615": {
+      "name": "Wind Shear",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6300,
+      "y": 3000,
+      "next": [
+        103606,
+        103628
+      ],
+      "entries": [
+        {
+          "name": "Wind Shear",
+          "icon": "spell_nature_cyclone",
+          "spellId": 57994,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103601": {
+      "name": "Elemental Resistance",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 3600,
+      "next": [
+        103594
+      ],
+      "entries": [
+        {
+          "name": "Elemental Resistance",
+          "icon": "spell_fireresistancetotem_01",
+          "spellId": 462368,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103622": {
+      "name": "Earthgrab Totem",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 3600,
+      "next": [
+        103594,
+        103608
+      ],
+      "entries": [
+        {
+          "name": "Earthgrab Totem",
+          "icon": "spell_nature_stranglevines",
+          "spellId": 51485,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103579": {
+      "name": "Capacitor Totem",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 3600,
+      "next": [
+        103608,
+        103618,
+        103627
+      ],
+      "entries": [
+        {
+          "name": "Capacitor Totem",
+          "icon": "spell_nature_brilliance",
+          "spellId": 192058,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110085": {
+      "name": "Spiritual Awakening",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 3600,
+      "next": [
+        103627,
+        103585
+      ],
+      "entries": [
+        {
+          "name": "Spiritual Awakening",
+          "icon": "spell_shaman_blessingoftheeternals",
+          "spellId": 1270375,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103606": {
+      "name": "Enhanced Imbues",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 3600,
+      "next": [
+        103585
+      ],
+      "entries": [
+        {
+          "name": "Enhanced Imbues",
+          "icon": "spell_nature_rockbiter",
+          "spellId": 462796,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103628": {
+      "name": "Windveil",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6300,
+      "y": 3600,
+      "next": [
+        103623
+      ],
+      "entries": [
+        {
+          "name": "Windveil",
+          "icon": "inv_elemental_primal_air",
+          "spellId": 355630,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103594": {
+      "name": "Refreshing Waters",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 4200,
+      "next": [
+        103624,
+        103584
+      ],
+      "entries": [
+        {
+          "name": "Refreshing Waters",
+          "icon": "ability_shaman_fortifyingwaters",
+          "spellId": 378211,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103608": {
+      "name": "Cleanse Spirit",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 4200,
+      "next": [
+        103624,
+        103617
+      ],
+      "entries": [
+        {
+          "name": "Cleanse Spirit",
+          "icon": "ability_shaman_cleansespirit",
+          "spellId": 51886,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103618": {
+      "name": "Static Charge",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 4200,
+      "next": [
+        103617
+      ],
+      "entries": [
+        {
+          "name": "Static Charge",
+          "icon": "spell_nature_brilliance",
+          "spellId": 265046,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103627": {
+      "name": "Wind Rush Totem",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 4200,
+      "next": [
+        103617,
+        103607
+      ],
+      "entries": [
+        {
+          "name": "Wind Rush Totem",
+          "icon": "ability_shaman_windwalktotem",
+          "spellId": 192077,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103585": {
+      "name": "Earth Elemental",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 4200,
+      "next": [
+        103612,
+        103623
+      ],
+      "entries": [
+        {
+          "name": "Earth Elemental",
+          "icon": "spell_nature_earthelemental_totem",
+          "spellId": 198103,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103624": {
+      "name": "Purge / Greater Purge",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 4800,
+      "next": [
+        103584,
+        109386
+      ],
+      "entries": [
+        {
+          "name": "Purge",
+          "icon": "spell_nature_purge",
+          "spellId": 370,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Greater Purge",
+          "icon": "spell_shaman_focusedstrikes",
+          "spellId": 378773,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103617": {
+      "name": "Nature's Fury",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 4800,
+      "next": [
+        109386,
+        103586
+      ],
+      "entries": [
+        {
+          "name": "Nature's Fury",
+          "icon": "spell_nature_spiritarmor",
+          "spellId": 381655,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103607": {
+      "name": "Ascending Air / Jet Stream",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 4800,
+      "next": [
+        103586,
+        103625
+      ],
+      "entries": [
+        {
+          "name": "Ascending Air",
+          "icon": "achievement_raidprimalist_windelemental",
+          "spellId": 462791,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Jet Stream",
+          "icon": "inv_elemental_primal_air",
+          "spellId": 462817,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103612": {
+      "name": "Primordial Bond",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 4800,
+      "next": [
+        103625
+      ],
+      "entries": [
+        {
+          "name": "Primordial Bond",
+          "icon": "inv_elemental_primal_earth",
+          "spellId": 1279819,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103623": {
+      "name": "Hex",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6300,
+      "y": 4800,
+      "next": [
+        103625,
+        103600
+      ],
+      "entries": [
+        {
+          "name": "Hex",
+          "icon": "spell_shaman_hex",
+          "spellId": 51514,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103584": {
+      "name": "Spiritwalker's Grace",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 5400,
+      "next": [
+        103626
+      ],
+      "entries": [
+        {
+          "name": "Spiritwalker's Grace",
+          "icon": "spell_shaman_spiritwalkersgrace",
+          "spellId": 79206,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109386": {
+      "name": "Totemic Projection",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 5400,
+      "next": [
+        103587
+      ],
+      "entries": [
+        {
+          "name": "Totemic Projection",
+          "icon": "ability_shaman_totemrelocation",
+          "spellId": 108287,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103586": {
+      "name": "Elemental Warding",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 5400,
+      "next": [
+        103587,
+        103599,
+        103593
+      ],
+      "entries": [
+        {
+          "name": "Elemental Warding",
+          "icon": "inv_10_elementalcombinedfoozles_primordial",
+          "spellId": 381650,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103625": {
+      "name": "Totemic Focus",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 5400,
+      "next": [
+        103593,
+        109387
+      ],
+      "entries": [
+        {
+          "name": "Totemic Focus",
+          "icon": "inv_relics_totemofrebirth",
+          "spellId": 382201,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103626": {
+      "name": "Graceful Spirit / Spiritwalker's Aegis",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2700,
+      "y": 6000,
+      "next": [
+        103620
+      ],
+      "entries": [
+        {
+          "name": "Graceful Spirit",
+          "icon": "spell_shaman_spectraltransformation",
+          "spellId": 192088,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Spiritwalker's Aegis",
+          "icon": "ability_racial_forceshield",
+          "spellId": 378077,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103587": {
+      "name": "Mana Spring",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3900,
+      "y": 6000,
+      "next": [
+        103620,
+        109388
+      ],
+      "entries": [
+        {
+          "name": "Mana Spring",
+          "icon": "spell_nature_manaregentotem",
+          "spellId": 381930,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103599": {
+      "name": "Tremor Totem / Poison Cleansing Totem",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 6000,
+      "next": [
+        109388
+      ],
+      "entries": [
+        {
+          "name": "Tremor Totem",
+          "icon": "spell_nature_tremortotem",
+          "spellId": 8143,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Poison Cleansing Totem",
+          "icon": "spell_nature_poisoncleansingtotem",
+          "spellId": 383013,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103593": {
+      "name": "Therazane's Resilience / Reactive Warding",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5100,
+      "y": 6000,
+      "next": [
+        109388,
+        109387
+      ],
+      "entries": [
+        {
+          "name": "Therazane's Resilience",
+          "icon": "shaman_pvp_rockshield",
+          "spellId": 1217622,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Reactive Warding",
+          "icon": "inv_10_elementalcombinedfoozles_water",
+          "spellId": 462454,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103600": {
+      "name": "Voodoo Mastery",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6300,
+      "y": 6000,
+      "next": [
+        109387
+      ],
+      "entries": [
+        {
+          "name": "Voodoo Mastery",
+          "icon": "spell_shaman_hex",
+          "spellId": 204268,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103620": {
+      "name": "Nature's Swiftness",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3300,
+      "y": 6600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Nature's Swiftness",
+          "icon": "spell_nature_ravenform",
+          "spellId": 378081,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109388": {
+      "name": "Totemic Surge",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4500,
+      "y": 6600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Totemic Surge",
+          "icon": "spell_nature_agitatingtotem",
+          "spellId": 381867,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109387": {
+      "name": "Instinctive Imbuements",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5700,
+      "y": 6600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Instinctive Imbuements",
+          "icon": "ability_shaman_ascendance",
+          "spellId": 1270350,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "80984": {
+      "name": "Earth Shock / Elemental Blast",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 1200,
+      "next": [
+        80985,
+        80983,
+        80981
+      ],
+      "entries": [
+        {
+          "name": "Earth Shock",
+          "icon": "spell_nature_earthshock",
+          "spellId": 8042,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Elemental Blast",
+          "icon": "shaman_talent_elementalblast",
+          "spellId": 117014,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "80985": {
+      "name": "Earthquake / Earthquake",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 1800,
+      "next": [
+        80990
+      ],
+      "entries": [
+        {
+          "name": "Earthquake",
+          "icon": "spell_shaman_earthquake",
+          "spellId": 462620,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Earthquake",
+          "icon": "spell_shaman_earthquake",
+          "spellId": 61882,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "80983": {
+      "name": "Elemental Fury",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 1800,
+      "next": [
+        81000
+      ],
+      "entries": [
+        {
+          "name": "Elemental Fury",
+          "icon": "spell_fire_volcano",
+          "spellId": 60188,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "80981": {
+      "name": "Echo of the Elements",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 1800,
+      "next": [
+        80999
+      ],
+      "entries": [
+        {
+          "name": "Echo of the Elements",
+          "icon": "ability_shaman_echooftheelements",
+          "spellId": 333919,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "80990": {
+      "name": "Flash of Lightning",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11400,
+      "y": 2400,
+      "next": [
+        80997,
+        103635
+      ],
+      "entries": [
+        {
+          "name": "Flash of Lightning",
+          "icon": "spell_lightning_lightningbolt01",
+          "spellId": 381936,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81000": {
+      "name": "Tectonic Collapse / Aftershock",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 2400,
+      "next": [
+        80988
+      ],
+      "entries": [
+        {
+          "name": "Tectonic Collapse",
+          "icon": "item_earthenmight",
+          "spellId": 1258899,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Aftershock",
+          "icon": "spell_nature_stormreach",
+          "spellId": 273221,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "80999": {
+      "name": "Molten Wrath / Master of the Elements",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 2400,
+      "next": [
+        81004
+      ],
+      "entries": [
+        {
+          "name": "Molten Wrath",
+          "icon": "spell_shaman_lavaburst",
+          "spellId": 1258843,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Master of the Elements",
+          "icon": "spell_nature_elementalabsorption",
+          "spellId": 16166,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "80997": {
+      "name": "Lightning Capacitor",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10800,
+      "y": 3000,
+      "next": [
+        103638
+      ],
+      "entries": [
+        {
+          "name": "Lightning Capacitor",
+          "icon": "spell_nature_lightningshield",
+          "spellId": 462862,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "80988": {
+      "name": "Stormkeeper",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 3000,
+      "next": [
+        81016,
+        103639,
+        80998
+      ],
+      "entries": [
+        {
+          "name": "Stormkeeper",
+          "icon": "ability_thunderking_lightningwhip",
+          "spellId": 191634,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81004": {
+      "name": "Flametongue Weapon",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14400,
+      "y": 3000,
+      "next": [
+        103630
+      ],
+      "entries": [
+        {
+          "name": "Flametongue Weapon",
+          "icon": "spell_fire_flametounge",
+          "spellId": 318038,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103635": {
+      "name": "Storm Frenzy",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11400,
+      "y": 3600,
+      "next": [
+        103638,
+        103631,
+        80995
+      ],
+      "entries": [
+        {
+          "name": "Storm Frenzy",
+          "icon": "spell_nature_callstorm",
+          "spellId": 462695,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81016": {
+      "name": "Swelling Maelstrom",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 3600,
+      "next": [
+        103631
+      ],
+      "entries": [
+        {
+          "name": "Swelling Maelstrom",
+          "icon": "spell_shaman_maelstromweapon",
+          "spellId": 381707,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103639": {
+      "name": "Primordial Fury",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 3600,
+      "next": [
+        103631,
+        110066
+      ],
+      "entries": [
+        {
+          "name": "Primordial Fury",
+          "icon": "inv_10_elementalshardfoozles_primordial",
+          "spellId": 378193,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "80998": {
+      "name": "Fury of the Storms / Herald of the Storms",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 3600,
+      "next": [
+        103633,
+        81005
+      ],
+      "entries": [
+        {
+          "name": "Fury of the Storms",
+          "icon": "inv_stormelemental",
+          "spellId": 191717,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Herald of the Storms",
+          "icon": "achievement_raidprimalist_windelemental",
+          "spellId": 468571,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103630": {
+      "name": "Flames of the Cauldron",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14400,
+      "y": 3600,
+      "next": [
+        81005,
+        110186
+      ],
+      "entries": [
+        {
+          "name": "Flames of the Cauldron",
+          "icon": "inv_misc_cauldron_fire",
+          "spellId": 378266,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103638": {
+      "name": "Amped Up",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10800,
+      "y": 4200,
+      "next": [
+        80996,
+        80995
+      ],
+      "entries": [
+        {
+          "name": "Amped Up",
+          "icon": "inv_10_elementalcombinedfoozles_lightning",
+          "spellId": 1269360,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103631": {
+      "name": "Elemental Resonance / Thunderstrike Ward",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 4200,
+      "next": [
+        80995,
+        103636,
+        81015
+      ],
+      "entries": [
+        {
+          "name": "Elemental Resonance",
+          "icon": "inv_10_elementalcombinedfoozles_primordial",
+          "spellId": 1258895,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Thunderstrike Ward",
+          "icon": "inv_armorkit_lightning_imbued",
+          "spellId": 462757,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110066": {
+      "name": "Path of the Seer",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 4200,
+      "next": [
+        81015
+      ],
+      "entries": [
+        {
+          "name": "Path of the Seer",
+          "icon": "spell_shaman_elementaloath",
+          "spellId": 1269364,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103633": {
+      "name": "Elemental Unity",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 4200,
+      "next": [
+        81015,
+        103634,
+        81010
+      ],
+      "entries": [
+        {
+          "name": "Elemental Unity",
+          "icon": "inv_10_elementalspiritfoozles_air",
+          "spellId": 462866,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81005": {
+      "name": "Searing Flames",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 4200,
+      "next": [
+        81010,
+        110186
+      ],
+      "entries": [
+        {
+          "name": "Searing Flames",
+          "icon": "inv_offhand_1h_artifactdoomhammer_d_01",
+          "spellId": 381782,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "80996": {
+      "name": "Power of the Maelstrom",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10800,
+      "y": 4800,
+      "next": [
+        80993
+      ],
+      "entries": [
+        {
+          "name": "Power of the Maelstrom",
+          "icon": "spell_fire_masterofelements",
+          "spellId": 191861,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "80995": {
+      "name": "Earthshatter",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11400,
+      "y": 4800,
+      "next": [
+        81003
+      ],
+      "entries": [
+        {
+          "name": "Earthshatter",
+          "icon": "spell_nature_earthquake",
+          "spellId": 468626,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103636": {
+      "name": "Storm Infusion",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 4800,
+      "next": [
+        81003
+      ],
+      "entries": [
+        {
+          "name": "Storm Infusion",
+          "icon": "inv_misc_stormlordsfavor",
+          "spellId": 1258889,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81015": {
+      "name": "Echo Chamber",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 4800,
+      "next": [
+        81003,
+        80989,
+        81008
+      ],
+      "entries": [
+        {
+          "name": "Echo Chamber",
+          "icon": "spell_nature_lightningoverload",
+          "spellId": 382032,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103634": {
+      "name": "Everlasting Elements",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 4800,
+      "next": [
+        81008
+      ],
+      "entries": [
+        {
+          "name": "Everlasting Elements",
+          "icon": "spell_nature_earthelemental_totem",
+          "spellId": 462867,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81010": {
+      "name": "Earthen Rage",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 4800,
+      "next": [
+        81008,
+        103641
+      ],
+      "entries": [
+        {
+          "name": "Earthen Rage",
+          "icon": "ability_earthen_pillar",
+          "spellId": 170374,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110186": {
+      "name": "Lava Flows",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14400,
+      "y": 4800,
+      "next": [
+        103641
+      ],
+      "entries": [
+        {
+          "name": "Lava Flows",
+          "icon": "spell_shaman_lavaflow",
+          "spellId": 1273485,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "80993": {
+      "name": "Fusion of Elements",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10800,
+      "y": 5400,
+      "next": [
+        81012
+      ],
+      "entries": [
+        {
+          "name": "Fusion of Elements",
+          "icon": "achievement_raidprimalist_council",
+          "spellId": 462840,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81003": {
+      "name": "Eye of the Storm",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 5400,
+      "next": [
+        81012,
+        81002
+      ],
+      "entries": [
+        {
+          "name": "Eye of the Storm",
+          "icon": "spell_shadow_soulleech_2",
+          "spellId": 381708,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "80989": {
+      "name": "Ascendance",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 5400,
+      "next": [
+        81002,
+        80992
+      ],
+      "entries": [
+        {
+          "name": "Ascendance",
+          "icon": "",
+          "spellId": 114050,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81008": {
+      "name": "Inferno Arc",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 5400,
+      "next": [
+        81007
+      ],
+      "entries": [
+        {
+          "name": "Inferno Arc",
+          "icon": "spell_shaman_shockinglava",
+          "spellId": 1259047,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103641": {
+      "name": "Flames of the Firelord",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14400,
+      "y": 5400,
+      "next": [
+        81007
+      ],
+      "entries": [
+        {
+          "name": "Flames of the Firelord",
+          "icon": "achievement_firelands_raid_ragnaros",
+          "spellId": 381784,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81012": {
+      "name": "Lightning Rod",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11400,
+      "y": 6000,
+      "next": [
+        80991
+      ],
+      "entries": [
+        {
+          "name": "Lightning Rod",
+          "icon": "inv_rod_enchantedcobalt",
+          "spellId": 210689,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81002": {
+      "name": "Mountains Will Fall",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 6000,
+      "next": [],
+      "entries": [
+        {
+          "name": "Mountains Will Fall",
+          "icon": "inv_elementalearth2",
+          "spellId": 381726,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "80992": {
+      "name": "Call of Fire",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 6000,
+      "next": [
+        103640,
+        80978
+      ],
+      "entries": [
+        {
+          "name": "Call of Fire",
+          "icon": "spell_fire_elemental_totem",
+          "spellId": 378255,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "81007": {
+      "name": "Voltaic Blaze",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 6000,
+      "next": [
+        103632,
+        103637
+      ],
+      "entries": [
+        {
+          "name": "Voltaic Blaze",
+          "icon": "inv_10_dungeonjewelry_primalist_trinket_1ragingelement_fire",
+          "spellId": 470057,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "80991": {
+      "name": "Charged Conduit",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10800,
+      "y": 6600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Charged Conduit",
+          "icon": "ability_thunderking_thunderstruck",
+          "spellId": 468625,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103640": {
+      "name": "First Ascendant / Preeminence",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 6600,
+      "next": [],
+      "entries": [
+        {
+          "name": "First Ascendant",
+          "icon": "spell_shaman_astralshift",
+          "spellId": 462440,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Preeminence",
+          "icon": "spell_shaman_improvedreincarnation",
+          "spellId": 462443,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "80978": {
+      "name": "Primal Elementalist",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 6600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Primal Elementalist",
+          "icon": "shaman_talent_primalelementalist",
+          "spellId": 117013,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103632": {
+      "name": "Crackling Fury",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 6600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Crackling Fury",
+          "icon": "inv_10_dungeonjewelry_primalist_trinket_1ragingelement_air",
+          "spellId": 1269215,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103637": {
+      "name": "Purging Flames",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14400,
+      "y": 6600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Purging Flames",
+          "icon": "inv12_ability_shaman_purgingflames",
+          "spellId": 1259471,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110402": {
+      "name": "Feedback Loop / Feedback Loop / Feedback Loop",
+      "g": "spec",
+      "type": "tiered",
+      "maxRanks": 4,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 7350,
+      "next": [],
+      "entries": [
+        {
+          "name": "Feedback Loop",
+          "icon": "inv12_apextalent_shaman_feedbackloop",
+          "spellId": 1270061,
+          "type": "tierrank",
+          "subTreeId": null
+        },
+        {
+          "name": "Feedback Loop",
+          "icon": "inv12_apextalent_shaman_feedbackloop",
+          "spellId": 1270062,
+          "type": "tierrank",
+          "subTreeId": null
+        },
+        {
+          "name": "Feedback Loop",
+          "icon": "inv12_apextalent_shaman_feedbackloop",
+          "spellId": 1270064,
+          "type": "tierrank",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94888": {
+      "name": "Call of the Ancestors",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 56,
+      "free": true,
+      "x": 8400,
+      "y": 1200,
+      "next": [
+        94862,
+        94869,
+        94884,
+        109732
+      ],
+      "entries": [
+        {
+          "name": "Call of the Ancestors",
+          "icon": "ability_racial_ancestralcall",
+          "spellId": 443450,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94862": {
+      "name": "Latent Wisdom / Ancient Fellowship",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 56,
+      "free": false,
+      "x": 7500,
+      "y": 1800,
+      "next": [
+        94887
+      ],
+      "entries": [
+        {
+          "name": "Latent Wisdom",
+          "icon": "spell_holy_spiritualguidence",
+          "spellId": 443449,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Ancient Fellowship",
+          "icon": "spell_shaman_astralshift",
+          "spellId": 443423,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94884": {
+      "name": "Heed My Call / Routine Communication",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 56,
+      "free": false,
+      "x": 8100,
+      "y": 1800,
+      "next": [
+        94860
+      ],
+      "entries": [
+        {
+          "name": "Heed My Call",
+          "icon": "spell_unused2",
+          "spellId": 443444,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Routine Communication",
+          "icon": "spell_nature_undyingstrength",
+          "spellId": 443445,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94869": {
+      "name": "Elemental Reverb",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 56,
+      "free": false,
+      "x": 8700,
+      "y": 1800,
+      "next": [
+        94861
+      ],
+      "entries": [
+        {
+          "name": "Elemental Reverb",
+          "icon": "ability_shaman_echooftheelements",
+          "spellId": 443418,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109732": {
+      "name": "Ancestral Influence",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 56,
+      "free": false,
+      "x": 9300,
+      "y": 1800,
+      "next": [
+        109731
+      ],
+      "entries": [
+        {
+          "name": "Ancestral Influence",
+          "icon": "shaman_pvp_leaderclan",
+          "spellId": 1270446,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94887": {
+      "name": "Offering from Beyond",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 56,
+      "free": false,
+      "x": 7500,
+      "y": 2400,
+      "next": [
+        94858
+      ],
+      "entries": [
+        {
+          "name": "Offering from Beyond",
+          "icon": "spell_shaman_blessingoftheeternals",
+          "spellId": 443451,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94860": {
+      "name": "Primordial Capacity",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 56,
+      "free": false,
+      "x": 8100,
+      "y": 2400,
+      "next": [
+        94883
+      ],
+      "entries": [
+        {
+          "name": "Primordial Capacity",
+          "icon": "ability_monk_chiswirl",
+          "spellId": 443448,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94861": {
+      "name": "Spiritwalker's Momentum",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 56,
+      "free": false,
+      "x": 8700,
+      "y": 2400,
+      "next": [
+        94875
+      ],
+      "entries": [
+        {
+          "name": "Spiritwalker's Momentum",
+          "icon": "spell_shaman_spiritwalkersgrace",
+          "spellId": 443425,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109731": {
+      "name": "Windspeaker",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 56,
+      "free": false,
+      "x": 9300,
+      "y": 2400,
+      "next": [
+        109730
+      ],
+      "entries": [
+        {
+          "name": "Windspeaker",
+          "icon": "achievement_raidprimalist_windelemental",
+          "spellId": 1270447,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94858": {
+      "name": "Natural Harmony / Earthen Communion",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 56,
+      "free": false,
+      "x": 7500,
+      "y": 3000,
+      "next": [
+        94894
+      ],
+      "entries": [
+        {
+          "name": "Natural Harmony",
+          "icon": "spell_nature_natureguardian",
+          "spellId": 443442,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Earthen Communion",
+          "icon": "spell_nature_skinofearth",
+          "spellId": 443441,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94883": {
+      "name": "Maelstrom Supremacy",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 56,
+      "free": false,
+      "x": 8100,
+      "y": 3000,
+      "next": [
+        94894
+      ],
+      "entries": [
+        {
+          "name": "Maelstrom Supremacy",
+          "icon": "spell_shadow_soulleech_2",
+          "spellId": 443447,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94875": {
+      "name": "Final Calling",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 56,
+      "free": false,
+      "x": 8700,
+      "y": 3000,
+      "next": [
+        94894
+      ],
+      "entries": [
+        {
+          "name": "Final Calling",
+          "icon": "spell_shaman_ancestralawakening",
+          "spellId": 443446,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109730": {
+      "name": "Mystic Knowledge",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 56,
+      "free": false,
+      "x": 9300,
+      "y": 3000,
+      "next": [
+        94894
+      ],
+      "entries": [
+        {
+          "name": "Mystic Knowledge",
+          "icon": "achievement_raidprimalist_council",
+          "spellId": 1270450,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94894": {
+      "name": "Ancestral Swiftness",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 56,
+      "free": false,
+      "x": 8400,
+      "y": 3600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Ancestral Swiftness",
+          "icon": "inv_ability_farseershaman_ancestralswiftness",
+          "spellId": 448861,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94892": {
+      "name": "Tempest",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 55,
+      "free": true,
+      "x": 8400,
+      "y": 4200,
+      "next": [
+        94886,
+        94893,
+        94863,
+        109729
+      ],
+      "entries": [
+        {
+          "name": "Tempest",
+          "icon": "inv_ability_stormcallershaman_tempest",
+          "spellId": 454009,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94886": {
+      "name": "Unlimited Power",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 55,
+      "free": false,
+      "x": 7500,
+      "y": 4800,
+      "next": [
+        94873
+      ],
+      "entries": [
+        {
+          "name": "Unlimited Power",
+          "icon": "spell_nature_purge",
+          "spellId": 454391,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94893": {
+      "name": "Stormcaller",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 55,
+      "free": false,
+      "x": 8100,
+      "y": 4800,
+      "next": [
+        94885
+      ],
+      "entries": [
+        {
+          "name": "Stormcaller",
+          "icon": "ability_vehicle_electrocharge",
+          "spellId": 454021,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94863": {
+      "name": "Lightning Conduit / Electroshock",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 55,
+      "free": false,
+      "x": 8700,
+      "y": 4800,
+      "next": [
+        94889
+      ],
+      "entries": [
+        {
+          "name": "Lightning Conduit",
+          "icon": "spell_shaman_staticshock",
+          "spellId": 467778,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Electroshock",
+          "icon": "ability_thunderking_overcharge",
+          "spellId": 454022,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109729": {
+      "name": "Stormwell",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 55,
+      "free": false,
+      "x": 9300,
+      "y": 4800,
+      "next": [
+        109728
+      ],
+      "entries": [
+        {
+          "name": "Stormwell",
+          "icon": "inv_112_raidtrinkets_etherealenergystoragesphere_purple",
+          "spellId": 1264762,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94873": {
+      "name": "Storm Swell / Supercharge",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 55,
+      "free": false,
+      "x": 7500,
+      "y": 5400,
+      "next": [
+        94870
+      ],
+      "entries": [
+        {
+          "name": "Storm Swell",
+          "icon": "spell_nature_unrelentingstorm",
+          "spellId": 455088,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Supercharge",
+          "icon": "inv_misc_stormlordsfavor",
+          "spellId": 455110,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94885": {
+      "name": "Arc Discharge",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 55,
+      "free": false,
+      "x": 8100,
+      "y": 5400,
+      "next": [
+        94868
+      ],
+      "entries": [
+        {
+          "name": "Arc Discharge",
+          "icon": "ability_thunderking_balllightning",
+          "spellId": 455096,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94889": {
+      "name": "Rolling Thunder",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 55,
+      "free": false,
+      "x": 8700,
+      "y": 5400,
+      "next": [
+        94880
+      ],
+      "entries": [
+        {
+          "name": "Rolling Thunder",
+          "icon": "spell_lightning_lightningbolt01",
+          "spellId": 454026,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109728": {
+      "name": "Natural Gift",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 55,
+      "free": false,
+      "x": 9300,
+      "y": 5400,
+      "next": [
+        109727
+      ],
+      "entries": [
+        {
+          "name": "Natural Gift",
+          "icon": "spell_shaman_maelstromweapon",
+          "spellId": 1264691,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94870": {
+      "name": "Voltaic Surge",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 55,
+      "free": false,
+      "x": 7500,
+      "y": 6000,
+      "next": [
+        94867
+      ],
+      "entries": [
+        {
+          "name": "Voltaic Surge",
+          "icon": "spell_nature_callstorm",
+          "spellId": 454919,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94868": {
+      "name": "Conductive Energy",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 55,
+      "free": false,
+      "x": 8100,
+      "y": 6000,
+      "next": [
+        94867
+      ],
+      "entries": [
+        {
+          "name": "Conductive Energy",
+          "icon": "inv_rod_enchantedcobalt",
+          "spellId": 455123,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94880": {
+      "name": "Nature's Protection / Surging Currents",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 55,
+      "free": false,
+      "x": 8700,
+      "y": 6000,
+      "next": [
+        94867
+      ],
+      "entries": [
+        {
+          "name": "Nature's Protection",
+          "icon": "spell_nature_lightningshield",
+          "spellId": 454027,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Surging Currents",
+          "icon": "ability_thunderking_thunderstruck",
+          "spellId": 454372,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109727": {
+      "name": "Descending Skies",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 55,
+      "free": false,
+      "x": 9300,
+      "y": 6000,
+      "next": [
+        94867
+      ],
+      "entries": [
+        {
+          "name": "Descending Skies",
+          "icon": "spell_nature_wispheal",
+          "spellId": 1264688,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94867": {
+      "name": "Awakening Storms",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 55,
+      "free": false,
+      "x": 8400,
+      "y": 6600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Awakening Storms",
+          "icon": "spell_nature_stormreach",
+          "spellId": 455129,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "99845": {
+      "name": "Farseer / Stormbringer",
+      "g": "sub",
+      "type": "subtree",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 7200,
+      "y": 600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Farseer",
+          "icon": "talents-heroclass-shaman-farseer",
+          "spellId": 0,
+          "type": "subtree",
+          "subTreeId": 56
+        },
+        {
+          "name": "Stormbringer",
+          "icon": "talents-heroclass-shaman-stormbringer",
+          "spellId": 0,
+          "type": "subtree",
+          "subTreeId": 55
+        }
+      ]
+    }
   }
 }

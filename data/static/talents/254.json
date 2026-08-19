@@ -1182,5 +1182,2839 @@
       "name": "Sentinel",
       "icon": "talents-heroclass-hunter-sentinel"
     }
+  },
+  "fullNodeOrder": [
+    79837,
+    94957,
+    94958,
+    94959,
+    94960,
+    94961,
+    94962,
+    94965,
+    94966,
+    94967,
+    94968,
+    94969,
+    94970,
+    94971,
+    94972,
+    94973,
+    94974,
+    94976,
+    94978,
+    94979,
+    94980,
+    94981,
+    94982,
+    94983,
+    94984,
+    94985,
+    94986,
+    94987,
+    94988,
+    94989,
+    94990,
+    94991,
+    94992,
+    94993,
+    99831,
+    99832,
+    99833,
+    102252,
+    102255,
+    102257,
+    102262,
+    102263,
+    102264,
+    102268,
+    102270,
+    102272,
+    102279,
+    102281,
+    102282,
+    102285,
+    102289,
+    102292,
+    102336,
+    102337,
+    102338,
+    102340,
+    102341,
+    102342,
+    102343,
+    102344,
+    102345,
+    102346,
+    102347,
+    102350,
+    102351,
+    102353,
+    102354,
+    102355,
+    102356,
+    102357,
+    102358,
+    102359,
+    102360,
+    102362,
+    102363,
+    102364,
+    102365,
+    102367,
+    102368,
+    102369,
+    102370,
+    102371,
+    102372,
+    102373,
+    102374,
+    102375,
+    102376,
+    102377,
+    102380,
+    102381,
+    102383,
+    102384,
+    102387,
+    102389,
+    102390,
+    102391,
+    102393,
+    102394,
+    102395,
+    102396,
+    102397,
+    102401,
+    102402,
+    102404,
+    102406,
+    102407,
+    102409,
+    102411,
+    102412,
+    102414,
+    102415,
+    102416,
+    102418,
+    102419,
+    102422,
+    102423,
+    102424,
+    102425,
+    103947,
+    103950,
+    103952,
+    103955,
+    103956,
+    103957,
+    103958,
+    103959,
+    103960,
+    103961,
+    103962,
+    103964,
+    103966,
+    103974,
+    103975,
+    103977,
+    103978,
+    103979,
+    103982,
+    103984,
+    103985,
+    103986,
+    103987,
+    103989,
+    103990,
+    104095,
+    104127,
+    104130,
+    107285,
+    107286,
+    107288,
+    107289,
+    107290,
+    109304,
+    109305,
+    109306,
+    109307,
+    109309,
+    109310,
+    109311,
+    109312,
+    109313,
+    109316,
+    109317,
+    109319,
+    109320,
+    109321,
+    109323,
+    109324,
+    109470,
+    109483,
+    109484,
+    109485,
+    109486,
+    109487,
+    109488,
+    109489,
+    109490,
+    109491,
+    109799,
+    109800,
+    109801,
+    109802,
+    109803,
+    109804,
+    109805,
+    109807,
+    109961,
+    110028,
+    110152,
+    110153,
+    110154,
+    110155,
+    110156,
+    110157,
+    110158,
+    110159,
+    110160,
+    110161,
+    110162,
+    110163,
+    110164,
+    110428,
+    110429,
+    110430,
+    110572,
+    110573,
+    110574,
+    110575,
+    110688,
+    110691,
+    110692
+  ],
+  "nodes": {
+    "102381": {
+      "name": "Rejuvenating Wind",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 1500,
+      "next": [
+        102401
+      ],
+      "entries": [
+        {
+          "name": "Rejuvenating Wind",
+          "icon": "ability_druid_galewinds",
+          "spellId": 385539,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102422": {
+      "name": "Survival of the Fittest",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": true,
+      "x": 4200,
+      "y": 1500,
+      "next": [
+        102406
+      ],
+      "entries": [
+        {
+          "name": "Survival of the Fittest",
+          "icon": "spell_nature_spiritarmor",
+          "spellId": 264735,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102411": {
+      "name": "Posthaste",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 1500,
+      "next": [
+        102423
+      ],
+      "entries": [
+        {
+          "name": "Posthaste",
+          "icon": "ability_hunter_posthaste",
+          "spellId": 109215,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102401": {
+      "name": "Natural Mending",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 2100,
+      "next": [
+        102383,
+        110157
+      ],
+      "entries": [
+        {
+          "name": "Natural Mending",
+          "icon": "ability_hunter_onewithnature",
+          "spellId": 270581,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102406": {
+      "name": "Padded Armor",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 2100,
+      "next": [
+        110157,
+        109485
+      ],
+      "entries": [
+        {
+          "name": "Padded Armor",
+          "icon": "ability_rogue_plunderarmor",
+          "spellId": 459450,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102423": {
+      "name": "Hunter's Avoidance",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 2100,
+      "next": [
+        109485,
+        102407
+      ],
+      "entries": [
+        {
+          "name": "Hunter's Avoidance",
+          "icon": "rogue_burstofspeed",
+          "spellId": 384799,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102383": {
+      "name": "Wilderness Medicine",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2400,
+      "y": 2700,
+      "next": [
+        102380
+      ],
+      "entries": [
+        {
+          "name": "Wilderness Medicine",
+          "icon": "ability_hunter_mendpet",
+          "spellId": 343242,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110157": {
+      "name": "Combat Experience",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 2700,
+      "next": [
+        102380,
+        102402
+      ],
+      "entries": [
+        {
+          "name": "Combat Experience",
+          "icon": "ability_hunter_combatexperience",
+          "spellId": 1268871,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109485": {
+      "name": "Improved Aspect of the Cheetah",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4800,
+      "y": 2700,
+      "next": [
+        102402,
+        102384
+      ],
+      "entries": [
+        {
+          "name": "Improved Aspect of the Cheetah",
+          "icon": "ability_mount_jungletiger",
+          "spellId": 1258407,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102407": {
+      "name": "Concussive Shot",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6000,
+      "y": 2700,
+      "next": [
+        102384
+      ],
+      "entries": [
+        {
+          "name": "Concussive Shot",
+          "icon": "spell_frost_stun",
+          "spellId": 5116,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102380": {
+      "name": "Precision Strikes",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 3300,
+      "next": [
+        109489,
+        102404
+      ],
+      "entries": [
+        {
+          "name": "Precision Strikes",
+          "icon": "inv12_ability_hunter_rupturingblow",
+          "spellId": 1267003,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102402": {
+      "name": "Counter Shot",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 3300,
+      "next": [
+        102404,
+        102395,
+        109484
+      ],
+      "entries": [
+        {
+          "name": "Counter Shot",
+          "icon": "inv_ammo_arrow_03",
+          "spellId": 147362,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102384": {
+      "name": "Serrated Tips",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 3300,
+      "next": [
+        109484,
+        102419
+      ],
+      "entries": [
+        {
+          "name": "Serrated Tips",
+          "icon": "inv_spear_01",
+          "spellId": 459502,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109489": {
+      "name": "Tranquilizing Shot",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2400,
+      "y": 3900,
+      "next": [
+        102415,
+        102425
+      ],
+      "entries": [
+        {
+          "name": "Tranquilizing Shot",
+          "icon": "spell_nature_drowsy",
+          "spellId": 19801,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102404": {
+      "name": "Pathfinding",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 3900,
+      "next": [
+        102425,
+        102396
+      ],
+      "entries": [
+        {
+          "name": "Pathfinding",
+          "icon": "ability_hunter_displacement",
+          "spellId": 378002,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102395": {
+      "name": "Disruptive Rounds",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 3900,
+      "next": [
+        102396,
+        102393,
+        109487
+      ],
+      "entries": [
+        {
+          "name": "Disruptive Rounds",
+          "icon": "hunter_pvp_vipersting",
+          "spellId": 343244,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109484": {
+      "name": "Improved Feign Death",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 4800,
+      "y": 3900,
+      "next": [
+        109487,
+        110156
+      ],
+      "entries": [
+        {
+          "name": "Improved Feign Death",
+          "icon": "ability_rogue_feigndeath",
+          "spellId": 1258486,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102419": {
+      "name": "Misdirection",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6000,
+      "y": 3900,
+      "next": [
+        110156,
+        102412
+      ],
+      "entries": [
+        {
+          "name": "Misdirection",
+          "icon": "ability_hunter_misdirection",
+          "spellId": 34477,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102415": {
+      "name": "Kodo Tranquilizer / Devilsaur Tranquilizer",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2400,
+      "y": 4500,
+      "next": [
+        102424
+      ],
+      "entries": [
+        {
+          "name": "Kodo Tranquilizer",
+          "icon": "ability_mount_kodo_03",
+          "spellId": 459983,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Devilsaur Tranquilizer",
+          "icon": "ability_hunter_pet_devilsaur",
+          "spellId": 459991,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102425": {
+      "name": "Kindling Flare",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 4500,
+      "next": [
+        102424
+      ],
+      "entries": [
+        {
+          "name": "Kindling Flare",
+          "icon": "achievment_raid_houroftwilight",
+          "spellId": 459506,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102396": {
+      "name": "Trigger Finger",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 4500,
+      "next": [
+        102424,
+        102390
+      ],
+      "entries": [
+        {
+          "name": "Trigger Finger",
+          "icon": "inv_10_engineering2_pvpflaregun_color1",
+          "spellId": 459534,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102393": {
+      "name": "Tar Trap / Scare Beast",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 4500,
+      "next": [
+        102390
+      ],
+      "entries": [
+        {
+          "name": "Tar Trap",
+          "icon": "spell_yorsahj_bloodboil_black",
+          "spellId": 187698,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Scare Beast",
+          "icon": "ability_druid_cower",
+          "spellId": 1513,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109487": {
+      "name": "Touch of Grass",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 4800,
+      "y": 4500,
+      "next": [
+        102390,
+        109483
+      ],
+      "entries": [
+        {
+          "name": "Touch of Grass",
+          "icon": "inv12_ability_druid_lifetreading",
+          "spellId": 1258402,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110156": {
+      "name": "Camouflage",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 4500,
+      "next": [
+        109483
+      ],
+      "entries": [
+        {
+          "name": "Camouflage",
+          "icon": "ability_hunter_camouflage",
+          "spellId": 199483,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102412": {
+      "name": "No Hard Feelings",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6000,
+      "y": 4500,
+      "next": [
+        109483
+      ],
+      "entries": [
+        {
+          "name": "No Hard Feelings",
+          "icon": "ability_seal",
+          "spellId": 459546,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102424": {
+      "name": "Improved Aspect of the Turtle",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 5100,
+      "next": [
+        110154,
+        103990,
+        102414
+      ],
+      "entries": [
+        {
+          "name": "Improved Aspect of the Turtle",
+          "icon": "ability_hunter_pet_turtle",
+          "spellId": 1258485,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102390": {
+      "name": "Specialized Arsenal",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 5100,
+      "next": [
+        102414,
+        102391,
+        109486
+      ],
+      "entries": [
+        {
+          "name": "Specialized Arsenal",
+          "icon": "inv_misc_quiver_03",
+          "spellId": 459542,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109483": {
+      "name": "Scout's Instincts",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 5100,
+      "next": [
+        109486,
+        109488,
+        110155
+      ],
+      "entries": [
+        {
+          "name": "Scout's Instincts",
+          "icon": "ability_rogue_sprint",
+          "spellId": 459455,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110154": {
+      "name": "Shell Wall",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2400,
+      "y": 5700,
+      "next": [
+        110153
+      ],
+      "entries": [
+        {
+          "name": "Shell Wall",
+          "icon": "inv_cape_special_turtleshell_c_01",
+          "spellId": 1267218,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103990": {
+      "name": "Intimidation",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 5700,
+      "next": [
+        110153,
+        102394,
+        102416
+      ],
+      "entries": [
+        {
+          "name": "Intimidation",
+          "icon": "artifactability_survivalhunter_eaglesbite",
+          "spellId": 474421,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102414": {
+      "name": "Improved Snaring",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 5700,
+      "next": [
+        102416
+      ],
+      "entries": [
+        {
+          "name": "Improved Snaring",
+          "icon": "inv_fishing_nethooks01",
+          "spellId": 1268868,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102391": {
+      "name": "Lone Survivor",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 5700,
+      "next": [
+        102416,
+        102409
+      ],
+      "entries": [
+        {
+          "name": "Lone Survivor",
+          "icon": "ability_hunter_huntervswild",
+          "spellId": 388039,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109486": {
+      "name": "Catlike Reflexes",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4800,
+      "y": 5700,
+      "next": [
+        102409
+      ],
+      "entries": [
+        {
+          "name": "Catlike Reflexes",
+          "icon": "ability_hunter_catlikereflexes",
+          "spellId": 1258404,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109488": {
+      "name": "Binding Shot",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 5700,
+      "next": [
+        102409,
+        110152,
+        102418
+      ],
+      "entries": [
+        {
+          "name": "Binding Shot",
+          "icon": "spell_shaman_bindelemental",
+          "spellId": 109248,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110155": {
+      "name": "Trailblazer / Moment of Opportunity",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6000,
+      "y": 5700,
+      "next": [
+        102418
+      ],
+      "entries": [
+        {
+          "name": "Trailblazer",
+          "icon": "ability_hunter_aspectmastery",
+          "spellId": 199921,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Moment of Opportunity",
+          "icon": "ability_karoz_leap",
+          "spellId": 459488,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110153": {
+      "name": "Cold Feet",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 2400,
+      "y": 6300,
+      "next": [
+        102389
+      ],
+      "entries": [
+        {
+          "name": "Cold Feet",
+          "icon": "ability_mage_icyfeet",
+          "spellId": 1268671,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102394": {
+      "name": "Territorial Instincts / Guttural Roar",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 6300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Territorial Instincts",
+          "icon": "spell_nature_shamanrage",
+          "spellId": 459507,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Guttural Roar",
+          "icon": "ability_druid_challangingroar",
+          "spellId": 1258509,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102416": {
+      "name": "Born To Be Wild",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 3600,
+      "y": 6300,
+      "next": [
+        102389,
+        110164
+      ],
+      "entries": [
+        {
+          "name": "Born To Be Wild",
+          "icon": "ability_hunter_aspectoftheviper",
+          "spellId": 266921,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102409": {
+      "name": "Keen Eyesight",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 4800,
+      "y": 6300,
+      "next": [
+        110164,
+        102387
+      ],
+      "entries": [
+        {
+          "name": "Keen Eyesight",
+          "icon": "ability_hunter_silenthunter",
+          "spellId": 378004,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110152": {
+      "name": "Tar-Coated Bindings / Horsehair Tether",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 6300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Tar-Coated Bindings",
+          "icon": "inv_misc_food_legion_goooil_pool",
+          "spellId": 459460,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Horsehair Tether",
+          "icon": "inv_misc_rope_01",
+          "spellId": 472729,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102418": {
+      "name": "Improved Traps",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 6000,
+      "y": 6300,
+      "next": [
+        102387
+      ],
+      "entries": [
+        {
+          "name": "Improved Traps",
+          "icon": "ability_hunter_traplauncher",
+          "spellId": 343247,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102389": {
+      "name": "Emergency Salve",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 3000,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Emergency Salve",
+          "icon": "inv_potion_29",
+          "spellId": 459517,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110164": {
+      "name": "Roar of Sacrifice / Guardian's Hide",
+      "g": "class",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 4200,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Roar of Sacrifice",
+          "icon": "ability_hunter_fervor",
+          "spellId": 53480,
+          "type": "active",
+          "subTreeId": null
+        },
+        {
+          "name": "Guardian's Hide",
+          "icon": "spell_druid_bristlingfur",
+          "spellId": 1272094,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "102387": {
+      "name": "Unnatural Causes",
+      "g": "class",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 5400,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Unnatural Causes",
+          "icon": "ability_hunter_potentvenom",
+          "spellId": 459527,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103982": {
+      "name": "Aimed Shot",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 1500,
+      "next": [
+        103961,
+        103977
+      ],
+      "entries": [
+        {
+          "name": "Aimed Shot",
+          "icon": "",
+          "spellId": 19434,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103961": {
+      "name": "Rapid Fire",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 2100,
+      "next": [
+        103975,
+        104127
+      ],
+      "entries": [
+        {
+          "name": "Rapid Fire",
+          "icon": "ability_hunter_efficiency",
+          "spellId": 257044,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103977": {
+      "name": "Precise Shots",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 2100,
+      "next": [
+        104127,
+        107289
+      ],
+      "entries": [
+        {
+          "name": "Precise Shots",
+          "icon": "ability_hunter_snipertraining",
+          "spellId": 260240,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103975": {
+      "name": "Quick Draw",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 2700,
+      "next": [
+        104130
+      ],
+      "entries": [
+        {
+          "name": "Quick Draw",
+          "icon": "ability_rogue_pistolshot",
+          "spellId": 459794,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "104127": {
+      "name": "Avian Specialization / Unbreakable Bond",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 2700,
+      "next": [
+        103986,
+        103964
+      ],
+      "entries": [
+        {
+          "name": "Avian Specialization",
+          "icon": "inv_111_hunter_ability_eyesinthesky",
+          "spellId": 466867,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Unbreakable Bond",
+          "icon": "ability_hunter_separationanxiety",
+          "spellId": 1223323,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "107289": {
+      "name": "Lock and Load",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 2700,
+      "next": [
+        103964,
+        103957
+      ],
+      "entries": [
+        {
+          "name": "Lock and Load",
+          "icon": "ability_hunter_lockandload",
+          "spellId": 194595,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "104130": {
+      "name": "Surging Shots",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11400,
+      "y": 3300,
+      "next": [
+        103959,
+        110572
+      ],
+      "entries": [
+        {
+          "name": "Surging Shots",
+          "icon": "ability_hunter_resistanceisfutile",
+          "spellId": 391559,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103986": {
+      "name": "Tenacious / Cunning",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 3300,
+      "next": [
+        110572
+      ],
+      "entries": [
+        {
+          "name": "Tenacious",
+          "icon": "ability_druid_demoralizingroar",
+          "spellId": 474456,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Cunning",
+          "icon": "ability_eyeoftheowl",
+          "spellId": 474440,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103964": {
+      "name": "Penetrating Shots",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 3300,
+      "next": [
+        110572,
+        110575,
+        103947
+      ],
+      "entries": [
+        {
+          "name": "Penetrating Shots",
+          "icon": "achievement_guildperk_reinforce_rank2",
+          "spellId": 459783,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103957": {
+      "name": "Trick Shots / Aspect of the Hydra",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 3300,
+      "next": [
+        110575,
+        107288
+      ],
+      "entries": [
+        {
+          "name": "Trick Shots",
+          "icon": "inv_trickshot",
+          "spellId": 257621,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Aspect of the Hydra",
+          "icon": "inv_111_hunter_ability_doubleknock",
+          "spellId": 470945,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103959": {
+      "name": "Obsidian Arrowhead / On Target",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10800,
+      "y": 3900,
+      "next": [
+        109490
+      ],
+      "entries": [
+        {
+          "name": "Obsidian Arrowhead",
+          "icon": "ability_theblackarrow",
+          "spellId": 471350,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "On Target",
+          "icon": "ability_hunter_blindingshot",
+          "spellId": 471348,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110572": {
+      "name": "No Scope",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 3900,
+      "next": [
+        109490,
+        103947,
+        103985
+      ],
+      "entries": [
+        {
+          "name": "No Scope",
+          "icon": "inv_eng_crowsnestscope",
+          "spellId": 473385,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110575": {
+      "name": "Explosive Shot",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 3900,
+      "next": [
+        103947,
+        110573,
+        110574
+      ],
+      "entries": [
+        {
+          "name": "Explosive Shot",
+          "icon": "ability_hunter_explosiveshot",
+          "spellId": 212431,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "107288": {
+      "name": "Light Ammo",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14400,
+      "y": 3900,
+      "next": [
+        103955
+      ],
+      "entries": [
+        {
+          "name": "Light Ammo",
+          "icon": "ships_ability_armorpiercingammo",
+          "spellId": 378913,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109490": {
+      "name": "Kill Shot",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11400,
+      "y": 4500,
+      "next": [
+        109491,
+        110688,
+        103985
+      ],
+      "entries": [
+        {
+          "name": "Kill Shot",
+          "icon": "ability_hunter_assassinate2",
+          "spellId": 53351,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103947": {
+      "name": "Trueshot",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 4500,
+      "next": [
+        103985,
+        103984,
+        103974
+      ],
+      "entries": [
+        {
+          "name": "Trueshot",
+          "icon": "ability_trueshot",
+          "spellId": 288613,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110573": {
+      "name": "Tactical Reload / Unstable Trigger",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 4500,
+      "next": [
+        103974
+      ],
+      "entries": [
+        {
+          "name": "Tactical Reload",
+          "icon": "ability_ironmaidens_bombardment",
+          "spellId": 1301406,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Unstable Trigger",
+          "icon": "spell_sandexplosion",
+          "spellId": 473520,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110574": {
+      "name": "Precision Detonation",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 4500,
+      "next": [
+        103974,
+        110691,
+        103978
+      ],
+      "entries": [
+        {
+          "name": "Precision Detonation",
+          "icon": "ability_hunter_explosiveshot",
+          "spellId": 471369,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103955": {
+      "name": "Critical Precision",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14400,
+      "y": 4500,
+      "next": [
+        110691
+      ],
+      "entries": [
+        {
+          "name": "Critical Precision",
+          "icon": "ability_impalingbolt",
+          "spellId": 1277572,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109491": {
+      "name": "Deathblow",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10800,
+      "y": 5100,
+      "next": [
+        103950
+      ],
+      "entries": [
+        {
+          "name": "Deathblow",
+          "icon": "ability_hunter_runningshot",
+          "spellId": 343248,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110688": {
+      "name": "Deadeye",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 11400,
+      "y": 5100,
+      "next": [
+        103950
+      ],
+      "entries": [
+        {
+          "name": "Deadeye",
+          "icon": "spell_hunter_focusingshot",
+          "spellId": 321460,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103985": {
+      "name": "Bullseye",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 5100,
+      "next": [
+        103950
+      ],
+      "entries": [
+        {
+          "name": "Bullseye",
+          "icon": "ability_hunter_focusedaim",
+          "spellId": 204089,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103984": {
+      "name": "Feathered Frenzy",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 5100,
+      "next": [
+        103958
+      ],
+      "entries": [
+        {
+          "name": "Feathered Frenzy",
+          "icon": "inv_111_hunter_ability_featheredfrenzy",
+          "spellId": 470943,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103974": {
+      "name": "Master Marksman",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 5100,
+      "next": [
+        103978
+      ],
+      "entries": [
+        {
+          "name": "Master Marksman",
+          "icon": "ability_hunter_mastermarksman",
+          "spellId": 260309,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110691": {
+      "name": "Eagle's Accuracy",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14400,
+      "y": 5100,
+      "next": [
+        103978
+      ],
+      "entries": [
+        {
+          "name": "Eagle's Accuracy",
+          "icon": "ability_hunter_silenthunter",
+          "spellId": 473369,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103950": {
+      "name": "Unmatched Precision",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 11400,
+      "y": 5700,
+      "next": [
+        103987,
+        103962
+      ],
+      "entries": [
+        {
+          "name": "Unmatched Precision",
+          "icon": "hunter_pvp_snipershot",
+          "spellId": 1232955,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103958": {
+      "name": "Calling the Shots / Unerring Vision",
+      "g": "spec",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 5700,
+      "next": [
+        103962,
+        103966,
+        103956
+      ],
+      "entries": [
+        {
+          "name": "Calling the Shots",
+          "icon": "ability_hunter_assassinate",
+          "spellId": 260404,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Unerring Vision",
+          "icon": "spell_hunter_exoticmunitions_frozen",
+          "spellId": 474738,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103978": {
+      "name": "Small Game Hunter",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 2,
+      "subTreeId": null,
+      "free": false,
+      "x": 13800,
+      "y": 5700,
+      "next": [
+        103956,
+        103979
+      ],
+      "entries": [
+        {
+          "name": "Small Game Hunter",
+          "icon": "inv_rabbit2_darkmoon",
+          "spellId": 459802,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103987": {
+      "name": "Focused Aim",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10800,
+      "y": 6300,
+      "next": [
+        103952
+      ],
+      "entries": [
+        {
+          "name": "Focused Aim",
+          "icon": "inv_engineering_snipingscope",
+          "spellId": 378767,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103962": {
+      "name": "Bulletstorm",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 6300,
+      "next": [
+        107290
+      ],
+      "entries": [
+        {
+          "name": "Bulletstorm",
+          "icon": "ability_hunter_markedshot",
+          "spellId": 389019,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103966": {
+      "name": "Tensile Bowstring",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 6300,
+      "next": [],
+      "entries": [
+        {
+          "name": "Tensile Bowstring",
+          "icon": "inv_archaeology_70_tauren_stonewoodbow",
+          "spellId": 471366,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103956": {
+      "name": "Volley",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 6300,
+      "next": [
+        103960
+      ],
+      "entries": [
+        {
+          "name": "Volley",
+          "icon": "ability_hunter_rapidkilling",
+          "spellId": 260243,
+          "type": "active",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103979": {
+      "name": "Focus Fire",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14400,
+      "y": 6300,
+      "next": [
+        104095
+      ],
+      "entries": [
+        {
+          "name": "Focus Fire",
+          "icon": "ability_hunter_focusfire",
+          "spellId": 1277546,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103952": {
+      "name": "Windrunner Quiver",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 10800,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Windrunner Quiver",
+          "icon": "inv_quiver_1h_hunter_c_01_green",
+          "spellId": 473523,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "107290": {
+      "name": "Accuracy By Volume",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 12000,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Accuracy By Volume",
+          "icon": "inv12_ability_hunter_fierymunitions",
+          "spellId": 471428,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "103960": {
+      "name": "Salvo",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 13200,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Salvo",
+          "icon": "spell_hunter_exoticmunitions_incendiary",
+          "spellId": 400456,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "104095": {
+      "name": "Unload",
+      "g": "spec",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 14400,
+      "y": 6900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Unload",
+          "icon": "ability_hunter_efficiency_brown",
+          "spellId": 1277548,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110430": {
+      "name": "Take Aim / Take Aim / Take Aim",
+      "g": "spec",
+      "type": "tiered",
+      "maxRanks": 4,
+      "subTreeId": null,
+      "free": false,
+      "x": 12600,
+      "y": 7650,
+      "next": [],
+      "entries": [
+        {
+          "name": "Take Aim",
+          "icon": "inv12_apextalent_hunter_deadlyinsight",
+          "spellId": 1273132,
+          "type": "tierrank",
+          "subTreeId": null
+        },
+        {
+          "name": "Take Aim",
+          "icon": "ability_hunter_wildquiver",
+          "spellId": 1273129,
+          "type": "tierrank",
+          "subTreeId": null
+        },
+        {
+          "name": "Take Aim",
+          "icon": "inv_spear_07",
+          "spellId": 1273128,
+          "type": "tierrank",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94987": {
+      "name": "Black Arrow",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 44,
+      "free": true,
+      "x": 8100,
+      "y": 1200,
+      "next": [
+        94961,
+        94968,
+        94974,
+        109801
+      ],
+      "entries": [
+        {
+          "name": "Black Arrow",
+          "icon": "inv_ability_darkrangerhunter_blackarrow",
+          "spellId": 466932,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94976": {
+      "name": "Sentinel",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 42,
+      "free": true,
+      "x": 8100,
+      "y": 1500,
+      "next": [
+        94989,
+        94973,
+        94981,
+        109807
+      ],
+      "entries": [
+        {
+          "name": "Sentinel",
+          "icon": "inv_ability_sentinelhunter_lunarstorm",
+          "spellId": 1253599,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94961": {
+      "name": "Bleak Arrows",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 44,
+      "free": false,
+      "x": 7200,
+      "y": 1800,
+      "next": [
+        94986
+      ],
+      "entries": [
+        {
+          "name": "Bleak Arrows",
+          "icon": "inv_quiver_1h_mawraid_d_01",
+          "spellId": 467749,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94968": {
+      "name": "Soul Drinker",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 44,
+      "free": false,
+      "x": 7800,
+      "y": 1800,
+      "next": [
+        94959
+      ],
+      "entries": [
+        {
+          "name": "Soul Drinker",
+          "icon": "ability_warlock_soulsiphon",
+          "spellId": 469638,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94974": {
+      "name": "Bleak Powder",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 44,
+      "free": false,
+      "x": 8400,
+      "y": 1800,
+      "next": [
+        94960
+      ],
+      "entries": [
+        {
+          "name": "Bleak Powder",
+          "icon": "inv_misc_powder_tin",
+          "spellId": 467911,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109801": {
+      "name": "Corpsecaller",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 44,
+      "free": false,
+      "x": 9000,
+      "y": 1800,
+      "next": [
+        109800
+      ],
+      "entries": [
+        {
+          "name": "Corpsecaller",
+          "icon": "ability_fiegndead",
+          "spellId": 1264289,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94989": {
+      "name": "Don't Look Back",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 42,
+      "free": false,
+      "x": 7200,
+      "y": 2100,
+      "next": [
+        94958
+      ],
+      "entries": [
+        {
+          "name": "Don't Look Back",
+          "icon": "ability_racial_forceshield",
+          "spellId": 450373,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94973": {
+      "name": "Moon's Blessing",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 42,
+      "free": false,
+      "x": 7800,
+      "y": 2100,
+      "next": [
+        94990
+      ],
+      "entries": [
+        {
+          "name": "Moon's Blessing",
+          "icon": "spell_druid_lunarinspiration",
+          "spellId": 1253825,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94981": {
+      "name": "Sanctified Armaments",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 42,
+      "free": false,
+      "x": 8400,
+      "y": 2100,
+      "next": [
+        94971
+      ],
+      "entries": [
+        {
+          "name": "Sanctified Armaments",
+          "icon": "inv_polearm_2h_arakkoa_c_01",
+          "spellId": 1253831,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109807": {
+      "name": "Moonlight Chakram",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 42,
+      "free": false,
+      "x": 9000,
+      "y": 2100,
+      "next": [
+        110028
+      ],
+      "entries": [
+        {
+          "name": "Moonlight Chakram",
+          "icon": "inv_ability_hunter_deathchakram",
+          "spellId": 1264902,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94986": {
+      "name": "Ebon Bowstring / Through the Eyes",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 44,
+      "free": false,
+      "x": 7200,
+      "y": 2400,
+      "next": [
+        94983
+      ],
+      "entries": [
+        {
+          "name": "Ebon Bowstring",
+          "icon": "inv_10_tailoring_craftingoptionalreagent_enhancedspellthread_color4",
+          "spellId": 467897,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Through the Eyes",
+          "icon": "ability_cheapshot",
+          "spellId": 1277565,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94959": {
+      "name": "Smoke Screen",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 44,
+      "free": false,
+      "x": 7800,
+      "y": 2400,
+      "next": [
+        94957
+      ],
+      "entries": [
+        {
+          "name": "Smoke Screen",
+          "icon": "spell_warlock_demonsoul",
+          "spellId": 430709,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94960": {
+      "name": "Dark Chains / Shadow Dagger",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 44,
+      "free": false,
+      "x": 8400,
+      "y": 2400,
+      "next": [
+        94982
+      ],
+      "entries": [
+        {
+          "name": "Dark Chains",
+          "icon": "inv_belt_44c",
+          "spellId": 430712,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Shadow Dagger",
+          "icon": "ability_throw",
+          "spellId": 467741,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109800": {
+      "name": "Wailing Dead",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 44,
+      "free": false,
+      "x": 9000,
+      "y": 2400,
+      "next": [
+        109799
+      ],
+      "entries": [
+        {
+          "name": "Wailing Dead",
+          "icon": "ability_deathknight_summongargoyle",
+          "spellId": 1264290,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94958": {
+      "name": "Stargazer / Open Fire",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 42,
+      "free": false,
+      "x": 7200,
+      "y": 2700,
+      "next": [
+        94970
+      ],
+      "entries": [
+        {
+          "name": "Stargazer",
+          "icon": "icon_7fx_nightborn_astromancer_blue",
+          "spellId": 1253751,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Open Fire",
+          "icon": "spell_fire_flare",
+          "spellId": 1253807,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94990": {
+      "name": "Can't Miss, Won't Miss",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 42,
+      "free": false,
+      "x": 7800,
+      "y": 2700,
+      "next": [
+        94965
+      ],
+      "entries": [
+        {
+          "name": "Can't Miss, Won't Miss",
+          "icon": "ability_hunter_aimedshot",
+          "spellId": 1253830,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94971": {
+      "name": "Invigorating Pulse",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 42,
+      "free": false,
+      "x": 8400,
+      "y": 2700,
+      "next": [
+        94980
+      ],
+      "entries": [
+        {
+          "name": "Invigorating Pulse",
+          "icon": "ability_mage_netherwindpresence",
+          "spellId": 450379,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "110028": {
+      "name": "Twilight Requiem / Stalk and Strike",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 42,
+      "free": false,
+      "x": 9000,
+      "y": 2700,
+      "next": [
+        109805
+      ],
+      "entries": [
+        {
+          "name": "Twilight Requiem",
+          "icon": "spell_nature_moonglow",
+          "spellId": 1264904,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Stalk and Strike",
+          "icon": "ability_ambush",
+          "spellId": 1266069,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94983": {
+      "name": "Blighted Quiver",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 44,
+      "free": false,
+      "x": 7200,
+      "y": 3000,
+      "next": [
+        94993
+      ],
+      "entries": [
+        {
+          "name": "Blighted Quiver",
+          "icon": "inv_quiver_1h_sylvanas_d_01",
+          "spellId": 1264291,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94957": {
+      "name": "Banshee's Mark / The Bell Tolls",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 44,
+      "free": false,
+      "x": 7800,
+      "y": 3000,
+      "next": [
+        94993
+      ],
+      "entries": [
+        {
+          "name": "Banshee's Mark",
+          "icon": "achievement_leader_sylvanas",
+          "spellId": 467902,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "The Bell Tolls",
+          "icon": "spell_shadow_animatedead",
+          "spellId": 467644,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94982": {
+      "name": "Umbral Reach",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 44,
+      "free": false,
+      "x": 8400,
+      "y": 3000,
+      "next": [
+        94993
+      ],
+      "entries": [
+        {
+          "name": "Umbral Reach",
+          "icon": "spell_deathknight_strangulate",
+          "spellId": 1235397,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109799": {
+      "name": "Pact of the Hollow",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 44,
+      "free": false,
+      "x": 9000,
+      "y": 3000,
+      "next": [
+        94993
+      ],
+      "entries": [
+        {
+          "name": "Pact of the Hollow",
+          "icon": "ability_creature_cursed_03",
+          "spellId": 1264690,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94970": {
+      "name": "Arcane Talons",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 42,
+      "free": false,
+      "x": 7200,
+      "y": 3300,
+      "next": [
+        94978
+      ],
+      "entries": [
+        {
+          "name": "Arcane Talons",
+          "icon": "inv_10_specialreagentfoozles_tuskclaw_ice",
+          "spellId": 1253846,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94965": {
+      "name": "Lunar Calling",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 42,
+      "free": false,
+      "x": 7800,
+      "y": 3300,
+      "next": [
+        94978
+      ],
+      "entries": [
+        {
+          "name": "Lunar Calling",
+          "icon": "ability_hunter_sentinelowl",
+          "spellId": 1253852,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94980": {
+      "name": "Conditioning / Scout's Vigil",
+      "g": "hero",
+      "type": "choice",
+      "maxRanks": 1,
+      "subTreeId": 42,
+      "free": false,
+      "x": 8400,
+      "y": 3300,
+      "next": [
+        94978
+      ],
+      "entries": [
+        {
+          "name": "Conditioning",
+          "icon": "ability_racial_runningwild",
+          "spellId": 1253887,
+          "type": "passive",
+          "subTreeId": null
+        },
+        {
+          "name": "Scout's Vigil",
+          "icon": "sha_ability_rogue_bloodyeye",
+          "spellId": 1253892,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "109805": {
+      "name": "Radiant Edge",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 42,
+      "free": false,
+      "x": 9000,
+      "y": 3300,
+      "next": [
+        94978
+      ],
+      "entries": [
+        {
+          "name": "Radiant Edge",
+          "icon": "inv_misc_nightelfglaive",
+          "spellId": 1264903,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94993": {
+      "name": "Withering Fire",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 44,
+      "free": false,
+      "x": 8100,
+      "y": 3600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Withering Fire",
+          "icon": "spell_shadow_painspike",
+          "spellId": 466990,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "94978": {
+      "name": "Lunar Storm",
+      "g": "hero",
+      "type": "single",
+      "maxRanks": 1,
+      "subTreeId": 42,
+      "free": false,
+      "x": 8100,
+      "y": 3900,
+      "next": [],
+      "entries": [
+        {
+          "name": "Lunar Storm",
+          "icon": "artifactability_balancedruid_moonandstars",
+          "spellId": 1253732,
+          "type": "passive",
+          "subTreeId": null
+        }
+      ]
+    },
+    "99831": {
+      "name": "Dark Ranger / Sentinel",
+      "g": "sub",
+      "type": "subtree",
+      "maxRanks": 1,
+      "subTreeId": null,
+      "free": false,
+      "x": 8100,
+      "y": 600,
+      "next": [],
+      "entries": [
+        {
+          "name": "Dark Ranger",
+          "icon": "talents-heroclass-hunter-darkranger",
+          "spellId": 0,
+          "type": "subtree",
+          "subTreeId": 44
+        },
+        {
+          "name": "Sentinel",
+          "icon": "talents-heroclass-hunter-sentinel",
+          "spellId": 0,
+          "type": "subtree",
+          "subTreeId": 42
+        }
+      ]
+    }
   }
 }
