@@ -5,7 +5,7 @@ description: Why the simcBis baseline gear can legitimately differ from the spec
 
 # simc Baseline vs Page Gear (Accepted Divergence)
 
-simcBis's baseline (the base actor built in `build_profile`) is the most-popular **legal** gear combo. `set_is_valid` (`backend_scripts/simcBis.py`, line 748) enforces equip limits: at most 2 embellishments (itemLimit category 512), unique-equipped, other itemLimit categories.
+simcBis's baseline (the base actor built in `build_profile`) is the most-popular **legal** gear combo. `set_is_valid` (`backend_scripts/simcBis.py`) enforces equip limits: at most 2 embellishments (itemLimit category 512), unique-equipped, other itemLimit categories.
 
 The spec page (`generateSpecPages.py` `fetch_slot_info` + template) instead shows the most-popular item **per slot independently**, with NO global equip-limit enforcement, so the page can display an illegal set.
 

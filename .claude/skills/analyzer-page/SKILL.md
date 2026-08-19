@@ -16,6 +16,6 @@ The analyzer (`assets/js/analyzer.js`, page built by `backend_scripts/generateAn
 
 ## Gear/Talents card sync (accepted tradeoff, do NOT "fix")
 - Gear (`col-xl-5`) and Talents (`col-xl-7`) must flip to narrow layout at the SAME width. Per-card container queries can't fire together on an unequal 5/7 split, so `assets/css/analyzer.css` drives BOTH off the single shared container `#analyzer-results` (`container-name: an-results`), stacking at `@container an-results (max-width: 1260px)`. `.an-col` is `flex: 1 1 0`.
-- Consequence: the fully-wide state only appears on large monitors (results ≥1260px). User confirmed 2026-08-17 and rejected the 6/6 and lower-threshold alternatives. Do NOT re-pitch this as a bug.
+- Consequence: the fully-wide state only appears on large monitors (results ≥1260px). This is an accepted tradeoff; the 6/6 split and lower thresholds are deliberately not used. Do NOT re-pitch this as a bug.
 
 Discord `/analyze` deliberately does NOT decode talents; it links to the website. See [[top-trends-bar]], [[spec-page-performance]].

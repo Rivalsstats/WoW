@@ -5,8 +5,8 @@ description: Blizzard's season API lists a phantom pre-season period ending exac
 
 # Blizzard Pre-Season Period Quirk
 
-Blizzard's mythic-keystone season details API includes the period that *ends exactly at the season start* (season 17: period 1055 in all regions). It has zero runs, so tables/queries that derive week numbers from `season_periods` counted a phantom "week 1" while ordinal-position-based views (aggregated_key_throughput, the "Key Throughput" chart) did not. The dashboard's "Keys per Week" started at Week 2 versus Week 1 on keys/min.
+Blizzard's mythic-keystone season details API includes the period that *ends exactly at the season start* (for example season 17's period 1055 in all regions). It has zero runs. Left in place, tables and queries that derive week numbers from `season_periods` count a phantom "week 1" while ordinal-position-based views (`aggregated_key_throughput`, the "Key Throughput" chart) do not, so the week axes disagree by one (the dashboard's "Keys per Week" would start at Week 2 against Week 1 on keys/min).
 
-Since 2026-07-19, `backend_scripts/fetchSeasonAndPeriodInfo.py` skips periods where `end_timestamp <= season_start` (verified around line 182, applied both to `periods.json` and the `season_periods` insert via `databaseConnector.insert_season_periods`). A one-time migration `2026-07-19_remove_preseason_periods.sql` deleted the already-inserted season-17 row.
+`backend_scripts/fetchSeasonAndPeriodInfo.py` skips periods where `end_timestamp <= season_start`, applied both to `periods.json` and to the `season_periods` insert via `databaseConnector.insert_season_periods`. Patch annotations index into the filtered `periods.json`, so all three week axes agree.
 
-Patch annotations index into the filtered `periods.json`, so all three week axes agree. If week numbering ever looks off by one again at a new season, check for this quirk first. Note the keys-per-week SQL also silently drops any zero-run week, which would compress its axis.
+If week numbering ever looks off by one at a new season, check for this quirk first. Note the keys-per-week SQL also silently drops any zero-run week, which would compress its axis.

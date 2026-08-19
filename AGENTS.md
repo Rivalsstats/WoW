@@ -120,6 +120,14 @@ transfer across machines or tools; only in-repo notes do.
   > While working this task I found that X and Y, we confirmed Z, and changed Z2. Would you like me
   > to record this knowledge in the knowledgebase?
 
+- **State only the current truth, never history.** Skills and this file describe how the project
+  works *right now* and what caveats exist *right now*. Do not write "this used to work like X and we
+  changed it to Y", changelog entries, migration notes, or dated "verified/changed on <date>" lines.
+  When something changes, edit the affected notes so they read as if the new behavior was always the
+  behavior, and delete any prose that only existed to contrast against the old way.
+- **No line-number references.** Never anchor a note to a line ("around line 182", "line 20"). Lines
+  shift and the reference rots into noise. Identify code by stable names instead: file, function,
+  proc, SQL constant, class, or CSS selector.
 - **Skip the ask entirely when there is nothing new to record:** planning-only work that changed
   nothing, or a bug / wrong behavior whose mechanics are **already documented** in the knowledgebase.
 - **Gauge "new" against the knowledgebase, not the code.** Something is worth offering to record when

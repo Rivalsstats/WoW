@@ -9,7 +9,7 @@ Both simc builds ship a **validated** binary/image, not the raw tip of simc's `m
 
 Two design errors from the first (broken) gate, both worth remembering:
 
-1. **`iterations=1 max_time=1` is not a gate.** It only catches static action creation. Some spells e.g. `army_ghoul` lives on a dynamically-spawned pet whose actions are created at summon time, so a 1-second fight never reaches it. `validateSimc.sh` now runs real fights at both production shapes (`desired_targets=1 max_time=180` and `desired_targets=8 max_time=60`) at `iterations=5`.
+1. **`iterations=1 max_time=1` is not a gate.** It only catches static action creation. Some spells e.g. `army_ghoul` lives on a dynamically-spawned pet whose actions are created at summon time, so a 1-second fight never reaches it. `validateSimc.sh` runs real fights at both production shapes (`desired_targets=1 max_time=180` and `desired_targets=8 max_time=60`) at `iterations=5`.
 2. **Hand-rolled smoke profiles need gear.** Bare actors with no gear or weapon hard-fail init. Both gates now use simc's own `profiles/CI.simc` (actors carry `load_default_gear=1`), self-contained and covering all simmed specs.
 
 **A broken spec can DEADLOCK rather than exit 50.** Every simc invocation (sim legs AND validation) is wrapped in `timeout`; exit 124/137 is a failed candidate, not infra error. Sim legs normally take 2-7 min.
