@@ -598,7 +598,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install jinja2 pillow mysql-connector-python
+          pip install jinja2 pillow mysql-connector-python rcssmin rjsmin
 
       - name: Download generated site
         uses: actions/download-artifact@v4
@@ -637,6 +637,14 @@ jobs:
             cp social-images/*.png _site/data/social/
           fi
           cp index.html 404.html robots.txt sitemap.xml llms.txt _site/
+
+      # Minify first-party CSS/JS in place inside _site. Templates keep pointing at
+      # the readable source path; only the deployed copy is minified. Vendor *.min.*
+      # files and source maps are left untouched (see backend_scripts/minifyAssets.py).
+      - name: Minify first-party assets
+        run: |
+          set -e
+          python backend_scripts/minifyAssets.py _site/assets
 
       # Skipped for a season_override run: that build renders the OUTGOING season
       # and must only reach the archive, never the live site.
