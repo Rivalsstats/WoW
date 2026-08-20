@@ -1006,8 +1006,9 @@ def build_spec_meta_json(
                 "quality": info.get("quality"),
             }
             if is_enchant:
-                # Wowhead tooltip/link for the enchant is via its scroll itemId.
-                entry["itemId"] = info.get("itemId")
+                # Wowhead tooltip/link for the enchant: its scroll itemId, or its
+                # spellId for runes/enchants with no scroll item (DK weapon runes).
+                entry.update(_enchant_link_fields(info))
             entries.append((entry, info))
         if not entries:
             return None
@@ -1065,6 +1066,22 @@ def build_spec_meta_json(
     return meta
 
 
+def _enchant_link_fields(info):
+    """Wowhead link fields baked onto an enchant: its scroll ``itemId`` and/or its
+    ``spellId``. Normal enchants have a scroll item; DK weapon runes have only a
+    spellId (no scroll item). Baking both lets the client link the enchant itself
+    (item=<scroll> or spell=<rune>), never item=<enchant_id>, which collides with
+    an unrelated item. Shared by both the combo entries and the gem/enchant index
+    so the pair never diverges. None-valued keys are omitted.
+    """
+    out = {}
+    if info.get("itemId") is not None:
+        out["itemId"] = info["itemId"]
+    if info.get("spellId") is not None:
+        out["spellId"] = info["spellId"]
+    return out
+
+
 def write_analyzer_gem_enchant_index(enchant_lookup_all):
     """Bake a spec-independent gem/enchant icon+name index for analyzer.js.
 
@@ -1095,12 +1112,7 @@ def write_analyzer_gem_enchant_index(enchant_lookup_all):
             if eid is None:
                 continue
             entry = {"name": name, "icon": icon, "quality": quality}
-            if e.get("itemId") is not None:
-                entry["itemId"] = e["itemId"]
-            if e.get("spellId") is not None:
-                # Fallback Wowhead ref for enchants with no scroll item, so the
-                # client never links an enchant_id as if it were an item id.
-                entry["spellId"] = e["spellId"]
+            entry.update(_enchant_link_fields(e))
             enchants[str(eid)] = entry
     out_dir = os.path.join("assets", "json")
     os.makedirs(out_dir, exist_ok=True)

@@ -514,6 +514,25 @@
       (extra || "") + "</a>";
   }
 
+  // The single place that turns an enchant into a Wowhead ref. Prefer the
+  // enchanting scroll item, else the enchant/rune spell (DK weapon runes have no
+  // scroll item, only a spellId), else the raw enchant id as a last resort. Never
+  // link item=<enchant_id>: that number collides with an unrelated item and gives
+  // a useless tooltip. `eid` is the SimC enchant_id; `einfo` is the combo entry or
+  // catalog entry that may carry itemId/spellId. gxIndex backfills either field so
+  // a combo entry missing one still resolves via the full enchant catalog. Every
+  // enchant render site routes through here so the itemId-else-spellId decision
+  // lives in exactly one place.
+  function enchantRef(eid, einfo) {
+    einfo = einfo || {};
+    var cat = gxIndex.enchants[eid] || {};
+    var itemId = einfo.itemId != null ? einfo.itemId : cat.itemId;
+    var spellId = einfo.spellId != null ? einfo.spellId : cat.spellId;
+    return itemId ? "item=" + itemId
+      : spellId ? "spell=" + spellId
+      : "item=" + eid;
+  }
+
   // Gems and enchants are scored against the single most-popular top-50 combo
   // (a multiset baked into meta.gem_combo / meta.enchant_combo). The combo is a
   // per-id quantity *budget*: a socketed gem / applied enchant is OK while its
@@ -589,7 +608,7 @@
       var full = have >= e.qty;
       var partial = have > 0 && have < e.qty;
       total += e.qty; matched += Math.min(have, e.qty);
-      var whRef = isEnch && e.itemId ? "item=" + e.itemId : "item=" + e.id;
+      var whRef = isEnch ? enchantRef(e.id, e) : "item=" + e.id;
       // ×N shows the target count; on a partial entry the "have/need" badge
       // already carries it, so don't stack both.
       var qty = (e.qty > 1 && !partial) ? '<span class="combo-qty-badge">×' + e.qty + "</span>" : "";
@@ -1299,13 +1318,11 @@
           var est = classifyAgainstCombo(user.enchant, counts.enchants, enchBudget);
           if (est !== "ok") footIssue = true;
           // Combo entry first (carries qty context); otherwise the global enchant
-          // catalog so an off-combo enchant still shows its real icon/name. Link
-          // via the enchant's scroll itemId (or spellId) — NEVER item=<enchantId>,
-          // which resolves to an unrelated item that happens to share the number.
+          // catalog so an off-combo enchant still shows its real icon/name. enchantRef
+          // links via the scroll itemId or the rune/enchant spellId — NEVER
+          // item=<enchantId>, which resolves to an unrelated item.
           var einfo = enchInfo[user.enchant] || gxIndex.enchants[user.enchant] || { id: user.enchant };
-          var whRef = einfo.itemId ? "item=" + einfo.itemId
-            : einfo.spellId ? "spell=" + einfo.spellId
-            : "item=" + user.enchant;
+          var whRef = enchantRef(user.enchant, einfo);
           var etip = est === "ok" ? ((einfo.name || "Enchant") + " matches the top combo.")
             : est === "warn" ? "You use this enchant more times than the top players do."
             : "Off-combo enchant — not in the top players' set.";
