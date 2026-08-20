@@ -96,7 +96,7 @@ template uses.
 
 - **Fail loudly.** Missing data files or failed fetches must raise, never warn-and-continue.
 - **No git interaction.** Never run git write commands (`commit`, `push`, `add`, `reset`,
-  `checkout`, `merge`, `rebase`). The user commits and pushes. Read-only git is fine.
+  `checkout`, `merge`, `rebase`). You are not able to run the commands even with permission so never ask the user to run them. The user commits and pushes and decides when to do it. Read-only git is fine.
 - **User-facing copy.** No em dashes. Never end a sentence with a semicolon. Do not imply "most
   players pick X" for a minority or deviation pick.
 - **Vendor third-party assets manually.** The user downloads vendor JS/CSS themselves. Do not curl

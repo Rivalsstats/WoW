@@ -13,6 +13,7 @@ Never hand back page work that was only reasoned about. Render it against the lo
    - `python backend_scripts/generateDungeonPages.py --template templates/dungeon_page.html --output_dir dungeons`
    - `python backend_scripts/generateItemPages.py --template templates/items.html --output_dir pages --items_dir items`
    - `python backend_scripts/generateCompPage.py --template templates/comps.html --output_dir pages`
+   - `python backend_scripts/generateSpecPages.py --template templates/spec_page.html --output_dir classes` (add `--spec=252` to render just one spec; `--spec` takes a numeric spec id, NOT a class/spec token, so Unholy DK is `--spec=252`, not `--spec=unholy`. Passing a token silently matches nothing and renders no page.)
 
 3. Serve the repo root (pages use absolute `/assets/` paths) and inspect in the Browser pane: `python -m http.server 8899 --bind 127.0.0.1 &`, then `preview_start` `http://127.0.0.1:8899/<path>`. Confirm the cards you touched render with data and the console has no errors.
 
