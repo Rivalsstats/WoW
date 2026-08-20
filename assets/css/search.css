@@ -1,3 +1,18 @@
+/* Suppress the browser's native clear ("x") button on type="search" inputs so
+   only our own clear button (outside the field) is shown. */
+#site-search-input::-webkit-search-cancel-button,
+#site-search-input::-webkit-search-decoration,
+#page-search-input::-webkit-search-cancel-button,
+#page-search-input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+#site-search-input::-ms-clear,
+#page-search-input::-ms-clear {
+  display: none;
+}
+
 .result-icon {
   width: 48px;
   height: 48px;
