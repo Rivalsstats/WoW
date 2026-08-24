@@ -72,7 +72,7 @@
         {% if src %}
           {% for d in src.source_dungeons %}
           <a href="/dungeons/{{ d.slug }}" class="badge item-source-badge item-source-badge-dungeon"
-            data-bs-toggle="tooltip" data-bs-container="body" title="Drops from {{ d.name }}">{{ d.short }}</a>
+            data-bs-toggle="tooltip" data-bs-container="body" title="Drops from {{ d.name }}">{{ d.name }}</a>
           {% endfor %}
           {% for r in src.source_raids %}
           <span class="badge item-source-badge item-source-badge-raid" data-bs-toggle="tooltip" data-bs-container="body"

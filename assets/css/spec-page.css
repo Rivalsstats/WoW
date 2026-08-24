@@ -580,8 +580,8 @@ a.item-source-badge:hover {
   border-color: var(--mythi-text-success);
 }
 .item-source-badge-dungeon {
-  color: var(--mythi-text-info);
-  border-color: var(--mythi-text-info);
+  color: var(--mythi-text-primary);
+  border-color: var(--mythi-text-primary);
 }
 
 .item-secondary-icons {
