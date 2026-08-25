@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 import databaseConnector
+import commonUtils
 from pageGeneration import generateSpecNav, generateDungeonNav, build_item_slug_map, build_global_trends, build_source_lookups
 from generateSpecPages import (
     LOOKUP_DIR, load_json, load_season_info, BLIZZARD_STAT_MAP,
@@ -664,12 +665,18 @@ def build_payloads(season, ctx, only_item=None):
                 top_specs_by_item[str(iid)].append({"spec_id": int(sp), "pct": pct})
 
         # Most-used enchant per (spec, slot_group) and globally per slot_group.
+        # Same shared relevance filter the spec page uses: drop enchant ids absent
+        # from enchantments.json (deliberate old-enchant suppression) plus anything
+        # from a past expansion or incompatible with the slot_group it landed in.
+        current_expansion = commonUtils.current_expansion_id()
         ench_spec_sg = defaultdict(lambda: defaultdict(int))
         ench_spec_sg_total = defaultdict(int)
         ench_global_sg = defaultdict(lambda: defaultdict(int))
         ench_global_sg_total = defaultdict(int)
         for sp, sg, eid, rc in databaseConnector.fetch_enchant_slotgroup_usage(conn, cursor, season):
-            if eid is None or eid not in enchant_lookup:
+            if eid is None:
+                continue
+            if not commonUtils.is_enchant_relevant(enchant_lookup.get(eid), current_expansion, sg):
                 continue
             rc = int(rc)
             ench_spec_sg[(str(sp), sg)][eid] += rc

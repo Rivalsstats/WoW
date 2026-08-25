@@ -80,6 +80,15 @@ def current_season_id(lookup_dir=None):
     return int(load_season_info(lookup_dir)["blizzard_season_id"])
 
 
+def current_expansion_id(lookup_dir=None):
+    """Current WoW expansion id the build renders against, read offline from
+    seasonInfo.json (written by fetchSeasonAndPeriodInfo). Parallels current_season_id."""
+    exp = load_season_info(lookup_dir).get("expansion_id")
+    if exp is None:
+        raise ValueError("expansion_id missing from seasonInfo.json")
+    return int(exp)
+
+
 # Raidbots mirrors the live retail client build; the collector reads the current
 # expansion id off it instead of hardcoding a constant each expansion.
 RAIDBOTS_METADATA_URL = "https://www.raidbots.com/static/data/live/metadata.json"
@@ -142,6 +151,127 @@ def occupies_both_hands(item, spec_id=None):
     # itemSubClass is only a weapon type on itemClass 2 — on armor the same
     # numbers mean leather/mail, which must not be mistaken for a two-hander.
     return item.get("itemClass") == 2 and item.get("itemSubClass") in TWO_HAND_SUBCLASSES
+
+
+# --- enchant slot resolution + relevance filter -----------------------------
+# The spec page and the item page both read enchant usage as bare enchant ids
+# with no slot recorded, so the gear slot has to be recovered from the catalog's
+# ``equipRequirements`` (data/static/enchantments.json). Kept here so both pages
+# share one implementation and the relevance filter can never diverge between
+# them. Pure dict/int logic — no new dependency for this stdlib-only module.
+
+# Blizzard itemClass values seen on an enchant's `equipRequirements`.
+ENCHANT_CLASS_WEAPON = 2
+ENCHANT_CLASS_ARMOR = 4
+ENCHANT_CLASS_PROFESSION_TOOL = 19
+
+# Blizzard inventoryType -> display position matching the gear overview slot
+# order (LEFT_ORDER + RIGHT_ORDER + WEAPON_SLOTS + TRINKET_SLOTS, columns
+# flattened). Used to sort combo items the same way the overview lists slots.
+INVTYPE_DISPLAY_ORDER = {
+    1: 0,  # head
+    2: 1,  # neck
+    3: 2,  # shoulder
+    16: 3,  # back
+    5: 4,  # chest
+    20: 4,  # robe (chest)
+    9: 5,  # wrist
+    10: 6,  # hands
+    6: 7,  # waist
+    7: 8,  # legs
+    8: 9,  # feet
+    11: 10,  # finger
+    13: 11, 15: 11, 17: 11, 21: 11, 26: 11,  # main hand / two-hand / ranged
+    14: 12, 22: 12, 23: 12,  # off hand / shield / held in off-hand
+    12: 13,  # trinket
+}
+
+# Sorts anything we deliberately place after every gear slot (profession tools).
+NON_GEAR_DISPLAY_ORDER = 99
+
+# Bit index of an armor enchant's invTypeMask (the Blizzard inventoryType) -> the
+# slot_group token the page renders that enchant under. Weapon inventoryTypes all
+# collapse to WEAPON (main hand / off-hand are indistinguishable in the catalog
+# and an enchant on both weapons already collapses to a single tile).
+INVTYPE_ENCHANT_SLOT_GROUP = {
+    1: "HEAD", 2: "NECK", 3: "SHOULDER", 16: "BACK", 5: "CHEST", 20: "CHEST",
+    9: "WRIST", 10: "HANDS", 6: "WAIST", 7: "LEGS", 8: "FEET", 11: "FINGER",
+    12: "TRINKET",
+    13: "WEAPON", 15: "WEAPON", 17: "WEAPON", 21: "WEAPON", 25: "WEAPON",
+    26: "WEAPON", 14: "WEAPON", 22: "WEAPON", 23: "WEAPON",
+}
+
+# slot_group token -> gear-overview display position, derived from
+# INVTYPE_DISPLAY_ORDER so enchant_slot_pos (ordering) and enchant_slot_groups
+# (filtering) are computed from one source and cannot diverge.
+SLOT_GROUP_DISPLAY_POS = {}
+for _inv, _grp in INVTYPE_ENCHANT_SLOT_GROUP.items():
+    _pos = INVTYPE_DISPLAY_ORDER.get(_inv)
+    if _pos is not None:
+        SLOT_GROUP_DISPLAY_POS[_grp] = min(_pos, SLOT_GROUP_DISPLAY_POS.get(_grp, _pos))
+del _inv, _grp, _pos
+
+
+def enchant_slot_groups(record):
+    """Set of slot_group tokens this enchant's equipRequirements allow.
+    Empty set => not a gear-slot enchant (profession tool, gem/null reqs, or an
+    unknown catalog shape) => drops everywhere. Robust: never raises."""
+    req = (record or {}).get("equipRequirements") or {}
+    ic = req.get("itemClass")
+    if ic == ENCHANT_CLASS_WEAPON:
+        return {"WEAPON"}
+    if ic == ENCHANT_CLASS_ARMOR:
+        mask = int(req.get("invTypeMask") or 0)
+        return {INVTYPE_ENCHANT_SLOT_GROUP[b] for b in range(mask.bit_length())
+                if (mask >> b) & 1 and b in INVTYPE_ENCHANT_SLOT_GROUP}
+    return set()
+
+
+def is_enchant_relevant(record, current_expansion, slot_group):
+    """Show this catalog enchant under slot_group this expansion?
+    record is the enchantments.json entry, or None if the id was absent (=> drop,
+    preserving the existing 'not in enchantments.json' suppression)."""
+    if record is None:
+        return False
+    exp = record.get("expansion")
+    if exp is not None and int(exp) != int(current_expansion):
+        return False
+    return slot_group in enchant_slot_groups(record)
+
+
+def enchant_slot_pos(info, enchant_id=None):
+    """Gear-overview display position for an enchant, from enchantments.json.
+
+    Enchant comps are multisets of enchant ids with no slot recorded, so the
+    slot has to come from the catalog's ``equipRequirements``. For armor
+    enchants ``invTypeMask`` is a bitmask whose BIT INDEX is the Blizzard
+    inventoryType (bit 1 head, 3 shoulder, {5,20} chest/robe, 7 legs, 8 feet,
+    9 wrist, 11 finger, 16 back), so it maps straight through
+    INVTYPE_ENCHANT_SLOT_GROUP; the chest/robe pair collapses to one position.
+
+    Weapon enchants (itemClass 2, including death knight runes) carry mask 0 --
+    main hand and off-hand are indistinguishable in the catalog, and an enchant
+    on both weapons already collapses to a single "x2" tile, so they all take
+    the main-hand position.
+
+    Built on enchant_slot_groups so ordering and the relevance filter can never
+    disagree about which slot an enchant belongs to. Raises on anything else:
+    ids missing from enchantments.json are dropped by the callers before they
+    get here (deliberate old-enchant suppression), so a miss at this point means
+    the catalog grew a shape we don't model, and silently sorting it to the end
+    would just look like the ordering bug this replaces.
+    """
+    req = (info or {}).get("equipRequirements") or {}
+    if req.get("itemClass") == ENCHANT_CLASS_PROFESSION_TOOL:
+        return NON_GEAR_DISPLAY_ORDER
+    groups = enchant_slot_groups(info)
+    if groups:
+        return min(SLOT_GROUP_DISPLAY_POS[g] for g in groups)
+    raise ValueError(
+        f"enchant {enchant_id if enchant_id is not None else (info or {}).get('id')} "
+        f"has no known gear slot (itemClass={req.get('itemClass')!r}, "
+        f"invTypeMask={req.get('invTypeMask')!r}) - enchantments.json shape changed"
+    )
 
 
 # --- lazily loaded lookup tables --------------------------------------------

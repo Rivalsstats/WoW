@@ -201,7 +201,8 @@ def main():
             databaseConnector.commit_changes(conn)
         all_regions_data[region] = {"season_id": season_id, "periods": region_periods}
 
-    season_info = fetch_rio_season(commonUtils.derive_expansion_id())
+    expansion_id = commonUtils.derive_expansion_id()
+    season_info = fetch_rio_season(expansion_id)
     print(season_info)
     CURRENT_SEASON = None
     max_season_id = max(s.get("blizzard_season_id", 0) for s in season_info)
@@ -245,6 +246,11 @@ def main():
         CURRENT_SEASON["name"] = extracted
     except Exception as e:
         print(f"Failed to fetch/parse Blizzard season name: {e}")
+
+    # Expansion id the build renders against, read back offline by the page
+    # generators (commonUtils.current_expansion_id) to filter old-expansion
+    # enchants out of the gear lists. Parallels max_character_level below.
+    CURRENT_SEASON["expansion_id"] = expansion_id
 
     # current player max level (derived, not hardcoded) for downstream consumers
     # such as the SimulationCraft BiS collector.

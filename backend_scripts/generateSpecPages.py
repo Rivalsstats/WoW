@@ -6,6 +6,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 import databaseConnector
 import compArchetypes
 import aggregateData
+import commonUtils
 from collections import defaultdict
 from datetime import datetime, timezone
 from contextlib import closing
@@ -36,6 +37,15 @@ from commonUtils import (
     format_duration,
     fetch_stat_info,
     stat_display_name,
+    # Enchant slot resolution now lives in commonUtils so the spec page and the
+    # item page share one implementation. Re-exported here for the modules that
+    # import these names from generateSpecPages.
+    ENCHANT_CLASS_WEAPON,
+    ENCHANT_CLASS_ARMOR,
+    ENCHANT_CLASS_PROFESSION_TOOL,
+    INVTYPE_DISPLAY_ORDER,
+    NON_GEAR_DISPLAY_ORDER,
+    enchant_slot_pos,
 )
 
 LEFT_ORDER = ["HEAD", "NECK", "SHOULDER", "BACK", "CHEST", "WRIST"]
@@ -105,79 +115,6 @@ TALENT_DIFF_DROP_MAX_PCT = 20.0
 # Hero-tree preference shifts per dungeon: a couple of tenths of a percent is
 # not a preference, so only shifts of this many points are worth a row.
 HERO_TREE_DIFF_MIN_PCT_POINTS = 5.0
-
-# Blizzard inventoryType -> display position matching the gear overview slot
-# order (LEFT_ORDER + RIGHT_ORDER + WEAPON_SLOTS + TRINKET_SLOTS, columns
-# flattened). Used to sort combo items the same way the overview lists slots.
-INVTYPE_DISPLAY_ORDER = {
-    1: 0,  # head
-    2: 1,  # neck
-    3: 2,  # shoulder
-    16: 3,  # back
-    5: 4,  # chest
-    20: 4,  # robe (chest)
-    9: 5,  # wrist
-    10: 6,  # hands
-    6: 7,  # waist
-    7: 8,  # legs
-    8: 9,  # feet
-    11: 10,  # finger
-    13: 11, 15: 11, 17: 11, 21: 11, 26: 11,  # main hand / two-hand / ranged
-    14: 12, 22: 12, 23: 12,  # off hand / shield / held in off-hand
-    12: 13,  # trinket
-}
-
-# Sorts anything we deliberately place after every gear slot (profession tools).
-NON_GEAR_DISPLAY_ORDER = 99
-
-# Blizzard itemClass values seen on an enchant's `equipRequirements`.
-ENCHANT_CLASS_WEAPON = 2
-ENCHANT_CLASS_ARMOR = 4
-ENCHANT_CLASS_PROFESSION_TOOL = 19
-
-
-def enchant_slot_pos(info, enchant_id=None):
-    """Gear-overview display position for an enchant, from enchantments.json.
-
-    Enchant comps are multisets of enchant ids with no slot recorded, so the
-    slot has to come from the catalog's ``equipRequirements``. For armor
-    enchants ``invTypeMask`` is a bitmask whose BIT INDEX is the Blizzard
-    inventoryType (bit 1 head, 3 shoulder, {5,20} chest/robe, 7 legs, 8 feet,
-    9 wrist, 11 finger, 16 back), so it maps straight through
-    INVTYPE_DISPLAY_ORDER; the chest/robe pair collapses to one position.
-
-    Weapon enchants (itemClass 2, including death knight runes) carry mask 0 --
-    main hand and off-hand are indistinguishable in the catalog, and an enchant
-    on both weapons already collapses to a single "x2" tile, so they all take
-    the main-hand position.
-
-    Raises on anything else: ids missing from enchantments.json are dropped by
-    the callers before they get here (deliberate old-enchant suppression), so a
-    miss at this point means the catalog grew a shape we don't model, and
-    silently sorting it to the end would just look like the ordering bug this
-    replaces.
-    """
-    req = (info or {}).get("equipRequirements") or {}
-    item_class = req.get("itemClass")
-    if item_class == ENCHANT_CLASS_WEAPON:
-        return INVTYPE_DISPLAY_ORDER[13]  # main hand
-    if item_class == ENCHANT_CLASS_PROFESSION_TOOL:
-        return NON_GEAR_DISPLAY_ORDER
-    if item_class == ENCHANT_CLASS_ARMOR:
-        mask = int(req.get("invTypeMask") or 0)
-        positions = [
-            INVTYPE_DISPLAY_ORDER[bit]
-            for bit in range(mask.bit_length())
-            if mask >> bit & 1 and bit in INVTYPE_DISPLAY_ORDER
-        ]
-        if positions:
-            return min(positions)
-    raise ValueError(
-        f"enchant {enchant_id if enchant_id is not None else info.get('id')} "
-        f"has no known gear slot (itemClass={item_class!r}, "
-        f"invTypeMask={req.get('invTypeMask')!r}) - enchantments.json shape changed"
-    )
-
 
 # Enchant slot groups in gear-overview order (LEFT_ORDER + RIGHT_ORDER, then
 # weapons and trinkets), which is the order the Enchantment Details accordion
@@ -1639,7 +1576,8 @@ def fetch_hero_tree_info(conn, cursor, spec_id, current_season_id, valid_subtree
 
 
 def fetch_enchant_info(
-    conn, cursor, spec_id, current_season_id, enchant_lookup, spec_sample_size
+    conn, cursor, spec_id, current_season_id, enchant_lookup, spec_sample_size,
+    current_expansion,
 ):
     enchant_slots_raw = {
         slot_group: aggregateData.get_enchants_for_slot(
@@ -1654,13 +1592,16 @@ def fetch_enchant_info(
             valid_enchants = []
             for enchant in enchants:
                 enchant_id = enchant.get("id")
-                if enchant_id and enchant_lookup.get(enchant_id):
-                    valid_enchants.append(enchant)
-                    total_enchant_counts[slot_group] += enchant.get("count")
-                else:
+                record = enchant_lookup.get(enchant_id) if enchant_id else None
+                if record is None:
                     print(
                         f"Warning: enchant {enchant_id} (slot {slot_group}, count {enchant.get('count')}) not in enchantments.json for spec {spec_id} - skipping"
                     )
+                    continue
+                if not commonUtils.is_enchant_relevant(record, current_expansion, slot_group):
+                    continue  # old-expansion / slot-incompatible: silent drop (expected noise)
+                valid_enchants.append(enchant)
+                total_enchant_counts[slot_group] += enchant.get("count")
             enchant_slots[slot_group] = valid_enchants
     # Hide slot groups enchanted by <1% of sampled characters. The denominator
     # must be the ~14-day gear-retention sample, not season-wide run counts —
@@ -1982,6 +1923,9 @@ def main(template_path, output_dir, debug=False, spec=None):
     bonus_quality_lookup = load_json(os.path.join(LOOKUP_DIR, "bonus_quality_map.json"))
     formatted_price = {pid: format_buyout(price_lookup[pid]) for pid in price_lookup}
     enchant_lookup = {e["id"]: e for e in enchant_lookup_all}
+    # Expansion the build renders against, so old-expansion enchants people still
+    # have equipped are dropped from the gear lists (see is_enchant_relevant).
+    current_expansion = commonUtils.current_expansion_id()
     socket_lookup = {
         e["itemId"]: e for e in enchant_lookup_all if e.get("slot") == "socket"
     }
@@ -2250,7 +2194,8 @@ def main(template_path, output_dir, debug=False, spec=None):
                     f"[{datetime.now(timezone.utc).isoformat()}] fetching enchants..."
                 )
                 enchant_slots, total_enchant_counts = fetch_enchant_info(
-                    conn, cursor, spec_id, current_season_id, enchant_lookup, spec_sample_size
+                    conn, cursor, spec_id, current_season_id, enchant_lookup, spec_sample_size,
+                    current_expansion
                 )
                 print(
                     f"[{datetime.now(timezone.utc).isoformat()}] fetching missives..."
