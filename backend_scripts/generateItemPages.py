@@ -61,6 +61,29 @@ WEAPON_SUBCLASS = {
     18: "Crossbow", 19: "Wand",
 }
 
+# Armor weight token for the browse-page "Armor type" filter. Armor is itemClass
+# 4; its itemSubClass distinguishes the weight (1=Cloth, 2=Leather, 3=Mail,
+# 4=Plate; 6=Shield; 0=Miscellaneous for necks/rings/trinkets). Only the
+# armor-weight-differentiated slots carry a token: cloaks are subclass 1 (Cloth)
+# but universal, so Back/Neck/Finger/Trinket and weapons stay untagged. Shields
+# are their own token, keyed off the off-hand slot.
+ARMOR_SUBCLASS_TOKEN = {1: "cloth", 2: "leather", 3: "mail", 4: "plate"}
+ARMOR_WEIGHT_SLOTS = {"HEAD", "SHOULDER", "CHEST", "WAIST", "LEGS", "FEET", "WRIST", "HANDS"}
+
+
+def armor_token_for_item(item, slot_key):
+    """Compact armor-type token (cloth/leather/mail/plate/shield) for the browse
+    filter, or None for slots that aren't armor-weight differentiated (back, neck,
+    rings, trinkets, weapons)."""
+    if int(item.get("itemClass", 0) or 0) != 4:
+        return None
+    sub = int(item.get("itemSubClass", 0) or 0)
+    if sub == 6 and slot_key == "OFF_HAND":
+        return "shield"
+    if slot_key in ARMOR_WEIGHT_SLOTS:
+        return ARMOR_SUBCLASS_TOKEN.get(sub)
+    return None
+
 # A spec is shown as a "top players' pick" when this share of its top-player
 # loadouts equip the item.
 TOP50_THRESHOLD = 50.0
@@ -943,8 +966,12 @@ def build_payloads(season, ctx, only_item=None):
             "crafted": crafted,
         }
 
+        # Every spec that actually equipped the item (runs > 0), for the browse
+        # page's usage-driven Class filter — never a hardcoded who-can-wear table.
+        equipped_specs = sorted(int(sp) for sp, rc in per_spec.items() if rc > 0)
+
         payloads[item_id] = payload
-        manifest.append({
+        manifest_entry = {
             "id": int(item_id),
             "name": payload["name"],
             "icon": payload["icon"],
@@ -956,7 +983,15 @@ def build_payloads(season, ctx, only_item=None):
             "top_spec": top_spec,
             # Flat source tokens (d:/r:/b:/crafted/other) for the browse-page filter.
             "sources": src_tokens,
-        })
+            # Spec ids that equipped the item, driving the Class filter.
+            "specs": equipped_specs,
+        }
+        # Armor weight (cloth/leather/mail/plate/shield) for the Armor type filter;
+        # omitted for slots that carry no weight (back, neck, rings, trinkets, weapons).
+        armor = armor_token_for_item(item, key)
+        if armor:
+            manifest_entry["armor"] = armor
+        manifest.append(manifest_entry)
 
     manifest.sort(key=lambda x: x["runs"], reverse=True)
     return payloads, manifest

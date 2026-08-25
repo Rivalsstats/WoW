@@ -34,7 +34,9 @@ import json
 import time
 import requests
 import commonUtils
+from io import BytesIO
 from collections import defaultdict
+from PIL import Image
 from aggregateData import get_access_token
 
 # config
@@ -45,6 +47,13 @@ NAMESPACE_STATIC = "static-us"
 LOCALE = "en_US"
 ICON_DIR = "data/icons"
 LOOKUP_DIR = "data/static"
+
+# Boss portrait thumbnails come from Wowhead's zamimg model renders, bucketed by
+# displayId % 256 (same CDN + 100% coverage as the dungeon-npc icons; see the
+# dungeon-npc-portrait-icons skill). The creature display id itself comes from the
+# journal-encounter API, since raids.json bosses are keyed by encounter id.
+WEBTHUMB_URL = "https://wow.zamimg.com/modelviewer/live/webthumbs/npc/{bucket}/{display_id}.png"
+USER_AGENT = "mythistone-raid-icons"
 
 
 def slugify(name):
@@ -98,6 +107,47 @@ def fetch_icon(iid, token):
         print(f"    Warning: failed to fetch raid icon for {iid}: {e}")
         return None
     return icon_filename
+
+
+def fetch_boss_icon(enc_id, token):
+    """Portrait icon for a raid boss (journal encounter), stored as
+    data/icons/boss_<enc_id>.png. Resolves the boss's creature display id from the
+    journal-encounter API, then downloads + alpha-trims the zamimg webthumb (same
+    treatment as the dungeon-npc icons). Returns the stored filename, or None when
+    no display id / thumbnail is available (the frontend falls back to text)."""
+    enc = bliz_get(f"{API_BASE}/data/wow/journal-encounter/{enc_id}", token, allow_missing=True)
+    if not enc:
+        print(f"    no journal encounter {enc_id}; boss icon skipped")
+        return None
+    display_id = None
+    for c in enc.get("creatures") or []:
+        cd = c.get("creature_display") or {}
+        if cd.get("id"):
+            display_id = int(cd["id"])
+            break
+    if not display_id:
+        print(f"    no creature display id for encounter {enc_id}; boss icon skipped")
+        return None
+    url = WEBTHUMB_URL.format(bucket=display_id % 256, display_id=display_id)
+    out_name = f"boss_{enc_id}.png"
+    try:
+        img_resp = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=20)
+        if img_resp.status_code != 200:
+            print(f"    no webthumb for encounter {enc_id} (display {display_id}): HTTP {img_resp.status_code}")
+            return None
+        os.makedirs(ICON_DIR, exist_ok=True)
+        # The webthumb is a 300x300 frame padded with transparency, so trim to the
+        # model's alpha bounding box; the option markup shows it small via object-fit.
+        img = Image.open(BytesIO(img_resp.content)).convert("RGBA")
+        bbox = img.getchannel("A").getbbox()
+        if bbox:
+            img = img.crop(bbox)
+        img.save(os.path.join(ICON_DIR, out_name), "PNG")
+        print(f"    saved {out_name} (display {display_id})")
+        return out_name
+    except Exception as e:
+        print(f"    error downloading boss icon for encounter {enc_id} (display {display_id}): {e}")
+        return None
 
 
 def main():
@@ -161,12 +211,14 @@ def main():
         bosses = {}
         for enc_id, enc_name in journal_encs.items():
             ename = enc_name or f"Boss {enc_id}"
-            bosses[str(enc_id)] = {"name": {"en_US": ename}, "slug": slugify(ename)}
+            bosses[str(enc_id)] = {"name": {"en_US": ename}, "slug": slugify(ename),
+                                   "icon": fetch_boss_icon(enc_id, token)}
         for enc_id in sorted(loot_encounters[iid]):
             if enc_id not in journal_encs:
                 print(f"    WARNING: loot boss encounterId {enc_id} not in Journal "
                       f"encounters for raid {iid} ('{name}'); using fallback label")
-                bosses[str(enc_id)] = {"name": {"en_US": f"Boss {enc_id}"}, "slug": f"boss-{enc_id}"}
+                bosses[str(enc_id)] = {"name": {"en_US": f"Boss {enc_id}"}, "slug": f"boss-{enc_id}",
+                                       "icon": fetch_boss_icon(enc_id, token)}
 
         out[str(iid)] = {
             "name": {"en_US": name},

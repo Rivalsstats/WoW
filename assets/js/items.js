@@ -49,6 +49,19 @@
   Object.keys(QUALITY_NAMES).forEach(function (q) {
     QUALITY_BY_SLUG[QUALITY_NAMES[q].toLowerCase()] = q;
   });
+  // Armor-type filter (single-select). Each item's manifest `armor` token
+  // ("cloth"/"leather"/"mail"/"plate"/"shield", absent for slots with no weight)
+  // is both the <option> value and the ?armor= slug, so no map is needed. Order
+  // mirrors the character sheet's weight progression.
+  var ARMOR_NAMES = { cloth: "Cloth", leather: "Leather", mail: "Mail", plate: "Plate", shield: "Shield" };
+  var ARMOR_ORDER = ["cloth", "leather", "mail", "plate", "shield"];
+  // Class filter (multi-select), grouped by class with per-spec options, driven by
+  // each item's manifest `specs` (the spec ids that actually equipped it). Tokens
+  // are "c:<classSlug>" (whole class) and "s:<specId>" (one spec); the URL carries
+  // readable slugs instead. Both maps are filled by buildClassOptions.
+  var CLASS_TOKEN_BY_SLUG = {}; // "retribution-paladin" -> "s:70", "paladin" -> "c:paladin"
+  var CLASS_SLUG_BY_TOKEN = {}; // "s:70" -> "retribution-paladin"
+  function classSlug(name) { return String(name).toLowerCase().replace(/\s+/g, "-"); }
 
   function el(id) { return document.getElementById(id); }
   function iconUrl(icon) { return "/data/icons/" + icon + ".png"; }
@@ -78,6 +91,17 @@
       return v == null ? [] : (Array.isArray(v) ? v : [v]);
     }
     var out = [], opts = el("source-filter").options;
+    for (var i = 0; i < opts.length; i++) if (opts[i].selected) out.push(opts[i].value);
+    return out;
+  }
+
+  // The class filter is a multi-select too, so its value is an array of tokens.
+  function getClassTokens() {
+    if (window.jQuery && window.jQuery.fn.selectpicker) {
+      var v = window.jQuery("#class-filter").selectpicker("val");
+      return v == null ? [] : (Array.isArray(v) ? v : [v]);
+    }
+    var out = [], opts = el("class-filter").options;
     for (var i = 0; i < opts.length; i++) if (opts[i].selected) out.push(opts[i].value);
     return out;
   }
@@ -124,6 +148,16 @@
     if (!iconFile) return null;
     return "<span class='dropdown-icon-item'><img src='/data/icons/" + iconFile +
       "' class='dropdown-icon' alt='' style='width:20px;height:20px;border-radius:4px;" +
+      "object-fit:cover;flex:0 0 20px;margin-right:8px;'>" +
+      "<span class='dropdown-icon-label'>" + label + "</span></span>";
+  }
+
+  // Same dropdown markup as iconContent, but for a spec's SpellIconFileId, which
+  // is stored as <id>.jpg (not a name-slug + .png). Mirrors specIcon in item.js.
+  function specIconContent(iconFileId, label) {
+    if (!iconFileId) return null;
+    return "<span class='dropdown-icon-item'><img src='/data/icons/" + iconFileId +
+      ".jpg' class='dropdown-icon' alt='' style='width:20px;height:20px;border-radius:4px;" +
       "object-fit:cover;flex:0 0 20px;margin-right:8px;'>" +
       "<span class='dropdown-icon-label'>" + label + "</span></span>";
   }
@@ -195,6 +229,9 @@
     if (dungeonList.length) {
       var dog = document.createElement("optgroup");
       dog.label = "Dungeons";
+      // "All Dungeons" (synthetic d:* token), mirroring each raid's "All of <Raid>";
+      // matched specially in applyFilters against any of the item's d: tokens.
+      addSourceOption(dog, "d:*", "All Dungeons", "all-dungeons", null);
       dungeonList.forEach(function (d) {
         addSourceOption(dog, "d:" + d.id, d.name, String(d.slug), iconContent(d.icon, d.name));
       });
@@ -209,11 +246,15 @@
         iconContent(r.icon, "All of " + r.name));
       Object.keys(r.present).map(function (enc) {
         var b = r.bosses[enc] || {};
-        return { enc: enc, name: b.name || ("Boss " + enc), slug: b.slug || ("boss-" + enc) };
+        return { enc: enc, name: b.name || ("Boss " + enc), slug: b.slug || ("boss-" + enc),
+                 icon: b.icon };
       }).sort(function (a, b) {
         return String(a.name).localeCompare(String(b.name));
       }).forEach(function (b) {
-        addSourceOption(og, "b:" + r.id + ":" + b.enc, b.name, r.slug + "--" + b.slug, null);
+        // Boss portrait icon (data/icons/boss_<enc>.png from fetchRaidData); a boss
+        // with no resolved creature display id has no icon and falls back to text.
+        addSourceOption(og, "b:" + r.id + ":" + b.enc, b.name, r.slug + "--" + b.slug,
+          iconContent(b.icon, b.name));
       });
       sel.appendChild(og);
     });
@@ -227,6 +268,73 @@
     refreshPicker("source-filter");
   }
 
+  // Armor type is a plain single-select (like Slot/Quality). Only weights present
+  // in the current data are offered, in character-sheet order.
+  function buildArmorOptions() {
+    var present = {};
+    all.forEach(function (i) { if (i.armor) present[i.armor] = true; });
+    var sel = el("armor-filter");
+    var allOpt = document.createElement("option");
+    allOpt.value = ""; allOpt.textContent = "All armor";
+    sel.appendChild(allOpt);
+    ARMOR_ORDER.forEach(function (tok) {
+      if (!present[tok]) return;
+      var o = document.createElement("option");
+      o.value = tok; o.textContent = ARMOR_NAMES[tok];
+      sel.appendChild(o);
+    });
+    refreshPicker("armor-filter");
+  }
+
+  // Class filter: one optgroup per class (only classes present in the data), each
+  // with an "All <Class>" option plus one option per spec that actually equipped
+  // an item. Membership comes from window.specs_map, never a who-can-wear table.
+  function buildClassOptions() {
+    var specsPresent = {}; // spec_id (string) -> true
+    all.forEach(function (i) {
+      (i.specs || []).forEach(function (sid) { specsPresent[String(sid)] = true; });
+    });
+
+    // Group present specs by class, using specs_map for names/icons/colour.
+    var classes = {}; // classSlug -> { name, specs: [{id, name, icon}] }
+    Object.keys(specsPresent).forEach(function (sid) {
+      var sp = SPECS[sid];
+      if (!sp) return; // spec absent from specs_map (stale data) — drop it, don't crash
+      var cslug = classSlug(sp.className);
+      var c = classes[cslug] || (classes[cslug] = { name: sp.className, specs: [] });
+      c.specs.push({ id: sid, name: sp.name, icon: sp.icon });
+    });
+
+    var sel = el("class-filter");
+    sel.innerHTML = ""; // multi-select: empty selection means "all", no reset option
+    Object.keys(classes).map(function (cslug) {
+      return { slug: cslug, name: classes[cslug].name, specs: classes[cslug].specs };
+    }).sort(function (a, b) {
+      return String(a.name).localeCompare(String(b.name));
+    }).forEach(function (c) {
+      var og = document.createElement("optgroup");
+      og.label = c.name;
+      addClassOption(og, "c:" + c.slug, "All " + c.name, c.slug, null);
+      c.specs.sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); })
+        .forEach(function (s) {
+          addClassOption(og, "s:" + s.id, s.name, classSlug(s.name) + "-" + c.slug,
+            specIconContent(s.icon, s.name));
+        });
+      sel.appendChild(og);
+    });
+    refreshPicker("class-filter");
+  }
+
+  function addClassOption(parent, token, label, slug, content) {
+    var o = document.createElement("option");
+    o.value = token; o.textContent = label;
+    o.setAttribute("data-tokens", label); // enables live-search by name
+    if (content) o.setAttribute("data-content", content);
+    parent.appendChild(o);
+    CLASS_TOKEN_BY_SLUG[slug] = token;
+    CLASS_SLUG_BY_TOKEN[token] = slug;
+  }
+
   // Resolve ?slot/?quality/?sort/?q into the values the controls carry. Values we
   // don't recognise are dropped (the control falls back to its default) — this is
   // user-typed URL input, not a data file, so it must not blow up the page.
@@ -236,16 +344,32 @@
     var quality = (sp.get("quality") || "").toLowerCase();
     var sort = sp.get("sort") || "";
     var source = sp.get("source") || "";
+    var armor = (sp.get("armor") || "").toLowerCase();
     return {
       q: sp.get("q") || "",
       // Slugging first means a raw display name (?slot=Held%20In%20Off-hand) resolves too.
       slot: SLOT_BY_SLUG[slotSlug(slot)] || "",
       quality: QUALITY_BY_SLUG[quality] || (/^\d+$/.test(quality) ? quality : ""),
+      // Armor token is its own slug; keep it only if it's one we know about.
+      armor: ARMOR_NAMES[armor] ? armor : "",
       // Comma-separated list of readable source slugs (a lone legacy dungeon slug
       // still resolves). Raw tokens (d:.., r:.., b:.., crafted, tier, pvp, other) pass through.
       source: parseSourceParam(source),
+      // Comma-separated readable class/spec slugs ("retribution-paladin", "paladin").
+      "class": parseClassParam(sp.get("class") || ""),
       sort: sort === "name" || sort === "runs" ? sort : "runs",
     };
+  }
+
+  // "retribution-paladin,paladin" -> ["s:70","c:paladin"]. Unknown slugs drop.
+  function parseClassParam(raw) {
+    if (!raw) return [];
+    return raw.split(",").map(function (s) { return s.trim(); }).filter(Boolean)
+      .map(function (s) {
+        if (CLASS_TOKEN_BY_SLUG[s]) return CLASS_TOKEN_BY_SLUG[s]; // readable slug
+        if (CLASS_SLUG_BY_TOKEN[s]) return s;                     // already a token
+        return null;
+      }).filter(Boolean);
   }
 
   // "pit-of-saron,nerubar-palace--ulgrax,crafted" -> ["d:556","b:1207:2902","crafted"].
@@ -274,8 +398,10 @@
   function applyParamsToControls(p) {
     el("item-search").value = p.q;
     setSelect("slot-filter", p.slot);
+    setSelect("armor-filter", p.armor);
     setSelect("quality-filter", p.quality);
     setSelect("source-filter", p.source);
+    setSelect("class-filter", p["class"]);
     setSelect("sort-by", p.sort);
   }
 
@@ -287,13 +413,19 @@
     var sp = new URLSearchParams();
     var q = el("item-search").value.trim();
     var slot = el("slot-filter").value;
+    var armor = el("armor-filter").value;
     var quality = el("quality-filter").value;
     var sourceTokens = getSourceTokens();
+    var classTokens = getClassTokens();
     var sort = el("sort-by").value;
     if (slot) sp.set("slot", slotSlug(slot));
+    if (armor) sp.set("armor", armor);
     if (quality) sp.set("quality", (QUALITY_NAMES[quality] || quality).toLowerCase());
     if (sourceTokens.length) {
       sp.set("source", sourceTokens.map(function (t) { return SLUG_BY_TOKEN[t] || t; }).join(","));
+    }
+    if (classTokens.length) {
+      sp.set("class", classTokens.map(function (t) { return CLASS_SLUG_BY_TOKEN[t] || t; }).join(","));
     }
     if (sort && sort !== "runs") sp.set("sort", sort);
     if (q) sp.set("q", q);
@@ -301,22 +433,52 @@
     window.history.replaceState(null, "", window.location.pathname + (qs ? "?" + qs : ""));
   }
 
+  // True if any selected class/spec token matches a spec that equipped the item.
+  // "s:<id>" is a direct spec-id hit; "c:<slug>" hits when any equipping spec
+  // belongs to that class (resolved via specs_map, not a who-can-wear table).
+  function itemMatchesClass(item, classTokens) {
+    var specsList = item.specs || [];
+    if (!specsList.length) return false;
+    return classTokens.some(function (t) {
+      if (t.charAt(0) === "s") {
+        var id = parseInt(t.slice(2), 10);
+        return specsList.indexOf(id) !== -1;
+      }
+      var cslug = t.slice(2); // "c:<classSlug>"
+      return specsList.some(function (sid) {
+        var sp = SPECS[String(sid)];
+        return sp && classSlug(sp.className) === cslug;
+      });
+    });
+  }
+
   function applyFilters() {
     var q = el("item-search").value.trim().toLowerCase();
     var slot = el("slot-filter").value;
+    var armor = el("armor-filter").value;
     var quality = el("quality-filter").value;
     var sourceTokens = getSourceTokens();
+    var classTokens = getClassTokens();
     var sort = el("sort-by").value;
 
     filtered = all.filter(function (i) {
       if (q && i.name.toLowerCase().indexOf(q) === -1) return false;
       if (slot && i.slot !== slot) return false;
+      if (armor && i.armor !== armor) return false;
       if (quality && String(i.quality) !== quality) return false;
       // OR across selected sources: keep the item if it carries any selected token.
+      // "d:*" (All Dungeons) matches any item carrying at least one d: token.
       if (sourceTokens.length) {
         var toks = i.sources || [];
-        if (!sourceTokens.some(function (t) { return toks.indexOf(t) !== -1; })) return false;
+        var srcOk = sourceTokens.some(function (t) {
+          if (t === "d:*") return toks.some(function (x) { return x.indexOf("d:") === 0; });
+          return toks.indexOf(t) !== -1;
+        });
+        if (!srcOk) return false;
       }
+      // OR across selected class/spec tokens: keep the item if any selected spec
+      // (s:<id>) or class (c:<slug>, any of its specs) actually equipped it.
+      if (classTokens.length && !itemMatchesClass(i, classTokens)) return false;
       return true;
     });
     if (sort === "name") filtered.sort(function (a, b) { return a.name.localeCompare(b.name); });
@@ -380,15 +542,19 @@
       .then(function (data) {
         all = data || [];
         buildSlotOptions();
+        buildArmorOptions();
         buildQualityOptions();
         buildSourceOptions();
-        // After the options exist, so SLOT_BY_SLUG / SOURCE_BY_SLUG can resolve ?slot=/?source=.
+        buildClassOptions();
+        // After the options exist, so the *_BY_SLUG maps can resolve ?slot=/?armor=/?source=/?class=.
         applyParamsToControls(readParams());
         applyFilters();
         el("item-search").addEventListener("input", debounce(applyFilters, 200));
         el("slot-filter").addEventListener("change", applyFilters);
+        el("armor-filter").addEventListener("change", applyFilters);
         el("quality-filter").addEventListener("change", applyFilters);
         el("source-filter").addEventListener("change", applyFilters);
+        el("class-filter").addEventListener("change", applyFilters);
         el("sort-by").addEventListener("change", applyFilters);
         el("items-more").addEventListener("click", renderMore);
         // Only fires when the user navigates back to an earlier URL of this page;

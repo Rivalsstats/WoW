@@ -105,7 +105,9 @@ def build_source_lookups(item_lookup, dungeon_lookup, raids_json):
             bname = b.get("name")
             if isinstance(bname, dict):
                 bname = bname.get("en_US") or next(iter(bname.values()), enc_id)
-            bosses[str(enc_id)] = {"name": bname, "slug": b.get("slug")}
+            # Boss portrait icon filename (data/icons/boss_<enc>.png), written by
+            # fetchRaidData; absent for a boss whose creature display id is unknown.
+            bosses[str(enc_id)] = {"name": bname, "slug": b.get("slug"), "icon": b.get("icon")}
         raids_map[str(rid)] = {
             "name": name,
             "slug": r.get("slug"),

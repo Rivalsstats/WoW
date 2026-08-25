@@ -57,25 +57,42 @@
             <p class="text-sm opacity-8 mb-3">
               {{ item_count }} items seen in {{ season_info.name }} Mythic+ runs. Click an item for full usage details.
             </p>
-            <div class="row g-2 align-items-end">
-              <div class="col-md-4">
+            <!-- Grid wraps to 2 rows on md and stacks on mobile; the items-filter-row
+                 rule (items.css) switches to a single nowrap flex row on xl+, where
+                 all seven controls fit with per-control min-widths (no clipping). -->
+            <div class="row g-2 align-items-end items-filter-row">
+              <div class="col-12 col-md-4 filter-search">
                 <label class="form-label text-xs opacity-7 mb-1">Search</label>
                 <input type="search" id="item-search" class="form-control" placeholder="Search items by name…"
                   aria-label="Search items by name" autocomplete="off" />
               </div>
-              <div class="col-md-2">
-                <label class="form-label text-xs opacity-7 mb-1">Slot</label>
-                <select id="slot-filter" class="selectpicker form-control" data-style="btn-outline-primary"
-                  data-width="100%" title="All slots" aria-label="Filter by slot">
-                </select>
-              </div>
-              <div class="col-md-2">
+              <div class="col-6 col-md-2 filter-quality">
                 <label class="form-label text-xs opacity-7 mb-1">Quality</label>
                 <select id="quality-filter" class="selectpicker form-control" data-style="btn-outline-primary"
                   data-width="100%" title="All quality" aria-label="Filter by quality">
                 </select>
               </div>
-              <div class="col-md-2">
+              <div class="col-12 col-md-6 filter-class">
+                <label class="form-label text-xs opacity-7 mb-1">Class</label>
+                <select id="class-filter" class="selectpicker form-control" data-style="btn-outline-primary"
+                  data-width="100%" multiple data-live-search="true" data-actions-box="true"
+                  data-selected-text-format="count > 1" data-sanitize="false"
+                  title="All classes" aria-label="Filter by class or spec">
+                </select>
+              </div>
+              <div class="col-6 col-md-2 filter-armor">
+                <label class="form-label text-xs opacity-7 mb-1">Armor type</label>
+                <select id="armor-filter" class="selectpicker form-control" data-style="btn-outline-primary"
+                  data-width="100%" title="All armor" aria-label="Filter by armor type">
+                </select>
+              </div>
+              <div class="col-6 col-md-2 filter-slot">
+                <label class="form-label text-xs opacity-7 mb-1">Slot</label>
+                <select id="slot-filter" class="selectpicker form-control" data-style="btn-outline-primary"
+                  data-width="100%" title="All slots" aria-label="Filter by slot">
+                </select>
+              </div>
+              <div class="col-12 col-md-6 filter-source">
                 <label class="form-label text-xs opacity-7 mb-1">Drops from</label>
                 <select id="source-filter" class="selectpicker form-control" data-style="btn-outline-primary"
                   data-width="100%" multiple data-live-search="true" data-actions-box="true"
@@ -83,7 +100,7 @@
                   title="All sources" aria-label="Filter by drop source">
                 </select>
               </div>
-              <div class="col-md-2">
+              <div class="col-6 col-md-2 filter-sort">
                 <label class="form-label text-xs opacity-7 mb-1">Sort</label>
                 <select id="sort-by" class="selectpicker form-control" data-style="btn-outline-primary"
                   data-width="100%" aria-label="Sort">

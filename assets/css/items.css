@@ -436,3 +436,30 @@
   /* 0.7 dropped the muted foreground to 4.26:1 on the light card. */
   opacity: 0.85;
 }
+
+/* Filter row: the Bootstrap grid (col-12 / col-md-*) wraps to two rows on md and
+   stacks on mobile. On a wide viewport the second row (Class + Drops-from alone)
+   wastes space, so we collapse all seven controls onto one nowrap flex line. A
+   pure grid can't do this cleanly (seven controls can't each get >=2 of the 12
+   columns, and a 1-column select ~112px clips its value text like "Most used"),
+   so this is a flex line with per-control min-widths that fit the text, giving the
+   wider shares to search and the two grouped multi-selects.
+
+   The breakpoint is 1650px, not xl (1200px): the fixed sidenav plus card chrome
+   take ~553px, so the card body is only (viewport - 553)px wide. The seven
+   controls need ~1000px of that, which only exists from ~1600px up; below 1650px
+   the two-row md layout stays (still tidy, no wasted row until the screen is very
+   wide). */
+@media (min-width: 1650px) {
+  .items-browse .items-filter-row { flex-wrap: nowrap; }
+  .items-browse .items-filter-row > [class*="col-"] {
+    flex: 1 1 0;
+    width: auto;
+    max-width: none;
+    min-width: 8.5rem;   /* fits the longest single-select value ("Most used") + caret */
+  }
+  .items-browse .items-filter-row > .filter-search { flex-grow: 2;   min-width: 9rem; }
+  .items-browse .items-filter-row > .filter-slot   { flex-grow: 1.5; min-width: 9rem; }
+  .items-browse .items-filter-row > .filter-class  { flex-grow: 1.8; min-width: 9rem; }
+  .items-browse .items-filter-row > .filter-source { flex-grow: 2.2; min-width: 9.5rem; }
+}
