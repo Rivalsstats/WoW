@@ -3259,7 +3259,7 @@ SELECT
     usage_count
 FROM RankedRoutes
 WHERE rn = 1
-ORDER BY usage_count DESC
+ORDER BY usage_count DESC, keystone_level DESC
 LIMIT 5;
 """
 
