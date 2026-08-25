@@ -83,4 +83,13 @@ missing data. Icons degrade gracefully: a still-missing icon falls back to text 
 build. Self-heal does NOT remove the local-test order above: running the two fetchers after seeding
 is still the fast, offline-friendly path.
 
+## Self-healed icons must ride the deploy artifact
+Self-heal writes new PNGs into `data/icons/` on the `buildPages` runner, but those files reach the
+deployed site ONLY because `data/icons` is in the `generated-site` artifact upload `path:` list in
+`buildPages.yml`. The `assemble` job downloads that artifact over its own `main` checkout and copies
+the merged `data/icons` into `_site/data/`, so the healed PNGs (absent from `main`) survive into
+`_site`. Drop `data/icons` from that upload list and week-1 self-healed icons 404 on deploy while
+still working locally — the local `http.server` serves the repo's own `data/icons/` directly, which
+masks the gap. See [[artifact-only-deploy]].
+
 Related: [[keystone-guru-mapping-data]].

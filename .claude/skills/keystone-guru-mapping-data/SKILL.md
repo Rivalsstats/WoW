@@ -11,4 +11,6 @@ description: What route_data.mapping_version means and how the "Most Skipped NPC
 
 **`data/boss_npcs.json`** is used to validate the Bloodlust timeline (`generateDungeonPages.py`), not to exclude bosses from a skip roster.
 
+**The Most Lusted Pulls signature encodes per-NPC counts.** A pull's identity in `FETCH_DUNGEON_LUST_TIMELINE_SQL` is `GROUP_CONCAT(CONCAT(npc_id, ':', count) ORDER BY npc_id ASC SEPARATOR ',')` (`npc_id:count` tokens), so pulls with the same enemy types but different counts are distinct rows. That signature is a byte-for-byte join key: the identical expression must appear in the `HAVING` clauses of `FETCH_EXAMPLE_LUST_ROUTE_SQL` and `FETCH_EXAMPLE_LUST_ROUTE_ARM_SQL`, or the example-route links stop resolving. `generateDungeonPages.py` splits the `top_npcs` string on `,` then each token on `:` to recover the npc_id for boss validation and name/icon self-heal, and `dungeon_page.html` renders the count as an `Nx` prefix when it exceeds 1.
+
 **Per-NPC portrait icons** on these cards are sourced via MDT displayId → Wowhead zamimg webthumb; see [[dungeon-npc-portrait-icons]] before changing the creature-image source.
