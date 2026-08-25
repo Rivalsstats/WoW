@@ -106,7 +106,7 @@ class StatsCog(commands.Cog):
         did = lookups.resolve_dungeon(dungeon) if dungeon else None
         run = await _record(did, databaseConnector.fetch_dungeon_max_key_run,
                             databaseConnector.fetch_max_key_run)
-        await interaction.followup.send(embed=build_run_card("Highest key this season", run))
+        await embeds.respond(interaction, build_run_card("Highest key this season", run))
 
     @stats.command(name="longest", description="Longest run (optionally per dungeon)")
     @app_commands.describe(dungeon="Optional dungeon filter")
@@ -117,7 +117,7 @@ class StatsCog(commands.Cog):
         did = lookups.resolve_dungeon(dungeon) if dungeon else None
         run = await _record(did, databaseConnector.fetch_dungeon_longest_run,
                             databaseConnector.fetch_longest_run)
-        await interaction.followup.send(embed=build_run_card("Longest run", run))
+        await embeds.respond(interaction, build_run_card("Longest run", run))
 
     @stats.command(name="shortest", description="Fastest clear by time (optionally per dungeon)")
     @app_commands.describe(dungeon="Optional dungeon filter")
@@ -128,7 +128,7 @@ class StatsCog(commands.Cog):
         did = lookups.resolve_dungeon(dungeon) if dungeon else None
         run = await _record(did, databaseConnector.fetch_dungeon_shortest_run,
                             databaseConnector.fetch_shortest_run)
-        await interaction.followup.send(embed=build_run_card("Fastest clear", run))
+        await embeds.respond(interaction, build_run_card("Fastest clear", run))
 
     @stats.command(name="closest", description="Closest call at a dungeon's top keys")
     @app_commands.describe(dungeon="Dungeon (required)")
@@ -139,7 +139,7 @@ class StatsCog(commands.Cog):
         did = lookups.resolve_dungeon(dungeon)
         run = await db.run(databaseConnector.fetch_dungeon_closest_call_run, did,
                            config.SEASON, dictionary=True)
-        await interaction.followup.send(embed=build_run_card("Closest call", run, _margin_field(did, run)))
+        await embeds.respond(interaction, build_run_card("Closest call", run, _margin_field(did, run)))
 
     @stats.command(name="fastest", description="Fastest run at a dungeon's top key levels")
     @app_commands.describe(dungeon="Dungeon (required)")
@@ -150,7 +150,7 @@ class StatsCog(commands.Cog):
         did = lookups.resolve_dungeon(dungeon)
         run = await db.run(databaseConnector.fetch_dungeon_fastest_top_levels_run, did,
                            config.SEASON, dictionary=True)
-        await interaction.followup.send(embed=build_run_card("Fastest at top keys", run))
+        await embeds.respond(interaction, build_run_card("Fastest at top keys", run))
 
     @stats.command(name="keys", description="Key throughput per region (keys / minute)")
     @app_commands.checks.cooldown(1, 30.0, key=lambda i: i.user.id)
@@ -167,7 +167,7 @@ class StatsCog(commands.Cog):
             "Key throughput", url=f"{config.SITE_BASE}/pages/dashboard"
         )
         embed.set_image(url="attachment://chart.png")
-        await interaction.followup.send(embed=embed, file=discord.File(path, filename="chart.png"))
+        await embeds.respond(interaction, embed, file=discord.File(path, filename="chart.png"))
 
 
 async def setup(bot):

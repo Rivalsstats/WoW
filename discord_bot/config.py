@@ -11,6 +11,13 @@ import os
 from datetime import datetime, timedelta, timezone
 
 SITE_BASE = "https://mythistone.com"
+# The site + bot run at a loss; the brand author link points here and the periodic
+# support embed / footer nudge people toward it (same URL as sidenav "Support the Site").
+PATREON_URL = "https://www.patreon.com/c/Jodsderechte"
+# Append the standalone Patreon support embed to the command's own reply once every
+# this many successful commands. Counted per-guild in a server (any member advances
+# it) and per-user otherwise (user-installed usage). See embeds.respond.
+PATREON_EMBED_EVERY = 10
 
 REQUIRED_ENV = [
     "DISCORD_BOT_TOKEN",

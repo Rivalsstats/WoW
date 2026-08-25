@@ -75,7 +75,7 @@ class ItemsCog(commands.Cog):
         items_index = await self.bot.site_data.items_index()
         item_by_id = await self.bot.site_data.item_by_id()
         item = resolve_item(name, item_by_id, items_index)
-        await interaction.followup.send(embed=build_item_embed(item))
+        await embeds.respond(interaction, build_item_embed(item))
 
 
 async def setup(bot):

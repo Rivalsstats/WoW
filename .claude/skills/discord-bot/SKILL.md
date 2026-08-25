@@ -40,8 +40,30 @@ excluded and inert. **GOTCHA:** custom emoji render only in embed **description*
 values**, never in titles or field names. Registry is empty when unpopulated so render helpers
 return `""` and `build_*` fall back to text, keeping `db_smoke_test` valid.
 
-**Brand** lives in the footer via `embeds.brand_footer` (not the author slot); footers are plain
-text so "Mythistone" is not clickable, an accepted tradeoff.
+**Brand & support.** `embeds.base_embed` puts the brand in the **author slot** via
+`embeds.brand_author` (name "Mythistone", icon, `url=SITE_BASE`) so it is a clickable link, and sets
+a fixed **support footer** (`embeds.support_footer` / `SUPPORT_FOOTER_TEXT`) asking people to back
+Patreon — footers are plain text (no hyperlink) so the fixed string doubles as a consistent
+minimum embed width. The clickable Patreon link (`config.PATREON_URL`) lives on the standalone
+`embeds.patreon_embed`. Every cog sends its result through the shared `embeds.respond(interaction,
+embed, **kwargs)` helper (never `interaction.followup.send` directly), which appends
+`patreon_embed` as a **second embed on the same reply message** once every `config.PATREON_EMBED_EVERY`
+commands — same message so the nudge can't be dismissed independently of the result. The counter
+(`bot._support_counts`, read off `interaction.client`) keys **per-guild** in a server (any member
+advances it) and **per-user** otherwise (user-installed usage). Only successful commands reach a
+`respond` call (the season gate and errors reply through `errors._respond`), so the nudge never
+piggybacks on an error or the off-season notice. Errors/gate embeds intentionally skip the nudge.
+
+**Sync signature includes choice values.** `bot._sync_tree` hashes each command's parameter names
+**and their `Choice` (name, value) pairs**, not just names. This is required: a season rollover
+changes `lookups.DUNGEON_CHOICES` (new dungeon ids/names) without changing any command/parameter
+name, so a names-only hash would skip the global sync (the hash persists in the `bot_cache` volume)
+and leave Discord serving the previous season's dungeon list. Dungeon/class options are static
+`@app_commands.choices`; only `item`/`spec` use live autocomplete.
+
+**Pull signatures carry counts.** `fetch_dungeon_lust_timeline`'s `top_npcs` column is a
+`GROUP_CONCAT(CONCAT(npc_id, ':', count))` string (`"134388:3,134389:1"`), so any parse must take
+`tok.split(":")[0]` for the npc id, exactly like the dungeon page template — a raw `int(tok)` throws.
 
 **Verify.** `python -m discord_bot.db_smoke_test` drives the bot's real data paths: it runs every
 `db.run(databaseConnector.fetch_*)` / `commonUtils.fetch_stat_info` against the seeded local test DB

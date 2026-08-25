@@ -109,6 +109,36 @@ def test_helpers():
     check(embeds.clamp("abcdef", 4).endswith("…"), "clamp should ellipsize")
     check(len(embeds.clamp("x" * 5000, 1024)) <= 1024, "clamp respects limit")
     check(embeds.esc("*bold*") == "\\*bold\\*", "esc should escape markdown")
+    # the periodic support embed is a pure builder; assert it respects the limits.
+    assert_embed(embeds.patreon_embed(), "patreon")
+
+
+def test_support_nudge():
+    """The periodic Patreon nudge counts per-guild in a server and per-user
+    otherwise, firing exactly once every PATREON_EMBED_EVERY commands per scope."""
+    class _FakeInter:
+        def __init__(self, client, guild_id=None, user_id=None):
+            self.client = client
+            self.guild_id = guild_id
+            self.user = type("U", (), {"id": user_id})()
+
+    client = type("C", (), {"_support_counts": {}})()
+    every = config.PATREON_EMBED_EVERY
+
+    guild = _FakeInter(client, guild_id=123)
+    due = [embeds._support_due(guild) for _ in range(every)]
+    check(due[-1] is True, "guild nudge should fire on the Nth command")
+    check(sum(1 for d in due if d) == 1, "guild nudge should fire exactly once per cycle")
+
+    user = _FakeInter(client, guild_id=None, user_id=999)
+    user_due = [embeds._support_due(user) for _ in range(every)]
+    check(user_due[-1] is True, "user nudge should fire on the Nth per-user command")
+    check(
+        ("guild", 123) in client._support_counts and ("user", 999) in client._support_counts,
+        "support counters should key per-scope (guild vs user)",
+    )
+    # no counter on the client => never due, never raises.
+    check(embeds._support_due(_FakeInter(object(), guild_id=1)) is False, "missing counter should be inert")
 
 
 def test_resolvers():
@@ -304,7 +334,7 @@ async def test_spec_gear_site(site):
     assert_embed(analyze.build_analyze_embed(A_SPEC, spec_meta, off), "analyze (off)")
 
 
-PURE_TESTS = [test_helpers, test_resolvers, test_analyze_parse]
+PURE_TESTS = [test_helpers, test_support_nudge, test_resolvers, test_analyze_parse]
 DB_TESTS = [test_season_db, test_spec_db, test_dungeon_db, test_stats_db, test_charts_db]
 SITE_TESTS = [test_comps_site, test_items_site, test_routes_site, test_spec_gear_site]
 

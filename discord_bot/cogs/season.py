@@ -63,7 +63,7 @@ class SeasonCog(commands.Cog):
         await interaction.response.defer(thinking=True)
         total_runs = await _get_total_runs()
         max_run = await _get_max_key_run()
-        await interaction.followup.send(embed=build_season_embed(total_runs, max_run))
+        await embeds.respond(interaction, build_season_embed(total_runs, max_run))
 
 
 async def setup(bot):

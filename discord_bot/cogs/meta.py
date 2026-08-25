@@ -65,8 +65,9 @@ class MetaCog(commands.Cog):
                 social_render.spec_tierlist_builder,
                 spec_upgrades=spec_upgrades, total_runs=total_runs,
             ))
-        await interaction.followup.send(
-            embed=_chart_embed("Spec tier list"),
+        await embeds.respond(
+            interaction,
+            _chart_embed("Spec tier list"),
             file=discord.File(path, filename="chart.png"),
         )
 
@@ -82,8 +83,9 @@ class MetaCog(commands.Cog):
                 social_render.dungeon_tierlist_builder,
                 dungeon_data=dungeon_data, total_runs=total_runs,
             ))
-        await interaction.followup.send(
-            embed=_chart_embed("Dungeon tier list"),
+        await embeds.respond(
+            interaction,
+            _chart_embed("Dungeon tier list"),
             file=discord.File(path, filename="chart.png"),
         )
 
@@ -102,13 +104,14 @@ class MetaCog(commands.Cog):
                     "Simulated DPS tier list", url=f"{config.SITE_BASE}/pages/tierlist"
                 )
                 embed.description = f"No sim data for {targets} target(s) yet."
-                await interaction.followup.send(embed=embed)
+                await embeds.respond(interaction, embed)
                 return
             path = await charts.render("simdps", f"t{targets}", functools.partial(
                 social_render.simdps_builder, rows=rows, targets=targets,
             ))
-        await interaction.followup.send(
-            embed=_chart_embed("Simulated DPS tier list"),
+        await embeds.respond(
+            interaction,
+            _chart_embed("Simulated DPS tier list"),
             file=discord.File(path, filename="chart.png"),
         )
 
@@ -124,8 +127,9 @@ class MetaCog(commands.Cog):
                 social_render.scatter_builder,
                 spec_upgrades=spec_upgrades, highest_run=max_run or {},
             ))
-        await interaction.followup.send(
-            embed=_chart_embed("Spec popularity vs performance"),
+        await embeds.respond(
+            interaction,
+            _chart_embed("Spec popularity vs performance"),
             file=discord.File(path, filename="chart.png"),
         )
 
@@ -140,8 +144,9 @@ class MetaCog(commands.Cog):
             path = await charts.render(
                 "weekly", "global", functools.partial(charts.build_keys_per_week, rows, periods)
             )
-        await interaction.followup.send(
-            embed=_chart_embed("Keys completed per week"),
+        await embeds.respond(
+            interaction,
+            _chart_embed("Keys completed per week"),
             file=discord.File(path, filename="chart.png"),
         )
 

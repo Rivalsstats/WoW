@@ -229,7 +229,7 @@ class CompsCog(commands.Cog):
         await interaction.response.defer(thinking=True)
         did = lookups.resolve_dungeon(dungeon) if dungeon else None
         comps_index = await self.bot.site_data.comps_index()
-        await interaction.followup.send(embed=build_top_embed(comps_index, did))
+        await embeds.respond(interaction, build_top_embed(comps_index, did))
 
     @comps.command(name="fill", description="Suggest specs to complete your group")
     @app_commands.describe(
@@ -248,7 +248,7 @@ class CompsCog(commands.Cog):
         ids = _resolve_specs(spec1, spec2, spec3, spec4)
         did = lookups.resolve_dungeon(dungeon) if dungeon else None
         comps_index = await self.bot.site_data.comps_index()
-        await interaction.followup.send(embed=build_fill_embed(comps_index, ids, did))
+        await embeds.respond(interaction, build_fill_embed(comps_index, ids, did))
 
     @comps.command(name="buffs", description="Group buff & utility coverage")
     @app_commands.describe(
@@ -264,7 +264,7 @@ class CompsCog(commands.Cog):
                     spec4: str = None, spec5: str = None):
         await interaction.response.defer(thinking=True)
         ids = _resolve_specs(spec1, spec2, spec3, spec4, spec5)
-        await interaction.followup.send(embed=build_buffs_embed(ids))
+        await embeds.respond(interaction, build_buffs_embed(ids))
 
 
 async def setup(bot):

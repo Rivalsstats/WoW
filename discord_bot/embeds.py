@@ -18,6 +18,13 @@ BRAND_COLOR = discord.Colour(0x11151E)  # image_generation.config.BG_HEX
 BRAND_NAME = "Mythistone"
 BRAND_ICON = f"{config.SITE_BASE}/assets/img/favicon/web-app-manifest-192x192.png"
 
+# A fixed footer support nudge. Discord footers are plain text (no hyperlink), so
+# the clickable Patreon link lives on the periodic patreon_embed and the brand
+# author link; this footer's job is the always-on ask. Being a fixed-width string
+# it also gives every embed a consistent minimum width so short embeds don't render
+# narrower than tall ones.
+SUPPORT_FOOTER_TEXT = "Enjoying Mythistone? Support us on Patreon ❤"
+
 _BAR_FULL = "█"
 _BAR_EMPTY = "░"
 
@@ -73,19 +80,74 @@ def base_embed(title, *, url=None, colour=BRAND_COLOR, description=None) -> disc
         description=clamp(description, MAX_DESC) if description else None,
         timestamp=datetime.datetime.now(datetime.timezone.utc),
     )
-    brand_footer(embed)
+    brand_author(embed)
+    support_footer(embed)
     return embed
 
 
-def brand_footer(embed: discord.Embed, prefix: str | None = None) -> discord.Embed:
-    """Set the standard branded footer: optional ``prefix`` + logo + 'Mythistone'.
-
-    Discord footers are plain text (no hyperlink), so this is the brand's bottom-of-
-    embed home; the logo shows as the footer icon.
-    """
-    text = f"{prefix} • {BRAND_NAME}" if prefix else BRAND_NAME
-    embed.set_footer(text=text, icon_url=BRAND_ICON)
+def brand_author(embed: discord.Embed) -> discord.Embed:
+    """Set the brand in the author slot, with the logo icon and a clickable link to
+    the site. Unlike a footer, the author name hyperlinks, so 'Mythistone' at the top
+    of every embed is a link to mythistone.com."""
+    embed.set_author(name=BRAND_NAME, url=config.SITE_BASE, icon_url=BRAND_ICON)
     return embed
+
+
+def support_footer(embed: discord.Embed) -> discord.Embed:
+    """Set the always-on Patreon support footer (see SUPPORT_FOOTER_TEXT)."""
+    embed.set_footer(text=SUPPORT_FOOTER_TEXT, icon_url=BRAND_ICON)
+    return embed
+
+
+def patreon_embed() -> discord.Embed:
+    """The periodic standalone support call-to-action, sent as an extra embed once
+    every so often (see bot.on_app_command_completion). Its title links to Patreon so
+    the ask is one click away."""
+    embed = discord.Embed(
+        title="Support Mythistone on Patreon ❤",
+        url=config.PATREON_URL,
+        colour=BRAND_COLOR,
+        description=(
+            "Mythistone and this bot are free, but the data pipeline, hosting and "
+            f"servers cost real money. If they're useful to you, please consider "
+            f"[supporting us on Patreon]({config.PATREON_URL}) — every bit helps keep "
+            "the lights on."
+        ),
+    )
+    brand_author(embed)
+    return embed
+
+
+def _support_due(interaction) -> bool:
+    """Advance the per-guild/per-user command counter (stored on the bot instance)
+    and return True when the periodic Patreon embed is due. Counts per-guild when the
+    command runs in a server (any member advances it) and per-user otherwise
+    (user-installed usage in DMs / non-installed servers)."""
+    counts = getattr(interaction.client, "_support_counts", None)
+    if counts is None:
+        return False
+    if interaction.guild_id:
+        key = ("guild", interaction.guild_id)
+    else:
+        key = ("user", interaction.user.id)
+    count = counts.get(key, 0) + 1
+    counts[key] = count
+    return count % config.PATREON_EMBED_EVERY == 0
+
+
+async def respond(interaction, embed: discord.Embed, **kwargs):
+    """Send a command's result embed as the interaction followup, appending the
+    periodic Patreon support embed to the SAME message when it's due, so the two
+    are one message and the nudge can't be dismissed on its own. Extra kwargs
+    (e.g. ``file=``) pass straight through to ``followup.send``."""
+    out = [embed]
+    try:
+        if _support_due(interaction):
+            out.append(patreon_embed())
+    except Exception:
+        # A support nudge must never break the actual command response.
+        out = [embed]
+    return await interaction.followup.send(embeds=out, **kwargs)
 
 
 def add_fields_capped(embed: discord.Embed, fields) -> None:

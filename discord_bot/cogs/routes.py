@@ -89,7 +89,7 @@ class RoutesCog(commands.Cog):
         did = lookups.resolve_dungeon(dungeon)
         spec_ids = [lookups.resolve_spec_full(s) for s in (spec1, spec2, spec3, spec4) if s]
         indexes = await self.bot.site_data.comp_routes_indexes()
-        await interaction.followup.send(embed=build_routes_embed(did, spec_ids, indexes))
+        await embeds.respond(interaction, build_routes_embed(did, spec_ids, indexes))
 
 
 async def setup(bot):

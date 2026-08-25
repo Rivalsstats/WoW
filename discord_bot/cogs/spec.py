@@ -146,7 +146,7 @@ class SpecCog(commands.Cog):
     @app_commands.checks.cooldown(2, 10.0, key=lambda i: i.user.id)
     async def overview(self, interaction, class_name: str, spec_name: str):
         await interaction.response.defer(thinking=True)
-        await interaction.followup.send(embed=build_overview_embed(_resolve(class_name, spec_name)))
+        await embeds.respond(interaction, build_overview_embed(_resolve(class_name, spec_name)))
 
     @spec.command(name="gear", description="Most popular gear per slot")
     @app_commands.rename(class_name="class", spec_name="spec")
@@ -158,7 +158,7 @@ class SpecCog(commands.Cog):
         await interaction.response.defer(thinking=True)
         spec_id = _resolve(class_name, spec_name)
         spec_meta = await self.bot.site_data.spec_meta(spec_id)
-        await interaction.followup.send(embed=build_gear_embed(spec_id, spec_meta))
+        await embeds.respond(interaction, build_gear_embed(spec_id, spec_meta))
 
     @spec.command(name="talents", description="Top talent build (copyable string)")
     @app_commands.rename(class_name="class", spec_name="spec")
@@ -170,7 +170,7 @@ class SpecCog(commands.Cog):
         await interaction.response.defer(thinking=True)
         spec_id = _resolve(class_name, spec_name)
         loadouts = await _get_top_loadout(spec_id)
-        await interaction.followup.send(embed=build_talents_embed(spec_id, loadouts))
+        await embeds.respond(interaction, build_talents_embed(spec_id, loadouts))
 
     @spec.command(name="stats", description="Stat priority")
     @app_commands.rename(class_name="class", spec_name="spec")
@@ -182,7 +182,7 @@ class SpecCog(commands.Cog):
         await interaction.response.defer(thinking=True)
         spec_id = _resolve(class_name, spec_name)
         stat_info = await _get_stats(spec_id)
-        await interaction.followup.send(embed=build_stats_embed(spec_id, stat_info))
+        await embeds.respond(interaction, build_stats_embed(spec_id, stat_info))
 
 
 async def setup(bot):

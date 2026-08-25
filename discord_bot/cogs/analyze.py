@@ -261,10 +261,10 @@ class AnalyzeModal(discord.ui.Modal, title="Am I meta? — paste your /simc stri
                 "Couldn't read a class/spec from that export. Paste the full output of "
                 "the in-game `/simc` command (it starts with your class and `spec=`)."
             )
-            await interaction.followup.send(embed=embed)
+            await embeds.respond(interaction, embed)
             return
         spec_meta = await interaction.client.site_data.spec_meta(spec_id)
-        await interaction.followup.send(embed=build_analyze_embed(spec_id, spec_meta, parsed))
+        await embeds.respond(interaction, build_analyze_embed(spec_id, spec_meta, parsed))
 
 
 class AnalyzeCog(commands.Cog):

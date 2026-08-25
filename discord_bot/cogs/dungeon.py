@@ -31,10 +31,17 @@ def build_lust_embed(did, timeline) -> discord.Embed:
     embed.title = f"{lookups.dungeon_name(did)} — Bosses to Bloodlust"
     boss_ids = {int(b) for b in lookups.DUNGEONS.get(str(did), {}).get("boss_npc_ids", [])}
 
-    # highest lust rate seen for each boss (a boss can appear in several pull sigs)
+    # highest lust rate seen for each boss (a boss can appear in several pull sigs).
+    # top_npcs is a pull signature of "npc_id:count" tokens (see the pull_sig
+    # GROUP_CONCAT(CONCAT(pe.npc_id, ':', pe.count)) in databaseConnector); take the
+    # id before the colon, exactly as the dungeon page template does.
     by_boss = {}
     for r in timeline or []:
-        npc_ids = [int(n) for n in str(r["top_npcs"]).split(",") if n]
+        npc_ids = [
+            int(tok.split(":")[0])
+            for tok in str(r["top_npcs"]).split(",")
+            if tok.split(":")[0].strip()
+        ]
         bosses = [n for n in npc_ids if n in boss_ids]
         if not bosses:
             continue
@@ -70,7 +77,7 @@ class DungeonCog(commands.Cog):
     @app_commands.checks.cooldown(2, 10.0, key=lambda i: i.user.id)
     async def overview(self, interaction, dungeon: str):
         await interaction.response.defer(thinking=True)
-        await interaction.followup.send(embed=build_overview_embed(lookups.resolve_dungeon(dungeon)))
+        await embeds.respond(interaction, build_overview_embed(lookups.resolve_dungeon(dungeon)))
 
     @app_commands.command(name="lust", description="Which bosses get Bloodlust in a dungeon")
     @app_commands.describe(dungeon="Dungeon")
@@ -80,7 +87,7 @@ class DungeonCog(commands.Cog):
         await interaction.response.defer(thinking=True)
         did = lookups.resolve_dungeon(dungeon)
         timeline = await _get_lust(did)
-        await interaction.followup.send(embed=build_lust_embed(did, timeline))
+        await embeds.respond(interaction, build_lust_embed(did, timeline))
 
 
 async def setup(bot):

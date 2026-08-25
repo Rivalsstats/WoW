@@ -21,6 +21,8 @@ class MythistoneBot(commands.Bot):
         self.env = env
         self.webhook_url = env.get("WEBHOOK_URL")
         self.site_data: site_data.SiteData | None = None
+        # (scope, id) -> count of successful commands, for the periodic Patreon nudge.
+        self._support_counts: dict[tuple[str, int], int] = {}
 
     async def setup_hook(self):
         self.site_data = site_data.SiteData(aiohttp.ClientSession())
@@ -36,13 +38,23 @@ class MythistoneBot(commands.Bot):
     async def _sync_tree(self):
         """Sync globally, but only when the command surface actually changed.
 
-        Global syncs are rate-limited by Discord, so we hash the command tree
-        (names + parameter names) and skip the sync when it matches the last one.
+        Global syncs are rate-limited by Discord, so we hash the command tree and
+        skip the sync when it matches the last one. The hash must include each
+        parameter's *choice values*, not just parameter names: at a season rollover
+        the dungeon list (DUNGEON_CHOICES) changes but command/parameter names do
+        not, so a names-only hash would skip the sync and leave Discord serving the
+        previous season's dungeons. Folding choices in forces a re-sync whenever the
+        rebuilt image ships a new dungeon (or class) list.
         """
         signature = []
         for command in self.tree.walk_commands():
-            params = sorted(p.name for p in getattr(command, "parameters", []))
-            signature.append((command.qualified_name, tuple(params)))
+            params = []
+            for p in getattr(command, "parameters", []):
+                choices = tuple(
+                    (c.name, str(c.value)) for c in getattr(p, "choices", None) or []
+                )
+                params.append((p.name, choices))
+            signature.append((command.qualified_name, tuple(sorted(params))))
         signature.sort()
         digest = hashlib.sha256(repr(signature).encode("utf-8")).hexdigest()
 
