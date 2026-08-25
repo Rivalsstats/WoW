@@ -3391,7 +3391,7 @@ WITH PullSigs AS (
     SELECT 
         rp.route_key,
         rp.pull_id,
-        GROUP_CONCAT(DISTINCT pe.npc_id ORDER BY pe.npc_id ASC SEPARATOR ',') as pull_sig,
+        GROUP_CONCAT(CONCAT(pe.npc_id, ':', pe.count) ORDER BY pe.npc_id ASC SEPARATOR ',') as pull_sig,
         CASE WHEN MAX(ps.spell_id) IS NOT NULL THEN 1 ELSE 0 END as lusted,
         MAX(rd.keystone_level) as keystone_level
     FROM route_data rd
@@ -3515,11 +3515,11 @@ WITH target_pull AS (
         AND ps.spell_id IN (SELECT spell_id FROM bloodlust_spells)
     WHERE rd.dungeon_id = %s
     GROUP BY rp.route_key, rp.pull_id, rd.keystone_level
-    HAVING GROUP_CONCAT(DISTINCT pe.npc_id ORDER BY pe.npc_id ASC SEPARATOR ',') = %s
+    HAVING GROUP_CONCAT(CONCAT(pe.npc_id, ':', pe.count) ORDER BY pe.npc_id ASC SEPARATOR ',') = %s
     ORDER BY rd.keystone_level DESC
     LIMIT 1
 )
-SELECT 
+SELECT
     rd.rio_run_id, 
     rd.route_key, 
     rd.keystone_level,
@@ -3554,7 +3554,7 @@ FROM (
         AND ps.spell_id IN (SELECT spell_id FROM bloodlust_spells)
     WHERE rd.dungeon_id = %s
     GROUP BY rp.route_key, rp.pull_id, rd.keystone_level
-    HAVING GROUP_CONCAT(DISTINCT pe.npc_id ORDER BY pe.npc_id ASC SEPARATOR ',') = %s
+    HAVING GROUP_CONCAT(CONCAT(pe.npc_id, ':', pe.count) ORDER BY pe.npc_id ASC SEPARATOR ',') = %s
     ORDER BY rd.keystone_level DESC
     LIMIT 1
 ) tp

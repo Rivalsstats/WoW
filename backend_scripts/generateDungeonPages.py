@@ -395,7 +395,7 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                     top_npcs_str = pull.get('top_npcs', '')
                     if top_npcs_str:
                         for n in str(top_npcs_str).split(','):
-                            if n.strip() and int(n.strip()) in dungeon_bosses:
+                            if n.strip() and int(n.split(':')[0].strip()) in dungeon_bosses:
                                 has_boss_lust = True
                                 break
                     if has_boss_lust:
@@ -417,7 +417,7 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                     top_npcs_str = pull.get('top_npcs', '')
                     if top_npcs_str:
                         for n in str(top_npcs_str).split(','):
-                            n = n.strip()
+                            n = n.split(':')[0].strip()
                             if n:
                                 referenced_npc_ids.add(n)
                 for skip in skip_rates:

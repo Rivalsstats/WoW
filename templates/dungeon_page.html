@@ -477,8 +477,12 @@
                                             <td class="text-sm text-wrap px-3 pb-0">
                                                 {% if pull.top_npcs %}
                                                 <ul class="list-unstyled mb-0" style="line-height:1.2;">
-                                                    {% for n in pull.top_npcs.split(',') %}
-                                                    {% set name = npcs.get('en_US', {}).get(n, n) %}
+                                                    {% for entry in pull.top_npcs.split(',') %}
+                                                    {% set parts = entry.split(':') %}
+                                                    {% set n = parts[0] %}
+                                                    {% set cnt = parts[1]|int if parts|length > 1 else 1 %}
+                                                    {% set base_name = npcs.get('en_US', {}).get(n, n) %}
+                                                    {% set name = (cnt ~ 'x ' ~ base_name) if cnt > 1 else base_name %}
                                                     {% set is_boss = n|int in bosses %}
                                                     <li class="mb-1">
                                                         {% if n in npc_icons %}
