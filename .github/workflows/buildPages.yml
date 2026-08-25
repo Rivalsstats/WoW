@@ -561,6 +561,7 @@ jobs:
             llms.txt
             assets/img/previews
             assets/json
+            data/icons
           include-hidden-files: true
           retention-days: 1
 
