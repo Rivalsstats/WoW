@@ -724,8 +724,8 @@
                                     Played NPC's</h6>
                             </div>
                         </div>
-                        <div class="card-body px-0 pb-2">
-                            <div class="p-0 custom-scrollbar" style="max-height: 320px; overflow-y: auto; overflow-x: hidden;">
+                        <div class="card-body px-0 pb-2" style="position: relative; min-height: 320px;">
+                            <div class="p-0 custom-scrollbar" style="position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden;">
                                 {% if skip_rates %}
                                 <table id="skip-npcs-table" class="table align-items-center mb-0 w-100">
                                     <thead class="sticky-top" style="z-index: 10; background-color: var(--mythi-surface-raised);">
