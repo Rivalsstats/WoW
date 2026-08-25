@@ -108,19 +108,8 @@ def validate_social_text(text, facts_text):
     return problems
 
 MODELS = [
-    "x-ai/grok-4.1-fast",
-    'x-ai/grok-4.1-fast:free',
-    "deepseek/deepseek-r1:free",
-    "deepseek/deepseek-chat-v3.1:free",
-    "meta-llama/llama-3.3-8b-instruct:free",
-    "openai/gpt-oss-20b:free",
-    "mistralai/mistral-small-3.2-24b-instruct:free",
-    'z-ai/glm-4.5-air:free',
-    'xiaomi/mimo-v2-flash:free',
-    'mistralai/devstral-2512:free',
-    'kwaipilot/kat-coder-pro:free',
-    'nex-agi/deepseek-v3.1-nex-n1:free',
-    'tngtech/deepseek-r1t2-chimera:free'
+    "z-ai/glm-5.2:free",
+    "liquid/lfm-2.5-2.6b:free"
 ]
 
 
