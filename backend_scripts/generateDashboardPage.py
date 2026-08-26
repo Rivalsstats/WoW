@@ -42,16 +42,55 @@ from chartData import (
 )
 
 
-def createKeysPerWeek(periods):
-    # build labels: “1”, “2”, ….
-    period_labels = [f"Week:{p['week']} " for p in periods]
+METRIC_KEYS = ("total_runs", "depleted", "upgrade_1", "upgrade_2", "upgrade_3")
 
-    # pull out the raw counts
-    total_counts = [p["total_runs"] for p in periods]
-    depleted_counts = [p["depleted"] for p in periods]
-    plus_one_counts = [p["upgrade_1"] for p in periods]
-    plus_two_counts = [p["upgrade_2"] for p in periods]
-    plus_three_counts = [p["upgrade_3"] for p in periods]
+
+def createKeysPerWeek(rows):
+    """Build the "Keys per Week" datasets + labels from the per-(week, day) rows
+    returned by fetch_runs_per_period.
+
+    Two grains, decided by how much of the season has elapsed:
+      * >= 2 weeks of data -> one point per week (the normal weekly view).
+      * exactly 1 week      -> one point per day, so the season's first week
+        renders as a daily breakdown instead of a single lonely weekly point.
+
+    Week numbers are normalised so the earliest week present is "Week 1". That
+    keeps this axis numbered identically to the ordinal "Key Throughput" axis
+    and makes it resilient to a stale Blizzard pre-season period lingering in
+    season_periods (which would otherwise inflate every week number by one; see
+    .claude/skills/blizzard-preseason-period). Gaps between real weeks are left
+    intact rather than compressed. Returns (datasets, labels, grain).
+    """
+    if not rows:
+        return [], [], "week"
+
+    weeks = sorted({r["week"] for r in rows})
+    grain = "day" if len(weeks) == 1 else "week"
+
+    if grain == "day":
+        # single week -> dense per-day axis over days 1..max observed day
+        by_day = {r["day"]: r for r in rows}
+        buckets = [by_day.get(day) for day in range(1, max(by_day) + 1)]
+        period_labels = [f"Day {day}" for day in range(1, max(by_day) + 1)]
+    else:
+        # >= 2 weeks -> collapse the per-day rows back to weekly totals
+        offset = weeks[0] - 1  # normalise so the earliest present week == Week 1
+        agg = {w: {k: 0 for k in METRIC_KEYS} for w in weeks}
+        for r in rows:
+            for k in METRIC_KEYS:
+                agg[r["week"]][k] += r[k]
+        buckets = [agg[w] for w in weeks]
+        period_labels = [f"Week {w - offset}" for w in weeks]
+
+    def col(key):
+        # a missing interior day bucket (no runs that day) reads as zero
+        return [(b[key] if b else 0) for b in buckets]
+
+    total_counts = col("total_runs")
+    depleted_counts = col("depleted")
+    plus_one_counts = col("upgrade_1")
+    plus_two_counts = col("upgrade_2")
+    plus_three_counts = col("upgrade_3")
 
     line_colors = {
         "Total": "#4A90E2",
@@ -109,7 +148,7 @@ def createKeysPerWeek(periods):
             "pointHoverRadius": 6,
         },
     ]
-    return period_datasets, period_labels
+    return period_datasets, period_labels, grain
 
 
 def createDungeonPopularity(dungeons, dungeon_lookup):
@@ -337,7 +376,125 @@ def build_period_bounds(period_info):
     return bounds
 
 
-def compute_key_throughput(rows, period_bounds, now_ts=None):
+def _daily_throughput_series(rows, period_bounds, region_day_rows):
+    """Per-region per-day "Key Throughput" chart lines for the season's first week.
+
+    aggregated_key_throughput is keyed per (season, region, period) with only a
+    run_count + max_ts, so it has no per-day grain and must not gain one. In the
+    season's first week a single weekly point looks sparse, so the chart is drawn
+    from raw per-(region, period, day) run counts (fetch_runs_per_region_day).
+    The KPI headline still comes from the weekly rows (see compute_key_throughput);
+    only the chart labels + series switch to day grain.
+
+    The region set is taken from the aggregated `rows` (the SAME canonical set
+    the weekly chart draws), NOT from the runs query, so the two charts never
+    disagree on which regions appear. Each region is lined up with the exact
+    period_id it carries in `rows`, and its day counts are pulled for that same
+    period_id (aggregated_key_throughput and the runs query share one
+    runs<->season_periods join, so a region present in `rows` resolves to day
+    rows here). A region in `rows` with no day rows for its period draws an
+    all-None (empty) line rather than being dropped, keeping the legend in step.
+
+    Each region's day rate = region_day_count / day-minutes, with the day
+    boundaries anchored at THAT region's own period start (numerator and
+    denominator therefore share one region-relative clock). A completed day is
+    1440 minutes; the region's last (ongoing) day is elapsed minutes (that
+    region's latest run ts - the day's start). The Overall line sums the
+    available per-region rates per day, exactly like the weekly Overall. Region
+    colour/order reuse REGION_COLORS / _region_sort_key / OVERALL_COLOR. Fails
+    loudly if a region's static period bounds are missing.
+
+    Returns just {"labels", "series"}; the caller keeps the weekly KPI figures.
+    """
+    MS_PER_MIN = 60000.0
+    DAY_MS = 86400000
+
+    if not rows:
+        return {"labels": [], "series": []}
+
+    # per region (from the canonical aggregated rows): its current-week period
+    # (max period_id) plus that region's latest observed run ts. period_bounds
+    # reflects periods.json, which can already list a not-yet-started next
+    # period, so the aggregated rows are what say which week we are actually in.
+    latest_pid = {}
+    latest_maxts = {}
+    for r in rows:
+        reg = r["region"].lower()
+        pid = r["period_id"]
+        if reg not in latest_pid or pid > latest_pid[reg]:
+            latest_pid[reg] = pid
+            latest_maxts[reg] = r["max_ts"]
+        elif pid == latest_pid[reg]:
+            latest_maxts[reg] = max(latest_maxts[reg], r["max_ts"])
+
+    # day counts keyed by (region, period_id) so each region can be joined to the
+    # exact period it carries in the aggregated rows.
+    region_day_counts = defaultdict(dict)
+    for rd in region_day_rows or []:
+        reg = rd["region"].lower()
+        region_day_counts[(reg, rd["period_id"])][rd["day"]] = rd["run_count"]
+
+    # region set is the weekly (aggregated) set, so daily and weekly always agree
+    regions = sorted(latest_pid, key=_region_sort_key)
+    per_region_days = [
+        region_day_counts.get((reg, latest_pid[reg]), {}) for reg in regions
+    ]
+    n_days = max((max(days) for days in per_region_days if days), default=0)
+    if n_days == 0:
+        return {"labels": [], "series": []}
+
+    series = []
+    for reg in regions:
+        if (reg, latest_pid[reg]) not in period_bounds:
+            raise ValueError(
+                f"compute_key_throughput: no static period bounds for region "
+                f"{reg!r} period {latest_pid[reg]}; cannot compute week-1 "
+                "daily throughput rates."
+            )
+        start_ts = period_bounds[(reg, latest_pid[reg])][0]
+        latest_ts = latest_maxts[reg]
+        counts = region_day_counts.get((reg, latest_pid[reg]), {})
+        # a region present in the aggregated rows but with no per-day runs rows
+        # (a genuine runs/aggregate inconsistency) draws an all-None empty line.
+        region_last_day = max(counts) if counts else 0
+        data = []
+        for day in range(1, n_days + 1):
+            if day > region_last_day:
+                data.append(None)  # region has no data this far into the week yet
+                continue
+            day_start = start_ts + (day - 1) * DAY_MS
+            day_end = day_start + DAY_MS
+            if latest_ts >= day_end:
+                minutes = DAY_MS / MS_PER_MIN  # completed day
+            else:
+                minutes = (latest_ts - day_start) / MS_PER_MIN  # ongoing day so far
+            count = counts.get(day, 0)
+            data.append(round(count / minutes, 1) if minutes and minutes > 0 else None)
+        series.append(
+            {
+                "region": reg.upper(),
+                "color": REGION_COLORS.get(reg, "#9ca3af"),
+                "data": data,
+                "overall": False,
+            }
+        )
+
+    # Overall line = sum of the available per-region rates per day (same
+    # definition as the weekly Overall).
+    overall = []
+    for i in range(n_days):
+        vals = [s["data"][i] for s in series if s["data"][i] is not None]
+        overall.append(round(sum(vals), 1) if vals else None)
+    series.insert(
+        0,
+        {"region": "Overall", "color": OVERALL_COLOR, "data": overall, "overall": True},
+    )
+
+    labels = [f"Day {d}" for d in range(1, n_days + 1)]
+    return {"labels": labels, "series": series}
+
+
+def compute_key_throughput(rows, period_bounds, now_ts=None, daily_region_rows=None):
     """
     Build the dashboard "Key Throughput" figures from the pre-aggregated
     per-(region, period) rows returned by fetch_key_throughput.
@@ -354,6 +511,13 @@ def compute_key_throughput(rows, period_bounds, now_ts=None):
         instead of being inflated by a short observed run span.
       * Ongoing (current) period -> elapsed time so far (latest run - start),
         so a partially elapsed week isn't divided by a whole week.
+
+    When `daily_region_rows` is supplied (season week 1, single week of data)
+    ONLY the chart labels + series switch to the per-region per-day breakdown so
+    the chart stays in step with the "Keys per Week" card. The KPI headline
+    (current_total / season_total / delta_pct) is always the weekly number, so
+    the "/min this week" figure is identical whether the chart is weekly or
+    daily; see _daily_throughput_series.
     """
     MS_PER_MIN = 60000.0
     if now_ts is None:
@@ -439,6 +603,13 @@ def compute_key_throughput(rows, period_bounds, now_ts=None):
         if season_total
         else 0.0
     )
+
+    # Season week 1: keep the weekly KPI headline, but redraw the chart itself as
+    # per-region daily lines.
+    if daily_region_rows is not None:
+        daily = _daily_throughput_series(rows, period_bounds, daily_region_rows)
+        labels = daily["labels"]
+        series = daily["series"]
 
     return {
         "current_total": current_total,
@@ -575,17 +746,37 @@ def main(template_path, output_dir):
         key_throughput_rows = databaseConnector.fetch_key_throughput(
             conn, cursor, current_season_id
         )
+        # Season week 1 (single week of data) redraws the throughput chart as
+        # per-region daily lines. Fetch the raw per-(region, day) run counts only
+        # then, so the normal 2+ week path pays for no extra scan. Same
+        # single-week rule createKeysPerWeek uses to pick the "day" grain.
+        key_throughput_region_day_rows = None
+        if len({r["week"] for r in runs_per_period}) == 1:
+            print("fetching per-region daily runs (season week 1)...")
+            key_throughput_region_day_rows = (
+                databaseConnector.fetch_runs_per_region_day(
+                    conn, cursor, current_season_id
+                )
+            )
         print("fetching completion heatmap...")
         completion_heatmap_rows = databaseConnector.fetch_completion_heatmap(
             conn, cursor, current_season_id
         )
+    print("Creating Keys Per Week...")
+    # grain ("week" vs the season-week-1 "day" breakdown) is decided here from
+    # the per-(week, day) run counts and shared with the throughput chart below
+    # so both cards stay in the same grain.
+    period_datasets, period_labels, period_grain = createKeysPerWeek(runs_per_period)
     print("Computing key throughput...")
     generated_at = datetime.now(timezone.utc).timestamp()
     period_bounds = build_period_bounds(
         load_json(os.path.join(LOOKUP_DIR, "periods.json"))
     )
     key_throughput = compute_key_throughput(
-        key_throughput_rows, period_bounds, now_ts=generated_at * 1000.0
+        key_throughput_rows,
+        period_bounds,
+        now_ts=generated_at * 1000.0,
+        daily_region_rows=key_throughput_region_day_rows,
     )
     print("Computing patch annotations...")
     patch_list = load_json(os.path.join(LOOKUP_DIR, "patches.json"))
@@ -604,8 +795,6 @@ def main(template_path, output_dir):
     scatter_data = create_spec_scatter(
         spec_upgrades, spec_lookup, class_lookup, highest_run
     )
-    print("Creating Keys Per Week...")
-    period_datasets, period_labels = createKeysPerWeek(runs_per_period)
     print("Creating Dungeon Popularity...")
     dungeon_chart = createDungeonPopularity(dungeon_data, dungeon_lookup)
     print("Creating Dungeon Ease...")
@@ -634,6 +823,7 @@ def main(template_path, output_dir):
         spec_run_counts_per_level=datasets_json,
         period_datasets=period_datasets,
         period_labels=period_labels,
+        period_grain=period_grain,
         dungeon_labels=dungeon_chart["labels"],
         dungeon_full_names=dungeon_chart["fullNames"],
         dungeon_icon_urls=dungeon_chart["iconUrls"],

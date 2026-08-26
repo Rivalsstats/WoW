@@ -2016,6 +2016,7 @@ FETCH_RUNS_PER_PERIOD = """
 -- params: (season, season)
 SELECT
   t.week,
+  t.day_in_week,
   SUM(CASE WHEN t.upgrade_tier = '3' THEN 1 ELSE 0 END) AS tier_3,
   SUM(CASE WHEN t.upgrade_tier = '2' THEN 1 ELSE 0 END) AS tier_2,
   SUM(CASE WHEN t.upgrade_tier = '1' THEN 1 ELSE 0 END) AS tier_1,
@@ -2060,8 +2061,8 @@ FROM (
    AND r.timestamp < rp.end_timestamp
   WHERE r.season = %s
 ) AS t
-GROUP BY t.week
-ORDER BY t.week;
+GROUP BY t.week, t.day_in_week
+ORDER BY t.week, t.day_in_week;
 """
 
 
@@ -2073,11 +2074,56 @@ def fetch_runs_per_period(connection, cursor, season):
     return [
         {
             "week": int(row[0]),
-            "upgrade_3": int(row[1]),
-            "upgrade_2": int(row[2]),
-            "upgrade_1": int(row[3]),
-            "depleted": int(row[4]),
-            "total_runs": int(row[5]),
+            "day": int(row[1]),
+            "upgrade_3": int(row[2]),
+            "upgrade_2": int(row[3]),
+            "upgrade_1": int(row[4]),
+            "depleted": int(row[5]),
+            "total_runs": int(row[6]),
+        }
+        for row in rows
+    ]
+
+
+# Per-(region, period, day) run counts straight from the runs table. Used only
+# for the season week-1 "Key Throughput" daily breakdown, where per-region daily
+# lines are needed but aggregated_key_throughput has no per-day grain. Keyed by
+# period_id (not a COUNT-derived week number) so callers can line each region up
+# with the SAME period_id it carries in aggregated_key_throughput. The join is
+# the exact runs<->season_periods timestamp join sp_agg_key_throughput uses to
+# build aggregated_key_throughput, so a (region, period) present there resolves
+# to the same day rows here. day_in_week is region-relative (days counted from
+# that region's own period start).
+FETCH_RUNS_PER_REGION_DAY = """
+-- params: (season,)
+SELECT
+  sp.region,
+  sp.period_id,
+  LEAST(GREATEST(FLOOR((r.timestamp - sp.start_timestamp) / 86400000) + 1, 1), 7) AS day_in_week,
+  COUNT(*) AS run_count
+FROM runs r
+JOIN season_periods sp
+  ON sp.region = r.region
+ AND sp.season = r.season
+ AND r.timestamp >= sp.start_timestamp
+ AND r.timestamp <  sp.end_timestamp
+WHERE r.season = %s
+GROUP BY sp.region, sp.period_id, day_in_week
+ORDER BY sp.region, sp.period_id, day_in_week;
+"""
+
+
+def fetch_runs_per_region_day(connection, cursor, season):
+    params = (season,)
+    rows = fetch_with_retry(connection, cursor, FETCH_RUNS_PER_REGION_DAY, params)
+    if not rows:
+        return []
+    return [
+        {
+            "region": row[0],
+            "period_id": int(row[1]),
+            "day": int(row[2]),
+            "run_count": int(row[3]),
         }
         for row in rows
     ]
