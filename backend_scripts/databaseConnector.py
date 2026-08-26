@@ -2129,6 +2129,50 @@ def fetch_runs_per_region_day(connection, cursor, season):
     ]
 
 
+# Latest run timestamp per region for a season. The dashboard generator's period
+# self-heal compares this against the last season_period end it knows about to
+# detect a region whose current period is missing from season_periods.
+FETCH_REGION_RUN_EXTENT = """
+SELECT region, MAX(timestamp) AS max_ts
+FROM runs
+WHERE season = %s
+GROUP BY region;
+"""
+
+
+def fetch_region_run_extent(connection, cursor, season):
+    rows = fetch_with_retry(connection, cursor, FETCH_REGION_RUN_EXTENT, (season,))
+    if not rows:
+        return {}
+    return {
+        (row[0].lower() if isinstance(row[0], str) else row[0]): (
+            int(row[1]) if row[1] is not None else None
+        )
+        for row in rows
+    }
+
+
+# run_count + max_ts for one (region, period) window straight from runs, matching
+# the runs<->season_periods timestamp join. Lets the self-heal inject a healed
+# region's throughput row in memory without rebuilding aggregated_key_throughput.
+FETCH_PERIOD_RUN_STATS = """
+SELECT COUNT(*) AS run_count, MAX(timestamp) AS max_ts
+FROM runs
+WHERE season = %s AND region = %s AND timestamp >= %s AND timestamp < %s;
+"""
+
+
+def fetch_period_run_stats(connection, cursor, season, region, start_ts, end_ts):
+    rows = fetch_with_retry(
+        connection, cursor, FETCH_PERIOD_RUN_STATS, (season, region, start_ts, end_ts)
+    )
+    if not rows:
+        return {"run_count": 0, "max_ts": None}
+    run_count = int(rows[0][0] or 0)
+    max_ts = int(rows[0][1]) if rows[0][1] is not None else None
+    return {"run_count": run_count, "max_ts": max_ts}
+
+
 FETCH_KEY_THROUGHPUT_SQL = """
 SELECT region, period_id, run_count, max_ts
 FROM aggregated_key_throughput

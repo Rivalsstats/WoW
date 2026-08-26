@@ -426,6 +426,12 @@ jobs:
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORT }}
           DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
           DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+          # For the on-demand period self-heal (fetches a region's missing
+          # current period from Blizzard when this daily build runs between the
+          # weekly getStaticData fetch and a later regional reset, e.g. KR/TW on
+          # Thursday). Gated + fail-soft: absent creds just skip the heal.
+          BLIZ_CLIENT_ID: ${{ secrets.BLIZ_CLIENT_ID }}
+          BLIZ_CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
         run: |
           python backend_scripts/generateDashboardPage.py \
             --template templates/dashboard.html \

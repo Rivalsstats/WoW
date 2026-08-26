@@ -13,14 +13,9 @@ import commonUtils
 # List of Blizzard API regions to process
 regions = ["us", "eu", "kr", "tw"]
 
-databaseConnector.init_connection_pool(
-    os.environ.get("DATABASE_HOST"),
-    os.environ.get("DATABASE_USER"),
-    os.environ.get("DATABASE_PASSWORD"),
-    os.environ.get("DATABASE_NAME"),
-    os.environ.get("DATABASE_PORT"),
-    1,
-)
+# NOTE: the connection pool is initialised inside main() (not at import time) so
+# this module can be imported for its reusable Blizzard helpers (e.g. by the
+# dashboard generator's period self-heal) without side effects.
 
 # Base template URLs
 season_index_url = (
@@ -57,6 +52,48 @@ def blizzard_get(url, params=None, token=None):
     resp = requests.get(url, headers=headers, params=params)
     resp.raise_for_status()
     return resp.json()
+
+
+# --- Reusable season/period fetch helpers -----------------------------------
+# Shared by main() (the scheduled getStaticData fetch) and by the dashboard
+# generator's on-demand period self-heal, so the API shape and the phantom-
+# preseason filter live in exactly one place.
+
+def get_current_season_id(region, token):
+    """Blizzard's current mythic-keystone season id for a region."""
+    idx = blizzard_get(
+        season_index_url.format(region=region),
+        params={"namespace": f"dynamic-{region}", "locale": "en_US"},
+        token=token,
+    )
+    return idx["current_season"]["id"]
+
+
+def fetch_season_details(region, season_id, token):
+    """Season details for (region, season_id): includes ``start_timestamp`` and
+    the ``periods`` list (each with an ``id``)."""
+    return blizzard_get(
+        season_details_url.format(region=region, season_id=season_id),
+        params={"namespace": f"dynamic-{region}", "locale": "en_US"},
+        token=token,
+    )
+
+
+def fetch_period_details(region, period_id, token):
+    """Period details for (region, period_id): ``id``, ``start_timestamp``,
+    ``end_timestamp``."""
+    return blizzard_get(
+        period_details_url.format(region=region, period_id=period_id),
+        params={"namespace": f"dynamic-{region}", "locale": "en_US"},
+        token=token,
+    )
+
+
+def is_preseason_period(period_resp, season_start):
+    """Blizzard lists the period *ending exactly at the season start* (the
+    phantom pre-season week; zero runs). It is filtered everywhere to keep week
+    numbering aligned. See the blizzard-preseason-period skill."""
+    return period_resp["end_timestamp"] <= season_start
 
 
 def fetch_rio_season(expansion_id):
@@ -138,28 +175,26 @@ def fetch_max_character_level(min_occurrences=10, ceiling=100):
 
 
 def main():
+    databaseConnector.init_connection_pool(
+        os.environ.get("DATABASE_HOST"),
+        os.environ.get("DATABASE_USER"),
+        os.environ.get("DATABASE_PASSWORD"),
+        os.environ.get("DATABASE_NAME"),
+        os.environ.get("DATABASE_PORT"),
+        1,
+    )
     token = get_access_token()
     all_regions_data = {}
     highest_season_id = 0
     for region in regions:
         print(f"Fetching data for region: {region}")
-        namespace = f"dynamic-{region}"
         # Get current season index
-        idx_resp = blizzard_get(
-            season_index_url.format(region=region),
-            params={"namespace": namespace, "locale": "en_US"},
-            token=token,
-        )
-        season_id = idx_resp["current_season"]["id"]
+        season_id = get_current_season_id(region, token)
         if season_id > highest_season_id:
             highest_season_id = season_id
 
         # Get season details to extract period IDs
-        season_resp = blizzard_get(
-            season_details_url.format(region=region, season_id=season_id),
-            params={"namespace": namespace, "locale": "en_US"},
-            token=token,
-        )
+        season_resp = fetch_season_details(region, season_id, token)
         periods = season_resp.get("periods", [])
         season_start = season_resp["start_timestamp"]
 
@@ -170,16 +205,12 @@ def main():
             for p in periods:
                 print(f"Processing period ID: {p['id']}")
                 pid = p["id"]
-                per_resp = blizzard_get(
-                    period_details_url.format(region=region, period_id=pid),
-                    params={"namespace": namespace, "locale": "en_US"},
-                    token=token,
-                )
+                per_resp = fetch_period_details(region, pid, token)
                 # Blizzard lists the period *preceding* the season start too
                 # (e.g. period 1055 ends exactly at the season-17 start). That
                 # pre-season week has no runs and would shift week numbering
                 # off by one, so drop it here and from season_periods.
-                if per_resp["end_timestamp"] <= season_start:
+                if is_preseason_period(per_resp, season_start):
                     print(f"Skipping pre-season period {pid} for {region}")
                     continue
                 region_periods.append(

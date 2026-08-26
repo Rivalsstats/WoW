@@ -376,6 +376,107 @@ def build_period_bounds(period_info):
     return bounds
 
 
+def _region_period_gaps(period_bounds, region_extents):
+    """Regions whose latest run falls at/after the last season_period we know
+    about — i.e. their current period is missing from season_periods/periods.json.
+
+    In steady state the current (ongoing) period's end_timestamp is in the
+    future, so a region's max run ts is < its max known period end and NOTHING
+    is returned (the self-heal then makes zero network calls). A gap appears only
+    when a region's current period is absent, e.g. KR/TW between the Wednesday
+    getStaticData period fetch and their Thursday reset.
+    """
+    region_max_end = {}
+    for (reg, _pid), (_start, end) in period_bounds.items():
+        if end is not None:
+            region_max_end[reg] = max(region_max_end.get(reg, end), end)
+    gaps = []
+    for reg, max_ts in region_extents.items():
+        if max_ts is None:
+            continue
+        known_end = region_max_end.get(reg)
+        if known_end is None or max_ts >= known_end:
+            gaps.append(reg)
+    return sorted(gaps, key=_region_sort_key)
+
+
+def _rewrite_periods_json(healed):
+    """Persist healed periods into data/static/periods.json so they survive to
+    the next build (fail-soft, mirroring how the dungeon-icon self-heal rewrites
+    npcs.json). A write failure only costs the persistence; the current render
+    already used the in-memory period_bounds.
+    """
+    path = os.path.join(LOOKUP_DIR, "periods.json")
+    try:
+        data = load_json(path)
+        for region, pid, start, end in healed:
+            entry = data.setdefault(region, {"periods": []})
+            periods = entry.setdefault("periods", [])
+            if not any(int(p.get("id")) == pid for p in periods):
+                periods.append(
+                    {"id": pid, "start_timestamp": start, "end_timestamp": end}
+                )
+                periods.sort(key=lambda p: int(p["start_timestamp"]))
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+        print(f"Self-heal: rewrote {path} with {len(healed)} healed period(s)")
+    except Exception as e:
+        print(f"WARNING: self-heal could not rewrite periods.json: {e}")
+
+
+def heal_missing_periods(
+    conn, cursor, season, period_bounds, region_extents, blizzard=None
+):
+    """On-demand, fetch-based self-heal for regions whose current season_period
+    is missing (see _region_period_gaps for the root cause). Gated on a detected
+    gap, so steady state makes zero network calls, exactly like the dungeon-icon
+    self-heal gating on a missing set.
+
+    For each gap region it fetches THIS season's period list from the Blizzard
+    API, inserts any missing non-preseason period into season_periods, updates
+    the in-memory ``period_bounds`` (critical: compute_key_throughput reads
+    bounds from periods.json, not the DB), and rewrites periods.json. Returns the
+    list of healed ``(region, period_id, start, end)`` so the caller can fold
+    those regions' runs into the throughput data for this render.
+
+    ``blizzard`` is injectable for tests; it defaults to the
+    fetchSeasonAndPeriodInfo module (get_access_token / fetch_season_details /
+    fetch_period_details / is_preseason_period). The CALLER wraps this in
+    try/except: any failure (missing creds, API, network) leaves the render on
+    the data it already has — never raises, never fails the build.
+    """
+    gaps = _region_period_gaps(period_bounds, region_extents)
+    if not gaps:
+        return []
+    if blizzard is None:
+        import fetchSeasonAndPeriodInfo as blizzard  # lazy: avoid import cost/creds in steady state
+
+    token = blizzard.get_access_token()
+    healed = []
+    for region in gaps:
+        detail = blizzard.fetch_season_details(region, season, token)
+        season_start = detail["start_timestamp"]
+        for p in detail.get("periods", []):
+            pid = int(p["id"])
+            if (region, pid) in period_bounds:
+                continue
+            per = blizzard.fetch_period_details(region, pid, token)
+            if blizzard.is_preseason_period(per, season_start):
+                continue
+            start = int(per["start_timestamp"])
+            end = int(per["end_timestamp"])
+            databaseConnector.insert_season_periods(
+                conn, cursor, region, pid, start, end, season
+            )
+            period_bounds[(region, pid)] = (start, end)
+            healed.append((region, pid, start, end))
+            print(f"Self-heal: added missing period {pid} for {region}")
+    if healed:
+        databaseConnector.commit_changes(conn)
+        _rewrite_periods_json(healed)
+    return healed
+
+
 def _daily_throughput_series(rows, period_bounds, region_day_rows):
     """Per-region per-day "Key Throughput" chart lines for the season's first week.
 
@@ -708,6 +809,12 @@ def main(template_path, output_dir):
     template = env.get_template(os.path.basename(template_path))
     print("Fetching data from database...")
     current_season_id = int(season_info["blizzard_season_id"])
+    # Static period bounds from periods.json (the self-heal below may add to this
+    # in memory and rewrite the file). compute_key_throughput reads bounds from
+    # here, not the DB.
+    period_bounds = build_period_bounds(
+        load_json(os.path.join(LOOKUP_DIR, "periods.json"))
+    )
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()
         databaseConnector.configure_read_session(conn, cursor)
@@ -746,10 +853,49 @@ def main(template_path, output_dir):
         key_throughput_rows = databaseConnector.fetch_key_throughput(
             conn, cursor, current_season_id
         )
+        # On-demand period self-heal (gated, fail-soft): if any region has runs
+        # past its last known season_period (its current period is missing —
+        # e.g. KR/TW between the Wednesday period fetch and their Thursday reset),
+        # fetch the missing bounds from Blizzard so the region rejoins the runs.
+        # Wrapped so any failure just renders with the data we already have.
+        region_extents = databaseConnector.fetch_region_run_extent(
+            conn, cursor, current_season_id
+        )
+        healed_periods = []
+        try:
+            healed_periods = heal_missing_periods(
+                conn, cursor, current_season_id, period_bounds, region_extents
+            )
+        except Exception as heal_err:
+            print(
+                f"WARNING: period self-heal skipped (rendering with existing "
+                f"data): {heal_err}"
+            )
+        if healed_periods:
+            # the healed regions' late runs now join season_periods: refresh the
+            # run-based series and inject the healed (region, period) throughput
+            # rows in memory (no aggregated_key_throughput rebuild / RENAME).
+            runs_per_period = databaseConnector.fetch_runs_per_period(
+                conn, cursor, current_season_id
+            )
+            for region, pid, start, end in healed_periods:
+                stats = databaseConnector.fetch_period_run_stats(
+                    conn, cursor, current_season_id, region, start, end
+                )
+                if stats["run_count"]:
+                    key_throughput_rows.append(
+                        {
+                            "region": region,
+                            "period_id": pid,
+                            "run_count": stats["run_count"],
+                            "max_ts": stats["max_ts"],
+                        }
+                    )
         # Season week 1 (single week of data) redraws the throughput chart as
         # per-region daily lines. Fetch the raw per-(region, day) run counts only
         # then, so the normal 2+ week path pays for no extra scan. Same
-        # single-week rule createKeysPerWeek uses to pick the "day" grain.
+        # single-week rule createKeysPerWeek uses to pick the "day" grain. Done
+        # after the self-heal so healed periods are included.
         key_throughput_region_day_rows = None
         if len({r["week"] for r in runs_per_period}) == 1:
             print("fetching per-region daily runs (season week 1)...")
@@ -769,9 +915,6 @@ def main(template_path, output_dir):
     period_datasets, period_labels, period_grain = createKeysPerWeek(runs_per_period)
     print("Computing key throughput...")
     generated_at = datetime.now(timezone.utc).timestamp()
-    period_bounds = build_period_bounds(
-        load_json(os.path.join(LOOKUP_DIR, "periods.json"))
-    )
     key_throughput = compute_key_throughput(
         key_throughput_rows,
         period_bounds,
