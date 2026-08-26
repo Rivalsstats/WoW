@@ -132,14 +132,18 @@
       </a>
       {% endif %}
       {% if entry.enchantment and enchant_lookup[entry.enchantment.id] %}
-      <a target="_blank"
-        href="https://www.wowhead.com/item={{ enchant_lookup[entry.enchantment.id].itemId }}&spec={{ spec_id }}" {% if
+      {% if enchant_lookup[entry.enchantment.id].itemId %}
+      {% set enchant_url = "https://www.wowhead.com/item=" ~ enchant_lookup[entry.enchantment.id].itemId ~ "&spec=" ~
+      spec_id %}
+      {% else %}
+      {% set enchant_url = "https://www.wowhead.com/spell=" ~ enchant_lookup[entry.enchantment.id].spellId ~ "&spec=" ~
+      spec_id %}
+      {% endif %}
+      <a target="_blank" href="{{ enchant_url }}" {% if
         tag=='button' %}onclick="event.preventDefault();" {% endif %} class="secondary-icon-link">
         <div class="position-relative secondary-icon-wrapper">
-          {% set icon = (enchant_lookup[entry.enchantment.id].itemIcon) or (enchant_lookup[entry.enchantment.id].icon)
-          %}
           <!-- Base icon -->
-          <img src="/data/icons/{{ icon }}.png" alt=""
+          <img src="/data/icons/{% if enchant_lookup[entry.enchantment.id].itemIcon %}{{ enchant_lookup[entry.enchantment.id].itemIcon }}.png{% else %}{{ enchant_lookup[entry.enchantment.id].spellIcon }}.png{% endif %}" alt=""
             class="position-absolute top-0 start-0 border {% if enchant_lookup[entry.enchantment.id].quality %}border-quality-{{enchant_lookup[entry.enchantment.id].quality}} {% else %}border-grey-100{% endif %} secondary-icon-base">
           {% if enchant_lookup[entry.enchantment.id].craftingQuality %}
           <!-- Overlay icon -->
