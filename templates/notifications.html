@@ -1,8 +1,9 @@
 {% for notification in notifications %}
 {% if notification and notification.message and (not notification.page or notification.page == active_page or (current_dungeon and notification.page == current_dungeon)) %}
 <div class="container-fluid">
-    <div id="page-notification"
-        class="alert alert-{{ notification.type | default('warning') }} alert-dismissible d-flex align-items-center mx-3 my-2"
+    <div id="page-notification-{{ loop.index }}"
+        class="alert alert-{{ notification.type | default('warning') }} alert-dismissible d-flex align-items-center mx-3 my-2 page-notification"
+        data-notification-key="{{ notification.id or (notification.message ~ '|' ~ (notification.link | default(''))) }}"
         role="alert">
         <span class="material-symbols-rounded me-2" aria-hidden="true">announcement</span>
         <div class="flex-fill">{{ notification.message | safe }}</div>
@@ -21,3 +22,10 @@
 </div>
 {% endif %}
 {% endfor %}
+<!-- Persist dismissible-notification dismissals across pages/reloads. Loaded
+     synchronously right after the notification markup above (not deferred, not in
+     javascript_imports.html) so already-dismissed notifications are removed before
+     the browser paints them, avoiding a flash-then-disappear. Lives in this shared
+     include because every page composes it directly (the site templates use
+     include-composition, not a base_template layout). -->
+<script src="/assets/js/notifications.js"></script>
