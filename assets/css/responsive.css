@@ -80,43 +80,48 @@
   }
 }
 
-/* ---------- Sidenav: stop the footer (support buttons) overlapping links ---------- */
-/* On small screens the sidenav is an in-flow offcanvas; the absolutely
-   positioned footer would overlap the nav list. Let it flow normally. */
-@media (max-width: 1199.98px) {
-  #sidenav-main .sidenav-footer {
-    position: static !important;
-    margin-top: 1rem;
-  }
-  #sidenav-main #sidenav-collapse-main {
-    padding-bottom: 1rem !important;
-  }
+/* ---------- Sidenav: contain the scroll list cleanly above the footer ---------- */
+/* The sidenav is a fixed, full-height column: a header, a scrollable nav list,
+   and a support/share footer. material-dashboard.css absolutely positioned the
+   footer (out of flow, transparent bg, z-index:1100) over a nav list pinned to
+   a flat height: 72vh. Because the footer reserved no space, the list box
+   physically extended behind it, so on many viewport heights nav items painted
+   through the footer and its border-top cut across an item mid-row. The old
+   fix reserved scroll distance with a magic padding-bottom, which never stopped
+   the paint-through and broke whenever the footer's real content (~280px) was
+   taller than the guessed value.
+
+   Lay the whole aside out as a flex column instead. The list takes the
+   remaining space and scrolls within its own box — which now ends exactly where
+   the footer begins — and the footer sits in normal flow below it, always fully
+   on-screen with the share buttons reachable. Robust at any viewport height,
+   and it subsumes the per-breakpoint padding hacks for both desktop and the
+   <1200px offcanvas (where the aside is still a fixed, full-height column). */
+#sidenav-main {
+  display: flex !important;
+  flex-direction: column;
+  flex-wrap: nowrap; /* the aside carries Bootstrap's .navbar (flex-wrap: wrap);
+                        with the list's flex-basis:100% that would wrap the
+                        footer onto a new line, back over the top of the list */
+  overflow: hidden; /* only the inner list scrolls; the footer stays put */
 }
-/* On very short viewports (e.g. landscape phones) the same overlap happens
-   even on desktop layout — give the list room to scroll past the footer. */
-@media (min-width: 1200px) and (max-height: 760px) {
-  #sidenav-main .sidenav-footer {
-    position: static !important;
-  }
-  #sidenav-main #sidenav-collapse-main {
-    padding-bottom: 1rem !important;
-  }
+#sidenav-main .sidenav-header,
+#sidenav-main > hr {
+  flex: 0 0 auto;
 }
-/* Everywhere else the footer stays bottom-anchored and absolutely positioned,
-   and material-dashboard.css pins it to a flat height: 20vh. Its content — the
-   two support buttons plus the share row — is ~280px tall, so on any window
-   shorter than ~1400px the bottom of the block ran off the screen: the share
-   buttons were unreachable on an ordinary laptop. Let the box grow with its
-   content instead, and give the scrollable list room to clear it (it is
-   absolutely positioned, so it reserves no space of its own). */
-@media (min-width: 1200px) and (min-height: 760.02px) {
-  #sidenav-main .sidenav-footer {
-    height: auto;
-    min-height: 20vh;
-  }
-  #sidenav-main #sidenav-collapse-main {
-    padding-bottom: 18rem !important;
-  }
+#sidenav-main #sidenav-collapse-main {
+  flex: 1 1 auto;
+  min-height: 0; /* let the flex child shrink so overflow-y actually scrolls */
+  height: auto !important; /* drop material-dashboard's flat 72vh */
+  padding-bottom: 0 !important; /* the reserved-space hack is no longer needed */
+}
+#sidenav-main .sidenav-footer {
+  position: static !important; /* back in flow; can no longer overlap the list */
+  flex: 0 0 auto;
+  height: auto !important; /* drop material-dashboard's flat 20vh */
+  /* opaque backstop matching the aside so the border-top/shadow read cleanly
+     and nothing shows through even if a sub-pixel seam appears */
+  background-color: inherit;
 }
 
 /* ---------- Run cards: long key/dungeon/region headline overflow ---------- */
