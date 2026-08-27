@@ -26,6 +26,7 @@ Runs on the already-collapsed comps, so it is a few-thousand-row, sub-second pas
 extra DB work. build_dungeon_archetypes() is the page entry point.
 """
 
+import math
 from collections import Counter, defaultdict
 from itertools import combinations
 
@@ -102,6 +103,78 @@ def collapse_comps(rows, spec_lookup):
             dj["avg_key"] = round(dj.pop("_ka") / dj["runs"], 2) if dj["runs"] else 0
         out.append(e)
     return out
+
+
+def compute_glue_specs(comps, spec_lookup):
+    """Glue Specs / Flexibility Index (the comps page card + its trend feed).
+
+    For each spec, count in how many distinct viable high-key comps (timed > 5, avg
+    key > 12) it appears, then debias that count for play volume WITHIN its role: a
+    more-played spec shows up in more distinct comps simply because there is more data,
+    so within a role we fit that role's runs->comps trend (log-log least squares) and
+    score each spec by how far it sits above its role's trend (genuine versatility, not
+    popularity). Low-sample specs are shrunk toward the trend so they sit mid-pack until
+    there is evidence. Grouped by role and shown as a percent of the most flexible spec
+    in that role (a tank and a dps can't be compared directly).
+
+    ``comps`` is any iterable of dicts exposing ``specs`` / ``timed`` / ``depleted`` /
+    ``avg_key`` / ``max_key`` (unique_comps_list on the comps page; the collapse_comps
+    output adapted in snapshotTrends). Returns (glue_specs_by_role, glue_specs_list):
+    a role -> ranked-spec-list map (each {spec_id, comps, runs, max_key, flex_score,
+    flex_pct}) and a flat top-10 by raw comp count (kept for the social preview image)."""
+    flex_stats = {}
+    for data in comps:
+        if data['timed'] > 5 and data['avg_key'] > 12:
+            for s in data['specs']:
+                fs = flex_stats.setdefault(s, {'comps': 0, 'runs': 0, 'max_key': 0})
+                fs['comps'] += 1
+                fs['runs'] += data['timed'] + data['depleted']
+                fs['max_key'] = max(fs['max_key'], data['max_key'])
+
+    def score_flexibility(specs):
+        points = [(math.log(g['runs']), math.log(g['comps']))
+                  for g in specs if g['runs'] > 0 and g['comps'] > 0]
+        n = len(points)
+        if n >= 2:
+            mx = sum(p[0] for p in points) / n
+            my = sum(p[1] for p in points) / n
+            var = sum((p[0] - mx) ** 2 for p in points)
+            cov = sum((p[0] - mx) * (p[1] - my) for p in points)
+            slope = cov / var if var else 0.0
+            intercept = my - slope * mx
+        else:
+            slope, intercept = 0.0, 0.0
+        runs_sorted = sorted(g['runs'] for g in specs)
+        shrink_k = runs_sorted[len(runs_sorted) // 2] if runs_sorted else 1  # role median runs
+        for g in specs:
+            if g['runs'] > 0 and g['comps'] > 0:
+                residual = math.log(g['comps']) - (intercept + slope * math.log(g['runs']))
+                reliability = g['runs'] / (g['runs'] + shrink_k)  # 0..1, shrink low data
+                g['flex_score'] = math.exp(residual * reliability)
+            else:
+                g['flex_score'] = 0.0
+
+    # bucket by role (0=tank, 1=healer, 2=dps)
+    glue_specs_by_role = {'0': [], '1': [], '2': []}
+    for spec_id, fs in flex_stats.items():
+        role = str(spec_lookup.get(str(spec_id), {}).get('role', 2))
+        glue_specs_by_role.setdefault(role, [])
+        glue_specs_by_role[role].append({'spec_id': spec_id, **fs})
+
+    # fit + score within each role, then percentage relative to the role's best
+    for role, specs in glue_specs_by_role.items():
+        score_flexibility(specs)
+        max_score = max((g['flex_score'] for g in specs), default=0) or 1
+        for g in specs:
+            g['flex_pct'] = round(g['flex_score'] / max_score * 100)
+        specs.sort(key=lambda g: g['flex_score'], reverse=True)
+
+    # flat top-10 list kept for the social preview image (createCompOverviewImg)
+    glue_specs_list = sorted(
+        ({'spec_id': k, **v} for k, v in flex_stats.items()),
+        key=lambda x: x['comps'], reverse=True,
+    )[:10]
+    return glue_specs_by_role, glue_specs_list
 
 
 def _spec_play_in_family(fam, spec_id):

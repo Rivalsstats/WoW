@@ -26,7 +26,10 @@ import argparse
 import tempfile
 from datetime import datetime, timedelta, timezone
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from pageGeneration import generateSpecNav, generateDungeonNav, build_global_trends
+import databaseConnector
+from pageGeneration import (
+    generateSpecNav, generateDungeonNav, build_trends,
+)
 from image_generation.tierlist_preview import PREVIEW_URL, PREVIEW_TARGETS, generate_preview_image
 
 # Static lookup dir (inlined so this generator needs no DB deps, only jinja2).
@@ -347,6 +350,88 @@ def write_simdps_artifact(tabs, simc_version, simmed_str, path=SIMDPS_ARTIFACT_P
     print(f"Generated {path} ({len(tabs)} target tab(s))")
 
 
+def build_sim_trends(season_info, tabs, spec_lookup, class_lookup):
+    """Build the Top Trends bar for the sim tierlist: a "sim" feed owned by THIS
+    generator, not snapshotTrends. The weekly snapshot step runs before the sim
+    results exist (assemble job, no SimC output), so it can never see sim DPS.
+
+    From the canonical tab (the one the page shows first) we build one "now" record
+    per DPS/tank spec: tier (S..F index), primary DPS as the score, and pct_behind
+    (already role-relative) as the "% behind #1" popularity, then diff it against a
+    write-once weekly DB baseline via build_trends(live_records=...). Returns [] (bar
+    hides) if the DB isn't reachable, matching the other generators' degradation."""
+    if not tabs:
+        return []
+    season = season_info.get("blizzard_season_id")
+    if not (os.environ.get("DATABASE_HOST") and os.environ.get("DATABASE_USER")
+            and os.environ.get("DATABASE_PASSWORD")):
+        print("[trends] no DB credentials; hiding sim tierlist bar")
+        return []
+    try:
+        databaseConnector.init_connection_pool(
+            os.environ.get("DATABASE_HOST"),
+            os.environ.get("DATABASE_USER"),
+            os.environ.get("DATABASE_PASSWORD"),
+            os.environ.get("DATABASE_NAME", "Mythistone"),
+            os.environ.get("DATABASE_PORT", "3306"),
+            1,
+        )
+        conn = databaseConnector.get_connection()
+    except Exception as exc:
+        print(f"[trends] sim tierlist bar unavailable, hiding: {exc}")
+        return []
+    try:
+        cursor = conn.cursor()
+        databaseConnector.configure_read_session(conn, cursor)
+        week_id = databaseConnector.fetch_current_period(conn, cursor, season)
+        if week_id is None:
+            print("[trends] no started reset period; hiding sim tierlist bar")
+            return []
+
+        chosen = tabs[0]  # the default target tab the page shows first
+        records = []
+        for rows in (chosen.get("dps_rows", []), chosen.get("tank_rows", [])):
+            for row in rows:
+                letter = row.get("tier")
+                tier_idx = TIER_LETTERS.index(letter) if letter in TIER_LETTERS else None
+                records.append({
+                    "week_id": int(week_id),
+                    "feed": "sim",
+                    "group_key": "",
+                    "entity_key": str(row["spec_id"]),
+                    "label": None,
+                    "tier": tier_idx,
+                    "rank_pos": None,
+                    "score": float(row.get("primary") or 0.0),
+                    "popularity": round(float(row.get("pct_behind") or 0.0), 4),
+                    "run_count": 0,
+                })
+
+        # write-once weekly baseline for the sim feed only (leave other feeds alone)
+        if not databaseConnector.fetch_trend_feed_week_exists(conn, cursor, "sim", week_id):
+            tuples = [
+                (r["week_id"], r["feed"], r["group_key"], r["entity_key"], r["label"],
+                 r["tier"], r["rank_pos"], r["score"], r["popularity"], r["run_count"])
+                for r in records
+            ]
+            databaseConnector.upsert_trend_rows(conn, cursor, tuples)
+            databaseConnector.commit_with_retry(conn)
+            print(f"[trends] stored sim baseline for week {week_id} ({len(tuples)} rows)")
+        else:
+            print(f"[trends] sim baseline for week {week_id} already stored; keeping it")
+
+        return build_trends(
+            conn, cursor, [("sim", "")],
+            {"specs": spec_lookup, "classes": class_lookup},
+            live_records={"week_id": int(week_id), "records": records},
+        )
+    except Exception as exc:
+        print(f"[trends] sim tierlist bar unavailable, hiding: {exc}")
+        return []
+    finally:
+        conn.close()
+
+
 def main(template_path, output_dir, sim_results_dir, debug=False):
     season_info = load_season_info(LOOKUP_DIR)
 
@@ -412,7 +497,7 @@ def main(template_path, output_dir, sim_results_dir, debug=False):
     )
     template = env.get_template(os.path.basename(template_path))
     output_html = template.render(
-        trends=build_global_trends(),
+        trends=build_sim_trends(season_info, tabs, spec_lookup, class_lookup),
         tabs=tabs,
         gear_sets=GEAR_SETS,
         expected_counts=expected,

@@ -470,7 +470,10 @@ def main(template_path, output_dir, debug=False, target_dungeon=None):
                     conn,
                     cursor,
                     trend_feeds_for_dungeon(dungeon_id),
-                    {"specs": spec_lookup},
+                    # specs -> popular-comp cluster, npcs -> lusted-pull portraits
+                    # (en_US name map, portraits at /data/icons/npc_<id>.png),
+                    # items -> best-loot icons + /items/<slug> links.
+                    {"specs": spec_lookup, "npcs": npc_names, "items": item_lookup},
                 )
 
                 output_html = template.render(dungeon=dungeon_data,

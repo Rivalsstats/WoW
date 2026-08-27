@@ -13,7 +13,10 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 import databaseConnector
 import commonUtils
-from pageGeneration import generateSpecNav, generateDungeonNav, build_item_slug_map, build_global_trends, build_source_lookups
+from pageGeneration import (
+    generateSpecNav, generateDungeonNav, build_item_slug_map, build_source_lookups,
+    build_trends, trend_feeds_for_items, trend_feeds_for_item,
+)
 from generateSpecPages import (
     LOOKUP_DIR, load_json, load_season_info, BLIZZARD_STAT_MAP,
     LEFT_ORDER, RIGHT_ORDER, WEAPON_SLOTS, TRINKET_SLOTS, MULTI_SLOT_GROUPS,
@@ -1252,6 +1255,28 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
         _pv = manifest[:previews_top_n] if previews_top_n else manifest
         preview_ids = {str(m["id"]) for m in _pv}
 
+    # Merged lookups for the item Top Trends bars: specs (used-by-specs feed) + a
+    # combined item-icon map so gem / embellishment / missive / variant ids all
+    # resolve. Reagents (embellishments/missives) and gems carry their own icon
+    # keys; equippable items win on id collision.
+    trend_items = {}
+    for _src in (ctx["reagent_lookup"], ctx["gem_lookup"], ctx["item_lookup"]):
+        for _iid, _meta in _src.items():
+            trend_items[str(_iid)] = _meta
+    trend_lookups = {"specs": ctx["spec_lookup"], "classes": class_lookup, "items": trend_items}
+
+    # One live connection for every per-item bar + the list-page bar; build_trends
+    # opens its own tuple cursor internally, so the cursor passed here is unused.
+    trends_conn = databaseConnector.get_connection()
+    trends_cursor = trends_conn.cursor()
+    databaseConnector.configure_read_session(trends_conn, trends_cursor)
+
+    # Only the bounded top-N popular items get per-item trend rows snapshotted, so most
+    # item pages have no per-item feed of their own. Build the global per-slot item bar
+    # once (the items-list feed) and fall back to it so no item page shows an empty bar.
+    global_item_trends = build_trends(
+        trends_conn, trends_cursor, trend_feeds_for_items(), trend_lookups)
+
     item_tmpl = env.get_template("item.html")
     for item_id, payload in render_items:
         slug = slug_map[int(item_id)]
@@ -1259,8 +1284,14 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
                         if a["id"] != payload["id"]][:12]
         intro_paragraphs = build_item_intro(
             payload, specs_map, dungeons_map, season_info.get("name", ""))
+        # Prefer this item's own per-item trends; if it isn't a snapshotted popular
+        # item (no rows), show the global item bar instead of hiding the bar.
+        item_trends = build_trends(trends_conn, trends_cursor,
+                                   trend_feeds_for_item(payload["id"]), trend_lookups)
+        if not item_trends:
+            item_trends = global_item_trends
         item_html = item_tmpl.render(
-            trends=build_global_trends(),
+            trends=item_trends,
             item=payload,
             slug=slug,
             slug_map=slug_map,
@@ -1311,10 +1342,12 @@ def main(template_path, output_dir, items_dir="items", debug=False, target_item=
         except Exception as e:
             print(f"WARN: failed to render items overview preview: {e}", file=sys.stderr)
 
-    # The browse grid page (filterable list of all items) at pages/items.html.
+    # The browse grid page (filterable list of all items) at pages/items.html reuses
+    # the same global per-slot item bar built above.
+    trends_conn.close()
     page = env.get_template(os.path.basename(template_path))
     page_html = page.render(
-        trends=build_global_trends(),
+        trends=global_item_trends,
         active_page="items",
         cur_page="items",
         breadcrumbs=[

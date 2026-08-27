@@ -4524,6 +4524,21 @@ def fetch_trend_week_exists(connection, cursor, week_id):
     return bool(rows)
 
 
+FETCH_TREND_FEED_WEEK_EXISTS_SQL = """
+SELECT 1 FROM Mythistone.trend_snapshot WHERE feed = %s AND week_id = %s LIMIT 1
+"""
+
+
+def fetch_trend_feed_week_exists(connection, cursor, feed, week_id):
+    """True if this reset week already has a snapshot for one specific feed. Lets a
+    producer that owns a single feed the main snapshot step doesn't write (the sim
+    tierlist) stay write-once per period without re-freezing the whole week."""
+    rows = fetch_with_retry(
+        connection, cursor, FETCH_TREND_FEED_WEEK_EXISTS_SQL, (feed, int(week_id))
+    )
+    return bool(rows)
+
+
 FETCH_PREV_TREND_WEEK_SQL = """
 SELECT MAX(week_id) FROM Mythistone.trend_snapshot WHERE week_id < %s
 """
@@ -4688,5 +4703,20 @@ def fetch_gem_usage(connection, cursor, spec_id, season):
     """Gem popularity for a spec: socket_item_id usage summed across the items it
     was socketed into. Returns [{item_id (=gem), run_count}]."""
     return _fetch_id_run_pairs(connection, cursor, FETCH_GEM_USAGE_SQL, spec_id, season)
+
+
+FETCH_MISSIVE_USAGE_SQL = """
+SELECT item_id, run_count
+FROM Mythistone.global_aggregated_missives
+WHERE spec_id = %s AND season = %s
+ORDER BY run_count DESC
+"""
+
+
+def fetch_missive_usage(connection, cursor, spec_id, season):
+    """Missive popularity for a spec, shaped like the other snapshot misc feeds:
+    [{item_id, run_count}]. (fetch_missive_count returns positional tuples with
+    the crafting max-key columns, the wrong shape for the trend snapshot.)"""
+    return _fetch_id_run_pairs(connection, cursor, FETCH_MISSIVE_USAGE_SQL, spec_id, season)
 
 

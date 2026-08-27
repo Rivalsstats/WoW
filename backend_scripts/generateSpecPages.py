@@ -454,19 +454,18 @@ def build_ui_tree(nodes, pop_data, is_hero=False, pop_hero_tree_id=None, top_pct
             and (top_pct_val - pct) >= TALENT_DIVERGENCE_DELTA
         )
 
-        # Choice nodes: node-level usage is ~100% for both populations, so the
-        # rule above can never fire. Diverge per choice instead — flag the node
-        # when the elite players' pick differs from the general population's.
-        # Free choice nodes still qualify: the node is forced but the pick isn't.
+        # Choice nodes: node-level usage is ~100% for both populations, so the rule
+        # above (almost) never fires — leave whatever it decided as the node-level
+        # TOP badge. A lone diverging INNER choice must NOT light the node-level badge
+        # (that is what the per-choice tt-choice-badge is for); we only record which
+        # choice the elite favour so the node tooltip can name it IF the node itself
+        # legitimately earned the badge. Free choice nodes: the node is forced but the
+        # pick isn't, and the per-choice badges still mark the divergent pick.
         top_choice = None
         if n_type == "choice":
             diverging = [c for c in node_choices if c.get("is_top")]
             if diverging:
                 top_choice = max(diverging, key=lambda c: c["top_pct"])
-                is_top = True
-                top_pct_val = top_choice["top_pct"]
-            else:
-                is_top = False
 
         ui_nodes.append({
             "id": n["id"],
@@ -2829,6 +2828,23 @@ def main(template_path, output_dir, debug=False, spec=None):
             # bar can label talent movers (keys match aggregated_*_talent.talent_id).
             talent_name_map = dict(talent_lookup.get("talents", {}))
             talent_name_map.update(talent_lookup.get("subTrees", {}))
+            # Some aggregated talent_ids are NODE ids (single-entry nodes) rather than
+            # the entry ids that key `talents`/`subTrees`; those movers would resolve to
+            # no icon and drop out of the bar. Backfill node-id -> {name, icon, spellId}
+            # from the node's chosen entry so every talent mover renders its real icon.
+            # Entry-keyed wins on conflict (only fill ids not already present).
+            for node_id, node in (talent_lookup.get("nodes") or {}).items():
+                key = str(node_id)
+                if key in talent_name_map or not isinstance(node, dict):
+                    continue
+                entries = node.get("entries") or []
+                if entries:
+                    e = entries[0]
+                    talent_name_map[key] = {
+                        "name": e.get("name") or node.get("name"),
+                        "icon": e.get("icon"),
+                        "spellId": e.get("spellId"),
+                    }
             # We're past the per-spec read block above, which already released its
             # pooled connection (the read -> release -> heavy-work pattern), so the
             # `conn` here is dead. Grab a fresh live connection just for the trends

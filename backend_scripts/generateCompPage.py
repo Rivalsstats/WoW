@@ -6,7 +6,7 @@ import math
 from contextlib import closing
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import databaseConnector
-from compArchetypes import build_dungeon_archetypes
+from compArchetypes import build_dungeon_archetypes, compute_glue_specs
 from pageGeneration import generateSpecNav, generateDungeonNav, build_trends, trend_feeds_for_comps
 from generateSpecPages import LOOKUP_DIR, load_json, load_season_info
 from image_generation.comp_overview import createCompOverviewImg
@@ -222,73 +222,12 @@ def calculate_comp_stats(connection, cursor, season, spec_lookup):
     hidden_gems.sort(key=lambda x: (x[0], x[1], x[2], x[3]), reverse=True)
     hidden_gems_out = [x[-1] for x in hidden_gems[:10]]
 
-    # Glue Specs (Flexibility Index): in how many distinct viable high-key comps
-    # (timed > 5, avg key > 12) a spec appears. The raw count is biased by play
-    # rate -- a more-played spec shows up in more distinct comps simply because
-    # there is more data -- so we debias it (see below) before ranking. Grouped
-    # by role and shown as a percentage relative to the most flexible spec *in
-    # that role* (a tank and a dps can't be compared directly since dps fill 3 of
-    # the 5 slots). Raw counts are kept for the tooltip.
+    # Glue Specs (Flexibility Index): in how many distinct viable high-key comps a
+    # spec appears, debiased for play volume within its role. Shared with the comps
+    # trend feed (snapshotTrends) via compArchetypes.compute_glue_specs so the bar's
+    # flex ranking matches this card exactly.
     print("Calculating glue specs...")
-    flex_stats = {}
-    for data in unique_comps_list:
-        if data['timed'] > 5 and data['avg_key'] > 12:
-            for s in data['specs']:
-                fs = flex_stats.setdefault(s, {'comps': 0, 'runs': 0, 'max_key': 0})
-                fs['comps'] += 1
-                fs['runs'] += data['timed'] + data['depleted']
-                fs['max_key'] = max(fs['max_key'], data['max_key'])
-
-    # Debias flexibility for play volume, fitted separately within each role.
-    # Distinct-comp count grows with runs (more data -> more distinct comps), so
-    # within a role we fit that role's runs -> comps trend (log-log least
-    # squares) and score each spec by how far it sits ABOVE its role's trend:
-    # genuine versatility, not popularity. Low-sample specs are shrunk toward the
-    # trend (score ~1) so an underplayed spec is neither punished nor randomly
-    # crowned -- it just sits near the middle until there's evidence.
-    def score_flexibility(specs):
-        points = [(math.log(g['runs']), math.log(g['comps']))
-                  for g in specs if g['runs'] > 0 and g['comps'] > 0]
-        n = len(points)
-        if n >= 2:
-            mx = sum(p[0] for p in points) / n
-            my = sum(p[1] for p in points) / n
-            var = sum((p[0] - mx) ** 2 for p in points)
-            cov = sum((p[0] - mx) * (p[1] - my) for p in points)
-            slope = cov / var if var else 0.0
-            intercept = my - slope * mx
-        else:
-            slope, intercept = 0.0, 0.0
-        runs_sorted = sorted(g['runs'] for g in specs)
-        shrink_k = runs_sorted[len(runs_sorted) // 2] if runs_sorted else 1  # role median runs
-        for g in specs:
-            if g['runs'] > 0 and g['comps'] > 0:
-                residual = math.log(g['comps']) - (intercept + slope * math.log(g['runs']))
-                reliability = g['runs'] / (g['runs'] + shrink_k)  # 0..1, shrink low data
-                g['flex_score'] = math.exp(residual * reliability)
-            else:
-                g['flex_score'] = 0.0
-
-    # bucket by role (0=tank, 1=healer, 2=dps)
-    glue_specs_by_role = {'0': [], '1': [], '2': []}
-    for spec_id, fs in flex_stats.items():
-        role = str(spec_lookup.get(str(spec_id), {}).get('role', 2))
-        glue_specs_by_role.setdefault(role, [])
-        glue_specs_by_role[role].append({'spec_id': spec_id, **fs})
-
-    # fit + score within each role, then percentage relative to the role's best
-    for role, specs in glue_specs_by_role.items():
-        score_flexibility(specs)
-        max_score = max((g['flex_score'] for g in specs), default=0) or 1
-        for g in specs:
-            g['flex_pct'] = round(g['flex_score'] / max_score * 100)
-        specs.sort(key=lambda g: g['flex_score'], reverse=True)
-
-    # flat top-10 list kept for the social preview image (createCompOverviewImg)
-    glue_specs_list = sorted(
-        ({'spec_id': k, **v} for k, v in flex_stats.items()),
-        key=lambda x: x['comps'], reverse=True,
-    )[:10]
+    glue_specs_by_role, glue_specs_list = compute_glue_specs(unique_comps_list, spec_lookup)
 
     # Pre-calculate simple UI "Perfect Fit" data payload
     # We only need to send the top 2000 comps by weight to the frontend to keep json tiny
