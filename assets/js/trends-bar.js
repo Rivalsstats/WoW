@@ -25,9 +25,21 @@
     var marquee = track.closest ? track.closest(".trends-marquee") : null;
     if (!marquee) return;
 
-    // Drop any clones from a previous layout pass before measuring.
+    var hasBsTooltip = window.bootstrap && window.bootstrap.Tooltip;
+
+    // Drop any clones from a previous layout pass before measuring. Dispose their
+    // Bootstrap tooltip instances first so re-layout doesn't leak detached instances.
     var clones = track.querySelectorAll(".trends-seq.trends-clone");
-    for (var i = 0; i < clones.length; i++) clones[i].remove();
+    for (var i = 0; i < clones.length; i++) {
+      if (hasBsTooltip) {
+        var stale = clones[i].querySelectorAll('[data-bs-toggle="tooltip"]');
+        for (var s = 0; s < stale.length; s++) {
+          var inst = window.bootstrap.Tooltip.getInstance(stale[s]);
+          if (inst) inst.dispose();
+        }
+      }
+      clones[i].remove();
+    }
     track.classList.remove("is-animated");
 
     var seq = track.querySelector(".trends-seq");
@@ -49,6 +61,16 @@
     track.style.setProperty("--trends-shift", seqW + "px");
     track.style.setProperty("--trends-duration", seqW / SPEED + "s");
     track.classList.add("is-animated");
+
+    // Rich (HTML) tooltips are per-element JS instances that don't survive cloning,
+    // so init every tooltip trigger now — originals and clones alike. getOrCreateInstance
+    // is idempotent, so originals already initialised by material-dashboard are untouched.
+    if (hasBsTooltip) {
+      var tips = track.querySelectorAll('[data-bs-toggle="tooltip"]');
+      for (var t = 0; t < tips.length; t++) {
+        window.bootstrap.Tooltip.getOrCreateInstance(tips[t]);
+      }
+    }
   }
 
   function init() {

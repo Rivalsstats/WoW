@@ -86,6 +86,12 @@ class StaticData:
         self.bonuses = load_json(os.path.join(lookup_dir, "bonuses.json"))
         self.embellishments = load_json(os.path.join(lookup_dir, "embellishments.json"))
         self.missives = load_json(os.path.join(lookup_dir, "missives.json"))
+        # Tier-set membership: the Raidbots item-sets catalog (source of truth, see
+        # processBonusIds / commonUtils.load_tier_sets). Tolerate absence early.
+        try:
+            self.item_sets = load_json(os.path.join(lookup_dir, "item-sets.json"))
+        except (OSError, ValueError):
+            self.item_sets = []
         self.npcs = load_json(os.path.join(lookup_dir, "npcs.json")).get("en_US", {})
         self.spells = load_json(os.path.join(lookup_dir, "spells.json"))
         # boss_npcs.json lives in data/ (parent of data/static), keyed by challenge_mode_id.
@@ -333,11 +339,16 @@ def seed_reference(conn, cursor, static, rng):
         "INSERT INTO missives (bonus_id, item_id) VALUES (%s,%s)",
         [(int(b), int(i)) for b, i in static.missives.items()])
 
-    # crafted_item_ids / tier_set_items derive from equippable-items.json (see processBonusIds)
+    # crafted_item_ids derives from equippable-items.json; tier_set_items derives from
+    # the item-sets catalog (source of truth for tier-set membership, see processBonusIds).
     crafted = [(int(it["id"]),) for it in static.items if "profession" in it]
     _insert_many(conn, cursor,
         "INSERT IGNORE INTO crafted_item_ids (item_id) VALUES (%s)", crafted)
-    tier = [(int(it["id"]), int(it["itemSetId"])) for it in static.items if it.get("itemSetId")]
+    tier = [
+        (int(iid), int(s["id"]))
+        for s in static.item_sets if s.get("id") is not None
+        for iid in (s.get("items") or [])
+    ]
     _insert_many(conn, cursor,
         "INSERT IGNORE INTO tier_set_items (item_id, item_set_id) VALUES (%s,%s)", tier)
 
@@ -365,6 +376,28 @@ def seed_runs(conn, cursor, static, rng, cfg, pools):
     mis_bonus = pools["missive_bonus"]
     variants = pools["variants"]  # spec_id -> [variant,...]
 
+    # Tier-set coverage: real players wear their class tier set. Now that tier_set_items
+    # is scoped to the 42 curated current sets (item-sets.json, see the tier_set_items
+    # seeding above), random gear almost never lands 2+ pieces of one set, so without this
+    # aggregated_tier_set_comps / the spec-page tier-set card would stay empty locally.
+    # Map each spec-specific tier set to its (slot, item_id) armour pieces and equip a
+    # coherent subset for some members below.
+    _INVTYPE_TO_SLOT = {1: "HEAD", 3: "SHOULDER", 5: "CHEST", 20: "CHEST", 7: "LEGS", 10: "HANDS"}
+    _item_invtype = {int(it["id"]): it.get("inventoryType") for it in static.items}
+    tier_by_spec = {}
+    for s in static.item_sets:
+        specids = {sp.get("specId") for sp in (s.get("spells") or []) if sp.get("specId")}
+        if not specids:
+            continue  # crafted / pvp sets (specId 0) are not class tier sets
+        pieces = [
+            (_INVTYPE_TO_SLOT[_item_invtype[int(iid)]], int(iid))
+            for iid in (s.get("items") or [])
+            if _item_invtype.get(int(iid)) in _INVTYPE_TO_SLOT
+        ]
+        if len(pieces) >= 2:
+            for spec in specids:
+                tier_by_spec.setdefault(int(spec), pieces)
+
     runs, run_members, members = [], [], []
     equipment, sockets, enchantments, bonus_ids = [], [], [], []
     class_t, spec_t, hero_t, char_stats = [], [], [], []
@@ -382,6 +415,12 @@ def seed_runs(conn, cursor, static, rng, cfg, pools):
 
         # equipment across all 16 slots
         member_eids = []
+        # ~half of players wear 2+ pieces of their class tier set (forces some tier-set
+        # comps into aggregated_tier_set_comps so the tier-set card has data locally).
+        tier_pieces = tier_by_spec.get(spec_id)
+        forced_tier = {}
+        if tier_pieces and rng.random() < 0.5:
+            forced_tier = dict(rng.sample(tier_pieces, rng.randint(2, len(tier_pieces))))
         for slot in EQUIPMENT_SLOTS:
             pool = item_pools.get(slot) or []
             if not pool:
@@ -389,7 +428,7 @@ def seed_runs(conn, cursor, static, rng, cfg, pools):
             equip_id += 1
             eid = equip_id
             member_eids.append(eid)
-            item_id = _zipf_pick(rng, pool)
+            item_id = forced_tier.get(slot) or _zipf_pick(rng, pool)
             ilvl = rng.randint(620, 662)
             equipment.append((slot, str(item_id), str(ilvl), m, eid))
             # bonus ids

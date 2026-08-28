@@ -42,6 +42,7 @@ jobs:
           curl -L "https://www.raidbots.com/static/data/live/equippable-items.json" -o data/static/equippable-items.json
           curl -L "https://www.raidbots.com/static/data/live/crafting.json" -o data/static/crafting.json
           curl -L "https://www.raidbots.com/static/data/live/bonuses.json" -o data/static/bonuses.json
+          curl -L "https://www.raidbots.com/static/data/live/item-sets.json" -o data/static/item-sets.json
 
       - name: process crafting data
         run: |

@@ -164,14 +164,18 @@ def main():
         databaseConnector.commit_changes(conn)
         print(f"Inserted {crafted_count} crafted items into crafted_item_ids table.")
 
-        # Populate tier_set_items table from the same equippable-items.json
+        # Populate tier_set_items from the Raidbots item-sets catalog
+        # (data/static/item-sets.json), the source of truth for tier-set membership
+        # and names. Previously this scanned every equippable item's itemSetId, which
+        # pulled in ~968 historical sets; the catalog is the curated current-relevant
+        # set list, so the table (and the tier-set comps it drives) stays scoped to
+        # the sets that actually exist this season.
+        from commonUtils import load_tier_sets
+        item_to_set, _set_meta = load_tier_sets(OUT_DIR)
         tier_count = 0
-        for item in equippable_items:
-            if item.get("itemSetId"):
-                databaseConnector.insert_tier_set_item(
-                    conn, cursor, item["id"], item["itemSetId"]
-                )
-                tier_count += 1
+        for item_id, set_id in item_to_set.items():
+            databaseConnector.insert_tier_set_item(conn, cursor, item_id, set_id)
+            tier_count += 1
 
         databaseConnector.commit_changes(conn)
         print(f"Inserted {tier_count} tier set items into tier_set_items table.")

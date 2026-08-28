@@ -75,6 +75,42 @@ def load_json(path):
         return json.load(f)
 
 
+def load_tier_sets(static_dir=LOOKUP_DIR):
+    """Load the Raidbots item-sets catalog (``data/static/item-sets.json``) as the
+    single source of truth for tier-set membership and names.
+
+    That catalog is a small, curated list of the sets relevant to the *live* game
+    (each ``{id, name, items: [item_id, ...], ...}``), unlike the ~968 historical
+    ``itemSetId`` values sprinkled across every item in equippable-items.json. Using
+    it keeps ``tier_set_items`` (and every tier-set display) scoped to the current
+    sets and gives us their proper names.
+
+    Returns ``(item_to_set, set_meta)``:
+      * ``item_to_set``: ``{int item_id -> int item_set_id}``
+      * ``set_meta``:    ``{int item_set_id -> {"name": str, "items": [int, ...]}}``
+
+    Returns ``({}, {})`` when the file is absent (early season / not yet downloaded)
+    so callers degrade to "no tier sets" instead of crashing."""
+    path = os.path.join(static_dir, "item-sets.json")
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            sets = json.load(f)
+    except (OSError, ValueError):
+        return {}, {}
+    item_to_set = {}
+    set_meta = {}
+    for s in sets or []:
+        sid = s.get("id")
+        if sid is None:
+            continue
+        sid = int(sid)
+        items = [int(i) for i in (s.get("items") or [])]
+        set_meta[sid] = {"name": s.get("name"), "items": items}
+        for iid in items:
+            item_to_set[iid] = sid
+    return item_to_set, set_meta
+
+
 SEASON_INFO_ENV = "MYTHISTONE_SEASON_INFO"
 
 

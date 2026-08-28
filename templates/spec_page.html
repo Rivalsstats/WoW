@@ -1653,21 +1653,25 @@
                               <!-- Tier set combo list -->
                               {% for comp in tier_set_comps %}
                               <div class="row align-items-center mb-2">
-                                <!-- Combo icons, clustered per item set (names in tooltips to keep rows compact) -->
-                                <div class="col d-flex flex-wrap gap-1">
+                                <!-- Combo icons, clustered per item set. Each cluster shows its set name as a visible header ("4x Set Name"); per-item names stay in each icon's tooltip. -->
+                                <div class="col d-flex flex-wrap gap-3">
                                   {% for group in comp.groups %}
-                                  <div class="combo-set-group d-flex flex-wrap gap-1">
-                                    {% for id in group %}
-                                    {% if item_lookup[id] %}
-                                    <a target="_blank" href="https://www.wowhead.com/item={{ id }}&spec={{ spec_id }}"
-                                      class="icon-link position-relative detail-row-icon"
-                                      data-bs-toggle="tooltip" data-bs-placement="top"
-                                      title="{{ item_lookup[id].name }}">
-                                      <img src="/data/icons/{{ item_lookup[id].icon }}.png" alt=""
-                                        class="base-icon border {% if item_lookup[id].quality %}border-quality-{{item_lookup[id].quality}}{% else %}border-grey-100{% endif %}">
-                                    </a>
+                                  {% set set_name = comp.group_sets[loop.index0] if comp.group_sets else None %}
+                                  <div class="combo-set-group-wrap d-flex flex-column">
+                                    {% if set_name %}
+                                    <span class="combo-set-title text-xxs text-uppercase font-weight-bolder text-secondary mb-1">{{ set_name }}</span>
                                     {% endif %}
-                                    {% endfor %}
+                                    <div class="combo-set-group d-flex flex-wrap gap-1">
+                                      {% for id in group %}
+                                      {% if item_lookup[id] %}
+                                      <a target="_blank" href="https://www.wowhead.com/item={{ id }}&spec={{ spec_id }}"
+                                        class="icon-link position-relative detail-row-icon">
+                                        <img src="/data/icons/{{ item_lookup[id].icon }}.png" alt=""
+                                          class="base-icon border {% if item_lookup[id].quality %}border-quality-{{item_lookup[id].quality}}{% else %}border-grey-100{% endif %}">
+                                      </a>
+                                      {% endif %}
+                                      {% endfor %}
+                                    </div>
                                   </div>
                                   {% endfor %}
                                 </div>
@@ -1825,9 +1829,7 @@
                                     {% for id in group %}
                                     {% if item_lookup[id] %}
                                     <a target="_blank" href="https://www.wowhead.com/item={{ id }}&spec={{ spec_id }}"
-                                      class="icon-link position-relative detail-row-icon"
-                                      data-bs-toggle="tooltip" data-bs-placement="top"
-                                      title="{{ item_lookup[id].name }}">
+                                      class="icon-link position-relative detail-row-icon">
                                       <img src="/data/icons/{{ item_lookup[id].icon }}.png" alt=""
                                         class="base-icon border {% if item_lookup[id].quality %}border-quality-{{item_lookup[id].quality}}{% else %}border-grey-100{% endif %}">
                                     </a>
@@ -1903,9 +1905,7 @@
                                   {% set gem = socket_lookup.get(e.id) or socket_lookup.get(e.id|string) %}
                                   {% if gem %}
                                   <a target="_blank" href="https://www.wowhead.com/item={{ e.id }}&spec={{ spec_id }}"
-                                    class="icon-link position-relative detail-row-icon"
-                                    data-bs-toggle="tooltip" data-bs-placement="top"
-                                    title="{% if e.qty > 1 %}{{ e.qty }}&times; {% endif %}{{ gem.itemName or gem.displayName }}">
+                                    class="icon-link position-relative detail-row-icon">
                                     <img src="/data/icons/{{ gem.itemIcon or gem.icon }}.png" alt=""
                                       class="base-icon border {% if gem.quality %}border-quality-{{gem.quality}}{% else %}border-grey-100{% endif %}">
                                     {% if gem.craftingQuality %}
@@ -1982,9 +1982,7 @@
                                   {% if ench %}
                                   {% set ench_url = ("https://www.wowhead.com/item=" ~ ench.itemId) if ench.itemId else ("https://www.wowhead.com/spell=" ~ ench.spellId) %}
                                   <a target="_blank" href="{{ ench_url }}&spec={{ spec_id }}"
-                                    class="icon-link position-relative detail-row-icon"
-                                    data-bs-toggle="tooltip" data-bs-placement="top"
-                                    title="{% if e.qty > 1 %}{{ e.qty }}&times; {% endif %}{{ ench.itemName or ench.displayName }}">
+                                    class="icon-link position-relative detail-row-icon">
                                     <img src="/data/icons/{% if ench.itemIcon %}{{ ench.itemIcon }}{% else %}{{ ench.spellIcon }}{% endif %}.png" alt=""
                                       class="base-icon border {% if ench.quality %}border-quality-{{ench.quality}}{% else %}border-grey-100{% endif %}">
                                     {% if ench.craftingQuality %}

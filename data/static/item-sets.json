@@ -1,0 +1,1772 @@
+[
+  {
+    "id": 1458,
+    "name": "Gladiator's Distinction",
+    "spells": [
+      {
+        "spellId": 365043,
+        "reqItems": 2,
+        "specId": 0
+      }
+    ],
+    "items": [
+      184268,
+      184269
+    ],
+    "slots": [
+      "trinket",
+      "trinket"
+    ]
+  },
+  {
+    "id": 1957,
+    "name": "Sunfire Silk Trappings",
+    "spells": [
+      {
+        "spellId": 1270977,
+        "reqItems": 2,
+        "specId": 0
+      }
+    ],
+    "items": [
+      239657,
+      239659,
+      239658
+    ],
+    "slots": [
+      "wrist",
+      "feet",
+      "back"
+    ]
+  },
+  {
+    "id": 1958,
+    "name": "Arcanoweave Trappings",
+    "spells": [
+      {
+        "spellId": 1241262,
+        "reqItems": 2,
+        "specId": 0
+      }
+    ],
+    "items": [
+      239660,
+      239662,
+      239661
+    ],
+    "slots": [
+      "wrist",
+      "feet",
+      "back"
+    ]
+  },
+  {
+    "id": 1966,
+    "name": "Murder Row Materials",
+    "spells": [
+      {
+        "spellId": 1244005,
+        "reqItems": 2,
+        "specId": 0
+      }
+    ],
+    "items": [
+      244613,
+      244614,
+      244612
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "wrist"
+    ]
+  },
+  {
+    "id": 1967,
+    "name": "Root Warden's Regalia",
+    "spells": [
+      {
+        "spellId": 1244021,
+        "reqItems": 2,
+        "specId": 0
+      }
+    ],
+    "items": [
+      244609,
+      244610,
+      244611
+    ],
+    "slots": [
+      "chest",
+      "feet",
+      "waist"
+    ]
+  },
+  {
+    "id": 1970,
+    "name": "Torment's Duality",
+    "spells": [
+      {
+        "spellId": 1253358,
+        "reqItems": 2,
+        "specId": 0
+      }
+    ],
+    "items": [
+      251884,
+      251885
+    ],
+    "slots": [
+      "main_hand",
+      "main_hand"
+    ]
+  },
+  {
+    "id": 1971,
+    "name": "Voidlight Bindings",
+    "spells": [
+      {
+        "spellId": 1281574,
+        "reqItems": 2,
+        "specId": 0
+      }
+    ],
+    "items": [
+      251093,
+      251217
+    ],
+    "slots": [
+      "finger",
+      "finger"
+    ]
+  },
+  {
+    "id": 1974,
+    "name": "Warmonger's Vestments",
+    "spells": [
+      {
+        "spellId": 1260237,
+        "reqItems": 2,
+        "specId": 0
+      },
+      {
+        "spellId": 1260249,
+        "reqItems": 4,
+        "specId": 0
+      }
+    ],
+    "items": [
+      255882,
+      255883,
+      255884,
+      255885,
+      255886,
+      255887,
+      255888,
+      255889
+    ],
+    "slots": [
+      "chest",
+      "feet",
+      "hands",
+      "head",
+      "legs",
+      "waist",
+      "wrist",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 1975,
+    "name": "Warmonger's Armor",
+    "spells": [
+      {
+        "spellId": 1260237,
+        "reqItems": 2,
+        "specId": 0
+      },
+      {
+        "spellId": 1260249,
+        "reqItems": 4,
+        "specId": 0
+      }
+    ],
+    "items": [
+      255890,
+      255891,
+      255892,
+      255893,
+      255894,
+      255895,
+      255896,
+      255897
+    ],
+    "slots": [
+      "feet",
+      "hands",
+      "head",
+      "legs",
+      "waist",
+      "wrist",
+      "chest",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 1976,
+    "name": "Warmonger's Chainmail",
+    "spells": [
+      {
+        "spellId": 1260237,
+        "reqItems": 2,
+        "specId": 0
+      },
+      {
+        "spellId": 1260249,
+        "reqItems": 4,
+        "specId": 0
+      }
+    ],
+    "items": [
+      255906,
+      255907,
+      255908,
+      255909,
+      255910,
+      255911,
+      255912,
+      255913
+    ],
+    "slots": [
+      "chest",
+      "feet",
+      "hands",
+      "head",
+      "legs",
+      "shoulder",
+      "waist",
+      "wrist"
+    ]
+  },
+  {
+    "id": 1977,
+    "name": "Warmonger's Plate",
+    "spells": [
+      {
+        "spellId": 1260237,
+        "reqItems": 2,
+        "specId": 0
+      },
+      {
+        "spellId": 1260249,
+        "reqItems": 4,
+        "specId": 0
+      }
+    ],
+    "items": [
+      255898,
+      255899,
+      255900,
+      255901,
+      255902,
+      255903,
+      255904,
+      255905
+    ],
+    "slots": [
+      "head",
+      "chest",
+      "feet",
+      "hands",
+      "legs",
+      "shoulder",
+      "waist",
+      "wrist"
+    ]
+  },
+  {
+    "id": 1978,
+    "name": "Relentless Rider's Lament",
+    "spells": [
+      {
+        "spellId": 1264799,
+        "reqItems": 2,
+        "specId": 250
+      },
+      {
+        "spellId": 1264800,
+        "reqItems": 4,
+        "specId": 250
+      },
+      {
+        "spellId": 1264801,
+        "reqItems": 2,
+        "specId": 251
+      },
+      {
+        "spellId": 1264802,
+        "reqItems": 4,
+        "specId": 251
+      },
+      {
+        "spellId": 1264803,
+        "reqItems": 2,
+        "specId": 252
+      },
+      {
+        "spellId": 1264804,
+        "reqItems": 4,
+        "specId": 252
+      }
+    ],
+    "items": [
+      249973,
+      249971,
+      249970,
+      249969,
+      249968
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "head",
+      "legs",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 1979,
+    "name": "Devouring Reaver's Sheathe",
+    "spells": [
+      {
+        "spellId": 1264881,
+        "reqItems": 2,
+        "specId": 1480
+      },
+      {
+        "spellId": 1264882,
+        "reqItems": 4,
+        "specId": 1480
+      },
+      {
+        "spellId": 1264805,
+        "reqItems": 2,
+        "specId": 577
+      },
+      {
+        "spellId": 1264807,
+        "reqItems": 4,
+        "specId": 577
+      },
+      {
+        "spellId": 1264808,
+        "reqItems": 2,
+        "specId": 581
+      },
+      {
+        "spellId": 1264809,
+        "reqItems": 4,
+        "specId": 581
+      }
+    ],
+    "items": [
+      250036,
+      250034,
+      250033,
+      250032,
+      250031
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "head",
+      "legs",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 1980,
+    "name": "Sprouts of the Luminous Bloom",
+    "spells": [
+      {
+        "spellId": 1264810,
+        "reqItems": 2,
+        "specId": 102
+      },
+      {
+        "spellId": 1264811,
+        "reqItems": 4,
+        "specId": 102
+      },
+      {
+        "spellId": 1264812,
+        "reqItems": 2,
+        "specId": 103
+      },
+      {
+        "spellId": 1264813,
+        "reqItems": 4,
+        "specId": 103
+      },
+      {
+        "spellId": 1264815,
+        "reqItems": 2,
+        "specId": 104
+      },
+      {
+        "spellId": 1264816,
+        "reqItems": 4,
+        "specId": 104
+      },
+      {
+        "spellId": 1264817,
+        "reqItems": 2,
+        "specId": 105
+      },
+      {
+        "spellId": 1264818,
+        "reqItems": 4,
+        "specId": 105
+      }
+    ],
+    "items": [
+      250027,
+      250025,
+      250024,
+      250023,
+      250022
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "head",
+      "legs",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 1981,
+    "name": "Livery of the Black Talon",
+    "spells": [
+      {
+        "spellId": 1264819,
+        "reqItems": 2,
+        "specId": 1473
+      },
+      {
+        "spellId": 1264820,
+        "reqItems": 4,
+        "specId": 1473
+      },
+      {
+        "spellId": 1264821,
+        "reqItems": 2,
+        "specId": 1467
+      },
+      {
+        "spellId": 1264822,
+        "reqItems": 4,
+        "specId": 1467
+      },
+      {
+        "spellId": 1264823,
+        "reqItems": 2,
+        "specId": 1468
+      },
+      {
+        "spellId": 1264824,
+        "reqItems": 4,
+        "specId": 1468
+      }
+    ],
+    "items": [
+      250000,
+      249998,
+      249997,
+      249996,
+      249995
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "head",
+      "legs",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 1982,
+    "name": "Primal Sentry's Camouflage",
+    "spells": [
+      {
+        "spellId": 1264825,
+        "reqItems": 2,
+        "specId": 253
+      },
+      {
+        "spellId": 1264826,
+        "reqItems": 4,
+        "specId": 253
+      },
+      {
+        "spellId": 1264828,
+        "reqItems": 2,
+        "specId": 254
+      },
+      {
+        "spellId": 1264829,
+        "reqItems": 4,
+        "specId": 254
+      },
+      {
+        "spellId": 1264830,
+        "reqItems": 2,
+        "specId": 255
+      },
+      {
+        "spellId": 1264831,
+        "reqItems": 4,
+        "specId": 255
+      }
+    ],
+    "items": [
+      249991,
+      249989,
+      249988,
+      249987,
+      249986
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "head",
+      "legs",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 1983,
+    "name": "Voidbreaker's Accordance",
+    "spells": [
+      {
+        "spellId": 1264832,
+        "reqItems": 2,
+        "specId": 62
+      },
+      {
+        "spellId": 1264833,
+        "reqItems": 4,
+        "specId": 62
+      },
+      {
+        "spellId": 1264834,
+        "reqItems": 2,
+        "specId": 63
+      },
+      {
+        "spellId": 1264835,
+        "reqItems": 4,
+        "specId": 63
+      },
+      {
+        "spellId": 1264836,
+        "reqItems": 2,
+        "specId": 64
+      },
+      {
+        "spellId": 1264837,
+        "reqItems": 4,
+        "specId": 64
+      }
+    ],
+    "items": [
+      250063,
+      250061,
+      250060,
+      250059,
+      250058
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "head",
+      "legs",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 1984,
+    "name": "Way of Ra-den's Chosen",
+    "spells": [
+      {
+        "spellId": 1264838,
+        "reqItems": 2,
+        "specId": 268
+      },
+      {
+        "spellId": 1264839,
+        "reqItems": 4,
+        "specId": 268
+      },
+      {
+        "spellId": 1264840,
+        "reqItems": 2,
+        "specId": 270
+      },
+      {
+        "spellId": 1264841,
+        "reqItems": 4,
+        "specId": 270
+      },
+      {
+        "spellId": 1264842,
+        "reqItems": 2,
+        "specId": 269
+      },
+      {
+        "spellId": 1264843,
+        "reqItems": 4,
+        "specId": 269
+      }
+    ],
+    "items": [
+      250018,
+      250016,
+      250015,
+      250014,
+      250013
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "head",
+      "legs",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 1985,
+    "name": "Luminant Verdict's Vestments",
+    "spells": [
+      {
+        "spellId": 1264844,
+        "reqItems": 2,
+        "specId": 65
+      },
+      {
+        "spellId": 1264845,
+        "reqItems": 4,
+        "specId": 65
+      },
+      {
+        "spellId": 1264846,
+        "reqItems": 2,
+        "specId": 66
+      },
+      {
+        "spellId": 1264847,
+        "reqItems": 4,
+        "specId": 66
+      },
+      {
+        "spellId": 1264848,
+        "reqItems": 2,
+        "specId": 70
+      },
+      {
+        "spellId": 1264849,
+        "reqItems": 4,
+        "specId": 70
+      }
+    ],
+    "items": [
+      249964,
+      249962,
+      249961,
+      249960,
+      249959
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "head",
+      "legs",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 1986,
+    "name": "Blind Oath's Burden",
+    "spells": [
+      {
+        "spellId": 1264850,
+        "reqItems": 2,
+        "specId": 256
+      },
+      {
+        "spellId": 1264851,
+        "reqItems": 4,
+        "specId": 256
+      },
+      {
+        "spellId": 1264852,
+        "reqItems": 2,
+        "specId": 257
+      },
+      {
+        "spellId": 1264853,
+        "reqItems": 4,
+        "specId": 257
+      },
+      {
+        "spellId": 1264854,
+        "reqItems": 2,
+        "specId": 258
+      },
+      {
+        "spellId": 1264855,
+        "reqItems": 4,
+        "specId": 258
+      }
+    ],
+    "items": [
+      250052,
+      250051,
+      250050,
+      250054,
+      250049
+    ],
+    "slots": [
+      "hands",
+      "head",
+      "legs",
+      "chest",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 1987,
+    "name": "Motley of the Grim Jest",
+    "spells": [
+      {
+        "spellId": 1264856,
+        "reqItems": 2,
+        "specId": 259
+      },
+      {
+        "spellId": 1264857,
+        "reqItems": 4,
+        "specId": 259
+      },
+      {
+        "spellId": 1264858,
+        "reqItems": 2,
+        "specId": 260
+      },
+      {
+        "spellId": 1264859,
+        "reqItems": 4,
+        "specId": 260
+      },
+      {
+        "spellId": 1264860,
+        "reqItems": 2,
+        "specId": 261
+      },
+      {
+        "spellId": 1264861,
+        "reqItems": 4,
+        "specId": 261
+      }
+    ],
+    "items": [
+      250009,
+      250007,
+      250006,
+      250005,
+      250004
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "head",
+      "legs",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 1988,
+    "name": "Mantle of the Primal Core",
+    "spells": [
+      {
+        "spellId": 1264862,
+        "reqItems": 2,
+        "specId": 262
+      },
+      {
+        "spellId": 1264863,
+        "reqItems": 4,
+        "specId": 262
+      },
+      {
+        "spellId": 1264864,
+        "reqItems": 2,
+        "specId": 263
+      },
+      {
+        "spellId": 1264865,
+        "reqItems": 4,
+        "specId": 263
+      },
+      {
+        "spellId": 1264866,
+        "reqItems": 2,
+        "specId": 264
+      },
+      {
+        "spellId": 1264867,
+        "reqItems": 4,
+        "specId": 264
+      }
+    ],
+    "items": [
+      249982,
+      249980,
+      249979,
+      249978,
+      249977
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "head",
+      "legs",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 1989,
+    "name": "Reign of the Abyssal Immolator",
+    "spells": [
+      {
+        "spellId": 1264869,
+        "reqItems": 2,
+        "specId": 265
+      },
+      {
+        "spellId": 1264870,
+        "reqItems": 4,
+        "specId": 265
+      },
+      {
+        "spellId": 1264871,
+        "reqItems": 2,
+        "specId": 266
+      },
+      {
+        "spellId": 1264872,
+        "reqItems": 4,
+        "specId": 266
+      },
+      {
+        "spellId": 1264873,
+        "reqItems": 2,
+        "specId": 267
+      },
+      {
+        "spellId": 1264874,
+        "reqItems": 4,
+        "specId": 267
+      }
+    ],
+    "items": [
+      250043,
+      250042,
+      250041,
+      250045,
+      250040
+    ],
+    "slots": [
+      "hands",
+      "head",
+      "legs",
+      "chest",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 1990,
+    "name": "Rage of the Night Ender",
+    "spells": [
+      {
+        "spellId": 1264875,
+        "reqItems": 2,
+        "specId": 71
+      },
+      {
+        "spellId": 1264876,
+        "reqItems": 4,
+        "specId": 71
+      },
+      {
+        "spellId": 1264877,
+        "reqItems": 2,
+        "specId": 72
+      },
+      {
+        "spellId": 1264878,
+        "reqItems": 4,
+        "specId": 72
+      },
+      {
+        "spellId": 1264879,
+        "reqItems": 2,
+        "specId": 73
+      },
+      {
+        "spellId": 1264880,
+        "reqItems": 4,
+        "specId": 73
+      }
+    ],
+    "items": [
+      249955,
+      249953,
+      249952,
+      249951,
+      249950
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "head",
+      "legs",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 2050,
+    "name": "Warmonger's Weave",
+    "spells": [
+      {
+        "spellId": 1260249,
+        "reqItems": 4,
+        "specId": 0
+      },
+      {
+        "spellId": 1260237,
+        "reqItems": 2,
+        "specId": 0
+      }
+    ],
+    "items": [
+      270353,
+      270351,
+      270352,
+      270354,
+      270355,
+      270356,
+      270357,
+      270358
+    ],
+    "slots": [
+      "hands",
+      "chest",
+      "feet",
+      "head",
+      "legs",
+      "shoulder",
+      "waist",
+      "wrist"
+    ]
+  },
+  {
+    "id": 2051,
+    "name": "Warmonger's Wraps",
+    "spells": [
+      {
+        "spellId": 1260249,
+        "reqItems": 4,
+        "specId": 0
+      },
+      {
+        "spellId": 1260237,
+        "reqItems": 2,
+        "specId": 0
+      }
+    ],
+    "items": [
+      270359,
+      270360,
+      270361,
+      270362,
+      270363,
+      270364,
+      270365,
+      270366
+    ],
+    "slots": [
+      "chest",
+      "feet",
+      "hands",
+      "head",
+      "legs",
+      "shoulder",
+      "waist",
+      "wrist"
+    ]
+  },
+  {
+    "id": 2052,
+    "name": "Warmonger's Links",
+    "spells": [
+      {
+        "spellId": 1260249,
+        "reqItems": 4,
+        "specId": 0
+      },
+      {
+        "spellId": 1260237,
+        "reqItems": 2,
+        "specId": 0
+      }
+    ],
+    "items": [
+      270367,
+      270368,
+      270369,
+      270370,
+      270371,
+      270372,
+      270373,
+      270374
+    ],
+    "slots": [
+      "chest",
+      "feet",
+      "hands",
+      "head",
+      "legs",
+      "shoulder",
+      "waist",
+      "wrist"
+    ]
+  },
+  {
+    "id": 2053,
+    "name": "Warmonger's Ward",
+    "spells": [
+      {
+        "spellId": 1260249,
+        "reqItems": 4,
+        "specId": 0
+      },
+      {
+        "spellId": 1260237,
+        "reqItems": 2,
+        "specId": 0
+      }
+    ],
+    "items": [
+      270375,
+      270376,
+      270377,
+      270378,
+      270379,
+      270380,
+      270381,
+      270382
+    ],
+    "slots": [
+      "chest",
+      "feet",
+      "hands",
+      "head",
+      "legs",
+      "shoulder",
+      "waist",
+      "wrist"
+    ]
+  },
+  {
+    "id": 2055,
+    "name": "Baleful Grave-Knight's Crucible",
+    "spells": [
+      {
+        "spellId": 1296655,
+        "reqItems": 4,
+        "specId": 252
+      },
+      {
+        "spellId": 1296654,
+        "reqItems": 2,
+        "specId": 252
+      },
+      {
+        "spellId": 1296653,
+        "reqItems": 4,
+        "specId": 251
+      },
+      {
+        "spellId": 1296652,
+        "reqItems": 2,
+        "specId": 251
+      },
+      {
+        "spellId": 1296651,
+        "reqItems": 4,
+        "specId": 250
+      },
+      {
+        "spellId": 1296650,
+        "reqItems": 2,
+        "specId": 250
+      }
+    ],
+    "items": [
+      271477,
+      271475,
+      271474,
+      271473,
+      271472
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "head",
+      "legs",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 2056,
+    "name": "Abyssal Doomhound's Pursuit",
+    "spells": [
+      {
+        "spellId": 1296616,
+        "reqItems": 4,
+        "specId": 1480
+      },
+      {
+        "spellId": 1296615,
+        "reqItems": 2,
+        "specId": 1480
+      },
+      {
+        "spellId": 1296614,
+        "reqItems": 4,
+        "specId": 581
+      },
+      {
+        "spellId": 1296613,
+        "reqItems": 2,
+        "specId": 581
+      },
+      {
+        "spellId": 1296612,
+        "reqItems": 4,
+        "specId": 577
+      },
+      {
+        "spellId": 1296611,
+        "reqItems": 2,
+        "specId": 577
+      }
+    ],
+    "items": [
+      271540,
+      271538,
+      271537,
+      271536,
+      271535
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "head",
+      "legs",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 2057,
+    "name": "Bark of the Enigmatic Dreamwatcher",
+    "spells": [
+      {
+        "spellId": 1296610,
+        "reqItems": 4,
+        "specId": 105
+      },
+      {
+        "spellId": 1296609,
+        "reqItems": 2,
+        "specId": 105
+      },
+      {
+        "spellId": 1296608,
+        "reqItems": 4,
+        "specId": 104
+      },
+      {
+        "spellId": 1296607,
+        "reqItems": 2,
+        "specId": 104
+      },
+      {
+        "spellId": 1296606,
+        "reqItems": 4,
+        "specId": 103
+      },
+      {
+        "spellId": 1296605,
+        "reqItems": 2,
+        "specId": 103
+      },
+      {
+        "spellId": 1296604,
+        "reqItems": 4,
+        "specId": 102
+      },
+      {
+        "spellId": 1296603,
+        "reqItems": 2,
+        "specId": 102
+      }
+    ],
+    "items": [
+      271531,
+      271529,
+      271528,
+      271527,
+      271526
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "head",
+      "legs",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 2058,
+    "name": "Echo of Calamity",
+    "spells": [
+      {
+        "spellId": 1296642,
+        "reqItems": 4,
+        "specId": 1468
+      },
+      {
+        "spellId": 1296641,
+        "reqItems": 2,
+        "specId": 1468
+      },
+      {
+        "spellId": 1296640,
+        "reqItems": 4,
+        "specId": 1467
+      },
+      {
+        "spellId": 1296639,
+        "reqItems": 2,
+        "specId": 1467
+      },
+      {
+        "spellId": 1296638,
+        "reqItems": 4,
+        "specId": 1473
+      },
+      {
+        "spellId": 1296637,
+        "reqItems": 2,
+        "specId": 1473
+      }
+    ],
+    "items": [
+      271504,
+      271502,
+      271501,
+      271500,
+      271499
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "head",
+      "legs",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 2059,
+    "name": "Skulking Viper's Ambush",
+    "spells": [
+      {
+        "spellId": 1296634,
+        "reqItems": 4,
+        "specId": 254
+      },
+      {
+        "spellId": 1296633,
+        "reqItems": 2,
+        "specId": 254
+      },
+      {
+        "spellId": 1296632,
+        "reqItems": 4,
+        "specId": 253
+      },
+      {
+        "spellId": 1296631,
+        "reqItems": 2,
+        "specId": 253
+      },
+      {
+        "spellId": 1296636,
+        "reqItems": 2,
+        "specId": 255
+      },
+      {
+        "spellId": 1296635,
+        "reqItems": 4,
+        "specId": 255
+      }
+    ],
+    "items": [
+      271495,
+      271493,
+      271492,
+      271491,
+      271490
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "head",
+      "legs",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 2060,
+    "name": "Primal Leywarden's Attire",
+    "spells": [
+      {
+        "spellId": 1296586,
+        "reqItems": 4,
+        "specId": 64
+      },
+      {
+        "spellId": 1296585,
+        "reqItems": 2,
+        "specId": 64
+      },
+      {
+        "spellId": 1296584,
+        "reqItems": 4,
+        "specId": 63
+      },
+      {
+        "spellId": 1296583,
+        "reqItems": 2,
+        "specId": 63
+      },
+      {
+        "spellId": 1296582,
+        "reqItems": 4,
+        "specId": 62
+      },
+      {
+        "spellId": 1296581,
+        "reqItems": 2,
+        "specId": 62
+      }
+    ],
+    "items": [
+      271567,
+      271565,
+      271564,
+      271563,
+      271562
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "head",
+      "legs",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 2061,
+    "name": "Guile of the Monkey King",
+    "spells": [
+      {
+        "spellId": 1296624,
+        "reqItems": 4,
+        "specId": 269
+      },
+      {
+        "spellId": 1296621,
+        "reqItems": 2,
+        "specId": 269
+      },
+      {
+        "spellId": 1296620,
+        "reqItems": 4,
+        "specId": 270
+      },
+      {
+        "spellId": 1296619,
+        "reqItems": 2,
+        "specId": 270
+      },
+      {
+        "spellId": 1296618,
+        "reqItems": 4,
+        "specId": 268
+      },
+      {
+        "spellId": 1296617,
+        "reqItems": 2,
+        "specId": 268
+      }
+    ],
+    "items": [
+      271522,
+      271520,
+      271519,
+      271518,
+      271517
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "head",
+      "legs",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 2062,
+    "name": "Radiance of the Consecrated Flame",
+    "spells": [
+      {
+        "spellId": 1296661,
+        "reqItems": 4,
+        "specId": 70
+      },
+      {
+        "spellId": 1296660,
+        "reqItems": 2,
+        "specId": 70
+      },
+      {
+        "spellId": 1296659,
+        "reqItems": 4,
+        "specId": 66
+      },
+      {
+        "spellId": 1296658,
+        "reqItems": 2,
+        "specId": 66
+      },
+      {
+        "spellId": 1296657,
+        "reqItems": 4,
+        "specId": 65
+      },
+      {
+        "spellId": 1296656,
+        "reqItems": 2,
+        "specId": 65
+      }
+    ],
+    "items": [
+      271468,
+      271466,
+      271465,
+      271464,
+      271463
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "head",
+      "legs",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 2063,
+    "name": "Cosmic Penitent's Raiment",
+    "spells": [
+      {
+        "spellId": 1296580,
+        "reqItems": 4,
+        "specId": 258
+      },
+      {
+        "spellId": 1296579,
+        "reqItems": 2,
+        "specId": 258
+      },
+      {
+        "spellId": 1296578,
+        "reqItems": 4,
+        "specId": 256
+      },
+      {
+        "spellId": 1296577,
+        "reqItems": 2,
+        "specId": 256
+      },
+      {
+        "spellId": 1296576,
+        "reqItems": 4,
+        "specId": 257
+      },
+      {
+        "spellId": 1296575,
+        "reqItems": 2,
+        "specId": 257
+      }
+    ],
+    "items": [
+      271556,
+      271555,
+      271554,
+      271558,
+      271553
+    ],
+    "slots": [
+      "hands",
+      "head",
+      "legs",
+      "chest",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 2064,
+    "name": "Chosen Bloodslayer's Hexweave",
+    "spells": [
+      {
+        "spellId": 1296593,
+        "reqItems": 4,
+        "specId": 261
+      },
+      {
+        "spellId": 1296592,
+        "reqItems": 2,
+        "specId": 261
+      },
+      {
+        "spellId": 1296591,
+        "reqItems": 4,
+        "specId": 259
+      },
+      {
+        "spellId": 1296590,
+        "reqItems": 2,
+        "specId": 259
+      },
+      {
+        "spellId": 1296589,
+        "reqItems": 4,
+        "specId": 260
+      },
+      {
+        "spellId": 1296588,
+        "reqItems": 2,
+        "specId": 260
+      }
+    ],
+    "items": [
+      271513,
+      271511,
+      271510,
+      271509,
+      271508
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "head",
+      "legs",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 2065,
+    "name": "Ophidian Oracle's Prophecy",
+    "spells": [
+      {
+        "spellId": 1296630,
+        "reqItems": 4,
+        "specId": 264
+      },
+      {
+        "spellId": 1296629,
+        "reqItems": 2,
+        "specId": 264
+      },
+      {
+        "spellId": 1296628,
+        "reqItems": 4,
+        "specId": 263
+      },
+      {
+        "spellId": 1296627,
+        "reqItems": 2,
+        "specId": 263
+      },
+      {
+        "spellId": 1296626,
+        "reqItems": 4,
+        "specId": 262
+      },
+      {
+        "spellId": 1296625,
+        "reqItems": 2,
+        "specId": 262
+      }
+    ],
+    "items": [
+      271486,
+      271484,
+      271483,
+      271482,
+      271481
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "head",
+      "legs",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 2066,
+    "name": "Damned Necrolyte's Shattered Restraints",
+    "spells": [
+      {
+        "spellId": 1296574,
+        "reqItems": 4,
+        "specId": 266
+      },
+      {
+        "spellId": 1296573,
+        "reqItems": 2,
+        "specId": 266
+      },
+      {
+        "spellId": 1296572,
+        "reqItems": 4,
+        "specId": 267
+      },
+      {
+        "spellId": 1296571,
+        "reqItems": 2,
+        "specId": 267
+      },
+      {
+        "spellId": 1296569,
+        "reqItems": 4,
+        "specId": 265
+      },
+      {
+        "spellId": 1296568,
+        "reqItems": 2,
+        "specId": 265
+      }
+    ],
+    "items": [
+      271547,
+      271546,
+      271545,
+      271549,
+      271544
+    ],
+    "slots": [
+      "hands",
+      "head",
+      "legs",
+      "chest",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 2067,
+    "name": "Jade Warlord's Dominion",
+    "spells": [
+      {
+        "spellId": 1296648,
+        "reqItems": 4,
+        "specId": 73
+      },
+      {
+        "spellId": 1296647,
+        "reqItems": 2,
+        "specId": 73
+      },
+      {
+        "spellId": 1296646,
+        "reqItems": 4,
+        "specId": 72
+      },
+      {
+        "spellId": 1296645,
+        "reqItems": 2,
+        "specId": 72
+      },
+      {
+        "spellId": 1296644,
+        "reqItems": 4,
+        "specId": 71
+      },
+      {
+        "spellId": 1296643,
+        "reqItems": 2,
+        "specId": 71
+      }
+    ],
+    "items": [
+      271459,
+      271457,
+      271456,
+      271455,
+      271454
+    ],
+    "slots": [
+      "chest",
+      "hands",
+      "head",
+      "legs",
+      "shoulder"
+    ]
+  },
+  {
+    "id": 2070,
+    "name": "Bite of Zul'jan",
+    "spells": [
+      {
+        "spellId": 1291726,
+        "reqItems": 2,
+        "specId": 0
+      }
+    ],
+    "items": [
+      270173,
+      268209,
+      268213
+    ],
+    "slots": [
+      "trinket",
+      "main_hand",
+      "main_hand"
+    ]
+  }
+]

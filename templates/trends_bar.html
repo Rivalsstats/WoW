@@ -78,10 +78,15 @@
               {{ 'up' if t.direction == 'up' else ('down' if t.direction == 'down' else 'steady') }}
               {{ '%+.2f'|format(t.delta) }} percentage points{% if t.tier_changed %}, tier {{ t.tier_prev }} to {{ t.tier_now }}{% endif %}{% endif %}{% if t.is_meta %}, meta comp{% endif %}</span>
           {% endset %}
+          {# Rich (Bootstrap HTML) tooltip when the entry ships tooltip_html — the
+             dungeon lusted pull, a boxed [portrait | count x name] table — else a
+             plain-text title tooltip. Captured as one attr string; a block set is
+             already-safe under autoescape so it isn't re-escaped here. #}
+          {% set tip_attrs %}{% if t.tooltip_html %}data-bs-toggle="tooltip" data-bs-html="true" data-bs-container="body" data-bs-custom-class="trends-pull-tooltip" data-bs-title="{{ t.tooltip_html }}"{% else %}title="{{ t.tooltip or t.label }}"{% endif %}{% endset %}
           {% if t.href %}
-          <a class="trends-item {{ t.css or '' }}" href="{{ t.href }}" title="{{ t.label }}"{% if t.wowhead %} data-wowhead="{{ t.wowhead }}"{% endif %}{% if t.href.startswith('http') %} target="_blank" rel="noopener"{% endif %}>{{ inner }}</a>
+          <a class="trends-item {{ t.css or '' }}" href="{{ t.href }}" {{ tip_attrs }}{% if t.wowhead %} data-wowhead="{{ t.wowhead }}"{% endif %}{% if t.href.startswith('http') %} target="_blank" rel="noopener"{% endif %}>{{ inner }}</a>
           {% else %}
-          <span class="trends-item {{ t.css or '' }}" title="{{ t.label }}"{% if t.wowhead %} data-wowhead="{{ t.wowhead }}"{% endif %}>{{ inner }}</span>
+          <span class="trends-item {{ t.css or '' }}" {{ tip_attrs }}{% if t.wowhead %} data-wowhead="{{ t.wowhead }}"{% endif %}>{{ inner }}</span>
           {% endif %}
           {% endfor %}
         </div>
@@ -193,7 +198,6 @@
   .trends-cluster-item:last-child { margin-right: 0; }
   .trends-cluster-icon {
     border-radius: 50%;
-    border: 1px solid var(--bs-body-bg, #1a1a1a);
     object-fit: cover;
     display: block;
   }
@@ -205,10 +209,24 @@
     width: 26px;
     height: 26px;
     border-radius: 5px;
-    border: 1px solid var(--bs-border-color, rgba(127, 127, 127, .3));
     object-fit: contain;
     background: var(--bs-tertiary-bg, rgba(127, 127, 127, .12));
   }
+  /* Boxed rich tooltip for a dungeon lusted pull: one [portrait | "Nx name"] row per
+     npc. Rendered by Bootstrap (data-bs-html) via data-bs-custom-class, appended to
+     <body> so the overflow-hidden marquee doesn't clip it. */
+  .trends-pull-tooltip .tooltip-inner { max-width: 300px; text-align: left; }
+  .pull-tip { display: flex; flex-direction: column; gap: .25rem; }
+  .pull-tip-row { display: flex; align-items: center; gap: .4rem; }
+  .pull-tip-icon {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 auto;
+    object-fit: contain;
+    border-radius: 4px;
+    background: rgba(127, 127, 127, .18);
+  }
+  .pull-tip-name { white-space: nowrap; }
   /* "+N more mobs" overflow chip for a big pull. */
   .trends-cluster-more {
     display: inline-flex;

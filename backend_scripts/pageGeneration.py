@@ -1,3 +1,4 @@
+import html
 import json
 import os
 import re
@@ -350,6 +351,102 @@ def _name_str(name, fallback):
     return name or fallback
 
 
+def _parse_npc_pulls(csv_ids, lookup):
+    """Parse a dungeon pull signature (``<npc_id>:<count>,...``) into an ordered
+    list of ``{npc_id, name, count}`` entries, the npc name resolved via ``lookup``
+    (the ``en_US`` npc-name map). The single composition parser shared by the bar's
+    npc icon cluster and its composition tooltip, so the two never drift from the
+    dungeon page's Most Lusted Pulls card."""
+    parsed = []
+    for raw in (csv_ids or "").split(","):
+        key = raw.strip()
+        if not key:
+            continue
+        parts = key.split(":")
+        npc_id = parts[0].strip()
+        if not npc_id:
+            continue
+        try:
+            count = int(parts[1]) if len(parts) > 1 else 1
+        except (TypeError, ValueError):
+            count = 1
+        name = lookup.get(npc_id) or lookup.get(_maybe_int(npc_id))
+        if isinstance(name, dict):
+            name = _name_str(name.get("name"), f"NPC {npc_id}")
+        parsed.append({"npc_id": npc_id, "name": name or f"NPC {npc_id}", "count": count})
+    return parsed
+
+
+def _npc_composition_text(csv_ids, lookup):
+    """The full pull composition as plain text ("2x Foo, Bar, 3x Baz"), mirroring
+    the ``{cnt}x {name}`` rows of the dungeon page's Most Lusted Pulls card. Used as
+    the bar pull entry's tooltip so it carries the same information as the card
+    (uncapped, unlike the icon cluster)."""
+    return ", ".join(
+        (f"{p['count']}x {p['name']}" if p["count"] > 1 else p["name"])
+        for p in _parse_npc_pulls(csv_ids, lookup)
+    )
+
+
+def _npc_composition_html(csv_ids, lookup):
+    """Rich tooltip body for a dungeon lusted-pull entry: one row per npc laid out as
+    [portrait icon | "{count}x {name}"], built from the same _parse_npc_pulls data and
+    portrait source (/data/icons/npc_<id>.png) as the Most Lusted Pulls card. Uses only
+    div/span/img + classes so it survives Bootstrap's default tooltip sanitizer (which
+    strips <table> and style attributes). Dynamic names are html-escaped; the template
+    passes the result through Jinja attribute autoescape into data-bs-title, and
+    Bootstrap decodes it back for innerHTML."""
+    rows = []
+    for p in _parse_npc_pulls(csv_ids, lookup):
+        text = f"{p['count']}x {p['name']}" if p["count"] > 1 else p["name"]
+        rows.append(
+            '<div class="pull-tip-row">'
+            f'<img class="pull-tip-icon" src="/data/icons/npc_{html.escape(str(p["npc_id"]))}.png" alt="" width="24" height="24">'
+            f'<span class="pull-tip-name">{html.escape(text)}</span></div>'
+        )
+    return '<div class="pull-tip">' + "".join(rows) + "</div>" if rows else ""
+
+
+def _set_combo_text(csv_ids, item_to_set, set_meta):
+    """Aggregate a tier-set combo's worn pieces by item-set NAME with counts, e.g.
+    "4x Relentless Rider's Lament 2x Warmonger's Plate" (count = equipped pieces of that
+    set). Uses the item-sets catalog membership (commonUtils.load_tier_sets item_to_set)
+    so the set_combo tooltip reads by set rather than listing each individual piece."""
+    counts = {}
+    order = []
+    for raw in (csv_ids or "").split(","):
+        key = raw.strip()
+        if not key:
+            continue
+        sid = (item_to_set or {}).get(_maybe_int(key))
+        name = (set_meta.get(sid) or {}).get("name") if sid is not None and set_meta else None
+        name = name or "Other"
+        if name not in counts:
+            counts[name] = 0
+            order.append(name)
+        counts[name] += 1
+    return " ".join(f"{counts[n]}x {n}" for n in order)
+
+
+def _combo_composition_text(csv_ids, lookup, kind="item"):
+    """Enumerate a gear combo's constituent names ("Foo, Bar, Baz") for the bar's
+    combo tooltip, mirroring the spec page's combo rendering. ``kind`` picks the
+    name field exactly like ``_resolve_icon_cluster`` — spec ids for group comps,
+    item / gem / embellishment ids (name or itemName) for gear combos — so the two
+    never drift. Uncapped, unlike the icon cluster."""
+    names = []
+    for raw in (csv_ids or "").split(","):
+        key = raw.strip()
+        if not key:
+            continue
+        meta = lookup.get(key) or lookup.get(_maybe_int(key)) or {}
+        if kind == "spec":
+            names.append(_name_str(meta.get("name"), f"Spec {key}"))
+        else:
+            names.append(_name_str(meta.get("name") or meta.get("itemName"), f"Item {key}"))
+    return ", ".join(names)
+
+
 def _resolve_icon_cluster(csv_ids, lookup, kind="item", limit=6):
     """A comp/combo is a comma-separated list of ids (spec ids for group comps,
     item ids for gear combos). Resolve each to {icon, name} so the bar can render
@@ -363,25 +460,10 @@ def _resolve_icon_cluster(csv_ids, lookup, kind="item", limit=6):
     so the npc cluster is capped at ``NPC_CLUSTER_CAP`` portraits and a trailing
     ``{"overflow": N}`` chip carries the count of mobs beyond the cap."""
     if kind == "npc":
-        parsed = []
-        for raw in (csv_ids or "").split(","):
-            key = raw.strip()
-            if not key:
-                continue
-            parts = key.split(":")
-            npc_id = parts[0].strip()
-            if not npc_id:
-                continue
-            try:
-                count = int(parts[1]) if len(parts) > 1 else 1
-            except (TypeError, ValueError):
-                count = 1
-            name = lookup.get(npc_id) or lookup.get(_maybe_int(npc_id))
-            if isinstance(name, dict):
-                name = _name_str(name.get("name"), f"NPC {npc_id}")
-            parsed.append({"icon": f"/data/icons/npc_{npc_id}.png",
-                           "name": name or f"NPC {npc_id}", "count": count})
-        out = parsed[:NPC_CLUSTER_CAP]
+        parsed = _parse_npc_pulls(csv_ids, lookup)
+        out = [{"icon": f"/data/icons/npc_{p['npc_id']}.png",
+                "name": p["name"], "count": p["count"]}
+               for p in parsed[:NPC_CLUSTER_CAP]]
         if len(parsed) > NPC_CLUSTER_CAP:
             out.append({"overflow": len(parsed) - NPC_CLUSTER_CAP})
         return out
@@ -412,6 +494,8 @@ def _resolve_entry(feed, entity_key, label, lookups):
     items = lookups.get("items", {})
     talents = lookups.get("talents", {})
     npcs = lookups.get("npcs", {})
+    tier_item_to_set = lookups.get("tier_item_to_set", {})
+    tier_set_meta = lookups.get("tier_set_meta", {})
     role_lookup = lookups.get("role_lookup", ROLE_FOLDERS)
 
     out = {"label": label or str(entity_key), "icon": None, "href": None,
@@ -454,6 +538,11 @@ def _resolve_entry(feed, entity_key, label, lookups):
         out["icons"] = _resolve_icon_cluster(label, npcs, kind="npc")
         out["cluster_kind"] = "npc"
         out["label"] = "Lusted pull"
+        # Rich tooltip box: one [portrait | "{count}x {name}"] row per npc, same info /
+        # portrait source as the Most Lusted Pulls card (the icon cluster above is
+        # capped/overflowed). tooltip stays as a plain-text fallback for aria/no-JS.
+        out["tooltip"] = _npc_composition_text(label, npcs)
+        out["tooltip_html"] = _npc_composition_html(label, npcs)
     elif feed == "comp":
         # group comp: a list of spec ids -> cluster of spec icons
         out["icons"] = _resolve_icon_cluster(label, specs, kind="spec")
@@ -463,6 +552,15 @@ def _resolve_entry(feed, entity_key, label, lookups):
         # build_comps renders on the spec page.
         out["icons"] = _resolve_icon_cluster(label, items, kind="item")
         out["label"] = _COMBO_LABELS.get(feed, "Build")
+        if feed == "set_combo":
+            # Tier-set combos read by SET name with counts ("4x SetA 2x SetB"), bucketed
+            # via the item-sets catalog membership, not as a list of individual pieces.
+            out["tooltip"] = _set_combo_text(label, tier_item_to_set, tier_set_meta) or out["label"]
+        else:
+            # Other combos enumerate their constituent item names ("Embellishment
+            # combo: Foo, Bar"), the same names the spec page combos show.
+            members = _combo_composition_text(label, items, kind="item")
+            out["tooltip"] = f"{out['label']}: {members}" if members else out["label"]
     elif feed in ("item", "embellishment", "gem", "crafted", "missive", "loot",
                   "item_gem", "item_embellishment", "item_missive"):
         # any single-item feed: entity_key is the bare id (the global item feed
@@ -635,11 +733,11 @@ def build_trends(conn, cursor, feeds, lookups, limit=TREND_LIMIT, live_records=N
 
             entry.update({
                 "feed": feed,
-                # tier: current tier badge only (spec/dungeon/buff). icon: the icon
-                # cluster is the whole story, no number (dungeon lusted pull, whose
-                # lust % reads oddly next to the mob portraits). pct: "% behind #1"
-                # / share %, arrow and delta (everything else, incl. sim).
-                "mode": "tier" if tier_mode else ("icon" if feed == "pull" else "pct"),
+                # tier: current tier badge only (spec/dungeon/buff). pct: "% behind
+                # #1" / share %, arrow and delta (everything else, incl. sim and the
+                # dungeon lusted pull, which shows its lust % + delta next to the mob
+                # portrait cluster like the other trends).
+                "mode": "tier" if tier_mode else "pct",
                 "value": round(n["popularity"], 2),
                 "delta": round(delta, 2),
                 "direction": "up" if delta > TREND_MIN_DELTA else ("down" if delta < -TREND_MIN_DELTA else "flat"),

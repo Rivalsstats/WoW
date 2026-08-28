@@ -46,6 +46,7 @@ from commonUtils import (
     INVTYPE_DISPLAY_ORDER,
     NON_GEAR_DISPLAY_ORDER,
     enchant_slot_pos,
+    load_tier_sets,
 )
 
 LEFT_ORDER = ["HEAD", "NECK", "SHOULDER", "BACK", "CHEST", "WRIST"]
@@ -617,7 +618,8 @@ _UNSET = object()
 
 
 def build_comps(
-    raw_rows, threshold, item_lookup, comp_kind, spec_id, limit=10, slot_sorted=True
+    raw_rows, threshold, item_lookup, comp_kind, spec_id, limit=10, slot_sorted=True,
+    set_meta=None,
 ):
     """Filter rare comps and parse the DB comp strings into display id lists.
 
@@ -626,6 +628,11 @@ def build_comps(
     divider between groups so a set combo that mixes, say, four tier pieces with
     a two-piece ring set reads as two clusters instead of one undifferentiated
     row of icons.
+
+    ``set_meta`` (the ``commonUtils.load_tier_sets`` set_id -> {name, items} map)
+    names each group from the item-sets catalog: when supplied, every comp also
+    carries ``group_sets`` (one entry per group, the set name or ``None`` for a
+    setless run) so the tier-set card can label each cluster with its actual set.
 
     ``slot_sorted`` off keeps the canonical ascending-id order and yields a
     single group: embellishment comps go through here too, and an embellishment
@@ -701,10 +708,22 @@ def build_comps(
                 groups[-1].append(i)
         else:
             groups = [ids]
+        # Header for each group cluster, from the item-sets catalog (source of truth
+        # for tier-set names): "{pieces}x {set name}" (e.g. "4x Relentless Rider's
+        # Lament"). Setless runs (crafted comps) resolve to None.
+        group_sets = None
+        if set_meta is not None:
+            group_sets = []
+            for g in groups:
+                sid = item_lookup.get(g[0], {}).get("itemSetId") if g else None
+                meta = set_meta.get(sid) if sid is not None else None
+                name = meta.get("name") if meta else None
+                group_sets.append(f"{len(g)}x {name}" if name else None)
         comps.append(
             {
                 "ids": ids,
                 "groups": groups,
+                "group_sets": group_sets,
                 "count": count,
                 "max_timed": row[2],
                 "max_depleted": row[3],
@@ -2006,6 +2025,11 @@ def main(template_path, output_dir, debug=False, spec=None):
         for _iid, _meta in _src.items():
             trend_item_icons[str(_iid)] = _meta
 
+    # Tier-set membership + names from the item-sets catalog (source of truth): the
+    # tier-set comp card labels each cluster with its set name, and the Top Trends
+    # set_combo tooltip buckets worn pieces by set name.
+    tier_item_to_set, tier_set_meta = load_tier_sets(LOOKUP_DIR)
+
     set_members = defaultdict(list)
     for iid, itm in item_lookup.items():
         sid = itm.get("itemSetId")
@@ -2314,7 +2338,7 @@ def main(template_path, output_dir, debug=False, spec=None):
                 )
                 tier_set_comps = build_comps(
                     tier_set_comps_raw, total_tier_set_comps * 0.005,
-                    item_lookup, "tier set", spec_id
+                    item_lookup, "tier set", spec_id, set_meta=tier_set_meta
                 )
                 # Gems carry no slot: the comp string records which gems were
                 # socketed, never which item they went into, so they keep the
@@ -2863,6 +2887,8 @@ def main(template_path, output_dir, debug=False, spec=None):
                         "specs": spec_lookup,
                         "items": trend_item_icons,
                         "talents": talent_name_map,
+                        "tier_item_to_set": tier_item_to_set,
+                        "tier_set_meta": tier_set_meta,
                     },
                 )
 
