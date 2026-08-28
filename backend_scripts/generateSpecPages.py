@@ -1664,6 +1664,11 @@ def convert_slots(
                 continue
             bonus = item.get("bonus", {}).get("ids", "")
             bonus_ids = bonus.split(",")
+            # Colour the equipped item by the variant its bonus ids resolve to,
+            # not the base item quality (shared with the item page).
+            q = commonUtils.resolve_bonus_quality(bonus_ids, bonus_quality_lookup)
+            if q is not None:
+                item["quality_override"] = q
             for bonus in bonus_ids:
                 b_data = bonus_lookup.get(str(bonus))
                 if b_data:
@@ -1675,8 +1680,6 @@ def convert_slots(
                     if embellishment_lookup.get(str(bonus)):
                         if embellishments and len(embellishments) > 0:
                             item["embellishment"] = embellishments[0][0]
-                    if bonus_quality_lookup.get(str(bonus)):
-                        item["quality_override"] = bonus_quality_lookup[str(bonus)]
                     if "craftedStats" in b_data:
                         if "crafted_stats" not in item:
                             item["crafted_stats"] = []

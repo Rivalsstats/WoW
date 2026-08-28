@@ -209,6 +209,9 @@
            canonical item rather than the most-used variant's bonus ids. #}
         {% set wh_url = "https://www.wowhead.com/item=" ~ item.id %}
         {% set wh_data = "item=" ~ item.id %}
+        {# Colour the item by the rarity its most-used variant resolves to (from its
+           bonus ids), falling back to the base item quality. Mirrors spec_page.html. #}
+        {% set item_quality = item.quality_override if item.quality_override is not none else item.quality %}
 
         <!-- Page title (icon · name · stats · run/key stat box), mirrors dungeon page -->
         <div class="row mb-4 mt-2">
@@ -217,13 +220,13 @@
               <div class="avatar avatar-xl position-relative me-3">
                 <a id="item-icon-link" href="{{ wh_url }}" target="_blank" rel="noopener" data-wowhead="{{ wh_data }}">
                   <img id="item-icon" src="/data/icons/{{ item.icon }}.png" alt="{{ item.name }}"
-                    class="w-100 rounded border-radius-lg shadow-sm border border-2 border-quality-{{ item.quality }}">
+                    class="w-100 rounded border-radius-lg shadow-sm border border-2 border-quality-{{ item_quality }}">
                 </a>
               </div>
               <div>
                 <h1 class="h3 mb-0 font-weight-bolder">
                   <a id="item-name" href="{{ wh_url }}" target="_blank" rel="noopener"
-                    class="item-quality-{{ item.quality }}" data-wowhead="{{ wh_data }}">{{ item.name }}</a>
+                    class="item-quality-{{ item_quality }}" data-wowhead="{{ wh_data }}">{{ item.name }}</a>
                 </h1>
                 <p class="mb-1 text-md opacity-8">
                   {{ item.slot }}{% if item.weaponType %} · {{ item.weaponType }}{% endif %}{% if item.onUseTrinket %} · On-Use{% elif item.slotKey == "TRINKET" %} · Passive/Proc{% endif %}{% if item.uniqueEquipped %} · <span class="text-warning">Unique-Equipped</span>{% endif %}

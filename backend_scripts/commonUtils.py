@@ -44,6 +44,32 @@ def stat_display_name(stat_type):
     return STAT_DISPLAY_NAMES.get(stat_type, str(stat_type).title())
 
 
+def resolve_bonus_quality(bonus_ids, bonus_quality_lookup):
+    """Item quality (rarity) implied by a variant's bonus ids, or ``None``.
+
+    A specific item variant can carry a quality-setting bonus id (see
+    ``processBonusIds.build_bonus_quality_map`` / data/static/bonus_quality_map.json)
+    that overrides the base item's canonical quality. This is the single place both
+    the spec page (equipped item colour) and the item page (most-used variant
+    colour) resolve that override from, so the rarity CSS class matches the actual
+    variant rather than the base item.
+
+    ``bonus_ids`` may be a list of ids or a delimited string (comma- or
+    colon-separated, matching the two shapes the generators carry). When more than
+    one bonus id sets a quality the last one wins, mirroring the spec page's loop.
+    """
+    if not bonus_ids or not bonus_quality_lookup:
+        return None
+    if isinstance(bonus_ids, str):
+        bonus_ids = bonus_ids.replace(":", ",").split(",")
+    quality = None
+    for bid in bonus_ids:
+        bid = str(bid).strip()
+        if bid and bonus_quality_lookup.get(bid) is not None:
+            quality = bonus_quality_lookup[bid]
+    return quality
+
+
 def load_json(path):
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)

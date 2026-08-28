@@ -457,6 +457,10 @@ def load_static_lookups():
     class_lookup = load_json(os.path.join(LOOKUP_DIR, "classes.json"))
     dungeon_lookup = load_json(os.path.join(LOOKUP_DIR, "dungeons.json"))
     bonus_lookup = load_json(os.path.join(LOOKUP_DIR, "bonuses.json"))
+    # bonus id -> item quality (rarity) for variants whose bonus ids override the
+    # base item quality, so the item colour matches the actual variant (same map
+    # and mechanism the spec page uses). Keys are strings.
+    bonus_quality_lookup = load_json(os.path.join(LOOKUP_DIR, "bonus_quality_map.json"))
     embellishment_lookup = load_json(os.path.join(LOOKUP_DIR, "embellishments.json"))
     missive_lookup = load_json(os.path.join(LOOKUP_DIR, "missives.json"))
     # Embellishment / missive items aren't equippable gear; their names + icons
@@ -547,6 +551,7 @@ def load_static_lookups():
         "class_lookup": class_lookup,
         "dungeon_lookup": dungeon_lookup,
         "bonus_lookup": bonus_lookup,
+        "bonus_quality_lookup": bonus_quality_lookup,
         "embellishment_lookup": embellishment_lookup,
         "missive_lookup": missive_lookup,
         "reagent_lookup": reagent_lookup,
@@ -576,6 +581,7 @@ def build_payloads(season, ctx, only_item=None):
     """
     spec_lookup = ctx["spec_lookup"]
     bonus_lookup = ctx["bonus_lookup"]
+    bonus_quality_lookup = ctx["bonus_quality_lookup"]
     embellishment_lookup = ctx["embellishment_lookup"]
     missive_lookup = ctx["missive_lookup"]
     reagent_lookup = ctx["reagent_lookup"]
@@ -892,6 +898,10 @@ def build_payloads(season, ctx, only_item=None):
             set_block = {"id": sid, "pieces": pieces}
 
         top_variant = global_scope["variants"][0]["bonus"] if global_scope["variants"] else ""
+        # Colour the item by the rarity its most-used variant's bonus ids resolve
+        # to (mirrors the spec page's equipped-item colour), falling back to the
+        # base item quality in the template when no bonus id sets a quality.
+        quality_override = commonUtils.resolve_bonus_quality(top_variant, bonus_quality_lookup)
 
         # Unified per-spec overview: adoption (the "view by spec" data) annotated
         # with SimC-BiS / top-players' flags (the "recommended for" data), so the
@@ -945,6 +955,7 @@ def build_payloads(season, ctx, only_item=None):
             "name": item.get("name", f"Item {item_id}"),
             "icon": item.get("icon", ""),
             "quality": item.get("quality", 0),
+            "quality_override": quality_override,
             "slot": label,
             "slotKey": key,
             "ilvl": item.get("itemLevel"),
@@ -994,6 +1005,12 @@ def build_payloads(season, ctx, only_item=None):
         armor = armor_token_for_item(item, key)
         if armor:
             manifest_entry["armor"] = armor
+        # Rarity of the most-used variant when its bonus ids resolve to a quality
+        # different from the base item, so the browse grid colours (and filters)
+        # the card by the variant. Omitted when it matches the base to keep
+        # items_index.json small.
+        if quality_override is not None and quality_override != payload["quality"]:
+            manifest_entry["quality_override"] = quality_override
         manifest.append(manifest_entry)
 
     manifest.sort(key=lambda x: x["runs"], reverse=True)

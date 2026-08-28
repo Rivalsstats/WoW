@@ -33,6 +33,14 @@
     4: "Epic", 5: "Legendary", 6: "Artifact", 7: "Heirloom",
   };
 
+  // The rarity to colour/filter a card by: the most-used variant's bonus-id
+  // resolved quality when present, else the base item quality. Mirrors the item
+  // page header (item.quality_override). quality_override is only emitted when it
+  // differs from the base, so it stays absent for the common case.
+  function effQuality(i) {
+    return i.quality_override != null ? i.quality_override : i.quality;
+  }
+
   // Filter state is mirrored into the query string (?slot=one-hand&quality=epic&
   // sort=name&q=blade) so a filtered view survives a refresh and can be linked to
   // someone else. Slots are slugged from their display name, not from the
@@ -128,7 +136,7 @@
 
   function buildQualityOptions() {
     var qualities = {};
-    all.forEach(function (i) { if (i.quality != null) qualities[i.quality] = true; });
+    all.forEach(function (i) { var q = effQuality(i); if (q != null) qualities[q] = true; });
     var sel = el("quality-filter");
     var allOpt = document.createElement("option");
     allOpt.value = ""; allOpt.textContent = "All quality";
@@ -465,7 +473,7 @@
       if (q && i.name.toLowerCase().indexOf(q) === -1) return false;
       if (slot && i.slot !== slot) return false;
       if (armor && i.armor !== armor) return false;
-      if (quality && String(i.quality) !== quality) return false;
+      if (quality && String(effQuality(i)) !== quality) return false;
       // OR across selected sources: keep the item if it carries any selected token.
       // "d:*" (All Dungeons) matches any item carrying at least one d: token.
       if (sourceTokens.length) {
@@ -504,11 +512,11 @@
     img.src = iconUrl(item.icon);
     img.alt = item.name;
     img.loading = "lazy";
-    img.className = "border-quality-" + item.quality;
+    img.className = "border-quality-" + effQuality(item);
     var meta = document.createElement("div");
     meta.className = "meta flex-grow-1";
     var name = document.createElement("div");
-    name.className = "name item-quality-" + item.quality;
+    name.className = "name item-quality-" + effQuality(item);
     name.textContent = item.name;
     var sub = document.createElement("div");
     sub.className = "sub";
