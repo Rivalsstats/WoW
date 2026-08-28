@@ -12,15 +12,10 @@ transfer across machines or tools; only in-repo notes do.
 ## When to record
 
 After finishing a task that produced newly gained durable knowledge (non-obvious mechanics, cross-file
-coupling, gotchas, corrected assumptions), **ask the user for permission to record it as the last line
-of your final message**. Do not record first and ask later, and do not record silently. The user
-decides. Phrase the ask as a short recap of what is worth recording, then the question:
-
-> While working this task I found that X and Y, we confirmed Z, and changed Z2. Would you like me to
-> record this knowledge in the knowledgebase?
-
-Only once they agree, store it as a narrow skill (update an existing skill rather than duplicating it)
-or a section of `AGENTS.md`.
+coupling, gotchas, corrected assumptions), **record it whenever it is relevant** without asking for
+permission first. Store it as a narrow skill (update an existing skill rather than duplicating it) or a
+section of `AGENTS.md`, then note in your final message what you recorded and where, so the user can
+review or revert it.
 
 - **Skip the ask entirely when there is nothing new to record:** planning-only work that changed
   nothing, or a bug / wrong behavior whose mechanics are already documented in the knowledgebase.
