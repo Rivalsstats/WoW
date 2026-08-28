@@ -17,7 +17,7 @@
 
 <head>
   <title>
-    Mythic+ Blog &amp; Data Highlights{% if page_num > 1 %} - Page {{ page_num }}{% endif %} | MythiStone
+    Mythic+ Blog &amp; Data Highlights | MythiStone
   </title>
   <meta name="description"
     content="Daily World of Warcraft Mythic+ data highlights: spec overviews, dungeon breakdowns, tier lists and record runs from millions of tracked M+ runs.">
@@ -44,67 +44,60 @@
           </p>
         </div>
       </div>
-      <div class="row">
-        {% for post in posts %}
-        <div class="col-lg-6 mb-4">
-          <article class="card h-100">
-            {% if post.image %}
-            <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">
-              <a href="{{ post.link }}" class="d-block border-radius-lg">
-                <img src="/data/social/{{ post.image }}" alt="{{ post.title }}" class="img-fluid border-radius-lg"
-                  loading="lazy">
-              </a>
+      {# Single source of the post-card markup. Page 1 is server-rendered by
+         looping this macro (SEO + no-JS get real cards); blog-infinite.js clones
+         the same macro output from #blog-card-template to render later posts from
+         blog_index.json, so both paths share one card definition. data-blog hooks
+         mark the fields the JS populates. #}
+      {% macro post_card(post) %}
+      <div class="col-lg-6 mb-4">
+        <article class="card h-100">
+          {% if post.image %}
+          <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1" data-blog="image">
+            <a href="{{ post.link }}" class="d-block border-radius-lg" data-blog="image-link">
+              <img src="/data/social/{{ post.image }}" alt="{{ post.title }}" class="img-fluid border-radius-lg"
+                loading="lazy">
+            </a>
+          </div>
+          {% endif %}
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <span class="badge badge-sm {{ post.badge_class }}" data-blog="badge">{{ post.type_label }}</span>
+              <small class="timestamp text-muted" data-bs-toggle="tooltip" data-bs-placement="top"
+                data-timestamp="{{ post.timestamp|int / 1000 }}"></small>
             </div>
-            {% endif %}
-            <div class="card-body">
-              <div class="d-flex align-items-center justify-content-between mb-2">
-                <span class="badge badge-sm {{ post.badge_class }}">{{ post.type_label }}</span>
-                <small class="timestamp text-muted" data-bs-toggle="tooltip" data-bs-placement="top"
-                  data-timestamp={{ post.timestamp|int / 1000 }}></small>
-              </div>
-              <h2 class="h5 mb-2">{{ post.title }}</h2>
+            <h2 class="h5 mb-2" data-blog="title">{{ post.title }}</h2>
+            <div data-blog="paragraphs">
               {% for paragraph in post.paragraphs %}
-              <p class="text-sm mb-2">{{ paragraph }}</p>
+              <p class="text-sm mb-2" data-blog="paragraph">{{ paragraph }}</p>
               {% endfor %}
-              <a href="{{ post.link }}" class="btn btn-outline-primary btn-sm mb-0 mt-2">View the data</a>
             </div>
-          </article>
-        </div>
+            <a href="{{ post.link }}" class="btn btn-outline-primary btn-sm mb-0 mt-2" data-blog="link">View the data</a>
+          </div>
+        </article>
+      </div>
+      {% endmacro %}
+      <div class="row" id="blog-posts">
+        {% for post in posts %}
+        {{ post_card(post) }}
         {% endfor %}
       </div>
-      {% if total_pages > 1 %}
-      <nav aria-label="Blog pages" class="d-flex justify-content-center">
-        <ul class="pagination pagination-primary mb-0">
-          <li class="page-item {% if not prev_url %}disabled{% endif %}">
-            <a class="page-link" href="{{ prev_url or '#' }}" aria-label="Newer posts">
-              <span class="material-symbols-rounded">chevron_left</span>
-            </a>
-          </li>
-          {% for p in page_links %}
-          {% if p %}
-          <li class="page-item {% if p == page_num %}active{% endif %}">
-            <a class="page-link" href="{{ '/pages/blog' if p == 1 else '/pages/blog-' ~ p }}">{{ p }}</a>
-          </li>
-          {% else %}
-          <li class="page-item disabled">
-            <span class="page-link">&hellip;</span>
-          </li>
-          {% endif %}
-          {% endfor %}
-          <li class="page-item {% if not next_url %}disabled{% endif %}">
-            <a class="page-link" href="{{ next_url or '#' }}" aria-label="Older posts">
-              <span class="material-symbols-rounded">chevron_right</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-      {% endif %}
+      {# Prototype card cloned by blog-infinite.js for JS-rendered posts. Rendered
+         from the same macro with a skeleton post so it always carries the image
+         block and one paragraph node for JS to clone. #}
+      <template id="blog-card-template">
+        {{ post_card({'image': '1', 'link': '', 'title': '', 'badge_class': '', 'type_label': '', 'timestamp': 0, 'paragraphs': ['']}) }}
+      </template>
+      <!-- Infinite-scroll sentinel: blog-infinite.js watches this and appends the
+           remaining posts from blog_index.json as it nears the fold. -->
+      <div id="blog-sentinel" class="py-2" aria-hidden="true"></div>
       {% include "footer.html" %}
     </div>
   </main>
   {% include "right_aside.html" %}
   {% include "fixed_plugin.html" %}
   {% include "javascript_imports.html" %}
+  <script src="/assets/js/blog-infinite.js"></script>
 </body>
 
 </html>

@@ -114,9 +114,9 @@
 
         <div id="items-grid" class="row g-2"></div>
         <p id="items-empty" class="text-center opacity-6 py-4 d-none">No items match your filters.</p>
-        <div class="text-center py-3">
-          <button id="items-more" class="btn btn-outline-primary d-none">Show more</button>
-        </div>
+        <!-- Infinite-scroll sentinel: MythiInfinite watches this and appends the
+             next batch as it nears the fold. -->
+        <div id="items-sentinel" class="py-3" aria-hidden="true"></div>
       </div>
 
       {% include "footer.html" %}

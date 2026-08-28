@@ -83,6 +83,7 @@
   var all = [];
   var filtered = [];
   var shown = 0;
+  var infinite = null;
 
   // bootstrap-select (selectpicker) is loaded globally; refresh after we mutate
   // a <select>'s options so the styled dropdown picks them up.
@@ -495,7 +496,9 @@
     shown = 0;
     el("items-grid").innerHTML = "";
     el("items-empty").classList.toggle("d-none", filtered.length > 0);
-    renderMore();
+    // Render the first batch immediately, then hand the rest to the observer.
+    var done = renderMore();
+    if (infinite) done ? infinite.finish() : infinite.reset();
     updateUrl();
   }
 
@@ -541,7 +544,8 @@
       try { window.$WowheadPower.refreshLinks(); } catch (e) { /* tooltips optional */ }
     }
     shown += slice.length;
-    el("items-more").classList.toggle("d-none", shown >= filtered.length);
+    // True once every filtered item is on the page, so the observer stops.
+    return shown >= filtered.length;
   }
 
   function init() {
@@ -554,6 +558,12 @@
         buildQualityOptions();
         buildSourceOptions();
         buildClassOptions();
+        // Sentinel-driven infinite scroll: renderMore appends the next batch and
+        // reports done. Created before the first applyFilters so it can be reset.
+        infinite = window.MythiInfinite.create({
+          sentinel: el("items-sentinel"),
+          onLoadMore: renderMore,
+        });
         // After the options exist, so the *_BY_SLUG maps can resolve ?slot=/?armor=/?source=/?class=.
         applyParamsToControls(readParams());
         applyFilters();
@@ -564,7 +574,6 @@
         el("source-filter").addEventListener("change", applyFilters);
         el("class-filter").addEventListener("change", applyFilters);
         el("sort-by").addEventListener("change", applyFilters);
-        el("items-more").addEventListener("click", renderMore);
         // Only fires when the user navigates back to an earlier URL of this page;
         // our own replaceState writes never trigger it, so there is no loop.
         window.addEventListener("popstate", function () {

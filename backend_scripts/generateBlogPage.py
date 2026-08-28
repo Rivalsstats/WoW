@@ -1,5 +1,6 @@
 import os
 import re
+import json
 import argparse
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from datetime import datetime, timezone
@@ -169,21 +170,6 @@ def build_posts(raw_posts, images_dir, spec_lookup, class_lookup, dungeon_lookup
     return posts
 
 
-def build_page_links(current, total, window=2):
-    """Page numbers to render: first/last plus a window around the current
-    page, with None marking an ellipsis gap."""
-    wanted = {1, total}
-    wanted.update(p for p in range(current - window, current + window + 1) if 1 <= p <= total)
-    links = []
-    prev = 0
-    for p in sorted(wanted):
-        if p - prev > 1:
-            links.append(None)
-        links.append(p)
-        prev = p
-    return links
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -192,6 +178,11 @@ def main():
         help="Directory holding the persisted social post images",
     )
     parser.add_argument("--output_dir", default="pages")
+    parser.add_argument(
+        "--index_file",
+        default=os.path.join("assets", "json", "blog_index.json"),
+        help="where to write the JSON feed of posts beyond page 1",
+    )
     parser.add_argument("--per_page", type=int, default=12)
     parser.add_argument(
         "--socials_file",
@@ -237,39 +228,31 @@ def main():
     dungeon_nav = generateDungeonNav(dungeon_lookup)
     template = env.get_template("blog.html")
 
-    chunks = [
-        posts[i : i + args.per_page] for i in range(0, len(posts), args.per_page)
-    ] or [[]]
-    total_pages = len(chunks)
+    # Page 1 is server-rendered HTML for SEO / first paint / no-JS; every post
+    # after it goes to one JSON feed that blog-infinite.js appends client-side
+    # (same pattern as items_index.json / compRoutes.json).
+    first_page = posts[: args.per_page]
+    rest = posts[args.per_page :]
+
     os.makedirs(args.output_dir, exist_ok=True)
+    output_html = template.render(
+        generated_at=datetime.now(timezone.utc).timestamp(),
+        spec_nav=spec_nav,
+        dungeon_nav=dungeon_nav,
+        breadcrumbs=[{"title": "Blog"}],
+        active_page="blog",
+        notifications=notifications,
+        posts=first_page,
+    )
+    out_path = os.path.join(args.output_dir, "blog.html")
+    with open(out_path, "w", encoding="utf-8") as f:
+        f.write(output_html)
+    print(f"Generated {out_path}")
 
-    for page_num, chunk in enumerate(chunks, start=1):
-        out_name = "blog.html" if page_num == 1 else f"blog-{page_num}.html"
-        prev_url = None
-        if page_num == 2:
-            prev_url = "/pages/blog"
-        elif page_num > 2:
-            prev_url = f"/pages/blog-{page_num - 1}"
-        next_url = f"/pages/blog-{page_num + 1}" if page_num < total_pages else None
-
-        output_html = template.render(
-            generated_at=datetime.now(timezone.utc).timestamp(),
-            spec_nav=spec_nav,
-            dungeon_nav=dungeon_nav,
-            breadcrumbs=[{"title": "Blog"}],
-            active_page="blog",
-            notifications=notifications,
-            posts=chunk,
-            page_num=page_num,
-            total_pages=total_pages,
-            page_links=build_page_links(page_num, total_pages),
-            prev_url=prev_url,
-            next_url=next_url,
-        )
-        out_path = os.path.join(args.output_dir, out_name)
-        with open(out_path, "w", encoding="utf-8") as f:
-            f.write(output_html)
-        print(f"Generated {out_path}")
+    os.makedirs(os.path.dirname(args.index_file), exist_ok=True)
+    with open(args.index_file, "w", encoding="utf-8") as f:
+        json.dump(rest, f, ensure_ascii=False)
+    print(f"Wrote {len(rest)} post(s) beyond page 1 to {args.index_file}")
 
 
 if __name__ == "__main__":

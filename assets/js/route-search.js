@@ -1,9 +1,16 @@
-const PAGE_SIZE = 50;
+﻿const PAGE_SIZE = 50;
 let compRoutesLoaded = false;
 let workerReady = false;
 let worker = null;
 let pendingBuild = false;
 let lastResults = { total: 0, results: [] };
+// Infinite scroll: how many matches are on the page, whether the in-flight
+// worker reply is an append (vs a fresh search), the resolver waiting on that
+// append, and the MythiInfinite controller for the sentinel.
+let loadedCount = 0;
+let pendingAppend = false;
+let appendResolve = null;
+let routeInfinite = null;
 
 function debounce(fn, ms) {
   let t = null;
@@ -190,7 +197,7 @@ function renderMatches(routes, append = false) {
     </div>
     <div class="mt-2"><small class="text-muted">NPCs: ${
       (r.npcs && r.npcs.length) || 0
-    } — Spells: ${(r.spells && r.spells.length) || 0}</small></div>`;
+    } â€” Spells: ${(r.spells && r.spells.length) || 0}</small></div>`;
 
     collapseDiv.appendChild(body);
     item.appendChild(collapseDiv);
@@ -201,7 +208,7 @@ function renderMatches(routes, append = false) {
       if (!iframe) return;
       // Gated on Klaro consent for keystoneGuru. These result panels are built
       // client-side, so Klaro never sees the iframes and cannot hold them back
-      // itself — setting src here unconditionally loaded the embed even when the
+      // itself â€” setting src here unconditionally loaded the embed even when the
       // visitor had declined. MythiConsent defers until consent is granted, never
       // loads it if it isn't, and owns the spinner either way.
       MythiConsent.loadEmbed(iframe);
@@ -223,16 +230,37 @@ function initSearch() {
       workerReady = true;
     } else if (msg.cmd === "result") {
       lastResults.total = msg.total;
-      lastResults.results = msg.results;
       lastResults.relaxHint = msg.relaxHint || null;
-      renderMatches(msg.results, false);
 
-      if (typeof window.__routeRenderPagination === "function") {
-        window.__routeRenderPagination(
-          msg.total,
-          msg.page || currentPage,
-          msg.pageSize || PAGE_SIZE
-        );
+      const isAppend = pendingAppend;
+      pendingAppend = false;
+
+      if (isAppend) {
+        // Next page of the same search: keep what's on screen and add to it.
+        currentPage = msg.page;
+        loadedCount += msg.results.length;
+        renderMatches(msg.results, true);
+      } else {
+        // Fresh search: replace the list and start counting again.
+        currentPage = 1;
+        loadedCount = msg.results.length;
+        lastResults.results = msg.results;
+        renderMatches(msg.results, false);
+      }
+
+      updateRouteSummary(loadedCount, msg.total);
+
+      const done = loadedCount >= msg.total;
+      if (appendResolve) {
+        const resolve = appendResolve;
+        appendResolve = null;
+        resolve(done);
+      }
+      // A fresh search re-arms the sentinel (or retires it when the first page
+      // already held everything); appends let their onLoadMore promise settle it.
+      if (!isAppend && routeInfinite) {
+        if (done) routeInfinite.finish();
+        else routeInfinite.reset();
       }
     } else if (msg.cmd === "error") {
       console.error("Worker error:", msg.payload);
@@ -254,11 +282,13 @@ function initSearch() {
 }
 
 let currentPage = 1;
-function doQuery({ page = 1, pageSize = PAGE_SIZE } = {}) {
+function doQuery({ page = 1, pageSize = PAGE_SIZE, append = false } = {}) {
   if (!worker) {
     initSearch();
   }
-  currentPage = page;
+  // The worker reply is matched to this flag so the result handler knows whether
+  // to append the page or replace the list. currentPage is advanced there.
+  pendingAppend = append;
   const chosenDungeon = $("#dungeonSelect").selectpicker("val") || [];
   const chosenSpecs = $("#specSelect").selectpicker("val") || [];
   const spellsSelected = $("#spellSelect").selectpicker("val") || [];
@@ -307,7 +337,6 @@ function parseIdList(s) {
 document.getElementById("compForm").addEventListener("submit", function (e) {
   e.preventDefault();
   const params = paramsFromForm();
-  params.page = 1;
   currentPage = 1;
   updateUrlFromParams(params, { replace: false });
   showOverlayUntilAccordionMutates(10000);
@@ -331,7 +360,6 @@ function parseUrlParams() {
     spells: getList("spells"),
     npcInclude: getList("npcInclude"),
     npcExclude: getList("npcExclude"),
-    page: sp.has("page") ? Number(sp.get("page")) || 1 : 1,
   };
 }
 
@@ -374,7 +402,6 @@ function paramsFromForm() {
       : npcExclude
       ? [npcExclude]
       : [],
-    page: currentPage || 1,
   };
 }
 
@@ -384,8 +411,7 @@ function hasAnyParams(obj) {
     (obj.specs && obj.specs.length) ||
     (obj.spells && obj.spells.length) ||
     (obj.npcInclude && obj.npcInclude.length) ||
-    (obj.npcExclude && obj.npcExclude.length) ||
-    (obj.page && obj.page > 1)
+    (obj.npcExclude && obj.npcExclude.length)
   );
 }
 
@@ -401,7 +427,6 @@ function updateUrlFromParams(params, { replace = true } = {}) {
     sp.set("npcInclude", params.npcInclude.join(","));
   if (params.npcExclude && params.npcExclude.length)
     sp.set("npcExclude", params.npcExclude.join(","));
-  if (params.page && params.page > 1) sp.set("page", String(params.page));
 
   const newUrl =
     window.location.pathname + (sp.toString() ? "?" + sp.toString() : "");
@@ -437,7 +462,7 @@ document.addEventListener("DOMContentLoaded", function () {
     showOverlayUntilAccordionMutates(10000);
     applyParamsToForm(initialParams);
 
-    currentPage = initialParams.page || 1;
+    currentPage = 1;
 
     if (!worker) initSearch();
     const waitForWorker = setInterval(() => {
@@ -456,7 +481,6 @@ document.addEventListener("DOMContentLoaded", function () {
         spells: [],
         npcInclude: [],
         npcExclude: [],
-        page: 1,
       },
       { replace: true }
     );
@@ -471,7 +495,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const state = ev.state || parseUrlParams();
     if (!state) return;
     applyParamsToForm(state);
-    currentPage = state.page || 1;
+    currentPage = 1;
     if (hasAnyParams(state)) {
       showOverlayUntilAccordionMutates(10000);
       if (!worker) initSearch();
@@ -552,216 +576,38 @@ function showOverlayUntilAccordionMutates(timeoutMs = 10000) {
   }
 }
 
+// Loaded/total readout above the results, replacing the old numbered pager's
+// "Page X of Y" line.
+function updateRouteSummary(loaded, total) {
+  const summary = document.querySelector(".pagination-summary");
+  if (!summary) return;
+  if (!total || total <= 0) {
+    summary.style.display = "none";
+    return;
+  }
+  summary.style.display = "inline-block";
+  summary.textContent = `Showing ${loaded} of ${total} route${
+    total === 1 ? "" : "s"
+  }`;
+}
+
+// Sentinel callback: ask the worker for the page after the last one loaded and
+// append it. Resolves true (list finished) once everything matched is on screen.
+function loadMoreRoutes() {
+  if (loadedCount >= lastResults.total) return true;
+  return new Promise((resolve) => {
+    appendResolve = resolve;
+    doQuery({ page: currentPage + 1, append: true });
+  });
+}
+
 (function () {
-  function renderPagination(total, page = 1, pageSize = PAGE_SIZE) {
-    const root = document.getElementById("route-pagination");
-    const list = root.querySelector(".pagination");
-    const summary = document.querySelector(".pagination-summary");
-
-    if (!list || typeof total !== "number" || total <= 0) {
-      if (root) root.style.display = "none";
-      return;
-    }
-
-    const totalPages = Math.max(1, Math.ceil(total / pageSize));
-    page = Math.max(1, Math.min(page, totalPages));
-    list.innerHTML = "";
-
-    function mkItem(
-      labelHtml,
-      cls = "",
-      disabled = false,
-      ariaLabel = null,
-      pageNum = null
-    ) {
-      const li = document.createElement("li");
-      li.className = `page-item ${cls} ${disabled ? "disabled" : ""}`.trim();
-      const a = document.createElement("a");
-      a.className = "page-link";
-      a.href = "javascript:void(0);";
-      a.setAttribute("role", "button");
-      if (ariaLabel) a.setAttribute("aria-label", ariaLabel);
-      a.innerHTML = labelHtml;
-      if (!disabled && typeof pageNum === "number") {
-        a.addEventListener("click", (ev) => {
-          ev.preventDefault();
-          goToPage(pageNum, { push: true });
-        });
-      }
-      li.appendChild(a);
-      return li;
-    }
-
-    function pageWindow(current, totalP, maxButtons = 7) {
-      if (totalP <= maxButtons)
-        return Array.from({ length: totalP }, (_, i) => i + 1);
-      const half = Math.floor(maxButtons / 2);
-      let start = Math.max(1, current - half);
-      let end = Math.min(totalP, current + half);
-      if (current - start < half)
-        end = Math.min(totalP, start + maxButtons - 1);
-      if (end - current < half) start = Math.max(1, end - maxButtons + 1);
-      return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-    }
-
-    const prevHtml = `<i class="material-symbols-rounded" aria-hidden="true" style="vertical-align:middle">arrow_back_ios</i>`;
-    const nextHtml = `<i class="material-symbols-rounded" aria-hidden="true" style="vertical-align:middle">arrow_forward_ios</i>`;
-
-    list.appendChild(
-      mkItem(prevHtml, "", page <= 1, "Previous page", Math.max(1, page - 1))
-    );
-
-    const pages = pageWindow(page, totalPages, 7);
-    if (pages[0] > 1) {
-      list.appendChild(mkItem("1", "", false, "Page 1", 1));
-      if (pages[0] > 2) {
-        const ell = document.createElement("li");
-        ell.className = "page-item disabled";
-        ell.innerHTML = `<span class="page-link">…</span>`;
-        list.appendChild(ell);
-      }
-    }
-
-    pages.forEach((pn) => {
-      const activeClass = pn === page ? "active" : "";
-      const li = mkItem(String(pn), activeClass, false, `Page ${pn}`, pn);
-      if (pn === page) li.classList.add("active");
-      list.appendChild(li);
-    });
-
-    if (pages[pages.length - 1] < totalPages) {
-      if (pages[pages.length - 1] < totalPages - 1) {
-        const ell = document.createElement("li");
-        ell.className = "page-item disabled";
-        ell.innerHTML = `<span class="page-link">…</span>`;
-        list.appendChild(ell);
-      }
-      list.appendChild(
-        mkItem(String(totalPages), "", false, `Page ${totalPages}`, totalPages)
-      );
-    }
-
-    list.appendChild(
-      mkItem(
-        nextHtml,
-        "",
-        page >= totalPages,
-        "Next page",
-        Math.min(totalPages, page + 1)
-      )
-    );
-
-    if (summary) {
-      summary.style.display = "inline-block";
-      summary.textContent = `Page ${page} of ${totalPages} (${total} Routes)`;
-    }
-
-    root.dataset.totalPages = String(totalPages);
-    root.dataset.currentPage = String(page);
-    root.style.display = "flex";
-  }
-
-  function goToPage(n, { push = false } = {}) {
-    n = Math.max(1, Math.floor(n || 1));
-    currentPage = n;
-
-    const params = paramsFromForm();
-    params.page = currentPage;
-    updateUrlFromParams(params, { replace: !push });
-
-    try {
-      const target =
-        document.getElementById("routeDungeonAccordion") ||
-        document.querySelector("main") ||
-        document.body;
-
-      let offset = 20;
-      const navbar =
-        document.querySelector(".navbar") ||
-        document.querySelector(".navbar-expand") ||
-        document.querySelector(".main-nav");
-      if (navbar) {
-        try {
-          const nbRect = navbar.getBoundingClientRect();
-          if (nbRect && nbRect.height) offset = Math.round(nbRect.height) + 12;
-        } catch (e) {}
-      }
-
-      const rect = target.getBoundingClientRect();
-      const top = Math.max(0, rect.top + window.scrollY - offset);
-
-      window.scrollTo({ top, behavior: "smooth" });
-
-      try {
-        target.setAttribute("tabindex", "-1");
-        target.focus({ preventScroll: true });
-      } catch (e) {}
-    } catch (e) {
-      console.warn("scroll-to-results failed", e);
-    }
-
-    showOverlayUntilAccordionMutates(10000);
-    if (!worker) initSearch();
-
-    const waitForWorker = setInterval(() => {
-      if (workerReady) {
-        clearInterval(waitForWorker);
-        doQuery({ page: currentPage, pageSize: PAGE_SIZE });
-      }
-    }, 100);
-    setTimeout(() => clearInterval(waitForWorker), 10000);
-  }
-
-  function attachWorkerPaginationListener() {
-    if (!window.worker) return;
-    if (window.__pager_attached) return;
-    window.__pager_attached = true;
-    window.worker.addEventListener("message", (ev) => {
-      try {
-        const data = ev.data;
-        if (!data) return;
-        if (
-          data.type === "results" ||
-          data.type === "search-results" ||
-          data.type === "routes-results"
-        ) {
-          const total =
-            typeof data.total === "number"
-              ? data.total
-              : data.meta && data.meta.total
-              ? data.meta.total
-              : null;
-          const page =
-            typeof data.page === "number"
-              ? data.page
-              : data.meta && data.meta.page
-              ? data.meta.page
-              : currentPage || 1;
-          if (typeof total === "number")
-            renderPagination(total, page, PAGE_SIZE);
-        } else if (data.meta && typeof data.meta.total === "number") {
-          renderPagination(
-            data.meta.total,
-            data.meta.page || currentPage,
-            PAGE_SIZE
-          );
-        }
-      } catch (e) {
-        console.warn("pager worker message error", e);
-      }
-    });
-  }
-
-  if (window.worker && window.workerReady) attachWorkerPaginationListener();
-  else {
-    const poll = setInterval(() => {
-      if (window.worker) {
-        attachWorkerPaginationListener();
-        clearInterval(poll);
-      }
-    }, 150);
-    setTimeout(() => clearInterval(poll), 10000);
-  }
-
-  window.__routeRenderPagination = renderPagination;
+  const sentinel = document.getElementById("route-sentinel");
+  if (!sentinel || !window.MythiInfinite) return;
+  // Armed immediately; until a search populates lastResults.total it just no-ops
+  // (loadMoreRoutes returns true), and each fresh search re-arms it.
+  routeInfinite = window.MythiInfinite.create({
+    sentinel: sentinel,
+    onLoadMore: loadMoreRoutes,
+  });
 })();
