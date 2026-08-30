@@ -296,60 +296,70 @@ def insert_run_members_batch(connection, cursor, rm_vals):
     executemany_with_retry(connection, cursor, INSERT_RUN_MEMBER_SQL, rm_vals)
 
 
-INSERT_MEMBER_SQL = "INSERT IGNORE INTO members (`spec_id`, `loadout`, `hero_talent_id`) VALUES (%s, %s, %s)"
+INSERT_MEMBER_SQL = "INSERT IGNORE INTO members (`spec_id`, `loadout`, `hero_talent_id`, `talent_set_id`) VALUES (%s, %s, %s, %s)"
 
 
-def insert_member(connection, cursor, spec_id: int, loadout: str, hero_talent_id: int):
-    """Insert a member into the members table."""
-    val = (spec_id, loadout, hero_talent_id)
+def insert_member(
+    connection,
+    cursor,
+    spec_id: int,
+    loadout: str,
+    hero_talent_id: int,
+    talent_set_id: bytes = None,
+):
+    """Insert a member into the members table.
+
+    ``talent_set_id`` is the BINARY(16) content hash of the member's full talent
+    selection (see commonUtils.talent_set_hash), or None when the member has no
+    talent rows.
+    """
+    val = (spec_id, loadout, hero_talent_id, talent_set_id)
     execute_with_retry(connection, cursor, INSERT_MEMBER_SQL, val)
     return cursor.lastrowid
 
 
 def insert_members_batch(connection, cursor, member_vals):
-    """Bulk-insert members, returns first inserted member_id."""
+    """Bulk-insert members, returns first inserted member_id.
+
+    Each tuple is (spec_id, loadout, hero_talent_id, talent_set_id).
+    """
     executemany_with_retry(connection, cursor, INSERT_MEMBER_SQL, member_vals)
     return cursor.lastrowid
 
 
-INSERT_CLASS_TALENT_SQL = "INSERT IGNORE INTO class_talents (`member`, `talent_id`, `rank`) VALUES (%s, %s, %s)"
+INSERT_TALENT_SET_SQL = "INSERT IGNORE INTO talent_sets (`set_id`, `tree`, `talent_id`, `rank`) VALUES (%s, %s, %s, %s)"
 
 
-def insert_class_talents(connection, cursor, class_talents: list[tuple[int, int, int]]):
-    """Bulk-insert class talents, each tuple being (member, talent_id, rank)."""
+def insert_talent_sets(connection, cursor, talent_set_rows):
+    """Bulk-insert talent dictionary rows.
+
+    Each tuple is (set_id, tree, talent_id, rank) with tree 0=class, 1=spec,
+    2=hero. INSERT IGNORE keeps the dictionary de-duplicated: a set already seen
+    (by any earlier member or batch) is skipped.
+    """
     return executemany_with_retry(
-        connection, cursor, INSERT_CLASS_TALENT_SQL, class_talents
+        connection, cursor, INSERT_TALENT_SET_SQL, talent_set_rows
     )
 
 
-INSERT_SPEC_TALENT_SQL = "INSERT IGNORE INTO spec_talents (`member`, `talent_id`, `rank`) VALUES (%s, %s, %s)"
-
-
-def insert_spec_talents(connection, cursor, spec_talents: list[tuple[int, int, int]]):
-    """Bulk-insert spec talents, each tuple being (member, talent_id, rank)."""
-    return executemany_with_retry(
-        connection, cursor, INSERT_SPEC_TALENT_SQL, spec_talents
-    )
-
-
-INSERT_HERO_TALENT_SQL = "INSERT IGNORE INTO hero_talents (`member`, `talent_id`, `rank`) VALUES (%s, %s, %s)"
-
-
-def insert_hero_talents(connection, cursor, hero_talents: list[tuple[int, int, int]]):
-    """Bulk-insert hero talents, each tuple being (member, talent_id, rank)."""
-    return executemany_with_retry(
-        connection, cursor, INSERT_HERO_TALENT_SQL, hero_talents
-    )
-
-
-INSERT_EQUIPMENT_SQL = "INSERT IGNORE INTO equipment (`member`, `slot`, `item_id`, `item_level`) VALUES (%s, %s, %s, %s)"
+INSERT_EQUIPMENT_SQL = "INSERT IGNORE INTO equipment (`member`, `slot`, `item_id`, `item_level`, `bonus_set_id`) VALUES (%s, %s, %s, %s, %s)"
 
 
 def insert_equipment(
-    connection, cursor, member: int, slot: str, item_id: int, item_level: int
+    connection,
+    cursor,
+    member: int,
+    slot: str,
+    item_id: int,
+    item_level: int,
+    bonus_set_id: bytes = None,
 ):
-    """Insert a equipment item into the equipment table."""
-    val = (member, slot, item_id, item_level)
+    """Insert a equipment item into the equipment table.
+
+    ``bonus_set_id`` is the BINARY(16) content hash of the item's set of bonus
+    ids (see commonUtils.bonus_set_hash), or None when the item has no bonus ids.
+    """
+    val = (member, slot, item_id, item_level, bonus_set_id)
     execute_with_retry(connection, cursor, INSERT_EQUIPMENT_SQL, val)
     return cursor.lastrowid
 
@@ -391,15 +401,20 @@ def insert_sockets(connection, cursor, sockets):
         raise
 
 
-INSERT_BONUS_SQL = (
-    "INSERT IGNORE INTO bonus_ids (`equipment_id`, `bonus_id`) VALUES (%s, %s)"
+INSERT_BONUS_SET_SQL = (
+    "INSERT IGNORE INTO bonus_sets (`set_id`, `bonus_id`) VALUES (%s, %s)"
 )
 
 
-def insert_bonuses(connection, cursor, bonuses):
-    """Insert a bonus_id into the bonus table."""
-    executemany_with_retry(connection, cursor, INSERT_BONUS_SQL, bonuses)
-    return cursor.lastrowid
+def insert_bonus_sets(connection, cursor, bonus_set_rows):
+    """Bulk-insert bonus dictionary rows.
+
+    Each tuple is (set_id, bonus_id). INSERT IGNORE keeps the dictionary
+    de-duplicated: a set already seen (by any earlier item or batch) is skipped.
+    """
+    return executemany_with_retry(
+        connection, cursor, INSERT_BONUS_SET_SQL, bonus_set_rows
+    )
 
 
 INSERT_STATS_SQL = "INSERT INTO Mythistone.character_stats (`member`, stat, raw, percent) VALUES(%s, %s, %s, %s);"

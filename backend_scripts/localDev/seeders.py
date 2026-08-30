@@ -27,7 +27,7 @@ import os
 import random
 
 import databaseConnector as db
-from commonUtils import load_json
+from commonUtils import bonus_set_hash, load_json, talent_set_hash
 
 from loadout_codec import encode_loadout
 
@@ -399,8 +399,16 @@ def seed_runs(conn, cursor, static, rng, cfg, pools):
                 tier_by_spec.setdefault(int(spec), pieces)
 
     runs, run_members, members = [], [], []
-    equipment, sockets, enchantments, bonus_ids = [], [], [], []
-    class_t, spec_t, hero_t, char_stats = [], [], [], []
+    equipment, sockets, enchantments = [], [], []
+    char_stats = []
+    # Talent dictionary: set_id -> list of (set_id, tree, talent_id, rank) rows.
+    # One set_id covers all three trees for a member; members reference it via
+    # members.talent_set_id. Mirrors the collector's talent_sets dedup.
+    talent_set_rows = {}
+    # Bonus dictionary: set_id -> list of (set_id, bonus_id) rows. One set_id
+    # covers an equipped item's whole bonus-id set; equipment references it via
+    # equipment.bonus_set_id. Mirrors the collector's bonus_sets dedup.
+    bonus_set_rows = {}
 
     run_id = member_id = equip_id = 0
 
@@ -411,10 +419,31 @@ def seed_runs(conn, cursor, static, rng, cfg, pools):
         variant = rng.choice(variants.get(spec_id) or [None])
         hero_tree = variant["hero_tree"] if variant else 0
         loadout = variant["loadout"] if variant else None
-        members.append((m, spec_id, loadout, hero_tree or None))
+
+        # Build this member's talent rows (with per-member random ranks, so the
+        # aggregate AVG(rank) still varies), hash them into a talent_sets set_id,
+        # and reference it from members.talent_set_id. Members that share the same
+        # nodes AND ranks collapse to one dictionary set, exactly like live data.
+        if variant:
+            class_rows = [(nid, rng.randint(1, 2)) for nid in variant["class"]]
+            spec_rows = [(nid, rng.randint(1, 2)) for nid in variant["spec"]]
+            hero_rows = [(nid, 1) for nid in variant["hero"]]
+            tsid = talent_set_hash(class_rows, spec_rows, hero_rows)
+        else:
+            tsid = None
+        members.append((m, spec_id, loadout, hero_tree or None, tsid))
+        if tsid is not None and tsid not in talent_set_rows:
+            rows = ([(tsid, 0, nid, rk) for nid, rk in class_rows]
+                    + [(tsid, 1, nid, rk) for nid, rk in spec_rows]
+                    + [(tsid, 2, nid, rk) for nid, rk in hero_rows])
+            talent_set_rows[tsid] = rows
 
         # equipment across all 16 slots
         member_eids = []
+        # Per-item bonus-id sets, resolved into a bonus_sets dictionary id once all
+        # bonuses (slot rolls + embellishment/missive extras below) are decided.
+        eid_meta = {}       # eid -> (slot, item_id, ilvl)
+        eid_bonuses = {}    # eid -> set(bonus_id)
         # ~half of players wear 2+ pieces of their class tier set (forces some tier-set
         # comps into aggregated_tier_set_comps so the tier-set card has data locally).
         tier_pieces = tier_by_spec.get(spec_id)
@@ -430,10 +459,11 @@ def seed_runs(conn, cursor, static, rng, cfg, pools):
             member_eids.append(eid)
             item_id = forced_tier.get(slot) or _zipf_pick(rng, pool)
             ilvl = rng.randint(620, 662)
-            equipment.append((slot, str(item_id), str(ilvl), m, eid))
+            eid_meta[eid] = (slot, item_id, ilvl)
+            eid_bonuses[eid] = set()
             # bonus ids
             for b in rng.sample(bonus_pool, rng.randint(1, 2)):
-                bonus_ids.append((eid, int(b)))
+                eid_bonuses[eid].add(int(b))
             # enchant on enchantable slots
             if slot in ENCHANTABLE_SLOTS:
                 grp = SLOT_GROUP_MAP[slot]
@@ -445,21 +475,24 @@ def seed_runs(conn, cursor, static, rng, cfg, pools):
                 sockets.append(("PRISMATIC", str(_zipf_pick(rng, gem_pool)), eid))
 
         # An embellishment (most builds run 1-2) and sometimes a missive, added as extra
-        # bonus_ids on a random equipped piece so sp_agg_embellishments / sp_agg_missives fire.
+        # bonus ids on a random equipped piece so sp_agg_embellishments / sp_agg_missives fire.
         if member_eids and emb_bonus and rng.random() < 0.7:
             for eid in rng.sample(member_eids, min(rng.randint(1, 2), len(member_eids))):
-                bonus_ids.append((eid, _zipf_pick(rng, emb_bonus)))
+                eid_bonuses[eid].add(int(_zipf_pick(rng, emb_bonus)))
         if member_eids and mis_bonus and rng.random() < 0.5:
-            bonus_ids.append((rng.choice(member_eids), rng.choice(mis_bonus)))
+            eid_bonuses[rng.choice(member_eids)].add(int(rng.choice(mis_bonus)))
 
-        # talents from the chosen variant
-        if variant:
-            for nid in variant["class"]:
-                class_t.append((m, nid, rng.randint(1, 2)))
-            for nid in variant["spec"]:
-                spec_t.append((nid, m, rng.randint(1, 2)))
-            for nid in variant["hero"]:
-                hero_t.append((m, nid, 1))
+        # Now that every item's full bonus-id set is known, hash it into a
+        # bonus_sets dictionary id and reference it from equipment.bonus_set_id.
+        # Items that share the same combo collapse to one dictionary set, exactly
+        # like live data.
+        for eid in member_eids:
+            slot, item_id, ilvl = eid_meta[eid]
+            ids = sorted(eid_bonuses[eid])
+            bsid = bonus_set_hash(ids)
+            equipment.append((slot, str(item_id), str(ilvl), m, eid, bsid))
+            if bsid is not None and bsid not in bonus_set_rows:
+                bonus_set_rows[bsid] = [(bsid, b) for b in ids]
 
         # character stats: primary + stamina + secondaries always; tertiaries on most chars
         # (real players carry 1-2), so the stat card's tertiary row has data.
@@ -536,7 +569,7 @@ def seed_runs(conn, cursor, static, rng, cfg, pools):
                          rng.choice(FACTIONS), rid, rng.choice(REGIONS), static.season))
             for spec_id in specs:
                 member_id += 1
-                members.append((member_id, spec_id, None, None))  # lightweight: spec_id only
+                members.append((member_id, spec_id, None, None, None))  # lightweight: spec_id only
                 run_members.append((member_id, rid))
 
     print(f"    {len(runs)} runs, {len(members)} members, {len(equipment)} equipment rows")
@@ -544,26 +577,24 @@ def seed_runs(conn, cursor, static, rng, cfg, pools):
         "INSERT INTO runs (dungeon_id, keystone_level, duration, timestamp, faction, run_id, "
         "region, season) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)", runs)
     _insert_many(conn, cursor,
-        "INSERT INTO members (member, spec_id, loadout, hero_talent_id) VALUES (%s,%s,%s,%s)", members)
+        "INSERT INTO members (member, spec_id, loadout, hero_talent_id, talent_set_id) VALUES (%s,%s,%s,%s,%s)", members)
     _insert_many(conn, cursor,
         "INSERT INTO run_members (member, run_id) VALUES (%s,%s)", run_members)
     _insert_many(conn, cursor,
-        "INSERT INTO equipment (slot, item_id, item_level, member, equipment_id) "
-        "VALUES (%s,%s,%s,%s,%s)", equipment)
-    # A random bonus draw can collide with an embellishment/missive draw on the
-    # same equipment; bonus_ids is a (equipment_id, bonus_id) set, so drop dupes.
+        "INSERT INTO equipment (slot, item_id, item_level, member, equipment_id, bonus_set_id) "
+        "VALUES (%s,%s,%s,%s,%s,%s)", equipment)
+    # Distinct bonus-id combos keyed by content hash; equipment.bonus_set_id points
+    # at these. Mirrors the collector's bonus_sets dedup.
+    bs_rows = [row for rows in bonus_set_rows.values() for row in rows]
     _insert_many(conn, cursor,
-        "INSERT IGNORE INTO bonus_ids (equipment_id, bonus_id) VALUES (%s,%s)", bonus_ids)
+        "INSERT IGNORE INTO bonus_sets (set_id, bonus_id) VALUES (%s,%s)", bs_rows)
     _insert_many(conn, cursor,
         "INSERT INTO sockets (socket_type, socket_item_id, equipment_id) VALUES (%s,%s,%s)", sockets)
     _insert_many(conn, cursor,
         "INSERT INTO enchantments (enchantment_id, equipment_id) VALUES (%s,%s)", enchantments)
+    ts_rows = [row for rows in talent_set_rows.values() for row in rows]
     _insert_many(conn, cursor,
-        "INSERT INTO class_talents (member, talent_id, `rank`) VALUES (%s,%s,%s)", class_t)
-    _insert_many(conn, cursor,
-        "INSERT INTO spec_talents (talent_id, member, `rank`) VALUES (%s,%s,%s)", spec_t)
-    _insert_many(conn, cursor,
-        "INSERT INTO hero_talents (member, talent_id, `rank`) VALUES (%s,%s,%s)", hero_t)
+        "INSERT IGNORE INTO talent_sets (set_id, tree, talent_id, `rank`) VALUES (%s,%s,%s,%s)", ts_rows)
     _insert_many(conn, cursor,
         "INSERT INTO character_stats (member, stat, percent, raw) VALUES (%s,%s,%s,%s)", char_stats)
 
@@ -843,7 +874,7 @@ def build_pools(static, rng):
                             k=min(12, len(static.bonuses)))
     # Real embellishment / missive bonus ids (keys of the {bonus_id: item_id} maps). Seeding
     # a few of these onto gear is the only way sp_agg_embellishments / sp_agg_missives produce
-    # rows (they join equipment.bonus_ids -> the embellishments / missives tables on bonus_id).
+    # rows (they join equipment -> bonus_sets -> the embellishments / missives tables on bonus_id).
     emb_bonus = [int(b) for b in static.embellishments.keys()]
     mis_bonus = [int(b) for b in static.missives.keys()]
     return {

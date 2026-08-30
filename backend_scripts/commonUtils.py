@@ -6,12 +6,60 @@ free of jinja2/matplotlib/PIL/openai is what breaks the old circular-import
 chains (generateSocialsPost <-> generateSpecPages/generateDashboardPage).
 """
 
+import hashlib
 import json
 import os
 
 import databaseConnector
 
 LOOKUP_DIR = "data/static"  # Default lookup directory, can be overridden by command line argument
+
+
+def talent_set_hash(class_rows, spec_rows, hero_rows):
+    """Content hash identifying a member's full talent selection across all trees.
+
+    ``class_rows`` / ``spec_rows`` / ``hero_rows`` are iterables of
+    ``(talent_id, rank)`` pairs (trees 0=class, 1=spec, 2=hero). Returns the
+    16-byte ``BINARY(16)`` digest stored in ``members.talent_set_id`` and keying
+    ``talent_sets``, or ``None`` when the member has no talent rows at all.
+
+    Canonical string: each row rendered ``tree:talent_id:rank``, sorted by
+    ``(tree, talent_id)`` ascending, joined by ``,``. This MUST stay
+    byte-identical to the SQL backfill's
+    ``MD5(GROUP_CONCAT(CONCAT_WS(':', tree, talent_id, rank) ORDER BY tree, talent_id SEPARATOR ','))``
+    (run with ``SESSION group_concat_max_len = 1000000``) so live collector
+    inserts land on the same ``set_id`` the one-time migration produced.
+    """
+    rows = []
+    for tree, tree_rows in ((0, class_rows), (1, spec_rows), (2, hero_rows)):
+        for talent_id, rank in tree_rows:
+            rows.append((tree, int(talent_id), int(rank)))
+    if not rows:
+        return None
+    rows.sort(key=lambda r: (r[0], r[1]))
+    canonical = ",".join(f"{tree}:{tid}:{rank}" for tree, tid, rank in rows)
+    return hashlib.md5(canonical.encode("utf-8")).digest()
+
+
+def bonus_set_hash(bonus_ids):
+    """Content hash identifying an equipment item's set of bonus ids.
+
+    ``bonus_ids`` is an iterable of integer bonus ids for one equipped item.
+    Returns the 16-byte ``BINARY(16)`` digest stored in
+    ``equipment.bonus_set_id`` and keying ``bonus_sets``, or ``None`` when the
+    item carries no bonus ids.
+
+    Canonical string: distinct bonus ids ascending, joined by ``,``. This MUST
+    stay byte-identical to the SQL backfill's
+    ``MD5(GROUP_CONCAT(bonus_id ORDER BY bonus_id SEPARATOR ','))``
+    (run with ``SESSION group_concat_max_len = 1000000``) so live collector
+    inserts land on the same ``set_id`` the one-time migration produced.
+    """
+    ids = sorted({int(b) for b in bonus_ids}) if bonus_ids else []
+    if not ids:
+        return None
+    canonical = ",".join(str(b) for b in ids)
+    return hashlib.md5(canonical.encode("utf-8")).digest()
 
 SECONDARY_STATS = ["haste", "versatility", "mastery", "crit"]
 TERTIARY_STATS = [

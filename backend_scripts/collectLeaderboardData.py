@@ -20,6 +20,7 @@ from aiolimiter import AsyncLimiter
 from collections import Counter, defaultdict
 import argparse
 import databaseConnector
+import commonUtils
 import traceback
 from contextlib import closing, suppress
 import shutil
@@ -2032,13 +2033,31 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
     member_vals = []
     existing_member_ids = []
     counts = []
+    # distinct talent dictionary sets seen in this batch: set_id -> list of
+    # (set_id, tree, talent_id, rank) rows. One set_id covers all three trees for
+    # a member; INSERT IGNORE de-duplicates against sets already in the DB.
+    talent_sets: dict[bytes, list[tuple]] = {}
     for r in batch:
         counts.append(len(r["members"]))
         for m in r["members"]:
             if "member_id" in m:
                 existing_member_ids.append(m["member_id"])
             else:
-                member_vals.append((m["spec_id"], m["loadout"], m["hero_talent_id"]))
+                tsid = commonUtils.talent_set_hash(
+                    m["class_talents"], m["spec_talents"], m["hero_talents"]
+                )
+                member_vals.append(
+                    (m["spec_id"], m["loadout"], m["hero_talent_id"], tsid)
+                )
+                if tsid is not None and tsid not in talent_sets:
+                    rows = []
+                    for t, rk in m["class_talents"]:
+                        rows.append((tsid, 0, t, rk))
+                    for t, rk in m["spec_talents"]:
+                        rows.append((tsid, 1, t, rk))
+                    for t, rk in m["hero_talents"]:
+                        rows.append((tsid, 2, t, rk))
+                    talent_sets[tsid] = rows
     # insert only new members
     if member_vals:
         first_new_id = databaseConnector.insert_members_batch(conn, cursor, member_vals)
@@ -2046,6 +2065,13 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
     else:
         new_member_ids = []
     databaseConnector.commit_changes(conn)
+
+    # persist the distinct talent sets referenced by this batch's new members
+    if talent_sets:
+        ts_rows = [row for rows in talent_sets.values() for row in rows]
+        for sub in chunked(ts_rows, BATCH_SIZE):
+            databaseConnector.insert_talent_sets(conn, cursor, sub)
+            databaseConnector.commit_changes(conn)
 
     if stats_collector and new_member_ids:
         await stats_collector.increment("db_insert_member", len(new_member_ids))
@@ -2072,14 +2098,16 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
             idx += 1
     databaseConnector.insert_run_members_batch(conn, cursor, rm_vals)
     databaseConnector.commit_changes(conn)
-    # for only newly‑inserted members, insert talents & equipment
-    ct_vals = []
-    st_vals = []
-    ht_vals = []
+    # for only newly‑inserted members, insert equipment & stats. Talents are no
+    # longer stored per member: they were hashed into the talent_sets dictionary
+    # above and referenced by members.talent_set_id.
     ench_vals = []
     sock_vals = []
-    bonus_vals = []
     stat_vals = []
+    # distinct bonus dictionary sets seen in this batch: set_id -> list of
+    # (set_id, bonus_id) rows. One set_id covers an equipped item's whole bonus-id
+    # set; INSERT IGNORE de-duplicates against sets already in the DB.
+    bonus_sets: dict[bytes, list[tuple]] = {}
     # offset into new_member_ids to map to batch members
     new_idx = 0
 
@@ -2097,69 +2125,49 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
                     )
                 else:
                     stat_vals.append((mid, stat, value, None))
-            # collect talents
-            for t, rk in m["class_talents"]:
-                ct_vals.append((mid, t, rk))
-            for t, rk in m["spec_talents"]:
-                st_vals.append((mid, t, rk))
-            for t, rk in m["hero_talents"]:
-                ht_vals.append((mid, t, rk))
             # collect equipment
             for e in m["equipment"]:
+                bsid = commonUtils.bonus_set_hash(e["bonuses"])
                 eq_id = databaseConnector.insert_equipment(
-                    conn, cursor, mid, e["slot"], e["item_id"], e["item_level"]
+                    conn, cursor, mid, e["slot"], e["item_id"], e["item_level"], bsid
                 )
                 for en in e["enchantments"]:
                     ench_vals.append((eq_id, en))
                 for stype, iid in e["sockets"]:
                     sock_vals.append((eq_id, stype, iid))
-                for b in e["bonuses"]:
-                    bonus_vals.append((eq_id, b))
+                if bsid is not None and bsid not in bonus_sets:
+                    bonus_sets[bsid] = [
+                        (bsid, b) for b in sorted({int(x) for x in e["bonuses"]})
+                    ]
     if (
-        len(ct_vals) > 0
-        or len(st_vals) > 0
-        or len(ht_vals) > 0
+        len(talent_sets) > 0
         or len(ench_vals) > 0
         or len(sock_vals) > 0
-        or len(bonus_vals) > 0
+        or len(bonus_sets) > 0
         or len(stat_vals) > 0
     ):
         GLOBAL_STATS.console_log(
-            f"[{name}] Inserting talents and equipment for {len(ct_vals)} class talents, {len(st_vals)} spec talents, {len(ht_vals)} hero talents, {len(ench_vals)} enchantments, {len(sock_vals)} sockets and {len(bonus_vals)} bonuses and {len(stat_vals)} stats"
+            f"[{name}] Inserting equipment for {len(talent_sets)} talent sets, {len(ench_vals)} enchantments, {len(sock_vals)} sockets and {len(bonus_sets)} bonus sets and {len(stat_vals)} stats"
         )
 
     if stats_collector:
         GLOBAL_STATS.console_log("Incrementing stats with talents and equipment counts")
-        if len(ct_vals) > 0:
-            GLOBAL_STATS.console_log(f"Class talents: {len(ct_vals)}")
-            await stats_collector.increment("class_talents", len(ct_vals))
-        if len(st_vals) > 0:
-            GLOBAL_STATS.console_log(f"Spec talents: {len(st_vals)}")
-            await stats_collector.increment("spec_talents", len(st_vals))
-        if len(ht_vals) > 0:
-            GLOBAL_STATS.console_log(f"Hero talents: {len(ht_vals)}")
-            await stats_collector.increment("hero_talents", len(ht_vals))
+        if len(talent_sets) > 0:
+            GLOBAL_STATS.console_log(f"Talent sets: {len(talent_sets)}")
+            await stats_collector.increment("talent_sets", len(talent_sets))
         if len(ench_vals) > 0:
             GLOBAL_STATS.console_log(f"Enchantments: {len(ench_vals)}")
             await stats_collector.increment("enchantments", len(ench_vals))
         if len(sock_vals) > 0:
             GLOBAL_STATS.console_log(f"Sockets: {len(sock_vals)}")
             await stats_collector.increment("sockets", len(sock_vals))
-        if len(bonus_vals) > 0:
-            GLOBAL_STATS.console_log(f"Bonuses: {len(bonus_vals)}")
-            await stats_collector.increment("bonuses", len(bonus_vals))
+        if len(bonus_sets) > 0:
+            GLOBAL_STATS.console_log(f"Bonus sets: {len(bonus_sets)}")
+            await stats_collector.increment("bonus_sets", len(bonus_sets))
         if len(stat_vals) > 0:
             GLOBAL_STATS.console_log(f"Stats: {len(stat_vals)}")
             await stats_collector.increment("stats", len(stat_vals))
 
-    if ct_vals and len(ct_vals) > 0:
-        for sub in chunked(ct_vals, BATCH_SIZE):
-            databaseConnector.insert_class_talents(conn, cursor, sub)
-            databaseConnector.commit_changes(conn)
-    if st_vals and len(st_vals) > 0:
-        for sub in chunked(st_vals, BATCH_SIZE):
-            databaseConnector.insert_spec_talents(conn, cursor, sub)
-            databaseConnector.commit_changes(conn)
     if stat_vals and len(stat_vals) > 0:
         for sub in chunked(stat_vals, BATCH_SIZE):
             try:
@@ -2168,10 +2176,6 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
             except Exception as e:
                 GLOBAL_STATS.console_log(f"sub: {sub}")
                 GLOBAL_STATS.console_log(f"Error inserting stats batch: {e}")
-    if ht_vals and len(ht_vals) > 0:
-        for sub in chunked(ht_vals, BATCH_SIZE):
-            databaseConnector.insert_hero_talents(conn, cursor, sub)
-            databaseConnector.commit_changes(conn)
     if ench_vals and len(ench_vals) > 0:
         for sub in chunked(ench_vals, BATCH_SIZE):
             databaseConnector.insert_enchantments(conn, cursor, sub)
@@ -2180,9 +2184,10 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
         for sub in chunked(sock_vals, BATCH_SIZE):
             databaseConnector.insert_sockets(conn, cursor, sub)
             databaseConnector.commit_changes(conn)
-    if bonus_vals and len(bonus_vals) > 0:
-        for sub in chunked(bonus_vals, BATCH_SIZE):
-            databaseConnector.insert_bonuses(conn, cursor, sub)
+    if bonus_sets:
+        bs_rows = [row for rows in bonus_sets.values() for row in rows]
+        for sub in chunked(bs_rows, BATCH_SIZE):
+            databaseConnector.insert_bonus_sets(conn, cursor, sub)
             databaseConnector.commit_changes(conn)
     for r in batch:
         process_group(
