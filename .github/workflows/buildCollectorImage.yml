@@ -124,11 +124,13 @@ jobs:
           DATABASE_USER: Test
           DATABASE_PASSWORD: test
           DATABASE_NAME: Mythistone
-          # US-only run: map the single Blizzard secrets to the per-region env
-          # the collector expects. No new secrets needed.
+          # US-only run. The repo has a single region-agnostic Blizzard pair; the
+          # smoke harness derives the per-region names the collector requires
+          # (BLIZ_CLIENT_ID_US / BLIZ_CLIENT_SECRET_US) from it. No region-specific
+          # secrets exist.
           REGIONS: us
-          BLIZ_CLIENT_ID_US: ${{ secrets.BLIZ_CLIENT_ID }}
-          BLIZ_CLIENT_SECRET_US: ${{ secrets.BLIZ_CLIENT_SECRET }}
+          BLIZ_CLIENT_ID: ${{ secrets.BLIZ_CLIENT_ID }}
+          BLIZ_CLIENT_SECRET: ${{ secrets.BLIZ_CLIENT_SECRET }}
           RAIDERIO_API_KEY: ${{ secrets.RAIDERIO_API_KEY }}
           KEYSTONE_GURU_USER: ${{ secrets.KEYSTONE_GURU_USER }}
           KEYSTONE_GURU_PW: ${{ secrets.KEYSTONE_GURU_PW }}

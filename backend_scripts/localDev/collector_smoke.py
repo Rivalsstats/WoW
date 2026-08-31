@@ -182,6 +182,27 @@ def build_run_cmd(args):
     for var in FORWARD_ENV:
         if os.environ.get(var) is not None:
             cmd += ["-e", var]  # value taken from this process's environment
+    # Blizzard creds are per-region (BLIZ_CLIENT_ID_US, ..._EU, ...) and which
+    # ones exist depends on REGIONS, so they cannot live in a fixed list.
+    # Forward every explicitly-set one by prefix; the entrypoint requires the
+    # pair for each region in REGIONS, and a genuinely absent pair correctly
+    # makes it exit 2 (which this script reports as a crash).
+    forwarded_bliz = set()
+    for var in sorted(os.environ):
+        if var.startswith("BLIZ_CLIENT_ID_") or var.startswith("BLIZ_CLIENT_SECRET_"):
+            cmd += ["-e", var]  # value taken from this process's environment
+            forwarded_bliz.add(var)
+    # The repo only has ONE region-agnostic Blizzard pair (BLIZ_CLIENT_ID /
+    # BLIZ_CLIENT_SECRET). The collector wants per-region names, so derive them
+    # here from that single pair for each region in REGIONS. An explicitly-set
+    # suffixed var above always wins (never overwritten / double-added).
+    regions = [r.strip().upper() for r in os.environ.get("REGIONS", "us").split(",") if r.strip()]
+    for region in regions:
+        for base in ("BLIZ_CLIENT_ID", "BLIZ_CLIENT_SECRET"):
+            suffixed = f"{base}_{region}"
+            if suffixed not in forwarded_bliz and os.environ.get(base) is not None:
+                cmd += ["-e", f"{suffixed}={os.environ[base]}"]
+                forwarded_bliz.add(suffixed)
     cmd.append(args.image)
     return cmd
 
