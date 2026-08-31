@@ -2942,8 +2942,13 @@ def fetch_comp_routes(
         where_sql = " WHERE " + " AND ".join(where_clauses)
         
     sql += f"""
+    , RouteSpecCounts AS (
+        SELECT route_key, COUNT(*) AS spec_count
+        FROM Mythistone.route_specs
+        GROUP BY route_key
+    )
     , RankedRoutes AS (
-        SELECT 
+        SELECT
             rs.route_signature,
             rs.route_key,
             rd_base.rio_run_id as run_id,
@@ -2953,20 +2958,27 @@ def fetch_comp_routes(
             rd_base.duration,
             rd_base.dungeon_id,
             COUNT(rs.route_key) OVER (PARTITION BY rs.route_signature) as usage_count,
-            ROW_NUMBER() OVER (PARTITION BY rs.route_signature ORDER BY rd_base.keystone_level DESC, rd_base.duration ASC) as rn
+            ROW_NUMBER() OVER (PARTITION BY rs.route_signature ORDER BY rd_base.keystone_level DESC, rd_base.duration ASC) as rn,
+            FIRST_VALUE(rd_base.route_key) OVER (
+                PARTITION BY rs.route_signature
+                ORDER BY (COALESCE(rsc.spec_count, 0) > 0) DESC, rd_base.keystone_level DESC, rd_base.duration ASC, rd_base.route_key ASC
+                ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+            ) as specs_route_key
         FROM RouteSignatures rs
         JOIN Mythistone.route_data rd_base ON rs.route_key = rd_base.route_key
+        LEFT JOIN RouteSpecCounts rsc ON rsc.route_key = rd_base.route_key
         {where_sql}
     )
-    SELECT 
-        route_key, 
-        run_id, 
-        enemy_forces, 
-        timestamp, 
-        keystone_level, 
-        duration, 
+    SELECT
+        route_key,
+        run_id,
+        enemy_forces,
+        timestamp,
+        keystone_level,
+        duration,
         dungeon_id,
-        usage_count
+        usage_count,
+        specs_route_key
     FROM RankedRoutes
     WHERE rn = 1
     ORDER BY usage_count DESC
@@ -2994,8 +3006,13 @@ def fetch_comp_routes(
         duration = int(row[5]) if row[5] is not None else None
         dungeon_id = str(row[6]) if row[6] is not None else None
         usage_count = int(row[7]) if len(row) > 7 and row[7] is not None else 1
+        # The route_key whose comp represents this physical route: the winner's own
+        # key when its run logged a comp, otherwise a signature-sibling's key that did.
+        specs_route_key = row[8] if len(row) > 8 and row[8] is not None else route_key
 
-        specs = route_specs_map.get(route_key, [])
+        specs = route_specs_map.get(route_key) or route_specs_map.get(
+            specs_route_key, []
+        )
         spec_key = ",".join(str(s) for s in sorted(specs)) if specs else "unknown"
 
         # Instead of just spec_key, we want each route to stand on its own in the list.

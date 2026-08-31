@@ -81,136 +81,96 @@ function renderMatches(routes, append = false) {
     const runKey = safeId(`${slug}-${r.route_key}-${r.run_id}`);
     const dungeon = dungeons[r.dungeon];
     const englishName = dungeon?.name?.en_US || slug;
-    const headerId = `heading-${runKey}`;
-    const collapseId = `collapse-${runKey}`;
-
-    const item = document.createElement("div");
-    item.className = "accordion-item mb-2";
-
-    const h2 = document.createElement("h2");
-    h2.className = "accordion-header";
-    h2.id = headerId;
-
-    const btn = document.createElement("button");
-    btn.className = "accordion-button collapsed p-0";
-    btn.type = "button";
-    btn.setAttribute("data-bs-toggle", "collapse");
-    btn.setAttribute("data-bs-target", `#${collapseId}`);
-    btn.setAttribute("aria-expanded", "false");
-    btn.setAttribute("aria-controls", collapseId);
-
     const bgIcon = dungeon && dungeon.icon ? dungeon.icon : slug + ".jpg";
-    btn.style.backgroundImage = `url('/data/icons/${bgIcon}')`;
-    btn.style.backgroundSize = "cover";
-    btn.style.backgroundPosition = "center";
-    btn.style.backgroundRepeat = "no-repeat";
-    btn.style.backgroundBlendMode = "overlay";
+    const runUrl = `https://raider.io/mythic-plus-runs/${current_season}/${r.run_id}`;
+    const embedSrc = `https://keystone.guru/route/${slug}/${r.route_key}/${slug}/embed`;
 
-    const inner = document.createElement("div");
-    inner.className = "w-100 row w-100 gx-2 align-items-center py-3 px-4";
-
-    const leftCol = document.createElement("div");
-    leftCol.className = "col-12 col-sm-4 text-start";
-    leftCol.innerHTML = `<span class="badge bg-secondary text-white rounded px-2 mx-1">${englishName}</span>
-                         <span class="badge bg-success text-dark rounded px-2 mx-1">+${r.level}</span>`;
-
-    const centerCol = document.createElement("div");
-    centerCol.className = "col-12 col-sm-4 text-center";
-    const durationspan = document.createElement("span");
-    durationspan.className =
-      "badge bg-secondary text-white rounded px-2 mx-2";
-    durationspan.textContent = formatDuration(r.duration);
-    const timestampspan = document.createElement("span");
-    timestampspan.className =
-      "timestamp badge bg-secondary text-white rounded px-2 mx-2";
-    timestampspan.setAttribute(
-      "title",
-      new Date(Number(r.timestamp) * 1000).toLocaleString()
-    );
-    timestampspan.setAttribute("data-bs-toggle", "tooltip");
-    timestampspan.setAttribute("data-bs-placement", "top");
-    timestampspan.textContent = timeAgo(Number(r.timestamp));
-    centerCol.appendChild(durationspan);
-    centerCol.appendChild(timestampspan);
-
-    const rightCol = document.createElement("div");
-    rightCol.className = "col-12 col-sm-4 text-end";
-    const iconBar = document.createElement("div");
-    iconBar.className = "d-inline-flex align-items-center";
-
+    // Comp spec icons, tank -> healer -> dps (role 0/1/2).
+    let specIcons = "";
     ["0", "1", "2"].forEach((role) => {
       (r.specs || []).forEach((sid) => {
         const spec = spec_data[sid];
         if (spec && String(spec.role) === role) {
-          const img = document.createElement("img");
-          img.src = `/data/icons/${spec.SpellIconFileId}.jpg`;
-          img.alt = spec.name || "";
-          img.title = spec.name || "";
-          img.className = "me-1 img-fluid";
-          img.style.width = "24px";
-          img.style.height = "24px";
-          img.style.objectFit = "cover";
-          iconBar.appendChild(img);
+          specIcons += `<img src="/data/icons/${spec.SpellIconFileId}.jpg" alt="${spec.name || ""}" title="${spec.name || ""}" class="me-1 img-fluid" style="width:24px;height:24px;object-fit:cover;">`;
         }
       });
     });
 
-    rightCol.appendChild(iconBar);
+    // "N Uses" badge only when this physical route was recorded more than once.
+    const usageBadge =
+      r.usage_count && r.usage_count > 1
+        ? `<span class="badge bg-secondary text-white rounded px-2 mx-1" data-bs-toggle="tooltip" title="Route usage count">${r.usage_count} Uses</span>`
+        : "";
 
-    inner.appendChild(leftCol);
-    inner.appendChild(centerCol);
-    inner.appendChild(rightCol);
-    btn.appendChild(inner);
-    h2.appendChild(btn);
-    item.appendChild(h2);
-
-    const collapseDiv = document.createElement("div");
-    collapseDiv.id = collapseId;
-    // Permalink handle without the run id, which changes on every data refresh
-    // (see assets/js/deep-link.js). The search filters already live in the query
-    // string, so #route-<slug>-<routeKey> plus those params is a full link.
-    collapseDiv.setAttribute("data-share-id", safeId(`route-${slug}-${r.route_key}`));
-    collapseDiv.className = "accordion-collapse collapse";
-    collapseDiv.setAttribute("aria-labelledby", headerId);
-    collapseDiv.setAttribute("data-bs-parent", "#routeDungeonAccordion");
-
-    const body = document.createElement("div");
-    body.className = "accordion-body";
-    body.innerHTML = `<p>
-      <a href="https://raider.io/mythic-plus-runs/${current_season}/${
-      r.run_id
-    }" target="_blank">
-        <img src="/assets/img/logos/RaiderIOLogo.png" alt="RaiderIO run link" title="RaiderIO run link" class="me-1" height="24" width="24">
-        View on RaiderIO
-      </a>
-    </p>
-    <div class="iframe-container position-relative">
-      <div class="iframe-spinner position-absolute top-50 start-50 translate-middle d-none">
-        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+    const item = document.createElement("div");
+    item.className = "accordion-item mb-2";
+    // KEEP IN SYNC with the rt.route_accordion_item() macro in
+    // templates/_route_macros.html. That macro renders the server-side panels; this
+    // builds the identical accordion-item (header + body) for the client-rendered
+    // search results. Klaro can't gate client-added iframes, so MythiConsent.loadEmbed
+    // handles consent per-iframe on shown.bs.collapse below. The routes page never has
+    // an upgrade_info badge, so this always takes the plain "+level" branch.
+    item.innerHTML = `
+  <h2 class="accordion-header" id="heading-${runKey}">
+    <button class="accordion-button collapsed p-0" type="button" data-bs-toggle="collapse"
+      data-bs-target="#collapse-${runKey}" aria-expanded="false" aria-controls="collapse-${runKey}"
+      style="background-image: url('/data/icons/${bgIcon}'); background-size: cover; background-position: center; background-repeat: no-repeat; background-blend-mode: overlay;">
+      <div class="w-100 row gx-2 gy-2 align-items-center py-3 px-4">
+        <div class="col-12 col-sm-4 text-start">
+          <span class="badge bg-secondary text-white rounded px-2 mx-1">${englishName}</span>
+          <span class="badge bg-success text-dark rounded px-2 mx-1">+${r.level}</span>
+          ${usageBadge}
+        </div>
+        <div class="col-12 col-sm-4 text-start text-sm-center">
+          <span class="badge bg-secondary text-white rounded px-2 mx-2">${formatDuration(r.duration)}</span>
+          <span class="timestamp badge bg-secondary text-white rounded px-2 mx-2" data-bs-toggle="tooltip" data-bs-placement="top" data-timestamp="${r.timestamp}"></span>
+        </div>
+        <div class="col-12 col-sm-4 text-start text-sm-end">
+          <div class="d-inline-flex align-items-center flex-wrap">${specIcons}</div>
+        </div>
       </div>
-      <iframe loading="lazy" data-name="keystoneGuru"
-        data-src="https://keystone.guru/route/${slug}/${
-      r.route_key
-    }/${slug}/embed"
-        class="w-100"
-        style="border: none; width:100%; height: calc(80vh - 3rem); display:block;"></iframe>
+    </button>
+  </h2>
+  <div id="collapse-${runKey}" data-share-id="${safeId(`route-${slug}-${r.route_key}`)}"
+    class="accordion-collapse collapse" aria-labelledby="heading-${runKey}" data-bs-parent="#routeDungeonAccordion">
+    <div class="accordion-body p-0">
+      <div class="route-run-details">
+        <div class="route-run-head px-3 pt-2 pb-2">
+          <a href="${runUrl}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary mb-0 d-inline-flex align-items-center gap-2">
+            <img src="/assets/img/logos/RaiderIOLogo.png" alt="" width="18" height="18" class="rounded">
+            <span>View full run details on Raider.io</span>
+            <i class="material-symbols-rounded text-sm">open_in_new</i>
+          </a>
+        </div>
+        <div class="iframe-container position-relative">
+          <div class="iframe-spinner position-absolute top-50 start-50 translate-middle d-none">
+            <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+          </div>
+          <iframe loading="lazy" data-name="keystoneGuru" data-src="${embedSrc}" class="w-100 route-embed" style="border:none;width:100%;height:calc(80vh - 3rem);display:block;"></iframe>
+        </div>
+      </div>
     </div>
-    <div class="mt-2"><small class="text-muted">NPCs: ${
-      (r.npcs && r.npcs.length) || 0
-    } â€” Spells: ${(r.spells && r.spells.length) || 0}</small></div>`;
+  </div>`;
 
-    collapseDiv.appendChild(body);
-    item.appendChild(collapseDiv);
+    // Fill the .timestamp span the same way javascript_imports.html does at load
+    // (client-appended rows are added after that one-shot init has already run).
+    item.querySelectorAll(".timestamp").forEach(function (el) {
+      const t = el.getAttribute("data-timestamp");
+      el.textContent = `${el.textContent} ${timeAgo(Number(t))}`;
+      el.setAttribute("title", new Date(Number(t) * 1000).toLocaleString());
+    });
+
     accordion.appendChild(item);
 
+    const collapseDiv = item.querySelector(".accordion-collapse");
     collapseDiv.addEventListener("shown.bs.collapse", function () {
       const iframe = collapseDiv.querySelector("iframe[data-src]");
       if (!iframe) return;
       // Gated on Klaro consent for keystoneGuru. These result panels are built
-      // client-side, so Klaro never sees the iframes and cannot hold them back
-      // itself â€” setting src here unconditionally loaded the embed even when the
-      // visitor had declined. MythiConsent defers until consent is granted, never
-      // loads it if it isn't, and owns the spinner either way.
+      // client-side, so Klaro never sees the iframes and cannot hold them back itself
+      // -- setting src here unconditionally loaded the embed even when the visitor had
+      // declined. MythiConsent defers until consent is granted, never loads it if it
+      // isn't, and owns the spinner either way.
       MythiConsent.loadEmbed(iframe);
     });
   });

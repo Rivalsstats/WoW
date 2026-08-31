@@ -2193,6 +2193,7 @@
     </div>
   </div>
 
+  {% import "_route_macros.html" as rt %}
   <div class="modal fade" id="routeModal" tabindex="-1" aria-labelledby="routeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-lg modal-dialog-centered">
       <div class="modal-content card">
@@ -2201,97 +2202,36 @@
             Top Route for <span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{
               spec.name }} {{ class_info.name }}</span>
           </h5>
-          <div class="ms-auto d-flex align-items-center">
-            <a href="/pages/routes?specs={{spec_id}}" class="btn btn-sm btn-outline-primary me-2"
-              title="Find more routes">
-              Find more routes
-            </a>
-          </div>
         </div>
         <div class="modal-body">
           <div class="accordion" id="routeDungeonAccordion">
             {% for ds in top_routes %}
             {% if dungeon_lookup[ds] %}
-            <div class="accordion-item mb-2">
-              <h2 class="accordion-header" id="routeDungeonHeading-{{ ds }}">
-                <button class="accordion-button collapsed d-flex flex-wrap gap-2 spec-route-btn" type="button" data-bs-toggle="collapse"
-                  data-bs-target="#routeDungeonCollapse-{{ ds }}" aria-expanded="false"
-                  aria-controls="routeDungeonCollapse-{{ ds }}" style="
-                            background-image: url('/data/icons/{{ dungeon_lookup[ds].icon }}');
-                            background-size: cover;
-                            background-position: center;
-                            background-repeat: no-repeat;
-                            background-blend-mode: overlay;
-                          ">
-                  <div class="flex-fill text-start" style="min-width: 0;">
-                    <span class="badge bg-secondary text-white rounded px-2 text-wrap">{{
-                      dungeon_lookup[ds|string].name['en_US'] }}</span>
-                    {% set info = top_routes[ds|string].duration|
-                    upgrade_info(dungeon_lookup[ds|string].keystone_upgrades,
-                    top_routes[ds|string].highest_key) %}
-                    <span class="badge bg-dark bg-opacity-50  {{ info.css }} rounded px-2 mx-1">
-                      {{ info.text }}
-                    </span>
-                  </div>
-                  <div class="flex-fill text-center p-2">
-                    <span class="badge bg-secondary text-white rounded px-2 mr-1">
-                      {{ top_routes[ds|string].duration|duration }}
-                    </span>
-                    <span class="timestamp badge bg-secondary text-white rounded px-2 ml-1" data-bs-toggle="tooltip"
-                      data-bs-placement="top" data-timestamp={{top_routes[ds|string].timestamp|int}}></span>
-                  </div>
-                  <div class="flex-fill text-end">
-                    <div class="d-inline-flex align-items-center">
-                      {% set role_order = ['0','1','2'] %}
-                      {# sort members tank -> heal -> dps #}
-                      {% for role in role_order %}
-                      {% for member in top_routes[ds|string].specs %}
-                      {% set spec = spec_lookup[ member|string ] %}
-                      {% if spec.role == role %}
-                      <img src="/data/icons/{{ spec.SpellIconFileId }}.jpg" alt="{{ spec.name }}"
-                        title="{{ spec.name }}" class="me-1 rounded"
-                        style="width:24px;height:24px;object-fit:cover;" />
-                      {% endif %}
-                      {% endfor %}
-                      {% endfor %}
-                    </div>
-                  </div>
-                </button>
-              </h2>
-              <div id="routeDungeonCollapse-{{ ds }}" class="accordion-collapse collapse"
-                aria-labelledby="routeDungeonHeading-{{ ds }}" data-bs-parent="#routeDungeonAccordion">
-                <div class="accordion-body">
-                  Route Taken from + {{top_routes[ds].highest_key}}. Checkout full run
-                  details: <a href="https://raider.io/mythic-plus-runs/{{season_info.slug}}/{{top_routes[ds].run_id}}">
-                    On Raider.io
-                    <img src="/assets/img/logos/RaiderIOLogo.png" alt="RaiderIo run link" title="RaiderIo run link"
-                      class="me-1" height="24em" width="24em" /></a>
-                  <div class="iframe-container position-relative">
-                    <!-- Spinner overlay -->
-                    <div class="iframe-spinner position-absolute top-50 start-50 translate-middle d-none">
-                      <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                      </div>
-                    </div>
-                    <iframe loading="lazy" data-name="keystoneGuru"
-                      data-src="https://keystone.guru/route/{{ds}}/{{top_routes[ds].route_key}}/{{ds}}/embed"
-                      class="w-100" style="
-                                border: none;
-                                width: 100%;
-                                height: calc(80vh - 3rem);
-                                display: block;
-                              "></iframe>
-                  </div>
-                </div> {# .accordion-body #}
-              </div> {# .accordion-collapse #}
-            </div> {# .accordion-item #}
+            {% set info = top_routes[ds|string].duration|
+              upgrade_info(dungeon_lookup[ds|string].keystone_upgrades, top_routes[ds|string].highest_key) %}
+            {{ rt.route_accordion_item(
+                 dungeon_lookup[ds|string],
+                 top_routes[ds|string].highest_key,
+                 top_routes[ds|string].duration,
+                 top_routes[ds|string].timestamp,
+                 top_routes[ds|string].specs,
+                 spec_lookup,
+                 top_routes[ds|string].route_key,
+                 top_routes[ds|string].run_id,
+                 season_info.slug,
+                 upgrade_css=info.css,
+                 upgrade_text=info.text) }}
             {% endif %}
             {% endfor %}
           </div> {# #dungeonAccordion #}
         </div>
-        <div class="modal-footer d-flex justify-content-between">
-          <a href="https://raider.io/"> Data powered by <img src="/assets/img/logos/RaiderIOLogo.png"
+        <div class="modal-footer d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <a href="https://raider.io/" target="_blank" rel="noopener" class="text-sm mb-0"> Data powered by <img src="/assets/img/logos/RaiderIOLogo.png"
               alt="RaiderIo run link" title="RaiderIo run link" class="me-1" height="24em" width="24em" /></a>
+          <a href="/pages/routes?specs={{spec_id}}" class="text-primary text-sm font-weight-bold" title="Find more routes">
+            Looking for more? Find all routes here
+            <i class="material-symbols-rounded align-middle text-sm ms-1">arrow_forward</i>
+          </a>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
             Close
           </button>

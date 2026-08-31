@@ -336,90 +336,22 @@
                             </div>
                         </div>
                         <div class="card-body px-0 pb-2">
+                            {% import "_route_macros.html" as rt %}
                             <div class="accordion px-3" id="routeDungeonAccordion">
                                 {% for route in top_routes %}
-                                {% set runKey = dungeon.slug ~ '-' ~ route.route_key ~ '-' ~ route.run_id %}
-                                <div class="accordion-item mb-2 border">
-                                    <h2 class="accordion-header" id="heading-{{ runKey }}">
-                                        <button class="accordion-button collapsed p-0" type="button"
-                                            data-bs-toggle="collapse" data-bs-target="#collapse-{{ runKey }}"
-                                            aria-expanded="false" aria-controls="collapse-{{ runKey }}" style="
-                                background-image: url('/data/icons/{{ dungeon.icon }}');
-                                background-size: cover;
-                                background-position: center;
-                                background-repeat: no-repeat;
-                                background-blend-mode: overlay;
-                                ">
-                                            <div class="w-100 row w-100 gx-2 gy-2 align-items-center py-3 px-4">
-                                                <div class="col-12 col-sm-4 text-start">
-                                                    <span
-                                                        class="badge bg-secondary text-white rounded px-2 mx-1">
-                                                        {{ dungeon['name']['en_US'] }}
-                                                    </span>
-                                                    <span
-                                                        class="badge bg-success text-dark rounded px-2 mx-1">
-                                                        +{{ route.keystone_level }}
-                                                    </span>
-                                                    {% if route.usage_count and route.usage_count > 1 %}
-                                                    <span
-                                                        class="badge bg-secondary text-white rounded px-2 mx-1"
-                                                        data-bs-toggle="tooltip" title="Route usage count">
-                                                        {{ route.usage_count }} Uses
-                                                    </span>
-                                                    {% endif %}
-                                                </div>
-
-                                                <div class="col-12 col-sm-4 text-start text-sm-center">
-                                                    <span
-                                                        class="badge bg-secondary text-white rounded px-2 mx-2">
-                                                        {{ route.duration|duration }}
-                                                    </span>
-                                                    <span
-                                                        class="timestamp badge bg-secondary text-white rounded px-2 mx-2"
-                                                        data-bs-toggle="tooltip" data-bs-placement="top"
-                                                        data-timestamp={{ route.timestamp|int }}></span>
-                                                </div>
-
-                                                <div class="col-12 col-sm-4 text-start text-sm-end">
-                                                    <div class="d-inline-flex align-items-center flex-wrap">
-                                                        {% for role in ['0','1','2'] %}
-                                                        {% for sid in route.specs %}
-                                                        {% set spec = specs[sid|string] %}
-                                                        {% if spec and spec.role|string == role %}
-                                                        <img src="/data/icons/{{ spec.SpellIconFileId }}.jpg"
-                                                            alt="{{ spec.name }}" title="{{ spec.name }}"
-                                                            class="me-1 img-fluid"
-                                                            style="width:24px;height:24px;object-fit:cover;">
-                                                        {% endif %}
-                                                        {% endfor %}
-                                                        {% endfor %}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </button>
-                                    </h2>
-                                    {# The id carries the run id, which changes every refresh, so
-                                       permalinks use the route alone (deep-link.js prefers
-                                       data-share-id). A stale link then finds nothing and
-                                       no-ops instead of opening some unrelated route. #}
-                                    <div id="collapse-{{ runKey }}" data-share-id="route-{{ dungeon.slug }}-{{ route.route_key }}"
-                                        class="accordion-collapse collapse"
-                                        aria-labelledby="heading-{{ runKey }}" data-bs-parent="#routeDungeonAccordion">
-                                        <div class="accordion-body p-0 border-top">
-                                            <div class="iframe-container position-relative">
-                                                <div
-                                                    class="iframe-spinner position-absolute top-50 start-50 translate-middle d-none">
-                                                    <div class="spinner-border text-primary" role="status">
-                                                        <span class="visually-hidden">Loading...</span>
-                                                    </div>
-                                                </div>
-                                                <iframe loading="lazy" data-name="keystoneGuru"
-                                                    data-src="https://keystone.guru/route/{{ dungeon.slug }}/{{ route.route_key }}/{{ dungeon.slug }}/embed"
-                                                    style="border: none; width: 100%; height: 60vh; display: block;"></iframe>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                {{ rt.route_accordion_item(
+                                     dungeon,
+                                     route.keystone_level,
+                                     route.duration,
+                                     route.timestamp,
+                                     route.specs,
+                                     specs,
+                                     route.route_key,
+                                     route.run_id,
+                                     season_info.slug,
+                                     usage_count=route.usage_count,
+                                     iframe_height='60vh',
+                                     item_class='border') }}
                                 {% else %}
                                 <div class="text-center p-3 text-sm">No routes logged yet.</div>
                                 {% endfor %}

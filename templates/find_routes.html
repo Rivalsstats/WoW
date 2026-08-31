@@ -102,6 +102,7 @@
 </head>
 
 <body class="g-sidenav-show g-sidenav-show-right">
+  {% import "_route_macros.html" as rt %}
 
   {% include "sidenav.html" %}
   <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
@@ -118,8 +119,16 @@
           <h1 class="mb-0 h4 font-weight-bolder">Find a Route for your Team-Comp in {{ season_info.name }}</h1>
         </div>
       </div>
-      <div class="card route-search-card mb-3">
-
+      <div class="card route-search-card mb-3 mt-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-3 pb-3 px-3 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+              <i class="material-symbols-rounded text-white opacity-10 me-2">route</i>
+              <h6 class="text-white text-capitalize mb-0">Search for specific routes</h6>
+            </div>
+            <span class="text-white text-xs opacity-8 d-none d-md-inline">Pick dungeons, specs, spells or NPCs</span>
+          </div>
+        </div>
         <div class="card-body">
           <form id="compForm" class="row g-3">
             <!-- top row: Dungeons + Specs -->
@@ -227,6 +236,23 @@
             </div>
           </form>
         </div>
+        <div class="card-footer pt-0 pb-3">
+          <hr class="horizontal dark my-2">
+          <div class="d-flex align-items-center justify-content-center flex-wrap gap-2 text-xs text-secondary">
+            <span>Data powered by</span>
+            <a href="https://raider.io/" target="_blank" rel="noopener"
+              class="d-inline-flex align-items-center gap-1 text-secondary font-weight-bold" title="Raider.IO">
+              <img src="/assets/img/logos/RaiderIOLogo.png" alt="Raider.IO" width="18" height="18" class="rounded">
+              Raider.IO
+            </a>
+            <span aria-hidden="true">&middot;</span>
+            <a href="https://keystone.guru/" target="_blank" rel="noopener"
+              class="d-inline-flex align-items-center gap-1 text-secondary font-weight-bold" title="Keystone.guru">
+              <i class="material-symbols-rounded text-sm">map</i>
+              Keystone.guru
+            </a>
+          </div>
+        </div>
       </div>
 
       <div class="ms-3 align-self-center small text-muted pagination-summary" style="display:none">
@@ -234,103 +260,22 @@
       <div class="row">
         <div class="col">
           <div class="accordion" id="routeDungeonAccordion">
-            {# one skeleton panel per dungeon #}
+            {# one skeleton panel per dungeon; route-search.js rebuilds this list
+               client-side using the same rt.route_accordion_item markup. #}
             {% for dungeon, runs in comp_routes_by_dungeon.items() %}
             {% if runs %}
-            {# pick the very first run in this dungeon’s list #}
             {% set r = runs[0] %}
-            {% set dungeon = dungeon_lookup[dungeon] %}
-            {% set dungeon_slug = dungeon['slug'] %}
-            {% set runKey = dungeon_slug ~ '-' ~ r.route_key ~ '-' ~ r.run_id %}
-
-            <div class="accordion-item mb-2">
-              <h2 class="accordion-header" id="heading-{{ runKey }}">
-                <button class="accordion-button collapsed p-0" type="button" data-bs-toggle="collapse"
-                  data-bs-target="#collapse-{{ runKey }}" aria-expanded="false" aria-controls="collapse-{{ runKey }}"
-                  style="
-          background-image: url('/data/icons/{{ dungeon.icon }}');
-          background-size: cover;
-          background-position: center;
-          background-repeat: no-repeat;
-          background-blend-mode: overlay;
-        ">
-                  <!-- content wrapper: padding applied here so the button bg covers full area -->
-                  <div class="w-100 row w-100 gx-2 align-items-center py-3 px-4">
-                    <div class="col-12 col-sm-4 text-start">
-                      <span class="badge bg-secondary text-white rounded px-2 mx-1">
-                        {{ dungeon['name']['en_US'] }}
-                      </span>
-                      <span class="badge bg-success text-dark rounded px-2 mx-1">
-                        +{{ r.level }}
-                      </span>
-                      {% if r.usage_count and r.usage_count > 1 %}
-                      <span class="badge bg-secondary text-white rounded px-2 mx-1" data-bs-toggle="tooltip" title="Route usage count">
-                        {{ r.usage_count }} Uses
-                      </span>
-                      {% endif %}
-                    </div>
-
-                    <div class="col-12 col-sm-4 text-center">
-                      <span class="badge bg-secondary text-white rounded px-2 mx-2">
-                        {{ r.duration|duration }}
-                      </span>
-                      <span class="timestamp badge bg-secondary text-white rounded px-2 mx-2"
-                        data-bs-toggle="tooltip" data-bs-placement="top" data-timestamp={{r.timestamp|int}}></span>
-                    </div>
-
-                    <div class="col-12 col-sm-4 text-end">
-                      <div class="d-inline-flex align-items-center">
-                        {% for role in ['0','1','2'] %}
-                        {% for sid in r.specs %}
-                        {% set spec = specs[sid] %}
-                        {% if spec and spec.role|string == role %}
-                        <img src="/data/icons/{{ spec.SpellIconFileId }}.jpg" alt="{{ spec.name }}"
-                          title="{{ spec.name }}" class="me-1 img-fluid"
-                          style="width:24px;height:24px;object-fit:cover;">
-                        {% endif %}
-                        {% endfor %}
-                        {% endfor %}
-                      </div>
-                    </div>
-                  </div>
-                </button>
-
-
-
-              </h2>
-
-              {# runKey embeds the run id, which changes on every data refresh; permalinks
-                 use the route alone via data-share-id (see assets/js/deep-link.js). #}
-              <div id="collapse-{{ runKey }}" data-share-id="route-{{ dungeon_slug }}-{{ r.route_key }}"
-                class="accordion-collapse collapse" aria-labelledby="heading-{{ runKey }}"
-                data-bs-parent="#routeDungeonAccordion">
-                <div class="accordion-body">
-                  <p>
-                    <a href="https://raider.io/mythic-plus-runs/{{ season_info.slug }}/{{ r.run_id }}"
-                      target="_blank">
-                      <img src="/assets/img/logos/RaiderIOLogo.png" alt="RaiderIO run link" title="RaiderIO run link"
-                        class="me-1" height="24" width="24">
-                      View on RaiderIO
-                    </a>
-                  </p>
-                  <div class="iframe-container position-relative">
-                    <div class="iframe-spinner position-absolute top-50 start-50 translate-middle d-none">
-                      <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                      </div>
-                    </div>
-                    <iframe loading="lazy" data-name="keystoneGuru"
-                      data-src="https://keystone.guru/route/{{ dungeon_slug }}/{{ r.route_key }}/{{ dungeon_slug }}/embed"
-                      class="w-100" style="
-                                border: none;
-                                width: 100%;
-                                height: calc(80vh - 3rem);
-                                display: block;
-                              "></iframe>
-                  </div>
-                </div>
-              </div>
-            </div>
+            {{ rt.route_accordion_item(
+                 dungeon_lookup[dungeon],
+                 r.level,
+                 r.duration,
+                 r.timestamp,
+                 r.specs,
+                 specs,
+                 r.route_key,
+                 r.run_id,
+                 season_info.slug,
+                 usage_count=r.usage_count) }}
             {% endif %}
             {% endfor %}
 
@@ -356,7 +301,10 @@
     // small global stubs needed by the script (template injects)
     window.dungeons = {{ dungeon_lookup | tojson | safe }};
     window.spec_data = {{ specs | tojson | safe }};
-    window.current_season = "{{ season_info.current_season }}";
+    // Raider.IO run permalinks key on the season slug (season_info.slug); the old
+    // season_info.current_season key does not exist, so this was silently empty and
+    // produced broken raider.io/mythic-plus-runs//<id> links on client-rendered rows.
+    window.current_season = "{{ season_info.slug }}";
     window.spell_lookup = {{ spell_lookup | tojson | safe }};
     window.npc_lookup = {{ npc_lookup | tojson | safe }};
   </script>
