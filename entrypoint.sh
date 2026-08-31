@@ -67,8 +67,6 @@ send_webhook(){
   post_alert "collector \`${HOSTNAME:-unknown}\`: $1"
 }
 
-send_webhook started
-
 # ensure /data/runs exists (volume)
 mkdir -p /data/runs || true
 
@@ -97,6 +95,10 @@ trap _term SIGTERM SIGINT
 wait "$APP_PID"
 EXIT_CODE=$?
 
-send_webhook "exited:${EXIT_CODE}"
+# A clean daily restart exits 0 and is not worth a notification; only surface an
+# abnormal (non-zero) exit, which signals a real crash.
+if [ "${EXIT_CODE}" -ne 0 ]; then
+  send_webhook "exited:${EXIT_CODE}"
+fi
 
 exit $EXIT_CODE

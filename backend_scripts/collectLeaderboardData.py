@@ -2037,6 +2037,12 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
     # (set_id, tree, talent_id, rank) rows. One set_id covers all three trees for
     # a member; INSERT IGNORE de-duplicates against sets already in the DB.
     talent_sets: dict[bytes, list[tuple]] = {}
+    # per-member talent picks, split by tree, counted for every new member (not
+    # deduplicated by set) so the Discord embed shows a real class/spec/hero
+    # breakdown. talent_sets below stays the distinct-set counter.
+    class_talent_rows = 0
+    spec_talent_rows = 0
+    hero_talent_rows = 0
     for r in batch:
         counts.append(len(r["members"]))
         for m in r["members"]:
@@ -2049,6 +2055,11 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
                 member_vals.append(
                     (m["spec_id"], m["loadout"], m["hero_talent_id"], tsid)
                 )
+                # per-member talent picks (counted for every new member, not
+                # deduplicated by set)
+                class_talent_rows += len(m["class_talents"])
+                spec_talent_rows += len(m["spec_talents"])
+                hero_talent_rows += len(m["hero_talents"])
                 if tsid is not None and tsid not in talent_sets:
                     rows = []
                     for t, rk in m["class_talents"]:
@@ -2108,6 +2119,9 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
     # (set_id, bonus_id) rows. One set_id covers an equipped item's whole bonus-id
     # set; INSERT IGNORE de-duplicates against sets already in the DB.
     bonus_sets: dict[bytes, list[tuple]] = {}
+    # per-item bonus id count (counted for every equipped item, not deduplicated
+    # by set)
+    bonus_id_rows = 0
     # offset into new_member_ids to map to batch members
     new_idx = 0
 
@@ -2135,6 +2149,7 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
                     ench_vals.append((eq_id, en))
                 for stype, iid in e["sockets"]:
                     sock_vals.append((eq_id, stype, iid))
+                bonus_id_rows += len(e["bonuses"])
                 if bsid is not None and bsid not in bonus_sets:
                     bonus_sets[bsid] = [
                         (bsid, b) for b in sorted({int(x) for x in e["bonuses"]})
@@ -2155,12 +2170,24 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
         if len(talent_sets) > 0:
             GLOBAL_STATS.console_log(f"Talent sets: {len(talent_sets)}")
             await stats_collector.increment("talent_sets", len(talent_sets))
+        if class_talent_rows > 0:
+            GLOBAL_STATS.console_log(f"Class talents: {class_talent_rows}")
+            await stats_collector.increment("class_talents", class_talent_rows)
+        if spec_talent_rows > 0:
+            GLOBAL_STATS.console_log(f"Spec talents: {spec_talent_rows}")
+            await stats_collector.increment("spec_talents", spec_talent_rows)
+        if hero_talent_rows > 0:
+            GLOBAL_STATS.console_log(f"Hero talents: {hero_talent_rows}")
+            await stats_collector.increment("hero_talents", hero_talent_rows)
         if len(ench_vals) > 0:
             GLOBAL_STATS.console_log(f"Enchantments: {len(ench_vals)}")
             await stats_collector.increment("enchantments", len(ench_vals))
         if len(sock_vals) > 0:
             GLOBAL_STATS.console_log(f"Sockets: {len(sock_vals)}")
             await stats_collector.increment("sockets", len(sock_vals))
+        if bonus_id_rows > 0:
+            GLOBAL_STATS.console_log(f"Bonus ids: {bonus_id_rows}")
+            await stats_collector.increment("bonus_ids", bonus_id_rows)
         if len(bonus_sets) > 0:
             GLOBAL_STATS.console_log(f"Bonus sets: {len(bonus_sets)}")
             await stats_collector.increment("bonus_sets", len(bonus_sets))

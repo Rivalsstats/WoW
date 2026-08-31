@@ -20,6 +20,24 @@ def _format_duration(seconds: int) -> str:
     return f"{hours:02}:{minutes:02}:{secs:02}"
 
 
+def _fmt_int(n) -> str:
+    try:
+        return f"{int(n):,}"
+    except Exception:
+        return str(n)
+
+
+def _kv_block(pairs) -> str | None:
+    """Aligned label/value code block. pairs: list[(label, value)]."""
+    rendered = [(l, _fmt_int(v)) for l, v in pairs if v is not None]
+    if not rendered:
+        return None
+    lw = max(len(l) for l, _ in rendered)
+    vw = max(len(v) for _, v in rendered)
+    body = "\n".join(f"{l.ljust(lw)}  {v.rjust(vw)}" for l, v in rendered)
+    return f"```\n{body}\n```"
+
+
 class DiscordReporter:
     """
     Reports periodic stats in a single embed message using discord.py.
@@ -622,86 +640,61 @@ class DiscordReporter:
         )
         embedlist.append(embed)
 
+        def add_section(target, title, pairs):
+            block = _kv_block(pairs)
+            if block is not None:
+                target.add_field(name=title, value=block, inline=False)
+
         # fields
-        embed.add_field(
-            name="Checked Realms",
-            value=str(window_counts.get("checked_realm", 0)),
-            inline=True,
-        )
-        embed.add_field(
-            name="Checked Runs",
-            value=str(window_counts.get("checked_runs", 0)),
-            inline=True,
-        )
-        embed.add_field(
-            name="Enqueued Runs",
-            value=str(window_counts.get("enqueued_runs", 0)),
-            inline=True,
-        )
-        embed.add_field(
-            name="Fetched Profiles",
-            value=str(window_counts.get("fetched_profile", 0)),
-            inline=True,
-        )
-        embed.add_field(
-            name="Runs", value=str(window_counts.get("db_insert_run", 0)), inline=True
-        )
-        embed.add_field(
-            name="Members",
-            value=str(window_counts.get("db_insert_member", 0)),
-            inline=True,
-        )
-        embed.add_field(
-            name="No Active Spec",
-            value=str(window_counts.get("no_active_spec", 0)),
-            inline=True,
-        )
-        embed.add_field(
-            name="Class Talents",
-            value=str(window_counts.get("class_talents", 0)),
-            inline=True,
-        )
-        embed.add_field(
-            name="Spec Talents",
-            value=str(window_counts.get("spec_talents", 0)),
-            inline=True,
-        )
-        embed.add_field(
-            name="Hero Talents",
-            value=str(window_counts.get("hero_talents", 0)),
-            inline=True,
-        )
-        embed.add_field(
-            name="Gear Extras",
-            value=f"Ench: {window_counts.get('enchantments', 0)} | Sock: {window_counts.get('sockets', 0)}\nBonus: {window_counts.get('bonuses', 0)} | Stats: {window_counts.get('stats', 0)}",
-            inline=True,
-        )
-        embed.add_field(
-            name="Routes Saved",
-            value=f"Inserted: {window_counts.get('db_insert_route', 0)}\nDuplicate: {window_counts.get('duplicate_routes', 0)}",
-            inline=True,
-        )
-        embed.add_field(
-            name="Route APIs",
-            value=f"RIO Pages: {window_counts.get('rio_pages_checked', 0)}\nRIO Routes: {window_counts.get('rio_routes_checked', 0)}\nKG Routes: {window_counts.get('kg_routes_fetched', 0)}",
-            inline=True,
-        )
+        add_section(embed, "🔍 Scanning", [
+            ("Checked Realms", window_counts.get("checked_realm", 0)),
+            ("Checked Runs", window_counts.get("checked_runs", 0)),
+            ("Enqueued Runs", window_counts.get("enqueued_runs", 0)),
+            ("Fetched Profiles", window_counts.get("fetched_profile", 0)),
+            ("No Active Spec", window_counts.get("no_active_spec", 0)),
+        ])
+        add_section(embed, "💾 Stored", [
+            ("Runs", window_counts.get("db_insert_run", 0)),
+            ("Members", window_counts.get("db_insert_member", 0)),
+            ("Class Talents", window_counts.get("class_talents", 0)),
+            ("Spec Talents", window_counts.get("spec_talents", 0)),
+            ("Hero Talents", window_counts.get("hero_talents", 0)),
+            ("Talent Sets", window_counts.get("talent_sets", 0)),
+        ])
+        add_section(embed, "⚙️ Gear", [
+            ("Enchantments", window_counts.get("enchantments", 0)),
+            ("Sockets", window_counts.get("sockets", 0)),
+            ("Stats", window_counts.get("stats", 0)),
+            ("Bonus IDs", window_counts.get("bonus_ids", 0)),
+            ("Bonus Sets", window_counts.get("bonus_sets", 0)),
+        ])
+        add_section(embed, "🗺️ Routes", [
+            ("Inserted", window_counts.get("db_insert_route", 0)),
+            ("Duplicate", window_counts.get("duplicate_routes", 0)),
+            ("RIO Pages", window_counts.get("rio_pages_checked", 0)),
+            ("RIO Routes", window_counts.get("rio_routes_checked", 0)),
+            ("KG Routes", window_counts.get("kg_routes_fetched", 0)),
+        ])
         simc_current = self.stats.get_status("simc_current", "idle") if hasattr(self.stats, "get_status") else "n/a"
         simc_build = self.stats.get_status("simc_build", "?") if hasattr(self.stats, "get_status") else "?"
         embed.add_field(
             name="SimulationCraft",
             value=(
-                f"Now: {simc_current}\n"
-                f"Profilesets: {window_counts.get('simc_profilesets_run', 0)}\n"
-                f"Specs done: {window_counts.get('simc_specs_completed', 0)} | build {simc_build}"
+                f"Now: **{simc_current}**\n"
+                + (_kv_block([
+                    ("Profilesets", window_counts.get("simc_profilesets_run", 0)),
+                    ("Specs Done", window_counts.get("simc_specs_completed", 0)),
+                    ("Build", simc_build),
+                ]) or "")
             ),
-            inline=True,
+            inline=False,
         )
-        embed.add_field(
-            name="Queues",
-            value=f"Simple: {queue_sizes.get('simple_queue', 0)} | Adv: {queue_sizes.get('advanced_queue', 0)}\nDB: {queue_sizes.get('database_queue', 0)} | Route: {queue_sizes.get('route_db_queue', 0)}",
-            inline=True,
-        )
+        add_section(embed, "📥 Queues", [
+            ("Simple", queue_sizes.get("simple_queue", 0)),
+            ("Advanced", queue_sizes.get("advanced_queue", 0)),
+            ("Database", queue_sizes.get("database_queue", 0)),
+            ("Route", queue_sizes.get("route_db_queue", 0)),
+        ])
         embed.add_field(name="Timestamp", value=f"<t:{epoch}:R>", inline=False)
 
         # totals
@@ -723,60 +716,39 @@ class DiscordReporter:
         )
 
         embedlist.append(totals_embed)
-        totals_embed.add_field(
-            name="Checked Realms",
-            value=str(totals.get("checked_realm", 0)),
-            inline=True,
-        )
-        totals_embed.add_field(
-            name="Checked Runs", value=str(totals.get("checked_runs", 0)), inline=True
-        )
-        totals_embed.add_field(
-            name="Enqueued Runs", value=str(totals.get("enqueued_runs", 0)), inline=True
-        )
-        totals_embed.add_field(
-            name="Profiles", value=str(totals.get("fetched_profile", 0)), inline=True
-        )
-        totals_embed.add_field(
-            name="Runs", value=str(totals.get("db_insert_run", 0)), inline=True
-        )
-        totals_embed.add_field(
-            name="Members", value=str(totals.get("db_insert_member", 0)), inline=True
-        )
-        totals_embed.add_field(
-            name="No Active Spec",
-            value=str(totals.get("no_active_spec", 0)),
-            inline=True,
-        )
-        totals_embed.add_field(
-            name="Class Talents", value=str(totals.get("class_talents", 0)), inline=True
-        )
-        totals_embed.add_field(
-            name="Spec Talents", value=str(totals.get("spec_talents", 0)), inline=True
-        )
-        totals_embed.add_field(
-            name="Hero Talents", value=str(totals.get("hero_talents", 0)), inline=True
-        )
-        totals_embed.add_field(
-            name="Gear Extras",
-            value=f"Ench: {totals.get('enchantments', 0)} | Sock: {totals.get('sockets', 0)}\nBonus: {totals.get('bonuses', 0)} | Stats: {totals.get('stats', 0)}",
-            inline=True
-        )
-        totals_embed.add_field(
-            name="Routes Saved", 
-            value=f"Inserted: {totals.get('db_insert_route', 0)}\nDuplicate: {totals.get('duplicate_routes', 0)}", 
-            inline=True
-        )
-        totals_embed.add_field(
-            name="Route APIs",
-            value=f"RIO Pages: {totals.get('rio_pages_checked', 0)}\nRIO Routes: {totals.get('rio_routes_checked', 0)}\nKG Routes: {totals.get('kg_routes_fetched', 0)}",
-            inline=True
-        )
-        totals_embed.add_field(
-            name="SimulationCraft",
-            value=f"Profilesets: {totals.get('simc_profilesets_run', 0)}\nSpecs done: {totals.get('simc_specs_completed', 0)}",
-            inline=True,
-        )
+        add_section(totals_embed, "🔍 Scanning", [
+            ("Checked Realms", totals.get("checked_realm", 0)),
+            ("Checked Runs", totals.get("checked_runs", 0)),
+            ("Enqueued Runs", totals.get("enqueued_runs", 0)),
+            ("Fetched Profiles", totals.get("fetched_profile", 0)),
+            ("No Active Spec", totals.get("no_active_spec", 0)),
+        ])
+        add_section(totals_embed, "💾 Stored", [
+            ("Runs", totals.get("db_insert_run", 0)),
+            ("Members", totals.get("db_insert_member", 0)),
+            ("Class Talents", totals.get("class_talents", 0)),
+            ("Spec Talents", totals.get("spec_talents", 0)),
+            ("Hero Talents", totals.get("hero_talents", 0)),
+            ("Talent Sets", totals.get("talent_sets", 0)),
+        ])
+        add_section(totals_embed, "⚙️ Gear", [
+            ("Enchantments", totals.get("enchantments", 0)),
+            ("Sockets", totals.get("sockets", 0)),
+            ("Stats", totals.get("stats", 0)),
+            ("Bonus IDs", totals.get("bonus_ids", 0)),
+            ("Bonus Sets", totals.get("bonus_sets", 0)),
+        ])
+        add_section(totals_embed, "🗺️ Routes", [
+            ("Inserted", totals.get("db_insert_route", 0)),
+            ("Duplicate", totals.get("duplicate_routes", 0)),
+            ("RIO Pages", totals.get("rio_pages_checked", 0)),
+            ("RIO Routes", totals.get("rio_routes_checked", 0)),
+            ("KG Routes", totals.get("kg_routes_fetched", 0)),
+        ])
+        add_section(totals_embed, "SimulationCraft", [
+            ("Profilesets", totals.get("simc_profilesets_run", 0)),
+            ("Specs Done", totals.get("simc_specs_completed", 0)),
+        ])
 
         # -------------------------
         # Recent console lines (from stats.get_last_lines)
