@@ -12,22 +12,30 @@ Always-required signals (a build that fails any of these is broken):
   * the collector reaches its main loop
     ('Starting data collection for regions:').
 
-Extra signals, required ONLY with --require-rows true (the live season has
-data, decided upstream by seasonHasData.py):
+Leaderboard-write signal, required ONLY with --require-rows true (the live
+season has data, decided upstream by seasonHasData.py):
   * the 'runs' COUNT(*) in the test DB grew over the pre-run baseline
-    (the collector actually collected and wrote leaderboard rows), and
-  * the collector launched at least one SimulationCraft sibling container
-    (docker label mythistone.role=simc-sim), i.e. it started running simc.
+    (the collector actually collected and wrote leaderboard rows).
 
-Off-season (--require-rows false) those two are logged for information only and
-never fail the run, mirroring how buildPages skips itself when the season has
-no data.
+SimulationCraft signal, required ONLY with --require-simc true (real gear/talents
+for a spec were seeded from the live DB by seed_test_db.py --simc-live-spec, so a
+valid profile can be built):
+  * at least one spec's simc chunk SUCCEEDED, detected as a fresh simc_bis_meta
+    row with baseline_dps > 0 (or new simc_bis_items rows) written to the test DB
+    during the window. A launched simc sibling container (docker label
+    mythistone.role=simc-sim) / a 'simc:' log line is kept as a corroborating
+    signal but is NOT sufficient on its own.
+
+When a requirement's flag is false (off-season, or no real spec data was seeded)
+its signal is logged for information only and never fails the run, mirroring how
+buildPages skips itself when the season has no data.
 
 Usage (Docker Desktop / CI; test DB already seeded, its DATABASE_* exported,
 and the runtime env below present in this process's environment):
 
     python backend_scripts/localDev/collector_smoke.py \\
-        --image mythistone-collector:smoke --seconds 240 --require-rows true
+        --image mythistone-collector:smoke --seconds 360 \\
+        --require-rows true --require-simc true
 
 Exit code 0 = pass, non-zero = fail. The container's full logs are always
 printed, and the container plus any simc sibling containers are always stopped
@@ -134,6 +142,27 @@ def count_rows(table):
         conn.close()
 
 
+def simc_success_snapshot():
+    """Snapshot the set of (spec_id, season, updated_at) for simc_bis_meta rows
+    with baseline_dps > 0, using a FRESH pooled connection (same REPEATABLE READ
+    reasoning as count_rows).
+
+    The collector deletes+reinserts a spec's meta row with a fresh updated_at when
+    a chunk succeeds, so any tuple absent from the baseline snapshot means a real
+    simc success landed during the window. Comparing DB-written timestamps to each
+    other (never to the host clock) keeps this immune to clock skew."""
+    conn = db.get_connection()
+    try:
+        cur = conn.cursor()
+        rows = db.fetch_with_retry(
+            conn, cur,
+            "SELECT spec_id, season, updated_at FROM simc_bis_meta WHERE baseline_dps > 0")
+        cur.close()
+        return {(r[0], r[1], str(r[2])) for r in rows}
+    finally:
+        conn.close()
+
+
 def container_state(name):
     """Return (running, exit_code). running is None if the container is gone."""
     proc = _run(["docker", "inspect", "-f", "{{.State.Running}}|{{.State.ExitCode}}", name])
@@ -216,11 +245,16 @@ def main():
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--image", required=True,
                         help="Collector image tag to run (e.g. mythistone-collector:smoke)")
-    parser.add_argument("--seconds", type=int, default=240,
-                        help="Max seconds to watch the collector before deciding (default 240)")
+    parser.add_argument("--seconds", type=int, default=360,
+                        help="Max seconds to watch the collector before deciding (default 360, "
+                             "enough for spec 62 to complete one tiny simc chunk)")
     parser.add_argument("--require-rows", default="false",
-                        help="true|false: require a runs-count increase and a simc launch "
+                        help="true|false: require a runs-count increase "
                              "(set from seasonHasData.py has_data)")
+    parser.add_argument("--require-simc", default="false",
+                        help="true|false: require at least one real simc chunk to SUCCEED "
+                             "(set true only when seed_test_db.py --simc-live-spec seeded real "
+                             "gear/talents, i.e. its simc_live_seeded output)")
     parser.add_argument("--container-name", default="collector-smoke",
                         help="Name for the collector container (default collector-smoke)")
     parser.add_argument("--simc-volume", default="mythistone_simc_io_smoke",
@@ -229,6 +263,7 @@ def main():
                         help="Seconds between polls of the container/DB (default 5)")
     args = parser.parse_args()
     require_rows = _bool_arg(args.require_rows)
+    require_simc = _bool_arg(args.require_simc)
 
     if not _docker_available():
         sys.exit("Docker is not available. Start Docker Desktop and retry.")
@@ -236,11 +271,15 @@ def main():
     _init_db()
 
     base_counts = {t: count_rows(t) for t in (PRIMARY_TABLE, *CORROBORATING_TABLES)}
+    base_simc = simc_success_snapshot()
     print("Baseline test-DB row counts:")
     for table, n in base_counts.items():
         print(f"  {table}: {n}")
-    print(f"require_rows={require_rows} (runs-growth + simc launch are "
+    print(f"Baseline simc_bis_meta rows (baseline_dps>0): {len(base_simc)}")
+    print(f"require_rows={require_rows} (runs-growth is "
           f"{'REQUIRED' if require_rows else 'informational only'})")
+    print(f"require_simc={require_simc} (a real simc success is "
+          f"{'REQUIRED' if require_simc else 'informational only'})")
 
     ensure_volume(args.simc_volume)
     remove_container(args.container_name)  # clear any stale container of this name
@@ -259,7 +298,8 @@ def main():
     crash_marker = None      # the crash log marker found, if any
     crashed = False          # container exited during the window
     exit_code = None
-    simc_seen = False
+    simc_seen = False        # corroborating: a simc sibling launched / log line
+    simc_success = False     # hard: a fresh simc_bis result row landed
     runs_now = base_counts[PRIMARY_TABLE]
 
     deadline = time.time() + args.seconds
@@ -278,6 +318,8 @@ def main():
                     break
             if simc_container_ids() or (SIMC_LOG_MARKER in logs):
                 simc_seen = True
+            if simc_success_snapshot() - base_simc:
+                simc_success = True
             runs_now = count_rows(PRIMARY_TABLE)
 
             if running is None or running is False:
@@ -292,7 +334,9 @@ def main():
 
             # Early exit once every REQUIRED signal is satisfied.
             rows_ok = runs_now > base_counts[PRIMARY_TABLE]
-            required_ok = startup_seen and (not require_rows or (rows_ok and simc_seen))
+            required_ok = (startup_seen
+                           and (not require_rows or rows_ok)
+                           and (not require_simc or simc_success))
             if required_ok:
                 print("\nAll required signals satisfied; stopping early.")
                 break
@@ -308,9 +352,11 @@ def main():
         remove_container(args.container_name)
         cleanup_simc_siblings()
 
-    # Final counts (fresh read).
+    # Final reads (fresh connections).
     final_counts = {t: count_rows(t) for t in (PRIMARY_TABLE, *CORROBORATING_TABLES)}
     rows_grew = final_counts[PRIMARY_TABLE] > base_counts[PRIMARY_TABLE]
+    if simc_success_snapshot() - base_simc:  # a chunk may have landed just before shutdown
+        simc_success = True
 
     print("\n" + "=" * 70)
     print("Smoke test signals")
@@ -322,8 +368,10 @@ def main():
     for table in (PRIMARY_TABLE, *CORROBORATING_TABLES):
         print(f"  {table} count {base_counts[table]} -> {final_counts[table]}")
     print(f"  runs count grew           : {rows_grew}")
-    print(f"  simc sibling launched     : {simc_seen}")
+    print(f"  simc sibling launched     : {simc_seen} (corroborating)")
+    print(f"  simc chunk succeeded (DB) : {simc_success}")
     print(f"  require_rows              : {require_rows}")
+    print(f"  require_simc              : {require_simc}")
 
     # Pass/fail evaluation.
     failures = []
@@ -333,19 +381,17 @@ def main():
         failures.append(f"crash marker '{crash_marker}' found in logs")
     if not startup_seen:
         failures.append(f"clean-startup marker never appeared ('{STARTUP_MARKER}')")
-    if require_rows:
-        if not rows_grew:
-            failures.append("no new 'runs' rows written to the test DB "
-                            "(collector failed to collect while the season has data)")
-        if not simc_seen:
-            failures.append("no simc sibling container was launched "
-                            "(collector did not start running SimulationCraft)")
-    else:
-        # Off-season: log the relaxed signals but never fail on them.
-        if not rows_grew:
-            print("\ninfo: no new 'runs' rows (relaxed; season has no data).")
-        if not simc_seen:
-            print("info: no simc launch observed (relaxed; season has no data).")
+    if require_rows and not rows_grew:
+        failures.append("no new 'runs' rows written to the test DB "
+                        "(collector failed to collect while the season has data)")
+    elif not require_rows and not rows_grew:
+        print("\ninfo: no new 'runs' rows (relaxed; season has no data).")
+    if require_simc and not simc_success:
+        failures.append("no simc chunk succeeded (no fresh simc_bis_meta row with "
+                        "baseline_dps>0) despite real gear/talents being seeded "
+                        f"(simc sibling launched={simc_seen})")
+    elif not require_simc and not simc_success:
+        print("info: no simc success observed (relaxed; no real spec data seeded).")
 
     print("\n" + "=" * 70)
     if failures:

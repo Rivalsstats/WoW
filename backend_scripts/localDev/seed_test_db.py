@@ -37,6 +37,7 @@ sys.path.insert(0, SCRIPT_DIR)
 import databaseConnector as db  # noqa: E402
 import schema_loader  # noqa: E402
 import seeders  # noqa: E402
+import simc_live_seed  # noqa: E402
 from table_registry import classify_all, REFERENCE, RAW, STANDALONE, CONTROL, PIPELINE, IGNORE  # noqa: E402
 
 DEFAULT_CONTAINER = "mythistone-testdb"
@@ -149,6 +150,42 @@ def seed_trends(env, conn, cur, skip):
         print(f"  trend seeding skipped: {exc}")
 
 
+def _emit_output(**kv):
+    """Print, and mirror to $GITHUB_OUTPUT when running in CI (same shape as
+    seasonHasData.py) so a later workflow step can gate on the result."""
+    for k, v in kv.items():
+        print(f"{k}={v}")
+    out = os.environ.get("GITHUB_OUTPUT")
+    if out:
+        with open(out, "a", encoding="utf-8") as f:
+            for k, v in kv.items():
+                f.write(f"{k}={v}\n")
+
+
+def seed_simc_live_spec(conn, cur, spec_id, season):
+    """Best-effort: replace the synthetic rows for one spec with a real slice from
+    the live read DB (LIVE_DATABASE_* env) so the local simc smoke test builds a
+    valid profile. Missing live creds or no recent live runs simply leaves the
+    synthetic data in place and reports simc_live_seeded=false (the smoke test
+    then relaxes its simc-success requirement rather than failing). Any live-pull
+    error is logged loudly but never aborts the seed."""
+    cfg = simc_live_seed.live_env()
+    if not cfg:
+        print(f"  LIVE_DATABASE_* not set; skipping real spec-{spec_id} pull "
+              "(simc smoke gate will be relaxed).")
+        _emit_output(simc_live_seeded="false")
+        return
+    print(f"Pulling real spec-{spec_id} data from the live read DB (read-only)...")
+    try:
+        n = simc_live_seed.pull_and_seed(conn, cur, cfg, spec_id, season)
+    except Exception as exc:  # never fail the whole seed over the optional live pull
+        print(f"  WARNING: live spec-{spec_id} pull failed ({exc!r}); "
+              "leaving synthetic data in place.")
+        _emit_output(simc_live_seeded="false")
+        return
+    _emit_output(simc_live_seeded="true" if n > 0 else "false")
+
+
 def build_env(host_port):
     env = dict(os.environ)
     env.update({
@@ -199,6 +236,11 @@ def main():
                         help="Container already seeded; just reprint the env exports")
     parser.add_argument("--teardown", action="store_true", help="Remove the container and exit")
     parser.add_argument("--skip-trends", action="store_true")
+    parser.add_argument("--simc-live-spec", type=int, default=None,
+                        help="Replace this spec's synthetic rows with a real slice pulled "
+                             "READ-ONLY from the live DB (needs LIVE_DATABASE_* env), so the "
+                             "collector's simc smoke test builds a valid profile. e.g. 62 "
+                             "(Arcane Mage). Missing creds / no live runs relaxes gracefully.")
     args = parser.parse_args()
 
     if not _docker_available():
@@ -254,6 +296,12 @@ def main():
     seeders.seed_routes(conn, cur, static, rng, cfg, ref)
     seeders.seed_standalone(conn, cur, static, rng, cfg, pools)
     seeders.seed_control(conn, cur, static)
+
+    # Optional real-data slice for one spec, pulled from the live read DB BEFORE
+    # the aggregates are built so its aggregated gear/talents reflect the real
+    # slice (the synthetic rows for that spec are purged first).
+    if args.simc_live_spec is not None:
+        seed_simc_live_spec(conn, cur, args.simc_live_spec, static.season)
 
     run_pipeline(conn, cur)
     seed_trends(build_env(args.host_port), conn, cur, args.skip_trends)

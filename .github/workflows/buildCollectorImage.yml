@@ -90,8 +90,24 @@ jobs:
           # Seeder + smoke-orchestrator DB driver.
           pip install mysql-connector-python
 
-      - name: Seed throwaway test DB
-        run: python backend_scripts/localDev/seed_test_db.py
+      - name: Seed throwaway test DB (with real spec-62 slice)
+        # --simc-live-spec 62 replaces the synthetic Arcane Mage rows with a small
+        # READ-ONLY slice of real runs pulled from the live DB, so the collector can
+        # build a VALID simc profile for spec 62 (synthetic gear/talents make simc
+        # fail at init and would mask real profile-generation bugs). The live read
+        # uses the same DATABASE_* secrets as the season check, mapped to
+        # LIVE_DATABASE_* so they stay separate from the test-DB creds. Missing live
+        # creds / no recent live runs simply leaves synthetic data in place and emits
+        # simc_live_seeded=false, which relaxes the smoke test's simc requirement
+        # (no false failure). The password secret is spelled DATABASE_PASSWORT.
+        id: seed
+        env:
+          LIVE_DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+          LIVE_DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          LIVE_DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORT }}
+          LIVE_DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          LIVE_DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+        run: python backend_scripts/localDev/seed_test_db.py --simc-live-spec 62
 
       - name: Decide whether rows are required (live-DB read only)
         # Mirror how buildPages decides whether the season has data. This is the
@@ -138,11 +154,15 @@ jobs:
           # spamming Discord (alerts are best-effort). Swap for secrets.DISCORD_WEBHOOK
           # if you want to see a real crash alert.
           WEBHOOK_URL: https://example.invalid/webhook
-          # SimC: only need it to START. Tune for a fast launch, not a real pass.
+          # SimC: a tiny but VALID spec-62 sim that exercises real profile creation.
+          # Cap to exactly 3 combinations (not a full profileset), few iterations, and
+          # a high target error so one chunk completes fast; we assert the chunk
+          # SUCCEEDS (a simc_bis result row), not that the DPS is meaningful.
           SIMC_ENABLED: 'true'
           SIMC_DOCKER_IMAGE: ghcr.io/mythistone/simc:latest
           SIMC_IO_DIR: /app/data/simc_io
-          SIMC_MAX_COMBINATIONS: '2'
+          SIMC_MAX_COMBINATIONS: '3'
+          SIMC_COMBO_ITERATIONS: '200'
           SIMC_TARGET_ERROR: '1.0'
           SIMC_RUN_TIMEOUT: '300'
           SIMC_THREADS: '2'
@@ -150,8 +170,9 @@ jobs:
         run: |
           python backend_scripts/localDev/collector_smoke.py \
             --image mythistone-collector:smoke \
-            --seconds 240 \
+            --seconds 360 \
             --require-rows "${{ steps.season.outputs.has_data }}" \
+            --require-simc "${{ steps.seed.outputs.simc_live_seeded }}" \
             --container-name collector-smoke \
             --simc-volume mythistone_simc_io_smoke
 
