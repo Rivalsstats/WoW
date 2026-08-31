@@ -29,7 +29,7 @@ CREATE TABLE `agg_pipeline_log` (
   `error` text,
   PRIMARY KEY (`id`),
   KEY `idx_agg_pipeline_log_step` (`step`,`started_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=983 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=984 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.aggregated_bonus_lists definition
@@ -458,17 +458,6 @@ CREATE TABLE `bloodlust_spells` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
--- Mythistone.bonus_migration_log definition
-
-CREATE TABLE `bonus_migration_log` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `ts` datetime NOT NULL,
-  `phase` varchar(20) NOT NULL,
-  `detail` text,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
 -- Mythistone.bonus_sets definition
 
 CREATE TABLE `bonus_sets` (
@@ -652,7 +641,7 @@ CREATE TABLE `members` (
   `talent_set_id` binary(16) DEFAULT NULL,
   PRIMARY KEY (`member`),
   KEY `members_talent_set_id_IDX` (`talent_set_id`)
-) /*!50100 TABLESPACE `members` */ ENGINE=InnoDB AUTO_INCREMENT=7168924 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) /*!50100 TABLESPACE `members` */ ENGINE=InnoDB AUTO_INCREMENT=7535344 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.missives definition
@@ -837,7 +826,7 @@ CREATE TABLE `equipment` (
   KEY `equipment_run_members_FK` (`member`),
   KEY `equipment_bonus_set_id_IDX` (`bonus_set_id`),
   CONSTRAINT `equipment_run_members_FK` FOREIGN KEY (`member`) REFERENCES `members` (`member`) ON DELETE CASCADE ON UPDATE CASCADE
-) /*!50100 TABLESPACE `equipments` */ ENGINE=InnoDB AUTO_INCREMENT=79282698 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) /*!50100 TABLESPACE `equipments` */ ENGINE=InnoDB AUTO_INCREMENT=82506435 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.route_pulls definition
@@ -848,7 +837,7 @@ CREATE TABLE `route_pulls` (
   PRIMARY KEY (`pull_id`,`route_key`),
   KEY `route_pulls_route_data_FK` (`route_key`),
   CONSTRAINT `route_pulls_route_data_FK` FOREIGN KEY (`route_key`) REFERENCES `route_data` (`route_key`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=40124 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=44290 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.route_specs definition
@@ -860,7 +849,7 @@ CREATE TABLE `route_specs` (
   PRIMARY KEY (`id`),
   KEY `idx_route_key` (`route_key`),
   CONSTRAINT `route_specs_route_data_FK` FOREIGN KEY (`route_key`) REFERENCES `route_data` (`route_key`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=13301 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14726 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.runs definition
@@ -877,7 +866,7 @@ CREATE TABLE `runs` (
   PRIMARY KEY (`run_id`),
   UNIQUE KEY `runs_unique` (`dungeon_id`,`keystone_level`,`duration`,`timestamp`,`faction`,`region`,`season`),
   CONSTRAINT `runs_dungeon_data_FK` FOREIGN KEY (`dungeon_id`) REFERENCES `dungeon_data` (`dungeon_id`)
-) /*!50100 TABLESPACE `ts_runs` */ ENGINE=InnoDB AUTO_INCREMENT=1581051 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) /*!50100 TABLESPACE `ts_runs` */ ENGINE=InnoDB AUTO_INCREMENT=1654453 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.simc_bis_items definition
@@ -926,7 +915,7 @@ CREATE TABLE `sockets` (
   PRIMARY KEY (`socket_id_pk`),
   KEY `sockets_equipment_FK` (`equipment_id`),
   CONSTRAINT `sockets_equipment_FK` FOREIGN KEY (`equipment_id`) REFERENCES `equipment` (`equipment_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=16248344 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16911667 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.top_player_loadout_enchants definition
@@ -990,16 +979,6 @@ CREATE TABLE `top_player_loadout_talents` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
--- Mythistone.bonus_ids definition
-
-CREATE TABLE `bonus_ids` (
-  `equipment_id` int unsigned NOT NULL,
-  `bonus_id` int unsigned NOT NULL,
-  PRIMARY KEY (`equipment_id`,`bonus_id`),
-  CONSTRAINT `bonus_ids_equipment_FK` FOREIGN KEY (`equipment_id`) REFERENCES `equipment` (`equipment_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) /*!50100 TABLESPACE `vol_bonus_ids` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
 -- Mythistone.enchantments definition
 
 CREATE TABLE `enchantments` (
@@ -1009,7 +988,7 @@ CREATE TABLE `enchantments` (
   PRIMARY KEY (`enchantment_id_pk`),
   KEY `enchantments_equipment_FK` (`equipment_id`),
   CONSTRAINT `enchantments_equipment_FK` FOREIGN KEY (`equipment_id`) REFERENCES `equipment` (`equipment_id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=35100645 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=36639331 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- Mythistone.pull_enemies definition
@@ -3061,11 +3040,12 @@ BEGIN
   END IF;
 END;
 
+
 CREATE EVENT ev_nightly_agg_pipeline
 ON SCHEDULE EVERY 1 DAY
 STARTS '2026-07-11 20:00:00.000'
 ON COMPLETION PRESERVE
-DISABLE
+ENABLE
 COMMENT 'Runs all nightly aggregations sequentially; per-step log in agg_pipeline_log'
 DO BEGIN
   IF GET_LOCK('agg_pipeline', 0) = 1 THEN
