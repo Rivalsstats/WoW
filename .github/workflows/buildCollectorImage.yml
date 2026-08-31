@@ -26,6 +26,10 @@ on:
       - 'data/static/enchantments.json'
       - 'Dockerfile'
       - 'entrypoint.sh'
+      # Also rebuild when the smoke test itself changes, so a broken gate is
+      # caught on the same push that introduces it.
+      - 'backend_scripts/localDev/collector_smoke.py'
+      - '.github/workflows/buildCollectorImage.yml'
   workflow_dispatch: {}
 
 permissions:
@@ -33,7 +37,136 @@ permissions:
   packages: write
 
 jobs:
+  # Gate the image push on a RUNTIME smoke test: actually run the freshly-built
+  # collector image for a few minutes against a throwaway seeded MySQL (never the
+  # live DB) and confirm it starts, collects, and starts running SimulationCraft.
+  # Deployment is pull-based Watchtower on `:latest`, so if this fails and the
+  # push never happens, the broken image never deploys. `docker build`'s only
+  # gate is the static verifyImageImports.py check; this catches runtime breakage
+  # (a bad query, a crashing collect cycle, a broken simc launch) it cannot.
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to GitHub Container Registry
+        # So the daemon can pull the private ghcr.io/mythistone/simc:latest and
+        # so the gha build cache warmed here is reused by build-and-push.
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build collector image locally (no push)
+        # load: true makes the built image available to the local daemon as
+        # mythistone-collector:smoke; push: false keeps it off GHCR until the
+        # smoke test passes. Same gha cache as build-and-push, so that job is a
+        # cache hit and cheap.
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          push: false
+          tags: mythistone-collector:smoke
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          # Seeder + smoke-orchestrator DB driver.
+          pip install mysql-connector-python
+
+      - name: Seed throwaway test DB
+        run: python backend_scripts/localDev/seed_test_db.py
+
+      - name: Decide whether rows are required (live-DB read only)
+        # Mirror how buildPages decides whether the season has data. This is the
+        # ONLY step that touches the live DB, and it only reads. When has_data is
+        # false (pre-season gap / post-wipe) the row + simc requirements relax to
+        # informational signals in the smoke test. Live-DB password secret is
+        # spelled DATABASE_PASSWORT.
+        id: season
+        env:
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORT }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+        run: |
+          season_id="$(jq -r .blizzard_season_id data/static/seasonInfo.json)"
+          echo "Checking live DB for runs in season ${season_id}..."
+          python backend_scripts/seasonHasData.py --season "${season_id}"
+
+      - name: Pre-pull the simc image
+        # The collector self-pulls this during the window; pulling here surfaces
+        # any GHCR auth/pull failure fast instead of as a mid-window timeout.
+        run: docker pull ghcr.io/mythistone/simc:latest
+
+      - name: Run collector smoke test
+        env:
+          # Test DB the collector writes to (host network reaches it at :3399).
+          DATABASE_HOST: 127.0.0.1
+          DATABASE_PORT: '3399'
+          DATABASE_USER: Test
+          DATABASE_PASSWORD: test
+          DATABASE_NAME: Mythistone
+          # US-only run: map the single Blizzard secrets to the per-region env
+          # the collector expects. No new secrets needed.
+          REGIONS: us
+          BLIZ_CLIENT_ID_US: ${{ secrets.BLIZ_CLIENT_ID }}
+          BLIZ_CLIENT_SECRET_US: ${{ secrets.BLIZ_CLIENT_SECRET }}
+          RAIDERIO_API_KEY: ${{ secrets.RAIDERIO_API_KEY }}
+          KEYSTONE_GURU_USER: ${{ secrets.KEYSTONE_GURU_USER }}
+          KEYSTONE_GURU_PW: ${{ secrets.KEYSTONE_GURU_PW }}
+          # Harmless placeholder so entrypoint.sh's non-empty check passes without
+          # spamming Discord (alerts are best-effort). Swap for secrets.DISCORD_WEBHOOK
+          # if you want to see a real crash alert.
+          WEBHOOK_URL: https://example.invalid/webhook
+          # SimC: only need it to START. Tune for a fast launch, not a real pass.
+          SIMC_ENABLED: 'true'
+          SIMC_DOCKER_IMAGE: ghcr.io/mythistone/simc:latest
+          SIMC_IO_DIR: /app/data/simc_io
+          SIMC_MAX_COMBINATIONS: '2'
+          SIMC_TARGET_ERROR: '1.0'
+          SIMC_RUN_TIMEOUT: '300'
+          SIMC_THREADS: '2'
+          SIMC_SPEC_SLEEP: '0'
+        run: |
+          python backend_scripts/localDev/collector_smoke.py \
+            --image mythistone-collector:smoke \
+            --seconds 240 \
+            --require-rows "${{ steps.season.outputs.has_data }}" \
+            --container-name collector-smoke \
+            --simc-volume mythistone_simc_io_smoke
+
+      - name: Teardown
+        if: always()
+        run: |
+          docker rm -f collector-smoke 2>/dev/null || true
+          # remove any simc sibling containers the collector left behind
+          ids="$(docker ps -aq --filter label=mythistone.role=simc-sim)"
+          [ -n "${ids}" ] && docker rm -f ${ids} || true
+          docker volume rm -f mythistone_simc_io_smoke 2>/dev/null || true
+          python backend_scripts/localDev/seed_test_db.py --teardown || true
+
   build-and-push:
+    # Gated: the push (and therefore Watchtower's pull-based deploy) only happens
+    # after the runtime smoke test passes.
+    needs: smoke-test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -65,6 +198,7 @@ jobs:
           echo "one=$oneline" >> "$GITHUB_OUTPUT"
 
       - name: Build and push image to GHCR
+        # Cache hit from the smoke-test build above, so this is cheap.
         uses: docker/build-push-action@v6
         with:
           context: .

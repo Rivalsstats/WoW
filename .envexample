@@ -9,6 +9,9 @@ BLIZ_CLIENT_SECRET_TW=
 BLIZ_CLIENT_SECRET_US=
 # create a raider.io api key from https://raider.io/settings/apps
 RAIDERIO_API_KEY=
+# keystone.guru account credentials (used to fetch route data)
+KEYSTONE_GURU_USER=
+KEYSTONE_GURU_PW=
 # create a discord webhook for notifications
 WEBHOOK_CHANNEL=
 WEBHOOK_TOKEN=
