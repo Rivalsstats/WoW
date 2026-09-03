@@ -2370,6 +2370,21 @@ def main(template_path, output_dir, debug=False, spec=None):
                     print(f"Warning: fetch_top50_loadouts failed: {e}")
                     top50_raw = []
 
+                # Defense in depth against off-rotation rows that predate the
+                # collector filter: keep only loadouts whose dungeon is in the
+                # current season set (dungeon_lookup keys are the current
+                # map_challenge_mode_ids). The page renders per-dungeon only over
+                # these, so the hero-tree badge (averaged over top50_raw) must be
+                # computed over the same set or the two figures disagree.
+                # fetch_top50_loadouts returns each loadout as a flat dict with
+                # map_challenge_mode_id at the top level (its "meta" fields are
+                # spread in, not nested), matching how compute_bis reads it.
+                current_dungeon_ids = {int(k) for k in dungeon_lookup.keys()}
+                top50_raw = [
+                    lo for lo in top50_raw
+                    if lo.get("map_challenge_mode_id") in current_dungeon_ids
+                ]
+
                 # hero node -> hero tree, so the loadouts can be split by the
                 # hero tree they run (per-tree per-dungeon talent deviations)
                 tree_nodes = tree_by_spec.get(int(spec_id), {})

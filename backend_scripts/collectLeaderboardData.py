@@ -192,6 +192,13 @@ DATA_DIR = Path("data")
 RUNS_DIR = DATA_DIR / "runs"
 DUNGEON_STATIC = DATA_DIR / "static" / "dungeons.json"
 
+# Current-season dungeon set: the keys of dungeons.json are the current
+# map_challenge_mode_ids. Top players still carry runs in previous-season
+# dungeons, so loadouts for those zones must never be stored (they pollute
+# top_player_loadouts and skew the per-spec hero-tree badge). Fail loud if the
+# static file is unreadable so a bad deploy cannot silently store everything.
+CURRENT_DUNGEON_MAP_IDS = {int(k) for k in json.loads(DUNGEON_STATIC.read_text()).keys()}
+
 TALENTS_STATIC = DATA_DIR / "static" / "talents.json"
 CHOICE_NODE_IDS = set()
 with open(TALENTS_STATIC, "r", encoding="utf-8") as f:
@@ -1531,6 +1538,11 @@ async def run_raiderio_top_loadouts(session):
                             map_challenge_mode_id = meta.get("map_challenge_mode_id") or meta.get("zone_id")
                             if map_challenge_mode_id is None:
                                 # nothing to insert for this dungeon
+                                continue
+                            # skip off-rotation dungeons: top players still have runs
+                            # in previous-season dungeons, but storing those loadouts
+                            # pollutes top_player_loadouts and skews the hero-tree badge.
+                            if int(map_challenge_mode_id) not in CURRENT_DUNGEON_MAP_IDS:
                                 continue
 
                             # Hold the write gate across this loadout's writes. The

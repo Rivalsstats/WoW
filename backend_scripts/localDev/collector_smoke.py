@@ -43,6 +43,7 @@ and removed, before the script returns.
 """
 
 import argparse
+import json
 import os
 import subprocess
 import sys
@@ -90,6 +91,15 @@ FORWARD_ENV = [
 # the others are printed for corroboration only.
 PRIMARY_TABLE = "runs"
 CORROBORATING_TABLES = ("members", "equipment")
+
+# Current-season dungeon set the collector now filters top-player loadouts
+# against: data/static/dungeons.json keys ARE the current map_challenge_mode_ids,
+# and the collector stores a loadout only for these dungeons (off-rotation
+# dungeons a top player still has runs in would otherwise pollute
+# top_player_loadouts and skew the spec-page hero-tree badge). The smoke test
+# reads the SAME file the image ships, so a regressed filter that writes an
+# off-rotation loadout row fails this gate.
+DUNGEON_STATIC = os.path.join(os.path.dirname(BACKEND_DIR), "data", "static", "dungeons.json")
 
 
 def _run(cmd, check=False):
@@ -159,6 +169,30 @@ def simc_success_snapshot():
             "SELECT spec_id, season, updated_at FROM simc_bis_meta WHERE baseline_dps > 0")
         cur.close()
         return {(r[0], r[1], str(r[2])) for r in rows}
+    finally:
+        conn.close()
+
+
+def current_dungeon_ids():
+    """The current-season map_challenge_mode_ids (keys of data/static/dungeons.json)."""
+    with open(DUNGEON_STATIC, "r", encoding="utf-8") as f:
+        return {int(k) for k in json.load(f).keys()}
+
+
+def offrotation_loadout_ids(current_ids):
+    """Distinct top_player_loadouts.map_challenge_mode_id NOT in the current
+    dungeon set, on a FRESH pooled connection (same REPEATABLE READ reasoning as
+    count_rows). The collector must never write an off-rotation dungeon loadout,
+    so any id here that was absent at baseline means its current-dungeon filter
+    regressed."""
+    conn = db.get_connection()
+    try:
+        cur = conn.cursor()
+        rows = db.fetch_with_retry(
+            conn, cur, "SELECT DISTINCT map_challenge_mode_id FROM top_player_loadouts")
+        cur.close()
+        return {int(r[0]) for r in rows
+                if r[0] is not None and int(r[0]) not in current_ids}
     finally:
         conn.close()
 
@@ -270,12 +304,16 @@ def main():
 
     _init_db()
 
+    cur_dungeon_ids = current_dungeon_ids()
+    base_offrotation = offrotation_loadout_ids(cur_dungeon_ids)
     base_counts = {t: count_rows(t) for t in (PRIMARY_TABLE, *CORROBORATING_TABLES)}
     base_simc = simc_success_snapshot()
     print("Baseline test-DB row counts:")
     for table, n in base_counts.items():
         print(f"  {table}: {n}")
     print(f"Baseline simc_bis_meta rows (baseline_dps>0): {len(base_simc)}")
+    print(f"Baseline off-rotation top_player_loadouts dungeon ids: "
+          f"{sorted(base_offrotation) or 'none'}")
     print(f"require_rows={require_rows} (runs-growth is "
           f"{'REQUIRED' if require_rows else 'informational only'})")
     print(f"require_simc={require_simc} (a real simc success is "
@@ -357,6 +395,10 @@ def main():
     rows_grew = final_counts[PRIMARY_TABLE] > base_counts[PRIMARY_TABLE]
     if simc_success_snapshot() - base_simc:  # a chunk may have landed just before shutdown
         simc_success = True
+    # Any off-rotation dungeon id that appeared during the window means the
+    # collector's current-dungeon filter regressed (the seeder writes only
+    # current dungeons, so a new id can only come from this collector run).
+    new_offrotation = offrotation_loadout_ids(cur_dungeon_ids) - base_offrotation
 
     print("\n" + "=" * 70)
     print("Smoke test signals")
@@ -370,6 +412,7 @@ def main():
     print(f"  runs count grew           : {rows_grew}")
     print(f"  simc sibling launched     : {simc_seen} (corroborating)")
     print(f"  simc chunk succeeded (DB) : {simc_success}")
+    print(f"  new off-rotation dungeons : {sorted(new_offrotation) or 'none'}")
     print(f"  require_rows              : {require_rows}")
     print(f"  require_simc              : {require_simc}")
 
@@ -392,6 +435,11 @@ def main():
                         f"(simc sibling launched={simc_seen})")
     elif not require_simc and not simc_success:
         print("info: no simc success observed (relaxed; no real spec data seeded).")
+    if new_offrotation:
+        failures.append(
+            "collector wrote off-rotation top_player_loadouts rows for dungeon(s) "
+            f"{sorted(new_offrotation)} not in data/static/dungeons.json "
+            "(current-dungeon filter regressed)")
 
     print("\n" + "=" * 70)
     if failures:
