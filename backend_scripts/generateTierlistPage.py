@@ -5,11 +5,13 @@ simmed) by SimulationCraft DPS produced in the build pipeline's matrix sim jobs
 (see generateSimcProfiles.py + .github/workflows/buildPages.yml). Every spec is
 simmed in one batch on a single simc build at four target counts (1/3/5/8) in
 the Patchwerk fight style — single-target fights run 3 minutes, multi-target
-fights (3/5/8) run 1 minute — in two gear sets:
+fights (3/5/8) run 1 minute — in three gear sets:
 
   * ``popular``  — the spec-page baseline set (most-popular items/enchants/gems
     + most-popular talents).
   * ``simcbis``  — the collector's Top-Gear rank-1 per-slot BiS set.
+  * ``top50``    — the top-50 verified players' most-common per-slot gear and
+    most-common talent loadout.
 
 This reads the matrix jobs' ``json2`` outputs (one file per gear set × target
 count, named ``sim_{gearset}_{targets}t.json``) from ``--sim_results_dir`` — no
@@ -42,7 +44,7 @@ ROLE_NAMES = {0: "Tank", 1: "Healer", 2: "Dps"}
 
 # Target counts in tab order, and gear sets in per-row column order.
 TARGET_ORDER = [1, 3, 5, 8]
-GEAR_SETS = [("popular", "Popular"), ("simcbis", "SimC BIS")]
+GEAR_SETS = [("popular", "Popular"), ("simcbis", "SimC BIS"), ("top50", "Top 50")]
 
 ACTOR_RE = re.compile(r"^spec(\d+)_([A-Za-z0-9]+)$")
 
@@ -240,7 +242,7 @@ def build_mock_results(sim_dir):
     The real page is only built in CI (it needs the sim matrix jobs' json2
     outputs), so template work on simc_tierlist.html can't be previewed
     locally otherwise. Writes one mock result file per target count covering
-    every DPS and tank spec in the static lookup, both gear sets; the last
+    every DPS and tank spec in the static lookup, all gear sets; the last
     spec of each role gets no simcbis actor to exercise the em-dash case.
     """
     specs = load_json(os.path.join(LOOKUP_DIR, "specs.json"))
@@ -260,6 +262,8 @@ def build_mock_results(sim_dir):
                 if sid not in no_bis:
                     players.append({"name": f"spec{sid}_simcbis",
                                     "collected_data": {"dps": {"mean": dps * 1.02}}})
+                    players.append({"name": f"spec{sid}_top50",
+                                    "collected_data": {"dps": {"mean": dps * 1.05}}})
         result = {"version": "1.0.0-mock", "sim": {"players": players}}
         with open(os.path.join(sim_dir, f"sim_mock_{targets}t.json"), "w", encoding="utf-8") as f:
             json.dump(result, f)

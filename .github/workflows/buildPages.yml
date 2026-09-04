@@ -311,7 +311,7 @@ jobs:
       fail-fast: false
       matrix:
         targets: [1, 3, 5, 8]
-        gearset: [popular, simcbis]
+        gearset: [popular, simcbis, top50]
     steps:
       - name: Download sim profiles
         uses: actions/download-artifact@v4
@@ -625,6 +625,21 @@ jobs:
           pattern: sim-result-*
           merge-multiple: true
           path: sim_results
+
+      # The gear/talents the tierlist bars link to were resolved in prepare-sims
+      # (it has the DB); stage its tierlist_gear.json under assets/json so the
+      # `cp -r assets _site/` below ships it beside the analyzer catalogs the
+      # gear modal resolves against (assets/js/tierlist-modal.js).
+      - name: Download sim profiles (gear modal data)
+        uses: actions/download-artifact@v4
+        with:
+          name: simc-profiles
+          path: simc_profiles
+
+      - name: Stage tierlist gear data for the modal
+        run: |
+          mkdir -p assets/json
+          cp simc_profiles/tierlist_gear.json assets/json/tierlist_gear.json
 
       - name: Generate Sim DPS Tierlist page
         env:

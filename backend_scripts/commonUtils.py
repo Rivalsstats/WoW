@@ -118,6 +118,89 @@ def resolve_bonus_quality(bonus_ids, bonus_quality_lookup):
     return quality
 
 
+# --------------------------------------------------------------------------
+# Talent-tree filtering (shared by the spec page tree and the baked analyzer /
+# tierlist-modal trees so all three hide the same non-existent nodes)
+# --------------------------------------------------------------------------
+
+def _talent_entry_has_identity(entry):
+    """True when a talent entry carries a real identity (id / definitionId /
+    spellId). The vendored raidbots talents.json pads some single nodes with a
+    bare ``{}`` entry; those have none of these. Left in place they inflate a
+    node's entry count so a single node is misdetected as a choice node."""
+    return bool(entry.get("id") or entry.get("definitionId") or entry.get("spellId"))
+
+
+def node_has_valid_spellid(node):
+    """A talent node is renderable only if at least one of its entries carries a
+    nonzero spellId. Nodes that fail this (data padding, removed talents) would
+    draw as a stray questionmark, so the spec page tree and the baked analyzer /
+    tierlist-modal trees all drop them."""
+    for e in node.get("entries", []):
+        if e.get("spellId", 0):
+            return True
+    return False
+
+
+def strip_empty_talent_entries(talents_tree_data):
+    """Drop empty/identity-less entry objects from every talent node.
+
+    The vendored raidbots talents.json pads some single nodes with a stray
+    ``{}`` entry (node name ends in " / "). Left in place, ``len(entries) > 1``
+    makes ``build_ui_tree`` misdetect the node as a choice node. Strip them so
+    the node keeps its true type. Warns per dropped entry so upstream data
+    changes stay visible (fail-loudly). Operates on the raidbots list shape
+    (one entry per spec, each with ``classNodes`` / ``specNodes`` / ``heroNodes``)
+    and mutates it in place.
+    """
+    NODE_KEYS = ("classNodes", "specNodes", "heroNodes")
+    dropped = 0
+    for spec in talents_tree_data:
+        spec_id = spec.get("specId")
+        for key in NODE_KEYS:
+            for node in spec.get(key, []):
+                entries = node.get("entries")
+                if not entries:
+                    continue
+                # keep only entries carrying an identity; drops `{}`
+                clean = [e for e in entries if _talent_entry_has_identity(e)]
+                if len(clean) != len(entries):
+                    n_dropped = len(entries) - len(clean)
+                    dropped += n_dropped
+                    print(f"[talents] WARN spec {spec_id} node {node.get('id')} "
+                          f"'{node.get('name','')}' dropped {n_dropped} empty "
+                          f"entry object(s)")
+                    node["entries"] = clean
+    if dropped:
+        print(f"[talents] WARN stripped {dropped} empty entry object(s) total "
+              f"from talents.json")
+    return talents_tree_data
+
+
+def filter_talent_tree_nodes(nodes):
+    """Apply the spec page's talent filtering to a baked per-spec node dict
+    (``{node_id: {entries, ...}}`` from processTalents), returning a NEW dict.
+
+    Mirrors generateSpecPages: strip padding ``{}`` entries so a single node
+    isn't misdetected as a choice node, then drop nodes with no valid spellId in
+    any entry (they render as a stray questionmark). Callers MUST keep
+    ``fullNodeOrder`` COMPLETE so the Blizzard loadout bitstream decode stays
+    aligned; a node absent from this dict but present in ``fullNodeOrder`` is
+    simply not drawn (analyzer.js / tierlist-modal.js look each node up and skip
+    a null)."""
+    out = {}
+    for nid, node in (nodes or {}).items():
+        entries = node.get("entries")
+        if entries:
+            clean = [e for e in entries if _talent_entry_has_identity(e)]
+            if len(clean) != len(entries):
+                node = dict(node)
+                node["entries"] = clean
+        if node_has_valid_spellid(node):
+            out[nid] = node
+    return out
+
+
 def load_json(path):
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)

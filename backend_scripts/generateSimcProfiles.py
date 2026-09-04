@@ -6,7 +6,7 @@ matrix then runs each file once per target count (1/3/5/8) — passing
 ``desired_targets=N`` on the simc CLI — so a single simc invocation sims every
 spec in that gear set for that target count under ``single_actor_batch=1``.
 
-Two gear sets, both reusing the collector's existing gear/enchant/gem/talent
+Three gear sets, all reusing the collector's existing gear/enchant/gem/talent
 pipeline (simcBis.py) so the CI profiles never drift from production:
 
   * ``popular``  — the most-popular items/enchants/gems + most-popular talent
@@ -15,6 +15,13 @@ pipeline (simcBis.py) so the CI profiles never drift from production:
   * ``simcbis``  — the rank-1 per-slot items the collector's Top-Gear sweep
     persisted to ``simc_bis_items`` (with their bonus ids, enchants and gems),
     worn with the same popular talents the collector simmed them under.
+  * ``top50``    — the top-50 verified players' actual loadout: per-slot
+    most-common equipped item (with its bonus ids) AND the top-50 most-common
+    talent loadout code, both read from the ``top_player_loadouts`` tables
+    (databaseConnector.fetch_top50_loadouts). Enchants/gems are not stored per
+    slot in the top-50 tables, so they are filled the same way popular/simcbis
+    are (the top-50 enchant_map + gem_ranking from _prepare_spec, applied by
+    socket budget).
 
 Actors are named ``spec{spec_id}_{gearset}`` so the page generator can recover
 the spec id and gear set from the json2 result alone. Anything that can't be
@@ -44,7 +51,7 @@ from simcBis import (
     class_token,
 )
 
-GEAR_SETS = ["popular", "simcbis"]
+GEAR_SETS = ["popular", "simcbis", "top50"]
 
 
 def tierlist_sim_options(target_error):
@@ -77,6 +84,53 @@ def _actor_block(header, active_slots, gear):
         if cand:
             lines.append(gear_line(slot, cand))
     return lines
+
+
+def _resolve_quality(base_quality, bonus_ids, bonus_quality):
+    """Item rarity the way the spec page shows it: the catalog quality, overridden
+    by any quality-carrying bonus id (truthy-only, last bonus wins) — the same rule
+    as generateSpecPages.convert_slots / analyzer.js resolveQuality, so the modal's
+    rim can never disagree with the spec page for the same item+bonus set."""
+    q = base_quality
+    for b in bonus_ids:
+        bq = bonus_quality.get(b)
+        if bq:
+            q = bq
+    return q
+
+
+def _gear_display(active_slots, gear, talents_code, item_lookup, bonus_quality):
+    """Compact display record for one (spec, gear set), consumed by the tierlist
+    page's gear modal (assets/js/tierlist-modal.js).
+
+    The item icon, name and rarity are resolved here (this job has item_lookup +
+    the bonus->quality map), so the client never has to reach for the item-icon
+    shards. Enchant / gem icons and links the client still resolves from the
+    shared assets/json/gem_enchant_index.json catalog by id — the same one the
+    analyzer uses — so this stays small and never drifts. The loadout string is
+    Blizzard's export code (fetch_top_loadout), the same string the client decodes
+    against assets/json/talent_trees/<spec>.json."""
+    slots = {}
+    for slot in active_slots:
+        cand = gear.get(slot)
+        if not cand:
+            continue
+        item_id = cand.get("item_id")
+        info = item_lookup.get(item_id, {})
+        bonus_ids = [b for b in str(cand.get("simc_bonus") or "").split("/") if b]
+        entry = {
+            "id": item_id,
+            "name": info.get("name") or "",
+            "icon": info.get("icon"),
+            "quality": _resolve_quality(info.get("quality"), bonus_ids, bonus_quality),
+            "bonus": bonus_ids,
+        }
+        if cand.get("enchant_id"):
+            entry["enchant"] = int(cand["enchant_id"])
+        if cand.get("gem_ids"):
+            entry["gems"] = [int(g) for g in cand["gem_ids"]]
+        slots[slot] = entry
+    return {"talents": talents_code or "", "slots": slots}
 
 
 def _simcbis_gear(bis_rows, item_lookup, spec_id, enchant_map, gem_ranking):
@@ -140,13 +194,103 @@ def _simcbis_gear(bis_rows, item_lookup, spec_id, enchant_map, gem_ranking):
     return gear, active_slots
 
 
+def _top50_gear(loadouts, item_lookup, spec_id, enchant_map, gem_ranking):
+    """Per-slot most-common item among the top-50 players' verified loadouts,
+    shaped like _simcbis_gear so it flows through _actor_block / _gear_display.
+
+    Items + their bonus ids come from top_player_loadout_items (via
+    fetch_top50_loadouts); each top-50 player contributes one loadout per dungeon,
+    so the per-slot vote is weighted the same way the spec page's top-50 stats are.
+    Enchants and gems are NOT stored per slot in the top-50 tables (gems are a
+    per-player {gem_item_id, usage_count} bag), so they are filled the same way
+    popular/simcbis are: the top-50 enchant_map + gem_ranking already gathered in
+    _prepare_spec, applied over the equipped set by socket budget
+    (apply_enchants_and_gems). Returns (gear, active_slots) or (None, [])."""
+    socket_bonus_counts = simcBis.load_bonus_socket_counts()
+    slot_item_counts = {}          # slot -> item_id -> count
+    slot_item_bonus = {}           # slot -> item_id -> bonus_str -> count
+    for lo in loadouts or []:
+        for it in lo.get("items", []) or []:
+            slot = it.get("slot")
+            item_id = it.get("item_id")
+            if slot not in DB_TO_SIMC_SLOT or not item_id:
+                continue
+            item_id = int(item_id)
+            bonus_str = it.get("bonus_ids") or ""
+            slot_item_counts.setdefault(slot, {})
+            slot_item_counts[slot][item_id] = slot_item_counts[slot].get(item_id, 0) + 1
+            slot_item_bonus.setdefault(slot, {}).setdefault(item_id, {})
+            slot_item_bonus[slot][item_id][bonus_str] = (
+                slot_item_bonus[slot][item_id].get(bonus_str, 0) + 1
+            )
+
+    gear = {}
+    for slot, counts in slot_item_counts.items():
+        # Most common item; ties broken toward the higher count then the lower id
+        # so the pick is deterministic across runs regardless of dict order.
+        item_id = max(counts, key=lambda i: (counts[i], -i))
+        bonus_counts = slot_item_bonus[slot][item_id]
+        # Most common bonus set for that item (deterministic tie-break by string).
+        bonus_str = max(bonus_counts, key=lambda b: (bonus_counts[b], b))
+        bonus_ids = [b.strip() for b in str(bonus_str).split(",") if b.strip()]
+        socket_count = sum(socket_bonus_counts.get(b, 0) for b in bonus_ids)
+        inherent = len((item_lookup.get(item_id, {}).get("socketInfo") or {}).get("sockets") or [])
+        gear[slot] = {
+            "item_id": item_id,
+            "simc_bonus": bonus_to_simc(bonus_str),
+            "socket_count": max(socket_count, inherent),
+        }
+    if not gear:
+        return None, []
+
+    mh = gear.get("MAIN_HAND")
+    if (mh and spec_id not in DUAL_WIELD_TWOHAND_SPECS
+            and item_lookup.get(mh["item_id"], {}).get("inventoryType") in TWO_HAND_INVTYPES):
+        gear.pop("OFF_HAND", None)
+
+    # Fill enchants/gems over the equipped set (correct per-category gem budget),
+    # exactly as _simcbis_gear does for the persisted BiS set.
+    live_cands = {slot: [cand] for slot, cand in gear.items()}
+    simcBis.apply_enchants_and_gems(live_cands, enchant_map, gem_ranking, item_lookup)
+
+    active_slots = [s for s in ALL_SLOTS if s in gear]
+    return gear, active_slots
+
+
+def _top50_talents(loadouts):
+    """Most-common talent loadout code among the top-50 verified loadouts.
+
+    Each top_player_loadouts row stores the player's Blizzard export string in
+    ``loadout_key``, so counting whole strings yields a real, coherent stored code
+    (not a synthesized one). Returns the code, or None when none is recorded."""
+    counts = {}
+    for lo in loadouts or []:
+        meta = lo.get("meta") if isinstance(lo.get("meta"), dict) else lo
+        code = meta.get("loadout_key") if isinstance(meta, dict) else None
+        if not code or code == "<NULL>":
+            continue
+        counts[code] = counts.get(code, 0) + 1
+    if not counts:
+        return None
+    return max(counts, key=lambda c: (counts[c], c))
+
+
 def build_profiles(season, target_error, only_specs=None):
-    """Return ({gearset: [actor_block, ...]}, manifest_specs)."""
+    """Return ({gearset: [actor_block, ...]}, manifest_specs, gear_data).
+
+    gear_data is {spec_id: {gearset: {talents, slots}}} — the display records the
+    tierlist page's gear modal reads (see _gear_display)."""
     specs, classes = simcBis.load_static()
     item_lookup = simcBis.load_item_lookup()
+    # bonus id -> item quality, so the modal's rarity rim matches the spec page.
+    # Committed static data (processBonusIds builds it), so no DB / secrets here.
+    bonus_quality = json.loads(
+        (simcBis.STATIC_DIR / "bonus_quality_map.json").read_text(encoding="utf-8")
+    )
 
     actors = {gs: [] for gs in GEAR_SETS}
     manifest_specs = {}
+    gear_data = {}
 
     with closing(databaseConnector.get_connection()) as conn:
         cursor = conn.cursor()
@@ -179,6 +323,9 @@ def build_profiles(season, target_error, only_specs=None):
                 actor_name=f"spec{spec_id}_popular",
             )
             actors["popular"].append(_actor_block(pop_header, prep["active_slots"], prep["baseline"]))
+            gear_data.setdefault(spec_id, {})["popular"] = _gear_display(
+                prep["active_slots"], prep["baseline"], talents, item_lookup, bonus_quality
+            )
             built.append("popular")
 
             # simcbis: the collector's persisted rank-1 per-slot set.
@@ -199,19 +346,51 @@ def build_profiles(season, target_error, only_specs=None):
                     actor_name=f"spec{spec_id}_simcbis",
                 )
                 actors["simcbis"].append(_actor_block(bis_header, bis_slots, bis_gear))
+                gear_data.setdefault(spec_id, {})["simcbis"] = _gear_display(
+                    bis_slots, bis_gear, talents, item_lookup, bonus_quality
+                )
                 built.append("simcbis")
             elif "simcbis" not in skipped:
                 skipped["simcbis"] = "no simc_bis rows"
 
+            # top50: the top-50 verified players' most-common per-slot gear worn
+            # with their most-common talent loadout code (both from the top-50
+            # tables). Enchants/gems reuse the prep's top-50 maps (see _top50_gear).
+            top50_loadouts = None
+            try:
+                top50_loadouts = databaseConnector.fetch_top50_loadouts(conn, cursor, spec_id, season)
+            except Exception as e:
+                skipped["top50"] = f"fetch_top50_loadouts failed: {e}"
+            top_gear = None
+            top_talents = None
+            if top50_loadouts:
+                top_gear, top_slots = _top50_gear(
+                    top50_loadouts, item_lookup, spec_id,
+                    prep["enchant_map"], prep["gem_ranking"],
+                )
+                top_talents = _top50_talents(top50_loadouts)
+            if top_gear:
+                top_header = build_header(
+                    class_name, spec_name, primary, top_talents or talents,
+                    actor_name=f"spec{spec_id}_top50",
+                )
+                actors["top50"].append(_actor_block(top_header, top_slots, top_gear))
+                gear_data.setdefault(spec_id, {})["top50"] = _gear_display(
+                    top_slots, top_gear, top_talents or talents, item_lookup, bonus_quality
+                )
+                built.append("top50")
+            elif "top50" not in skipped:
+                skipped["top50"] = "no top-50 loadouts"
+
             manifest_specs[spec_id] = {"actors": built, "skipped": skipped}
             simcBis._log(f"tierlist: spec {spec_id} ({class_name}/{spec_name}) built={built} skipped={list(skipped)}")
 
-    return actors, manifest_specs
+    return actors, manifest_specs, gear_data
 
 
 def main(output_dir, season, target_error, only_specs):
     simcBis._init_pool_from_env()
-    actors, manifest_specs = build_profiles(season, target_error, only_specs)
+    actors, manifest_specs, gear_data = build_profiles(season, target_error, only_specs)
 
     os.makedirs(output_dir, exist_ok=True)
     for gs in GEAR_SETS:
@@ -236,6 +415,16 @@ def main(output_dir, season, target_error, only_specs):
     with open(manifest_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2)
     print(f"Wrote {manifest_path} covering {len(manifest_specs)} spec(s)")
+
+    # The per-(spec, gear set) display records for the tierlist page's gear modal.
+    # Keyed by spec id as a string so it survives the JSON round trip the client
+    # fetch reads. The assemble job copies this into assets/json/ (see
+    # buildPages.yml) alongside the analyzer catalogs the modal resolves against.
+    gear_path = os.path.join(output_dir, "tierlist_gear.json")
+    gear_payload = {str(sid): sets for sid, sets in gear_data.items()}
+    with open(gear_path, "w", encoding="utf-8") as f:
+        json.dump(gear_payload, f, separators=(",", ":"), ensure_ascii=False)
+    print(f"Wrote {gear_path} covering {len(gear_payload)} spec(s)")
 
     if not any(actors.values()):
         print("ERROR: no actors built for any gear set", file=sys.stderr)

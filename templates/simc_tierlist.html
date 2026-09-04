@@ -39,6 +39,12 @@
   <meta name="twitter:image:alt" content="Mythic+ Sim DPS Tierlist preview for {{ season_info.name }}">
   {% endif %}
 
+  <!-- Rarity border/text classes + stat colours (gear modal), and the shared
+       talent-tree .tt-* layout the modal reuses so its tree matches the spec
+       page. Readable source paths; the deploy copy is minified in place. -->
+  <link rel="stylesheet" href="/assets/css/stat-colors.css">
+  <link rel="stylesheet" href="/assets/css/spec-page.css">
+
   <style>
     .tier-badge {
       display: inline-block;
@@ -121,6 +127,89 @@
       font-size: 1rem;
       vertical-align: middle;
     }
+
+    /* A DPS bar becomes a button that opens the gear/talents modal. Reset the
+       native button chrome so the row looks unchanged, add a hover/focus cue. */
+    .gear-bar-btn {
+      background: transparent;
+      border: 0;
+      padding: 0.1rem 0.15rem;
+      margin-left: -0.15rem;
+      text-align: inherit;
+      color: inherit;
+      cursor: pointer;
+      border-radius: 0.35rem;
+      transition: background 0.12s ease;
+    }
+    .gear-bar-btn:hover,
+    .gear-bar-btn:focus-visible {
+      background: var(--mythi-chip-bg);
+      outline: none;
+    }
+    .gear-bar-btn:focus-visible { box-shadow: 0 0 0 2px var(--bs-primary); }
+
+    /* Gear modal: double-column armory grid mirroring the spec page. */
+    .gm-gear { display: flex; flex-direction: column; gap: 1rem; }
+    .gm-block { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .gm-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 0.4rem; }
+    .gm-col-head { font-weight: 600; font-size: 0.8rem; color: var(--mythi-text-muted); }
+    .gm-slot {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: 1px solid var(--mythi-border-subtle);
+      border-radius: 0.4rem;
+      padding: 0.35rem 0.5rem;
+    }
+    .gm-item-icon img,
+    .gm-aux-icon img { display: block; }
+    .gm-item-icon {
+      flex: 0 0 auto;
+      width: 40px; height: 40px;
+      border: 2px solid var(--mythi-border-strong);
+      border-radius: 0.35rem;
+      overflow: hidden;
+    }
+    .gm-item-icon img { width: 100%; height: 100%; object-fit: cover; }
+    .gm-item-main { flex: 1 1 auto; min-width: 0; }
+    .gm-slot-label {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--mythi-text-muted);
+    }
+    .gm-item-name {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+      color: var(--bs-emphasis-color);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .gm-item-name:hover { text-decoration: underline; }
+    .gm-aux { flex: 0 0 auto; display: flex; align-items: center; gap: 0.25rem; }
+    .gm-aux-icon {
+      width: 26px; height: 26px;
+      border: 1px solid var(--mythi-border-strong);
+      border-radius: 0.25rem;
+      overflow: hidden;
+    }
+    .gm-aux-icon img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Gear modal talent tree: hero column choice nodes (fixed size, like the
+       spec page's render_hero_node). The class/spec columns reuse .tt-* as-is. */
+    .gm-hero-column { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+    .gm-hero-head { text-align: center; }
+    .gm-hero-icon {
+      width: 84px; height: 84px; border-radius: 50%;
+      border: 3px solid #ffb000; box-shadow: 0 0 12px rgba(255, 176, 0, 0.35);
+    }
+    .gm-hero-name { font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.8rem; margin-top: 0.35rem; }
+    .gm-hero-nodes { display: flex; flex-direction: column; align-items: center; gap: 0.85rem; }
+    .gm-hnode { position: relative; width: 46px; height: 46px; }
+    .gm-tt-wrapper { width: 100%; }
   </style>
 </head>
 
@@ -153,7 +242,7 @@
         <div class="col-12 mb-4">
           <div class="card" id="tier-methodology" data-share>
             <div class="card-header pb-0 p-3">
-              <h6 class="mb-0">Methodology &amp; caveats</h6>
+              <h6 class="mb-0">Methodology</h6>
             </div>
             <div class="card-body p-3 text-sm">
               <ul class="mb-0 ps-3">
@@ -166,8 +255,11 @@
                 <li><b>SimC BIS</b> is the highest DPS full gear set. It is found by evaluating thousands of
                   gear combinations built from items equipped in high Mythic+ runs but using the same popular
                   talents.</li>
-                <li>Each row is ranked by its <b>better</b> gear set.</li>
+                <li><b>Top 50</b> is the loadout of the top 50 verified players: the most-common equipped item
+                  in each slot worn with their most-common talent loadout.</li>
+                <li>Each row is ranked by its <b>best</b> gear set.</li>
                 <li>Tanks are ranked separately and only by damage output. Survivability is not simulated.</li>
+                <li>Click on each bar to view the gear and talents used in that simulation.</li>
                 <li><b>Numbers are raw damage. Funnel, priority-target cleave, burst windows and utility, much
                   of what decides real Mythic+ strength, are not represented. Treat this as throughput potential, not a
                   meta ranking.</b></li>
@@ -177,6 +269,42 @@
         </div>
       </div>
       </div>
+
+      {# One gear-set DPS bar. When the set was actually simmed (bar.dps) the row
+         is a button that opens the gear/talents modal (assets/js/tierlist-modal.js);
+         a missing set stays a plain, non-interactive row. `variant` picks the
+         desktop track (dps-bar-track) or the mobile one (dash-rank-bar). #}
+      {% macro gear_bar(row, bar, variant) %}
+      {% set track %}
+        <span class="gear-label{% if variant == 'mobile' %} gear-label-sm{% endif %} text-xxs">{{ bar.label }}</span>
+        {% if variant == 'mobile' %}
+        <div class="dash-rank-bar flex-grow-1">
+          <span class="class-{{ row.clean_class }}-bg" style="width: {{ '%.1f' | format(bar.bar_pct) }}%"></span>
+        </div>
+        {% else %}
+        <div class="dps-bar-track flex-grow-1">
+          <div class="dps-bar class-{{ row.clean_class }}-bg" style="width: {{ '%.1f' | format(bar.bar_pct) }}%"></div>
+        </div>
+        {% endif %}
+        <span class="gear-val text-xs text-end">
+          {% if bar.dps %}{{ "{:,.0f}".format(bar.dps) }}{% else %}&mdash;{% endif %}
+        </span>
+      {% endset %}
+      {% if bar.dps %}
+      <button type="button"
+        class="gear-bar-row gear-bar-btn d-flex align-items-center gap-2 w-100{% if variant == 'mobile' %} mt-1{% endif %}"
+        data-gear-open data-spec-id="{{ row.spec_id }}" data-gearset="{{ bar.gearset }}"
+        data-label="{{ bar.label }}" data-spec-name="{{ row.name }}" data-class-name="{{ row.class_name }}"
+        data-clean-class="{{ row.clean_class }}" data-icon="{{ row.icon }}"
+        title="View the {{ bar.label }} gear and talents this spec was simmed with">
+        {{ track }}
+      </button>
+      {% else %}
+      <div class="gear-bar-row d-flex align-items-center gap-2{% if variant == 'mobile' %} mt-1{% endif %}">
+        {{ track }}
+      </div>
+      {% endif %}
+      {% endmacro %}
 
       {# anchor: the share id, so a copied link reopens the right target tab too. #}
       {% macro tierlist_card(title, rows, expected, anchor) %}
@@ -214,16 +342,7 @@
                     </td>
                     <td>
                       {% for bar in row.bars %}
-                      <div class="gear-bar-row d-flex align-items-center gap-2">
-                        <span class="gear-label text-xxs">{{ bar.label }}</span>
-                        <div class="dps-bar-track flex-grow-1">
-                          <div class="dps-bar class-{{ row.clean_class }}-bg"
-                            style="width: {{ '%.1f' | format(bar.bar_pct) }}%"></div>
-                        </div>
-                        <span class="gear-val text-xs text-end">
-                          {% if bar.dps %}{{ "{:,.0f}".format(bar.dps) }}{% else %}&mdash;{% endif %}
-                        </span>
-                      </div>
+                      {{ gear_bar(row, bar, 'desktop') }}
                       {% endfor %}
                     </td>
                     <td class="text-sm text-end">
@@ -255,15 +374,7 @@
                         </span>
                       </div>
                       {% for bar in row.bars %}
-                      <div class="d-flex align-items-center gap-2 mt-1">
-                        <span class="gear-label gear-label-sm text-xxs">{{ bar.label }}</span>
-                        <div class="dash-rank-bar flex-grow-1">
-                          <span class="class-{{ row.clean_class }}-bg" style="width: {{ '%.1f' | format(bar.bar_pct) }}%"></span>
-                        </div>
-                        <span class="gear-val text-xs text-end">
-                          {% if bar.dps %}{{ "{:,.0f}".format(bar.dps) }}{% else %}&mdash;{% endif %}
-                        </span>
-                      </div>
+                      {{ gear_bar(row, bar, 'mobile') }}
                       {% endfor %}
                     </td>
                   </tr>
@@ -300,12 +411,37 @@
         {% endfor %}
       </div>
 
+      {# One shared modal, populated on click by assets/js/tierlist-modal.js with
+         the exact gear + talents SimulationCraft used for the clicked bar. #}
+      <div class="modal fade" id="gearModal" tabindex="-1" aria-labelledby="gearModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title d-flex align-items-center gap-2 h6 mb-0" id="gearModalLabel">
+                <img id="gearModalIcon" src="" alt="" class="avatar avatar-sm border-radius-sm" hidden>
+                <span id="gearModalTitle"></span>
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="gearModalBody">
+              <p class="text-sm text-secondary mb-0">Loading gear and talents…</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {% include "footer.html" %}
     </div>
   </main>
   {% include "right_aside.html" %}
   {% include "fixed_plugin.html" %}
   {% include "javascript_imports.html" %}
+
+  <!-- Wowhead item/spell tooltips for the gear modal (Klaro consent-gated, same
+       as the spec / analyzer pages). -->
+  <script type="text/plain" data-type="application/javascript" data-name="wowhead"
+    data-src='https://wow.zamimg.com/widgets/power.js'></script>
+  <script src="/assets/js/tierlist-modal.js?v={{ simmed_str }}"></script>
 </body>
 
 </html>

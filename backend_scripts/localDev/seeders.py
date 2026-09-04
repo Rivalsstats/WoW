@@ -731,13 +731,35 @@ def seed_standalone(conn, cursor, static, rng, cfg, pools):
         # above the per-dungeon diff threshold. The collector stores one loadout per dungeon
         # per player, so we emit a row for every (rank, dungeon).
         rank_trees = _top50_rank_trees(plan["trees"], cfg["top_player_ranks"], rng)
+        # Tree geometry so loadout_key is a real, decodable Blizzard v2 string
+        # (the tierlist Top 50 gear set uses the most-common loadout_key verbatim
+        # as its simmed talents, and the gear modal decodes it against the baked
+        # talent tree). Falls back to a synthetic token when the committed talent
+        # file for this spec carries no geometry.
+        full_node_order, node_meta = static.tree_geometry_for(sid)
+
+        def _entry_idx(nid):
+            entries = (node_meta.get(str(nid)) or {}).get("entries") or []
+            return rng.randrange(len(entries)) if len(entries) > 1 else 0
+
         for rank in range(1, cfg["top_player_ranks"] + 1):
             tree = rank_trees[rank - 1]
             hero_nodes = plan["hero_by_tree"].get(tree, [])
             for cmid in cmids:
+                # Full loadout: core (stable across dungeons) + hero nodes (so the tree is
+                # inferrable) + this dungeon's flex picks (the per-dungeon difference signal).
+                nodes = set(plan["core"]) | set(hero_nodes) | set(plan["dungeon_flex"][cmid])
+                if full_node_order and node_meta:
+                    selected = {int(nid): _entry_idx(nid) for nid in nodes}
+                    try:
+                        loadout_key = encode_loadout(sid, selected, full_node_order, node_meta)
+                    except Exception:
+                        loadout_key = f"seedkey-{sid}-{rank}-{cmid}"
+                else:
+                    loadout_key = f"seedkey-{sid}-{rank}-{cmid}"
                 tpl.append((sid, season, rank, cmid, rng.choice(REGIONS),
                             rng.randint(10**6, 10**9), f"Player{sid}r{rank}", "TestRealm",
-                            f"seedkey-{sid}-{rank}-{cmid}", now_dt, rng.randint(12, 22)))
+                            loadout_key, now_dt, rng.randint(12, 22)))
                 for slot in EQUIPMENT_SLOTS:
                     pool = item_pools.get(slot) or []
                     if not pool:
@@ -750,9 +772,6 @@ def seed_standalone(conn, cursor, static, rng, cfg, pools):
                         tpl_ench.append((sid, season, rank, cmid, grp, _zipf_pick(rng, epool)))
                 for g in (rng.sample(gem_pool, min(3, len(gem_pool))) if gem_pool else []):
                     tpl_gems.append((sid, season, rank, cmid, int(g), rng.randint(1, 30)))
-                # Full loadout: core (stable across dungeons) + hero nodes (so the tree is
-                # inferrable) + this dungeon's flex picks (the per-dungeon difference signal).
-                nodes = set(plan["core"]) | set(hero_nodes) | set(plan["dungeon_flex"][cmid])
                 for nid in nodes:
                     tpl_tal.append((sid, season, rank, cmid, nid, 1, None, None))
 

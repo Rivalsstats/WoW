@@ -16,7 +16,13 @@ from datetime import datetime, timezone
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import databaseConnector
 from pageGeneration import generateSpecNav, generateDungeonNav, build_global_trends
-from commonUtils import LOOKUP_DIR, load_json, load_season_info, occupies_both_hands
+from commonUtils import (
+    LOOKUP_DIR,
+    load_json,
+    load_season_info,
+    occupies_both_hands,
+    filter_talent_tree_nodes,
+)
 
 TEMPLATE_PATH = "templates"
 
@@ -160,7 +166,14 @@ def write_talent_trees():
     The meta *loadout strings* to compare against stay in spec_meta (they need the
     DB). data/static isn't deployed, so re-emit under assets/json, which the build
     artifact carries. Rebuilt from scratch so a dropped spec can't leave a stale
-    tree behind."""
+    tree behind.
+
+    The baked ``nodes`` are passed through commonUtils.filter_talent_tree_nodes so
+    the analyzer and tierlist modal hide the same non-existent nodes the spec page
+    does (stray questionmark nodes / padding entries). ``fullNodeOrder`` is left
+    COMPLETE: it is the loadout-decode source and both clients walk it in order for
+    bit alignment, so dropping a node from it would garble every build. A node in
+    ``fullNodeOrder`` but absent from ``nodes`` is simply not drawn."""
     files = sorted(glob.glob(os.path.join(TALENT_SRC_DIR, "*.json")))
     if not files:
         raise FileNotFoundError(
@@ -177,8 +190,10 @@ def write_talent_trees():
             # ship an un-layoutable tree (the client falls back to a flat list).
             continue
         tree = {
+            # Complete decode order — never filtered (bit-alignment source).
             "fullNodeOrder": data["fullNodeOrder"],
-            "nodes": data["nodes"],
+            # Render source — non-existent nodes dropped to match the spec page.
+            "nodes": filter_talent_tree_nodes(data["nodes"]),
             "subTrees": data.get("subTrees", {}),
         }
         with open(os.path.join(TALENT_TREE_DIR, f"{spec_id}.json"), "w", encoding="utf-8") as f:

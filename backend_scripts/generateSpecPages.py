@@ -47,6 +47,10 @@ from commonUtils import (
     NON_GEAR_DISPLAY_ORDER,
     enchant_slot_pos,
     load_tier_sets,
+    # Talent-tree filtering, shared with generateAnalyzerPage's baked trees so the
+    # spec page, analyzer and tierlist modal all hide the same non-existent nodes.
+    node_has_valid_spellid,
+    strip_empty_talent_entries,
 )
 
 LEFT_ORDER = ["HEAD", "NECK", "SHOULDER", "BACK", "CHEST", "WRIST"]
@@ -213,48 +217,9 @@ def format_buyout(buyout):
 
 
 # helpers
-
-def node_has_valid_spellid(node):
-    entries = node.get("entries", [])
-    # For choice/tiered nodes, at least one entry must have a nonzero spellId
-    for e in entries:
-        if e.get("spellId", 0):
-            return True
-    return False
-
-
-def strip_empty_talent_entries(talents_tree_data):
-    """Drop empty/identity-less entry objects from every talent node.
-
-    The vendored raidbots talents.json pads some single nodes with a stray
-    `{}` entry (node name ends in " / "). Left in place, len(entries) > 1
-    makes build_ui_tree misdetect the node as a choice node. Strip them so
-    the node keeps its true type. Warns per dropped entry so upstream data
-    changes stay visible (fail-loudly).
-    """
-    NODE_KEYS = ("classNodes", "specNodes", "heroNodes")
-    dropped = 0
-    for spec in talents_tree_data:
-        spec_id = spec.get("specId")
-        for key in NODE_KEYS:
-            for node in spec.get(key, []):
-                entries = node.get("entries")
-                if not entries:
-                    continue
-                # keep only entries carrying an identity; drops `{}`
-                clean = [e for e in entries
-                         if e.get("id") or e.get("definitionId") or e.get("spellId")]
-                if len(clean) != len(entries):
-                    n_dropped = len(entries) - len(clean)
-                    dropped += n_dropped
-                    print(f"[talents] WARN spec {spec_id} node {node.get('id')} "
-                          f"'{node.get('name','')}' dropped {n_dropped} empty "
-                          f"entry object(s)")
-                    node["entries"] = clean
-    if dropped:
-        print(f"[talents] WARN stripped {dropped} empty entry object(s) total "
-              f"from talents.json")
-    return talents_tree_data
+# node_has_valid_spellid and strip_empty_talent_entries now live in commonUtils
+# (imported above) so generateAnalyzerPage's baked talent trees reuse the exact
+# same filtering the spec page tree does.
 
 def build_ui_tree(nodes, pop_data, is_hero=False, pop_hero_tree_id=None, top_pct_map=None, top_entry_pct_map=None):
 
