@@ -2117,7 +2117,9 @@
                   {% set d_usage = v.dungeon_tree_usage.get(dungeon|string) %}
                   {% set d_build = v.dungeon_loadouts.get(dungeon|string) %}
                   {% set has_swaps = swaps and (swaps.gains or swaps.losses) %}
-                  {% if has_swaps or d_usage %}
+                  {# Every hero variant is a selectable option, so each one always
+                     gets a div per dungeon. Without it, toggling to a variant with
+                     no verified per-dungeon data would reveal an empty body. #}
                   {% set ns.any = true %}
                   <div class="talent-dif-variant" data-hero-tree-id="{{ v.id }}"{% if not v.is_default %} style="display: none;"{% endif %}>
                     {% if has_swaps %}
@@ -2161,15 +2163,18 @@
                       </div>
                       {% endif %}
                     </div>
-                    {% else %}
+                    {% elif d_usage %}
                     <p class="text-sm text-secondary text-center mb-0">
                       No notable talent changes. <span class="class-{{ class_info.name | default('Unknown') | replace(' ', '') }}-text">{{
           spec.name }} {{ class_info.name }} </span> players run their usual build in
                       {{ dungeon_lookup[dungeon].name['en_US'] }}.
                     </p>
+                    {% else %}
+                    <p class="text-sm text-secondary text-center mb-0">
+                      No verified top-50 loadouts recorded for {{ dungeon_lookup[dungeon].name['en_US'] }} yet.
+                    </p>
                     {% endif %}
                   </div>
-                  {% endif %}
                   {% endfor %}
 
                   {% if not ns.any and not tree_shifts %}
