@@ -947,11 +947,59 @@
       })
     );
 
+    const avgPerf = rawPoints.length
+      ? rawPoints.reduce((s, p) => s + p.x, 0) / rawPoints.length
+      : 0;
+
+    // Compressive X scale: GAMMA < 1 spreads specs close to the average and
+    // squeezes the extreme performers toward the edges. Tune here.
+    const X_GAMMA = 0.5;
+    const xForward = x => {
+      const d = x - avgPerf;
+      return avgPerf + Math.sign(d) * Math.pow(Math.abs(d), X_GAMMA);
+    };
+    const xInverse = p => {
+      const d = p - avgPerf;
+      return avgPerf + Math.sign(d) * Math.pow(Math.abs(d), 1 / X_GAMMA);
+    };
+
+    // Keep 0% (the average) dead center: symmetric limits in transformed space.
+    // The signed-power transform is odd, so avgPerf maps to the exact center.
+    let maxDev = rawPoints.reduce((m, p) => Math.max(m, Math.abs(p.x - avgPerf)), 0);
+    if (maxDev <= 0) maxDev = Math.abs(avgPerf) || 1;
+    const xMin = xForward(avgPerf - maxDev * 1.05);
+    const xMax = xForward(avgPerf + maxDev * 1.05);
+
+    // Explicit ticks at readable percentages of avg, mapped through the
+    // transform. The callback inverse-transforms back to the true percent.
+    const nicePcts = [-100, -50, -25, -10, -5, 0, 5, 10, 25, 50, 100];
+    const xTickValues = nicePcts
+      .map(pct => xForward(avgPerf * (1 + pct / 100)))
+      .filter(v => v >= xMin && v <= xMax);
+
+    // Compressive Y (run count) scale: logarithmic spreads the crowded
+    // low/mid-run band so icons overlap less. Runs are strictly positive.
+    const runVals = rawPoints.map(p => p.y).filter(y => y > 0);
+    const minRun = runVals.length ? Math.min(...runVals) : 1;
+    const maxRun = runVals.length ? Math.max(...runVals) : 1;
+    const yMin = minRun / 1.2;
+    const yMax = maxRun * 1.2;
+    const niceRuns = [1e2, 2e2, 5e2, 1e3, 2e3, 5e3, 1e4, 2e4, 5e4, 1e5, 2e5, 5e5, 1e6];
+    const yTickValues = niceRuns.filter(r => r >= yMin && r <= yMax);
+
+    const formatRuns = value => {
+      if (value >= 1e9) return (value / 1e9).toFixed(1) + 'B';
+      if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M';
+      if (value >= 1e3) return (value / 1e3).toFixed(1) + 'k';
+      return value.toFixed(0);
+    };
+
     // once loaded, build the chart
     Promise.all(iconPromises).then(images => {
       // attach the loaded Image to each data point
       const data = rawPoints.map((p, i) => ({
         ...p,
+        xPos: xForward(p.x),   // plotted position (compressed); raw x kept for tooltip
         pointStyle: images[i]
       }));
 
@@ -961,6 +1009,8 @@
           datasets: [{
             label: 'Spec Popularity vs Performance',
             data: data,
+            // plot the compressed xPos; y unchanged. raw x stays on the datum.
+            parsing: { xAxisKey: 'xPos', yAxisKey: 'y' },
             pointRadius: 12,
             pointHoverRadius: 16,
             // these two read from the raw datum
@@ -975,13 +1025,35 @@
           maintainAspectRatio: false,
           scales: {
             x: {
-              title: { display: true, text: 'Performance' },
-              ticks: { display: false }
+              min: xMin,
+              max: xMax,
+              afterBuildTicks: scale => {
+                scale.ticks = xTickValues.map(v => ({ value: v }));
+              },
+              title: { display: true, text: 'Performance vs Average' },
+              ticks: {
+                display: true,
+                // value is the transformed position; recover the true percent.
+                callback: value => {
+                  const realX = xInverse(value);
+                  const pct = avgPerf ? (realX - avgPerf) / avgPerf * 100 : 0;
+                  const sign = pct > 0 ? '+' : '';
+                  return sign + pct.toFixed(0) + '%';
+                }
+              }
             },
             y: {
-              title: { display: true, text: 'Popularity' },
-              ticks: { display: false },
-              beginAtZero: true
+              type: 'logarithmic',
+              min: yMin,
+              max: yMax,
+              afterBuildTicks: scale => {
+                scale.ticks = yTickValues.map(v => ({ value: v }));
+              },
+              title: { display: true, text: 'Runs' },
+              ticks: {
+                display: true,
+                callback: value => formatRuns(value)
+              }
             }
           },
           plugins: {

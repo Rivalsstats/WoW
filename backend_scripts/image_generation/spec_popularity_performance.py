@@ -6,6 +6,7 @@ from contextlib import closing
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.offsetbox import AnnotationBbox, OffsetImage
+from matplotlib.ticker import FixedLocator, FuncFormatter, NullLocator
 from PIL import Image
 
 import databaseConnector
@@ -87,19 +88,87 @@ def create_spec_popularity_vs_performance_img(
         )
         ax.add_artist(ab)
 
-    ax.set_xlabel("Performance")
-    ax.set_ylabel("Popularity")
-    ax.set_title("Spec Popularity vs Performance")
-    ax.set_xticklabels([])
-    ax.set_yticklabels([])
-    ax.grid(True)
-
     xs = [p["x"] for p in points]
     ys = [p["y"] for p in points]
-    dx = (max(xs) - min(xs)) * 0.05
-    dy = (max(ys) - min(ys)) * 0.05
-    ax.set_xlim(min(xs) - dx, max(xs) + dx)
-    ax.set_ylim(min(ys) - dy, max(ys) + dy)
+
+    avg_perf = sum(xs) / len(xs) if xs else 0.0
+
+    def format_perf(val, _pos):
+        if not avg_perf:
+            return "0%"
+        return f"{(val - avg_perf) / avg_perf * 100:+.0f}%"
+
+    def format_runs(val, _pos):
+        if val >= 1e9:
+            return f"{val / 1e9:.1f}B"
+        if val >= 1e6:
+            return f"{val / 1e6:.1f}M"
+        if val >= 1e3:
+            return f"{val / 1e3:.1f}k"
+        return f"{val:.0f}"
+
+    ax.set_xlabel("Performance vs Average")
+    ax.set_ylabel("Runs")
+    ax.set_title("Spec Popularity vs Performance")
+    ax.xaxis.set_major_formatter(FuncFormatter(format_perf))
+    ax.yaxis.set_major_formatter(FuncFormatter(format_runs))
+    ax.grid(True)
+
+    # Compressive X scale: GAMMA < 1 spreads specs close to the average and
+    # squeezes the extreme performers toward the edges. Tune here.
+    GAMMA = 0.5
+
+    def _x_forward(x):
+        d = np.asarray(x, dtype=float) - avg_perf
+        return avg_perf + np.sign(d) * np.abs(d) ** GAMMA
+
+    def _x_inverse(p):
+        d = np.asarray(p, dtype=float) - avg_perf
+        return avg_perf + np.sign(d) * np.abs(d) ** (1.0 / GAMMA)
+
+    ax.set_xscale("function", functions=(_x_forward, _x_inverse))
+
+    # Keep 0% (the average) dead center: symmetric x-limits around avg_perf.
+    # Limits are in real-x space; the signed-power scale is odd, so the
+    # transformed extent stays symmetric and avg_perf lands in the center.
+    maxdev = max((abs(x - avg_perf) for x in xs), default=0.0)
+    if maxdev <= 0:
+        maxdev = abs(avg_perf) or 1.0
+    xpad = maxdev * 0.05
+    lo_x = avg_perf - maxdev - xpad
+    hi_x = avg_perf + maxdev + xpad
+    ax.set_xlim(lo_x, hi_x)
+
+    # Explicit ticks at readable percentages of avg; the FuncFormatter turns
+    # each real-x position back into its true signed percent label.
+    nice_pcts = [-100, -50, -25, -10, -5, 0, 5, 10, 25, 50, 100]
+    tick_positions = [
+        avg_perf * (1 + pct / 100.0)
+        for pct in nice_pcts
+        if lo_x <= avg_perf * (1 + pct / 100.0) <= hi_x
+    ]
+    ax.set_xticks(tick_positions)
+    # set_xscale reset the major formatter, so re-apply the percent labels.
+    ax.xaxis.set_major_formatter(FuncFormatter(format_perf))
+
+    # Compressive Y (run count) scale: log spreads the crowded low/mid-run
+    # band so icons overlap less. Runs are strictly positive for plotted specs.
+    min_run = min(ys)
+    max_run = max(ys)
+    if min_run <= 0:
+        min_run = min((y for y in ys if y > 0), default=1.0)
+    ax.set_yscale("log")
+    ax.set_ylim(min_run / 1.2, max_run * 1.2)
+
+    # set_yscale reset the formatter; re-apply human-readable run labels and
+    # place explicit ticks at nice round run counts within range (no minors).
+    ax.yaxis.set_major_formatter(FuncFormatter(format_runs))
+    nice_runs = [
+        1e2, 2e2, 5e2, 1e3, 2e3, 5e3, 1e4, 2e4, 5e4, 1e5, 2e5, 5e5, 1e6,
+    ]
+    run_ticks = [r for r in nice_runs if min_run / 1.2 <= r <= max_run * 1.2]
+    ax.yaxis.set_major_locator(FixedLocator(run_ticks))
+    ax.yaxis.set_minor_locator(NullLocator())
 
     ys = np.array([p["y"] for p in raw_points])
     xs = np.array([p["x"] for p in raw_points])
