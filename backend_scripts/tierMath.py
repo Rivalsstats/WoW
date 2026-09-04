@@ -324,6 +324,8 @@ def compute_weighted_stats_and_lbci(
                 "N": 0,
                 "sum_wv": 0.0,
                 "sum_wv2": 0.0,
+                "max_timed_level": 0,
+                "timed_runs": 0,
                 # store the raw counts for downstream display
                 **{k: 0 for k in value_keys},
                 total_runs_key: 0,
@@ -336,6 +338,16 @@ def compute_weighted_stats_and_lbci(
         for k, cnt in zip(value_keys, counts):
             entry[k] = entry.get(k, 0) + cnt
         entry[total_runs_key] = entry.get(total_runs_key, 0) + tr
+
+        # timed = any run that beat the timer (upgrade_1/2/3). A key level only
+        # counts toward the ceiling if at least one run there was timed.
+        row_timed = 0
+        for k, cnt in zip(value_keys, counts):
+            if k in ("upgrade_1", "upgrade_2", "upgrade_3"):
+                row_timed += cnt
+        entry["timed_runs"] = entry.get("timed_runs", 0) + row_timed
+        if row_timed > 0 and L > entry.get("max_timed_level", 0):
+            entry["max_timed_level"] = L
 
     # compute mean, var, lb_ci per item
     out = {}
@@ -358,6 +370,8 @@ def compute_weighted_stats_and_lbci(
             "mean": mean,
             "var": var,
             "lb_ci": lb,
+            "max_timed_level": e.get("max_timed_level", 0),
+            "timed_runs": e.get("timed_runs", 0),
             **{k: e.get(k, 0) for k in value_keys},
             "total_runs": e.get(total_runs_key, 0),
         }
@@ -367,12 +381,21 @@ def compute_weighted_stats_and_lbci(
 # --------------------------
 # build tiers using LB_CI + ckmeans clustering
 # --------------------------
-def build_ckmeans_tiers(dungeon_lookup, runs_rows, weight_base=1.6, k=6):
+def build_ckmeans_tiers(
+    dungeon_lookup, runs_rows, weight_base=1.6, k=6, max_timed_levels=None
+):
     """
     Returns tiers dict mapping tier_letter -> list of dungeon dicts
     dungeon_lookup: mapping id -> metadata (name, icon, short)
     runs_rows: list of aggregated rows (as returned by your DB function)
+    max_timed_levels: optional {str(dungeon_id): int} of the highest TIMED key
+        per dungeon read from LIVE runs. When given, it overrides the ceiling
+        derived from runs_rows (which comes from a slower-cadence rollup that can
+        lag a freshly-timed higher key), so the composite/tier ceiling is always
+        current. Kept optional and pure/DB-free: when None the rollup value is
+        used and the function stays fully backward compatible.
     """
+    max_timed_levels = max_timed_levels or {}
     stats = compute_weighted_stats_and_lbci(
         rows=runs_rows,
         id_key="dungeon_id",
@@ -382,6 +405,13 @@ def build_ckmeans_tiers(dungeon_lookup, runs_rows, weight_base=1.6, k=6):
     items = []
     for did, s in stats.items():
         meta = dungeon_lookup.get(str(did)) or dungeon_lookup.get(did) or {}
+        total_runs = s.get("total_runs", 0)
+        timed_runs = s.get("timed_runs", 0)
+        # live ceiling wins over the rollup-derived one when supplied
+        live_ceiling = max_timed_levels.get(str(did))
+        effective_ceiling = (
+            live_ceiling if live_ceiling is not None else s.get("max_timed_level", 0)
+        )
         items.append(
             {
                 "dungeon_id": did,
@@ -392,7 +422,10 @@ def build_ckmeans_tiers(dungeon_lookup, runs_rows, weight_base=1.6, k=6):
                 "lb_ci": s["lb_ci"],
                 "mean": s["mean"],
                 "var": s["var"],
-                "total_runs": s.get("total_runs", 0),
+                "total_runs": total_runs,
+                "timed_runs": timed_runs,
+                "max_timed_level": effective_ceiling,
+                "pct_timed": (timed_runs / total_runs * 100.0) if total_runs else 0.0,
                 "upgrade_3": s.get("upgrade_3", 0),
                 "upgrade_2": s.get("upgrade_2", 0),
                 "upgrade_1": s.get("upgrade_1", 0),
@@ -408,8 +441,22 @@ def build_ckmeans_tiers(dungeon_lookup, runs_rows, weight_base=1.6, k=6):
     if n == 0:
         return {L: [] for L in tier_letters}
 
+    # Highest timed key is the decisive ranking factor: a strictly higher
+    # ceiling must never land in a lower/worse tier than a lower ceiling. Build
+    # a composite = max_timed_level + frac(lb_ci), where lb_ci is min-max
+    # normalized into [0, 0.999] so the fraction only breaks ties between equal
+    # ceilings and can never bridge a full key level. The integer ceiling
+    # dominates, so ckmeans (which clusters contiguous sorted ranges) and the
+    # repair/fallback passes all preserve the invariant.
+    lb_values = [it["lb_ci"] for it in items]
+    lb_min = min(lb_values)
+    lb_span = max(lb_values) - lb_min
+    for it in items:
+        frac = ((it["lb_ci"] - lb_min) / lb_span * 0.999) if lb_span > 0 else 0.0
+        it["composite"] = it["max_timed_level"] + frac
+
     # helper: sort items by score desc
-    items.sort(key=lambda it: it["lb_ci"], reverse=True)
+    items.sort(key=lambda it: it["composite"], reverse=True)
 
     # If fewer items than tiers, give top-most tiers one item each (deterministic)
     if n < len(tier_letters):
@@ -419,17 +466,17 @@ def build_ckmeans_tiers(dungeon_lookup, runs_rows, weight_base=1.6, k=6):
         # add score field for template compatibility
         for L in out:
             for it in out[L]:
-                it["score"] = it["lb_ci"]
+                it["score"] = it["composite"]
         return out
 
     # Run ckmeans with up to n clusters
-    labels = ckmeans_1d([it["lb_ci"] for it in items], k=min(k_target, n))
+    labels = ckmeans_1d([it["composite"] for it in items], k=min(k_target, n))
 
     # compute cluster means to order clusters
     cluster_sums = {}
     cluster_counts = {}
     for lab, it in zip(labels, items):
-        v = it["lb_ci"]
+        v = it["composite"]
         cluster_sums[lab] = cluster_sums.get(lab, 0.0) + v
         cluster_counts[lab] = cluster_counts.get(lab, 0) + 1
     cluster_means = {
@@ -453,7 +500,7 @@ def build_ckmeans_tiers(dungeon_lookup, runs_rows, weight_base=1.6, k=6):
     tiers = {L: [] for L in tier_letters}
     for it, lab in zip(items, labels):
         tier = cluster_to_tier.get(lab, tier_letters[-1])
-        it["score"] = it["lb_ci"]
+        it["score"] = it["composite"]
         tiers[tier].append(it)
 
     # sort each tier by score desc
@@ -541,7 +588,7 @@ def build_ckmeans_tiers(dungeon_lookup, runs_rows, weight_base=1.6, k=6):
         if take > 0:
             slice_items = items[idx : idx + take]
             for it in slice_items:
-                it["score"] = it["lb_ci"]
+                it["score"] = it["composite"]
             out[L].extend(slice_items)
             idx += take
     # final safety sort

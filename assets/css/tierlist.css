@@ -268,10 +268,39 @@
   border-radius: 50%;
 }
 
+.dungeon-tile-title {
+  bottom: 8px;
+  left: 0;
+  right: 0;
+}
+
 .dungeon-tile-title .text-truncate {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.dungeon-tile-meta {
+  font-size: 0.72rem;
+  font-weight: 600;
+  opacity: 0.92;
+}
+
+.dungeon-tile-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  min-width: 30px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  line-height: 1.2;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .dungeon-tile:focus-visible {

@@ -167,7 +167,12 @@ def build_global_rows(conn, cursor, week_id, season, lookups):
 
     # --- dungeons ----------------------------------------------------------
     dungeon_data = databaseConnector.fetch_runs_per_dungeon_per_level(conn, cursor, season)
-    dungeon_tiers = build_ckmeans_tiers(dungeon_lookup, dungeon_data, weight_base=1.6, k=6)
+    # live highest-timed-key per dungeon overrides the slower rollup ceiling
+    dungeon_max_timed = databaseConnector.fetch_max_timed_level_per_dungeon(conn, cursor, season)
+    dungeon_tiers = build_ckmeans_tiers(
+        dungeon_lookup, dungeon_data, weight_base=1.6, k=6,
+        max_timed_levels=dungeon_max_timed,
+    )
     dungeon_flat = list(_flatten_tiers(dungeon_tiers, "dungeon_id"))
     dungeon_leader = max((score for _, _, score, _ in dungeon_flat), default=0.0)
     for did, tier, score, tr in dungeon_flat:

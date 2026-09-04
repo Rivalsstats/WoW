@@ -2504,6 +2504,49 @@ def fetch_runs_per_dungeon_per_level(connection, cursor, season):
     return out
 
 
+FETCH_MAX_TIMED_LEVEL_PER_DUNGEON_SQL = """
+SELECT r.dungeon_id, MAX(r.keystone_level) AS max_timed_level
+FROM runs r
+JOIN dungeon_data dd ON dd.dungeon_id = r.dungeon_id
+WHERE r.season = %s
+  AND r.duration IS NOT NULL
+  AND dd.upgrade_1_duration IS NOT NULL
+  AND r.duration <= dd.upgrade_1_duration
+GROUP BY r.dungeon_id
+"""
+
+
+def fetch_max_timed_level_per_dungeon(connection, cursor, season):
+    """Highest TIMED key level per dungeon from the LIVE runs table.
+
+    upgrade_1_duration is the timer, so duration <= upgrade_1_duration captures
+    every timed run (including +2/+3). Read live rather than from the
+    aggregated_runs_per_dungeon_per_level rollup: that rollup rebuilds on a
+    slower cadence than the page build, so a freshly-timed higher key can be
+    missing from it and leave the tierlist ceiling (and tier ordering) stale.
+
+    Rides the runs_unique index (dungeon_id, keystone_level, duration, ...,
+    season) - the same access path the per-dungeon highest-run query uses - so
+    it is an index scan grouped by dungeon_id, not a full table scan.
+
+    Returns {str(dungeon_id): int(max_timed_level)}.
+    """
+    rows = fetch_with_retry(
+        connection, cursor, FETCH_MAX_TIMED_LEVEL_PER_DUNGEON_SQL, (season,)
+    )
+    out = {}
+    for row in rows or []:
+        if isinstance(row, dict):
+            did = row.get("dungeon_id")
+            lvl = row.get("max_timed_level")
+        else:
+            did, lvl = row[0], row[1]
+        if did is None or lvl is None:
+            continue
+        out[str(did)] = int(lvl)
+    return out
+
+
 DUNGEON_UPGRADES_PER_KEYLEVEL_ABOVE_LEVEL_SQL = """
 SELECT
   r.dungeon_id,

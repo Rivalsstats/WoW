@@ -64,6 +64,10 @@ def main(template_path, output_dir):
         dungeon_data = databaseConnector.fetch_runs_per_dungeon_per_level(
             conn, cursor, current_season
         )
+        # live highest-timed-key per dungeon overrides the slower rollup ceiling
+        dungeon_max_timed = databaseConnector.fetch_max_timed_level_per_dungeon(
+            conn, cursor, current_season
+        )
         spec_data = databaseConnector.fetch_spec_upgrades(conn, cursor)
         groupbuffs_stats = databaseConnector.fetch_groupbuffs_stats(
             conn, cursor, group_buffs, current_season, 12, 14
@@ -82,7 +86,8 @@ def main(template_path, output_dir):
     print(groupbuffs_stats)
     print("Building tiers...")
     dungeon_tiers = build_ckmeans_tiers(
-        dungeon_lookup, dungeon_data, weight_base=1.6, k=6
+        dungeon_lookup, dungeon_data, weight_base=1.6, k=6,
+        max_timed_levels=dungeon_max_timed,
     )
     spec_tiers = build_spec_tiers(
         spec_lookup, class_lookup, spec_data, weight_base=1.6, k=6

@@ -12,7 +12,7 @@ from image_generation import config
 from image_generation.tierlist_card import TIER_LETTERS, render_tierlist_card
 
 
-def _dungeon_entry(item, dungeon_lookup, highest_keys):
+def _dungeon_entry(item, dungeon_lookup):
     meta = dungeon_lookup.get(str(item["dungeon_id"]), {})
     name = meta.get("name", {})
     label = name.get("en_US", f"Dungeon {item['dungeon_id']}") if isinstance(name, dict) else str(name)
@@ -20,7 +20,8 @@ def _dungeon_entry(item, dungeon_lookup, highest_keys):
     # build_ckmeans_tiers keeps the aggregated upgrade/total counts on the item
     total = int(item.get("total_runs", 0))
     timed = sum(int(item.get(k, 0)) for k in ("upgrade_1", "upgrade_2", "upgrade_3"))
-    highest = highest_keys.get(int(item["dungeon_id"]), 0)
+    # highest TIMED key that actually drives the tier ranking
+    highest = int(item.get("max_timed_level", 0))
     return {
         "icon_path": os.path.join(config.ICON_DIR, icon) if icon else None,
         "border": None,
@@ -32,12 +33,19 @@ def _dungeon_entry(item, dungeon_lookup, highest_keys):
 
 
 def create_dungeon_tierlist_img(out_path, season, icon_size=None,
-                                dungeon_data=None, total_runs=None):
+                                dungeon_data=None, total_runs=None,
+                                max_timed_levels=None):
     """Build the dungeon tierlist card; returns the post_data facts dict.
     icon_size is accepted for caller compatibility and ignored.
 
-    ``dungeon_data`` / ``total_runs`` accept data the caller already fetched;
-    anything left as None is fetched here."""
+    ``dungeon_data`` / ``total_runs`` / ``max_timed_levels`` accept data the
+    caller already fetched; anything left as None is fetched here.
+    ``max_timed_levels`` is the live highest-timed-key per dungeon, which
+    overrides the slower rollup ceiling that drives the tier ranking. Callers
+    that inject their own rows (to keep this renderer DB-free) stay DB-free: the
+    self-fetch only runs when a connection is opened for the other data, so an
+    injected-rows caller that omits max_timed_levels just falls back to the
+    rollup ceiling carried in dungeon_data."""
     dungeon_lookup = get_dungeon_lookup()
 
     if dungeon_data is None or total_runs is None:
@@ -49,19 +57,16 @@ def create_dungeon_tierlist_img(out_path, season, icon_size=None,
                 )
             if total_runs is None:
                 total_runs = databaseConnector.fetch_total_season_runs(conn, cursor, season)
+            if max_timed_levels is None:
+                max_timed_levels = databaseConnector.fetch_max_timed_level_per_dungeon(
+                    conn, cursor, season
+                )
 
-    # highest key seen per dungeon (max keystone_level with at least one run)
-    highest_keys = {}
-    for r in dungeon_data:
-        if int(r.get("total_runs", 0)) > 0:
-            did = int(r["dungeon_id"])
-            lvl = int(r.get("keystone_level", 0))
-            if lvl > highest_keys.get(did, 0):
-                highest_keys[did] = lvl
-
-    tiers_raw = build_ckmeans_tiers(dungeon_lookup, dungeon_data)
+    tiers_raw = build_ckmeans_tiers(
+        dungeon_lookup, dungeon_data, max_timed_levels=max_timed_levels
+    )
     tiers = {
-        L: [_dungeon_entry(it, dungeon_lookup, highest_keys) for it in tiers_raw.get(L, [])]
+        L: [_dungeon_entry(it, dungeon_lookup) for it in tiers_raw.get(L, [])]
         for L in TIER_LETTERS
     }
 

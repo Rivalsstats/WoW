@@ -241,9 +241,13 @@
                       {% else %}
                       style="background-image: linear-gradient(90deg, rgba(30,30,30,0.9), rgba(50,50,50,0.85)); display: block;" {%
                       endif %}>
+                      {% if d.max_timed_level %}
+                      <span class="dungeon-tile-badge">+{{ d.max_timed_level }}</span>
+                      {% endif %}
                       <div class="dungeon-tile-title position-absolute w-100 px-2 pb-2">
                         <div class="text-center">
                           <strong class="d-block text-truncate">{{ d.name['en_US'] }}</strong>
+                          <small class="dungeon-tile-meta d-block text-truncate">{{ d.total_runs | humanize }} runs &middot; {{ '%.0f'|format(d.pct_timed) }}% timed</small>
                         </div>
                       </div>
                       <span class="visually-hidden">{{ d.name['en_US'] }} — open details</span>
