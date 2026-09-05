@@ -7,8 +7,8 @@ many days have passed since the most recent content update:
 
     days since latest content update    cadence
     ------------------------------------ ------------------------------
-    < 14   (first 2 weeks)               every day
-    14..41 (weeks 2-6)                   every 3 days (Mon/Wed/Fri)
+    < 7    (first week)                  every day
+    7..41 (weeks 2-6)                   every 3 days (Mon/Wed/Fri)
     >= 42  (after 6 weeks)               once per week (Wed only)
 
 A "content update" is the season start or any retail X.Y.Z patch (the .5/.7
