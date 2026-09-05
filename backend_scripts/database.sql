@@ -762,6 +762,7 @@ CREATE TABLE `top_player_loadouts` (
   `character_name` varchar(255) DEFAULT NULL,
   `realm` varchar(255) DEFAULT NULL,
   `loadout_key` varchar(255) DEFAULT NULL,
+  `loadout_text` text,
   `loadout_updated_at` datetime DEFAULT NULL,
   `keystone_level` tinyint DEFAULT NULL,
   PRIMARY KEY (`spec_id`,`rank`,`map_challenge_mode_id`)

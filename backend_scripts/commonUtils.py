@@ -201,6 +201,210 @@ def filter_talent_tree_nodes(nodes):
     return out
 
 
+# --------------------------------------------------------------------------
+# Blizzard "serialization version 2" loadout encoder (test-only: the local
+# seeder's synthetic talent strings)
+# --------------------------------------------------------------------------
+#
+# Production no longer synthesizes talent codes: the CI tierlist top50 set now
+# uses the REAL Blizzard export string the players used in game
+# (top_player_loadouts.loadout_text, see generateSimcProfiles._top50_talents), and
+# popular/simcbis use the real most-popular stored code. So this encoder's ONLY
+# remaining caller is the local seeder (localDev/loadout_codec.py re-exports it),
+# which must synthesize decodable v2 strings for members.loadout and the seeded
+# top_player_loadouts.loadout_text when the throwaway DB has no real ones. Keep it:
+# it gives the local top50 modal + simc validation a real "use the stored string"
+# path. Because it is seeder-only, the choice-node/data-skew caveats below are a
+# local-fidelity concern, never a production one.
+#
+# The live members.loadout / top_player talent selections are consumed two ways:
+# the client analyzer (assets/js/analyzer.js decodeLoadout) decodes the string to
+# draw a build, and SimulationCraft parses it off the ``talents=`` actor line.
+# Both read Blizzard's v2 bitstream, so the encoder here must produce a string
+# that BOTH accept. simc is the strict validator: it rejects a choice-index on a
+# non-choice node and an out-of-spec node, and it parses (and ignores) the 128-bit
+# tree hash, so a zero hash is accepted. That last fact is what lets us synthesize
+# a code from per-node data without recomputing Blizzard's checksum.
+#
+# The bitstream (mirroring decodeLoadout): a 6-bit value per output char, packed
+# LSB-first over the base64 alphabet ``A-Za-z0-9+/`` (real base64, so ``+`` / ``/``
+# can appear; ``-`` and ``=`` never do); header = 8-bit version (2), 16-bit spec id,
+# 128 bits of tree hash (emitted as zeros); then, for every node id in
+# ``fullNodeOrder``: a selected bit, when set a purchased bit, then a partial-rank
+# flag (1 => a 6-bit rank follows, for a multi-rank node bought below max) and a
+# choice flag (1 => a 2-bit entry index follows, ONLY for a genuine choice node).
+
+TALENT_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+_TALENT_CHAR_IDX = {c: i for i, c in enumerate(TALENT_CHARS)}
+LOADOUT_VERSION = 2
+
+
+class _LoadoutBitWriter:
+    def __init__(self):
+        self.bits = []
+
+    def write(self, value, nbits):
+        """Append ``nbits`` of ``value``, least-significant bit first."""
+        for i in range(nbits):
+            self.bits.append((int(value) >> i) & 1)
+
+    def encode(self):
+        # Pad the tail up to a whole char (6 bits); the client and simc tolerate a
+        # zero-padded tail, so zeros are safe filler.
+        bits = self.bits
+        while len(bits) % 6 != 0:
+            bits.append(0)
+        out = []
+        for i in range(0, len(bits), 6):
+            v = 0
+            for b in range(6):
+                v |= bits[i + b] << b
+            out.append(TALENT_CHARS[v])
+        return "".join(out)
+
+
+def is_choice_node(node):
+    """True when simc treats a node as a choice node (one that carries a 2-bit
+    entry index in the bitstream). A ``tiered`` node has multiple entries that are
+    rank tiers of the SAME talent, not alternatives, so it is NOT a choice node —
+    emitting a choice index on it makes simc fail init ("not a choice node but has
+    index selection"). Mirrors analyzer.js ``ntypeOf`` (tiered => passive).
+
+    Only entries carrying a real identity count toward the entry total: the
+    vendored raidbots talents.json pads some single nodes with an identity-less
+    ``{spellId: 0}`` entry (name ends in " / "), and counting it would misdetect a
+    single node (e.g. WW Monk hero node 101235 "Inner Compass") as a choice node,
+    emitting a bogus 2-bit index that fails simc init. The baked analyzer /
+    tierlist trees already strip these entries, so this keeps the encoder aligned
+    with both decoders and simc, which all see the node as single."""
+    if not node:
+        return False
+    if node.get("type") == "tiered":
+        return False
+    real = [e for e in (node.get("entries") or []) if _talent_entry_has_identity(e)]
+    return len(real) > 1
+
+
+def encode_loadout(spec_id, selected, full_node_order, nodes, ranks=None):
+    """Encode a Blizzard v2 loadout string.
+
+    ``selected``      -- {node_id: entry_index} for every purchased node. Free /
+                         granted nodes are forced selected regardless (they are
+                         part of every build), so callers need not list them.
+    ``full_node_order`` -- the spec's flat decode order (INCLUDES ids absent from
+                         ``nodes``; those consume a not-selected bit each so the
+                         stream stays aligned with the client decoder and simc).
+    ``nodes``         -- {str(node_id): {entries, type, maxRanks, free, ...}}.
+    ``ranks``         -- optional {node_id: rank}. When a node's rank is below its
+                         ``maxRanks`` the partial-rank flag + 6-bit rank are emitted
+                         (a full or missing rank emits neither, i.e. full rank).
+    """
+    sel = {int(k): int(v or 0) for k, v in (selected or {}).items()}
+    rank_map = {int(k): v for k, v in (ranks or {}).items()}
+
+    def node_for(nid):
+        return nodes.get(str(nid)) or nodes.get(nid)
+
+    w = _LoadoutBitWriter()
+    w.write(LOADOUT_VERSION, 8)
+    w.write(int(spec_id), 16)
+    for _ in range(16):
+        w.write(0, 8)  # 128-bit tree hash, parsed-and-ignored by client + simc
+
+    for nid in full_node_order:
+        node = node_for(nid)
+        is_free = bool(node and node.get("free"))
+        is_sel = is_free or int(nid) in sel
+        if not is_sel:
+            w.write(0, 1)
+            continue
+        w.write(1, 1)  # selected
+        w.write(1, 1)  # purchased
+        max_ranks = int((node or {}).get("maxRanks") or 1)
+        rank = rank_map.get(int(nid))
+        if rank is not None and max_ranks > 1 and 0 < int(rank) < max_ranks:
+            w.write(1, 1)          # partial-rank flag
+            w.write(int(rank), 6)  # actual rank (< maxRanks)
+        else:
+            w.write(0, 1)          # full rank, no rank bits follow
+        if is_choice_node(node):
+            w.write(1, 1)                      # choice flag
+            w.write(sel.get(int(nid), 0), 2)   # entry index (0..3)
+        else:
+            w.write(0, 1)                      # not a choice node
+    return w.encode()
+
+
+def decode_loadout(code, full_node_order, nodes):
+    """Round-trip inverse of :func:`encode_loadout`, mirroring analyzer.js.
+
+    Returns {node_id: {"entry_index": int, "rank": int|None, "purchased": bool}}
+    for the selected nodes, or ``None`` when the string is malformed. Present so
+    callers (and the seeder self-test) can prove encode/decode agree with the
+    client contract without a browser."""
+    if not code:
+        return None
+    bits = []
+    for ch in code:
+        v = _TALENT_CHAR_IDX.get(ch)
+        if v is None:
+            return None
+        for b in range(6):
+            bits.append((v >> b) & 1)
+
+    pos = [0]
+
+    def read(n):
+        r = 0
+        for i in range(n):
+            if pos[0] >= len(bits):
+                return None
+            r |= bits[pos[0]] << i
+            pos[0] += 1
+        return r
+
+    if read(8) != LOADOUT_VERSION:
+        return None
+    read(16)  # spec id
+    for _ in range(16):
+        read(8)  # tree hash
+
+    selected = {}
+    for nid in full_node_order:
+        is_sel = read(1)
+        if is_sel is None:
+            break
+        if not is_sel:
+            continue
+        is_purchased = read(1)
+        rank = None
+        entry_index = 0
+        if is_purchased:
+            if read(1):
+                rank = read(6)
+            if read(1):
+                entry_index = read(2) or 0
+        selected[int(nid)] = {
+            "entry_index": entry_index,
+            "rank": rank,
+            "purchased": bool(is_purchased),
+        }
+    return selected
+
+
+def load_talent_tree_geometry(spec_id, static_dir=LOOKUP_DIR):
+    """(fullNodeOrder, nodes) from ``<static_dir>/talents/<spec>.json`` — the
+    decode order + node metadata (entries/type/maxRanks/free) the loadout encoder
+    needs. Returns ([], {}) when the spec has no processed talent file, so callers
+    degrade to "no encodable talents" rather than crashing."""
+    path = os.path.join(static_dir, "talents", f"{spec_id}.json")
+    try:
+        doc = load_json(path)
+    except FileNotFoundError:
+        return [], {}
+    return doc.get("fullNodeOrder", []), doc.get("nodes", {})
+
+
 def load_json(path):
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)

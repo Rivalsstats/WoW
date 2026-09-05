@@ -3758,8 +3758,8 @@ WHERE `spec_id` = %s AND `rank` = %s AND `map_challenge_mode_id` = %s
 
 INSERT_TOP_PLAYER_META_SQL = """
 INSERT INTO `Mythistone`.`top_player_loadouts`
-(`spec_id`, `season`, `rank`, `map_challenge_mode_id`, `region`, `character_id`, `character_name`, `realm`, `loadout_key`, `loadout_updated_at`, `keystone_level`)
-VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+(`spec_id`, `season`, `rank`, `map_challenge_mode_id`, `region`, `character_id`, `character_name`, `realm`, `loadout_key`, `loadout_updated_at`, `keystone_level`, `loadout_text`)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 """
 
 INSERT_TOP_PLAYER_ITEMS_SQL = """
@@ -3834,8 +3834,13 @@ def insert_top_player_meta(
     loadout_key=None,
     loadout_updated_at=None,
     keystone_level=None,
+    loadout_text=None,
 ):
-    """Insert a top-player meta row."""
+    """Insert a top-player meta row.
+
+    ``loadout_key`` is the synthetic collector option token (``logged-mplus__<id>``);
+    ``loadout_text`` is the real Blizzard v2 export string the player used in game
+    (NULL when raider.io did not expose one)."""
     val = (
         spec_id,
         season,
@@ -3848,6 +3853,7 @@ def insert_top_player_meta(
         loadout_key,
         loadout_updated_at,
         keystone_level,
+        loadout_text,
     )
     execute_with_retry(connection, cursor, INSERT_TOP_PLAYER_META_SQL, val)
     return cursor.lastrowid
@@ -3941,7 +3947,7 @@ def fetch_top50_loadouts(connection, cursor, spec_id, season, limit=50):
     statistic derived from this data on a sample of a few loadouts.
 
     Each returned entry is a dict with keys:
-      - meta: dict (spec_id, season, rank, map_challenge_mode_id, region, character_id, character_name, realm, loadout_key, loadout_updated_at, keystone_level)
+      - meta: dict (spec_id, season, rank, map_challenge_mode_id, region, character_id, character_name, realm, loadout_key, loadout_updated_at, keystone_level, loadout_text)
       - items: list of { slot, item_id, item_level, bonus_ids }
       - gems: list of { gem_item_id, usage_count }
       - enchants: list of { slot_group, enchantment_id }
@@ -3950,7 +3956,7 @@ def fetch_top50_loadouts(connection, cursor, spec_id, season, limit=50):
     This helper performs a small number of queries (1 meta + 4 child queries).
     """
     FETCH_TOP50_META_SQL = """
-    SELECT `spec_id`, `season`, `rank`, `map_challenge_mode_id`, `region`, `character_id`, `character_name`, `realm`, `loadout_key`, `loadout_updated_at`, `keystone_level`
+    SELECT `spec_id`, `season`, `rank`, `map_challenge_mode_id`, `region`, `character_id`, `character_name`, `realm`, `loadout_key`, `loadout_updated_at`, `keystone_level`, `loadout_text`
     FROM `Mythistone`.`top_player_loadouts`
     WHERE `spec_id` = %s AND `season` = %s AND `rank` <= %s
     ORDER BY `rank` ASC, `map_challenge_mode_id` ASC
@@ -3978,6 +3984,7 @@ def fetch_top50_loadouts(connection, cursor, spec_id, season, limit=50):
                 "loadout_key": row.get("loadout_key"),
                 "loadout_updated_at": row.get("loadout_updated_at"),
                 "keystone_level": int(row.get("keystone_level")) if row.get("keystone_level") else None,
+                "loadout_text": row.get("loadout_text"),
             }
         else:
             rank = int(row[2])
@@ -3994,6 +4001,7 @@ def fetch_top50_loadouts(connection, cursor, spec_id, season, limit=50):
                 "loadout_key": row[8],
                 "loadout_updated_at": row[9],
                 "keystone_level": int(row[10]) if row[10] is not None else None,
+                "loadout_text": row[11],
             }
         metas.append(meta)
 

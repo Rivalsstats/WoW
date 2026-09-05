@@ -16,12 +16,18 @@ pipeline (simcBis.py) so the CI profiles never drift from production:
     persisted to ``simc_bis_items`` (with their bonus ids, enchants and gems),
     worn with the same popular talents the collector simmed them under.
   * ``top50``    — the top-50 verified players' actual loadout: per-slot
-    most-common equipped item (with its bonus ids) AND the top-50 most-common
-    talent loadout code, both read from the ``top_player_loadouts`` tables
-    (databaseConnector.fetch_top50_loadouts). Enchants/gems are not stored per
-    slot in the top-50 tables, so they are filled the same way popular/simcbis
-    are (the top-50 enchant_map + gem_ranking from _prepare_spec, applied by
-    socket budget).
+    most-common equipped item (with its bonus ids) from the ``top_player_loadouts``
+    tables, worn with the top-50 players' most-common real Blizzard v2 export
+    string (``top_player_loadouts.loadout_text``, surfaced by
+    databaseConnector.fetch_top50_loadouts). The export string is the genuine
+    in-game code the players used, captured verbatim from raider.io — NOT the
+    synthetic ``loadout_key`` collector token (``logged-mplus__<id>``, not a talent
+    code) and NOT a code reconstructed from the per-node rows. Real in-game strings
+    are exactly what simc and the game accept, so there is no encoder, no
+    choice-node bug and no committed-data-vs-simc skew. Enchants and gems are not
+    stored per slot in the top-50 tables, so they are filled the same way
+    popular/simcbis are (the top-50 enchant_map + gem_ranking from _prepare_spec,
+    applied by socket budget).
 
 Actors are named ``spec{spec_id}_{gearset}`` so the page generator can recover
 the spec id and gear set from the json2 result alone. Anything that can't be
@@ -258,21 +264,32 @@ def _top50_gear(loadouts, item_lookup, spec_id, enchant_map, gem_ranking):
 
 
 def _top50_talents(loadouts):
-    """Most-common talent loadout code among the top-50 verified loadouts.
+    """Most-common real Blizzard v2 export string among the top-50 verified
+    loadouts, returned verbatim.
 
-    Each top_player_loadouts row stores the player's Blizzard export string in
-    ``loadout_key``, so counting whole strings yields a real, coherent stored code
-    (not a synthesized one). Returns the code, or None when none is recorded."""
+    Each top-50 loadout carries the real in-game export string the collector
+    captured from raider.io (``top_player_loadouts.loadout_text``, surfaced by
+    fetch_top50_loadouts). Real in-game strings are exactly what simc and the game
+    accept, so there is no encoder, no per-node choice-node reconstruction and no
+    committed-data-vs-simc skew. The MOST COMMON non-empty string wins
+    (deterministic tie-break by the string itself so the pick is stable across
+    runs).
+
+    Returns the export string (which decodes on the tierlist modal and inits in
+    simc), or None when no top-50 loadout recorded a string (top50 then degrades
+    gracefully until the collector repopulates the column)."""
     counts = {}
     for lo in loadouts or []:
-        meta = lo.get("meta") if isinstance(lo.get("meta"), dict) else lo
-        code = meta.get("loadout_key") if isinstance(meta, dict) else None
-        if not code or code == "<NULL>":
+        text = lo.get("loadout_text") if isinstance(lo, dict) else None
+        if not isinstance(text, str):
             continue
-        counts[code] = counts.get(code, 0) + 1
+        text = text.strip()
+        if not text:
+            continue
+        counts[text] = counts.get(text, 0) + 1
     if not counts:
         return None
-    return max(counts, key=lambda c: (counts[c], c))
+    return max(counts, key=lambda t: (counts[t], t))
 
 
 def build_profiles(season, target_error, only_specs=None):
@@ -354,33 +371,45 @@ def build_profiles(season, target_error, only_specs=None):
                 skipped["simcbis"] = "no simc_bis rows"
 
             # top50: the top-50 verified players' most-common per-slot gear worn
-            # with their most-common talent loadout code (both from the top-50
-            # tables). Enchants/gems reuse the prep's top-50 maps (see _top50_gear).
-            top50_loadouts = None
+            # with their most-common WHOLE talent build (both from the top-50
+            # tables). Gear + talents are wrapped together so a top50-only failure
+            # records a per-spec skip instead of aborting the whole profile build
+            # (which would silently emit no .simc / manifest / tierlist_gear at all).
+            # Enchants/gems reuse the prep's top-50 maps (see _top50_gear). The
+            # talent build is the real Blizzard v2 export string the players used in
+            # game (top_player_loadouts.loadout_text, NOT the synthetic loadout_key)
+            # so the actor sims and the modal decode the exact string the game
+            # accepts (see _top50_talents).
             try:
                 top50_loadouts = databaseConnector.fetch_top50_loadouts(conn, cursor, spec_id, season)
+                top_gear = None
+                top_talents = None
+                if top50_loadouts:
+                    top_gear, top_slots = _top50_gear(
+                        top50_loadouts, item_lookup, spec_id,
+                        prep["enchant_map"], prep["gem_ranking"],
+                    )
+                    top_talents = _top50_talents(top50_loadouts)
+                if top_gear and top_talents:
+                    top_header = build_header(
+                        class_name, spec_name, primary, top_talents,
+                        actor_name=f"spec{spec_id}_top50",
+                    )
+                    actors["top50"].append(_actor_block(top_header, top_slots, top_gear))
+                    gear_data.setdefault(spec_id, {})["top50"] = _gear_display(
+                        top_slots, top_gear, top_talents, item_lookup, bonus_quality
+                    )
+                    built.append("top50")
+                elif not top_gear:
+                    skipped["top50"] = "no top-50 loadouts"
+                else:
+                    # Gear is recorded but no real loadout_text is stored yet (the
+                    # collector repopulates the column on its next run). Skip top50
+                    # rather than sim its gear with the popular talents, so the bar
+                    # never claims a build the top-50 players did not use.
+                    skipped["top50"] = "no top-50 loadout_text"
             except Exception as e:
-                skipped["top50"] = f"fetch_top50_loadouts failed: {e}"
-            top_gear = None
-            top_talents = None
-            if top50_loadouts:
-                top_gear, top_slots = _top50_gear(
-                    top50_loadouts, item_lookup, spec_id,
-                    prep["enchant_map"], prep["gem_ranking"],
-                )
-                top_talents = _top50_talents(top50_loadouts)
-            if top_gear:
-                top_header = build_header(
-                    class_name, spec_name, primary, top_talents or talents,
-                    actor_name=f"spec{spec_id}_top50",
-                )
-                actors["top50"].append(_actor_block(top_header, top_slots, top_gear))
-                gear_data.setdefault(spec_id, {})["top50"] = _gear_display(
-                    top_slots, top_gear, top_talents or talents, item_lookup, bonus_quality
-                )
-                built.append("top50")
-            elif "top50" not in skipped:
-                skipped["top50"] = "no top-50 loadouts"
+                skipped["top50"] = f"top50 build failed: {e}"
 
             manifest_specs[spec_id] = {"actors": built, "skipped": skipped}
             simcBis._log(f"tierlist: spec {spec_id} ({class_name}/{spec_name}) built={built} skipped={list(skipped)}")

@@ -731,11 +731,12 @@ def seed_standalone(conn, cursor, static, rng, cfg, pools):
         # above the per-dungeon diff threshold. The collector stores one loadout per dungeon
         # per player, so we emit a row for every (rank, dungeon).
         rank_trees = _top50_rank_trees(plan["trees"], cfg["top_player_ranks"], rng)
-        # Tree geometry so loadout_key is a real, decodable Blizzard v2 string
-        # (the tierlist Top 50 gear set uses the most-common loadout_key verbatim
-        # as its simmed talents, and the gear modal decodes it against the baked
-        # talent tree). Falls back to a synthetic token when the committed talent
-        # file for this spec carries no geometry.
+        # Tree geometry (entries/type/maxRanks) so the per-node talent rows below
+        # carry a real chosen-entry spellId (the spec page's top-50 node-usage
+        # stats read those) and so the per-loadout loadout_text below is a valid
+        # Blizzard v2 string encoded over the selected build. The loadout_key column
+        # is a synthetic production-style token (see below), NOT a talent code;
+        # loadout_text is the real export string generateSimcProfiles feeds simc.
         full_node_order, node_meta = static.tree_geometry_for(sid)
 
         def _entry_idx(nid):
@@ -749,17 +750,26 @@ def seed_standalone(conn, cursor, static, rng, cfg, pools):
                 # Full loadout: core (stable across dungeons) + hero nodes (so the tree is
                 # inferrable) + this dungeon's flex picks (the per-dungeon difference signal).
                 nodes = set(plan["core"]) | set(hero_nodes) | set(plan["dungeon_flex"][cmid])
+                selected = {int(nid): _entry_idx(nid) for nid in nodes}
+                # loadout_key mirrors PRODUCTION: the collector stores a synthetic
+                # option token here (chosen.optionKey / id, e.g. logged-mplus__<id>),
+                # NOT a Blizzard talent code. loadout_text mirrors the OTHER
+                # production column: the real Blizzard v2 export string the player
+                # used in game, which is what generateSimcProfiles._top50_talents now
+                # feeds simc verbatim. We synthesize a valid v2 string over this
+                # loadout's selected build via encode_loadout (the seeder-test-only
+                # encoder) so the local top50 modal decodes it and the local simc
+                # validation exercises the real "use the stored string" path. Missing
+                # geometry leaves the column NULL, exactly as production does when
+                # raider.io exposes no string.
+                loadout_key = f"logged-mplus__{rng.randint(10**8, 10**9)}"
                 if full_node_order and node_meta:
-                    selected = {int(nid): _entry_idx(nid) for nid in nodes}
-                    try:
-                        loadout_key = encode_loadout(sid, selected, full_node_order, node_meta)
-                    except Exception:
-                        loadout_key = f"seedkey-{sid}-{rank}-{cmid}"
+                    loadout_text = encode_loadout(sid, selected, full_node_order, node_meta)
                 else:
-                    loadout_key = f"seedkey-{sid}-{rank}-{cmid}"
+                    loadout_text = None
                 tpl.append((sid, season, rank, cmid, rng.choice(REGIONS),
                             rng.randint(10**6, 10**9), f"Player{sid}r{rank}", "TestRealm",
-                            loadout_key, now_dt, rng.randint(12, 22)))
+                            loadout_key, now_dt, rng.randint(12, 22), loadout_text))
                 for slot in EQUIPMENT_SLOTS:
                     pool = item_pools.get(slot) or []
                     if not pool:
@@ -772,13 +782,26 @@ def seed_standalone(conn, cursor, static, rng, cfg, pools):
                         tpl_ench.append((sid, season, rank, cmid, grp, _zipf_pick(rng, epool)))
                 for g in (rng.sample(gem_pool, min(3, len(gem_pool))) if gem_pool else []):
                     tpl_gems.append((sid, season, rank, cmid, int(g), rng.randint(1, 30)))
+                # Per-node rows carry entry_id/spell_id like production so the spec
+                # page's top-50 node-usage stats have real data to aggregate (the
+                # tierlist top50 talents now come from loadout_text above, not these
+                # rows): spell_id is the chosen entry's real spellId; entry_id is a
+                # stable synthetic id so the column is populated as it is live.
                 for nid in nodes:
-                    tpl_tal.append((sid, season, rank, cmid, nid, 1, None, None))
+                    meta = node_meta.get(str(nid)) or {}
+                    entries = meta.get("entries") or []
+                    idx = selected.get(int(nid), 0)
+                    entry = entries[idx] if idx < len(entries) else (entries[0] if entries else {})
+                    spell_id = entry.get("spellId")
+                    max_ranks = int(meta.get("maxRanks") or 1)
+                    node_rank = max_ranks if max_ranks > 1 else 1
+                    entry_id = (int(nid) * 100 + idx) if entries else None
+                    tpl_tal.append((sid, season, rank, cmid, nid, node_rank, entry_id, spell_id))
 
     _insert_many(conn, cursor,
         "INSERT INTO top_player_loadouts (spec_id, season, `rank`, map_challenge_mode_id, region, "
-        "character_id, character_name, realm, loadout_key, loadout_updated_at, keystone_level) "
-        "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", tpl)
+        "character_id, character_name, realm, loadout_key, loadout_updated_at, keystone_level, loadout_text) "
+        "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", tpl)
     _insert_many(conn, cursor,
         "INSERT INTO top_player_loadout_items (spec_id, season, `rank`, map_challenge_mode_id, slot, "
         "item_id, item_level, bonus_ids) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)", tpl_items)

@@ -1206,6 +1206,20 @@ def parse_loadout_for_db(spec_id, season, rank, loadout_detail):
                             continue
             except Exception:
                 continue
+    # Real Blizzard v2 export string the player used in game, captured verbatim
+    # from characterDetails.character.talentLoadout.loadoutText. This is exactly
+    # what simc and the game accept, so the tierlist top50 sim uses it directly
+    # instead of reconstructing a code from the per-node rows below. A missing or
+    # empty string just leaves the column NULL (top50 degrades gracefully); the
+    # per-node rows are still written for the spec page's node-usage stats.
+    loadout_text = None
+    try:
+        talent_loadout = loadout_detail.get("characterDetails", {}).get("character", {}).get("talentLoadout", {}) if isinstance(loadout_detail, dict) else {}
+        raw_text = talent_loadout.get("loadoutText") if isinstance(talent_loadout, dict) else None
+        if isinstance(raw_text, str) and raw_text.strip():
+            loadout_text = raw_text.strip()
+    except Exception:
+        loadout_text = None
     # talents under characterDetails.character.talentLoadout.nodes
     try:
         nodes = loadout_detail.get("characterDetails", {}).get("character", {}).get("talentLoadout", {}).get("nodes", []) if isinstance(loadout_detail, dict) else []
@@ -1230,7 +1244,7 @@ def parse_loadout_for_db(spec_id, season, rank, loadout_detail):
                 talents_rows.append((spec_id, season, rank, int(node_id), node_rank, entry_id, spell_id))
     except Exception:
         pass
-    return items_rows, gems_rows, talents_rows, enchants_rows
+    return items_rows, gems_rows, talents_rows, enchants_rows, loadout_text
 
 
 def extract_rankings_from_spec_response(data):
@@ -1450,7 +1464,7 @@ async def run_raiderio_top_loadouts(session):
                             if not detail:
                                 detail = chosen
 
-                            items_rows, gems_rows, talents_rows, enchants_rows = parse_loadout_for_db(spec_id, season, collected_rank, detail)
+                            items_rows, gems_rows, talents_rows, enchants_rows, loadout_text = parse_loadout_for_db(spec_id, season, collected_rank, detail)
 
                             per_dungeon_selected.append(
                                 {
@@ -1460,6 +1474,7 @@ async def run_raiderio_top_loadouts(session):
                                         "character_name": char_name,
                                         "realm": char_realm,
                                         "loadout_key": loadout_id,
+                                        "loadout_text": loadout_text,
                                         "loadout_updated_at": chosen.get("loadoutDate") or chosen.get("createdAt"),
                                         "keystone_level": chosen.get("mythic_level") or chosen.get("mythicLevel") or None,
                                         "zone_id": zid,
@@ -1571,6 +1586,7 @@ async def run_raiderio_top_loadouts(session):
                                 str(meta.get("loadout_key")),
                                 lut,
                                 meta.get("keystone_level"),
+                                meta.get("loadout_text"),
                             )
 
                             # batch insert children - ensure season is numeric DB id
