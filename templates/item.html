@@ -373,30 +373,6 @@
         </div>
 
         <div class="row">
-          <div class="col-12 mb-3" id="spec-popularity-col">
-            <div class="card h-100">
-              <div class="card-header pb-0">
-                <h6 class="mb-0">Used by Specs</h6>
-                <p class="text-xs opacity-6 mb-0">% of each spec's runs that equip this item</p>
-              </div>
-              <div class="card-body px-2 pb-2" id="spec-popularity">
-                <div class="dt-scroll custom-scrollbar">
-                  <table id="spec-popularity-table" class="table align-items-center mb-0 w-100 item-dt">
-                    <thead><tr>
-                      <th class="text-uppercase text-white text-xxs font-weight-bolder opacity-7">Spec</th>
-                      <th class="text-center text-uppercase text-white text-xxs font-weight-bolder opacity-7">Adoption</th>
-                      <th class="text-center text-uppercase text-white text-xxs font-weight-bolder opacity-7">Runs</th>
-                      <th class="text-center text-uppercase text-white text-xxs font-weight-bolder opacity-7">Max Key</th>
-                    </tr></thead>
-                    <tbody>{% for s in g.specs %}{{ spec_row(s) }}{% endfor %}</tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="row">
           <div class="col-lg-7 mb-3">
             <div class="card h-100">
               <div class="card-header pb-0 d-flex justify-content-between align-items-start flex-wrap gap-2">
