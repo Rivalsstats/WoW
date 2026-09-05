@@ -36,7 +36,7 @@ LOOKUP_DIR = "data/static"
 
 # Phase thresholds in days since the most recent content update. Calendar-day
 # based (within a day of the equivalent reset-week boundaries), tunable here.
-DAILY_PHASE_DAYS = 14
+DAILY_PHASE_DAYS = 7
 THREE_DAY_PHASE_DAYS = 42
 
 MS_PER_DAY = 86_400_000
