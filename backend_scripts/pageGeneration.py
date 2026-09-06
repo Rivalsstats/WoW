@@ -293,11 +293,13 @@ def trend_feeds_for_spec(spec_id):
 def trend_feeds_for_comps():
     """The comps-page bar: the "best for high keys" archetype families (same data
     as the page's "Best for Highest Keys" card) shown as rank movement, plus the
-    Glue Specs / Flexibility Index feed. Two feeds so the bar fills 12 without the
-    duplication the small high-key family set alone would produce. The rank-1
-    high-key family is "meta" purely by being #1 (no separate flag). Separate from
-    the dungeon page's popular ``archetype`` feed so the two can diverge."""
-    return [("archetype_hk", "all"), ("flex", "all")]
+    globally popular archetype families (the "Most Popular" card). Two feeds so the
+    bar fills 12 without the duplication the small high-key family set alone would
+    produce, and each feed mirrors one of the page's two comp cards. The rank-1
+    high-key family is "meta" purely by being #1 (no separate flag). The popular
+    ``archetype`` feed here is the global 'all' context; the dungeon page uses the
+    same feed keyed per dungeon."""
+    return [("archetype_hk", "all"), ("archetype", "all")]
 
 
 def trend_feeds_for_dungeon(dungeon_id):
@@ -501,9 +503,9 @@ def _resolve_entry(feed, entity_key, label, lookups):
     out = {"label": label or str(entity_key), "icon": None, "href": None,
            "css": None, "icons": None}
 
-    # sim (sim tierlist), item_spec (item subpage "used by specs") and flex (comps
-    # page Flexibility Index) all key on a spec id and render like the spec feed.
-    if feed in ("spec", "sim", "item_spec", "flex"):
+    # sim (sim tierlist) and item_spec (item subpage "used by specs") both key on a
+    # spec id and render like the spec feed.
+    if feed in ("spec", "sim", "item_spec"):
         meta = specs.get(str(entity_key)) or {}
         name = _name_str(meta.get("name"), str(entity_key))
         cls = classes.get(str(meta.get("classID"))) or {}

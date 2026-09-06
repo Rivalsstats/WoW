@@ -42,7 +42,6 @@
   <meta name="apple-mobile-web-app-title" content="MythiStone" />
   {% include "header_imports.html" %}
   <link rel="stylesheet" href="/assets/css/comps.css">
-  <link rel="stylesheet" href="/assets/css/datatables.min.css">
 </head>
 
 <body class="g-sidenav-show g-sidenav-show-right">
@@ -56,8 +55,6 @@
       .meta-comp { background: rgba(255, 206, 74, 0.10) !important; border-left: 3px solid #ffce4a !important; }
       .meta-badge { background: linear-gradient(310deg, #f5b50e, #f7d774); color: #3a2d00; font-weight: 700; }
       .meta-badge .material-symbols-rounded { font-size: 0.9rem; line-height: 1; }
-      /* keep DataTables' sort icons aligned with the centered numeric headers */
-      #hidden-gems-table thead th.dt-orderable-asc, #hidden-gems-table thead th.dt-orderable-desc { cursor: pointer; }
       /* team-comp row styles live in /assets/css/team-comps.css (shared with spec/dungeon pages) */
     </style>
     {% set meta_badge_html = '<span class="badge meta-badge ms-2" title="Current meta comp: the strongest composition in the highest keys"><i class="material-symbols-rounded align-middle">workspace_premium</i> META</span>' %}
@@ -199,54 +196,65 @@
           </div>
         </div>
 
-        <!-- Glue Specs -->
+        <!-- Best Spec Combinations -->
         <div class="col-lg-6 col-md-12">
           <div class="card h-100">
             <div class="card-header pb-0">
-              <h6>Glue Specs (Flexibility Index)</h6>
-              <p class="text-sm">How versatile each spec is within its <strong>own role</strong>, adjusted for how
-                much it's played so popularity isn't mistaken for flexibility. Hover a value for the raw comp count.</p>
+              <h6>Best Spec Combinations</h6>
+              <p class="text-sm" id="best-pairs-sub">The strongest pairs of specs to bring together across all
+                dungeons, ranked by how well they perform in the highest keys.</p>
             </div>
             <div class="card-body px-0 pt-0 pb-2">
               <div class="p-0 custom-scrollbar" style="max-height: 470px; overflow-y: auto; overflow-x: hidden;">
-                {% set role_meta = [('0', 'Tanks'), ('1', 'Healers'), ('2', 'DPS')] %}
                 {% set role_map = {'0': 'Tank', '1': 'Healer', '2': 'Dps'} %}
-                {% for role_id, role_label in role_meta %}
-                {% set role_specs = glue_specs_by_role.get(role_id, []) %}
-                {% if role_specs %}
-                <h6 class="text-uppercase text-body-emphasis text-xs font-weight-bolder px-3 mt-3 mb-1">{{ role_label }}</h6>
-                <table id="glue-table-{{ role_id }}" class="table align-items-center mb-2 glue-table">
-                  <thead>
-                    <tr>
-                      <th class="text-uppercase text-body-emphasis text-xxs font-weight-bolder opacity-7 ps-3">Spec</th>
-                      <th class="text-center text-uppercase text-body-emphasis text-xxs font-weight-bolder opacity-7"
-                        title="Flexibility relative to the most flexible spec in this role">Flexibility</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for gs in role_specs %}
-                    {% set s = spec_lookup[gs.spec_id|string] %}
-                    {% set c = class_lookup[s.classID|string] %}
-                    {% set role_name = role_map.get(s.role|string, 'Dps') %}
-                    {% set clean_cname = c.name|replace(' ', '') %}
-                    <tr>
-                      <td class="ps-3">
-                        <div class="d-flex align-items-center">
-                          <img src="/data/icons/{{ s.SpellIconFileId }}.jpg" class="avatar avatar-sm me-2 border-radius-sm">
-                          <a href="/classes/{{ role_name }}/{{ s.name }}_{{ c.name }}"
-                            class="text-sm font-weight-bolder class-{{ clean_cname }}-text">{{ s.name }} {{ c.name }}</a>
-                        </div>
-                      </td>
-                      <td class="align-middle text-center text-sm" data-order="{{ gs.flex_pct }}"
-                        title="Appears in {{ gs.comps }} viable high-key comps &middot; {{ gs.runs }} runs &middot; highest key {{ gs.max_key }}">
-                        <span class="text-xs font-weight-bold">{{ gs.flex_pct }}%</span>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-                {% endif %}
-                {% endfor %}
+                <div id="best-pairs-list" class="list-group list-group-flush px-3 py-2">
+                  {% if best_spec_pairs %}
+                  {% for pair in best_spec_pairs %}
+                  {% set sa = spec_lookup[pair.spec_a|string] %}
+                  {% set ca = class_lookup[sa.classID|string] %}
+                  {% set sb = spec_lookup[pair.spec_b|string] %}
+                  {% set cb = class_lookup[sb.classID|string] %}
+                  {% set clean_a = ca.name|replace(' ', '') %}
+                  {% set clean_b = cb.name|replace(' ', '') %}
+                  {% set role_a = role_map.get(sa.role|string, 'Dps') %}
+                  {% set role_b = role_map.get(sb.role|string, 'Dps') %}
+                  <div
+                    class="list-group-item border-0 d-flex justify-content-between align-items-center px-3 mb-2 border-radius-lg">
+                    <div class="d-flex align-items-center">
+                      <img src="/data/icons/{{ sa.SpellIconFileId }}.jpg" class="avatar avatar-sm border-radius-sm me-1"
+                        title="{{ sa.name }} {{ ca.name }}">
+                      <img src="/data/icons/{{ sb.SpellIconFileId }}.jpg" class="avatar avatar-sm border-radius-sm me-3"
+                        title="{{ sb.name }} {{ cb.name }}">
+                      <div class="d-flex flex-column">
+                        <span class="text-sm font-weight-bolder">
+                          <a href="/classes/{{ role_a }}/{{ sa.name }}_{{ ca.name }}"
+                            class="class-{{ clean_a }}-text">{{ sa.name }}</a>
+                          <span class="text-secondary font-weight-normal mx-1">+</span>
+                          <a href="/classes/{{ role_b }}/{{ sb.name }}_{{ cb.name }}"
+                            class="class-{{ clean_b }}-text">{{ sb.name }}</a>
+                        </span>
+                        <span class="text-xs text-secondary mt-1">
+                          Success: <span
+                            class="{{ 'text-success' if pair.hk_success >= 70 else 'text-warning' }} pe-2">{{ pair.hk_success }}%</span>
+                          Runs: <span class="text-body-emphasis pe-2">{{ pair.total_runs }}</span>
+                          Max: <span class="text-body-emphasis pe-2">+{{ pair.max_key }}</span>
+                        </span>
+                      </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                      <button class="btn btn-sm btn-outline-primary mb-0"
+                        onclick="showPairDetails({{ pair.spec_a }}, {{ pair.spec_b }})">Details</button>
+                      <a href="/pages/routes?specs={{ pair.spec_a }},{{ pair.spec_b }}" target="_blank" rel="noopener"
+                        class="btn btn-sm btn-outline-primary mb-0 ms-2 comp-routes-btn"
+                        title="Find keystone.guru routes played by this comp">Routes</a>
+                    </div>
+                  </div>
+                  {% endfor %}
+                  {% else %}
+                  <p class="text-sm text-secondary px-2">Not enough high-key data yet to rank spec combinations across
+                    all dungeons.</p>
+                  {% endif %}
+                </div>
               </div>
             </div>
           </div>
@@ -259,8 +267,6 @@
   {% include "right_aside.html" %}
   {% include "fixed_plugin.html" %}
   {% include "javascript_imports.html" %}
-  <!-- DataTables (sortable Hidden Gems table) -->
-  <script src="/assets/js/plugins/dataTables.min.js"></script>
   <!-- Comp details modal -->
   <div class="modal fade" id="compDetailsModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -301,6 +307,12 @@
 
     const TOP_KEY_LEVELS = {{ top_key_levels | default ([]) | tojson }};
     const synergyMatrix = {{ synergy_matrix | default ('{}') | safe }};
+
+    // Best Spec Combinations, precomputed per dungeon context ('all' + each dungeon id
+    // as a string key). Small enough (~18 rows x ~9 contexts) to embed inline; the card
+    // is server-rendered for 'all' first paint and re-ranked client-side on dungeon
+    // change from this map.
+    const BEST_SPEC_PAIRS = {{ best_spec_pairs_by_dungeon | default({}) | tojson | safe }};
 
     // --- Group buff / utility coverage (Perfect Fit) ---
     // Each entry: {id, icon, name, specIDs:[...]}. Bloodlust (2825) and
@@ -957,7 +969,11 @@
 
       body.innerHTML = html;
       const routesLink = document.getElementById('compRoutesLink');
-      if (routesLink) routesLink.href = compRoutesUrl(comp.c);
+      if (routesLink) {
+        routesLink.href = compRoutesUrl(comp.c);
+        // Reset the label in case the shared modal was last used for a spec pair.
+        routesLink.innerHTML = '<i class="material-symbols-rounded align-middle me-1">route</i>Find routes for this comp';
+      }
       const modalEl = document.getElementById('compDetailsModal');
       const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
       openComp = { specs: comp.c.join(','), topKey: !!useTopKey, dungeon: contextDungeonId };
@@ -1045,6 +1061,159 @@
           console.error(err);
           alert('Comp details not available');
         });
+    }
+
+    // --- Best Spec Combinations card ---
+    // Server-rendered for the 'all' context on first paint; re-ranked client-side per
+    // dungeon from the inline BEST_SPEC_PAIRS map (keyed 'all' / dungeon-id string), the
+    // way the archetype cards swap from comp_archetypes.json. Row markup is kept in sync
+    // with the Jinja first paint above.
+    const UNKNOWN_SPEC = { icon: 'inv_misc_questionmark', name: 'Unknown', specName: 'Unknown', className: 'Unknown', cleanClass: 'Unknown', roleName: 'Dps' };
+
+    function renderBestPairRow(pair) {
+      const a = specLookup[pair.spec_a] || UNKNOWN_SPEC;
+      const b = specLookup[pair.spec_b] || UNKNOWN_SPEC;
+      const successClass = pair.hk_success >= 70 ? 'text-success' : 'text-warning';
+      return `
+        <div class="list-group-item border-0 d-flex justify-content-between align-items-center px-3 mb-2 border-radius-lg">
+          <div class="d-flex align-items-center">
+            <img src="/data/icons/${a.icon}.jpg" class="avatar avatar-sm border-radius-sm me-1" title="${a.name} ${a.className}">
+            <img src="/data/icons/${b.icon}.jpg" class="avatar avatar-sm border-radius-sm me-3" title="${b.name} ${b.className}">
+            <div class="d-flex flex-column">
+              <span class="text-sm font-weight-bolder">
+                <a href="/classes/${a.roleName}/${a.specName}_${a.className}" class="class-${a.cleanClass}-text">${a.name}</a>
+                <span class="text-secondary font-weight-normal mx-1">+</span>
+                <a href="/classes/${b.roleName}/${b.specName}_${b.className}" class="class-${b.cleanClass}-text">${b.name}</a>
+              </span>
+              <span class="text-xs text-secondary mt-1">
+                Success: <span class="${successClass} pe-2">${pair.hk_success}%</span>
+                Runs: <span class="text-body-emphasis pe-2">${pair.total_runs}</span>
+                Max: <span class="text-body-emphasis pe-2">+${pair.max_key}</span>
+              </span>
+            </div>
+          </div>
+          <div class="d-flex align-items-center">
+            <button class="btn btn-sm btn-outline-primary mb-0" onclick="showPairDetails(${pair.spec_a}, ${pair.spec_b})">Details</button>
+            ${routesLinkHtml([pair.spec_a, pair.spec_b])}
+          </div>
+        </div>`;
+    }
+
+    function renderBestPairs() {
+      const listEl = document.getElementById('best-pairs-list');
+      if (!listEl) return;
+      const dungeonId = document.getElementById('dungeonFilter').value || 'all';
+      const pairs = BEST_SPEC_PAIRS[dungeonId] || BEST_SPEC_PAIRS['all'] || [];
+      const label = dungeonContextLabel();
+      const subEl = document.getElementById('best-pairs-sub');
+      if (subEl) {
+        subEl.textContent = `The strongest pairs of specs to bring together ${label}, ranked by how well they perform in the highest keys.`;
+      }
+      if (!pairs.length) {
+        listEl.innerHTML = `<p class="text-sm text-secondary px-2">Not enough high-key data yet to rank spec combinations ${label}.</p>`;
+        return;
+      }
+      listEl.innerHTML = pairs.map(renderBestPairRow).join('');
+    }
+
+    // Pair-focused modal. A pair is not a full 5-man comp, so it can't reuse
+    // showCompDetailsByC; it borrows the shared #compDetailsModal, swapping the body for
+    // the two specs, the pair's context stats and the top full comps that feature both.
+    function showPairDetails(specA, specB) {
+      const body = document.getElementById('compDetailsBody');
+      const titleEl = document.querySelector('#compDetailsModal .modal-title');
+      if (!body) { alert('Pair details not available'); return; }
+      const dungeonId = document.getElementById('dungeonFilter').value || 'all';
+      const a = specLookup[specA] || { icon: 'inv_misc_questionmark', name: specA, cleanClass: '', className: '' };
+      const b = specLookup[specB] || { icon: 'inv_misc_questionmark', name: specB, cleanClass: '', className: '' };
+      const successClass = pct => pct >= 80 ? 'text-success' : (pct >= 60 ? 'text-warning' : 'text-danger');
+
+      if (titleEl) titleEl.innerHTML = 'Spec Pair Details';
+
+      // Context stats: reuse the exact numbers this pair shows on the card in the current
+      // context, so the modal and the card never disagree.
+      const ctxPairs = BEST_SPEC_PAIRS[dungeonId] || BEST_SPEC_PAIRS['all'] || [];
+      const lo = Math.min(specA, specB), hi = Math.max(specA, specB);
+      const row = ctxPairs.find(p => p.spec_a === lo && p.spec_b === hi) || { hk_success: 0, total_runs: 0, max_key: 0 };
+
+      const tile = (label, value, valueClass = 'text-body-emphasis') => `
+        <div class="col">
+          <div class="border border-secondary border-radius-lg p-2 text-center h-100">
+            <div class="text-xs text-secondary text-uppercase">${label}</div>
+            <div class="h6 mb-0 ${valueClass}">${value}</div>
+          </div>
+        </div>`;
+
+      const specCard = (s) => `
+        <div class="d-flex align-items-center me-4 mb-2">
+          <img src="/data/icons/${s.icon}.jpg" class="avatar avatar-sm border border-secondary me-2" title="${s.name}">
+          <div class="lh-sm">
+            <div class="text-sm font-weight-bold class-${s.cleanClass}-text">${s.name}</div>
+            <div class="text-xs text-secondary">${s.className || ''}</div>
+          </div>
+        </div>`;
+
+      const ctxLabel = dungeonContextLabel();
+      let html = `<div class="d-flex flex-wrap align-items-center mb-2">${specCard(a)}${specCard(b)}</div>`;
+      html += `<p class="text-xs text-secondary mb-2">High-key performance ${ctxLabel}.</p>`;
+      html += `<div class="row g-2 row-cols-3 mb-3">`;
+      html += tile('Success', `${row.hk_success}%`, successClass(row.hk_success));
+      html += tile('Runs', (row.total_runs || 0).toLocaleString());
+      html += tile('Highest Key', row.max_key ? ('+' + row.max_key) : '–');
+      html += `</div>`;
+
+      // Top full comps featuring this pair, from the loaded compsData, scoped to context.
+      const withPair = compsData.filter(c => Array.isArray(c.c) && c.c.includes(specA) && c.c.includes(specB));
+      const scoped = (dungeonId !== 'all') ? withPair.filter(c => getCompRuns(c, dungeonId) > 0) : withPair;
+      scoped.sort((x, y) => getCompWeight(y, dungeonId) - getCompWeight(x, dungeonId));
+      const topComps = scoped.slice(0, 8);
+
+      if (topComps.length) {
+        html += `<h6 class="mb-2">Top comps featuring this pair</h6>`;
+        html += `<div class="list-group list-group-flush">`;
+        topComps.forEach(c => {
+          const icons = c.c.map(sid => {
+            const si = specLookup[sid] || { icon: 'inv_misc_questionmark', name: 'Unknown' };
+            return `<img src="/data/icons/${si.icon}.jpg" class="avatar avatar-sm me-1" title="${si.name}">`;
+          }).join('');
+          const cRuns = getCompRuns(c, dungeonId);
+          let cTimed;
+          if (dungeonId !== 'all' && c.dungeons && c.dungeons[dungeonId]) {
+            cTimed = c.dungeons[dungeonId].t || 0;
+          } else {
+            cTimed = c.t || 0;
+          }
+          const cSuccess = cRuns > 0 ? Math.round(cTimed / cRuns * 100) : 0;
+          html += `
+            <div class="list-group-item border-0 d-flex justify-content-between align-items-center px-2 mb-1 border-radius-lg">
+              <div class="d-flex align-items-center">
+                ${icons}
+                <div class="ms-2 text-xs text-secondary">${cRuns} runs &middot; ${cSuccess}%</div>
+              </div>
+              <div class="d-flex align-items-center">
+                <button class="btn btn-sm btn-outline-primary mb-0" onclick='showCompDetailsByC(${JSON.stringify(c.c.join(','))}, false, ${JSON.stringify(dungeonId)})'>Details</button>
+                ${routesLinkHtml(c.c)}
+              </div>
+            </div>`;
+        });
+        html += `</div>`;
+      } else {
+        html += `<p class="text-sm text-secondary">No individual comps with this pair in the top data ${ctxLabel}.</p>`;
+      }
+
+      body.innerHTML = html;
+      const routesLink = document.getElementById('compRoutesLink');
+      if (routesLink) {
+        routesLink.href = compRoutesUrl([specA, specB]);
+        routesLink.innerHTML = '<i class="material-symbols-rounded align-middle me-1">route</i>Find routes for this pair';
+      }
+      // The pair modal is not registered as a MythiLink deep-link state, so make sure the
+      // shared comp state does not resurrect a stale comp when the modal is synced.
+      openComp = null;
+      const modalEl = document.getElementById('compDetailsModal');
+      const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+      modal.show();
+      if (window.MythiLink) MythiLink.sync();
     }
 
     // --- Archetype cards (Most Popular / Best High Keys / Hidden Gems) ---
@@ -1168,28 +1337,12 @@
       }
     }
 
-    // Render the selected dungeon's archetypes once loaded, and on dungeon change.
-    archetypesLoaded.then(() => { applyDungeonFromUrl(); renderArchetypeLists(); });
+    // Render the selected dungeon's archetypes once loaded, and on dungeon change. The
+    // best-pairs card rides the same flow (its data is inline, so it does not wait on a
+    // fetch, but sharing the URL-applied dungeon keeps the two cards in sync).
+    archetypesLoaded.then(() => { applyDungeonFromUrl(); renderArchetypeLists(); renderBestPairs(); });
     dungeonFilter.addEventListener('change', renderArchetypeLists);
-
-    // --- DataTables (click headers to sort) ---
-    $(function () {
-      // Glue specs: one sortable table per role, default sorted by flexibility
-      ['0', '1', '2'].forEach(function (role) {
-        var el = document.getElementById('glue-table-' + role);
-        if (!el) return;
-        $(el).DataTable({
-          responsive: true,
-          paging: false,
-          searching: false,
-          info: false,
-          order: [[1, 'desc']],          // default: Flexibility, descending
-          columnDefs: [
-            { targets: 0, orderable: false, responsivePriority: 1 }  // Spec (icon/name) is not sortable
-          ]
-        });
-      });
-    });
+    dungeonFilter.addEventListener('change', renderBestPairs);
   </script>
 </body>
 

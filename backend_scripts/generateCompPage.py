@@ -6,7 +6,7 @@ import math
 from contextlib import closing
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import databaseConnector
-from compArchetypes import build_dungeon_archetypes, compute_glue_specs
+from compArchetypes import build_dungeon_archetypes
 from pageGeneration import generateSpecNav, generateDungeonNav, build_trends, trend_feeds_for_comps
 from generateSpecPages import LOOKUP_DIR, load_json, load_season_info
 from image_generation.comp_overview import createCompOverviewImg
@@ -27,6 +27,90 @@ def avg_top_n_keys(keylevel_timed, n=5):
         if len(collected) >= n:
             break
     return (sum(collected) / len(collected)) if collected else 0
+
+
+# Best Spec Combinations tuning. A Bayesian prior on the high-key timed rate keeps a
+# pair seen only a handful of times near a neutral ~50% instead of a noisy 0/100%, and
+# washes out once a pair clears the run gate. PAIR_MIN_HK_RUNS is how many runs at the
+# top key levels a pair needs before it can rank, so the list is stable rather than led
+# by one lucky high key from a tiny sample.
+PAIR_PRIOR_A = 5
+PAIR_PRIOR_B = 5
+PAIR_MIN_HK_RUNS = 20
+
+
+def rank_best_spec_pairs(comps, synergy_matrix, top_level_set, context):
+    """Rank 2-spec pairings for one dungeon context by a blend of high-key performance
+    (measured per context) and global synergy lift (a pairing trait, so the same matrix
+    feeds every context).
+
+    context is 'all' (whole-comp keylevel stats) or an int dungeon_id (that dungeon's
+    per-comp keylevel stats). Returns the top 18 row dicts, each carrying spec_a, spec_b,
+    hk_success (%), total_runs and max_key measured in the context. Synergy and the raw
+    blend drive the ranking only and are not emitted.
+    """
+    pair_agg = {}
+    for data in comps:
+        specs = data['specs']
+        if context == 'all':
+            kl_timed = data.get('keylevel_timed', {})
+            kl_runs = data.get('keylevel_runs', {})
+            comp_runs = data['timed'] + data['depleted']
+            comp_mk = data['max_key']
+        else:
+            ds = data['dungeons'].get(context)
+            if not ds:
+                continue
+            comp_runs = ds.get('t', 0) + ds.get('d', 0)
+            if comp_runs <= 0:
+                continue
+            kl_timed = ds.get('keylevel_timed', {})
+            kl_runs = ds.get('keylevel_runs', {})
+            comp_mk = ds.get('mk', 0)
+        hk_timed = sum(kl_timed.get(lvl, 0) for lvl in top_level_set)
+        hk_runs = sum(kl_runs.get(lvl, 0) for lvl in top_level_set)
+        for i in range(len(specs)):
+            for j in range(i + 1, len(specs)):
+                a, b = specs[i], specs[j]
+                if a > b:
+                    a, b = b, a
+                agg = pair_agg.get((a, b))
+                if agg is None:
+                    agg = {'hk_timed': 0, 'hk_runs': 0, 'total_runs': 0, 'max_key': 0}
+                    pair_agg[(a, b)] = agg
+                agg['hk_timed'] += hk_timed
+                agg['hk_runs'] += hk_runs
+                agg['total_runs'] += comp_runs
+                if comp_mk > agg['max_key']:
+                    agg['max_key'] = comp_mk
+
+    pair_rows = []
+    for (a, b), agg in pair_agg.items():
+        if agg['hk_runs'] < PAIR_MIN_HK_RUNS:
+            continue
+        # Bayesian-smoothed timed rate at the hottest key levels: quality of the pair.
+        hk_success = (agg['hk_timed'] + PAIR_PRIOR_A) / (agg['hk_runs'] + PAIR_PRIOR_A + PAIR_PRIOR_B)
+        # perf rewards both quality and high-key volume (log so a busy pair does not
+        # simply dominate on raw counts).
+        perf = hk_success * math.log1p(agg['hk_timed'])
+        # synergy lift: how much more often the pair is played together than chance
+        # predicts (centered ~1.0). Every co-occurring pair has an entry, guard anyway.
+        synergy = synergy_matrix.get(a, {}).get(b, 0)
+        blend = perf * synergy
+        pair_rows.append({
+            'spec_a': a,
+            'spec_b': b,
+            'blend': blend,
+            'hk_success': round(hk_success * 100),
+            'total_runs': agg['total_runs'],
+            'max_key': agg['max_key'],
+        })
+
+    pair_rows.sort(key=lambda r: r['blend'], reverse=True)
+    top = pair_rows[:18]
+    for r in top:
+        r.pop('blend', None)
+    return top
 
 
 def calculate_comp_stats(connection, cursor, season, spec_lookup):
@@ -222,12 +306,23 @@ def calculate_comp_stats(connection, cursor, season, spec_lookup):
     hidden_gems.sort(key=lambda x: (x[0], x[1], x[2], x[3]), reverse=True)
     hidden_gems_out = [x[-1] for x in hidden_gems[:10]]
 
-    # Glue Specs (Flexibility Index): in how many distinct viable high-key comps a
-    # spec appears, debiased for play volume within its role. Shared with the comps
-    # trend feed (snapshotTrends) via compArchetypes.compute_glue_specs so the bar's
-    # flex ranking matches this card exactly.
-    print("Calculating glue specs...")
-    glue_specs_by_role, glue_specs_list = compute_glue_specs(unique_comps_list, spec_lookup)
+    # Best Spec Combinations: rank every 2-spec pairing by a blend of high-key
+    # performance and global synergy lift, so we surface the strongest pairs any two
+    # players could bring together. Emitted per dungeon context so the card reacts to the
+    # dungeon dropdown: 'all' uses whole-comp keylevel stats and the global top key
+    # levels (the original behaviour), each dungeon uses that dungeon's per-comp keylevel
+    # stats and its own top key levels. Reuses unique_comps_list and synergy_matrix, so
+    # no extra DB work.
+    print("Ranking best spec combinations...")
+    best_spec_pairs_by_dungeon = {
+        'all': rank_best_spec_pairs(unique_comps_list, synergy_matrix, set(top_key_levels), 'all')
+    }
+    for did in keylevel_counts_by_dungeon.keys():
+        ctx_levels = set(top_key_levels_by_dungeon.get(did, top_key_levels))
+        best_spec_pairs_by_dungeon[str(did)] = rank_best_spec_pairs(
+            unique_comps_list, synergy_matrix, ctx_levels, did)
+    # Keep the 'all' list for server-side first paint.
+    best_spec_pairs = best_spec_pairs_by_dungeon['all']
 
     # Pre-calculate simple UI "Perfect Fit" data payload
     # We only need to send the top 2000 comps by weight to the frontend to keep json tiny
@@ -346,7 +441,7 @@ def calculate_comp_stats(connection, cursor, season, spec_lookup):
         })
 
     # also keep per-dungeon top keylevels for debugging or advanced UIs (not required client-side)
-    return frontend_json, synergy_matrix, hidden_gems_out, glue_specs_list, glue_specs_by_role, top_key_levels, archetype_input
+    return frontend_json, synergy_matrix, hidden_gems_out, best_spec_pairs, top_key_levels, archetype_input, best_spec_pairs_by_dungeon
 
 
 def compute_top_comps(frontend_json, n=5):
@@ -437,7 +532,7 @@ def main(template_path, output_dir):
                     'icon': sdata.get('SpellIconFileId')
                 })
         
-        frontend_json, synergy_matrix, hidden_gems, glue_specs, glue_specs_by_role, top_key_levels, archetype_input = calculate_comp_stats(conn, cursor, season, spec_lookup)
+        frontend_json, synergy_matrix, hidden_gems, best_spec_pairs, top_key_levels, archetype_input, best_spec_pairs_by_dungeon = calculate_comp_stats(conn, cursor, season, spec_lookup)
 
         # Save Perfect Fit JSON
         json_out_dir = os.path.join("assets", "json")
@@ -492,7 +587,8 @@ def main(template_path, output_dir):
                                 {"specs": spec_lookup, "classes": class_lookup}),
             specs_ui=specs_ui,
             synergy_matrix=json.dumps(synergy_matrix),
-            glue_specs_by_role=glue_specs_by_role,
+            best_spec_pairs=best_spec_pairs,
+            best_spec_pairs_by_dungeon=best_spec_pairs_by_dungeon,
             spec_lookup=spec_lookup,
             class_lookup=class_lookup,
             dungeon_lookup=dungeon_lookup,

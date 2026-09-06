@@ -40,7 +40,7 @@ from contextlib import closing
 
 import databaseConnector
 from commonUtils import current_season_id
-from compArchetypes import build_dungeon_archetypes, collapse_comps, compute_glue_specs
+from compArchetypes import build_dungeon_archetypes, collapse_comps
 from tierMath import build_buff_tiers, build_ckmeans_tiers, build_spec_tiers
 from generateSpecPages import LOOKUP_DIR, load_json
 from pageGeneration import TRENDS_LIVE_PATH
@@ -348,22 +348,6 @@ def build_archetype_rows(conn, cursor, week_id, season, spec_lookup, class_looku
                     ",".join(str(s) for s in f["c"]),
                     None, pos, None,
                     _pct(int(f["hk_runs"]), hk_total), int(f["hk_runs"]),
-                ))
-
-            # Glue Specs / Flexibility Index -> the second comps-page feed, so the bar
-            # fills 12 without duplicating the small high-key family set. Same data as
-            # the comps page's Flexibility card (compute_glue_specs), ranked by flex_pct
-            # across roles; entity_key is the spec id (spec-icon render, rank movement).
-            flex_input = [{"specs": e["c"], "timed": e["t"], "depleted": e["d"],
-                           "avg_key": e["avg_key"], "max_key": e["mk"]} for e in collapsed]
-            glue_by_role, _glue_flat = compute_glue_specs(flex_input, spec_lookup)
-            flat = [g for specs in glue_by_role.values() for g in specs]
-            flat.sort(key=lambda g: (g["flex_pct"], g["runs"], -int(g["spec_id"])), reverse=True)
-            for pos, g in enumerate(flat, start=1):
-                rows.append(_row(
-                    week_id, "flex", "all", g["spec_id"], None,
-                    None, pos, round(float(g["flex_score"]), 4),
-                    float(g["flex_pct"]), int(g["runs"]),
                 ))
     return rows
 
