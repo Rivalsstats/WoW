@@ -44,6 +44,7 @@ import itertools
 from datetime import datetime, timezone
 from pathlib import Path
 
+import commonUtils
 import databaseConnector
 # Shared with the page generators so the Titan's Grip exception is defined once
 # (re-exported here: generateSimcProfiles imports it from this module).
@@ -532,12 +533,12 @@ def gather_candidates(conn, cursor, spec_id, season, item_lookup):
             emb_hits = [b for b in bonus_ids if b in embellish_limits]
             has_embellishment = bool(emb_hits)
             emb_limits = [embellish_limits[b] for b in emb_hits if embellish_limits[b]]
-            # Socket count: sockets granted by the equipped bonus_ids, raised to
-            # the item's inherent socket count (mirrors the spec page's
-            # convert_slots so the simmed item matches the one shown there).
-            socket_count = sum(socket_bonus_counts.get(b, 0) for b in bonus_ids)
-            inherent = len((meta.get("socketInfo") or {}).get("sockets") or [])
-            socket_count = max(socket_count, inherent)
+            # Inherent + bonus sockets, via the one shared helper the spec page's
+            # convert_slots also uses, so the simmed item matches the one shown
+            # there.
+            socket_count = commonUtils.count_item_sockets(
+                bonus_ids, socket_bonus_counts, meta.get("socketInfo")
+            )
             cands.append(
                 {
                     "item_id": item_id,

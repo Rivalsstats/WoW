@@ -43,6 +43,7 @@ from contextlib import closing
 from datetime import datetime, timezone
 from pathlib import Path
 
+import commonUtils
 import databaseConnector
 import simcBis
 from simcBis import (
@@ -163,10 +164,13 @@ def _simcbis_gear(bis_rows, item_lookup, spec_id, enchant_map, gem_ranking):
         best = min(entries, key=lambda e: e.get("rank", 99))
         bonus_list = best.get("bonus_list")
         bonus_ids = [b.strip() for b in str(bonus_list).split(",") if b.strip()] if bonus_list else []
-        # Socket count from the equipped bonus_ids, raised to the item's inherent
-        # sockets — mirrors gather_candidates so gems land on the right slots.
-        socket_count = sum(socket_bonus_counts.get(b, 0) for b in bonus_ids)
-        inherent = len((item_lookup.get(best["item_id"], {}).get("socketInfo") or {}).get("sockets") or [])
+        # Inherent + bonus sockets, via the one shared helper the spec page and
+        # gather_candidates use, so gems land on the right slots.
+        socket_count = commonUtils.count_item_sockets(
+            bonus_ids,
+            socket_bonus_counts,
+            item_lookup.get(best["item_id"], {}).get("socketInfo"),
+        )
         gem_ids = best.get("gem_ids")
         persisted[slot] = {
             "enchant_id": best.get("enchant_id"),
@@ -175,7 +179,7 @@ def _simcbis_gear(bis_rows, item_lookup, spec_id, enchant_map, gem_ranking):
         gear[slot] = {
             "item_id": best["item_id"],
             "simc_bonus": bonus_to_simc(bonus_list),
-            "socket_count": max(socket_count, inherent),
+            "socket_count": socket_count,
         }
     if not gear:
         return None, []
@@ -239,12 +243,15 @@ def _top50_gear(loadouts, item_lookup, spec_id, enchant_map, gem_ranking):
         # Most common bonus set for that item (deterministic tie-break by string).
         bonus_str = max(bonus_counts, key=lambda b: (bonus_counts[b], b))
         bonus_ids = [b.strip() for b in str(bonus_str).split(",") if b.strip()]
-        socket_count = sum(socket_bonus_counts.get(b, 0) for b in bonus_ids)
-        inherent = len((item_lookup.get(item_id, {}).get("socketInfo") or {}).get("sockets") or [])
+        socket_count = commonUtils.count_item_sockets(
+            bonus_ids,
+            socket_bonus_counts,
+            item_lookup.get(item_id, {}).get("socketInfo"),
+        )
         gear[slot] = {
             "item_id": item_id,
             "simc_bonus": bonus_to_simc(bonus_str),
-            "socket_count": max(socket_count, inherent),
+            "socket_count": socket_count,
         }
     if not gear:
         return None, []

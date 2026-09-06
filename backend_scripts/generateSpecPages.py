@@ -1643,7 +1643,6 @@ def convert_slots(
                 if len(peers) >= 2:
                     item["pcs"] = peers
 
-            amount = 0
             if not item.get("bonus"):
                 continue
             bonus = item.get("bonus", {}).get("ids", "")
@@ -1656,8 +1655,6 @@ def convert_slots(
             for bonus in bonus_ids:
                 b_data = bonus_lookup.get(str(bonus))
                 if b_data:
-                    if b_data.get("socket"):
-                        amount += b_data.get("socket")
                     if missive_lookup.get(str(bonus)):
                         if missives and len(missives) > 0:
                             item["missive"] = missives[0][0]
@@ -1671,19 +1668,13 @@ def convert_slots(
                             stat_type = BLIZZARD_STAT_MAP.get(stat_id)
                             if stat_type:
                                 item["crafted_stats"].append({"type": stat_type, "alloc": 0})
-            if amount < len(
-                item_lookup.get(int(item["item"]), {})
-                .get("socketInfo", {})
-                .get("sockets", [])
-            ):
-                print(
-                    f"Adjusting amount for item {item['item']}: {amount} {len(item_lookup.get(int(item['item']), {}).get('socketInfo', {}).get('sockets', []))}"
-                )
-                amount = len(
-                    item_lookup.get(int(item["item"]), {})
-                    .get("socketInfo", {})
-                    .get("sockets", [])
-                )
+            # Total gem sockets = inherent (base) sockets + sockets granted by the
+            # bonus ids, resolved by the one shared helper the simc paths also use.
+            amount = commonUtils.count_item_sockets(
+                bonus_ids,
+                bonus_lookup,
+                item_lookup.get(int(item["item"]), {}).get("socketInfo"),
+            )
 
             sockets_data = handleSocketsForItem(
                 conn,

@@ -118,6 +118,58 @@ def resolve_bonus_quality(bonus_ids, bonus_quality_lookup):
     return quality
 
 
+def count_item_sockets(bonus_ids, bonus_socket_lookup, socket_info=None):
+    """True number of gem sockets an equipped item variant has.
+
+    Sockets come from two independent, additive contributions that never
+    overlap, so they add (never ``max()``):
+
+    * inherent sockets — the base item's own sockets, the length of
+      ``socket_info["sockets"]`` (the item's ``socketInfo`` block). This is
+      context-independent base data and never carries bonus-granted sockets.
+    * bonus sockets — sockets granted by the variant's bonus ids, summed from
+      ``bonus_socket_lookup``.
+
+    Taking the max of the two undercounts any item carrying both an inherent and
+    a bonus socket, slotting one gem too few. Item 268265 (Aqirbane Reliquary) is
+    the witness: 1 inherent PRISMATIC socket + 1 from bonus 13668 = 2, exactly
+    what Wowhead renders.
+
+    This is the single place the spec page (convert_slots), the simc profile
+    builder and the simc BiS gatherer resolve a socket count, so the three cannot
+    drift apart again.
+
+    ``bonus_ids`` may be a list of ids or a comma-separated string; blanks are
+    ignored. ``bonus_socket_lookup`` maps a bonus id (str) either to its socket
+    count directly (int) or to the bonus record dict carrying a ``"socket"`` key,
+    so both the spec page's ``bonus_lookup`` and the simc paths'
+    ``load_bonus_socket_counts`` fit without reshaping. ``socket_info`` is the
+    item's ``socketInfo`` dict (or ``None``); missing/None and non-int socket
+    values contribute nothing.
+    """
+    if isinstance(bonus_ids, str):
+        bonus_ids = bonus_ids.split(",")
+    lookup = bonus_socket_lookup or {}
+    total = 0
+    for bid in bonus_ids or []:
+        bid = str(bid).strip()
+        if not bid:
+            continue
+        val = lookup.get(bid)
+        if isinstance(val, dict):
+            val = val.get("socket")
+        try:
+            total += int(val)
+        except (TypeError, ValueError):
+            continue
+    sockets = (socket_info or {}).get("sockets") or []
+    try:
+        total += len(sockets)
+    except TypeError:
+        pass
+    return total
+
+
 # --------------------------------------------------------------------------
 # Talent-tree filtering (shared by the spec page tree and the baked analyzer /
 # tierlist-modal trees so all three hide the same non-existent nodes)
