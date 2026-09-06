@@ -151,7 +151,7 @@
             <div class="card-header pb-0 d-flex justify-content-between align-items-center">
               <div>
                 <h6 class="mb-0">Most Popular</h6>
-                <p class="text-sm mb-0">Most-played team comps (global or selected dungeon). Each slot shows the main spec and the alternates that swap in.</p>
+                <p class="text-sm mb-0" id="most-popular-sub">Most-played team comps across all dungeons.</p>
               </div>
               <!-- view-all removed per UX request -->
             </div>
@@ -168,7 +168,7 @@
             <div class="card-header pb-0 d-flex justify-content-between align-items-center">
               <div>
                 <h6 class="mb-0">Best for Highest Keys</h6>
-                <p class="text-sm mb-0" id="best-highkey-sub">Team comps performing best in {{ archetypes_all.hk_label }} (global or selected dungeon).</p>
+                <p class="text-sm mb-0" id="best-highkey-sub">Team comps performing best in {{ archetypes_all.hk_label }} across all dungeons.</p>
               </div>
               <!-- view-all removed per UX request -->
             </div>
@@ -187,7 +187,7 @@
           <div class="card h-100">
             <div class="card-header pb-0">
               <h6>Hidden Gems</h6>
-              <p class="text-sm" id="hidden-gems-sub">Niche team comps with strong success in {{ archetypes_all.gem_label }}.</p>
+              <p class="text-sm" id="hidden-gems-sub">Niche team comps with strong success in {{ archetypes_all.gem_label }} across all dungeons.</p>
             </div>
             <div class="card-body px-0 pb-2">
               <div id="hidden-gems-list" class="list-group list-group-flush px-3 py-2">
@@ -1115,6 +1115,15 @@
         : '<p class="text-sm text-secondary px-2">Nothing to show for this dungeon.</p>';
     }
 
+    // Phrase describing the current dungeon dropdown selection, for card descriptions.
+    function dungeonContextLabel() {
+      const sel = document.getElementById('dungeonFilter');
+      if (!sel || !sel.value || sel.value === 'all') return 'across all dungeons';
+      const opt = sel.options[sel.selectedIndex];
+      const name = opt ? opt.textContent.trim() : '';
+      return name ? `in ${name}` : 'across all dungeons';
+    }
+
     function renderArchetypeLists() {
       if (!archetypesByDungeon) return;
       const dungeonId = document.getElementById('dungeonFilter').value || 'all';
@@ -1122,14 +1131,19 @@
       fillArchList('most-popular-list', currentArchetypes.popular, 'popular');
       fillArchList('best-highkey-list', currentArchetypes.highkey, 'highkey');
       fillArchList('hidden-gems-list', currentArchetypes.gems, 'gems');
-      // Card descriptions name the key-level band for the current context.
+      // Card descriptions name the key-level band and the current dungeon context.
+      const label = dungeonContextLabel();
+      const popSub = document.getElementById('most-popular-sub');
+      if (popSub) {
+        popSub.textContent = `Most-played team comps ${label}.`;
+      }
       const hkSub = document.getElementById('best-highkey-sub');
       if (hkSub && currentArchetypes.hk_label) {
-        hkSub.textContent = `Team comps performing best in ${currentArchetypes.hk_label} (global or selected dungeon).`;
+        hkSub.textContent = `Team comps performing best in ${currentArchetypes.hk_label} ${label}.`;
       }
       const gemSub = document.getElementById('hidden-gems-sub');
       if (gemSub && currentArchetypes.gem_label) {
-        gemSub.textContent = `Niche team comps with strong success in ${currentArchetypes.gem_label}.`;
+        gemSub.textContent = `Niche team comps with strong success in ${currentArchetypes.gem_label} ${label}.`;
       }
     }
 
