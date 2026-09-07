@@ -2889,11 +2889,11 @@ BEGIN
 
   SET FOREIGN_KEY_CHECKS = 1;
 
-  -- reset moving-pointer watermarks so the purge events / top-items rollup
-  -- recompute cleanly against the now-empty tables
+  -- reset moving-pointer watermarks so the purge events recompute cleanly
+  -- against the now-empty tables
   UPDATE `Mythistone`.`summary_meta`
     SET last_run_id = 0
-  WHERE name IN ('purge_member_pointer', 'purge_routes_pointer', 'aggregated_top_items');
+  WHERE name IN ('purge_member_pointer', 'purge_routes_pointer');
 END;
 
 CREATE DEFINER=`Test`@`%` PROCEDURE `Mythistone`.`sp_swap_public_table`(IN p_base VARCHAR(128))
@@ -2987,60 +2987,26 @@ BEGIN
         SET v_done  = 1;                                 -- table is gone; nothing to clear
         SET v_errno = 0;
       ELSE
-        SET v_done = 1;                                  -- non-retryable
+        SET v_done = 1;                                  -- stop retrying; surfaced after the loop
       END IF;
     END WHILE;
   END trunc_scope;
 
-  -- Surface an unresolved lock timeout to the caller. The event's EXIT HANDLER
-  -- then releases agg_pipeline and leaves request_season raised, so the next tick
-  -- retries -- far better than blocking forever holding the shared lock.
-  IF v_errno = 1205 THEN
-    SET @wipe_err = CONCAT('season wipe: could not get an exclusive lock on ', p_table);
+  -- Surface ANY unresolved TRUNCATE failure to the caller -- not just a lock
+  -- timeout. Eating an unexpected errno (permissions, etc.) here would skip the
+  -- table yet let the wipe report success, advancing done_season while stale rows
+  -- remain -- a silent partial wipe, which this repo refuses. The event's EXIT
+  -- HANDLER then releases agg_pipeline and leaves request_season raised, so the
+  -- next tick retries -- far better than blocking forever holding the shared lock.
+  IF v_errno <> 0 THEN
+    IF v_errno = 1205 THEN
+      SET @wipe_err = CONCAT('season wipe: could not get an exclusive lock on ', p_table);
+    ELSE
+      SET @wipe_err = CONCAT('season wipe: TRUNCATE of ', p_table, ' failed (errno ', v_errno, ')');
+    END IF;
     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = @wipe_err;
   END IF;
 END;
-
-CREATE DEFINER=`Test`@`%` PROCEDURE `Mythistone`.`update_aggregated_top_items_proc`()
-BEGIN
-  -- Get the last processed run_id
-  SET @last_run := (SELECT last_run_id FROM summary_meta WHERE name = 'aggregated_top_items');
-  SET @new_last_run := (SELECT MAX(run_id) FROM runs);
-
-  -- Only proceed if there are new runs
-  IF @new_last_run > @last_run THEN
-
-    -- Insert or update aggregated data for new runs only
-    INSERT INTO aggregated_top_items (spec_id, hero_talent_id, slot, item_id, bonus_combo, run_count, season)
-    SELECT
-      m.spec_id,
-      m.hero_talent_id,
-      e.slot,
-      e.item_id,
-      GROUP_CONCAT(DISTINCT b.bonus_id ORDER BY b.bonus_id ASC SEPARATOR ':') AS bonus_combo,
-      COUNT(*) AS run_count,
-      r.season
-    FROM equipment e
-    JOIN members m ON e.member = m.member
-    JOIN run_members rm ON m.member = rm.member
-    JOIN runs r ON rm.run_id = r.run_id
-    LEFT JOIN bonus_sets b ON b.set_id = e.bonus_set_id
-    WHERE r.run_id > @last_run AND r.run_id <= @new_last_run
-    GROUP BY
-      m.spec_id,
-      m.hero_talent_id,
-      e.slot,
-      e.item_id,
-      bonus_combo,
-      r.season
-    ON DUPLICATE KEY UPDATE
-      run_count = run_count + VALUES(run_count);
-
-    -- Update the last processed run_id
-    UPDATE summary_meta SET last_run_id = @new_last_run WHERE name = 'aggregated_top_items';
-  END IF;
-END;
-
 
 CREATE EVENT ev_nightly_agg_pipeline
 ON SCHEDULE EVERY 1 DAY

@@ -858,7 +858,7 @@ def seed_standalone(conn, cursor, static, rng, cfg, pools):
 
 def seed_control(conn, cursor, static):
     """Minimal rows for the control/watermark tables (kept out of the season wipe path)."""
-    watermarks = [("aggregated_top_items",), ("purge_member_pointer",), ("purge_routes_pointer",)]
+    watermarks = [("purge_member_pointer",), ("purge_routes_pointer",)]
     _insert_many(conn, cursor,
         "INSERT IGNORE INTO summary_meta (name, last_run_id) VALUES (%s, 0)", watermarks)
     db.execute_with_retry(conn, cursor,
