@@ -206,53 +206,21 @@ def _simcbis_gear(bis_rows, item_lookup, spec_id, enchant_map, gem_ranking):
 
 def _top50_gear(loadouts, item_lookup, spec_id, enchant_map, gem_ranking):
     """Per-slot most-common item among the top-50 players' verified loadouts,
-    shaped like _simcbis_gear so it flows through _actor_block / _gear_display.
+    shaped so it flows through _actor_block / _gear_display.
 
-    Items + their bonus ids come from top_player_loadout_items (via
-    fetch_top50_loadouts); each top-50 player contributes one loadout per dungeon,
-    so the per-slot vote is weighted the same way the spec page's top-50 stats are.
+    The per-slot vote is computed by the shared simcBis.top50_per_slot_gear (which
+    the collector's BiS sweep also seeds from), so the tierlist bar and the sweep
+    can never disagree about the top-50 per-slot pick. That helper emits the full
+    candidate shape; _actor_block / _gear_display read only the item_id /
+    simc_bonus / socket_count / enchant_id / gem_ids subset, so the extra keys are
+    inert here and the rendered bar is unchanged.
+
     Enchants and gems are NOT stored per slot in the top-50 tables (gems are a
     per-player {gem_item_id, usage_count} bag), so they are filled the same way
     popular/simcbis are: the top-50 enchant_map + gem_ranking already gathered in
     _prepare_spec, applied over the equipped set by socket budget
     (apply_enchants_and_gems). Returns (gear, active_slots) or (None, [])."""
-    socket_bonus_counts = simcBis.load_bonus_socket_counts()
-    slot_item_counts = {}          # slot -> item_id -> count
-    slot_item_bonus = {}           # slot -> item_id -> bonus_str -> count
-    for lo in loadouts or []:
-        for it in lo.get("items", []) or []:
-            slot = it.get("slot")
-            item_id = it.get("item_id")
-            if slot not in DB_TO_SIMC_SLOT or not item_id:
-                continue
-            item_id = int(item_id)
-            bonus_str = it.get("bonus_ids") or ""
-            slot_item_counts.setdefault(slot, {})
-            slot_item_counts[slot][item_id] = slot_item_counts[slot].get(item_id, 0) + 1
-            slot_item_bonus.setdefault(slot, {}).setdefault(item_id, {})
-            slot_item_bonus[slot][item_id][bonus_str] = (
-                slot_item_bonus[slot][item_id].get(bonus_str, 0) + 1
-            )
-
-    gear = {}
-    for slot, counts in slot_item_counts.items():
-        # Most common item; ties broken toward the higher count then the lower id
-        # so the pick is deterministic across runs regardless of dict order.
-        item_id = max(counts, key=lambda i: (counts[i], -i))
-        bonus_counts = slot_item_bonus[slot][item_id]
-        # Most common bonus set for that item (deterministic tie-break by string).
-        bonus_str = max(bonus_counts, key=lambda b: (bonus_counts[b], b))
-        bonus_ids = [b.strip() for b in str(bonus_str).split(",") if b.strip()]
-        socket_count = commonUtils.count_item_sockets(
-            bonus_ids,
-            socket_bonus_counts,
-            item_lookup.get(item_id, {}).get("socketInfo"),
-        )
-        gear[slot] = {
-            "item_id": item_id,
-            "simc_bonus": bonus_to_simc(bonus_str),
-            "socket_count": socket_count,
-        }
+    gear = simcBis.top50_per_slot_gear(loadouts, item_lookup)
     if not gear:
         return None, []
 

@@ -45,6 +45,13 @@ COPY data/static/crafting.json ${APP_DIR}/data/static/crafting.json
 # run bare — deflating baseline_dps and with it the cross-spec tierlist.
 COPY data/static/bonuses.json ${APP_DIR}/data/static/bonuses.json
 COPY data/static/enchantments.json ${APP_DIR}/data/static/enchantments.json
+# item-sets.json is the curated live tier-set catalog simcBis.py resolves tier
+# combos against (commonUtils.load_tier_sets). Without it the collector falls back
+# to equippable-items.json's raw itemSetId; baking it keeps tier-set membership and
+# names identical to the spec page. NOTE: load_tier_sets reads it via os.path.join,
+# which verifyImageImports.py does NOT detect (it only tracks STATIC_DIR / "x.json"
+# literals), so this COPY is not build-guarded -- keep it by hand.
+COPY data/static/item-sets.json ${APP_DIR}/data/static/item-sets.json
 
 # entrypoint and executable
 COPY entrypoint.sh /entrypoint.sh

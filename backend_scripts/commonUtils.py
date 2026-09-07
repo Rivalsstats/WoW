@@ -736,6 +736,23 @@ def _get_lookup(name):
     return _lookup_cache[name]
 
 
+def load_enchant_catalog():
+    """int enchant id -> enchantments.json record (lazy-cached).
+
+    The single id->record catalog the spec page, the item page and the sim's
+    enchant selection all resolve against, so the is_enchant_relevant gate
+    (current expansion + equipRequirements slot fit) is fed from one place and
+    the three surfaces can never disagree about which enchants are relevant.
+    Records with no id are skipped; a later duplicate id wins, matching the
+    plain ``{e["id"]: e}`` comprehension the pages used before."""
+    if "_enchant_catalog" not in _lookup_cache:
+        data = _get_lookup("enchantments")
+        _lookup_cache["_enchant_catalog"] = {
+            int(e["id"]): e for e in (data or []) if e.get("id") is not None
+        }
+    return _lookup_cache["_enchant_catalog"]
+
+
 def get_spec_lookup():
     return _get_lookup("specs")
 
