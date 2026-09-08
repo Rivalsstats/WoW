@@ -11,15 +11,14 @@ Pages, rebuilt by `generate*.py` (see `.github/workflows/buildPages.yml`).
 
 ## Read these first
 
-- Root **`AGENTS.md`** is the source of truth for the architecture, directory map, hard constraints
-  (no live DB, no env-var scripts, all SQL through `databaseConnector.py`, static output only),
-  templating rules (composition via `{% include %}`/`{% macro %}`, not inheritance), the frontend
-  stack, tooling reality, and the working preferences. Do not restate it. Apply it.
-- **`.claude/skills/`** holds narrow, single-topic skills for this repo's hard-won gotchas
+- Root **`AGENTS.md`** is the single source of truth for the architecture, directory map, hard
+  constraints (no live DB, no env-var scripts, all SQL through `databaseConnector.py`, static output
+  only), templating rules (composition via `{% include %}`/`{% macro %}`, not inheritance), the
+  frontend stack, tooling reality, working preferences, and every hard-won subsystem gotcha
   (aggregation pipeline, pooled-connection traps, season wipe, simc builds, the analyzer, deep
-  links, chart theming, design tokens, and more). When a task matches one, its guidance loads
-  automatically. Follow it. If you learn a new durable fact, propose it as a new skill or an
-  `AGENTS.md` edit, never as auto-memory.
+  links, chart theming, design tokens, and more). Do not restate it. Apply it. When your task
+  touches a subsystem, find its section there first. If you learn a new durable fact, record it in
+  `AGENTS.md` (see its "How knowledge is handled" section), never as auto-memory.
 
 ## Critical operating principle
 
@@ -39,8 +38,9 @@ align with the real pipeline. When uncertain how data is structured or where log
 
 Any change affecting a rendered page (a `templates/*.html`, a `generate*.py`,
 `pageGeneration.py`/`aggregateData.py`/`commonUtils.py`, or page CSS/JS) MUST be verified by
-seeding the local test DB and rendering the page before you hand it back. Follow the
-`local-test-render` skill. Do not return page work that was only reasoned about.
+seeding the local test DB and rendering the page before you hand it back. Follow the local
+test-render workflow in `AGENTS.md` ("Tooling reality and verification"). Do not return page work
+that was only reasoned about.
 
 Any change affecting a docker image (collector, generator, or discord bot) must be verified by building the image and running it locally. Do not return image work that was only reasoned about.
 

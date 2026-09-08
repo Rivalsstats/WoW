@@ -1,11 +1,13 @@
 # CLAUDE.md
 
-Repo knowledge lives in root [AGENTS.md](../AGENTS.md). Read it first. It covers the pipeline,
-directory map, hard constraints, templating, frontend stack, tooling, and working preferences. Do not duplicate that knowledge here.
+All repo knowledge lives in root [AGENTS.md](../AGENTS.md). **Read it first.** It is the single,
+always-on source of truth: pipeline, directory map, hard constraints, templating, frontend stack,
+tooling, working preferences, and every subsystem gotcha. There is no skills tree.
 
-Durable, task-specific knowledge lives as skills under [.claude/skills/](skills/), one narrow
-skill per gotcha, surfaced automatically when a task matches. Browse them when you touch a subsystem. Record new durable knowledge as a skill or in `AGENTS.md`, never in Claude's auto-memory
-(auto-memory does not transfer between machines or tools; in-repo notes do).
+Record new durable knowledge in `AGENTS.md` (see its "How knowledge is handled" section for when and
+how), never in Claude's auto-memory. Auto-memory does not transfer between machines or tools; in-repo
+notes do. Do not duplicate `AGENTS.md` content here; this file holds only the two Claude Code rules
+below.
 
 ## Two rules specific to Claude Code here
 
@@ -23,8 +25,9 @@ for task shapes (explore, plan), not for domain splits.
 Whenever you change something that affects a rendered page (a `templates/*.html`, a
 `backend_scripts/generate*.py`, `pageGeneration.py`/`aggregateData.py`/`commonUtils.py`, or page
 CSS/JS in `assets/`), seed the local test DB and render the affected page before considering it
-done. Do not hand back page work that was only reasoned about. Render it. Full workflow: the
-`local-test-render` skill and [backend_scripts/localDev/README.md](../backend_scripts/localDev/README.md).
+done. Do not hand back page work that was only reasoned about. Render it. Full workflow is in
+`AGENTS.md` ("Tooling reality and verification") and
+[backend_scripts/localDev/README.md](../backend_scripts/localDev/README.md).
 
 Serve the repo root on **port 8099** (matches `.claude/launch.json`) and open the page in the
 Browser pane:
