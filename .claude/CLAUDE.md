@@ -9,18 +9,7 @@ how), never in Claude's auto-memory. Auto-memory does not transfer between machi
 notes do. Do not duplicate `AGENTS.md` content here; this file holds only the two Claude Code rules
 below.
 
-## Two rules specific to Claude Code here
-
-### 1. Always route repo work through the `mythistone-expert` agent
-
-For any change to `backend_scripts/`, `templates/`, `database.sql`, or client-side `assets/`,
-delegate to the **`mythistone-expert`** subagent (Agent tool, `subagent_type: "mythistone-expert"`).
-If one is already running or was recently spawned, continue it with `SendMessage` rather than
-starting a new one. Keep a single expert: the pipeline is tightly coupled through
-`databaseConnector.py`, so cross-domain changes are best held in one context. Use other subagents
-for task shapes (explore, plan), not for domain splits.
-
-### 2. Always test-render any page you touch
+### Always test-render any page you touch
 
 Whenever you change something that affects a rendered page (a `templates/*.html`, a
 `backend_scripts/generate*.py`, `pageGeneration.py`/`aggregateData.py`/`commonUtils.py`, or page
