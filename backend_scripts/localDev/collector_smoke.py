@@ -391,6 +391,15 @@ def main():
             if simc_success_snapshot() - base_simc:
                 simc_success = True
             runs_now = count_rows(PRIMARY_TABLE)
+            # Advanced-slice signal. The simple queue (no per-member API calls)
+            # grows runs in seconds, but M+ score / per-dungeon capture only
+            # happens on the slow advanced path (4 profile calls per member). Wait
+            # for it before the early stop, else the container is torn down before
+            # any advanced member persists and the score assertions below fail on a
+            # timing artifact. member_dungeon_score is committed last in
+            # process_batch (right after the member_character score rows), so its
+            # growth guarantees the score rows landed too.
+            adv_now = count_rows("member_dungeon_score")
 
             if running is None or running is False:
                 crashed = True
@@ -404,8 +413,10 @@ def main():
 
             # Early exit once every REQUIRED signal is satisfied.
             rows_ok = runs_now > base_counts[PRIMARY_TABLE]
+            adv_ok = adv_now > base_counts["member_dungeon_score"]
             required_ok = (startup_seen
                            and (not require_rows or rows_ok)
+                           and (not require_rows or adv_ok)
                            and (not require_simc or simc_success))
             if required_ok:
                 print("\nAll required signals satisfied; stopping early.")
