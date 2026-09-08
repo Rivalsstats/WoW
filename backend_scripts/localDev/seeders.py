@@ -401,6 +401,12 @@ def seed_runs(conn, cursor, static, rng, cfg, pools):
     runs, run_members, members = [], [], []
     equipment, sockets, enchantments = [], [], []
     char_stats = []
+    # (member, region, ts) captured per run so member_character can store the run's
+    # region + timestamp. Dungeon-loop members are the "advanced" slice (name / realm
+    # / M+ score populated); the comp-distribution members are the "simple" slice
+    # (those detail columns NULL). Built after members are assigned their ids below.
+    adv_member_meta = []
+    simple_member_meta = []
     # Talent dictionary: set_id -> list of (set_id, tree, talent_id, rank) rows.
     # One set_id covers all three trees for a member; members reference it via
     # members.talent_set_id. Mirrors the collector's talent_sets dedup.
@@ -513,8 +519,9 @@ def seed_runs(conn, cursor, static, rng, cfg, pools):
             rid = run_id
             duration = int(timer_ms * rng.uniform(0.45, 1.25))
             ts = now - rng.randint(0, 13 * _DAY_MS)
+            region = rng.choice(REGIONS)
             runs.append((cmid, rng.randint(2, 20), duration, ts,
-                         rng.choice(FACTIONS), rid, rng.choice(REGIONS), static.season))
+                         rng.choice(FACTIONS), rid, region, static.season))
             # 1 tank, 1 heal, 3 dps
             comp = ([rng.choice(by_role["0"] or by_role["2"])]
                     + [rng.choice(by_role["1"] or by_role["2"])]
@@ -522,6 +529,7 @@ def seed_runs(conn, cursor, static, rng, cfg, pools):
             for spec_id in comp:
                 m = add_member(spec_id)
                 run_members.append((m, rid))
+                adv_member_meta.append((m, region, ts))
 
     # --- Comp distribution layer -------------------------------------------------------
     # The comps page needs a CONCENTRATED comp distribution that random 5-spec draws can't
@@ -565,12 +573,15 @@ def seed_runs(conn, cursor, static, rng, cfg, pools):
             timer_ms = timer_by_cmid[cmid]
             timed = i < n_timed
             duration = int(timer_ms * (rng.uniform(0.55, 0.95) if timed else rng.uniform(1.05, 1.3)))
-            runs.append((cmid, rng.randint(klo, khi), duration, now - rng.randint(0, 13 * _DAY_MS),
-                         rng.choice(FACTIONS), rid, rng.choice(REGIONS), static.season))
+            ts = now - rng.randint(0, 13 * _DAY_MS)
+            region = rng.choice(REGIONS)
+            runs.append((cmid, rng.randint(klo, khi), duration, ts,
+                         rng.choice(FACTIONS), rid, region, static.season))
             for spec_id in specs:
                 member_id += 1
                 members.append((member_id, spec_id, None, None, None))  # lightweight: spec_id only
                 run_members.append((member_id, rid))
+                simple_member_meta.append((member_id, region, ts))
 
     print(f"    {len(runs)} runs, {len(members)} members, {len(equipment)} equipment rows")
     _insert_many(conn, cursor,
@@ -578,6 +589,51 @@ def seed_runs(conn, cursor, static, rng, cfg, pools):
         "region, season) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)", runs)
     _insert_many(conn, cursor,
         "INSERT INTO members (member, spec_id, loadout, hero_talent_id, talent_set_id) VALUES (%s,%s,%s,%s,%s)", members)
+
+    # member_character: raw Blizzard identity + M+ score, mirroring the collector.
+    # blizzard_character_id is drawn from a SMALL per-region pool assigned in run
+    # order, so the same (region, blizzard_character_id) recurs across different
+    # runs -- the cross-run linkage the feature is built for. Each dungeon run
+    # supplies exactly 5 members, so with a pool larger than 5 the recurrence
+    # always spans two different runs. Dungeon-loop members are the advanced slice
+    # (name / realm / score populated); comp-distribution members are the simple
+    # slice (those columns NULL, so the NULL-score-on-simple path is exercised).
+    _CHAR_POOL = 8
+    region_seq = {}
+
+    def _next_bcid(region):
+        seq = region_seq.get(region, 0)
+        region_seq[region] = seq + 1
+        base = 1_000_000_000 + REGIONS.index(region) * 1_000_000
+        return base + (seq % _CHAR_POOL)
+
+    member_character = []
+    for m, region, ts in adv_member_meta:
+        bcid = _next_bcid(region)
+        member_character.append((m, region, bcid, f"char{bcid}",
+                                 f"realm-{bcid % 500}", rng.randint(1500, 3600), ts))
+    for m, region, ts in simple_member_meta:
+        bcid = _next_bcid(region)
+        member_character.append((m, region, bcid, None, None, None, ts))
+    _insert_many(conn, cursor,
+        "INSERT INTO member_character (member, region, blizzard_character_id, character_name, "
+        "realm_slug, mplus_score, collected_ts) VALUES (%s,%s,%s,%s,%s,%s,%s)", member_character)
+
+    # member_dungeon_score: per-member per-dungeon rating snapshot, mirroring the
+    # mythic-keystone-profile best_runs map_rating. Advanced slice only (the simple
+    # slice writes none, matching the collector). dungeon_id is the dungeon's
+    # challenge_mode_id as a string, same value stored in runs.dungeon_id, so a
+    # per-dungeon score joins straight to runs. collected_ts = the run timestamp so
+    # the 14-day purge lines up with member_character.
+    dungeon_cmids = [str(d["challenge_mode_id"]) for d in static.dungeons]
+    member_dungeon_score = []
+    for m, region, ts in adv_member_meta:
+        for cmid in dungeon_cmids:
+            member_dungeon_score.append((m, cmid, rng.randint(150, 480), ts))
+    _insert_many(conn, cursor,
+        "INSERT INTO member_dungeon_score (member, dungeon_id, rating, collected_ts) "
+        "VALUES (%s,%s,%s,%s)", member_dungeon_score)
+
     _insert_many(conn, cursor,
         "INSERT INTO run_members (member, run_id) VALUES (%s,%s)", run_members)
     _insert_many(conn, cursor,

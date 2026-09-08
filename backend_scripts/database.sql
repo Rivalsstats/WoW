@@ -644,6 +644,36 @@ CREATE TABLE `members` (
 ) /*!50100 TABLESPACE `members` */ ENGINE=InnoDB AUTO_INCREMENT=7535344 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
+-- Mythistone.member_character definition
+
+CREATE TABLE `member_character` (
+  `member` int unsigned NOT NULL,
+  `region` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `blizzard_character_id` bigint unsigned NOT NULL,
+  `character_name` varchar(255) DEFAULT NULL,
+  `realm_slug` varchar(255) DEFAULT NULL,
+  `mplus_score` int DEFAULT NULL,
+  `collected_ts` bigint unsigned NOT NULL,
+  PRIMARY KEY (`member`),
+  KEY `member_character_identity_IDX` (`region`,`blizzard_character_id`),
+  KEY `member_character_collected_IDX` (`collected_ts`),
+  CONSTRAINT `member_character_members_FK` FOREIGN KEY (`member`) REFERENCES `members` (`member`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- Mythistone.member_dungeon_score definition
+
+CREATE TABLE `member_dungeon_score` (
+  `member` int unsigned NOT NULL,
+  `dungeon_id` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `rating` int NOT NULL,
+  `collected_ts` bigint unsigned NOT NULL,
+  PRIMARY KEY (`member`,`dungeon_id`),
+  KEY `member_dungeon_score_collected_IDX` (`collected_ts`),
+  CONSTRAINT `member_dungeon_score_members_FK` FOREIGN KEY (`member`) REFERENCES `members` (`member`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
 -- Mythistone.missives definition
 
 CREATE TABLE `missives` (
@@ -2866,6 +2896,8 @@ BEGIN
   CALL `Mythistone`.`sp_truncate_with_retry`('enchantments');
   CALL `Mythistone`.`sp_truncate_with_retry`('bonus_sets');
   CALL `Mythistone`.`sp_truncate_with_retry`('character_stats');
+  CALL `Mythistone`.`sp_truncate_with_retry`('member_character');
+  CALL `Mythistone`.`sp_truncate_with_retry`('member_dungeon_score');
   CALL `Mythistone`.`sp_truncate_with_retry`('talent_sets');
   CALL `Mythistone`.`sp_truncate_with_retry`('route_data');
   CALL `Mythistone`.`sp_truncate_with_retry`('route_pulls');
@@ -3218,6 +3250,21 @@ DO purge_block: BEGIN
     DELETE cs FROM Mythistone.character_stats cs
       INNER JOIN tmp_purge_members tmp ON cs.member = tmp.member;
   END IF;
+
+  -- Character identity is a pure-age drop, INDEPENDENT of the recent+high
+  -- keep-alive set above: Blizzard character data must not outlive 14 days, so
+  -- member_character rows expire strictly at the 14-day cutoff for ALL runs,
+  -- including recent low-key ones that the keep-alive set still protects. Scoped
+  -- to the same member window and auto-committed like the deletes above.
+  DELETE FROM Mythistone.member_character
+   WHERE member BETWEEN (v_ptr + 1) AND v_process_up_to
+     AND collected_ts < v_cutoff_ts;
+
+  -- Per-dungeon score snapshots are the same advanced-only detailed data: drop
+  -- them on the same pure-age 14-day rule, same member window.
+  DELETE FROM Mythistone.member_dungeon_score
+   WHERE member BETWEEN (v_ptr + 1) AND v_process_up_to
+     AND collected_ts < v_cutoff_ts;
 
   UPDATE Mythistone.summary_meta
     SET last_run_id = v_process_up_to

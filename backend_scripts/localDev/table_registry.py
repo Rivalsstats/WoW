@@ -50,6 +50,8 @@ RAW_TABLES = {
     "enchantments",
     "bonus_sets",
     "character_stats",
+    "member_character",
+    "member_dungeon_score",
     "talent_sets",
     "route_data",
     "route_pulls",

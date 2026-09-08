@@ -368,6 +368,37 @@ def insert_equipment_batch(connection, cursor, eq_vals):
     return executemany_with_retry(connection, cursor, INSERT_EQUIPMENT_SQL, eq_vals)
 
 
+INSERT_MEMBER_CHARACTER_SQL = "INSERT IGNORE INTO member_character (member, region, blizzard_character_id, character_name, realm_slug, mplus_score, collected_ts) VALUES (%s,%s,%s,%s,%s,%s,%s)"
+
+
+def insert_member_character_batch(connection, cursor, mc_vals):
+    """Bulk-insert per-member character identity rows.
+
+    Each tuple is (member, region, blizzard_character_id, character_name,
+    realm_slug, mplus_score, collected_ts). character_name / realm_slug /
+    mplus_score are None for simple runs (identity captured, no detailed info).
+    INSERT IGNORE keeps the per-member row unique on the members PK.
+    """
+    return executemany_with_retry(
+        connection, cursor, INSERT_MEMBER_CHARACTER_SQL, mc_vals
+    )
+
+
+INSERT_MEMBER_DUNGEON_SCORE_SQL = "INSERT IGNORE INTO member_dungeon_score (member, dungeon_id, rating, collected_ts) VALUES (%s,%s,%s,%s)"
+
+
+def insert_member_dungeon_score_batch(connection, cursor, mds_vals):
+    """Bulk-insert per-member per-dungeon M+ rating snapshots.
+
+    Each tuple is (member, dungeon_id, rating, collected_ts). Advanced runs only
+    (from the mythic-keystone-profile best_runs map_rating); simple runs write no
+    rows. INSERT IGNORE keeps one row per (member, dungeon_id).
+    """
+    return executemany_with_retry(
+        connection, cursor, INSERT_MEMBER_DUNGEON_SCORE_SQL, mds_vals
+    )
+
+
 INSERT_ENCHANTMENT_SQL = (
     "INSERT IGNORE INTO enchantments (`equipment_id`, `enchantment_id`) VALUES (%s, %s)"
 )

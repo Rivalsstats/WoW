@@ -88,9 +88,14 @@ FORWARD_ENV = [
 ]
 
 # Tables the collector writes. 'runs' is the primary leaderboard-write signal;
-# the others are printed for corroboration only.
+# the others are printed for corroboration only. member_character carries the raw
+# Blizzard character identity captured for every member (simple + advanced), with
+# an M+ score for the advanced slice; it is asserted below alongside the runs
+# growth so a regression that stops capturing identity is caught.
 PRIMARY_TABLE = "runs"
-CORROBORATING_TABLES = ("members", "equipment")
+CORROBORATING_TABLES = (
+    "members", "equipment", "member_character", "member_dungeon_score"
+)
 
 # Current-season dungeon set the collector now filters top-player loadouts
 # against: data/static/dungeons.json keys ARE the current map_challenge_mode_ids,
@@ -169,6 +174,31 @@ def simc_success_snapshot():
             "SELECT spec_id, season, updated_at FROM simc_bis_meta WHERE baseline_dps > 0")
         cur.close()
         return {(r[0], r[1], str(r[2])) for r in rows}
+    finally:
+        conn.close()
+
+
+def member_character_score_counts():
+    """(with_score, without_score) member_character row counts on a FRESH pooled
+    connection (same REPEATABLE READ reasoning as count_rows).
+
+    A non-NULL mplus_score is the advanced-slice signal (needs the per-character
+    mythic-keystone-profile call); a NULL mplus_score is the simple-slice signal
+    (identity captured with no detailed info). Comparing the with-score count to a
+    pre-run baseline tells us the advanced path actually populated the score."""
+    conn = db.get_connection()
+    try:
+        cur = conn.cursor()
+        rows = db.fetch_with_retry(
+            conn, cur,
+            "SELECT "
+            "SUM(mplus_score IS NOT NULL), "
+            "SUM(mplus_score IS NULL) "
+            "FROM member_character")
+        cur.close()
+        with_score = int(rows[0][0] or 0)
+        without_score = int(rows[0][1] or 0)
+        return with_score, without_score
     finally:
         conn.close()
 
@@ -307,10 +337,12 @@ def main():
     cur_dungeon_ids = current_dungeon_ids()
     base_offrotation = offrotation_loadout_ids(cur_dungeon_ids)
     base_counts = {t: count_rows(t) for t in (PRIMARY_TABLE, *CORROBORATING_TABLES)}
+    base_mc_scored, base_mc_null = member_character_score_counts()
     base_simc = simc_success_snapshot()
     print("Baseline test-DB row counts:")
     for table, n in base_counts.items():
         print(f"  {table}: {n}")
+    print(f"Baseline member_character scored/NULL: {base_mc_scored}/{base_mc_null}")
     print(f"Baseline simc_bis_meta rows (baseline_dps>0): {len(base_simc)}")
     print(f"Baseline off-rotation top_player_loadouts dungeon ids: "
           f"{sorted(base_offrotation) or 'none'}")
@@ -393,6 +425,12 @@ def main():
     # Final reads (fresh connections).
     final_counts = {t: count_rows(t) for t in (PRIMARY_TABLE, *CORROBORATING_TABLES)}
     rows_grew = final_counts[PRIMARY_TABLE] > base_counts[PRIMARY_TABLE]
+    final_mc_scored, final_mc_null = member_character_score_counts()
+    mc_grew = final_counts["member_character"] > base_counts["member_character"]
+    mc_scored_grew = final_mc_scored > base_mc_scored   # advanced slice populated a score
+    mc_null_grew = final_mc_null > base_mc_null          # simple slice captured identity only
+    # per-dungeon scores are advanced-only, written from the same profile call
+    mds_grew = final_counts["member_dungeon_score"] > base_counts["member_dungeon_score"]
     if simc_success_snapshot() - base_simc:  # a chunk may have landed just before shutdown
         simc_success = True
     # Any off-rotation dungeon id that appeared during the window means the
@@ -410,6 +448,10 @@ def main():
     for table in (PRIMARY_TABLE, *CORROBORATING_TABLES):
         print(f"  {table} count {base_counts[table]} -> {final_counts[table]}")
     print(f"  runs count grew           : {rows_grew}")
+    print(f"  member_character scored    {base_mc_scored} -> {final_mc_scored} "
+          f"(grew: {mc_scored_grew})")
+    print(f"  member_character NULL-score {base_mc_null} -> {final_mc_null} "
+          f"(grew: {mc_null_grew})")
     print(f"  simc sibling launched     : {simc_seen} (corroborating)")
     print(f"  simc chunk succeeded (DB) : {simc_success}")
     print(f"  new off-rotation dungeons : {sorted(new_offrotation) or 'none'}")
@@ -429,6 +471,25 @@ def main():
                         "(collector failed to collect while the season has data)")
     elif not require_rows and not rows_grew:
         print("\ninfo: no new 'runs' rows (relaxed; season has no data).")
+    # Identity capture rides on the same require_rows gate: if the collector wrote
+    # runs it must also have written member_character identity for those members,
+    # and the advanced slice must have populated at least one M+ score.
+    if require_rows:
+        if not mc_grew:
+            failures.append("no new 'member_character' rows written to the test DB "
+                            "(collector stopped capturing character identity)")
+        if not mc_scored_grew:
+            failures.append("no member_character row gained an M+ score "
+                            "(advanced mythic-keystone-profile capture regressed)")
+        if not mds_grew:
+            failures.append("no new 'member_dungeon_score' rows written "
+                            "(advanced per-dungeon rating capture regressed)")
+        if not mc_null_grew:
+            print("info: no NULL-score member_character rows added this window "
+                  "(no simple-queue runs landed; identity capture still verified "
+                  "via the advanced slice).")
+    elif not mc_grew:
+        print("info: no new 'member_character' rows (relaxed; season has no data).")
     if require_simc and not simc_success:
         failures.append("no simc chunk succeeded (no fresh simc_bis_meta row with "
                         "baseline_dps>0) despite real gear/talents being seeded "

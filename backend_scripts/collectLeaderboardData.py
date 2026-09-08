@@ -1684,6 +1684,48 @@ async def get_equipment(
     return data.get("equipped_items", [])
 
 
+async def get_mythic_keystone_profile(
+    session: ClientSession, region: str, realm_slug: str, name: str
+) -> tuple:
+    """Return (overall_rating, per_dungeon_scores) for a character.
+
+    ``overall_rating`` is ``current_mythic_rating.rating`` rounded to int (the
+    character's total M+ score), or None. ``per_dungeon_scores`` maps
+    ``dungeon_id`` (str, matching runs.dungeon_id) -> rounded per-dungeon score,
+    taken from ``current_period.best_runs[].map_rating.rating``. map_rating is
+    the character's aggregate score for that dungeon (it repeats across a
+    dungeon's best runs and the per-dungeon values sum to the overall rating),
+    so we dedupe by dungeon id and keep the highest.
+
+    A 404 (no M+ data / private profile) or a payload missing
+    ``current_mythic_rating`` is an expected legitimate outcome, not a fetch
+    failure: fetch_json returns None on 404, exactly like get_equipment, so we
+    just return (None, {}) rather than raising.
+    """
+    url = (
+        f"{API_BASE.format(region=region)}/profile/wow/character/"
+        f"{realm_slug}/{name}/mythic-keystone-profile"
+    )
+    params = {"namespace": f"profile-{region}", "locale": LOCALE}
+    data = await fetch_json(session, url, params, region)
+    if not data or "current_mythic_rating" not in data:
+        return None, {}
+    rating = data["current_mythic_rating"].get("rating")
+    overall = round(rating) if rating is not None else None
+
+    dungeon_scores: dict[str, int] = {}
+    for run in data.get("current_period", {}).get("best_runs", []):
+        did = run.get("dungeon", {}).get("id")
+        map_rating = run.get("map_rating", {}).get("rating")
+        if did is None or map_rating is None:
+            continue
+        key = str(did)
+        score = round(map_rating)
+        if score > dungeon_scores.get(key, -1):
+            dungeon_scores[key] = score
+    return overall, dungeon_scores
+
+
 MAINSTATS = ["strength", "agility", "intellect"]
 NORMALSTATS = []
 VALUESTATS = ["mastery", "lifesteal", "speed"]
@@ -1850,6 +1892,11 @@ async def simple_worker(name: str, session: ClientSession):
                 "members": [],
             }
             for member in group["members"]:
+                # Identity comes straight from the leaderboard profile (free, no
+                # extra call). Simple runs store only region + character id; name /
+                # realm / M+ score stay NULL (those need the advanced per-character
+                # calls). All of it is purged with the run at 14 days.
+                profile = member["profile"]
                 run_obj["members"].append(
                     {
                         "spec_id": member["specialization"]["id"],
@@ -1859,6 +1906,8 @@ async def simple_worker(name: str, session: ClientSession):
                         "spec_talents": [],
                         "hero_talents": [],
                         "equipment": [],
+                        "region": region,
+                        "blizzard_character_id": profile["id"],
                     }
                 )
 
@@ -1916,6 +1965,9 @@ async def advanced_worker(name: str, session: ClientSession):
                         session, region, realm_slug, name_l
                     )
                     stats = await get_stats(session, region, realm_slug, name_l)
+                    mplus_score, dungeon_scores = await get_mythic_keystone_profile(
+                        session, region, realm_slug, name_l
+                    )
                     await GLOBAL_STATS.increment("fetched_profile")
                     try:
                         active_spec = next(
@@ -1977,6 +2029,15 @@ async def advanced_worker(name: str, session: ClientSession):
                                 if item.get("item")
                             ],
                             "stats": stats,
+                            # Character identity + M+ score at run time. Detailed
+                            # fields (name / realm / score) are advanced-only and
+                            # purged with the run at 14 days.
+                            "region": region,
+                            "blizzard_character_id": profile["id"],
+                            "character_name": profile["name"],
+                            "realm_slug": profile["realm"]["slug"],
+                            "mplus_score": mplus_score,
+                            "dungeon_scores": dungeon_scores,
                         }
                     )
                     fetched_profiles += 1
@@ -2143,6 +2204,14 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
     ench_vals = []
     sock_vals = []
     stat_vals = []
+    # per-new-member character identity rows (member, region, blizzard_character_id,
+    # character_name, realm_slug, mplus_score, collected_ts). collected_ts = the
+    # run's completed timestamp (ms), which drives the 14-day identity purge.
+    mc_vals = []
+    # per-new-member per-dungeon rating rows (member, dungeon_id, rating,
+    # collected_ts). Advanced-only (from the mythic-keystone-profile best_runs
+    # map_rating), purged with the run at 14 days like mc_vals.
+    mds_vals = []
     # distinct bonus dictionary sets seen in this batch: set_id -> list of
     # (set_id, bonus_id) rows. One set_id covers an equipped item's whole bonus-id
     # set; INSERT IGNORE de-duplicates against sets already in the DB.
@@ -2159,6 +2228,24 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
                 continue  # skip existing
             mid = new_member_ids[new_idx]
             new_idx += 1
+            # character identity for every new member (simple + advanced). Simple
+            # members carry only region + blizzard_character_id; the detailed
+            # fields default to None. collected_ts is the run's completed_timestamp.
+            mc_vals.append(
+                (
+                    mid,
+                    m["region"],
+                    m["blizzard_character_id"],
+                    m.get("character_name"),
+                    m.get("realm_slug"),
+                    m.get("mplus_score"),
+                    r["timestamp"],
+                )
+            )
+            # per-dungeon rating snapshot (advanced members only; simple members
+            # carry no dungeon_scores). collected_ts drives the 14-day purge.
+            for dungeon_id, rating in (m.get("dungeon_scores") or {}).items():
+                mds_vals.append((mid, dungeon_id, rating, r["timestamp"]))
             # collect stats
             for stat, value in m.get("stats", {}).items():
                 if isinstance(value, dict):
@@ -2243,6 +2330,14 @@ async def process_batch(name, conn, cursor, batch, stats_collector=None):
         bs_rows = [row for rows in bonus_sets.values() for row in rows]
         for sub in chunked(bs_rows, BATCH_SIZE):
             databaseConnector.insert_bonus_sets(conn, cursor, sub)
+            databaseConnector.commit_changes(conn)
+    if mc_vals:
+        for sub in chunked(mc_vals, BATCH_SIZE):
+            databaseConnector.insert_member_character_batch(conn, cursor, sub)
+            databaseConnector.commit_changes(conn)
+    if mds_vals:
+        for sub in chunked(mds_vals, BATCH_SIZE):
+            databaseConnector.insert_member_dungeon_score_batch(conn, cursor, sub)
             databaseConnector.commit_changes(conn)
     for r in batch:
         process_group(
