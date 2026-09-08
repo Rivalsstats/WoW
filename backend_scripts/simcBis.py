@@ -48,7 +48,7 @@ import commonUtils
 import databaseConnector
 # Shared with the page generators so the Titan's Grip exception is defined once
 # (re-exported here: generateSimcProfiles imports it from this module).
-from commonUtils import DUAL_WIELD_TWOHAND_SPECS
+from commonUtils import DUAL_WIELD_TWOHAND_SPECS, occupies_both_hands
 
 
 # --------------------------------------------------------------------------
@@ -225,10 +225,6 @@ def _invtype_to_slot(inv_type, pair_next):
         return "OFF_HAND"
     return None
 
-
-# Two-hand / ranged inventory types: when the main hand is one of these the
-# off-hand slot does not exist and must be skipped.
-TWO_HAND_INVTYPES = {17, 15, 25, 26}
 
 # Below this many Top-50-covered slots the verified-loadout data is too thin to
 # reseed from (early season, or a spec barely represented in the top-50): the
@@ -1109,8 +1105,10 @@ def _drop_two_hand_offhand(gear, spec_id, item_lookup):
     the injected player sets and the resolved tier combos so all three honour the
     same handedness rule."""
     mh = gear.get("MAIN_HAND")
-    if (mh and spec_id not in DUAL_WIELD_TWOHAND_SPECS
-            and item_lookup.get(mh["item_id"], {}).get("inventoryType") in TWO_HAND_INVTYPES):
+    # occupies_both_hands is the spec page's shared rule (2H by inventoryType or
+    # ranged subclass, with the Titan's Grip exception baked in via spec_id), so
+    # the sim and the page can never disagree on when an off-hand is legal.
+    if mh and occupies_both_hands(item_lookup.get(mh["item_id"]), spec_id):
         gear.pop("OFF_HAND", None)
 
 
@@ -1331,8 +1329,15 @@ def build_tier_comps(rows, candidates, baseline, item_lookup, tier_item_to_set,
 # --------------------------------------------------------------------------
 
 def gear_line(slot, cand):
-    """One simc gear line, e.g. 'head=,id=12345,bonus_id=1808/1492'."""
+    """One simc gear line, e.g. 'head=,id=12345,bonus_id=1808/1492'.
+
+    cand is None means "empty this slot": a profileset whose combo drops a slot
+    the base actor fills (a 2H combo over a dual-wield base) emits `off_hand=` so
+    simc unequips the inherited item instead of keeping a 2H + off-hand set it
+    rejects."""
     simc_slot = DB_TO_SIMC_SLOT[slot]
+    if cand is None:
+        return f"{simc_slot}="
     parts = [f"{simc_slot}=,id={cand['item_id']}"]
     if cand.get("simc_bonus"):
         parts.append(f"bonus_id={cand['simc_bonus']}")
@@ -1591,12 +1596,16 @@ def build_combinations(candidates, baseline, active_slots, tier_set_id, tier_slo
     # only rides along when the baseline kept one — i.e. for 1H specs and Titan's
     # Grip Fury, but not for plain two-hand specs.
     base_mh = baseline.get("MAIN_HAND")
-    base_mh_2h = bool(base_mh and item_lookup.get(base_mh["item_id"], {}).get("inventoryType") in TWO_HAND_INVTYPES)
+    # Handedness is a property of the weapon item here (the enumerated search must
+    # not pull a 2H into a 1H baseline or vice versa), so ask occupies_both_hands
+    # item-only (spec_id omitted) -- the Titan's Grip exception is about keeping an
+    # off-hand, not about the main-hand candidate type, which stays 2H for Fury.
+    base_mh_2h = bool(base_mh and occupies_both_hands(item_lookup.get(base_mh["item_id"])))
 
     def slot_bag(slot, cands):
         if slot == "MAIN_HAND":
             cands = [c for c in cands
-                     if (item_lookup.get(c["item_id"], {}).get("inventoryType") in TWO_HAND_INVTYPES) == base_mh_2h]
+                     if occupies_both_hands(item_lookup.get(c["item_id"])) == base_mh_2h]
             if not cands and base_mh:
                 cands = [base_mh]
         return list(cands)
@@ -1666,8 +1675,19 @@ def build_combinations(candidates, baseline, active_slots, tier_set_id, tier_slo
     profilesets = []
     index = {}
     for i, (full, label) in enumerate(all_combos[1:], start=1):
-        overrides = [(s, full[s]) for s in ALL_SLOTS
-                     if full.get(s) and not _same_cand(full.get(s), base_full.get(s))]
+        overrides = []
+        for s in ALL_SLOTS:
+            fc = full.get(s)
+            bc = base_full.get(s)
+            if fc:
+                if not _same_cand(fc, bc):
+                    overrides.append((s, fc))
+            elif bc:
+                # The base actor wears this slot but the combo drops it (a 2H combo
+                # over a dual-wield base drops OFF_HAND). Emit an empty slot so simc
+                # unequips it, else the base's item leaks in and simc rejects the
+                # profileset ("Off-Hand weapon equipped with a 2h").
+                overrides.append((s, None))
         if not overrides:
             continue
         name = f"g{i}"

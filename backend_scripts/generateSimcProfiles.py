@@ -49,9 +49,7 @@ import simcBis
 from simcBis import (
     ALL_SLOTS,
     DB_TO_SIMC_SLOT,
-    DUAL_WIELD_TWOHAND_SPECS,
     RAID_BUFF_OVERRIDES,
-    TWO_HAND_INVTYPES,
     build_header,
     gear_line,
     bonus_to_simc,
@@ -185,8 +183,10 @@ def _simcbis_gear(bis_rows, item_lookup, spec_id, enchant_map, gem_ranking):
         return None, []
 
     mh = gear.get("MAIN_HAND")
-    if (mh and spec_id not in DUAL_WIELD_TWOHAND_SPECS
-            and item_lookup.get(mh["item_id"], {}).get("inventoryType") in TWO_HAND_INVTYPES):
+    # Shared spec-page rule (2H by inventoryType or ranged subclass, Titan's Grip
+    # exception via spec_id) so the tierlist actors drop the off-hand exactly like
+    # the spec page and the BiS sweep.
+    if mh and commonUtils.occupies_both_hands(item_lookup.get(mh["item_id"]), spec_id):
         gear.pop("OFF_HAND", None)
 
     # Fill live enchants/gems over the equipped set (correct per-category gem
@@ -225,8 +225,10 @@ def _top50_gear(loadouts, item_lookup, spec_id, enchant_map, gem_ranking):
         return None, []
 
     mh = gear.get("MAIN_HAND")
-    if (mh and spec_id not in DUAL_WIELD_TWOHAND_SPECS
-            and item_lookup.get(mh["item_id"], {}).get("inventoryType") in TWO_HAND_INVTYPES):
+    # Shared spec-page rule (2H by inventoryType or ranged subclass, Titan's Grip
+    # exception via spec_id) so the tierlist actors drop the off-hand exactly like
+    # the spec page and the BiS sweep.
+    if mh and commonUtils.occupies_both_hands(item_lookup.get(mh["item_id"]), spec_id):
         gear.pop("OFF_HAND", None)
 
     # Fill enchants/gems over the equipped set (correct per-category gem budget),
